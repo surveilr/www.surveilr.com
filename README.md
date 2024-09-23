@@ -57,11 +57,11 @@ src/
 │   ├── sections/         # Components for various sections of the website
 │   ├── ThemeIcon.astro   # Component for toggling light/dark themes
 │   └── ui/               # UI components categorized by functionality
-├── content/              # Markdown files for blog posts, insights, products, and site configuration
+├── content/              # Markdown files for blog posts, insights, patterns, and site configuration
 │   ├── blog/
 │   ├── docs/           
-│   ├── insights/         
-│   ├── products/         
+│   ├── insights/
+│   ├── patterns/         
 │   └── config.ts         # Contains site-wide configuration options
 ├── data_files/           # Strings stored as JSON files
 ├── images/               # Static image assets for use across the website
@@ -73,8 +73,8 @@ src/
 │   ├── fr/               # Localized content
 │   ├── contact.astro     
 │   ├── index.astro       # The landing/home page
-│   ├── insights/         
-│   ├── products/         
+│   ├── insights/         # TODO: need to make this singular         
+│   ├── pattern/         
 │   ├── robots.txt.ts     # Dynamically generates robots.txt
 │   └── services.astro
 └── utils/                # Shared utility functions and helpers
@@ -258,7 +258,7 @@ Please note that smooth scrolling can affect accessibility and performance on so
 
 ### GSAP Integration
 
-For individual pattern pages, [GSAP](https://gsap.com/) has been integrated to add engaging animations that execute as soon as the product page loads. You can find and modify the GSAP configuration in the script sections of the product page file located at `src/pages/products/[...slug].astro` and the insights page at `src/pages/insights/[...slug].astro`:
+For individual pattern pages, [GSAP](https://gsap.com/) has been integrated to add engaging animations that execute as soon as the pattern page loads. You can find and modify the GSAP configuration in the script sections of the pattern page file located at `src/pages/pattern/[...slug].astro` and the insights page at `src/pages/insights/[...slug].astro`:
 
 ```astro
 <script>
@@ -269,7 +269,7 @@ For individual pattern pages, [GSAP](https://gsap.com/) has been integrated to a
 
 **Customizing Animations:**
 
-Please tailor the GSAP animations within this script to fit our project's look and feel. The provided example is a starting point, representing how to leverage GSAP for immediate visual impact as a product page loads.
+Please tailor the GSAP animations within this script to fit our project's look and feel. The provided example is a starting point, representing how to leverage GSAP for immediate visual impact as a pattern page loads.
 
 **Modifying or Removing Animations:**
 
