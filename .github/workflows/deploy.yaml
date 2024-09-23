@@ -1,40 +1,40 @@
 name: Deploy to GitHub Pages
 
+# This workflow is triggered on a push to the 'main' branch
 on:
-  # Trigger the workflow every time you push to the `main` branch
-  # Using a different branch name? Replace `main` with your branch’s 
   push:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
+    branches:
+      - main
+  # Also allows for manual deployment
   workflow_dispatch:
-  
-
-# Allow this job to clone the repo and create a page deployment
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
+    # Run the job on the latest Ubuntu environment
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout your repository using git
-        uses: actions/checkout@v4
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
-        with:
-          # path: . # The root location of your Astro project inside the repository. (optional)
-          node-version: 20
-          package-manager: pnpm@latest
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js version 20.30
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20.30'
+
+      # Step 3: Install dependencies from package.json
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the Astro site (output will be in the 'dist' directory)
+      - name: Build Astro site
+        run: npm run build
+
+      # Step 5: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.SURVEILR_GITHUB_TOKEN }}
+          publish_dir: ./docs
