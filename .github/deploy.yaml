@@ -5,7 +5,7 @@ on:
     branches:
       - main  # Triggers on push to the main branch
     paths:
-      - '.github/deploy.yaml'
+      - '.github/**'
   workflow_dispatch:  # Allows manual deployment via GitHub Actions UI
 
 jobs:
