@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main  # Triggers on push to the main branch
-    paths:
-      - '.github/**'
   workflow_dispatch:  # Allows manual deployment via GitHub Actions UI
 
 jobs:
