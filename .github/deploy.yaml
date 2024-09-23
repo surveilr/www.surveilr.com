@@ -28,5 +28,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SURVEILR_GITHUB_TOKEN }}
           publish_dir: ./dist  # The directory where Astro outputs static files
