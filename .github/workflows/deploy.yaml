@@ -8,6 +8,12 @@ on:
   # Also allows for manual deployment
   workflow_dispatch:
 
+# Allow this job to clone the repo and create a page deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     # Run the job on the latest Ubuntu environment
