@@ -1,0 +1,65 @@
+{
+  "subTitle": "Easy answers to the toughest questions. Ask your own questions in our <a href=\"https://github.com/surveilr/help.surveilr.com/discussions/categories/q-a\">Help Desk Discussions Forum</a>.",
+  "faqs": [
+    {
+      "question": "What is <code>surveilr</code> and how can it help my organization?",
+      "answer": "<code>surveilr</code> is a powerful platform designed to help organizations collect, store, and analyze critical data for security, quality assurance, and compliance. It allows you to automatically gather evidence from multiple systems and generate auditable, queryable, and machine-attestable records that can be used for audits, compliance reporting, and operational monitoring."
+    },
+    {
+      "question": "How does <code>surveilr</code> help us prove compliance?",
+      "answer": "<code>surveilr</code> collects and stores data in a centralized evidence warehouse, automatically generating auditable reports that are tailored to meet regulatory standards in your industry. This means that whether you're complying with healthcare regulations like HIPAA, financial regulations like SOX, or cybersecurity requirements, you’ll have the evidence needed to demonstrate adherence."
+    },
+    {
+      "question": "What industries can benefit from <code>surveilr</code>?",
+      "answer": "<code>surveilr</code> is versatile and can be used across industries such as healthcare, finance, energy, manufacturing, aerospace, and cybersecurity. It is especially valuable in industries that are highly regulated and require consistent tracking of compliance, quality, and security."
+    },
+    {
+      "question": "How is <code>surveilr</code> different from other data integration or compliance tools?",
+      "answer": "Unlike other tools, <code>surveilr</code> offers auditable, queryable, and machine-attestable evidence that can be used to track and prove compliance, security, and quality. It also supports modular Patterns that allow you to customize the platform to your organization’s specific needs, mixing and matching use cases across industries and professional roles."
+    },
+    {
+      "question": "Do we need to customize <code>surveilr</code> to fit our business?",
+      "answer": "No. <code>surveilr</code> uses a modular approach with pre-built Patterns—packages designed for specific industries, professional disciplines, and universal use cases. You can simply select the Patterns that apply to your organization, and the platform will automatically handle the data collection and reporting needed for those specific use cases, requiring little to no customization."
+    },
+    {
+      "question": "What are <code>surveilr</code> Patterns and how do they work?",
+      "answer": "<code>surveilr</code> Patterns are pre-built SQL Packages designed for different industries, disciplines, and use cases. They provide out-of-the-box functionality for specific business needs, such as compliance reporting, security monitoring, or quality assurance. These Patterns can be combined and customized to create a self-contained service or solution for your organization’s exact requirements."
+    },
+    {
+      "question": "How much manual effort is required to use <code>surveilr</code>?",
+      "answer": "Very little. <code>surveilr</code> is designed to work with minimal human intervention. It automatically collects, stores, and analyzes data from various systems, generating the evidence needed for audits, compliance checks, and performance monitoring without the need for manual oversight."
+    },
+    {
+      "question": "How does <code>surveilr</code> ensure data security?",
+      "answer": "<code>surveilr</code> is built with security-first principles. It automatically collects and aggregates security logs, tracks incidents, and stores all data in a centralized, secured environment. It also allows organizations to generate machine-attestable evidence that can be used to demonstrate compliance with security protocols and standards."
+    },
+    {
+      "question": "Can <code>surveilr</code> scale as our organization grows?",
+      "answer": "Absolutely. <code>surveilr</code> is designed to be highly scalable. As your organization grows and new compliance, security, or quality requirements emerge, you can easily add new Patterns to extend the platform’s capabilities without disrupting existing workflows."
+    },
+    {
+      "question": "What kind of reports can <code>surveilr</code> generate?",
+      "answer": "<code>surveilr</code> generates auditable reports that meet the compliance and regulatory standards of various industries. These reports can cover areas such as security incidents, quality control metrics, regulatory adherence, and operational performance, all backed by machine-attested evidence that can be reviewed by auditors and decision-makers."
+    },
+    {
+      "question": "Can <code>surveilr</code> integrate with our existing systems?",
+      "answer": "Yes. <code>surveilr</code> is designed to integrate seamlessly with a wide range of systems, including ERPs, EHRs, financial systems, and cybersecurity platforms. This allows the platform to pull data from various sources, aggregate it, and generate the reports and evidence you need."
+    },
+    {
+      "question": "How can <code>surveilr</code> help in cybersecurity?",
+      "answer": "<code>surveilr</code> provides automated cybersecurity monitoring by capturing security logs, detecting threats, and storing evidence that can be used to track and respond to incidents. It generates machine-attestable evidence to prove your organization’s adherence to cybersecurity protocols and standards, ensuring that you are always prepared for audits or reviews."
+    },
+    {
+      "question": "How does <code>surveilr</code> support quality assurance?",
+      "answer": "<code>surveilr</code> helps organizations track and maintain quality metrics by collecting data from various systems involved in production or service delivery. This ensures that your processes meet internal and external quality standards and that any deviations are documented and addressed, all with minimal manual intervention."
+    },
+    {
+      "question": "How quickly can we deploy <code>surveilr</code>?",
+      "answer": "<code>surveilr</code> is designed to be deployed quickly. By selecting and combining the appropriate Patterns for your industry and needs, you can have a tailored solution up and running in a matter of hours, allowing your organization to immediately benefit from automated compliance, security, and quality tracking."
+    },
+    {
+      "question": "Can <code>surveilr</code> provide evidence for audits?",
+      "answer": "Yes, <code>surveilr</code> automatically generates auditable, queryable evidence for use in compliance audits, security reviews, and quality assessments. The platform ensures that all data is captured, stored, and organized in a way that is easily accessible for both internal teams and external auditors."
+    }
+  ]  
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "heading": "Stateful, Local-first, Edge-based",
+    "content": "Unlike simple data transfer tools, surveilr doesn’t just move information between systems. It stores and organizes data in a way that is standardized, making it easy to query and manage - on local devices, laptops, or edge systems keeping sensitive data secure.",
+    "svg": "groups"
+  },
+  {
+    "heading": "Streamlined Compliance",
+    "content": "surveilr ensures that all compliance evidence is collected, organized, and ready for audit, saving time and reducing human error.",
+    "svg": "verified"
+  },
+  {
+    "heading": "Private and Secure",
+    "content": "Data Security: surveilr’s edge-based approach ensures data stays secure by limiting unnecessary movement of sensitive information. Only what’s needed is transferred to central servers, reducing exposure and risks.",
+    "svg": "frame"
+  },
+  {
+    "heading": "Comprehensive Documentation",
+    "content": "Integrate with ease using surveilr's exhaustive guides and libraries. Achieve seamless pattern adoption with our full suite of documentation designed for your success.",
+    "svg": "books"
+  }
+]

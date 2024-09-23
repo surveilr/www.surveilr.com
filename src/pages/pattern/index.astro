@@ -1,0 +1,136 @@
+---
+// Importing necessary components
+import MainLayout from "@/layouts/MainLayout.astro";
+import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
+import CardSmall from "@components/ui/cards/CardSmall.astro";
+import CardWide from "@components/ui/cards/CardWide.astro";
+import FeaturesStatsAlt from "@components/sections/features/FeaturesStatsAlt.astro";
+import TestimonialsSectionAlt from "@components/sections/testimonials/TestimonialsSectionAlt.astro";
+
+// Importing necessary functions from Astro
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { SITE } from "@data/constants";
+
+// Fetching all the product related content and sorting it by main.id
+const pattern: CollectionEntry<"patterns">[] = (
+  await getCollection("patterns", ({ id }) => {
+    return id.startsWith("en/");
+  })
+).sort(
+  (a: CollectionEntry<"patterns">, b: CollectionEntry<"patterns">) =>
+    a.data.main.id - b.data.main.id,
+);
+
+// Define variables for page content
+const title: string = "Patterns";
+const subTitle: string =
+  `Explore general technical usage patterns such as monitoring security events, ensuring compliance, or tracking quality metrics
+  as well as industry-specific use cases such as healthcare or medical research.`;
+
+// Testimonial data that will be rendered in the component
+const testimonials = [
+  // First testimonial data
+  {
+    content:
+      `"Since implementing surveilr and its FHIR Explorer Pattern, we’ve drastically reduced the time it takes to audit our healthcare data. The ability to query and explore FHIR files without needing a technical team has been a game-changer for us. We can now ensure compliance and data accuracy with minimal effort.""`,
+    author: "Dr. Emily Harper",
+    role: "Chief Medical Information Officer | Medisync Health Systems",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1376&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+  // Second testimonial data
+  {
+    content:
+      `"As a financial services company, maintaining regulatory compliance across multiple systems was a major challenge. With surveilr, we now have a streamlined solution that provides automated compliance reports, auditable evidence, and real-time insights, all while minimizing our need for IT support."`,
+    author: "James Chen",
+    role: "Compliance Director | Argent Financial Solutions",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+  // Third testimonial data
+  {
+    content:
+      `"Our cybersecurity team has benefited immensely from using surveilr to monitor and audit our security logs. The automatic generation of machine-attestable evidence has not only improved our compliance efforts but also helped us quickly respond to incidents with confidence."`,
+    author: "Richard Kim",
+    role: "Chief Information Security Officer | NetSecure Technologies",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1474176857210-7287d38d27c6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+];
+
+const pageTitle: string = `Patterns | ${SITE.title}`;
+---
+
+<MainLayout
+  title={pageTitle}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://www.surveilr.com/patterns",
+    "url": "https://www.surveilr.com/patterns",
+    "name": "Usage Patterns | surveilr",
+    "description": "Explore general technical usage patterns such as monitoring security events, ensuring compliance, or tracking quality metrics  as well as industry-specific use cases such as healthcare or medical research.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "url": "https://www.surveilr.com",
+      "name": "surveilr",
+      "description": "surveilr Ensures Continuous Security, Quality and Compliance Evidence"
+    },
+    "inLanguage": "en-US"
+  }}
+>
+  <div
+    class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+  >
+    <div class="mb-4 flex items-center justify-between gap-8 sm:mb-8 md:mb-12">
+      <div class="flex items-center gap-12">
+        <h1
+          class="text-balance text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-200 md:text-4xl md:leading-tight"
+        >
+          {title}
+        </h1>
+        {
+          subTitle && (
+            <p class="hidden max-w-screen-sm text-pretty text-neutral-600 dark:text-neutral-400 md:block">
+              {subTitle}
+            </p>
+          )
+        }
+      </div>
+      <PrimaryCTA title="Customer Stories" url="#testimonials" noArrow={true} />
+    </div>
+    <!--Displaying patterns in alternating styles. Alternative product gets different card styling.-->
+    <!--Maps through all product entries and displays them with either CardSmall or CardWide based on their position.-->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6 xl:gap-8">
+      {
+        pattern.map((pattern, index) => {
+          const position = index % 4;
+          if (position === 0 || position === 3) {
+            return <CardSmall pattern={pattern} />;
+          } else {
+            return <CardWide pattern={pattern} />;
+          }
+        })
+      }
+    </section>
+  </div>
+  <!--Features statistics section-->
+  <FeaturesStatsAlt
+    title="Why use surveilr patterns?"
+    subTitle="Don't rely on humans for evidence, use surveilr patterns to help acquire, collect, integrate, and query evidence in a secure warehouse."
+    benefits={[
+      "Robust and reliable solutions that securely run in your environment.",
+      "Innovative solutions tailored to modern compliance needs.",
+      "Customer support dedicated to your project's success.",
+    ]}
+  />
+  <!--Testimonials section-->
+  <TestimonialsSectionAlt
+    title="What Our Customers Say"
+    testimonials={testimonials}
+  />
+</MainLayout>
