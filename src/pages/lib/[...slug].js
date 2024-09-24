@@ -98,6 +98,7 @@ export async function getStaticPaths() {
         // Check if the slug ends with `.sql.*` and add another endpoint which is the generic or Deno execution result of the sql.ts file
         if (/\.sql\..*$/.test(relativePath)) {
             const slug = `/${relativePath.replace(/\.sql\..*$/, '.sql')}`;
+            // if the file is executable, capture the output as SQL
             if(stat.mode & fsConsts.S_IXUSR) {
                 endpoints.push({
                     params: { slug },
@@ -108,6 +109,8 @@ export async function getStaticPaths() {
                     },
                 })
             } else if (relativePath.endsWith('.ts')) {
+                // if the file is not executable but is a `.sql.ts` file, use Deno to execute it
+                // and capture the output as SQL
                 endpoints.push({
                     params: { slug },
                     props: {
