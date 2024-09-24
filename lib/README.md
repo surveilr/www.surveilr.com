@@ -4,7 +4,7 @@
 
 To understand terminology, see http://surveilr.com/blog/surveilr-core-vs-patterns/.
 
-![lib content access points](./endpoints.drawio.svg)
+![lib content access points](./endpoints.drawio.png)
 
 ## `lib` Structure
 
