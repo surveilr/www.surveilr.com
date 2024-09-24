@@ -54,7 +54,7 @@ jobs:
       - name: List dist directory
         run: |
            ls -la ./dist
-           cat pattern/index.html
+           cat ./dist/pattern/index.html
         
 
       # Step 5: Deploy to GitHub Pages using the 'dist' directory
