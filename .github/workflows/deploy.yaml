@@ -52,7 +52,9 @@ jobs:
           
       # Step 7: List contents of dist directory for debugging
       - name: List dist directory
-        run: ls -la ./dist
+        run: |
+           ls -la ./dist
+           cat pattern/index.html
         
 
       # Step 5: Deploy to GitHub Pages using the 'dist' directory
