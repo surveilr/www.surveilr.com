@@ -34,7 +34,7 @@ jobs:
       - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: v1.5.1
           
       # Step 3: Install dependencies from package.json
       - name: Install dependencies
