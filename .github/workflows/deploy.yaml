@@ -55,12 +55,6 @@ jobs:
         run: |
            ls -la ./dist
            head -n 100 ./dist/pattern/index.html
-      
-      - name: Upload index.html as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: index-html-file
-          path: ./dist/pattern/index.html
 
         
 
