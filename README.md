@@ -48,7 +48,8 @@ This creates a `dist/` directory with our built site (configurable via [outDir i
 
 ```md
 
-src/
+lib/                      # surveilr Patterns code
+src/                      # Astro site code
 ├── assets/               
 │   ├── scripts/          # JS scripts
 │   └── styles/           # CSS styles
