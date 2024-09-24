@@ -54,7 +54,7 @@ jobs:
       - name: List dist directory
         run: |
            ls -la ./dist
-           head -n 100 ./dist/pattern/index.html
+           head -n 200 ./dist/pattern/index.html
 
         
 
