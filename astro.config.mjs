@@ -54,33 +54,15 @@ export default defineConfig({
         "zh-cn": { label: "简体中文", lang: "zh-CN" },
       },
       // https://starlight.astro.build/guides/sidebar/
-      sidebar: [
+      sidebar: [               
         {
-          label: "Quick Start Guides",
-          translations: {
-            de: "Schnellstartanleitungen",
-            es: "Guías de Inicio Rápido",
-            fa: "راهنمای شروع سریع",
-            fr: "Guides de Démarrage Rapide",
-            ja: "クイックスタートガイド",
-            "zh-cn": "快速入门指南",
-          },
-          autogenerate: { directory: "guides" },
-        },
-        {
-          label: "Tools & Equipment",
+          label: "Resource Surveillance",
           items: [
-            { label: "Tool Guides", link: "tools/tool-guides/" },
-            { label: "Equipment Care", link: "tools/equipment-care/" },
+            {
+              label: "Getting Started",
+              link: "/surveilr/getting-started",
+            },
           ],
-        },
-        {
-          label: "Construction Services",
-          autogenerate: { directory: "construction" },
-        },
-        {
-          label: "Advanced Topics",
-          autogenerate: { directory: "advanced" },
         },
       ],
       social: {
