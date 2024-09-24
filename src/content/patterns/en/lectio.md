@@ -22,8 +22,8 @@ longDescription:
   title: "Netspective Lectio"
   subTitle: |
     In today’s rapidly evolving business landscape, the ability to efficiently disseminate, retain, and apply knowledge is more critical than ever. However, traditional methods of sharing knowledge—such as emailing links, PDFs, or other resources—are often ineffective, particularly in B2B environments where roles, disciplines, and subject areas vary widely. Netspective Lectio is a cutting-edge, team-based reading assignment and content collaboration solution designed to address these challenges. By integrating advanced tracking mechanisms, role-based content sharing, and continuous education tools, Lectio ensures that knowledge is not only shared but also understood and acted upon.            
-  btnTitle: "Contact sales to learn more"
-  btnURL: "#"
+  btnTitle: "Use the SQL"
+  btnURL: "package.sql"
 descriptionList:
   - title: "Team-based"
     subTitle: "Netspective Lectio is designed to revolutionize team-based knowledge sharing and collaboration by addressing the inefficiencies of traditional methods. By offering robust tools for creating, tracking, and applying knowledge, Lectio ensures that organizations can keep pace with the growing demands of knowledge management."

@@ -1,0 +1,5 @@
+# when testing in this pattern, we might have created default RSSDs
+resource-surveillance.sqlite.db
+
+# when testing in this repo, we might have ingest samples / exemplars
+ingest/

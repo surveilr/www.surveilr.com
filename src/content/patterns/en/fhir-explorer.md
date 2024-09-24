@@ -22,8 +22,8 @@ longDescription:
   title: "HL7 FHIR Content Aggregator and Explorer"
   subTitle: |
     The FHIR Explorer Pattern for surveilr ingests healthcare FHIR JSON files and allows querying, quality metrics, and exploration of those files. surveilr ingests healthcare FHIR data (represented as JSON files), stores it securely in a local SQL database, prepares SQL views for convenient querying, generates metrics of the FHIR content, and has an easy to use Web UI with options to filter, search, and visualize various healthcare records.
-  btnTitle: "Try it out"
-  btnURL: "https://github.com/opsfolio/resource-surveillance-commons/tree/main/pattern/digital-health"
+  btnTitle: "Use the SQL"
+  btnURL: "package.sql"
 descriptionList:
   - title: "Explore FHIR data"
     subTitle: "Easily search, filter, and interact with healthcare records in FHIR format."

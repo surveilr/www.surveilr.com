@@ -22,8 +22,8 @@ longDescription:
   title: "Content Assembler Pattern"
   subTitle: |
     Content Assembler Pattern provides a powerful, flexible framework for aggregating, curating, and distributing content across multiple platforms, with advanced SEO optimization and marketing automation integration. Suitable for businesses of any size looking to scale their content marketing efforts while maximizing audience engagement and traffic. It provides powerful tools to gather, organize, and distribute content across multiple platforms, while maximizing SEO benefits and audience engagement.
-  btnTitle: "Contact sales to learn more"
-  btnURL: "#"
+  btnTitle: "Use the SQL"
+  btnURL: "package.sql"
 descriptionList:
   - title: "Content Assembly & Curation"
     subTitle: "Automatic content assembly from multiple sources and media types"
