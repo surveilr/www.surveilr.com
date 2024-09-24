@@ -44,7 +44,7 @@ jobs:
       - name: Build Astro site
         run: |
           deno --version
-          npm run build
+          npm run astro build
 
       # Step 5: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages

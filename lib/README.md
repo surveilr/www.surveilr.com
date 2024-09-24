@@ -8,11 +8,14 @@ To understand terminology, see http://surveilr.com/blog/surveilr-core-vs-pattern
 
 ```md
 lib/
+├── assurance/              Quality Assurance for surveilr
 ├── pattern/                All public patterns (composable)
 │   ├── fhir-explorer/        FHIR Explorer Pattern
+│   ├── osquery/              osQuery Integration pattern
 │   └── (...)/                add more patterns above this one
 ├── service/                All public services (large combinations of patterns)
 │   ├── drh/                  Diabetes Research Hub "Edge" Service
+│   ├── opsfolio/             Opsfolio
 │   └── (...)/                add more services above this one
 ├── std/                    surveilr Standard Library (used by all patterns)
 │   ├── models/               RSSD schemas
