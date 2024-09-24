@@ -29,7 +29,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20.3.0'
-
+      
+      # Step 3: Set up Deno
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+          
       # Step 3: Install dependencies from package.json
       - name: Install dependencies
         run: npm install
