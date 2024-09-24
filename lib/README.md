@@ -27,3 +27,34 @@ lib/
 │   └── package.sql.ts        Module to include in all other patterns
 └── universal/              Universally applicable modules (can be used anywhere)
 ```
+
+## Serving through `surveilr.com/lib/*`
+
+The `src/pages/lib/[...slug].js` Astro endpoint serves all the content in this
+directory as `/lib/*`:
+
+- Any file can be served as-is by using it's direct relative path
+- If a file name is of the format `*.sql.*` (ends in `.sql` plus another 
+  extension like `*.sql.ts` or `.sql.sh`) then can be accessed without the
+  second extension via just `*.sql`:
+  - If the file has its executable bit set, it is executed and the result of
+    STDOUT is returned as the URL's content
+  - If the file does not have its executable bit set but ends in `.sql.ts`, it
+    is executed via `deno -A <file>` and the result of STDOUT is captured an
+    is returned as the URL's content
+
+The `surveilr.com/lib/*` serving capability allows the following `surveilr` usage:
+
+```bash
+# if a file named `lib/pattern/fhir-explorer/package.sql.ts` is available then
+# calling `package.sql` "executes" the `package.sql.ts` and returns just SQL
+$ surveilr shell https://surveilr.com/lib/pattern/fhir-explorer/package.sql
+```
+
+You can also import `*.ts` files directly:
+
+```bash
+# if a file named `lib/pattern/fhir-explorer/package.sql.ts` is available then
+# calling `package.sql.ts` allows importing in any Deno module:
+$ deno run -A https://surveilr.com/lib/pattern/fhir-explorer/package.sql.ts
+```
