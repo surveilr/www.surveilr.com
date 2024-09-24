@@ -39,6 +39,10 @@ jobs:
       # Step 3: Install dependencies from package.json
       - name: Install dependencies
         run: npm install
+        
+      # Step 4: Print Git logs for debugging
+      - name: Print Git Log
+        run: git log --oneline -10  # Show the last 10 commits for debug purposes
 
       # Step 4: Build the Astro site (output will be in the 'dist' directory)
       - name: Build Astro site
