@@ -49,6 +49,11 @@ jobs:
         run: |
           deno --version
           npm run astro build
+          
+      # Step 7: List contents of dist directory for debugging
+      - name: List dist directory
+        run: ls -la ./dist
+        
 
       # Step 5: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages
