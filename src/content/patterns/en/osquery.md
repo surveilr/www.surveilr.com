@@ -23,7 +23,7 @@ longDescription:
   subTitle: |
     By leveraging the ATC JSON pattern, users can automatically surface custom tables in osQuery to interact directly with the content stored in surveilr's Resource Surveillance State Database (RSSD). This enables osQuery to dynamically join data from multiple sources (emails, logs, compliance evidence, PLM/CRM systems, etc.), providing powerful querying capabilities for security audits, compliance reporting, and decision-making.
   btnTitle: "Use the SQL"
-  btnURL: "package.sql"
+  btnURL: "/lib/pattern/osquery/package.sql"
 descriptionList:
   - title: "Unified Data Access"
     subTitle: "The integration allows organizations to leverage surveilr as a universal data aggregator, pulling from a multitude of data sources. osQuery users benefit from this by gaining a unified interface to query all of the data—regardless of where it originally came from—using standard SQL."
