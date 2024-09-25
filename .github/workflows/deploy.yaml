@@ -44,21 +44,14 @@ jobs:
       - name: Print Git Log
         run: git log --oneline -10  # Show the last 10 commits for debug purposes
 
-      # Step 4: Build the Astro site (output will be in the 'dist' directory)
+      # Step 5: Build the Astro site (output will be in the 'dist' directory)
       - name: Build Astro site
         run: |
           deno --version
-          npm run astro build
-          
-      # Step 7: List contents of dist directory for debugging
-      - name: List dist directory
-        run: |
-           ls -la ./dist
-           head -n 500 ./dist/pattern/index.html
+          npm run astro build          
+            
 
-        
-
-      # Step 5: Deploy to GitHub Pages using the 'dist' directory
+      # Step 6: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
