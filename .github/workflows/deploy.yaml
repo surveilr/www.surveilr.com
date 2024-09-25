@@ -1,11 +1,11 @@
 name: Deploy to GitHub Pages
 
+# This workflow is triggered on a push to the 'main' branch
 on:
-  # Trigger the workflow every time you push to the `main` branch
-  # Using a different branch name? Replace `main` with your branch’s name
   push:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
+    branches:
+      - main
+  # Also allows for manual deployment
   workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
@@ -16,53 +16,45 @@ permissions:
 
 jobs:
   build:
+    # Run the job on the latest Ubuntu environment
     runs-on: ubuntu-latest
-    steps:
-      # Step 1: Checkout your repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js version 20.3.0
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js version 20.30
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20.3.0'
-
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install
-        
+      
       # Step 3: Set up Deno
       - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.5.1
+          
+      # Step 3: Install dependencies from package.json
+      - name: Install dependencies
+        run: npm install
+        
+      # Step 4: Print Git logs for debugging
+      - name: Print Git Log
+        run: git log --oneline -10  # Show the last 10 commits for debug purposes
 
-      # Step 4: Build the Astro site
+      # Step 5: Build the Astro site (output will be in the 'dist' directory)
       - name: Build Astro site
-        run: npm run astro build
+        run: |
+          deno --version
+          npm run astro build          
+            
 
-      # Step 5: Upload the build artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages
-          path: ./dist  # Ensure this is the correct path to your build output
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      # Step 1: Download the artifacts
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-
-      # Step 2: Deploy to GitHub Pages
+      # Step 6: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.SURVEILR_GITHUB_TOKEN }}
+          publish_dir: ./dist
+           
