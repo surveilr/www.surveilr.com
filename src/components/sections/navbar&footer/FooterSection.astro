@@ -8,6 +8,43 @@ import frStrings from "@utils/fr/navigation.ts";
 import Icon from "@components/ui/icons/Icon.astro";
 import BrandLogo from "@components/surveilr-logo-with-text-264x66px.png";
 import { SITE } from "@data/constants";
+import { exec } from "child_process";
+
+//let LastCommitDate : string;
+
+function getLastCommitDate(filePath: string = "."): Promise<Date> {
+  return new Promise((resolve, reject) => {
+    // Run the git command to get the last commit timestamp
+    exec(`git log -1 --format=%ct ${filePath}`, (error, stdout, stderr) => {
+      if (error) {
+        return reject(`Error executing git command: ${stderr}`);
+      }
+
+      // Git returns the timestamp as seconds since the epoch
+      const timestamp = parseInt(stdout.trim(), 10);
+      if (isNaN(timestamp)) {
+        return reject("Invalid timestamp returned by git");
+      }
+
+      // Convert the timestamp to a Date object
+      const lastCommitDate = new Date(timestamp * 1000); // Convert seconds to milliseconds
+      resolve(lastCommitDate);
+    });
+  });
+}
+const repositoryPath = process.cwd();
+const lastCommitDate = await getLastCommitDate(repositoryPath);
+//const formattedDate = `Last commit date: ${lastCommitDate.toLocaleDateString()}`;
+const formattedDateTime = `Last commit date and time: ${lastCommitDate.toLocaleString('en-US', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+})}`;
+
 
 // Select the correct translation based on the page's lang prop:
 const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
@@ -75,12 +112,13 @@ const crafted: string = Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafte
     >
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          © <span id="current-year"></span> {SITE.organization}. {crafted}
+          © <span id="current-year"></span> {SITE.organization}. {crafted} 
           <a
             class="rounded-lg font-medium underline underline-offset-2 outline-none ring-zinc-500 transition duration-300 hover:text-neutral-700 hover:decoration-dashed focus:outline-none focus-visible:ring dark:ring-zinc-200 dark:hover:text-neutral-300"
             href="https://shahidshah.com"
             target="_blank"
             rel="noopener noreferrer">{SITE.author}</a>.
+            <span>{formattedDateTime}</span>
         </p>
       </div>
 
