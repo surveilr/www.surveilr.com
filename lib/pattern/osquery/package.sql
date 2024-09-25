@@ -1,64 +1,35 @@
-Error executing pattern/osquery/package.sql: Command failed: deno run -A lib/pattern/osquery/package.sql.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/docs/tbls.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/polygenix/mod.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/ulid/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/os-user.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/whitespace.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/pattern/typical/mod.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/reflect/callable.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/ulid/_util.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/mod.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/extname.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/join.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/format.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/relative.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/normalize.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/mod.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/parse.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/to_file_url.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/common.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/_interface.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/is_glob.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/basename.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/from_file_url.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/resolve.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/glob_to_regexp.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/is_absolute.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/join_globs.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/normalize_glob.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/constants.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/dirname.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/to_namespaced_path.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/resolve.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/_os.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/resolve.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/constants.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/normalize.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/common.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/glob_to_regexp.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/format.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/parse.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/from_file_url.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/is_absolute.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/extname.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/to_namespaced_path.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/join.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/join_globs.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/is_glob.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/basename.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/relative.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/to_file_url.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/dirname.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/posix/normalize_glob.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/normalize_glob.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/_common/glob_to_reg_exp.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/basename.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/relative.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/extname.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/format.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/parse.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/from_file_url.ts
-[0m[32mDownload[0m https://deno.land/std@0.224.0/path/_common/common.ts
-[0m[1m[31merror[0m: Expected {, got Callables at https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/reflect/callable.ts:40:12
+CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
+    "key" TEXT PRIMARY KEY NOT NULL,
+    "value" TEXT NOT NULL
+);
+INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('SQL', 'SQLite SQL Statements', NULL, 'application/sql', '.sql', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01J8MHXR4C95NGZQBF14SE49BE', 'SQL', 'osquery', 'infoSchemaOsQueryATCs', NULL, 'WITH table_columns AS (
+    SELECT m.tbl_name AS table_name,
+           group_concat(c.name) AS column_names_for_select,
+           json_group_array(c.name) AS column_names_for_atc_json
+      FROM sqlite_master m,
+           pragma_table_info(m.tbl_name) c
+     WHERE m.type = ''table''
+  GROUP BY m.tbl_name
+),
+target AS (
+  -- set SQLite parameter :osquery_atc_path to assign a different path
+  SELECT COALESCE(SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''infoSchemaOsQueryATCs_path'';, ''No infoSchemaOsQueryATCs_path argument supplied in session_state_ephemeral'') AS path
+),
+table_query AS (
+    SELECT table_name,
+           ''SELECT '' || column_names_for_select || '' FROM '' || table_name AS query,
+           column_names_for_atc_json
+      FROM table_columns
+)
+SELECT json_object(''auto_table_construction'',
+          json_group_object(
+              table_name,
+              json_object(
+                  ''query'', query,
+                  ''columns'', json(column_names_for_atc_json),
+                  ''path'', path
+              )
+          )
+       ) AS osquery_auto_table_construction
+  FROM table_query, target;', 'dd4945f0479dd77d540c64f2e745d139cb1a3a06', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
