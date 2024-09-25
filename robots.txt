@@ -16,4 +16,4 @@ Crawl-delay: 2
 User-agent: *
 Disallow: /
 
-Sitemap: https://screwfast.uk/sitemap-index.xml
+Sitemap: https://www.surveilr.com/sitemap-index.xml
