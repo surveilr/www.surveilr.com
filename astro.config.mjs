@@ -718,7 +718,7 @@ export default defineConfig({
 
       ],
       social: {
-        github: "https://github.com/mearashadowfax/ScrewFast",
+        github: "https://github.com/surveilr/www.surveilr.com",
       },
       disable404Route: true,
       customCss: ["./src/assets/styles/starlight.css"],
