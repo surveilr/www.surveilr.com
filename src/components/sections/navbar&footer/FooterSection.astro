@@ -35,14 +35,14 @@ function getLastCommitDate(filePath: string = "."): Promise<Date> {
 const repositoryPath = process.cwd();
 const lastCommitDate = await getLastCommitDate(repositoryPath);
 //const formattedDate = `Last commit date: ${lastCommitDate.toLocaleDateString()}`;
-const formattedDateTime = `Built on : ${lastCommitDate.toLocaleString('en-US', {
+const formattedDateTime = ` 🕰️ Publication created ${lastCommitDate.toLocaleString('en-US', {
   month: 'short',
   day: 'numeric',
   year: 'numeric',
   hour: 'numeric',
   minute: '2-digit',
   hour12: true
-}).replace(',', '').replace(' at', ' at')}`;
+}).replace(',', '').replace(' at', ' at')}.`;
 
 
 // Select the correct translation based on the page's lang prop:
