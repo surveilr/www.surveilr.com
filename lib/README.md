@@ -58,3 +58,10 @@ You can also import `*.ts` files directly:
 # calling `package.sql.ts` allows importing in any Deno module:
 $ deno run -A https://surveilr.com/lib/pattern/fhir-explorer/package.sql.ts
 ```
+
+In summary:
+
+- Using `https://surveilr.com/lib/pattern/fhir-explorer/package.sql.ts` emits
+  the **TypeScript _source code_** (for example so it can be `import`ed into Deno).
+- Using `https://surveilr.com/lib/pattern/fhir-explorer/package.sql` emits the
+  the **SQL generated from executing TypeScript**.
