@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Database Schema Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .table {
+            margin-bottom: 30px;
+        }
+        .table-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .field {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SQLite Database Schema Overview</h1>
+    
+    <div class="table">
+        <div class="table-name">Table: device</div>
+        <div class="field">device_id: VARCHAR PRIMARY KEY NOT NULL</div>
+        <div class="field">name: TEXT NOT NULL</div>
+        <div class="field">state: TEXT CHECK(json_valid(state)) NOT NULL</div>
+        <!-- Add other fields here -->
+    </div>
+
+    <div class="table">
+        <div class="table-name">Table: behavior</div>
+        <div class="field">behavior_id: VARCHAR PRIMARY KEY NOT NULL</div>
+        <div class="field">device_id: VARCHAR NOT NULL</div>
+    </div>
+
+</body>
+</html>

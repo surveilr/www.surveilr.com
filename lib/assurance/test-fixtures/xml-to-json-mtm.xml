@@ -1,0 +1,1914 @@
+<ThreatModel xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model"
+  xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+  <DrawingSurfaceList>
+    <DrawingSurfaceModel z:Id="i1" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/">
+      <GenericTypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+        DRAWINGSURFACE</GenericTypeId>
+      <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+        d8c8aab1-5108-49c5-92a1-b214ba353477</Guid>
+      <Properties xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts"
+        xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <a:anyType i:type="b:HeaderDisplayAttribute"
+          xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+          <b:DisplayName>Diagram</b:DisplayName>
+          <b:Name />
+          <b:Value i:nil="true" />
+        </a:anyType>
+        <a:anyType i:type="b:StringDisplayAttribute"
+          xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+          <b:DisplayName>Name</b:DisplayName>
+          <b:Name />
+          <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Diagram 1</b:Value>
+        </a:anyType>
+      </Properties>
+      <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+        DRAWINGSURFACE</TypeId>
+      <Borders xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <a:KeyValueOfguidanyType>
+          <a:Key>41cb799f-434b-4b35-bd8e-8970bb985ec9</a:Key>
+          <a:Value z:Id="i2" i:type="StencilRectangle">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.EI</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              41cb799f-434b-4b35-bd8e-8970bb985ec9</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic External Interactor</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic
+                  External Interactor</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Authenticates Itself</b:DisplayName>
+                <b:Name>authenticatesItself</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Applicable</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Type</b:DisplayName>
+                <b:Name>type</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Code</a:string>
+                  <a:string>Human</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Microsoft</b:DisplayName>
+                <b:Name>MS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.EI</TypeId>
+            <Height xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Height>
+            <Left xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">675</Left>
+            <StrokeDashArray i:nil="true"
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts" />
+            <StrokeThickness
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">1</StrokeThickness>
+            <Top xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">157</Top>
+            <Width xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Width>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>7d402f21-b92a-4eeb-9b9d-362903405551</a:Key>
+          <a:Value z:Id="i3" i:type="StencilEllipse">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.P</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              7d402f21-b92a-4eeb-9b9d-362903405551</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>OS Process</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">OS Process</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>As Generic Process</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Code Type</b:DisplayName>
+                <b:Name>codeType</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Managed</a:string>
+                  <a:string>Unmanaged</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Running As</b:DisplayName>
+                <b:Name>runningAs</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Kernel</a:string>
+                  <a:string>System</a:string>
+                  <a:string>Network Service</a:string>
+                  <a:string>Local Service</a:string>
+                  <a:string>Administrator</a:string>
+                  <a:string>Standard User With Elevation</a:string>
+                  <a:string>Standard User Without Elevation</a:string>
+                  <a:string>Windows Store App</a:string>
+                </b:Value>
+                <b:SelectedIndex>5</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Isolation Level</b:DisplayName>
+                <b:Name>Isolation</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>AppContainer</a:string>
+                  <a:string>Low Integrity Level</a:string>
+                  <a:string>Microsoft Office Isolated Conversion Environment (MOICE)</a:string>
+                  <a:string>Sandbox</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Accepts Input From</b:DisplayName>
+                <b:Name>acceptsInputFrom</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Any Remote User or Entity</a:string>
+                  <a:string>Kernel, System, or Local Admin</a:string>
+                  <a:string>Local or Network Service</a:string>
+                  <a:string>Local Standard User With Elevation</a:string>
+                  <a:string>Local Standard User Without Elevation</a:string>
+                  <a:string>Windows Store Apps or App Container Processes</a:string>
+                  <a:string>Nothing</a:string>
+                  <a:string>Other</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses an Authentication Mechanism</b:DisplayName>
+                <b:Name>implementsAuthenticationScheme</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses an Authorization Mechanism</b:DisplayName>
+                <b:Name>implementsCustomAuthorizationMechanism</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses a Communication Protocol</b:DisplayName>
+                <b:Name>implementsCommunicationProtocol</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Sanitizes Input</b:DisplayName>
+                <b:Name>hasInputSanitizers</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Sanitizes Output</b:DisplayName>
+                <b:Name>hasOutputSanitizers</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SE.P.TMCore.OSProcess</TypeId>
+            <Height xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Height>
+            <Left xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">263</Left>
+            <StrokeDashArray i:nil="true"
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts" />
+            <StrokeThickness
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">1</StrokeThickness>
+            <Top xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">119</Top>
+            <Width xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Width>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>627d2636-7f62-481c-a46f-7af41e24c937</a:Key>
+          <a:Value z:Id="i4" i:type="StencilEllipse">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.P</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              627d2636-7f62-481c-a46f-7af41e24c937</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>OS Process</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">OS Process</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>As Generic Process</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Code Type</b:DisplayName>
+                <b:Name>codeType</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Managed</a:string>
+                  <a:string>Unmanaged</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Running As</b:DisplayName>
+                <b:Name>runningAs</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Kernel</a:string>
+                  <a:string>System</a:string>
+                  <a:string>Network Service</a:string>
+                  <a:string>Local Service</a:string>
+                  <a:string>Administrator</a:string>
+                  <a:string>Standard User With Elevation</a:string>
+                  <a:string>Standard User Without Elevation</a:string>
+                  <a:string>Windows Store App</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Isolation Level</b:DisplayName>
+                <b:Name>Isolation</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>AppContainer</a:string>
+                  <a:string>Low Integrity Level</a:string>
+                  <a:string>Microsoft Office Isolated Conversion Environment (MOICE)</a:string>
+                  <a:string>Sandbox</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Accepts Input From</b:DisplayName>
+                <b:Name>acceptsInputFrom</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Any Remote User or Entity</a:string>
+                  <a:string>Kernel, System, or Local Admin</a:string>
+                  <a:string>Local or Network Service</a:string>
+                  <a:string>Local Standard User With Elevation</a:string>
+                  <a:string>Local Standard User Without Elevation</a:string>
+                  <a:string>Windows Store Apps or App Container Processes</a:string>
+                  <a:string>Nothing</a:string>
+                  <a:string>Other</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses an Authentication Mechanism</b:DisplayName>
+                <b:Name>implementsAuthenticationScheme</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses an Authorization Mechanism</b:DisplayName>
+                <b:Name>implementsCustomAuthorizationMechanism</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Implements or Uses a Communication Protocol</b:DisplayName>
+                <b:Name>implementsCommunicationProtocol</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Sanitizes Input</b:DisplayName>
+                <b:Name>hasInputSanitizers</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Sanitizes Output</b:DisplayName>
+                <b:Name>hasOutputSanitizers</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SE.P.TMCore.OSProcess</TypeId>
+            <Height xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Height>
+            <Left xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">454</Left>
+            <StrokeDashArray i:nil="true"
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts" />
+            <StrokeThickness
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">1</StrokeThickness>
+            <Top xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">124</Top>
+            <Width xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Width>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>f5e8c8a7-e181-4fb3-a183-3428f69f8bab</a:Key>
+          <a:Value z:Id="i5" i:type="StencilParallelLines">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DS</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              f5e8c8a7-e181-4fb3-a183-3428f69f8bab</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Data Store</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Data
+                  Store</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Stores Credentials</b:DisplayName>
+                <b:Name>storesCredentials</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Stores Log Data</b:DisplayName>
+                <b:Name>storesLogData</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Encrypted</b:DisplayName>
+                <b:Name>Encrypted</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Signed</b:DisplayName>
+                <b:Name>Signed</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Write Access</b:DisplayName>
+                <b:Name>AccessType</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Removable Storage</b:DisplayName>
+                <b:Name>RemoveableStorage</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Backup</b:DisplayName>
+                <b:Name>Backup</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Shared</b:DisplayName>
+                <b:Name>shared</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Store Type</b:DisplayName>
+                <b:Name>storeType</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>SQL Relational Database</a:string>
+                  <a:string>Non Relational Database</a:string>
+                  <a:string>File System</a:string>
+                  <a:string>Registry</a:string>
+                  <a:string>Configuration</a:string>
+                  <a:string>Cache</a:string>
+                  <a:string>HTML5 Storage</a:string>
+                  <a:string>Cookie</a:string>
+                  <a:string>Device</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.DS</TypeId>
+            <Height xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Height>
+            <Left xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">11</Left>
+            <StrokeDashArray i:nil="true"
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts" />
+            <StrokeThickness
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">1</StrokeThickness>
+            <Top xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">131</Top>
+            <Width xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              100</Width>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>2630a387-0a98-4028-9cdd-6f514b6a4b5d</a:Key>
+          <a:Value z:Id="i6" i:type="BorderBoundary">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.TB.B</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              2630a387-0a98-4028-9cdd-6f514b6a4b5d</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Trust Border Boundary</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Trust
+                  Border Boundary</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.TB.B</TypeId>
+            <Height xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              313</Height>
+            <Left xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">182</Left>
+            <StrokeDashArray i:nil="true"
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts" />
+            <StrokeThickness
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">1</StrokeThickness>
+            <Top xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">25</Top>
+            <Width xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              429</Width>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+      </Borders>
+      <Header>Diagram 1</Header>
+      <Lines xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <a:KeyValueOfguidanyType>
+          <a:Key>f367ac70-74ff-4ba1-abc4-0ac96e350448</a:Key>
+          <a:Value z:Id="i7" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              f367ac70-74ff-4ba1-abc4-0ac96e350448</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Data
+                  Flow</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.DF</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              180</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              128</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">East</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              f5e8c8a7-e181-4fb3-a183-3428f69f8bab</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              106</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              181</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              7d402f21-b92a-4eeb-9b9d-362903405551</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              268</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              169</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>89ae2a26-c3f6-417a-a217-eef7ce936719</a:Key>
+          <a:Value z:Id="i8" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              89ae2a26-c3f6-417a-a217-eef7ce936719</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Data
+                  Flow</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.DF</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              185</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              219</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">East</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              7d402f21-b92a-4eeb-9b9d-362903405551</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              268</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              169</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              f5e8c8a7-e181-4fb3-a183-3428f69f8bab</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              106</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              181</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>97499ed7-bcbd-45c4-867b-ffc85da6f2b2</a:Key>
+          <a:Value z:Id="i9" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              97499ed7-bcbd-45c4-867b-ffc85da6f2b2</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Data
+                  Flow</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.DF</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              415</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              124</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">East</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              627d2636-7f62-481c-a46f-7af41e24c937</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              459</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              174</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              7d402f21-b92a-4eeb-9b9d-362903405551</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              358</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              169</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>060c42a9-68a9-4216-8b96-5443e65a4d56</a:Key>
+          <a:Value z:Id="i10" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              060c42a9-68a9-4216-8b96-5443e65a4d56</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">Generic Data
+                  Flow</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>2</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              GE.DF</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              410</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              207</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">East</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              7d402f21-b92a-4eeb-9b9d-362903405551</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              358</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              169</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              627d2636-7f62-481c-a46f-7af41e24c937</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              459</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              174</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>59332388-df08-4b98-b15a-14112782984b</a:Key>
+          <a:Value z:Id="i11" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              59332388-df08-4b98-b15a-14112782984b</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>HTTPS</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">HTTPS</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Predefined Static Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>As Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SE.DF.TMCore.HTTPS</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              628</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              149</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SouthEast</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              41cb799f-434b-4b35-bd8e-8970bb985ec9</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              680</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              207</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              627d2636-7f62-481c-a46f-7af41e24c937</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              535</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              205</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+        <a:KeyValueOfguidanyType>
+          <a:Key>08e0b8f7-07c4-47f0-a456-4090ceac2719</a:Key>
+          <a:Value z:Id="i12" i:type="Connector">
+            <GenericTypeId
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">GE.DF</GenericTypeId>
+            <Guid xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              08e0b8f7-07c4-47f0-a456-4090ceac2719</Guid>
+            <Properties
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>HTTPS</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Name</b:DisplayName>
+                <b:Name />
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">HTTPS</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Dataflow Order</b:DisplayName>
+                <b:Name>15ccd509-98eb-49ad-b9c2-b4a2926d1780</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema">0</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:BooleanDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Out Of Scope</b:DisplayName>
+                <b:Name>71f3d9aa-b8ef-4e54-8126-607a1d903103</b:Name>
+                <b:Value i:type="c:boolean" xmlns:c="http://www.w3.org/2001/XMLSchema">false</b:Value>
+              </a:anyType>
+              <a:anyType i:type="b:StringDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Reason For Out Of Scope</b:DisplayName>
+                <b:Name>752473b6-52d4-4776-9a24-202153f7d579</b:Name>
+                <b:Value i:type="c:string" xmlns:c="http://www.w3.org/2001/XMLSchema" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Predefined Static Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Destination Authenticated</b:DisplayName>
+                <b:Name>authenticatesDestination</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Confidentiality</b:DisplayName>
+                <b:Name>providesConfidentiality</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:StaticListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Provides Integrity</b:DisplayName>
+                <b:Name>providesIntegrity</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Configurable Attributes</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:HeaderDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>As Generic Data Flow</b:DisplayName>
+                <b:Name />
+                <b:Value i:nil="true" />
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Physical Network</b:DisplayName>
+                <b:Name>channel</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>Wire</a:string>
+                  <a:string>Wi-Fi</a:string>
+                  <a:string>Bluetooth</a:string>
+                  <a:string>2G-4G</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Source Authenticated</b:DisplayName>
+                <b:Name>authenticatesSource</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>1</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Transmits XML</b:DisplayName>
+                <b:Name>XMLenc</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Contains Cookies</b:DisplayName>
+                <b:Name>Cookies</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Yes</a:string>
+                  <a:string>No</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>SOAP Payload</b:DisplayName>
+                <b:Name>SOAP</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>REST Payload</b:DisplayName>
+                <b:Name>REST</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>RSS Payload</b:DisplayName>
+                <b:Name>RSS</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>JSON Payload</b:DisplayName>
+                <b:Name>JSON</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>No</a:string>
+                  <a:string>Yes</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+              <a:anyType i:type="b:ListDisplayAttribute"
+                xmlns:b="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase">
+                <b:DisplayName>Forgery Protection</b:DisplayName>
+                <b:Name>54851a3b-65da-4902-b4e0-94ef015be735</b:Name>
+                <b:Value i:type="a:ArrayOfstring">
+                  <a:string>Not Selected</a:string>
+                  <a:string>ValidateAntiForgeryTokenAttribute</a:string>
+                  <a:string>ViewStateUserKey</a:string>
+                  <a:string>Nonce</a:string>
+                  <a:string>Other dynamic canary</a:string>
+                  <a:string>Static header not available to the browser</a:string>
+                  <a:string>Other</a:string>
+                  <a:string>None</a:string>
+                  <a:string>Not applicable because the request does not change data</a:string>
+                </b:Value>
+                <b:SelectedIndex>0</b:SelectedIndex>
+              </a:anyType>
+            </Properties>
+            <TypeId xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SE.DF.TMCore.HTTPS</TypeId>
+            <HandleX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              628</HandleX>
+            <HandleY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              245</HandleY>
+            <PortSource
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              SouthEast</PortSource>
+            <PortTarget
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">West</PortTarget>
+            <SourceGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              627d2636-7f62-481c-a46f-7af41e24c937</SourceGuid>
+            <SourceX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              535</SourceX>
+            <SourceY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              205</SourceY>
+            <TargetGuid
+              xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              41cb799f-434b-4b35-bd8e-8970bb985ec9</TargetGuid>
+            <TargetX xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              680</TargetX>
+            <TargetY xmlns="http://schemas.datacontract.org/2004/07/ThreatModeling.Model.Abstracts">
+              207</TargetY>
+          </a:Value>
+        </a:KeyValueOfguidanyType>
+      </Lines>
+      <Zoom>1</Zoom>
+    </DrawingSurfaceModel>
+  </DrawingSurfaceList>
+  <MetaInformation>
+    <Assumptions />
+    <Contributors />
+    <ExternalDependencies />
+    <HighLevelSystemDescription />
+    <Owner />
+    <Reviewer />
+    <ThreatModelName />
+  </MetaInformation>
+  <Notes />
+  <ThreatGenerationEnabled>true</ThreatGenerationEnabled>
+  <Validations xmlns:a="http://schemas.datacontract.org/2004/07/ThreatModeling.KnowledgeBase" />
+  <Version>4.3</Version>
+  <Profile>
+    <PromptedKb xmlns="" />
+  </Profile>
+</ThreatModel>

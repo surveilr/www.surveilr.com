@@ -1,0 +1,2 @@
+# this file is used to test `surveilr ingest tasks` via STDIN so should be ignored
+synthetic-tasks-via-stdin

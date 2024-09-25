@@ -1,0 +1,11 @@
+
+; Example TAP file content
+; This is just a demonstration and does not represent actual binary data
+HEADER START
+Name: ExampleProtocol
+Version: 1.0
+HEADER END
+
+DATA START
+Hello, this is a test data block for the ExampleProtocol.
+DATA END

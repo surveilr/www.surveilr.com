@@ -1,0 +1,52 @@
+{
+  "tables": {
+    "device": {
+      "columns": {
+        "device_id": "VARCHAR PRIMARY KEY NOT NULL",
+        "name": "TEXT NOT NULL",
+        "state": "TEXT CHECK(json_valid(state)) NOT NULL",
+        "boundary": "TEXT NOT NULL",
+        "segmentation": "TEXT CHECK(json_valid(segmentation) OR segmentation IS NULL)",
+        "state_sysinfo": "TEXT CHECK(json_valid(state_sysinfo) OR state_sysinfo IS NULL)",
+        "elaboration": "TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL)",
+        "created_at": "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+        "created_by": "TEXT DEFAULT 'UNKNOWN'",
+        "updated_at": "TIMESTAMPTZ",
+        "updated_by": "TEXT",
+        "deleted_at": "TIMESTAMPTZ",
+        "deleted_by": "TEXT",
+        "activity_log": "TEXT",
+        "unique_constraints": [
+          "name",
+          "state",
+          "boundary"
+        ]
+      }
+    },
+    "behavior": {
+      "columns": {
+        "behavior_id": "VARCHAR PRIMARY KEY NOT NULL",
+        "device_id": "VARCHAR NOT NULL",
+        "behavior_name": "TEXT NOT NULL",
+        "behavior_conf_json": "TEXT CHECK(json_valid(behavior_conf_json)) NOT NULL",
+        "assurance_schema_id": "VARCHAR",
+        "governance": "TEXT CHECK(json_valid(governance) OR governance IS NULL)",
+        "created_at": "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+        "created_by": "TEXT DEFAULT 'UNKNOWN'",
+        "updated_at": "TIMESTAMPTZ",
+        "updated_by": "TEXT",
+        "deleted_at": "TIMESTAMPTZ",
+        "deleted_by": "TEXT",
+        "activity_log": "TEXT",
+        "foreign_keys": {
+          "device_id": "device.device_id",
+          "assurance_schema_id": "assurance_schema.assurance_schema_id"
+        },
+        "unique_constraints": [
+          "device_id",
+          "behavior_name"
+        ]
+      }
+    }
+    }
+}
