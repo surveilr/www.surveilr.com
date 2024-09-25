@@ -20,3 +20,27 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# when testing in this repo, we might have surveilr downloaded
+surveilr
+surveilr.exe
+
+# when testing in this repo, we might have created default RSSDs
+resource-surveillance.sqlite.db
+*e2e*.db
+resource-surveillance-aggregated.sqlite.db
+
+# when testing in this repo, we might have ingest samples / exemplars
+ingest/
+study-files/
+10k*
+
+# sometimes we'll test local files in SQLPage but we don't want those tracked
+sqlpage/
+
+# sqlpagectl.ts generates these files when it encounters an error
+ERROR-*
+*-ERROR-*
+
+# windows security files
+*Zone.Identifier

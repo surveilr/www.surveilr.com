@@ -1,0 +1,22 @@
+# use this to test `surveilr ingest tasks` command; for example:
+# $ cat support/test-fixtures/synthetic-tasks-via-stdin | surveilr ingest tasks
+#
+# We use the same library that Deno uses for https://docs.deno.com/runtime/manual/tools/task_runner.
+# See https://github.com/denoland/deno_task_shell.
+#
+# - one `deno_task_shell` input per line (no newlines allowed in between)
+# - blank lines and anything starting with `#` will be ignored
+# - if you need more complicated tasks use surveilr _Capturable Executables_ instead of tasks
+
+# [TEXT] run osquery and store results in `uniform_resource` as JSON;
+# the `--json` is the instruction for osquery, `surveilr` assumes JSON.
+osqueryi "SELECT * from users" --json
+
+# [JSONL] the following is the same as above except it has a name
+{ "custom name for task output in uniform_resource": "osqueryi \"SELECT * from users\" --json", "nature": "json" }
+
+# [JSONL] the following is the same as above except we store the result as plain text
+{ "osquery result as plain text": "osqueryi \"SELECT * from users\"", "nature": "text/plain" }
+
+# [TEXT] this command should run the same as the first but should not be stored more than once
+osqueryi "SELECT * from users" --json
