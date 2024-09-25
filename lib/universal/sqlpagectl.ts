@@ -310,6 +310,7 @@ function sqlPageDevAction(options: {
 }
 
 // deno-fmt-ignore so that commands defn is clearer
+
 await new Command()
   .name("sqlpagectl")
   .version("1.0.0")
@@ -323,3 +324,5 @@ await new Command()
     .option("--show-modified-urls-on-change", "After reloading sqlpage_files, show the recently modified URLs", { default: false })
     .action(sqlPageDevAction)
   .parse(Deno.args ?? ["dev"]);
+
+
