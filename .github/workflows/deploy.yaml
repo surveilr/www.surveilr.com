@@ -31,10 +31,23 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
+        
+      # Step 3: Set up Deno
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.5.1
 
       # Step 4: Build the Astro site
       - name: Build Astro site
         run: npm run astro build
+
+      # Step 5: Upload the build artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: ./dist  # Ensure this is the correct path to your build output
 
   deploy:
     needs: build
@@ -43,6 +56,14 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Step 1: Download the artifacts
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+
+      # Step 2: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v4
         uses: actions/deploy-pages@v4
