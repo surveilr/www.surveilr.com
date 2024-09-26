@@ -4,11 +4,11 @@ title: orchestration_session_log
 
 ## Description
 
-An orchestration issue is generated when an error or warning needs to  
+An orchestration issue is generated when an error or warning needs to\
 be created during the orchestration of an entry in a session.
 
 <details>
-<summary><strong>Table Definition</strong></summary> 
+<summary><strong>Table Definition</strong></summary>
 
 ```sql
 CREATE TABLE "orchestration_session_log" (
@@ -26,14 +26,14 @@ CREATE TABLE "orchestration_session_log" (
 
 ## Columns
 
-| Name                         | Type    | Default | Nullable | Children                                                  | Parents                                                   | Comment                                                     |
-| ---------------------------- | ------- | ------- | -------- | --------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
-| orchestration_session_log_id | UUID    |         | false    | [orchestration_session_log](/surveilr/reference/db/surveilr-state-schema/orchestration_session_log) |                                                           | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
-| category                     | TEXT    |         | true     |                                                           |                                                           |                                                             |
-| parent_exec_id               | UUID    |         | true     |                                                           | [orchestration_session_log](/surveilr/reference/db/surveilr-state-schema/orchestration_session_log) | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
-| content                      | TEXT    |         | false    |                                                           |                                                           |                                                             |
-| sibling_order                | INTEGER |         | true     |                                                           |                                                           |                                                             |
-| elaboration                  | TEXT    |         | true     |                                                           |                                                           | isse-specific attributes/properties in JSON ("custom data") |
+| Name                         | Type    | Default | Nullable | Children                                                                                            | Parents                                                                                             | Comment                                                     |
+| ---------------------------- | ------- | ------- | -------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| orchestration_session_log_id | UUID    |         | false    | [orchestration_session_log](/surveilr/reference/db/surveilr-state-schema/orchestration_session_log) |                                                                                                     | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
+| category                     | TEXT    |         | true     |                                                                                                     |                                                                                                     |                                                             |
+| parent_exec_id               | UUID    |         | true     |                                                                                                     | [orchestration_session_log](/surveilr/reference/db/surveilr-state-schema/orchestration_session_log) | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
+| content                      | TEXT    |         | false    |                                                                                                     |                                                                                                     |                                                             |
+| sibling_order                | INTEGER |         | true     |                                                                                                     |                                                                                                     |                                                             |
+| elaboration                  | TEXT    |         | true     |                                                                                                     |                                                                                                     | isse-specific attributes/properties in JSON ("custom data") |
 
 ## Constraints
 
@@ -53,5 +53,3 @@ CREATE TABLE "orchestration_session_log" (
 ## Relations
 
 ![er](../../../../../../assets/orchestration_session_log.svg)
-
-

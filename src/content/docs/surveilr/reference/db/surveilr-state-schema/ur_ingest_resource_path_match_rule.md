@@ -4,8 +4,8 @@ title: ur_ingest_resource_path_match_rule
 
 ## Description
 
-A regular expression can determine the flags to apply to an ingestion path  
-and if the regular expr contains a nature capture group that pattern match  
+A regular expression can determine the flags to apply to an ingestion path\
+and if the regular expr contains a nature capture group that pattern match\
 will assign the nature too.
 
 <details>

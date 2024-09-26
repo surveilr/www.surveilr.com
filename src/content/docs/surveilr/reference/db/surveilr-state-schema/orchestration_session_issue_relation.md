@@ -4,11 +4,11 @@ title: orchestration_session_issue_relation
 
 ## Description
 
-An orchestration issue is generated when an error or warning needs to  
+An orchestration issue is generated when an error or warning needs to\
 be created during the orchestration of an entry in a session.
 
 <details>
-<summary><strong>Table Definition</strong></summary> 
+<summary><strong>Table Definition</strong></summary>
 
 ```sql
 CREATE TABLE "orchestration_session_issue_relation" (
@@ -25,13 +25,13 @@ CREATE TABLE "orchestration_session_issue_relation" (
 
 ## Columns
 
-| Name                                    | Type | Default | Nullable | Parents                                                       | Comment                                                     |
-| --------------------------------------- | ---- | ------- | -------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
-| orchestration_session_issue_relation_id | UUID |         | false    |                                                               | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
+| Name                                    | Type | Default | Nullable | Parents                                                                                                 | Comment                                                     |
+| --------------------------------------- | ---- | ------- | -------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| orchestration_session_issue_relation_id | UUID |         | false    |                                                                                                         | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
 | issue_id_prime                          | UUID |         | false    | [orchestration_session_issue](/surveilr/reference/db/surveilr-state-schema/orchestration_session_issue) | {"isSqlDomainZodDescrMeta":true,"isUuid":true}              |
-| issue_id_rel                            | TEXT |         | false    |                                                               |                                                             |
-| relationship_nature                     | TEXT |         | false    |                                                               |                                                             |
-| elaboration                             | TEXT |         | true     |                                                               | isse-specific attributes/properties in JSON ("custom data") |
+| issue_id_rel                            | TEXT |         | false    |                                                                                                         |                                                             |
+| relationship_nature                     | TEXT |         | false    |                                                                                                         |                                                             |
+| elaboration                             | TEXT |         | true     |                                                                                                         | isse-specific attributes/properties in JSON ("custom data") |
 
 ## Constraints
 
@@ -51,4 +51,3 @@ CREATE TABLE "orchestration_session_issue_relation" (
 ## Relations
 
 ![er](../../../../../../assets/orchestration_session_issue_relation.svg)
-

@@ -28,19 +28,19 @@ CREATE TABLE "ur_ingest_session_plm_reaction" (
 
 ## Columns
 
-| Name                              | Type        | Default           | Nullable | Children                                                                        | Comment                                                 |
-| --------------------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Name                              | Type        | Default           | Nullable | Children                                                                                                                  | Comment                                                 |
+| --------------------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | ur_ingest_session_plm_reaction_id | VARCHAR     |                   | false    | [ur_ingest_session_plm_issue_reaction](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_issue_reaction) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| reaction_id                       | TEXT        |                   | false    |                                                                                 |                                                         |
-| reaction_type                     | TEXT        |                   | false    |                                                                                 |                                                         |
-| elaboration                       | TEXT        |                   | true     |                                                                                 | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                        | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                 |                                                         |
-| created_by                        | TEXT        | 'UNKNOWN'         | true     |                                                                                 |                                                         |
-| updated_at                        | TIMESTAMPTZ |                   | true     |                                                                                 |                                                         |
-| updated_by                        | TEXT        |                   | true     |                                                                                 |                                                         |
-| deleted_at                        | TIMESTAMPTZ |                   | true     |                                                                                 |                                                         |
-| deleted_by                        | TEXT        |                   | true     |                                                                                 |                                                         |
-| activity_log                      | TEXT        |                   | true     |                                                                                 | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| reaction_id                       | TEXT        |                   | false    |                                                                                                                           |                                                         |
+| reaction_type                     | TEXT        |                   | false    |                                                                                                                           |                                                         |
+| elaboration                       | TEXT        |                   | true     |                                                                                                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                        | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                                                           |                                                         |
+| created_by                        | TEXT        | 'UNKNOWN'         | true     |                                                                                                                           |                                                         |
+| updated_at                        | TIMESTAMPTZ |                   | true     |                                                                                                                           |                                                         |
+| updated_by                        | TEXT        |                   | true     |                                                                                                                           |                                                         |
+| deleted_at                        | TIMESTAMPTZ |                   | true     |                                                                                                                           |                                                         |
+| deleted_by                        | TEXT        |                   | true     |                                                                                                                           |                                                         |
+| activity_log                      | TEXT        |                   | true     |                                                                                                                           | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 

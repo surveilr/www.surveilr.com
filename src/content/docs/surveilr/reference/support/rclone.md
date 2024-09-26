@@ -3,7 +3,9 @@ title:  Rclone
 description: File management platform
 ---
 
-This documentation provides comprehensive instructions for installing and configuring Rclone, a powerful command-line program for syncing files and directories to various cloud storage providers.
+This documentation provides comprehensive instructions for installing and
+configuring Rclone, a powerful command-line program for syncing files and
+directories to various cloud storage providers.
 
 #### Prerequisites
 
@@ -14,10 +16,11 @@ Before you begin, make sure you have the following:
 
 ### Installation Steps
 
-
 ##### Install rclone
 
-Rclone is single executable (rclone, or rclone.exe on Windows) that you can simply download and install from the [official website](https://rclone.org/downloads/)
+Rclone is single executable (rclone, or rclone.exe on Windows) that you can
+simply download and install from the
+[official website](https://rclone.org/downloads/)
 
 Alternatively, you can use the Eget binary installer:
 
@@ -34,6 +37,7 @@ sudo mv eget /usr/local/bin/
 eget --download-only --asset linux-amd64.deb  rclone/rclone
 sudo dpkg -i rclone*linux-amd64.deb
 ```
+
 ##### Run rclone config
 
 Run the following command to configure Rclone:
@@ -41,7 +45,8 @@ Run the following command to configure Rclone:
 ```bash
 rclone config
 ```
---------------------------------
+
+---
 
 ## Rclone Setup with SFTP
 
@@ -53,7 +58,6 @@ Before you start, ensure you have the following:
 
 - A working internet connection.
 - Create an ssh key for passwordless login
-
 
 #### Configure Rclone
 
@@ -75,10 +79,12 @@ rclone config create sftp sftp <host> user <username> port <port> key_file <path
 rclone copy <file-name> <rclone-remote-name>:<remote-path-to-copy>
 ```
 
---------------------------------
-## Configure AWS S3 as storage provider 
+---
 
-This guide provides step-by-step instructions for configuring Rclone with AWS S3.
+## Configure AWS S3 as storage provider
+
+This guide provides step-by-step instructions for configuring Rclone with AWS
+S3.
 
 #### Prerequisites
 
@@ -91,16 +97,19 @@ Before you start, ensure you have the following:
 ##### Step 1: Create a AWS bucket and add respective policy
 
 - login to aws account and Navigate to S3
-- Click the "Create bucket" button. 
+- Click the "Create bucket" button.
 - Enter a unique and meaningful name for your bucket.
 - Choose a region for your bucket.
 - Configure other settings as needed and click "Create bucket."
+
 ##### Navigate to S3:
+
 - In the S3 dashboard, click on the bucket you just created.
 - Click on the "Permissions" tab.
 - Block public access disable this
 - Scroll down to the "Bucket policy" section and click "Edit."
-- Add a bucket policy specifying the permissions. Here's an example policy 
+- Add a bucket policy specifying the permissions. Here's an example policy
+
 ```
 {
     "Version": "2012-10-17",
@@ -123,8 +132,8 @@ Before you start, ensure you have the following:
         }
     ]
 }
-
 ```
+
 ##### Step 2: Configure Rclone
 
 Run the following command in your terminal to configure Rclone:
@@ -135,8 +144,8 @@ rclone config create resource-surveillance s3 provider AWS access_key_id <key_id
 
 Change the values with your values
 
-
 #### Start Using Rclone
+
 ```
 You're now ready to use Rclone for managing files on AWS S3!
 ```
@@ -147,14 +156,17 @@ You're now ready to use Rclone for managing files on AWS S3!
 rclone copy <file-name> <rclone-remote-name>:<bucket_name>
 ```
 
---------------------------------
+---
+
 ## Configure OneDrive as storage provider
 
-This guide provides step-by-step instructions for configuring Rclone with Microsoft OneDrive
+This guide provides step-by-step instructions for configuring Rclone with
+Microsoft OneDrive
 
 ### Creating Client ID for OneDrive Business
 
-This guide provides step-by-step instructions on how to create a Client ID for OneDrive Business to integrate with your application.
+This guide provides step-by-step instructions on how to create a Client ID for
+OneDrive Business to integrate with your application.
 
 #### Prerequisites
 
@@ -165,7 +177,8 @@ Before you begin, make sure you have the following:
 
 ##### 1. Log in to the Azure Portal
 
-Visit [Azure Portal](https://portal.azure.com/) and log in with your Microsoft 365 Business account.
+Visit [Azure Portal](https://portal.azure.com/) and log in with your Microsoft
+365 Business account.
 
 ##### 2. Navigate to Azure Active Directory
 
@@ -182,25 +195,35 @@ Click on "New registration" to create a new application registration.
 ##### 5. Configure the Application
 
 - **Name:** Provide a name for your application.
-- **Supported account types:**  Accounts in this organizational directory only (Single tenant)
-- **Redirect URI:** Enter the redirect URI for your application.(`http://localhost:53682/`)
-- **Certificates & secrets:**  Under manage select Certificates & secrets, click New client secret. Enter a description (can be anything) and set Expires to 24 months. Copy and keep that secret Value for later use (you won't be able to see this value afterwards).
-- **Search and select the following permissions:** Files.Read, Files.ReadWrite, Files.Read.All, Files.ReadWrite.All, offline_access, User.Read and Sites.Read.All (if custom access scopes are configured, select the permissions accordingly). Once selected click Add permissions at the bottom.
+- **Supported account types:** Accounts in this organizational directory only
+  (Single tenant)
+- **Redirect URI:** Enter the redirect URI for your
+  application.(`http://localhost:53682/`)
+- **Certificates & secrets:** Under manage select Certificates & secrets, click
+  New client secret. Enter a description (can be anything) and set Expires to 24
+  months. Copy and keep that secret Value for later use (you won't be able to
+  see this value afterwards).
+- **Search and select the following permissions:** Files.Read, Files.ReadWrite,
+  Files.Read.All, Files.ReadWrite.All, offline_access, User.Read and
+  Sites.Read.All (if custom access scopes are configured, select the permissions
+  accordingly). Once selected click Add permissions at the bottom.
 
 - Find YOUR_TENANT_ID of your organization.
 
-In the rclone config, set auth_url to https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/authorize
+In the rclone config, set auth_url to
+https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/authorize
 
-In the rclone config, set token_url to https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
-
+In the rclone config, set token_url to
+https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token
 
 #### Configure Rclone
 
 Run the following command in your terminal to configure Rclone:
 
 ```
-rclone config 
+rclone config
 ```
+
 This will guide you through an interactive setup process:
 
 ```
@@ -274,7 +297,7 @@ y/e/d> y
 
 You're now ready to use rclone for managing files on Microsoft OneDrive
 
-###### Copy your RSSD SQLite .db file to  OneDrive Aggregrated RSSD remote drive. 
+###### Copy your RSSD SQLite .db file to OneDrive Aggregrated RSSD remote drive.
 
 ```bash
 rclone copy /path/to/file/resource-surveillance-$(hostname).sqlite.db one-drive:opsfolio-arssd

@@ -4,7 +4,7 @@ title: ur_ingest_resource_path_rewrite_rule
 
 ## Description
 
-A regular expression can determine whether certain paths should be  
+A regular expression can determine whether certain paths should be\
 rewritten before ur_ingest_resource_path_match_rule matches occur.
 
 <details>

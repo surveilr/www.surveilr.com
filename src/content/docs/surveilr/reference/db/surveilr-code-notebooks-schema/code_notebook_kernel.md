@@ -1,12 +1,15 @@
 ---
 title: code_notebook_kernel
-description: Explanation of the `code_notebook_kernel` 
+description: Explanation of the `code_notebook_kernel`
 ---
-
 
 ## Description
 
-A Notebook is a group of Cells. A kernel is a computational engine that executes the code contained in a notebook cell.  Each notebook is associated with a kernel of a specific programming language or code transformer which can interpret  code and produce a result. For example, a SQL notebook might use a SQLite kernel for running SQL code and an AI Prompt  might prepare AI prompts for LLMs.
+A Notebook is a group of Cells. A kernel is a computational engine that executes
+the code contained in a notebook cell. Each notebook is associated with a kernel
+of a specific programming language or code transformer which can interpret code
+and produce a result. For example, a SQL notebook might use a SQLite kernel for
+running SQL code and an AI Prompt might prepare AI prompts for LLMs.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -35,22 +38,22 @@ CREATE TABLE "code_notebook_kernel" (
 
 ## Columns
 
-| Name                    | Type      | Default           | Nullable | Children                                    | Comment                                                                                            |
-| ----------------------- | --------- | ----------------- | -------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Name                    | Type      | Default           | Nullable | Children                                                                                       | Comment                                                                                            |
+| ----------------------- | --------- | ----------------- | -------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | code_notebook_kernel_id | VARCHAR   |                   | false    | [code_notebook_cell](/surveilr/reference/db/surveilr-code-notebooks-schema/code_notebook_cell) | code_notebook_kernel primary key and internal label (not a ULID)                                   |
-| kernel_name             | TEXT      |                   | false    |                                             | the kernel name for human/display use cases                                                        |
-| description             | TEXT      |                   | true     |                                             | any further description of the kernel for human/display use cases                                  |
-| mime_type               | TEXT      |                   | true     |                                             | MIME type of this kernel's code in case it will be served                                          |
-| file_extn               | TEXT      |                   | true     |                                             | the typical file extension for these kernel's codebases, can be used for syntax highlighting, etc. |
-| elaboration             | TEXT      |                   | true     |                                             | kernel-specific attributes/properties                                                              |
-| governance              | TEXT      |                   | true     |                                             | kernel-specific governance data                                                                    |
-| created_at              | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                             |                                                                                                    |
-| created_by              | TEXT      | 'UNKNOWN'         | true     |                                             |                                                                                                    |
-| updated_at              | TIMESTAMP |                   | true     |                                             |                                                                                                    |
-| updated_by              | TEXT      |                   | true     |                                             |                                                                                                    |
-| deleted_at              | TIMESTAMP |                   | true     |                                             |                                                                                                    |
-| deleted_by              | TEXT      |                   | true     |                                             |                                                                                                    |
-| activity_log            | TEXT      |                   | true     |                                             | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}                                            |
+| kernel_name             | TEXT      |                   | false    |                                                                                                | the kernel name for human/display use cases                                                        |
+| description             | TEXT      |                   | true     |                                                                                                | any further description of the kernel for human/display use cases                                  |
+| mime_type               | TEXT      |                   | true     |                                                                                                | MIME type of this kernel's code in case it will be served                                          |
+| file_extn               | TEXT      |                   | true     |                                                                                                | the typical file extension for these kernel's codebases, can be used for syntax highlighting, etc. |
+| elaboration             | TEXT      |                   | true     |                                                                                                | kernel-specific attributes/properties                                                              |
+| governance              | TEXT      |                   | true     |                                                                                                | kernel-specific governance data                                                                    |
+| created_at              | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                                                                                |                                                                                                    |
+| created_by              | TEXT      | 'UNKNOWN'         | true     |                                                                                                |                                                                                                    |
+| updated_at              | TIMESTAMP |                   | true     |                                                                                                |                                                                                                    |
+| updated_by              | TEXT      |                   | true     |                                                                                                |                                                                                                    |
+| deleted_at              | TIMESTAMP |                   | true     |                                                                                                |                                                                                                    |
+| deleted_by              | TEXT      |                   | true     |                                                                                                |                                                                                                    |
+| activity_log            | TEXT      |                   | true     |                                                                                                | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}                                            |
 
 ## Constraints
 

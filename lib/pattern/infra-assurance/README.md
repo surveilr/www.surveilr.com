@@ -1,10 +1,16 @@
 # `surveilr` Infrastructure assurance Explorer Pattern
 
-Infrastructure assurance refers to the process of ensuring the resilience, security, and reliability of an organization's critical infrastructure, including IT systems, networks, and physical assets. It involves implementing strategies to protect against threats such as cyberattacks, natural disasters, and equipment failures, while ensuring the continued operation and availability of essential services. This practice includes risk management, disaster recovery planning, system monitoring, and maintaining compliance with security and regulatory standards.
+Infrastructure assurance refers to the process of ensuring the resilience,
+security, and reliability of an organization's critical infrastructure,
+including IT systems, networks, and physical assets. It involves implementing
+strategies to protect against threats such as cyberattacks, natural disasters,
+and equipment failures, while ensuring the continued operation and availability
+of essential services. This practice includes risk management, disaster recovery
+planning, system monitoring, and maintaining compliance with security and
+regulatory standards.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.

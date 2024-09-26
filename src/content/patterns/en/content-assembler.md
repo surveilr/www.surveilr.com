@@ -4,7 +4,7 @@ description: "Content curation, assembly, and distribution platform"
 main:
   id: 2
   content: |
-    The Content Assembler Pattern is a comprehensive content curation, assembly, and distribution platform designed for marketing, SEO, and content automation. 
+    The Content Assembler Pattern is a comprehensive content curation, assembly, and distribution platform designed for marketing, SEO, and content automation.
   imgCard: "@/images/pattern/content-assembler-pattern.avif"
   imgMain: "@/images/pattern/content-assembler-pattern.avif"
   imgAlt: "Content Assembler Pattern Workflow"

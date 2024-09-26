@@ -33,24 +33,24 @@ CREATE TABLE "ur_ingest_session_plm_issue_type" (
 
 ## Columns
 
-| Name                                | Type        | Default           | Nullable | Children                                                                                | Comment                                                 |
-| ----------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Name                                | Type        | Default           | Nullable | Children                                                                                                                          | Comment                                                 |
+| ----------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | ur_ingest_session_plm_issue_type_id | VARCHAR     |                   | false    | [ur_ingest_session_plm_acct_project_issue](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_acct_project_issue) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| avatar_id                           | TEXT        |                   | true     |                                                                                         |                                                         |
-| description                         | TEXT        |                   | false    |                                                                                         |                                                         |
-| icon_url                            | TEXT        |                   | false    |                                                                                         |                                                         |
-| id                                  | TEXT        |                   | false    |                                                                                         |                                                         |
-| name                                | TEXT        |                   | false    |                                                                                         |                                                         |
-| subtask                             | BOOLEAN     |                   | false    |                                                                                         |                                                         |
-| url                                 | TEXT        |                   | false    |                                                                                         |                                                         |
-| elaboration                         | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                          | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                         |                                                         |
-| created_by                          | TEXT        | 'UNKNOWN'         | true     |                                                                                         |                                                         |
-| updated_at                          | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
-| updated_by                          | TEXT        |                   | true     |                                                                                         |                                                         |
-| deleted_at                          | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
-| deleted_by                          | TEXT        |                   | true     |                                                                                         |                                                         |
-| activity_log                        | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| avatar_id                           | TEXT        |                   | true     |                                                                                                                                   |                                                         |
+| description                         | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| icon_url                            | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| id                                  | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| name                                | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| subtask                             | BOOLEAN     |                   | false    |                                                                                                                                   |                                                         |
+| url                                 | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| elaboration                         | TEXT        |                   | true     |                                                                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                          | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                                                                   |                                                         |
+| created_by                          | TEXT        | 'UNKNOWN'         | true     |                                                                                                                                   |                                                         |
+| updated_at                          | TIMESTAMPTZ |                   | true     |                                                                                                                                   |                                                         |
+| updated_by                          | TEXT        |                   | true     |                                                                                                                                   |                                                         |
+| deleted_at                          | TIMESTAMPTZ |                   | true     |                                                                                                                                   |                                                         |
+| deleted_by                          | TEXT        |                   | true     |                                                                                                                                   |                                                         |
+| activity_log                        | TEXT        |                   | true     |                                                                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -72,4 +72,3 @@ CREATE TABLE "ur_ingest_session_plm_issue_type" (
 ## Relations
 
 ![er](../../../../../../assets/ur_ingest_session_plm_issue_type.svg)
-

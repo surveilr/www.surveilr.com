@@ -36,23 +36,23 @@ CREATE TABLE "ur_ingest_session_udi_pgp_sql" (
 
 ## Columns
 
-| Name                             | Type        | Default           | Nullable | Parents                                   | Comment                                                 |
-| -------------------------------- | ----------- | ----------------- | -------- | ----------------------------------------- | ------------------------------------------------------- |
-| ur_ingest_session_udi_pgp_sql_id | VARCHAR     |                   | false    |                                           | ur_ingest_session_udi_pgp_sql ULID primary key          |
-| sql                              | TEXT        |                   | false    |                                           | full query for the response                             |
-| nature                           | TEXT        |                   | false    |                                           | type of sql. DDL, DQL or DML                            |
-| content                          | BLOB        |                   | true     |                                           | raw response                                            |
-| behaviour                        | TEXT        |                   | true     |                                           | the query configuration passed in the comment           |
-| query_error                      | TEXT        |                   | true     |                                           |                                                         |
+| Name                             | Type        | Default           | Nullable | Parents                                                                             | Comment                                                 |
+| -------------------------------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ur_ingest_session_udi_pgp_sql_id | VARCHAR     |                   | false    |                                                                                     | ur_ingest_session_udi_pgp_sql ULID primary key          |
+| sql                              | TEXT        |                   | false    |                                                                                     | full query for the response                             |
+| nature                           | TEXT        |                   | false    |                                                                                     | type of sql. DDL, DQL or DML                            |
+| content                          | BLOB        |                   | true     |                                                                                     | raw response                                            |
+| behaviour                        | TEXT        |                   | true     |                                                                                     | the query configuration passed in the comment           |
+| query_error                      | TEXT        |                   | true     |                                                                                     |                                                         |
 | uniform_resource_id              | VARCHAR     |                   | true     | [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource)   | uniform_resource row ID of original content             |
 | ingest_session_id                | VARCHAR     |                   | true     | [ur_ingest_session](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| created_at                       | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                           |                                                         |
-| created_by                       | TEXT        | 'UNKNOWN'         | true     |                                           |                                                         |
-| updated_at                       | TIMESTAMPTZ |                   | true     |                                           |                                                         |
-| updated_by                       | TEXT        |                   | true     |                                           |                                                         |
-| deleted_at                       | TIMESTAMPTZ |                   | true     |                                           |                                                         |
-| deleted_by                       | TEXT        |                   | true     |                                           |                                                         |
-| activity_log                     | TEXT        |                   | true     |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| created_at                       | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                     |                                                         |
+| created_by                       | TEXT        | 'UNKNOWN'         | true     |                                                                                     |                                                         |
+| updated_at                       | TIMESTAMPTZ |                   | true     |                                                                                     |                                                         |
+| updated_by                       | TEXT        |                   | true     |                                                                                     |                                                         |
+| deleted_at                       | TIMESTAMPTZ |                   | true     |                                                                                     |                                                         |
+| deleted_by                       | TEXT        |                   | true     |                                                                                     |                                                         |
+| activity_log                     | TEXT        |                   | true     |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 

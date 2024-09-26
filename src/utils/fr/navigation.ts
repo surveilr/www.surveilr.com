@@ -1,4 +1,3 @@
-
 const navBarLinks = [
   { name: "Accueil", url: "/fr" },
   { name: "Produits", url: "/fr/pattern" },

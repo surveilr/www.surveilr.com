@@ -11,6 +11,7 @@ cardImageAlt: "Side view worker wearing gloves"
 readTime: 3
 tags: ["pattern"]
 ---
+
 Industries such as **healthcare**, **energy**, **aviation**, and other
 safety-critical sectors require stringent **quality management** protocols to
 ensure the safety of their operations. In these environments, failure to adhere

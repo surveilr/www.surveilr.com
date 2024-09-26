@@ -246,8 +246,12 @@ Deno.test("multitenancy file ingestion", async (t) => {
 Deno.test("csv auto transformation", async (t) => {
   const csvAutoTeansformationRssd = path.join(
     E2E_TEST_DIR,
-    "csv-autotransformation.e2e .sqlite.db",
+    "csv-autotransformation.e2e.sqlite.db",
   );
+
+  if (await Deno.stat(csvAutoTeansformationRssd).catch(() => null)) {
+    await Deno.remove(csvAutoTeansformationRssd).catch(() => false);
+  }
 
   await t.step("ingest file syncing", async () => {
     const ingestResult =
@@ -319,7 +323,6 @@ Deno.test("csv auto transformation", async (t) => {
     );
     assertEquals(result.length, 1);
     const numberOfConvertedRecords = result[0][0];
-    console.log({ numberOfConvertedRecords });
 
     assertEquals(numberOfConvertedRecords, initialnumberOfConvertedRecords);
   });

@@ -1,10 +1,15 @@
 # `surveilr` Information assurance policies Explorer Pattern
 
-Information assurance policies are formal guidelines and rules designed to protect the confidentiality, integrity, and availability of an organization’s information systems and data. These policies define the framework for managing security risks, access controls, incident response, data protection, and compliance with legal and regulatory standards. They provide direction for employees and stakeholders on how to handle sensitive information, ensuring consistent security practices across the organization.
+Information assurance policies are formal guidelines and rules designed to
+protect the confidentiality, integrity, and availability of an organization’s
+information systems and data. These policies define the framework for managing
+security risks, access controls, incident response, data protection, and
+compliance with legal and regulatory standards. They provide direction for
+employees and stakeholders on how to handle sensitive information, ensuring
+consistent security practices across the organization.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.

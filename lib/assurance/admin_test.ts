@@ -6,7 +6,7 @@ import {
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 
-const E2E_TEST_DIR = path.join(Deno.cwd(), "assurance");
+const E2E_TEST_DIR = path.join(Deno.cwd(), "lib/assurance");
 
 Deno.test("set env variables with credentials command", async () => {
   const microsoftClientId = "client_id";

@@ -1,40 +1,40 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
 import { sqlPageNB as spn } from "./deps.ts";
 import {
-   console as c,
-   orchestration as orch,
-   shell as sh,
-   uniformResource as ur,
+  console as c,
+  orchestration as orch,
+  shell as sh,
+  uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
 // custom decorator that makes navigation for this notebook type-safe
 function iaNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
-   return spn.navigationPrime({
-      ...route,
-      parentPath: "/opsfolio",
-   });
+  return spn.navigationPrime({
+    ...route,
+    parentPath: "/opsfolio",
+  });
 }
 
 /**
  * These pages depend on ../../prime/ux.sql.ts being loaded into RSSD (for nav).
  */
 export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
-   // TypicalSqlPageNotebook.SQL injects any method that ends with `DQL`, `DML`,
-   // or `DDL` as general SQL before doing any upserts into sqlpage_files.
-   navigationDML() {
-      return this.SQL`
+  // TypicalSqlPageNotebook.SQL injects any method that ends with `DQL`, `DML`,
+  // or `DDL` as general SQL before doing any upserts into sqlpage_files.
+  navigationDML() {
+    return this.SQL`
       -- delete all /ip-related entries and recreate them in case routes are changed
       DELETE FROM sqlpage_aide_navigation WHERE path like '/opsfolio/infra/assurance%';
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
-   }
+  }
 
-   @spn.navigationPrimeTopLevel({
-      caption: "Opsfolio",
-      description: "Opsfolio",
-   })
-   "opsfolio/index.sql"() {
-      return this.SQL`
+  @spn.navigationPrimeTopLevel({
+    caption: "Opsfolio",
+    description: "Opsfolio",
+  })
+  "opsfolio/index.sql"() {
+    return this.SQL`
     select
      'card'             as component,
      3                 as columns;
@@ -42,19 +42,19 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = '/opsfolio' AND sibling_order = 2
        ORDER BY sibling_order;`;
-   }
+  }
 
-   @iaNav({
-      caption: "Infrastructure Assurance",
-      description:
-         `The Infra Assurance focuses on managing and overseeing assets and
+  @iaNav({
+    caption: "Infrastructure Assurance",
+    description:
+      `The Infra Assurance focuses on managing and overseeing assets and
       portfolios within an organization. This project provides tools and processes to
       ensure the integrity, availability, and effectiveness of assets and portfolios,
       supporting comprehensive assurance and compliance efforts.`,
-      siblingOrder: 2,
-   })
-   "opsfolio/infra/assurance/index.sql"() {
-      return this.SQL`
+    siblingOrder: 2,
+  })
+  "opsfolio/infra/assurance/index.sql"() {
+    return this.SQL`
     SELECT
     'card'             as component,
     3                 as columns;
@@ -64,15 +64,15 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
     'Assets ' || (SELECT count(boundary)  FROM server_data WHERE boundary = border_boundary.name) AS footer_md
     FROM
         border_boundary;`;
-   }
+  }
 
-   @iaNav({
-      caption: "Boundary List",
-      description: ``,
-      siblingOrder: 3,
-   })
-   "opsfolio/infra/assurance/boundary_list.sql"() {
-      return this.SQL`
+  @iaNav({
+    caption: "Boundary List",
+    description: ``,
+    siblingOrder: 3,
+  })
+  "opsfolio/infra/assurance/boundary_list.sql"() {
+    return this.SQL`
 
       select
     'title'              as component,
@@ -114,15 +114,15 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
         status as Status
       FROM server_data WHERE boundary=$boundary::TEXT;
       `;
-   }
+  }
 
-   @iaNav({
-      caption: "Infra Assurance Detail",
-      description: ``,
-      siblingOrder: 4,
-   })
-   "opsfolio/infra/assurance/assurance_detail.sql"() {
-      return this.SQL`
+  @iaNav({
+    caption: "Infra Assurance Detail",
+    description: ``,
+    siblingOrder: 4,
+  })
+  "opsfolio/infra/assurance/assurance_detail.sql"() {
+    return this.SQL`
    SELECT
     'title'              as component,
     $name as contents;
@@ -381,15 +381,15 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
          </div>' as html
          FROM
          server_data WHERE name=$name::TEXT`;
-   }
+  }
 
-   @iaNav({
-      caption: "Security Incidents",
-      description: ``,
-      siblingOrder: 4,
-   })
-   "opsfolio/infra/assurance/security_incidents.sql"() {
-      return this.SQL`
+  @iaNav({
+    caption: "Security Incidents",
+    description: ``,
+    siblingOrder: 4,
+  })
+  "opsfolio/infra/assurance/security_incidents.sql"() {
+    return this.SQL`
 
    SELECT
       'title'              as component,
@@ -419,15 +419,15 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
       likelihood_of_risk as "likelihood of risk",modification_of_the_reported_issue as "modification of the reported issue",testing_for_modified_issue as "testing for modified issue",
       test_results as "test results"
       FROM security_incident_response_view AS s JOIN asset_service_view AS a ON s.asset_name = a.server WHERE s.asset_name = $server::TEXT`;
-   }
+  }
 
-   @iaNav({
-      caption: "Security Impact Analysis",
-      description: ``,
-      siblingOrder: 4,
-   })
-   "opsfolio/infra/assurance/security_impact_analysis.sql"() {
-      return this.SQL`
+  @iaNav({
+    caption: "Security Impact Analysis",
+    description: ``,
+    siblingOrder: 4,
+  })
+  "opsfolio/infra/assurance/security_impact_analysis.sql"() {
+    return this.SQL`
       SELECT
       'title'              as component,
       $name as contents;
@@ -447,36 +447,36 @@ export class InfraAssuranceSqlPages extends spn.TypicalSqlPageNotebook {
       proposed_controls as "proposed controls", impact_level as "impact level", risk_level as "risk level", existing_controls as "existing controls",
       reported_date as "reported date", reported_by as "reported by", responsible_by as "responsible by"
       FROM security_impact_analysis_view AS s JOIN asset_service_view AS a ON s.security_risk = a.server WHERE s.security_risk = $server::TEXT`;
-   }
+  }
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 export async function assuranceSQL() {
-   return await spn.TypicalSqlPageNotebook.SQL(
-      new class extends spn.TypicalSqlPageNotebook {
-         async statelessPolicySQL() {
-            // read the file from either local or remote (depending on location of this file)
-            return await spn.TypicalSqlPageNotebook.fetchText(
-               import.meta.resolve("./stateless.sql"),
-            );
-         }
+  return await spn.TypicalSqlPageNotebook.SQL(
+    new class extends spn.TypicalSqlPageNotebook {
+      async statelessPolicySQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateless.sql"),
+        );
+      }
 
-         async orchestrateStatefulIaSQL() {
-            // read the file from either local or remote (depending on location of this file)
-            // return await spn.TypicalSqlPageNotebook.fetchText(
-            //   import.meta.resolve("./stateful-drh-surveilr.sql"),
-            // );
-         }
-      }(),
-      new sh.ShellSqlPages(),
-      new c.ConsoleSqlPages(),
-      new ur.UniformResourceSqlPages(),
-      new orch.OrchestrationSqlPages(),
-      new InfraAssuranceSqlPages(),
-   );
+      async orchestrateStatefulIaSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        // return await spn.TypicalSqlPageNotebook.fetchText(
+        //   import.meta.resolve("./stateful-drh-surveilr.sql"),
+        // );
+      }
+    }(),
+    new sh.ShellSqlPages(),
+    new c.ConsoleSqlPages(),
+    new ur.UniformResourceSqlPages(),
+    new orch.OrchestrationSqlPages(),
+    new InfraAssuranceSqlPages(),
+  );
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
-   console.log((await assuranceSQL()).join("\n"));
+  console.log((await assuranceSQL()).join("\n"));
 }

@@ -32,19 +32,19 @@ CREATE TABLE "device_party_relationship" (
 
 ## Columns
 
-| Name                         | Type        | Default           | Nullable | Parents             | Comment                                                 |
-| ---------------------------- | ----------- | ----------------- | -------- | ------------------- | ------------------------------------------------------- |
-| device_party_relationship_id | VARCHAR     |                   | false    |                     | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| Name                         | Type        | Default           | Nullable | Parents                                                       | Comment                                                 |
+| ---------------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------- | ------------------------------------------------------- |
+| device_party_relationship_id | VARCHAR     |                   | false    |                                                               | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | device_id                    | VARCHAR     |                   | false    | [device](/surveilr/reference/db/surveilr-state-schema/device) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | party_id                     | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| elaboration                  | TEXT        |                   | true     |                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                   | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                     |                                                         |
-| created_by                   | TEXT        | 'UNKNOWN'         | true     |                     |                                                         |
-| updated_at                   | TIMESTAMPTZ |                   | true     |                     |                                                         |
-| updated_by                   | TEXT        |                   | true     |                     |                                                         |
-| deleted_at                   | TIMESTAMPTZ |                   | true     |                     |                                                         |
-| deleted_by                   | TEXT        |                   | true     |                     |                                                         |
-| activity_log                 | TEXT        |                   | true     |                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| elaboration                  | TEXT        |                   | true     |                                                               | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                   | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                               |                                                         |
+| created_by                   | TEXT        | 'UNKNOWN'         | true     |                                                               |                                                         |
+| updated_at                   | TIMESTAMPTZ |                   | true     |                                                               |                                                         |
+| updated_by                   | TEXT        |                   | true     |                                                               |                                                         |
+| deleted_at                   | TIMESTAMPTZ |                   | true     |                                                               |                                                         |
+| deleted_by                   | TEXT        |                   | true     |                                                               |                                                         |
+| activity_log                 | TEXT        |                   | true     |                                                               | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -68,4 +68,3 @@ CREATE TABLE "device_party_relationship" (
 ## Relations
 
 ![er](../../../../../../assets/device_party_relationship.svg)
-
