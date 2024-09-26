@@ -242,15 +242,10 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
-# browse http://localhost:9000/dms/info-schema.sql to see DMS-specific
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
+# browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
 ```
 
 Once you apply `orchestrate-stateful-dms.surveilr.sql` and
@@ -267,7 +262,7 @@ to automatically re-load the contents into SQLite regularly. Since it can be
 time-consuming to re-run the same command in the CLI manually each time a file
 changes, you can use _watch mode_ instead.
 
-See: [`sqlpagectl.ts`](../../universal/sqlpagectl.ts).
+See: [`surveilrctl.ts`](../../std/surveilrctl.ts).
 
 ## How to Run the Tests
 

@@ -356,7 +356,7 @@ FROM
     practitioner_resources;
 
 
-/* 'orchestrateStatefulFhirSQL' in '[object Object]' returned type undefined instead of string | string[] | SQLa.SqlTextSupplier */
+/* 'orchestrateStatefulSQL' in '[object Object]' returned type undefined instead of string | string[] | SQLa.SqlTextSupplier */
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
 
 -- console_information_schema_* are convenience views
