@@ -66,7 +66,7 @@ lib/
 ├── pattern/                All public patterns (composable)
 │   ├── fhir-explorer/        FHIR Explorer Pattern
 │   ├── osquery/              osQuery Integration pattern
-│   ├── direct-messaging-service/ Direct security messaging service
+│   ├── direct-messaging-service/ Direct secure messaging integration pattern
 │   └── (...)/                add more patterns above this one
 ├── service/                All public services (large combinations of patterns)
 │   ├── drh/                  Diabetes Research Hub "Edge" Service
