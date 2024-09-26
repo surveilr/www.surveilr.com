@@ -300,7 +300,7 @@ function sqlPageDevAction(options: {
   // Watch for changes in SQL and TS files and execute sqlite3 on change
   watchFiles(
     { paths: options.watch, recursive: options.watchRecurse },
-    [/\.sql\.ts$/, /(^ERROR-).*\.sql$/],
+    [/\.sql\.ts$/, /^(?!ERROR).*\.sql$/],
     db,
     sqlPageService,
     showModifiedUrlsOnChange,
