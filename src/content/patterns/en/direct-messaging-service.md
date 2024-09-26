@@ -1,6 +1,6 @@
 ---
 title: "Direct Secure Messaging Service"
-description: "Secure exchange of clinical data using the phiMail service"
+description: "Trusted and protected health information exchange is backed by the Direct Standard®"
 main:
   id: 5
   content: |
