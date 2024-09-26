@@ -5,7 +5,7 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 
 const E2E_TEST_DIR = path.join(Deno.cwd(), "assurance");
 const ZIP_URL =
-  "https://github.com/opsfolio/resource-surveillance-commons/raw/main/pattern/direct-messaging-service/ingest.zip";
+  "https://github.com/surveilr/www.surveilr.com/raw/main/lib/pattern/direct-messaging-service/ingest.zip";
 const ZIP_FILE = path.join(E2E_TEST_DIR, "ingest.zip");
 const INGEST_DIR = path.join(E2E_TEST_DIR, "ingest");
 const DEFAULT_RSSD_PATH = path.join(
