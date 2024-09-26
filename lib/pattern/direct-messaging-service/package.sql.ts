@@ -419,7 +419,7 @@ export async function SQL() {
       async statelessDmsSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless-dms.surveilr.sql"),
+          import.meta.resolve("./stateless.sql"),
         );
       }
     }(),
