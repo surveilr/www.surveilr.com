@@ -36,7 +36,7 @@ $ mkdir ingest && cd ingest && unzip ../synthea_sample_data_fhir_latest.zip && c
 $ surveilr ingest files -r ingest/
 
 # use SQLPage to preview content (be sure `deno` v1.40 or above is installed)
-$ surveilr https://surveilr.com/pattern/fhir-explorer/package.sql
+$ surveilr shell https://surveilr.com/pattern/fhir-explorer/package.sql
 $ surveilr web-ui --port 9000
 # launch a browser and go to http://localhost:9000/fhir/index.sql
 ```
@@ -90,7 +90,7 @@ After ingestion, you will only work with these files:
 
 ```
 ├── orchestrate-stateful-fhir.surveilr.sql
-├── stateless-fhir.surveilr.sql 
+├── stateless-fhir.surveilr.sql
 └── resource-surveillance.sqlite.db            # SQLite database
 ```
 
