@@ -1,5 +1,8 @@
 # `surveilr` FHIR Explorer Pattern
 
+[Learn more about this pattern](https://surveilr.com/pattern/fhir-explorer) at
+[`www.surveilr.com`](https://surveilr.com/pattern/fhir-explorer).
+
 - `stateless-fhir.surveilr.sql` script focuses on creating views that define how
   to extract and present specific FHIR data from the `uniform_resource.content`
   JSONB column. It does not modify or store any persistent data; it only sets up
@@ -111,15 +114,6 @@ $ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
 
 # browse http://localhost:9000/fhir/info-schema.sql to see FHIR-specific views and tables
 ```
-
-## Automatically reloading SQL when it changes
-
-On sandboxes during development and editing of `.sql` or `.sql.ts` you may want
-to automatically re-load the contents into SQLite regularly. Since it can be
-time-consuming to re-run the same command in the CLI manually each time a file
-changes, you can use _watch mode_ instead.
-
-See: [`sqlpagectl.ts`](../../universal/sqlpagectl.ts).
 
 ## TODO
 
