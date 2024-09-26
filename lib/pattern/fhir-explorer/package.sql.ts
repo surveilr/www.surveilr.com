@@ -172,18 +172,18 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 if (import.meta.main) {
   const SQL = await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
-      async statelessFhirSQL() {
+      async statelessSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless-fhir.surveilr.sql"),
+          import.meta.resolve("./stateless.sql"),
         );
       }
 
-      async orchestrateStatefulFhirSQL() {
+      async orchestrateStatefulSQL() {
         // read the file from either local or remote (depending on location of this file)
         // optional, for better performance:
         // return await TypicalSqlPageNotebook.fetchText(
-        //   import.meta.resolve("./orchestrate-stateful-fhir.surveilr.sql"),
+        //   import.meta.resolve("./orchestrate-stateful.sql"),
         // );
       }
     }(),

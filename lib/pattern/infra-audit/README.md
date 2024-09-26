@@ -28,14 +28,8 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/infra-audit/info-schema.sql to see infra-audit views and tables
 ```
-

@@ -38,7 +38,7 @@ study-files/
 # sometimes we'll test local files in SQLPage but we don't want those tracked
 sqlpage/
 
-# sqlpagectl.ts generates these files when it encounters an error
+# survelirctl.ts generates these files when it encounters an error
 ERROR-*
 *-ERROR-*
 

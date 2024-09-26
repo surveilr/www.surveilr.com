@@ -3,18 +3,18 @@
 [Learn more about this pattern](https://surveilr.com/pattern/fhir-explorer) at
 [`www.surveilr.com`](https://surveilr.com/pattern/fhir-explorer).
 
-- `stateless-fhir.surveilr.sql` script focuses on creating views that define how
-  to extract and present specific FHIR data from the `uniform_resource.content`
-  JSONB column. It does not modify or store any persistent data; it only sets up
-  views for querying.
-- `orchestrate-stateful-fhir.surveilr.sql` script is responsible for creating
-  tables that cache data extracted by views. These tables serve as "materialized
-  views", allowing for faster access to the data but are static. When new data
-  is ingested, the tables need to be dropped and recreated manually, and any
-  changes in the source data will not be reflected until the tables are
-  refreshed.
-- `package.sql.ts` script is the entry point for loading typical database
-  objects and Web UI content.
+- `package.sql.ts` script is the entry point used to generate SQL DDL and DML
+  for typical database objects and Web UI content plus the following:
+  - `stateless.sql` script focuses on creating views that define how
+    to extract and present specific FHIR data from the `uniform_resource.content`
+    JSONB column. It does not modify or store any persistent data; it only sets up
+    views for querying.
+  - `orchestrate-stateful.sql` script is responsible for creating
+    tables that cache data extracted by views. These tables serve as "materialized
+    views", allowing for faster access to the data but are static. When new data
+    is ingested, the tables need to be dropped and recreated manually, and any
+    changes in the source data will not be reflected until the tables are
+    refreshed.
 
 ## Try it out on any device without this repo (if you're just using the SQL scripts)
 
@@ -49,7 +49,7 @@ tools, DBeaver, DataGrip, or any other SQLite data access tools.
 The typical `pattern/fhir-explorer/package.sql` will only create simple SQL
 convenience views on top of ingested data. On fast machines the simple SQL views
 will perform well. However, if performance is slow, you can apply
-`orchestrate-stateful-fhir.surveilr.sql` which will add denormalized `*_cached`
+`orchestrate-stateful.sql` which will add denormalized `*_cached`
 tables in `resource-surveillance.sqlite.db`.
 
 ## Try it out in this repo (if you're developing SQL scripts)
@@ -72,9 +72,9 @@ The directory should look like this now:
 │   ├── Abe604_Runolfsdottir785_3718b84e-cbe9-1950-6c6c-e6f4fdc907be.json
 │   ├── ...(many more files)
 │   └── Yon80_Kiehn525_54fe5c50-37cc-930b-8e3a-2c4e91bb6eec.json
-├── orchestrate-stateful-fhir.surveilr.sql
+├── orchestrate-stateful.sql
 ├── package.sql.ts
-└── stateless-fhir.surveilr.sql
+└── stateless.sql
 ```
 
 Now
@@ -89,9 +89,9 @@ $ surveilr ingest files -r ingest/
 After ingestion, you will only work with these files:
 
 ```
-├── orchestrate-stateful-fhir.surveilr.sql
-├── stateless-fhir.surveilr.sql
-└── resource-surveillance.sqlite.db            # SQLite database
+├── orchestrate-stateful.sql
+├── stateless.sql
+└── resource-surveillance.sqlite.db            # RSSD (SQLite database)
 ```
 
 Post-ingestion, `surveilr` is no longer required, the `ingest` directory can be
@@ -104,14 +104,9 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/fhir/info-schema.sql to see FHIR-specific views and tables
 ```
 
