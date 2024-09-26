@@ -267,8 +267,6 @@ export class iatSqlPages extends spn.TypicalSqlPageNotebook {
   }
 }
 
-
-
 export async function infoAssuranceSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {

@@ -111,20 +111,32 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 </div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3C63B3">volumes:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#82AAFF;--1:#3C63B3">filestash:</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">{}</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#82AAFF;--1:#3C63B3">sftp_data:</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">{}</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="version: &#x27;2&#x27;services:  app:    container_name: filestash    image: machines/filestash    restart: always    environment:    - APPLICATION_URL=    - GDRIVE_CLIENT_ID=<gdrive_client>    - GDRIVE_CLIENT_SECRET=<gdrive_secret>    - DROPBOX_CLIENT_ID=<dropbox_key>    - ONLYOFFICE_URL=http://onlyoffice    ports:    - &#x22;8334:8334&#x22;    volumes:    - filestash:/app/data/state/  onlyoffice:    container_name: filestash_oods    image: onlyoffice/documentserver    restart: always    security_opt:      - seccomp:unconfined  sftp:   container_name: sftp-opsfolio   image: atmoz/sftp   restart: always   volumes:     - sftp_data:/home   command: >     <username>:<passwd>:::<folder-name>/     observe:pass:::log/volumes:    filestash: {}    sftp_data: {}"><div></div></button></div></figure></div>
 <p>To start the application with Docker Compose, use the following command:</p>
 <div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3C63B3">$</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">docker-compose</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">up</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">-d</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="$ docker-compose up -d"><div></div></button></div></figure></div>
-<p>Set up a reverse proxy to create a custom URL, such as <code dir="auto">https://files.opsfolio.com/</code>, and then proceed to configure your admin password.</p>
+<p>Set up a reverse proxy to create a custom URL, such as
+<code dir="auto">https://files.opsfolio.com/</code>, and then proceed to configure your admin
+password.</p>
 <p><img src="/images/adminpage.png" alt="Admin page"></p>
 <p>You can set the administrator password in this section.</p>
 <p>Next, choose <code dir="auto">SFTP</code> as your <code dir="auto">Storage Backend</code> .</p>
 <p><img src="/images/Storage-Backend.png" alt="Storage Backend"></p>
-<p>Use the credentials you specified in the docker-compose file to log in as an SFTP user.</p>
+<p>Use the credentials you specified in the docker-compose file to log in as an
+SFTP user.</p>
 <p><img src="/images/SFTP-login.png" alt="SFTP Admin page"></p>
-<p>Enter the hostname, which should match the <code dir="auto">sftp</code> container name, in this example, <code dir="auto">sftp-opsfolio</code> (sftp container name accessed internally)</p>
+<p>Enter the hostname, which should match the <code dir="auto">sftp</code> container name, in this
+example, <code dir="auto">sftp-opsfolio</code> (sftp container name accessed internally)</p>
 <p>Navigate to <code dir="auto">advanced</code> settings and specify port <code dir="auto">22</code>.</p>
 <p><img src="/images/SFTP-advanced.png" alt="SFTP advanced page"></p>
-<p>Once you have clicked <code dir="auto">CONNECT</code>, you will be directed to the default directory set in your docker-compose file.</p>
-<p>From here, you can create <code dir="auto">NEW FILE</code> or <code dir="auto">NEW FOLDER</code> by clicking on new file or new folder. To manage permissions, hover over the file or folder, and click the ‘share’ icon to set the  <code dir="auto">Authorization component</code>.</p>
+<p>Once you have clicked <code dir="auto">CONNECT</code>, you will be directed to the default directory
+set in your docker-compose file.</p>
+<p>From here, you can create <code dir="auto">NEW FILE</code> or <code dir="auto">NEW FOLDER</code> by clicking on new file or
+new folder. To manage permissions, hover over the file or folder, and click the
+‘share’ icon to set the <code dir="auto">Authorization component</code>.</p>
 <ul>
-<li>Authorization component: Define the permissions for each user once they have logged in. You can assign different access levels such as <code dir="auto">viewer, editor, or uploader</code>. For instance, you may want to grant read/write access to the marketing department, while limiting the sales department to read-only access.</li>
+<li>Authorization component: Define the permissions for each user once they have
+logged in. You can assign different access levels such as
+<code dir="auto">viewer, editor, or uploader</code>. For instance, you may want to grant read/write
+access to the marketing department, while limiting the sales department to
+read-only access.</li>
 </ul>
-<p>Once you’ve set the appropriate permissions and restrictions, you can copy and share the link with users as needed.</p>
+<p>Once you’ve set the appropriate permissions and restrictions, you can copy and
+share the link with users as needed.</p>
 <p><img src="/images/Authorization-component.png" alt="Authorization component"></p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

@@ -101,28 +101,33 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <ul>
 <li>Feature: <code dir="auto">surveilr orchestrate -n "v&#x26;v" -s xyz.sql</code>
 <ul>
-<li>Description: Execute an xyz.sql script stored in a VFS filesystem locally. This feature supports orchestrating SQL scripts for validation and verification (v&#x26;v) purposes.</li>
+<li>Description: Execute an xyz.sql script stored in a VFS filesystem
+locally. This feature supports orchestrating SQL scripts for validation
+and verification (v&#x26;v) purposes.</li>
 <li>Usage: <code dir="auto">surveilr orchestrate -n "v&#x26;v" -s xyz.sql</code></li>
 </ul>
 </li>
 </ul>
 </li>
 <li>
-<p><strong>Script Execution Order</strong>
-The orchestration service now accepts multiple SQL files and guarantees they are executed in the specified order, ensuring the correct sequence of operations.</p>
+<p><strong>Script Execution Order</strong> The orchestration service now accepts multiple SQL
+files and guarantees they are executed in the specified order, ensuring the
+correct sequence of operations.</p>
 </li>
 <li>
 <p><strong>SQLite Orchestration Helper Functions</strong></p>
 <ul>
 <li><code dir="auto">surveilr_orchestration_context_session_id</code>
 <ul>
-<li>Description: Adds an SQLite function to return the current active session_id.</li>
-<li>Usage:<code dir="auto"> SELECT surveilr_orchestration_context_session_id();</code></li>
+<li>Description: Adds an SQLite function to return the current active
+session_id.</li>
+<li>Usage:<code dir="auto">SELECT surveilr_orchestration_context_session_id();</code></li>
 </ul>
 </li>
 <li><code dir="auto">device_id</code>
 <ul>
-<li>Description: Adds an SQLite function to return the device_id of the host device.</li>
+<li>Description: Adds an SQLite function to return the device_id of the host
+device.</li>
 <li>Usage: SELECT device_id();</li>
 </ul>
 </li>
@@ -132,21 +137,28 @@ The orchestration service now accepts multiple SQL files and guarantees they are
 <li>Usage: SELECT surveilr_version();</li>
 </ul>
 </li>
-<li><code dir="auto">surveilr_orchestration_context_active</code>: Returns a boolean indicating if the execution is in an active context.</li>
-<li><code dir="auto">surveilr_orchestration_context_session_id</code>: Gets the active session ID, which is the latest session still in progress and does not have a corresponding <code dir="auto">surveilr_orch_completed</code> state.</li>
+<li><code dir="auto">surveilr_orchestration_context_active</code>: Returns a boolean indicating if
+the execution is in an active context.</li>
+<li><code dir="auto">surveilr_orchestration_context_session_id</code>: Gets the active session ID,
+which is the latest session still in progress and does not have a
+corresponding <code dir="auto">surveilr_orch_completed</code> state.</li>
 </ul>
 </li>
 <li>
-<p><strong>Session Management</strong>
-When an orchestratio session is started through the command line, it inserts a record into <code dir="auto">orchestration_session_state</code> with the <code dir="auto">from_state</code> column set to <code dir="auto">surveilr_orch_init</code> and the <code dir="auto">to_state</code> filed to<code dir="auto">surveilr_orch _progress</code>, indicating the session is in progress.
-Upon completion of execution, a new record is inserted, rather than updating the previous record, with <code dir="auto">to_state</code> colums set to <code dir="auto">surveilr_orch_completed</code>, marking the session as complete.</p>
+<p><strong>Session Management</strong> When an orchestratio session is started through the
+command line, it inserts a record into <code dir="auto">orchestration_session_state</code> with the
+<code dir="auto">from_state</code> column set to <code dir="auto">surveilr_orch_init</code> and the <code dir="auto">to_state</code> filed
+to<code dir="auto">surveilr_orch _progress</code>, indicating the session is in progress. Upon
+completion of execution, a new record is inserted, rather than updating the
+previous record, with <code dir="auto">to_state</code> colums set to <code dir="auto">surveilr_orch_completed</code>,
+marking the session as complete.</p>
 </li>
 <li>
-<p><strong>Logging</strong>
-Feature: <code dir="auto">orchestration_session_log</code> Table
-Description: Adds a new table orch_session_log to log entries with the following columns:</p>
+<p><strong>Logging</strong> Feature: <code dir="auto">orchestration_session_log</code> Table Description: Adds a
+new table orch_session_log to log entries with the following columns:</p>
 <div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.j8ofn.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="sql"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">category: </span><span style="--0:#C792EA;--1:#8D46B4">TEXT</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">content: </span><span style="--0:#C792EA;--1:#8D46B4">TEXT</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C792EA;--1:#8D46B4">NOT NULL</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">sibling_order: </span><span style="--0:#C792EA;--1:#8D46B4">NUMERIC</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">parent_id: ULID</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">elaboration: </span><span style="--0:#C792EA;--1:#8D46B4">JSON</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="category: TEXTcontent: TEXT NOT NULLsibling_order: NUMERICparent_id: ULIDelaboration: JSON"><div></div></button></div></figure></div>
 </li>
 </ol>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.1">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.1">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

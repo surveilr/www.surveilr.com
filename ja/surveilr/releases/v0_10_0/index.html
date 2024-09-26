@@ -98,16 +98,22 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <ol>
 <li><strong>Orchestration models</strong>
 <ul class="contains-task-list">
-<li class="task-list-item"><input type="checkbox" checked disabled> <code dir="auto">device</code> – <code dir="auto">surveilr</code> already has a <code dir="auto">device</code> table but check to see if we need to enhance it.</li>
-<li class="task-list-item"><input type="checkbox" checked disabled> Add a table called <code dir="auto">orchestration_nature</code> with a <code dir="auto">orchestration_nature_id</code> TEXT ID primary key (not UUID), required <code dir="auto">nature</code> TEXT, <code dir="auto">elaboration</code> JSONB columns
+<li class="task-list-item"><input type="checkbox" checked disabled> <code dir="auto">device</code> – <code dir="auto">surveilr</code> already has a <code dir="auto">device</code> table but check to see if
+we need to enhance it.</li>
+<li class="task-list-item"><input type="checkbox" checked disabled> Add a table called <code dir="auto">orchestration_nature</code> with a
+<code dir="auto">orchestration_nature_id</code> TEXT ID primary key (not UUID), required
+<code dir="auto">nature</code> TEXT, <code dir="auto">elaboration</code> JSONB columns
 <ul class="contains-task-list">
-<li class="task-list-item"><input type="checkbox" checked disabled> Start with a single default row with <code dir="auto"> orchestration_nature_id</code> called <code dir="auto">V&#x26;V</code> and <code dir="auto">nature</code> called <code dir="auto">Verification and Validation</code></li>
-<li class="task-list-item"><input type="checkbox" checked disabled> We will start with one type of “orchestration” called “V&#x26;V” and then we will add more later after V&#x26;V is done</li>
+<li class="task-list-item"><input type="checkbox" checked disabled> Start with a single default row with <code dir="auto">orchestration_nature_id</code> called
+<code dir="auto">V&#x26;V</code> and <code dir="auto">nature</code> called <code dir="auto">Verification and Validation</code></li>
+<li class="task-list-item"><input type="checkbox" checked disabled> We will start with one type of “orchestration” called “V&#x26;V” and then
+we will add more later after V&#x26;V is done</li>
 </ul>
 </li>
 <li class="task-list-item"><input type="checkbox" checked disabled> <code dir="auto">orch_session</code> -> use it as it but call it <code dir="auto">orchestration_session</code>
 <ul class="contains-task-list">
-<li class="task-list-item"><input type="checkbox" checked disabled> add a text column called <code dir="auto">orchestration_nature_id</code> to this table and default it to <code dir="auto">V&#x26;V</code> foreign key above.</li>
+<li class="task-list-item"><input type="checkbox" checked disabled> add a text column called <code dir="auto">orchestration_nature_id</code> to this table and
+default it to <code dir="auto">V&#x26;V</code> foreign key above.</li>
 </ul>
 </li>
 <li class="task-list-item"><input type="checkbox" checked disabled> <code dir="auto">orch_session_entry</code> -> <code dir="auto">orchestration_session_entry</code></li>
@@ -119,7 +125,9 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 </ol>
 <h2 id="bug-fixes">Bug Fixes</h2>
 <ul>
-<li><strong>GitLab Batch Size</strong>: The default used to be 20; however, it will now be determined by the <code dir="auto">--batch-size</code> argument provided.</li>
+<li><strong>GitLab Batch Size</strong>: The default used to be 20; however, it will now be
+determined by the <code dir="auto">--batch-size</code> argument provided.</li>
 </ul>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.0">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.0">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

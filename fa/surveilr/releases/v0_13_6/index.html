@@ -97,14 +97,27 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <h2 id="bug-fixes">Bug Fixes</h2>
 <h4 id="1-fix-file-content-duplication-during-file-ingestion">1. <strong>Fix file content duplication during file ingestion</strong></h4>
 <p><strong>Issue:</strong><br>
-We were facing file content duplication during the <code dir="auto">surveilr ingest files</code> operation inside the <code dir="auto">uniform_resource</code> table. This occurred when there were changes to file properties such as inode, even if the content inside the file remained the same.</p>
+We were facing file content duplication during the <code dir="auto">surveilr ingest files</code>
+operation inside the <code dir="auto">uniform_resource</code> table. This occurred when there were
+changes to file properties such as inode, even if the content inside the file
+remained the same.</p>
 <p><strong>Fix:</strong><br>
-The bug was resolved by removing the <code dir="auto">last_modified</code> field from the unique index on the <code dir="auto">uniform_resource</code> model. This prevents duplication when ingesting files with unchanged content.</p>
+The bug was resolved by removing the <code dir="auto">last_modified</code> field from the unique index
+on the <code dir="auto">uniform_resource</code> model. This prevents duplication when ingesting files
+with unchanged content.</p>
 <hr>
 <h4 id="2-ensure-idempotency-during-csv-auto-transformation-ingestion">2. <strong>Ensure idempotency during CSV auto-transformation ingestion</strong></h4>
 <p><strong>Issue:</strong><br>
-When running the command <code dir="auto">surveilr ingest files --csv-transform-auto</code>, tables are created based on the file names inside the folder (e.g., <code dir="auto">code_quality_infrastructure.csv</code> creates a table <code dir="auto">uniform_resource_code_quality_infrastructure</code>). The issue arose when the command was run multiple times—it inserted the same data repeatedly, leading to duplication.</p>
+When running the command <code dir="auto">surveilr ingest files --csv-transform-auto</code>, tables
+are created based on the file names inside the folder (e.g.,
+<code dir="auto">code_quality_infrastructure.csv</code> creates a table
+<code dir="auto">uniform_resource_code_quality_infrastructure</code>). The issue arose when the
+command was run multiple times—it inserted the same data repeatedly, leading to
+duplication.</p>
 <p><strong>Fix:</strong><br>
-The issue was fixed by dropping the CSV table first and then recreating it only if there are no changes to the resource. This ensures the command is idempotent and prevents duplicate entries on repeated runs.</p>
+The issue was fixed by dropping the CSV table first and then recreating it only
+if there are no changes to the resource. This ensures the command is idempotent
+and prevents duplicate entries on repeated runs.</p>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.13.6">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.13.6">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

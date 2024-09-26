@@ -1,10 +1,14 @@
 # `surveilr` Information assurance Explorer Pattern
 
-Information assurance is the practice of managing and protecting information systems to ensure data integrity, availability, confidentiality, authentication, and non-repudiation. It encompasses processes, policies, and tools aimed at safeguarding digital and physical assets against threats like unauthorized access, data breaches, and cyberattacks, ensuring that information remains secure and trustworthy throughout its lifecycle.
+Information assurance is the practice of managing and protecting information
+systems to ensure data integrity, availability, confidentiality, authentication,
+and non-repudiation. It encompasses processes, policies, and tools aimed at
+safeguarding digital and physical assets against threats like unauthorized
+access, data breaches, and cyberattacks, ensuring that information remains
+secure and trustworthy throughout its lifecycle.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.
@@ -38,4 +42,3 @@ $ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
 
 # browse http://localhost:9000/infra-audit/info-schema.sql to see infra-audit views and tables
 ```
-

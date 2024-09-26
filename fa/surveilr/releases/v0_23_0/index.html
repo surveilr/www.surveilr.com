@@ -98,21 +98,34 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <hr>
 <ul>
 <li>
-<p><strong>Environment Variable Import with Regular Expressions:</strong>
-Added the <code dir="auto">--import-env "&#x3C;regex>"</code> option to <code dir="auto">surveilr shell</code>. This feature allows users to import environment variables that match a given regular expression into the <code dir="auto">session_state_ephemeral</code> table, making them available for scripts. Users must explicitly provide the regular expression they wish to use, (<code dir="auto">.*</code> must be specified manually if desired).</p>
+<p><strong>Environment Variable Import with Regular Expressions:</strong> Added the
+<code dir="auto">--import-env "&#x3C;regex>"</code> option to <code dir="auto">surveilr shell</code>. This feature allows users
+to import environment variables that match a given regular expression into the
+<code dir="auto">session_state_ephemeral</code> table, making them available for scripts. Users must
+explicitly provide the regular expression they wish to use, (<code dir="auto">.*</code> must be
+specified manually if desired).</p>
 </li>
 <li>
-<p><strong>Argument Parsing and Upsert:</strong>
-Enhanced the argument parsing capability of <code dir="auto">surveilr shell</code> to handle any arguments passed with the <code dir="auto">--arg</code> prefix (e.g., <code dir="auto">--arg1 abc</code>, <code dir="auto">--arg2 xyz</code>). These arguments are automatically upserted into the <code dir="auto">session_state_ephemeral</code> table, allowing them to be referenced within the session.</p>
+<p><strong>Argument Parsing and Upsert:</strong> Enhanced the argument parsing capability of
+<code dir="auto">surveilr shell</code> to handle any arguments passed with the <code dir="auto">--arg</code> prefix (e.g.,
+<code dir="auto">--arg1 abc</code>, <code dir="auto">--arg2 xyz</code>). These arguments are automatically upserted into
+the <code dir="auto">session_state_ephemeral</code> table, allowing them to be referenced within the
+session.</p>
 </li>
 <li>
-<p><strong>Custom Session State Table:</strong>
-Introduced the <code dir="auto">--session-state-table-name</code> argument, allowing users to specify a custom name for the session state table. By default, the table is named <code dir="auto">session_state_ephemeral</code>, but this can now be overridden as needed.</p>
+<p><strong>Custom Session State Table:</strong> Introduced the <code dir="auto">--session-state-table-name</code>
+argument, allowing users to specify a custom name for the session state table.
+By default, the table is named <code dir="auto">session_state_ephemeral</code>, but this can now be
+overridden as needed.</p>
 </li>
 <li>
-<p><strong>Idempotent Session State Table Creation:</strong>
-Ensured that the session state table (whether default or custom) is created in a safe, idempotent manner. A TEMP table with the name <code dir="auto">session_state_ephemeral</code> (or the specified table name) is created using the schema: <code dir="auto">CREATE TABLE "session_state_ephemeral" (KEY, VALUE)</code>.</p>
+<p><strong>Idempotent Session State Table Creation:</strong> Ensured that the session state
+table (whether default or custom) is created in a safe, idempotent manner. A
+TEMP table with the name <code dir="auto">session_state_ephemeral</code> (or the specified table
+name) is created using the schema:
+<code dir="auto">CREATE TABLE "session_state_ephemeral" (KEY, VALUE)</code>.</p>
 </li>
 </ul>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.23.0">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.23.0">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

@@ -98,32 +98,52 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <h3 id="1-orchestrate-with-script-storage">1. Orchestrate with Script Storage</h3>
 <ul>
 <li><strong>Command</strong>: <code dir="auto">surveilr orchestrate  -n "v&#x26;v" -s abc.sql --save-script</code></li>
-<li><strong>Description</strong>: This command now stores everything from the command line into the orchestration session. If the <code dir="auto">--save-script</code> flag is set to true, which is the default, the script content is stored in the elaboration field for reference.</li>
+<li><strong>Description</strong>: This command now stores everything from the command line into
+the orchestration session. If the <code dir="auto">--save-script</code> flag is set to true, which
+is the default, the script content is stored in the elaboration field for
+reference.</li>
 </ul>
 <h3 id="2-web-ui-launch-and-auto-open">2. Web UI Launch and Auto-Open</h3>
 <ul>
 <li><strong>Command</strong>: <code dir="auto">surveilr web-ui -p 9000</code></li>
-<li><strong>Description</strong>: The <code dir="auto">sqlpage</code> subcommand has been changed to <code dir="auto">webui</code>. You can now launch the web interface using the command <code dir="auto">surveilr web-ui</code>, which provides the address of the webpage. Additionally, using the <code dir="auto">--open</code> flag will automatically open the webpage in the default browser. Read more <a href="/surveilr/reference/cli/commands#surveilr-web-ui">here</a>.</li>
+<li><strong>Description</strong>: The <code dir="auto">sqlpage</code> subcommand has been changed to <code dir="auto">webui</code>. You can
+now launch the web interface using the command <code dir="auto">surveilr web-ui</code>, which
+provides the address of the webpage. Additionally, using the <code dir="auto">--open</code> flag
+will automatically open the webpage in the default browser. Read more
+<a href="/surveilr/reference/cli/commands#surveilr-web-ui">here</a>.</li>
 </ul>
 <h3 id="3-handling-streaming-content-from-stdin">3. Handling Streaming Content from STDIN</h3>
 <ul>
-<li><strong>Functionality</strong>: If streaming content is received through STDIN, it is treated as the first script to be executed, followed by any subsequent scripts provided via the <code dir="auto">--sql</code> flag.</li>
-<li>Example: <code dir="auto">curl https://abc.com/my.sql | surveilr orchestrate -n "v&#x26;v" -s abc.sql</code></li>
+<li><strong>Functionality</strong>: If streaming content is received through STDIN, it is
+treated as the first script to be executed, followed by any subsequent scripts
+provided via the <code dir="auto">--sql</code> flag.</li>
+<li>Example:
+<code dir="auto">curl https://abc.com/my.sql | surveilr orchestrate -n "v&#x26;v" -s abc.sql</code></li>
 </ul>
 <h3 id="4-execute-scripts-from-remote-filesystem-via-https">4. Execute Scripts from Remote Filesystem via HTTPs</h3>
 <ul>
-<li><strong>Command</strong>: <code dir="auto">surveilr orchestrate -n "v&#x26;v" --sql https://github.com/abc/xyz/xyz.sql</code></li>
-<li><strong>Description</strong>: This command will execute a script stored in a remote filesystem via HTTPs. This feature ensures that remote scripts are fetched and executed seamlessly.</li>
-<li>Example: <code dir="auto">surveilr orchestrate -n "v&#x26;v" --sql https://github.com/abc/xyz/xyz.sql</code></li>
+<li><strong>Command</strong>:
+<code dir="auto">surveilr orchestrate -n "v&#x26;v" --sql https://github.com/abc/xyz/xyz.sql</code></li>
+<li><strong>Description</strong>: This command will execute a script stored in a remote
+filesystem via HTTPs. This feature ensures that remote scripts are fetched and
+executed seamlessly.</li>
+<li>Example:
+<code dir="auto">surveilr orchestrate -n "v&#x26;v" --sql https://github.com/abc/xyz/xyz.sql</code></li>
 </ul>
 <p><strong>Combined Example of passing SQL scripts to <code dir="auto">surveilr</code> orchestration</strong></p>
 <div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.j8ofn.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3C63B3">curl</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">https://raw.githubusercontent.com/opsfolio/resource-surveillance-commons/main/pattern/privacy/anonymize-sample/de-identification/deidentification.sql</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#F78C6C;--1:#AA0982">\</span></div></div><div class="ec-line"><div class="code"><span class="indent"> </span><span style="--0:#7FDBCA;--1:#097174">|</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">surveilr</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">orchestrate</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">v&#x26;v</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#F78C6C;--1:#AA0982">\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">-s </span><span style="--0:#ECC48D;--1:#3C63B3">./support/regression-tests/orchestrate.sql</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">-s</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">./support/regression-tests/deidentify.sql</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#F78C6C;--1:#AA0982">\</span></div></div><div class="ec-line"><div class="code"><span class="indent"> </span><span style="--0:#82AAFF;--1:#3C63B3">-s</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">https://raw.githubusercontent.com/opsfolio/resource-surveillance-commons/main/pattern/privacy/anonymize-sample/stateless-privacy-surveilr.sql</span><span style="--0:#D9F5DD;--1:#111111">"</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="curl https://raw.githubusercontent.com/opsfolio/resource-surveillance-commons/main/pattern/privacy/anonymize-sample/de-identification/deidentification.sql \ | surveilr orchestrate -n &#x22;v&#x26;v&#x22; \-s ./support/regression-tests/orchestrate.sql -s ./support/regression-tests/deidentify.sql \ -s &#x22;https://raw.githubusercontent.com/opsfolio/resource-surveillance-commons/main/pattern/privacy/anonymize-sample/stateless-privacy-surveilr.sql&#x22;"><div></div></button></div></figure></div>
 <ul>
-<li><strong>Description</strong>: This command pipes a script from a remote URL into the surveilr orchestrate command and specifies additional scripts to be executed from both local and remote sources. The initial script from STDIN is executed first, followed by the scripts provided via the —sql flag.</li>
+<li><strong>Description</strong>: This command pipes a script from a remote URL into the
+surveilr orchestrate command and specifies additional scripts to be executed
+from both local and remote sources. The initial script from STDIN is executed
+first, followed by the scripts provided via the —sql flag.</li>
 </ul>
 <h2 id="fixes">Fixes</h2>
 <ul>
-<li><code dir="auto">surveilr_device_id</code>: This function was previously named <code dir="auto">device_id</code>, but now the word <code dir="auto">surveilr_</code> has been added as a prefix to denote that it is a <code dir="auto">surveilr</code> specific function.</li>
+<li><code dir="auto">surveilr_device_id</code>: This function was previously named <code dir="auto">device_id</code>, but now
+the word <code dir="auto">surveilr_</code> has been added as a prefix to denote that it is a
+<code dir="auto">surveilr</code> specific function.</li>
 </ul>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.2">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.10.2">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

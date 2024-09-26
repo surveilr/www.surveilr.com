@@ -98,9 +98,15 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <ol>
 <li><strong>Notebook Orchestration</strong>
 <ul>
-<li>Introduced a powerful new feature that allows executing scripts stored within <code dir="auto">code_notebook_cell</code>, similar to stored procedures.</li>
-<li>You can use the <code dir="auto">--notebook</code> (<code dir="auto">-n</code>) and <code dir="auto">--cell</code> (<code dir="auto">-c</code>) arguments to select multiple notebooks and cells, orchestrating them in a single session.</li>
-<li>The <code dir="auto">-arg</code> flag now creates a temporary table <code dir="auto">surveilr_orchestration_session_arg</code> with columns <code dir="auto">session_id</code>, <code dir="auto">key</code>, and <code dir="auto">value</code>. All provided arguments are inserted as rows in this table, allowing the <code dir="auto">code_notebook_cell</code> SQL code to leverage these inputs dynamically.</li>
+<li>Introduced a powerful new feature that allows executing scripts stored
+within <code dir="auto">code_notebook_cell</code>, similar to stored procedures.</li>
+<li>You can use the <code dir="auto">--notebook</code> (<code dir="auto">-n</code>) and <code dir="auto">--cell</code> (<code dir="auto">-c</code>) arguments to select
+multiple notebooks and cells, orchestrating them in a single session.</li>
+<li>The <code dir="auto">-arg</code> flag now creates a temporary table
+<code dir="auto">surveilr_orchestration_session_arg</code> with columns <code dir="auto">session_id</code>, <code dir="auto">key</code>, and
+<code dir="auto">value</code>. All provided arguments are inserted as rows in this table,
+allowing the <code dir="auto">code_notebook_cell</code> SQL code to leverage these inputs
+dynamically.</li>
 </ul>
 </li>
 </ol>
@@ -108,14 +114,18 @@ starlight-tabs:where(.astro-esqgolmp){display:block}.tablist-wrapper:where(.astr
 <ul>
 <li><strong>Cargo-Metadata Command Failure</strong>
 <ul>
-<li>Resolved an issue where all commands were failing due to <code dir="auto">cargo-metadata</code>. This fix ensures stability and seamless execution of commands moving forward.</li>
+<li>Resolved an issue where all commands were failing due to <code dir="auto">cargo-metadata</code>.
+This fix ensures stability and seamless execution of commands moving
+forward.</li>
 </ul>
 </li>
 <li><strong><code dir="auto">surveilr doctor</code> fixes</strong>
 <ul>
-<li><code dir="auto">surveilr doctor</code> only makes SQLite compulsory, all other dependencies are not required</li>
+<li><code dir="auto">surveilr doctor</code> only makes SQLite compulsory, all other dependencies are
+not required</li>
 </ul>
 </li>
 </ul>
 <h2 id="assets">Assets</h2>
-<p>Please find the release <a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.13.1">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+<p>Please find the release
+<a href="https://github.com/opsfolio/releases.opsfolio.com/releases/tag/0.13.1">here</a>.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="rtl">   </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>

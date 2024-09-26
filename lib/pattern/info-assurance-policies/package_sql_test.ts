@@ -3,16 +3,16 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 const DEFAULT_RSSD_PATH = "./resource-surveillance.sqlite.db";
 
 Deno.test("View Check....", async (t) => {
-    await t.step("Check database...", async () => {
-        assertExists(
-            await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
-            `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
-        );
-    });
+  await t.step("Check database...", async () => {
+    assertExists(
+      await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
+      `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
+    );
+  });
 
-    const db = new DB(DEFAULT_RSSD_PATH);
-    await t.step("Policy Dashboard", () => {
-        db.execute(`DROP VIEW IF EXISTS policy_dashboard;
+  const db = new DB(DEFAULT_RSSD_PATH);
+  await t.step("Policy Dashboard", () => {
+    db.execute(`DROP VIEW IF EXISTS policy_dashboard;
             CREATE VIEW policy_dashboard AS
     WITH RECURSIVE split_uri AS (
         SELECT
@@ -51,22 +51,22 @@ Deno.test("View Check....", async (t) => {
     WHERE url LIKE '%.md' OR url LIKE '%.mdx'
     GROUP BY segment
     ORDER BY is_folder ASC, segment ASC;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM policy_dashboard`,
-        );
-        assertEquals(result.length, 1);
-    });
-    await t.step("Policy Detail", () => {
-        db.execute(`DROP VIEW IF EXISTS policy_detail;
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM policy_dashboard`,
+    );
+    assertEquals(result.length, 1);
+  });
+  await t.step("Policy Detail", () => {
+    db.execute(`DROP VIEW IF EXISTS policy_detail;
                     CREATE VIEW policy_detail AS
                     SELECT uniform_resource_id,uri,content_fm_body_attrs, content, nature FROM uniform_resource;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM policy_detail`,
-        );
-        assertEquals(result.length, 1);
-    });
-    await t.step("Policy List", () => {
-        db.execute(`DROP VIEW IF EXISTS policy_list;
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM policy_detail`,
+    );
+    assertEquals(result.length, 1);
+  });
+  await t.step("Policy List", () => {
+    db.execute(`DROP VIEW IF EXISTS policy_list;
             CREATE VIEW policy_list AS
                 WITH RECURSIVE split_uri AS (
                 -- Initial split to get the first segment after 'src/'
@@ -130,11 +130,11 @@ Deno.test("View Check....", async (t) => {
             where level >4 and level <6
             and  instr(rest,'/')=0
             order by ss.parentfolder,ss.segment1,url;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM policy_list`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM policy_list`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    db.close();
+  db.close();
 });

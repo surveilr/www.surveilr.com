@@ -3,15 +3,15 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 const DEFAULT_RSSD_PATH = "./resource-surveillance.sqlite.db";
 
 Deno.test("View Check", async (t) => {
-    await t.step("Check database", async () => {
-        assertExists(
-            await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
-            `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
-        );
-    });
-    const db = new DB(DEFAULT_RSSD_PATH);
-    await t.step("Border Boundary", () => {
-        db.execute(`DROP VIEW IF EXISTS border_boundary;
+  await t.step("Check database", async () => {
+    assertExists(
+      await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
+      `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
+    );
+  });
+  const db = new DB(DEFAULT_RSSD_PATH);
+  await t.step("Border Boundary", () => {
+    db.execute(`DROP VIEW IF EXISTS border_boundary;
             CREATE VIEW border_boundary AS
             SELECT
                 json_extract(outer.value, '$.a:Value.Properties.a:anyType[0].b:DisplayName') AS displayName,
@@ -24,14 +24,14 @@ Deno.test("View Check", async (t) => {
             WHERE
             json_array_length(json_extract(outer.value, '$.a:Value.Properties.a:anyType')) >= 2 AND json_extract(inner.value, '$.b:Value.#text') IS NOT NULL
             AND json_extract(outer.value, '$.a:Value.@i:type') = 'BorderBoundary' AND json_extract(inner.value, '$.b:Value.#text') LIKE '%Boundary';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM border_boundary`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM border_boundary`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Asset Service", () => {
-        db.execute(`DROP VIEW IF EXISTS asset_service_view;
+  await t.step("Asset Service", () => {
+    db.execute(`DROP VIEW IF EXISTS asset_service_view;
             CREATE VIEW asset_service_view AS
             SELECT
                 asser.name,ast.name as server,ast.organization_id,astyp.value as asset_type,astyp.asset_service_type_id,bnt.name as boundary,asser.description,asser.port,asser.experimental_version,asser.production_version,asser.latest_vendor_version,asser.resource_utilization,asser.log_file,asser.url,
@@ -43,14 +43,14 @@ Deno.test("View Check", async (t) => {
             INNER JOIN organization o ON o.organization_id=ast.organization_id
             INNER JOIN asset_status sta ON sta.asset_status_id=ast.asset_status_id
             INNER JOIN boundary bnt ON bnt.boundary_id=ast.boundary_id;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM asset_service_view`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM asset_service_view`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Server Data", () => {
-        db.execute(`DROP VIEW IF EXISTS server_data;
+  await t.step("Server Data", () => {
+    db.execute(`DROP VIEW IF EXISTS server_data;
             CREATE VIEW server_data AS
             WITH base_query AS (
                 SELECT
@@ -79,14 +79,14 @@ Deno.test("View Check", async (t) => {
             ON
                 av.name = bq.displayName
                 AND av.server LIKE '%' || bq.device_name || '%';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM server_data`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM server_data`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Security Incident Response", () => {
-        db.execute(`DROP VIEW IF EXISTS security_incident_response_view;
+  await t.step("Security Incident Response", () => {
+    db.execute(`DROP VIEW IF EXISTS security_incident_response_view;
             CREATE VIEW security_incident_response_view AS
             SELECT i.title AS incident,i.incident_date,ast.name as asset_name,ic.value AS category,s.value AS severity,
                 p.value AS priority,it.value AS internal_or_external,i.location,i.it_service_impacted,
@@ -110,14 +110,14 @@ Deno.test("View Check", async (t) => {
             LEFT JOIN incident_root_cause irc ON irc.incident_id = i.incident_id
             LEFT JOIN priority p4 ON p4.code = irc.probability_id
             LEFT JOIN priority p5 ON p5.code = irc.likelihood_of_risk_id;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM security_incident_response_view`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM security_incident_response_view`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Security Impact Analysis", () => {
-        db.execute(`DROP VIEW IF EXISTS security_impact_analysis_view;
+  await t.step("Security Impact Analysis", () => {
+    db.execute(`DROP VIEW IF EXISTS security_impact_analysis_view;
             CREATE VIEW security_impact_analysis_view AS
             SELECT v.short_name as vulnerability, ast.name as security_risk,te.title as security_threat,
                 ir.impact as impact_of_risk,pc.controls as proposed_controls,p1.value as impact_level,
@@ -136,10 +136,10 @@ Deno.test("View Check", async (t) => {
             INNER JOIN priority pr ON pr.code = sia.priority_id
             INNER JOIN person pn1 ON pn1.person_id = sia.reported_by_id
             INNER JOIN person pn2 ON pn2.person_id = sia.responsible_by_id;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM security_impact_analysis_view`,
-        );
-        assertEquals(result.length, 1);
-    });
-    db.close();
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM security_impact_analysis_view`,
+    );
+    assertEquals(result.length, 1);
+  });
+  db.close();
 });
