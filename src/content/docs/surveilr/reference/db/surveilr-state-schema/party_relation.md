@@ -4,7 +4,8 @@ title: party_relation
 
 ## Description
 
-Entity to define relationships between parties. Each party relation has a unique ID associated with it.
+Entity to define relationships between parties. Each party relation has a unique
+ID associated with it.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -34,20 +35,20 @@ CREATE TABLE "party_relation" (
 
 ## Columns
 
-| Name              | Type        | Default           | Nullable | Parents                                       | Comment                                                 |
-| ----------------- | ----------- | ----------------- | -------- | --------------------------------------------- | ------------------------------------------------------- |
-| party_relation_id | VARCHAR     |                   | false    |                                               | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| Name              | Type        | Default           | Nullable | Parents                                                                                 | Comment                                                 |
+| ----------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| party_relation_id | VARCHAR     |                   | false    |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | party_id          | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)                             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | related_party_id  | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)                             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | relation_type_id  | TEXT        |                   | false    | [party_relation_type](/surveilr/reference/db/surveilr-state-schema/party_relation_type) |                                                         |
-| elaboration       | TEXT        |                   | true     |                                               | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at        | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                               |                                                         |
-| created_by        | TEXT        | 'UNKNOWN'         | true     |                                               |                                                         |
-| updated_at        | TIMESTAMPTZ |                   | true     |                                               |                                                         |
-| updated_by        | TEXT        |                   | true     |                                               |                                                         |
-| deleted_at        | TIMESTAMPTZ |                   | true     |                                               |                                                         |
-| deleted_by        | TEXT        |                   | true     |                                               |                                                         |
-| activity_log      | TEXT        |                   | true     |                                               | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| elaboration       | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at        | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                         |                                                         |
+| created_by        | TEXT        | 'UNKNOWN'         | true     |                                                                                         |                                                         |
+| updated_at        | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
+| updated_by        | TEXT        |                   | true     |                                                                                         |                                                         |
+| deleted_at        | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
+| deleted_by        | TEXT        |                   | true     |                                                                                         |                                                         |
+| activity_log      | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -68,7 +69,6 @@ CREATE TABLE "party_relation" (
 | idx_party_relation__party_id__related_party_id__relation_type_id | CREATE INDEX "idx_party_relation__party_id__related_party_id__relation_type_id" ON "party_relation"("party_id", "related_party_id", "relation_type_id") |
 | sqlite_autoindex_party_relation_2                                | UNIQUE (party_id, related_party_id, relation_type_id)                                                                                                   |
 | sqlite_autoindex_party_relation_1                                | PRIMARY KEY (party_relation_id)                                                                                                                         |
-
 
 ## Relations
 

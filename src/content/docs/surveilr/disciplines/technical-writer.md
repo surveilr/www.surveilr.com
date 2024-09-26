@@ -3,9 +3,7 @@ title: Technical Writers
 description: explanation on how technical writers  make use of surveilr.
 ---
 
-
-
-<!-- 
+<!--
 DevOps engineers are responsible for ensuring the smooth deployment and operation of applications. This includes preparing environments, managing CI/CD pipelines, performing database migrations, and monitoring application performance. `Surveilr` helps DevOps engineers validate adherence to these processes by extracting compliance evidence from machine attestation artifacts, simplifying the process of maintaining compliance without the need for manual documentation.
 
 ### Ensuring Compliance

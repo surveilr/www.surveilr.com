@@ -1,12 +1,15 @@
 ---
 title: assurance_schema
-description: Explanation of the `assurance_schema` 
+description: Explanation of the `assurance_schema`
 ---
-
 
 ## Description
 
-A Notebook is a group of Cells. A kernel is a computational engine that executes the code contained in a notebook cell.  Each notebook is associated with a kernel of a specific programming language or code transformer which can interpret  code and produce a result. For example, a SQL notebook might use a SQLite kernel for running SQL code and an AI Prompt  might prepare AI prompts for LLMs.
+A Notebook is a group of Cells. A kernel is a computational engine that executes
+the code contained in a notebook cell. Each notebook is associated with a kernel
+of a specific programming language or code transformer which can interpret code
+and produce a result. For example, a SQL notebook might use a SQLite kernel for
+running SQL code and an AI Prompt might prepare AI prompts for LLMs.
 
 <details>
 <summary><strong>Table Definition</strong></summary>

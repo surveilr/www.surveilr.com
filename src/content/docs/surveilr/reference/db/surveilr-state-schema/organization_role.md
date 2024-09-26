@@ -2,10 +2,10 @@
 title: organization_role
 ---
 
-
 ## Description
 
-Entity to associate individuals with roles in organizations. Each organization role has a unique ID associated with it.
+Entity to associate individuals with roles in organizations. Each organization
+role has a unique ID associated with it.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -35,20 +35,20 @@ CREATE TABLE "organization_role" (
 
 ## Columns
 
-| Name                      | Type        | Default           | Nullable | Parents                                             | Comment                                                 |
-| ------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------- | ------------------------------------------------------- |
-| organization_role_id      | VARCHAR     |                   | false    |                                                     | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| Name                      | Type        | Default           | Nullable | Parents                                                                                       | Comment                                                 |
+| ------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| organization_role_id      | VARCHAR     |                   | false    |                                                                                               | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | person_id                 | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)                                   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | organization_id           | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)                                   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | organization_role_type_id | TEXT        |                   | false    | [organization_role_type](/surveilr/reference/db/surveilr-state-schema/organization_role_type) |                                                         |
-| elaboration               | TEXT        |                   | true     |                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                     |                                                         |
-| created_by                | TEXT        | 'UNKNOWN'         | true     |                                                     |                                                         |
-| updated_at                | TIMESTAMPTZ |                   | true     |                                                     |                                                         |
-| updated_by                | TEXT        |                   | true     |                                                     |                                                         |
-| deleted_at                | TIMESTAMPTZ |                   | true     |                                                     |                                                         |
-| deleted_by                | TEXT        |                   | true     |                                                     |                                                         |
-| activity_log              | TEXT        |                   | true     |                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| elaboration               | TEXT        |                   | true     |                                                                                               | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                               |                                                         |
+| created_by                | TEXT        | 'UNKNOWN'         | true     |                                                                                               |                                                         |
+| updated_at                | TIMESTAMPTZ |                   | true     |                                                                                               |                                                         |
+| updated_by                | TEXT        |                   | true     |                                                                                               |                                                         |
+| deleted_at                | TIMESTAMPTZ |                   | true     |                                                                                               |                                                         |
+| deleted_by                | TEXT        |                   | true     |                                                                                               |                                                         |
+| activity_log              | TEXT        |                   | true     |                                                                                               | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -70,8 +70,6 @@ CREATE TABLE "organization_role" (
 | sqlite_autoindex_organization_role_2                                         | UNIQUE (person_id, organization_id, organization_role_type_id)                                                                                                                  |
 | sqlite_autoindex_organization_role_1                                         | PRIMARY KEY (organization_role_id)                                                                                                                                              |
 
-
 ## Relations
 
 ![er](../../../../../../assets/organization_role.svg)
-

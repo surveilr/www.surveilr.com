@@ -3,7 +3,6 @@ title: Database Administrators
 description: explanation on how database administrators make use of surveilr.
 ---
 
-
 <!-- :::tip[Tip]
 - **SQLite3 CLI Tool**: The example queries on this page use **`SQLite v3.45`**. There may be slight differences if you're using an older version.
 :::

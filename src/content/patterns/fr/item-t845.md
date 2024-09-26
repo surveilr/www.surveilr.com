@@ -51,5 +51,5 @@ specificationsRight:
     subTitle: "Idéal pour une utilisation dans une large gamme de machines industrielles, équipements et assemblages nécessitant une fixation précise et sécurisée."
 blueprints:
   first: "@/images/blueprint-1.avif"
-  second: "@/images/blueprint-2.avif"  
+  second: "@/images/blueprint-2.avif"
 ---

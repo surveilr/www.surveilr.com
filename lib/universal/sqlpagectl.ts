@@ -324,5 +324,3 @@ await new Command()
     .option("--show-modified-urls-on-change", "After reloading sqlpage_files, show the recently modified URLs", { default: false })
     .action(sqlPageDevAction)
   .parse(Deno.args ?? ["dev"]);
-
-

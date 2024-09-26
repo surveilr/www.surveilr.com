@@ -4,7 +4,6 @@ description: Answers to all Frequently asked questions by our users.
 tableOfContents: false
 ---
 
-
 <details class="details" open>
 
 <summary class="faq">
@@ -91,7 +90,6 @@ cloud databases.</p>
 
 </details>
 
-
 <details class="details">
 
 <summary class="faq"><h6>How does the tool perform under high data loads?</h6></summary>
@@ -116,4 +114,3 @@ cloud databases.</p>
 <p>Yes, RSSDs are used for auditing in Opsfolio Suite but because they are simple SQLite databases they can also be used for anything else your company would like.</p>
 
 </details>
-

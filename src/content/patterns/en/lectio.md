@@ -21,7 +21,7 @@ tabs:
 longDescription:
   title: "Netspective Lectio"
   subTitle: |
-    In today’s rapidly evolving business landscape, the ability to efficiently disseminate, retain, and apply knowledge is more critical than ever. However, traditional methods of sharing knowledge—such as emailing links, PDFs, or other resources—are often ineffective, particularly in B2B environments where roles, disciplines, and subject areas vary widely. Netspective Lectio is a cutting-edge, team-based reading assignment and content collaboration solution designed to address these challenges. By integrating advanced tracking mechanisms, role-based content sharing, and continuous education tools, Lectio ensures that knowledge is not only shared but also understood and acted upon.            
+    In today’s rapidly evolving business landscape, the ability to efficiently disseminate, retain, and apply knowledge is more critical than ever. However, traditional methods of sharing knowledge—such as emailing links, PDFs, or other resources—are often ineffective, particularly in B2B environments where roles, disciplines, and subject areas vary widely. Netspective Lectio is a cutting-edge, team-based reading assignment and content collaboration solution designed to address these challenges. By integrating advanced tracking mechanisms, role-based content sharing, and continuous education tools, Lectio ensures that knowledge is not only shared but also understood and acted upon.
   btnTitle: "Use the SQL"
   btnURL: "package.sql"
 descriptionList:
@@ -51,5 +51,5 @@ specificationsRight:
     subTitle: "Subject matter specialists who can score and analyze how knowledge is being consumed; auditors can be the same as facilitators and educators or external to an organization"
 blueprints:
   first: "@/images/pattern/lectio-pattern-ss-1.avif"
-  second: "@/images/pattern/lectio-pattern-ss-2.avif"  
+  second: "@/images/pattern/lectio-pattern-ss-2.avif"
 ---

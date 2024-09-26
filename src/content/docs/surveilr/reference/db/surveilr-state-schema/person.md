@@ -4,7 +4,8 @@ title: person
 
 ## Description
 
-Entity to store information about individuals as persons. Each person has a unique ID associated with them.
+Entity to store information about individuals as persons. Each person has a
+unique ID associated with them.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -36,23 +37,23 @@ CREATE TABLE "person" (
 
 ## Columns
 
-| Name               | Type        | Default           | Nullable | Parents                       | Comment                                                            |
-| ------------------ | ----------- | ----------------- | -------- | ----------------------------- | ------------------------------------------------------------------ |
+| Name               | Type        | Default           | Nullable | Parents                                                                 | Comment                                                            |
+| ------------------ | ----------- | ----------------- | -------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | person_id          | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                  |
-| person_first_name  | TEXT        |                   | false    |                               | The first name of the person.                                      |
-| person_middle_name | TEXT        |                   | true     |                               | The middle name of the person, if applicable.                      |
-| person_last_name   | TEXT        |                   | false    |                               | The last name of the person.                                       |
-| honorific_prefix   | TEXT        |                   | true     |                               | An honorific prefix for the person, such as "Mr.", "Ms.", or "Dr." |
-| honorific_suffix   | TEXT        |                   | true     |                               | An honorific suffix for the person, such as "Jr." or "Sr."         |
+| person_first_name  | TEXT        |                   | false    |                                                                         | The first name of the person.                                      |
+| person_middle_name | TEXT        |                   | true     |                                                                         | The middle name of the person, if applicable.                      |
+| person_last_name   | TEXT        |                   | false    |                                                                         | The last name of the person.                                       |
+| honorific_prefix   | TEXT        |                   | true     |                                                                         | An honorific prefix for the person, such as "Mr.", "Ms.", or "Dr." |
+| honorific_suffix   | TEXT        |                   | true     |                                                                         | An honorific suffix for the person, such as "Jr." or "Sr."         |
 | gender_id          | TEXT        |                   | false    | [gender_type](/surveilr/reference/db/surveilr-state-schema/gender_type) |                                                                    |
-| elaboration        | TEXT        |                   | true     |                               | Any elaboration needed for the person.                             |
-| created_at         | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                               |                                                                    |
-| created_by         | TEXT        | 'UNKNOWN'         | true     |                               |                                                                    |
-| updated_at         | TIMESTAMPTZ |                   | true     |                               |                                                                    |
-| updated_by         | TEXT        |                   | true     |                               |                                                                    |
-| deleted_at         | TIMESTAMPTZ |                   | true     |                               |                                                                    |
-| deleted_by         | TEXT        |                   | true     |                               |                                                                    |
-| activity_log       | TEXT        |                   | true     |                               | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}            |
+| elaboration        | TEXT        |                   | true     |                                                                         | Any elaboration needed for the person.                             |
+| created_at         | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                         |                                                                    |
+| created_by         | TEXT        | 'UNKNOWN'         | true     |                                                                         |                                                                    |
+| updated_at         | TIMESTAMPTZ |                   | true     |                                                                         |                                                                    |
+| updated_by         | TEXT        |                   | true     |                                                                         |                                                                    |
+| deleted_at         | TIMESTAMPTZ |                   | true     |                                                                         |                                                                    |
+| deleted_by         | TEXT        |                   | true     |                                                                         |                                                                    |
+| activity_log       | TEXT        |                   | true     |                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}            |
 
 ## Constraints
 
@@ -73,4 +74,3 @@ CREATE TABLE "person" (
 ## Relations
 
 ![er](../../../../../../assets/person.svg)
-

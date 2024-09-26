@@ -4,7 +4,13 @@ title: ur_ingest_session_task
 
 ## Description
 
-Contains entries related to task content ingestion paths. On multiple executions,  unlike uniform_resource, ur_ingest_session_task rows are always inserted and  references the uniform_resource primary key of its related content.  This method allows for a more efficient query of file version differences across  sessions. With SQL queries, you can detect which sessions have a file added or modified,  which sessions have a file deleted, and what the differences are in file contents  if they were modified across sessions.
+Contains entries related to task content ingestion paths. On multiple
+executions, unlike uniform_resource, ur_ingest_session_task rows are always
+inserted and references the uniform_resource primary key of its related content.
+This method allows for a more efficient query of file version differences across
+sessions. With SQL queries, you can detect which sessions have a file added or
+modified, which sessions have a file deleted, and what the differences are in
+file contents if they were modified across sessions.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -35,23 +41,23 @@ CREATE TABLE "ur_ingest_session_task" (
 
 ## Columns
 
-| Name                      | Type        | Default           | Nullable | Parents                                   | Comment                                                 |
-| ------------------------- | ----------- | ----------------- | -------- | ----------------------------------------- | ------------------------------------------------------- |
-| ur_ingest_session_task_id | VARCHAR     |                   | false    |                                           | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| Name                      | Type        | Default           | Nullable | Parents                                                                             | Comment                                                 |
+| ------------------------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ur_ingest_session_task_id | VARCHAR     |                   | false    |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | ingest_session_id         | VARCHAR     |                   | false    | [ur_ingest_session](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | uniform_resource_id       | VARCHAR     |                   | true     | [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource)   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| captured_executable       | TEXT        |                   | false    |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| ur_status                 | TEXT        |                   | true     |                                           |                                                         |
-| ur_diagnostics            | TEXT        |                   | true     |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| ur_transformations        | TEXT        |                   | true     |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| elaboration               | TEXT        |                   | true     |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                           |                                                         |
-| created_by                | TEXT        | 'UNKNOWN'         | true     |                                           |                                                         |
-| updated_at                | TIMESTAMPTZ |                   | true     |                                           |                                                         |
-| updated_by                | TEXT        |                   | true     |                                           |                                                         |
-| deleted_at                | TIMESTAMPTZ |                   | true     |                                           |                                                         |
-| deleted_by                | TEXT        |                   | true     |                                           |                                                         |
-| activity_log              | TEXT        |                   | true     |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| captured_executable       | TEXT        |                   | false    |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| ur_status                 | TEXT        |                   | true     |                                                                                     |                                                         |
+| ur_diagnostics            | TEXT        |                   | true     |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| ur_transformations        | TEXT        |                   | true     |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| elaboration               | TEXT        |                   | true     |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                     |                                                         |
+| created_by                | TEXT        | 'UNKNOWN'         | true     |                                                                                     |                                                         |
+| updated_at                | TIMESTAMPTZ |                   | true     |                                                                                     |                                                         |
+| updated_by                | TEXT        |                   | true     |                                                                                     |                                                         |
+| deleted_at                | TIMESTAMPTZ |                   | true     |                                                                                     |                                                         |
+| deleted_by                | TEXT        |                   | true     |                                                                                     |                                                         |
+| activity_log              | TEXT        |                   | true     |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 

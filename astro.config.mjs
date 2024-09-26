@@ -55,15 +55,15 @@ export default defineConfig({
         "zh-cn": { label: "简体中文", lang: "zh-CN" },
       },
       // https://starlight.astro.build/guides/sidebar/
-      sidebar: [               
-         {
+      sidebar: [
+        {
           label: "surveilr Core",
           items: [
-            {              
+            {
               label: "Getting Started",
-              link: "/docs/core/getting-started",              
+              link: "/docs/core/getting-started",
             },
-            {              
+            {
               label: "surveilr CLI",
               items: [
                 {
@@ -98,34 +98,39 @@ export default defineConfig({
                     },
                   ],
                 },
-              ]
+              ],
             },
             {
               label: "Standard library",
-              items: [                
+              items: [
                 {
                   label: "Notebooks Schema",
                   collapsed: true,
                   items: [
                     {
                       label: "Notebooks Schema",
-                      link: "/docs/core/standard-library/surveilr-code-notebooks-schema/notebooks_schema",
+                      link:
+                        "/docs/core/standard-library/surveilr-code-notebooks-schema/notebooks_schema",
                     },
                     {
                       label: "Assurance Schema",
-                      link: "/docs/core/standard-library/surveilr-code-notebooks-schema/assurance_schema",
+                      link:
+                        "/docs/core/standard-library/surveilr-code-notebooks-schema/assurance_schema",
                     },
                     {
                       label: "Code Notebook Cell",
-                      link: "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_cell",
+                      link:
+                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_cell",
                     },
                     {
                       label: "Code Notebook Kernel",
-                      link: "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_kernel",
+                      link:
+                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_kernel",
                     },
                     {
                       label: "Code Notebook State",
-                      link: "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
+                      link:
+                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
                     },
                   ],
                 },
@@ -134,46 +139,46 @@ export default defineConfig({
             {
               label: "Capturable Executables",
               collapsed: true,
-                  items: [
-                    {
-                      label:
-                        "Content Extensibility with Capturable Executables",
-                      link: "/docs/core/capturable-executables/content-extensibility",
-                    },
-                    {
-                      label: "SQL DDL Extensibility with SQL Notebooks",
-                      link: "/docs/core/capturable-executables/sql-ddl-extensibility",
-                    },
-                    {
-                      label:
-                        "Integrated TypeScript programmability and scriptability",
-                      link: "/docs/core/capturable-executables/integrated-ts",
-                    },
-                  ],
+              items: [
+                {
+                  label: "Content Extensibility with Capturable Executables",
+                  link:
+                    "/docs/core/capturable-executables/content-extensibility",
+                },
+                {
+                  label: "SQL DDL Extensibility with SQL Notebooks",
+                  link:
+                    "/docs/core/capturable-executables/sql-ddl-extensibility",
+                },
+                {
+                  label:
+                    "Integrated TypeScript programmability and scriptability",
+                  link: "/docs/core/capturable-executables/integrated-ts",
+                },
+              ],
             },
-            
           ],
-        },{
-          label: "surveilr Pro",
-          items:[
-            
-          ],
-        },{
-          label: "Standard library",
-          items:[],
-        },{
-          label: "Patterns",
-          items: [            
-          ],
-        },{
-          label: "Services",
-          items:[
-                     ],
-        },{
-          label: "Cookbook and Snippets",
-          items:[],
         },
-
+        {
+          label: "surveilr Pro",
+          items: [],
+        },
+        {
+          label: "Standard library",
+          items: [],
+        },
+        {
+          label: "Patterns",
+          items: [],
+        },
+        {
+          label: "Services",
+          items: [],
+        },
+        {
+          label: "Cookbook and Snippets",
+          items: [],
+        },
       ],
       social: {
         github: "https://github.com/surveilr",
@@ -184,7 +189,8 @@ export default defineConfig({
       components: {
         SiteTitle: "./src/components/ui/starlight/SiteTitle.astro",
         Head: "./src/components/ui/starlight/Head.astro",
-        MobileMenuFooter: "./src/components/ui/starlight/MobileMenuFooter.astro",
+        MobileMenuFooter:
+          "./src/components/ui/starlight/MobileMenuFooter.astro",
         ThemeSelect: "./src/components/ui/starlight/ThemeSelect.astro",
       },
       head: [

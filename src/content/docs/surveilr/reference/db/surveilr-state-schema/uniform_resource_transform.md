@@ -35,23 +35,23 @@ CREATE TABLE "uniform_resource_transform" (
 
 ## Columns
 
-| Name                          | Type        | Default           | Nullable | Parents                                 | Comment                                                 |
-| ----------------------------- | ----------- | ----------------- | -------- | --------------------------------------- | ------------------------------------------------------- |
-| uniform_resource_transform_id | VARCHAR     |                   | false    |                                         | uniform_resource_transform ULID primary key             |
+| Name                          | Type        | Default           | Nullable | Parents                                                                           | Comment                                                 |
+| ----------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| uniform_resource_transform_id | VARCHAR     |                   | false    |                                                                                   | uniform_resource_transform ULID primary key             |
 | uniform_resource_id           | VARCHAR     |                   | false    | [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) | uniform_resource row ID of original content             |
-| uri                           | TEXT        |                   | false    |                                         |                                                         |
-| content_digest                | TEXT        |                   | false    |                                         | transformed content hash                                |
-| content                       | BLOB        |                   | true     |                                         | transformed content                                     |
-| nature                        | TEXT        |                   | true     |                                         | file extension or MIME                                  |
-| size_bytes                    | INTEGER     |                   | true     |                                         |                                                         |
-| elaboration                   | TEXT        |                   | true     |                                         | anything that doesn't fit in other columns (JSON)       |
-| created_at                    | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                         |                                                         |
-| created_by                    | TEXT        | 'UNKNOWN'         | true     |                                         |                                                         |
-| updated_at                    | TIMESTAMPTZ |                   | true     |                                         |                                                         |
-| updated_by                    | TEXT        |                   | true     |                                         |                                                         |
-| deleted_at                    | TIMESTAMPTZ |                   | true     |                                         |                                                         |
-| deleted_by                    | TEXT        |                   | true     |                                         |                                                         |
-| activity_log                  | TEXT        |                   | true     |                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| uri                           | TEXT        |                   | false    |                                                                                   |                                                         |
+| content_digest                | TEXT        |                   | false    |                                                                                   | transformed content hash                                |
+| content                       | BLOB        |                   | true     |                                                                                   | transformed content                                     |
+| nature                        | TEXT        |                   | true     |                                                                                   | file extension or MIME                                  |
+| size_bytes                    | INTEGER     |                   | true     |                                                                                   |                                                         |
+| elaboration                   | TEXT        |                   | true     |                                                                                   | anything that doesn't fit in other columns (JSON)       |
+| created_at                    | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                   |                                                         |
+| created_by                    | TEXT        | 'UNKNOWN'         | true     |                                                                                   |                                                         |
+| updated_at                    | TIMESTAMPTZ |                   | true     |                                                                                   |                                                         |
+| updated_by                    | TEXT        |                   | true     |                                                                                   |                                                         |
+| deleted_at                    | TIMESTAMPTZ |                   | true     |                                                                                   |                                                         |
+| deleted_by                    | TEXT        |                   | true     |                                                                                   |                                                         |
+| activity_log                  | TEXT        |                   | true     |                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 

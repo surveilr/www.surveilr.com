@@ -2,10 +2,10 @@
 title: organization
 ---
 
-
 ## Description
 
-Entity to store information about organizations. Each organization has a unique ID associated with it.
+Entity to store information about organizations. Each organization has a unique
+ID associated with it.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -36,23 +36,23 @@ CREATE TABLE "organization" (
 
 ## Columns
 
-| Name               | Type        | Default           | Nullable | Parents           | Comment                                                           |
-| ------------------ | ----------- | ----------------- | -------- | ----------------- | ----------------------------------------------------------------- |
+| Name               | Type        | Default           | Nullable | Parents                                                     | Comment                                                           |
+| ------------------ | ----------- | ----------------- | -------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
 | organization_id    | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                 |
-| name               | TEXT        |                   | false    |                   | The name of the organization.                                     |
-| alias              | TEXT        |                   | true     |                   | An alias or alternative name for the organization, if applicable. |
-| description        | TEXT        |                   | true     |                   | A description of the organization.                                |
-| license            | TEXT        |                   | true     |                   | The license number or identifier for the organization.            |
-| federal_tax_id_num | TEXT        |                   | true     |                   | The federal tax identification number of the organization.        |
-| registration_date  | TIMESTAMPTZ |                   | true     |                   | The date on which the organization was registered.                |
-| elaboration        | TEXT        |                   | true     |                   | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}                |
-| created_at         | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                   |                                                                   |
-| created_by         | TEXT        | 'UNKNOWN'         | true     |                   |                                                                   |
-| updated_at         | TIMESTAMPTZ |                   | true     |                   |                                                                   |
-| updated_by         | TEXT        |                   | true     |                   |                                                                   |
-| deleted_at         | TIMESTAMPTZ |                   | true     |                   |                                                                   |
-| deleted_by         | TEXT        |                   | true     |                   |                                                                   |
-| activity_log       | TEXT        |                   | true     |                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}           |
+| name               | TEXT        |                   | false    |                                                             | The name of the organization.                                     |
+| alias              | TEXT        |                   | true     |                                                             | An alias or alternative name for the organization, if applicable. |
+| description        | TEXT        |                   | true     |                                                             | A description of the organization.                                |
+| license            | TEXT        |                   | true     |                                                             | The license number or identifier for the organization.            |
+| federal_tax_id_num | TEXT        |                   | true     |                                                             | The federal tax identification number of the organization.        |
+| registration_date  | TIMESTAMPTZ |                   | true     |                                                             | The date on which the organization was registered.                |
+| elaboration        | TEXT        |                   | true     |                                                             | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}                |
+| created_at         | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                             |                                                                   |
+| created_by         | TEXT        | 'UNKNOWN'         | true     |                                                             |                                                                   |
+| updated_at         | TIMESTAMPTZ |                   | true     |                                                             |                                                                   |
+| updated_by         | TEXT        |                   | true     |                                                             |                                                                   |
+| deleted_at         | TIMESTAMPTZ |                   | true     |                                                             |                                                                   |
+| deleted_by         | TEXT        |                   | true     |                                                             |                                                                   |
+| activity_log       | TEXT        |                   | true     |                                                             | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}           |
 
 ## Constraints
 
@@ -72,4 +72,3 @@ CREATE TABLE "organization" (
 ## Relations
 
 ![er](../../../../../../assets/organization.svg)
-

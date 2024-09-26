@@ -51,5 +51,5 @@ specificationsRight:
     subTitle: "Capability Description"
 blueprints:
   first: "@/images/pattern/osquery-pattern-ss-2.avif"
-  second: "@/images/pattern/osquery-pattern-ss-1.avif"  
+  second: "@/images/pattern/osquery-pattern-ss-1.avif"
 ---

@@ -1,6 +1,7 @@
 ---
 title: orchestration_nature
 ---
+
 ## Description
 
 Entity to define relationships between multiple tenants to multiple devices
@@ -28,18 +29,18 @@ CREATE TABLE "orchestration_nature" (
 
 ## Columns
 
-| Name                    | Type        | Default           | Nullable | Children                                          | Comment                                                 |
-| ----------------------- | ----------- | ----------------- | -------- | ------------------------------------------------- | ------------------------------------------------------- |
+| Name                    | Type        | Default           | Nullable | Children                                                                                    | Comment                                                 |
+| ----------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | orchestration_nature_id | TEXT        |                   | false    | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session) |                                                         |
-| nature                  | TEXT        |                   | false    |                                                   |                                                         |
-| elaboration             | TEXT        |                   | true     |                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at              | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                   |                                                         |
-| created_by              | TEXT        | 'UNKNOWN'         | true     |                                                   |                                                         |
-| updated_at              | TIMESTAMPTZ |                   | true     |                                                   |                                                         |
-| updated_by              | TEXT        |                   | true     |                                                   |                                                         |
-| deleted_at              | TIMESTAMPTZ |                   | true     |                                                   |                                                         |
-| deleted_by              | TEXT        |                   | true     |                                                   |                                                         |
-| activity_log            | TEXT        |                   | true     |                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| nature                  | TEXT        |                   | false    |                                                                                             |                                                         |
+| elaboration             | TEXT        |                   | true     |                                                                                             | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at              | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                             |                                                         |
+| created_by              | TEXT        | 'UNKNOWN'         | true     |                                                                                             |                                                         |
+| updated_at              | TIMESTAMPTZ |                   | true     |                                                                                             |                                                         |
+| updated_by              | TEXT        |                   | true     |                                                                                             |                                                         |
+| deleted_at              | TIMESTAMPTZ |                   | true     |                                                                                             |                                                         |
+| deleted_by              | TEXT        |                   | true     |                                                                                             |                                                         |
+| activity_log            | TEXT        |                   | true     |                                                                                             | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -56,9 +57,8 @@ CREATE TABLE "orchestration_nature" (
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | idx_orchestration_nature__orchestration_nature_id__nature | CREATE INDEX "idx_orchestration_nature__orchestration_nature_id__nature" ON "orchestration_nature"("orchestration_nature_id", "nature") |
 | sqlite_autoindex_orchestration_nature_2                   | UNIQUE (orchestration_nature_id, nature)                                                                                                |
-| sqlite_autoindex_orchestration_nature_1                   | PRIMARY KEY (orchestration_nature_id)                                                                                                     |
+| sqlite_autoindex_orchestration_nature_1                   | PRIMARY KEY (orchestration_nature_id)                                                                                                   |
 
 ## Relations
 
 ![er](../../../../../../assets/orchestration_nature.svg)
-

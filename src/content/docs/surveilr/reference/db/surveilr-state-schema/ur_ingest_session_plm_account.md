@@ -1,9 +1,12 @@
 ---
 title: ur_ingest_session_plm_account
 ---
+
 ## Description
 
-Immutable ingest session folder system represents an organisation issues to be ingested. Each  session includes an organisation, then org_name is the  folder that was scanned.
+Immutable ingest session folder system represents an organisation issues to be
+ingested. Each session includes an organisation, then org_name is the folder
+that was scanned.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -31,20 +34,20 @@ CREATE TABLE "ur_ingest_session_plm_account" (
 
 ## Columns
 
-| Name                             | Type        | Default           | Nullable | Children                                                                    | Parents                                   | Comment                                                 |
-| -------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------- |
-| ur_ingest_session_plm_account_id | VARCHAR     |                   | false    | [ur_ingest_session_plm_acct_project](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_acct_project) |                                           | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| ingest_session_id                | VARCHAR     |                   | false    |                                                                             | [ur_ingest_session](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| provider                         | TEXT        |                   | false    |                                                                             |                                           |                                                         |
-| org_name                         | TEXT        |                   | false    |                                                                             |                                           |                                                         |
-| elaboration                      | TEXT        |                   | true     |                                                                             |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                       | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                             |                                           |                                                         |
-| created_by                       | TEXT        | 'UNKNOWN'         | true     |                                                                             |                                           |                                                         |
-| updated_at                       | TIMESTAMPTZ |                   | true     |                                                                             |                                           |                                                         |
-| updated_by                       | TEXT        |                   | true     |                                                                             |                                           |                                                         |
-| deleted_at                       | TIMESTAMPTZ |                   | true     |                                                                             |                                           |                                                         |
-| deleted_by                       | TEXT        |                   | true     |                                                                             |                                           |                                                         |
-| activity_log                     | TEXT        |                   | true     |                                                                             |                                           | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| Name                             | Type        | Default           | Nullable | Children                                                                                                              | Parents                                                                             | Comment                                                 |
+| -------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ur_ingest_session_plm_account_id | VARCHAR     |                   | false    | [ur_ingest_session_plm_acct_project](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_acct_project) |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| ingest_session_id                | VARCHAR     |                   | false    |                                                                                                                       | [ur_ingest_session](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| provider                         | TEXT        |                   | false    |                                                                                                                       |                                                                                     |                                                         |
+| org_name                         | TEXT        |                   | false    |                                                                                                                       |                                                                                     |                                                         |
+| elaboration                      | TEXT        |                   | true     |                                                                                                                       |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                       | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                                                       |                                                                                     |                                                         |
+| created_by                       | TEXT        | 'UNKNOWN'         | true     |                                                                                                                       |                                                                                     |                                                         |
+| updated_at                       | TIMESTAMPTZ |                   | true     |                                                                                                                       |                                                                                     |                                                         |
+| updated_by                       | TEXT        |                   | true     |                                                                                                                       |                                                                                     |                                                         |
+| deleted_at                       | TIMESTAMPTZ |                   | true     |                                                                                                                       |                                                                                     |                                                         |
+| deleted_by                       | TEXT        |                   | true     |                                                                                                                       |                                                                                     |                                                         |
+| activity_log                     | TEXT        |                   | true     |                                                                                                                       |                                                                                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -67,4 +70,3 @@ CREATE TABLE "ur_ingest_session_plm_account" (
 ## Relations
 
 ![er](../../../../../../assets/ur_ingest_session_plm_account.svg)
-

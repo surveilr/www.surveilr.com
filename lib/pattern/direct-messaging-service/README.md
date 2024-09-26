@@ -190,7 +190,8 @@ reporting tools, DBeaver, DataGrip, or any other SQLite data access tools.
 
 ### Prepare the Sample Files for Ingestion
 
-wget https://github.com/surveilr/www.surveilr.com/raw/main/lib/pattern/direct-messaging-service/ingest.zip
+wget
+https://github.com/surveilr/www.surveilr.com/raw/main/lib/pattern/direct-messaging-service/ingest.zip
 
 #### Extract the Zip File
 

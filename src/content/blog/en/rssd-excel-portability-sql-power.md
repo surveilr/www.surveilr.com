@@ -19,7 +19,7 @@ ensures that every piece of data is consistently tracked, organized, and
 available for immediate querying.
 
 The engine behind all of this is a lightweight, yet powerful **SQLite** database
-we call the **Resource Surveillance State Database (RSSD)**. 
+we call the **Resource Surveillance State Database (RSSD)**.
 
 At its core, the **RSSD** is a **SQLite database** that serves as the backbone
 of surveilr’s stateful data operations. SQLite is a widely-used, embedded

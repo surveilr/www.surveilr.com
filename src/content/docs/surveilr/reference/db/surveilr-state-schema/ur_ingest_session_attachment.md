@@ -36,24 +36,24 @@ CREATE TABLE "ur_ingest_session_attachment" (
 
 ## Columns
 
-| Name                            | Type        | Default           | Nullable | Parents                                 | Comment                                                 |
-| ------------------------------- | ----------- | ----------------- | -------- | --------------------------------------- | ------------------------------------------------------- |
-| ur_ingest_session_attachment_id | VARCHAR     |                   | false    |                                         | ur_ingest_session_attachment ULID primary key           |
+| Name                            | Type        | Default           | Nullable | Parents                                                                           | Comment                                                 |
+| ------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ur_ingest_session_attachment_id | VARCHAR     |                   | false    |                                                                                   | ur_ingest_session_attachment ULID primary key           |
 | uniform_resource_id             | VARCHAR     |                   | true     | [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) | uniform_resource row ID of original content             |
-| name                            | TEXT        |                   | true     |                                         |                                                         |
-| uri                             | TEXT        |                   | false    |                                         |                                                         |
-| content                         | BLOB        |                   | true     |                                         | transformed content                                     |
-| nature                          | TEXT        |                   | true     |                                         | file extension or MIME                                  |
-| size                            | INTEGER     |                   | true     |                                         |                                                         |
-| checksum                        | TEXT        |                   | true     |                                         |                                                         |
-| elaboration                     | TEXT        |                   | true     |                                         | anything that doesn't fit in other columns (JSON)       |
-| created_at                      | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                         |                                                         |
-| created_by                      | TEXT        | 'UNKNOWN'         | true     |                                         |                                                         |
-| updated_at                      | TIMESTAMPTZ |                   | true     |                                         |                                                         |
-| updated_by                      | TEXT        |                   | true     |                                         |                                                         |
-| deleted_at                      | TIMESTAMPTZ |                   | true     |                                         |                                                         |
-| deleted_by                      | TEXT        |                   | true     |                                         |                                                         |
-| activity_log                    | TEXT        |                   | true     |                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| name                            | TEXT        |                   | true     |                                                                                   |                                                         |
+| uri                             | TEXT        |                   | false    |                                                                                   |                                                         |
+| content                         | BLOB        |                   | true     |                                                                                   | transformed content                                     |
+| nature                          | TEXT        |                   | true     |                                                                                   | file extension or MIME                                  |
+| size                            | INTEGER     |                   | true     |                                                                                   |                                                         |
+| checksum                        | TEXT        |                   | true     |                                                                                   |                                                         |
+| elaboration                     | TEXT        |                   | true     |                                                                                   | anything that doesn't fit in other columns (JSON)       |
+| created_at                      | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                   |                                                         |
+| created_by                      | TEXT        | 'UNKNOWN'         | true     |                                                                                   |                                                         |
+| updated_at                      | TIMESTAMPTZ |                   | true     |                                                                                   |                                                         |
+| updated_by                      | TEXT        |                   | true     |                                                                                   |                                                         |
+| deleted_at                      | TIMESTAMPTZ |                   | true     |                                                                                   |                                                         |
+| deleted_by                      | TEXT        |                   | true     |                                                                                   |                                                         |
+| activity_log                    | TEXT        |                   | true     |                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -76,4 +76,3 @@ CREATE TABLE "ur_ingest_session_attachment" (
 ## Relations
 
 ![er](../../../../../../assets/ur_ingest_session_attachment.svg)
-

@@ -1,6 +1,6 @@
 ---
 title: gender_type
---- 
+---
 
 ## Description
 
@@ -19,11 +19,11 @@ CREATE TABLE "gender_type" (
 
 ## Columns
 
-| Name       | Type        | Default           | Nullable | Children            | Comment |
-| ---------- | ----------- | ----------------- | -------- | ------------------- | ------- |
+| Name       | Type        | Default           | Nullable | Children                                                      | Comment |
+| ---------- | ----------- | ----------------- | -------- | ------------------------------------------------------------- | ------- |
 | code       | TEXT        |                   | false    | [person](/surveilr/reference/db/surveilr-state-schema/person) |         |
-| value      | TEXT        |                   | false    |                     |         |
-| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                     |         |
+| value      | TEXT        |                   | false    |                                                               |         |
+| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                               |         |
 
 ## Constraints
 
@@ -41,4 +41,3 @@ CREATE TABLE "gender_type" (
 ## Relations
 
 ![er](../../../../../../assets/gender_type.svg)
-
