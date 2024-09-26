@@ -8,7 +8,7 @@ pubDate: 2024-02-10
 cardImage: "@/images/blog/why-stateful-integration.avif"
 cardImageAlt: "Stateful vs. Stateless"
 readTime: 5
-tags: ["pattern"]
+tags: ["stateful", "stateless", "RSSD"]
 ---
 
 In today’s increasingly data-driven world, businesses of all sizes must
@@ -28,15 +28,16 @@ manage their data efficiently without the need for a large IT team.
 
 1. **Stateful Data Integration**: Unlike simple data transfer tools, surveilr
    doesn’t just move data between systems. It stores and organizes the data in a
-   way that makes it easy to query, understand, and manage. This ensures that
-   every piece of information retains its context, allowing for more meaningful
-   analysis and easier retrieval when needed.
+   [Resource Surveillance State Database (RSSD)](../rssd-excel-portability-sql-power/)
+   powered by SQLite. SQL makes it easy to query, understand, and manage. This
+   ensures that every piece of information retains its context, allowing for
+   more meaningful analysis and easier retrieval when needed.
 
 2. **Local-First, Edge-Based Processing**: To enhance security and efficiency,
-   surveilr processes data close to where it’s collected—on local devices or
-   edge systems. This reduces unnecessary data transfers and makes the system
-   easier to manage, even if you don’t have a dedicated IT team monitoring every
-   transaction.
+   surveilr [RSSDs](../rssd-excel-portability-sql-power/) process data close to
+   where it’s collected—on local devices or edge systems. This reduces
+   unnecessary data transfers and makes the system easier to manage, even if you
+   don’t have a dedicated IT team monitoring every transaction.
 
 3. **SQL-Centric Approach**: Surveilr uses SQL, a universal and widely-known
    database language. For non-technical users, this means they don’t need to
