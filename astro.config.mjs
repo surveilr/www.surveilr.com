@@ -72,19 +72,19 @@ export default defineConfig({
                   items: [
                     {
                       label: "Files Ingestion",
-                      link: "/docs/core/cli/ingest/files",
+                      link: "/docs/core/cli/ingest-commands/files",
                     },
                     {
                       label: "Tasks Ingestion",
-                      link: "/docs/core/cli/ingest/tasks",
+                      link: "/docs/core/cli/ingest-commands/tasks",
                     },
                     {
                       label: "Capturable Executables",
-                      link: "/docs/core/cli/ingest/capexec",
+                      link: "/docs/core/cli/ingest-commands/capexec",
                     },
                     {
                       label: "IMAP Emails Ingestion",
-                      link: "/docs/core/cli/ingest/imap",
+                      link: "/docs/core/cli/ingest-commands/imap",
                     },
                   ],
                 },
@@ -98,19 +98,11 @@ export default defineConfig({
                     },
                   ],
                 },
-                {
-                  label: "Shell and Orchestration Commands",
-                  link: "",
-                },
               ]
             },
             {
               label: "Standard library",
-              items: [
-                {
-                  label: "RSSD Schema",
-                  link: "",
-                },
+              items: [                
                 {
                   label: "Notebooks Schema",
                   collapsed: true,
@@ -136,10 +128,6 @@ export default defineConfig({
                       link: "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
                     },
                   ],
-                },
-                {
-                  label: "Console Web UI",
-                  link: "",
                 },
               ],
             },
@@ -168,38 +156,19 @@ export default defineConfig({
         },{
           label: "surveilr Pro",
           items:[
-            {
-              label: "UDI PostgreSQL Proxy Commands",
-              link: "",
-            },
+            
           ],
         },{
           label: "Standard library",
           items:[],
         },{
           label: "Patterns",
-          items: [
-            {
-              label: "Universal Patterns",
-              link: "",
-            },
-            {
-              label: "Industry-specific Patterns",
-              link: "",
-            },
-            {
-              label: "Discipline-centric Patterns",
-              link: "",
-            },
+          items: [            
           ],
         },{
           label: "Services",
           items:[
-            {
-              label: "Diabetes Research Hub Edge",
-              link: "",
-            }
-          ],
+                     ],
         },{
           label: "Cookbook and Snippets",
           items:[],
