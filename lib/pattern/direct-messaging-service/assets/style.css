@@ -1,0 +1,56 @@
+
+      .patient-details table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+      }
+      .patient-details th, .patient-details td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .patient-details th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      .section-header {
+        background-color: #e6e6e6;
+      }
+      .no-border-bottom {
+        border-bottom: none;
+      }
+      .no-border-top {
+        border-top: none;
+      }
+      .patient-details th {
+          width: 20%;
+      }
+      .accordian-head{
+        border:1px solid #ddd;
+        margin-bottom:1px;
+        display:block;
+      }
+      .accordian-head summary{
+        padding:8px 15px;
+        background: #f2f2f2;
+        font-weight:bold
+      }
+      .patient-summary {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .patient-summary th {
+      background-color: #f2f2f2;
+      text-align: left;
+      padding: 8px;
+      border: 1px solid #ddd;
+      width: 20%;
+    }
+    .patient-summary td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+   
