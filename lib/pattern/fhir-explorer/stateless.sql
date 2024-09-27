@@ -76,39 +76,53 @@ ORDER BY
 DROP VIEW IF EXISTS fhir_v4_bundle_resource_patient;
 CREATE VIEW fhir_v4_bundle_resource_patient AS
 WITH patient_resources AS (
+  WITH recursive extensions AS (
+    -- Iterate over each item in the "extension" array
     SELECT
-        resource_content
+      resource_content,
+      json_each.value AS ext
     FROM
-        fhir_v4_bundle_resource
+      fhir_v4_bundle_resource,
+      json_each(fhir_v4_bundle_resource.resource_content, '$.resource.extension')
     WHERE
-        resource_type = 'Patient'
+      resource_type = 'Patient'
+  )
+  SELECT
+    resource_content,
+    json_extract(json_each.value, '$.valueString') AS file_name
+  FROM
+    extensions,
+    json_each(extensions.ext, '$."lineage meta data"')
+  WHERE
+    json_extract(json_each.value, '$.url') = 'http://wnyhealthelink.com/udi/lineage/hl7-data-vault/file_name'
 )
 SELECT
-    resource_content ->> '$.resource.id' AS patient_id,
-    resource_content ->> '$.resource.name[0].given[0]' AS first_name,
-    resource_content ->> '$.resource.name[0].family' AS last_name,
-    resource_content ->> '$.resource.gender' AS gender,
-    CASE 
-        WHEN resource_content ->> '$.resource.birthDate' IS NOT NULL THEN DATE(resource_content ->> '$.resource.birthDate')
-        ELSE NULL
-    END AS birth_date,
-    resource_content ->> '$.resource.address[0].line[0]' AS address_line,
-    resource_content ->> '$.resource.address[0].city' AS city,
-    resource_content ->> '$.resource.address[0].state' AS state,
-    resource_content ->> '$.resource.address[0].postalCode' AS postal_code,
-    resource_content ->> '$.resource.address[0].country' AS country,
-    resource_content ->> '$.resource.extension[0].extension[0].valueCoding.display' AS race_display,
-    resource_content ->> '$.resource.extension[0].extension[0].valueCoding.code' AS race_code,
-    resource_content ->> '$.resource.extension[0].extension[0].valueCoding.system' AS race_system,       
-    resource_content ->> '$.resource.extension[1].extension[0].valueCoding.display' AS ethnicity_display,
-    resource_content ->> '$.resource.extension[1].extension[0].valueCoding.code' AS ethnicity_code,
-    resource_content ->> '$.resource.extension[1].extension[0].valueCoding.system' AS ethnicity_system,
-    resource_content ->> '$.resource.communication[0].language.coding[0].code' AS language,
-    resource_content ->> '$.resource.meta.lastUpdated' AS lastUpdated,
-    resource_content ->> '$.resource.telecom[0].value' AS telecom,
-    resource_content ->> '$.resource.identifier[0].value' AS medical_record_number  
+  resource_content ->> '$.resource.id' AS patient_id,
+  resource_content ->> '$.resource.name[0].given[0]' AS first_name,
+  resource_content ->> '$.resource.name[0].family' AS last_name,
+  resource_content ->> '$.resource.gender' AS gender,
+  CASE 
+    WHEN resource_content ->> '$.resource.birthDate' IS NOT NULL THEN DATE(resource_content ->> '$.resource.birthDate')
+    ELSE NULL
+  END AS birth_date,
+  resource_content ->> '$.resource.address[0].line[0]' AS address_line,
+  resource_content ->> '$.resource.address[0].city' AS city,
+  resource_content ->> '$.resource.address[0].state' AS state,
+  resource_content ->> '$.resource.address[0].postalCode' AS postal_code,
+  resource_content ->> '$.resource.address[0].country' AS country,
+  resource_content ->> '$.resource.extension[0].extension[0].valueCoding.display' AS race_display,
+  resource_content ->> '$.resource.extension[0].extension[0].valueCoding.code' AS race_code,
+  resource_content ->> '$.resource.extension[0].extension[0].valueCoding.system' AS race_system,       
+  resource_content ->> '$.resource.extension[1].extension[0].valueCoding.display' AS ethnicity_display,
+  resource_content ->> '$.resource.extension[1].extension[0].valueCoding.code' AS ethnicity_code,
+  resource_content ->> '$.resource.extension[1].extension[0].valueCoding.system' AS ethnicity_system,
+  resource_content ->> '$.resource.communication[0].language.coding[0].code' AS language,
+  resource_content ->> '$.resource.meta.lastUpdated' AS lastUpdated,
+  resource_content ->> '$.resource.telecom[0].value' AS telecom,
+  resource_content ->> '$.resource.identifier[0].value' AS medical_record_number,
+  file_name AS lineage_meta_data_filename  
 FROM
-    patient_resources;
+  patient_resources;
 
 -- Calculates the average age of patients
 -- Uses the birth date from the FHIR Patient resources to compute the average age.
@@ -182,7 +196,8 @@ SELECT
     resource_content ->> '$.resource.valueQuantity.unit' AS value_unit,
     resource_content ->> '$.resource.valueString' AS value_string,
     resource_content ->> '$.resource.valueCodeableConcept.coding[0].code' AS value_codeable_concept_code,
-    resource_content ->> '$.resource.valueCodeableConcept.coding[0].display' AS value_codeable_concept_display
+    resource_content ->> '$.resource.valueCodeableConcept.coding[0].display' AS value_codeable_concept_display,
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM
     observation_resources;
 
@@ -226,7 +241,8 @@ SELECT
     resource_content ->> '$.resource.hospitalization.dischargeDisposition.coding[0].display' dischargeDisposition_display,
     resource_content ->> '$.resource.reasonReference[0].reference' reasonReference_reference,
     resource_content ->> '$.resource.participant.type.coding[0].code' participant_type_code,
-    resource_content ->> '$.resource.resourceType' resourceType
+    resource_content ->> '$.resource.resourceType' resourceType,
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM
     Encounter_resources;
  
@@ -255,7 +271,8 @@ CREATE VIEW fhir_v4_bundle_resource_condition AS
   resource_content ->> '$.resource.encounter.reference' encounter_reference,
   resource_content ->> '$.resource.onsetDateTime' onsetDateTime,
   resource_content ->> '$.resource.Slices for category.category:us-core.coding[0].code' category_code,
-  resource_content ->> '$.resource.Slices for category.category:us-core.coding[0].system' category_system
+  resource_content ->> '$.resource.Slices for category.category:us-core.coding[0].system' category_system,
+  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM
    condition_resources;
   
@@ -286,7 +303,8 @@ CREATE VIEW fhir_v4_bundle_resource_service_request AS
   resource_content ->> '$.resource.encounter.reference' encounter_reference,
   resource_content ->> '$.resource.occurrencePeriod.start' occurrencePeriod_start,
   resource_content ->> '$.resource.occurrencePeriod.end' occurrencePeriod_end,
-  resource_content ->> '$.resource.occurrenceDateTime' occurrenceDateTime
+  resource_content ->> '$.resource.occurrenceDateTime' occurrenceDateTime,
+  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM
      servicerequest_resources;
 
@@ -323,7 +341,8 @@ SELECT
     resource_content->>'$.resource.identifier[2].value' AS identifier_value_2,
     resource_content->>'$.resource.identifier[3].value' AS identifier_value_3,
     resource_content->>'$.resource.identifier[4].value' AS identifier_value_4,
-    resource_content->>'$.resource.performedDateTime' AS performedDateTime
+    resource_content->>'$.resource.performedDateTime' AS performedDateTime,
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM procedure_resources;
 
 DROP VIEW IF EXISTS fhir_v4_bundle_resource_practitioner;
@@ -339,11 +358,11 @@ WITH practitioner_resources AS (
 SELECT
     resource_content->>'$.resource.id' AS id,
     resource_content->>'$.resource.meta.lastUpdated' AS lastUpdated,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[0].url' AS lineage_meta_data_url_0,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[0].valueString' AS lineage_meta_data_value_0,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[1].url' AS lineage_meta_data_url_1,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[1].valueString' AS lineage_meta_data_value_1,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[2].url' AS lineage_meta_data_url_2,
-    resource_content->>'$.resource.extension[0].lineage_meta_data[2].valueString' AS lineage_meta_data_value_2
+    resource_content->>'$.resource.extension[0].lineage meta data[0].url' AS lineage_meta_data_url_0,
+    resource_content->>'$.resource.extension[0].lineage meta data[0].valueString' AS lineage_meta_data_value_0,
+    resource_content->>'$.resource.extension[0].lineage meta data[1].url' AS lineage_meta_data_url_1,
+    resource_content->>'$.resource.extension[0].lineage meta data[1].valueString' AS lineage_meta_data_value_1,
+    resource_content->>'$.resource.extension[0].lineage meta data[2].url' AS lineage_meta_data_url_2,
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
 FROM
     practitioner_resources;
