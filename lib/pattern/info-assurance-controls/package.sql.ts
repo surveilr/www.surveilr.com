@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-net
 import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
