@@ -66,7 +66,6 @@ Deno.test("file ingestion", async (t) => {
     if (await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null)) {
       await Deno.remove(DEFAULT_RSSD_PATH).catch(() => false);
     }
-    console.log(INGEST_DIR);
     const ingestResult =
       await $`surveilr ingest files -d ${DEFAULT_RSSD_PATH} -r ${INGEST_DIR}`;
     assertEquals(
