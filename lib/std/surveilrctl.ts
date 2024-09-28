@@ -20,6 +20,9 @@ import {
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { spawnedResult } from "../universal/spawn.ts";
 
+const fileSizeMB = async (file: string) =>
+  (await Deno.stat(file)).size / (1024 * 1024);
+
 /**
  * Watches for changes in the specified files and triggers the execution of SQL scripts
  * on the SQLite database whenever a change is detected.
@@ -67,7 +70,13 @@ async function watchFiles(
     };
 
     const spawnedSurveilr = async (...args: string[]) => {
-      console.log(dim(`🚀 surveilr shell ${args.join(" ")}`));
+      console.log(
+        dim(
+          `🚀 surveilr shell ${args.join(" ")} [${await fileSizeMB(
+            stateDbFsPath,
+          )}mb]`,
+        ),
+      );
       const sr = await spawnedResult([
         "surveilr",
         "shell",
@@ -76,10 +85,18 @@ async function watchFiles(
         ...args,
       ]);
       if (sr.code == 0) {
-        console.log(dim(`✅`), brightGreen(sr.command.join(" ")), green(`[${sr.code}]`));
+        console.log(
+          dim(`✅`),
+          brightGreen(sr.command.join(" ")),
+          green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`),
+        );
       } else {
         // if you change the name of this file, update watchFiles(...) call and gitignore
-        console.log(dim(`❌`), brightRed(sr.command.join(" ")), red(`[${sr.code}]`));
+        console.log(
+          dim(`❌`),
+          brightRed(sr.command.join(" ")),
+          red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`),
+        );
       }
       const stdOut = sr.stdout().trim();
       if (stdOut.length) console.log(dim(stdOut));
@@ -153,7 +170,7 @@ async function webServerDevAction(options: {
   console.log(dim(
     `Using ${
       cyan((await spawnedResult(["surveilr", "--version"])).stdout())
-    } RSSD ${cyan(stateDbFsPath)}`,
+    } RSSD ${cyan(stateDbFsPath)} (${await fileSizeMB(stateDbFsPath)}mb)`,
   ));
 
   // Determine the command and arguments
