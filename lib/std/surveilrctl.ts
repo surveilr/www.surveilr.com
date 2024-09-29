@@ -24,6 +24,67 @@ const fileSizeMB = async (file: string) =>
   (await Deno.stat(file)).size / (1024 * 1024);
 
 /**
+ * Executes SQL scripts from a given file on an SQLite database. The file can be
+ * a plain SQL file or an executable file. For executables, STDOUT provides the
+ * SQL script.
+ *
+ * @param modifiedFile - The path to the file containing the SQL script.
+ * @param stateDbFsPath - The path to the SQLite database file.
+ */
+async function spawnedSqlite3(
+  cmd: string,
+  stateDbFsPath: string,
+  modifiedFile: string,
+) {
+  let sqlScriptSrc = relative(".", modifiedFile);
+  let sqlScript: string | null = "";
+
+  const stat = Deno.lstatSync(modifiedFile);
+  if (!modifiedFile.endsWith(".sql") && stat.mode && (stat.mode & 0o111)) {
+    const execFileResult = await spawnedResult([modifiedFile]);
+    sqlScript = execFileResult.stdout();
+    if (!sqlScript) {
+      return; // Exit if there was an error or no script was found
+    }
+    // deno-fmt-ignore
+    console.log(dim(`⌛ Generating SQL from ${sqlScriptSrc}`));
+    sqlScriptSrc = `(executed ${sqlScriptSrc} [${execFileResult.code}])`;
+  } else {
+    // For .sql files, read the contents directly
+    sqlScript = await Deno.readTextFile(modifiedFile);
+  }
+
+  const spawned = [cmd, stateDbFsPath];
+  const sr = await spawnedResult(spawned, undefined, sqlScript);
+
+  // deno-fmt-ignore
+  console.log(dim(`🚀 cat ${sqlScriptSrc} | ${spawned.join(" ")} [${await fileSizeMB(stateDbFsPath)}mb]`));
+
+  if (sr.success) {
+    // deno-fmt-ignore
+    console.log( dim(`✅`), brightGreen(sr.command.join(" ")), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+  } else {
+    // deno-fmt-ignore
+    console.log( dim(`❌`), brightRed(sr.command.join(" ")), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+
+    // if you change the name of this file, update watchFiles(...) call and gitignore
+    const errorSqlScriptFName = `ERROR-${crypto.randomUUID()}.sql`;
+    Deno.writeTextFile(errorSqlScriptFName, sqlScript);
+    // deno-fmt-ignore
+    console.error( dim(`❌`), brightRed( `Failed to execute ${ relative(".", modifiedFile) } (${sr.code}) [see ${errorSqlScriptFName}]`));
+    if (!modifiedFile.endsWith(".sql")) {
+      // deno-fmt-ignore
+      console.error( dim(`❗`), brightYellow( `Reminder: ${ relative(".", modifiedFile) } must be executable in order to generate SQL.`, ), );
+    }
+  }
+  const stdOut = sr.stdout().trim();
+  if (stdOut.length) console.log(dim(stdOut));
+  const stdErr = sr.stdout().trim();
+  if (stdErr.length) console.log(brightRed(stdErr));
+  return sr;
+}
+
+/**
  * Watches for changes in the specified files and triggers the execution of SQL scripts
  * on the SQLite database whenever a change is detected.
  *
@@ -43,24 +104,15 @@ async function watchFiles(
     readonly stop?: () => Promise<void>;
     readonly start?: () => Promise<void>;
   },
+  externalSqlite3?: string,
 ) {
   try {
-    console.log(
-      dim(
-        `👀 Watching paths [${watch.paths.join(" ")}] ${
-          files.map((f) => f.toString()).join(", ")
-        } (${watch.paths.length})`,
-      ),
-    );
+    // deno-fmt-ignore
+    console.log( dim( `👀 Watching paths [${watch.paths.join(" ")}] ${ files.map((f) => f.toString()).join(", ") } (${watch.paths.length})`));
     if (load?.length) {
       for (const l of load) {
-        console.log(
-          dim(
-            `🔃 Loading ${
-              relative(Deno.cwd(), isAbsolute(l) ? l : join(Deno.cwd(), l))
-            } on change`,
-          ),
-        );
+        // deno-fmt-ignore
+        console.log( dim( `🔃 Loading ${ relative(Deno.cwd(), isAbsolute(l) ? l : join(Deno.cwd(), l)) } on change`));
       }
     }
 
@@ -69,40 +121,43 @@ async function watchFiles(
       return result.startsWith("../") ? result : `./${result}`;
     };
 
-    const spawnedSurveilr = async (...args: string[]) => {
-      console.log(
-        dim(
-          `🚀 surveilr shell ${args.join(" ")} [${await fileSizeMB(
-            stateDbFsPath,
-          )}mb]`,
-        ),
-      );
+    const spawnedSurveilr = async (...sources: string[]) => {
+      // deno-fmt-ignore
+      console.log(dim(`🚀 surveilr shell ${sources.join(" ")} [${await fileSizeMB(stateDbFsPath)}mb]`));
+
       const sr = await spawnedResult([
         "surveilr",
         "shell",
         "--state-db-fs-path",
         stateDbFsPath,
-        ...args,
+        ...sources,
       ]);
       if (sr.code == 0) {
-        console.log(
-          dim(`✅`),
-          brightGreen(sr.command.join(" ")),
-          green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`),
-        );
+        // deno-fmt-ignore
+        console.log( dim(`✅`), brightGreen(sr.command.join(" ")), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
       } else {
-        // if you change the name of this file, update watchFiles(...) call and gitignore
-        console.log(
-          dim(`❌`),
-          brightRed(sr.command.join(" ")),
-          red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`),
-        );
+        // deno-fmt-ignore
+        console.log( dim(`❌`), brightRed(sr.command.join(" ")), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
       }
       const stdOut = sr.stdout().trim();
       if (stdOut.length) console.log(dim(stdOut));
       const stdErr = sr.stdout().trim();
       if (stdErr.length) console.log(brightRed(stdErr));
       return sr;
+    };
+
+    const spawnedSqlIngest = async (...sources: string[]) => {
+      if (externalSqlite3) {
+        if (sources.length != 1) {
+          console.error(
+            `Expecting only a single source in spawnedSqlIngest for ${spawnedSqlIngest}`,
+          );
+          return;
+        }
+        await spawnedSqlite3(externalSqlite3, stateDbFsPath, sources[0]);
+      } else {
+        await spawnedSurveilr(...sources);
+      }
     };
 
     const reload = debounce(async (event: Deno.FsEvent) => {
@@ -115,14 +170,14 @@ async function watchFiles(
             if (load?.length) {
               // instead of the file that's being modified we want to load a
               // different (set) of files (usually package.sql.ts)
-              await spawnedSurveilr(
+              await spawnedSqlIngest(
                 ...load.map((l) =>
                   surveilrRelPath(isAbsolute(l) ? l : join(Deno.cwd(), l))
                 ),
               );
             } else {
               // no custom loaders passed in, just reload the file that was modified
-              await spawnedSurveilr(surveilrRelPath(path));
+              await spawnedSqlIngest(surveilrRelPath(path));
             }
             service.start?.();
           }
@@ -165,6 +220,7 @@ async function webServerDevAction(options: {
     load,
     externalSqlpage,
     restartWebServerOnChange,
+    externalSqlite3,
   } = options;
 
   console.log(dim(
@@ -270,10 +326,12 @@ async function webServerDevAction(options: {
       ],
       recursive: options.watchRecurse,
     },
-    [/\.sql\.ts$/, /^(?!ERROR).*\.sql$/],
+    // watch for *.sql.ts, *.sql, and *.ts
+    [/\.sql\.ts$/, /^(?!ERROR).*\.sql$/, /.ts$/],
     stateDbFsPath,
     load ?? ["package.sql.ts"],
     webServerService,
+    externalSqlite3,
   );
 
   webServerService.start();
@@ -295,6 +353,7 @@ await new Command()
     .option("-R, --watch-recurse", "Watch subdirectories too", { default: false })
     .option("-l, --load <path:string>", "Load these whenever watched files modified (instead of watched files themselves), defaults to `package.sql.ts`", { collect: true })
     .option("--external-sqlpage <sqlpage-binary:string>", "Run standalone SQLPage instead of surveilr embedded")
+    .option("--external-sqlite3 <sqlite3-binary:string>", "Run standalone sqlite3 instead of surveilr shell", { default: "sqlite3" })
     .option("--restart-web-server-on-change", "Restart the web server on each change, needed for surveir & SQLite", { default: true })
     .action(webServerDevAction)
   .parse(Deno.args ?? ["dev"]);
