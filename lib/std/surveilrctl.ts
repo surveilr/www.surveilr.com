@@ -20,6 +20,7 @@ import {
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts";
 import { spawnedResult } from "../universal/spawn.ts";
 
+let globalEventCount = 0;
 const fileSizeMB = async (file: string) =>
   (await Deno.stat(file)).size / (1024 * 1024);
 
@@ -42,12 +43,16 @@ async function spawnedSqlite3(
   const stat = Deno.lstatSync(modifiedFile);
   if (!modifiedFile.endsWith(".sql") && stat.mode && (stat.mode & 0o111)) {
     const execFileResult = await spawnedResult([modifiedFile]);
+    const error = execFileResult.stderr();
     sqlScript = execFileResult.stdout();
-    if (!sqlScript) {
-      return; // Exit if there was an error or no script was found
+    if (execFileResult.code != 0 || error.length || !sqlScript) {
+      // deno-fmt-ignore
+      console.log("❌", brightRed(`Error generating SQL from ${sqlScriptSrc} [${execFileResult.code}] {${globalEventCount}}`));
+      console.error(brightRed(error));
+      return false; // Exit if there was an error or no script was found
     }
     // deno-fmt-ignore
-    console.log(dim(`⌛ Generating SQL from ${sqlScriptSrc}`));
+    console.log(dim(`⌛ Generating SQL from ${sqlScriptSrc} {${globalEventCount}}`));
     sqlScriptSrc = `(executed ${sqlScriptSrc} [${execFileResult.code}])`;
   } else {
     // For .sql files, read the contents directly
@@ -57,24 +62,21 @@ async function spawnedSqlite3(
   const spawned = [cmd, stateDbFsPath];
   const sr = await spawnedResult(spawned, undefined, sqlScript);
 
-  // deno-fmt-ignore
-  console.log(dim(`🚀 cat ${sqlScriptSrc} | ${spawned.join(" ")} [${await fileSizeMB(stateDbFsPath)}mb]`));
-
   if (sr.success) {
     // deno-fmt-ignore
-    console.log( dim(`✅`), brightGreen(sr.command.join(" ")), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+    console.log(`✅`, brightGreen(`cat ${sqlScriptSrc} | ${sr.command.join(" ")}`), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb] {${globalEventCount}}`));
   } else {
     // deno-fmt-ignore
-    console.log( dim(`❌`), brightRed(sr.command.join(" ")), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+    console.log(`❌`, brightRed(`cat ${sqlScriptSrc} | ${sr.command.join(" ")}`), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb] {${globalEventCount}}`));
 
     // if you change the name of this file, update watchFiles(...) call and gitignore
     const errorSqlScriptFName = `ERROR-${crypto.randomUUID()}.sql`;
     Deno.writeTextFile(errorSqlScriptFName, sqlScript);
     // deno-fmt-ignore
-    console.error( dim(`❌`), brightRed( `Failed to execute ${ relative(".", modifiedFile) } (${sr.code}) [see ${errorSqlScriptFName}]`));
+    console.error( dim(`❌`), brightRed( `Failed to execute ${ relative(".", modifiedFile) } (${sr.code}) [see ${errorSqlScriptFName}] {${globalEventCount}}`));
     if (!modifiedFile.endsWith(".sql")) {
       // deno-fmt-ignore
-      console.error( dim(`❗`), brightYellow( `Reminder: ${ relative(".", modifiedFile) } must be executable in order to generate SQL.`, ), );
+      console.error( dim(`❗`), brightYellow( `Reminder: ${ relative(".", modifiedFile) } must be executable in order to generate SQL. {${globalEventCount}}`, ), );
     }
   }
   const stdOut = sr.stdout().trim();
@@ -134,10 +136,10 @@ async function watchFiles(
       ]);
       if (sr.code == 0) {
         // deno-fmt-ignore
-        console.log( dim(`✅`), brightGreen(sr.command.join(" ")), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+        console.log( dim(`✅`), brightGreen(sr.command.join(" ")), green(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb] {${globalEventCount}}`));
       } else {
         // deno-fmt-ignore
-        console.log( dim(`❌`), brightRed(sr.command.join(" ")), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb]`));
+        console.log( dim(`❌`), brightRed(sr.command.join(" ")), red(`[sr: ${sr.code}, ${await fileSizeMB(stateDbFsPath)}mb] {${globalEventCount}}`));
       }
       const stdOut = sr.stdout().trim();
       if (stdOut.length) console.log(dim(stdOut));
@@ -165,7 +167,7 @@ async function watchFiles(
         for (const file of files) {
           if (file.test(path)) {
             // deno-fmt-ignore
-            console.log(dim(`👀 Watch event (${event.kind}): ${brightWhite(relative(".", path))}`));
+            console.log(dim(`👀 Watch event (${event.kind}): ${brightWhite(relative(".", path))} {${globalEventCount}}`));
             await service.stop?.();
             if (load?.length) {
               // instead of the file that's being modified we want to load a
@@ -180,10 +182,12 @@ async function watchFiles(
               await spawnedSqlIngest(surveilrRelPath(path));
             }
             service.start?.();
+            globalEventCount++;
+            break; // in case file matches multiple patterns
           }
         }
       }
-    }, 200);
+    }, 500);
 
     const watcher = Deno.watchFs(watch.paths, { recursive: watch.recursive });
     for await (const event of watcher) {
