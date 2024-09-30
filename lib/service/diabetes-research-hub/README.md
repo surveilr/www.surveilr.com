@@ -14,7 +14,7 @@ verifying the data all within your own environment.
 The following SQL scripts will be used:
 
 - drh-deidentification.sql: De-identifies sensitive columns in the study data.
-- stateless-drh-surveilr.sql: Creates database views for SQLPage preview.
+- stateless.sql: Creates database views for SQLPage preview.
 - orchestrate-drh-vv.sql: Performs verification and validation on the study data
   tables.
 
@@ -39,7 +39,7 @@ The directory should look like this now:
 │   └── ...many other study files    
 ├── verfication-validation
 |   ├──orchestrate-drh-vv.sql
-├── stateless-drh-surveilr.sql
+├── stateless.sql
 ├── generate-raw-cgm-web-ui-pages.sql
 ```
 
@@ -65,16 +65,13 @@ $ cat verfication-validation/orchestrate-drh-vv.sql | surveilr orchestrate -n "v
 
 
 ```bash
-# load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
-$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
+# load the "Console" and other menu/routing utilities plus DRH Web UI (both are same, just run one)
+$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2.Use the option 2 as the option1 has some issues)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
 
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
 
-# browse http://localhost:9000/drh/index.sql
+# browse http://localhost:9000/ to see surveilr web UI
+# browse http://localhost:9000/drh/index.sql to view DRH speciifc UI
