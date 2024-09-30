@@ -46,7 +46,7 @@ const relatedPosts: CollectionEntry<"blog">[] = blogPosts.filter(
 const pageTitle: string = `${post.data.title} | ${SITE.title}`;
 ---
 
-<MainLayout title={pageTitle}>
+<MainLayout title={pageTitle} meta={post.data.description}>
   <section class="mx-auto max-w-3xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
     <div class="max-w-2xl">
       <div class="mb-6 flex items-center justify-between">
@@ -184,5 +184,15 @@ const pageTitle: string = `${post.data.title} | ${SITE.title}`;
 
   p {
     margin-top: 1.5rem;
+  }
+  ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 1rem 0;
+  }
+  li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+    unicode-bidi: isolate;
   }
 </style>

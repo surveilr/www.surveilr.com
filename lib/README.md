@@ -63,18 +63,13 @@ RSSD_DB --> Target_System["Integrate anywhere SQLite
 ## `lib` Structure
 
 ```md
-lib/ ├── assurance/ Quality Assurance for surveilr ├── pattern/ All public
-patterns (composable) │ ├── fhir-explorer/ FHIR Explorer Pattern │ ├── osquery/
-osQuery Integration pattern │ ├── direct-messaging-service/ Direct secure
-messaging integration pattern │ └── (...)/ add more patterns above this one ├──
-service/ All public services (large combinations of patterns) │ ├── drh/
-Diabetes Research Hub "Edge" Service │ ├── opsfolio/ Opsfolio │ └── (...)/ add
-more services above this one ├── std/ surveilr Standard Library (used by all
-patterns) │ ├── models/ RSSD schemas │ ├── notebook/ Notebook schemas │ ├──
-web-ui-content/ SQLPage content for Shell, Console, etc. │ ├── deps.ts Common
-Deno dependencies (used by all patterns) │ └── package.sql.ts Module to include
-in all other patterns └── universal/ Universally applicable modules (can be used
-anywhere)
+lib/
+├── assurance/              Quality Assurance for surveilr
+├── cookbook/               Small independent  "recipes" to explain common surveilr SQL usage
+├── pattern/                All public patterns (composable) that are too big to put into a Cookbook
+├── service/                All public services that are too big to put into a Pattern (might be a full "app" or "service")
+├── std/                    surveilr Standard Library (used by all patterns)
+└── universal/              Universally applicable modules (can be used anywhere, even outside of `surveilr` context)
 ```
 
 ## Serving through `surveilr.com/lib/*`
