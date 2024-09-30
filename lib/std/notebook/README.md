@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The SQL Notebooks concept in the Resource Surveillance Commons (RSC) framework
+The SQL Notebooks concept in the Resource Surveillance (`surveilr`) framework
 allows you to generate, manage, and execute SQL code in a modular and organized
 manner. This system is composed of various TypeScript modules that provide a
 unified structure for handling SQL in a programmatic and type-safe way. The key
@@ -129,5 +129,4 @@ console.log(sqlStatements);
 ```
 
 This example demonstrates how you can define a notebook, generate SQL, and
-manage SQLPage content, all within the unified framework provided by the RSC
-system.
+manage SQLPage content, all within the unified framework provided by `surveilr`.

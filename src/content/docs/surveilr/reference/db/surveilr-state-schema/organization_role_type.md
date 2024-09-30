@@ -19,11 +19,11 @@ CREATE TABLE "organization_role_type" (
 
 ## Columns
 
-| Name       | Type        | Default           | Nullable | Children                                  | Comment |
-| ---------- | ----------- | ----------------- | -------- | ----------------------------------------- | ------- |
+| Name       | Type        | Default           | Nullable | Children                                                                            | Comment |
+| ---------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------------- | ------- |
 | code       | TEXT        |                   | false    | [organization_role](/surveilr/reference/db/surveilr-state-schema/organization_role) |         |
-| value      | TEXT        |                   | false    |                                           |         |
-| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                           |         |
+| value      | TEXT        |                   | false    |                                                                                     |         |
+| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                     |         |
 
 ## Constraints
 
@@ -41,4 +41,3 @@ CREATE TABLE "organization_role_type" (
 ## Relations
 
 ![er](../../../../../../assets/organization_role_type.svg)
-

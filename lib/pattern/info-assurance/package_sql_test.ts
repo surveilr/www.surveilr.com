@@ -3,15 +3,15 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 const DEFAULT_RSSD_PATH = "./resource-surveillance.sqlite.db";
 
 Deno.test("View Check", async (t) => {
-    await t.step("Check database", async () => {
-        assertExists(
-            await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
-            `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
-        );
-    });
-    const db = new DB(DEFAULT_RSSD_PATH);
-    await t.step("Threat Model", () => {
-        db.execute(`DROP VIEW IF EXISTS threat_model;
+  await t.step("Check database", async () => {
+    assertExists(
+      await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
+      `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
+    );
+  });
+  const db = new DB(DEFAULT_RSSD_PATH);
+  await t.step("Threat Model", () => {
+    db.execute(`DROP VIEW IF EXISTS threat_model;
             CREATE VIEW threat_model AS
             WITH json_data AS (
     SELECT
@@ -41,14 +41,14 @@ FROM
     json_data
 GROUP BY
     id, "changed_by", "last_modified", state;`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM threat_model`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM threat_model`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Web Application", () => {
-        db.execute(`DROP VIEW IF EXISTS web_application;
+  await t.step("Web Application", () => {
+    db.execute(`DROP VIEW IF EXISTS web_application;
             CREATE VIEW web_application AS
             SELECT DISTINCT
                 json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') AS Title
@@ -66,14 +66,14 @@ GROUP BY
                 ) AS border
             WHERE  json_extract(border.value, '$."a:Value"."@i:type"') = 'StencilEllipse'
                 AND json_extract(border.value, '$."a:Value".Properties."a:anyType"[0]."b:DisplayName"') = 'Web Application';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM web_application`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM web_application`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Managed Application", () => {
-        db.execute(`DROP VIEW IF EXISTS managed_application;
+  await t.step("Managed Application", () => {
+    db.execute(`DROP VIEW IF EXISTS managed_application;
             CREATE VIEW IF NOT EXISTS managed_application AS
             SELECT DISTINCT
                 json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') AS Title
@@ -91,14 +91,14 @@ GROUP BY
                 ) AS border
             WHERE  json_extract(border.value, '$."a:Value"."@i:type"') = 'StencilEllipse'
                 AND json_extract(border.value, '$."a:Value".Properties."a:anyType"[0]."b:DisplayName"') = 'Managed Application';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM managed_application`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM managed_application`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("SQL Database", () => {
-        db.execute(`DROP VIEW IF EXISTS sql_database;
+  await t.step("SQL Database", () => {
+    db.execute(`DROP VIEW IF EXISTS sql_database;
             CREATE VIEW IF NOT EXISTS sql_database AS
             SELECT DISTINCT
                 json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') AS Title
@@ -116,14 +116,14 @@ GROUP BY
                 ) AS border
             WHERE  json_extract(border.value, '$."a:Value"."@i:type"') = 'StencilParallelLines'
                 AND json_extract(border.value, '$."a:Value".Properties."a:anyType"[0]."b:DisplayName"') = 'SQL Database';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM sql_database`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM sql_database`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Boundaries", () => {
-        db.execute(`DROP VIEW IF EXISTS boundaries;
+  await t.step("Boundaries", () => {
+    db.execute(`DROP VIEW IF EXISTS boundaries;
             CREATE VIEW IF NOT EXISTS boundaries AS
             SELECT DISTINCT
                 json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') AS boundary
@@ -150,11 +150,11 @@ GROUP BY
                 )
                 AND json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') NOT LIKE '%.%.%.%'
                 AND json_extract(border.value, '$."a:Value".Properties."a:anyType"[1]."b:Value"."#text"') LIKE '%Boundar%';`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM boundaries`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM boundaries`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    db.close();
+  db.close();
 });

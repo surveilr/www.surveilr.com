@@ -12,7 +12,7 @@ const footerLinks = [
   {
     section: "Ecosystem",
     links: [
-      { name: "Core vs. Patterns", url: "/blog/surveilr-core-vs-patterns"},
+      { name: "Core vs. Patterns", url: "/blog/surveilr-core-vs-patterns" },
       { name: "Compliant Insecurity", url: "https://compliantinsecurity.com" },
       { name: "SQL Aide", url: "https://sql-aide.com" },
       { name: "Professional Services", url: "/services" },

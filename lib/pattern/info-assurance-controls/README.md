@@ -1,10 +1,11 @@
 # `surveilr` Information Controls Explorer Pattern
 
-Information Controls, refer to specific security, compliance, or operational measures that organizations put in place to manage risks related to information systems and data handling.
+Information Controls, refer to specific security, compliance, or operational
+measures that organizations put in place to manage risks related to information
+systems and data handling.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.
@@ -29,16 +30,12 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/info-assurance-controls/info-schema.sql to see ic-specific views and tables
 ```
+
 ## How to Run the Tests
 
 To execute test and ensure that `surveilr` is functioning correctly:

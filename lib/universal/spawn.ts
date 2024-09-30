@@ -91,6 +91,7 @@ export async function spawnedResult(
     success,
     stdoutRaw,
     stderrRaw,
+    env,
     stdout: () => new TextDecoder().decode(stdoutRaw),
     stderr: () => new TextDecoder().decode(stderrRaw),
   };

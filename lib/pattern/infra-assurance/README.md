@@ -1,10 +1,16 @@
 # `surveilr` Infrastructure assurance Explorer Pattern
 
-Infrastructure assurance refers to the process of ensuring the resilience, security, and reliability of an organization's critical infrastructure, including IT systems, networks, and physical assets. It involves implementing strategies to protect against threats such as cyberattacks, natural disasters, and equipment failures, while ensuring the continued operation and availability of essential services. This practice includes risk management, disaster recovery planning, system monitoring, and maintaining compliance with security and regulatory standards.
+Infrastructure assurance refers to the process of ensuring the resilience,
+security, and reliability of an organization's critical infrastructure,
+including IT systems, networks, and physical assets. It involves implementing
+strategies to protect against threats such as cyberattacks, natural disasters,
+and equipment failures, while ensuring the continued operation and availability
+of essential services. This practice includes risk management, disaster recovery
+planning, system monitoring, and maintaining compliance with security and
+regulatory standards.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.
@@ -29,14 +35,9 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/infra-assurance/info-schema.sql to see infra-assurance-specific views and tables
 ```
 

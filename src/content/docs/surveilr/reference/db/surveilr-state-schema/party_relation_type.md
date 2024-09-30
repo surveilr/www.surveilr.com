@@ -19,11 +19,11 @@ CREATE TABLE "party_relation_type" (
 
 ## Columns
 
-| Name       | Type        | Default           | Nullable | Children                            | Comment |
-| ---------- | ----------- | ----------------- | -------- | ----------------------------------- | ------- |
+| Name       | Type        | Default           | Nullable | Children                                                                      | Comment |
+| ---------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- |
 | code       | TEXT        |                   | false    | [party_relation](/surveilr/reference/db/surveilr-state-schema/party_relation) |         |
-| value      | TEXT        |                   | false    |                                     |         |
-| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                     |         |
+| value      | TEXT        |                   | false    |                                                                               |         |
+| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                               |         |
 
 ## Constraints
 
@@ -41,4 +41,3 @@ CREATE TABLE "party_relation_type" (
 ## Relations
 
 ![er](../../../../../../assets/party_relation_type.svg)
-

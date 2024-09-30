@@ -51,5 +51,5 @@ specificationsRight:
     subTitle: "Idéal pour une utilisation dans la construction, les machines, l'automobile et d'autres applications lourdes nécessitant une fixation solide et fiable."
 blueprints:
   first: "@/images/blueprint-1.avif"
-  second: "@/images/blueprint-2.avif"    
+  second: "@/images/blueprint-2.avif"
 ---

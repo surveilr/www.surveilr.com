@@ -4,7 +4,8 @@ title: orchestration_session_entry
 
 ## Description
 
-An orchestration session entry records a specific file that that is ingested or otherwise orchestrated
+An orchestration session entry records a specific file that that is ingested or
+otherwise orchestrated
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -24,13 +25,13 @@ CREATE TABLE "orchestration_session_entry" (
 
 ## Columns
 
-| Name                           | Type    | Default | Nullable | Children                                                                                                                                                                                | Parents                                           | Comment                                                                       |
-| ------------------------------ | ------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- |
-| orchestration_session_entry_id | VARCHAR |         | false    | [orchestration_session_state](/surveilr/reference/db/surveilr-state-schema/orchestration_session_state) [orchestration_session_exec](/surveilr/reference/db/surveilr-state-schema/orchestration_session_exec) [orchestration_session_issue](/surveilr/reference/db/surveilr-state-schema/orchestration_session_issue) |                                                   | orchestration_session_entry primary key and internal label (UUID)             |
-| session_id                     | VARCHAR |         | false    |                                                                                                                                                                                         | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session) | orchestration_session row this entry describes                                |
-| ingest_src                     | TEXT    |         | false    |                                                                                                                                                                                         |                                                   | The name of the file or URI of the source of the ingestion                    |
-| ingest_table_name              | TEXT    |         | true     |                                                                                                                                                                                         |                                                   | If the ingestion was done into a temp or actual table, this is the table name |
-| elaboration                    | TEXT    |         | true     |                                                                                                                                                                                         |                                                   | JSON governance data (description, documentation, usage, etc. in JSON)        |
+| Name                           | Type    | Default | Nullable | Children                                                                                                                                                                                                                                                                                                              | Parents                                                                                     | Comment                                                                       |
+| ------------------------------ | ------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| orchestration_session_entry_id | VARCHAR |         | false    | [orchestration_session_state](/surveilr/reference/db/surveilr-state-schema/orchestration_session_state) [orchestration_session_exec](/surveilr/reference/db/surveilr-state-schema/orchestration_session_exec) [orchestration_session_issue](/surveilr/reference/db/surveilr-state-schema/orchestration_session_issue) |                                                                                             | orchestration_session_entry primary key and internal label (UUID)             |
+| session_id                     | VARCHAR |         | false    |                                                                                                                                                                                                                                                                                                                       | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session) | orchestration_session row this entry describes                                |
+| ingest_src                     | TEXT    |         | false    |                                                                                                                                                                                                                                                                                                                       |                                                                                             | The name of the file or URI of the source of the ingestion                    |
+| ingest_table_name              | TEXT    |         | true     |                                                                                                                                                                                                                                                                                                                       |                                                                                             | If the ingestion was done into a temp or actual table, this is the table name |
+| elaboration                    | TEXT    |         | true     |                                                                                                                                                                                                                                                                                                                       |                                                                                             | JSON governance data (description, documentation, usage, etc. in JSON)        |
 
 ## Constraints
 
@@ -47,8 +48,6 @@ CREATE TABLE "orchestration_session_entry" (
 | ---------------------------------------------- | -------------------------------------------- |
 | sqlite_autoindex_orchestration_session_entry_1 | PRIMARY KEY (orchestration_session_entry_id) |
 
-
 ## Relations
 
 ![er](../../../../../../assets/orchestration_session_entry.svg)
-

@@ -200,10 +200,10 @@ export function textAssetCell<
 }
 
 /**
- * Represents a code notebook base class that generates SQL for with Resource
- * Surveillance Commons (RSC) code_notebook_* tables to handle the storage and
- * execution of code cells within an RSSD (for surveilr `notebook` subcommands
- * and SQL info schema lifecycle migrations).
+ * Represents a code notebook base class that generates SQL for `surveilr` 
+ * code_notebook_* tables to handle the storage and execution of code cells
+ * within an RSSD (for surveilr `notebook` subcommands and SQL info schema
+ * lifecycle migrations).
  *
  * This class is designed to be subclassed to define specific notebooks with
  * methods that generate SQL or other code that can be stored into `code_notebook_cell`

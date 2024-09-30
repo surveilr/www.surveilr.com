@@ -30,20 +30,20 @@ CREATE TABLE "ur_ingest_session_plm_acct_label" (
 
 ## Columns
 
-| Name                                        | Type        | Default           | Nullable | Parents                                                                                 | Comment                                                 |
-| ------------------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| ur_ingest_session_plm_acct_label_id         | VARCHAR     |                   | false    |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| Name                                        | Type        | Default           | Nullable | Parents                                                                                                                           | Comment                                                 |
+| ------------------------------------------- | ----------- | ----------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ur_ingest_session_plm_acct_label_id         | VARCHAR     |                   | false    |                                                                                                                                   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | ur_ingest_session_plm_acct_project_id       | VARCHAR     |                   | false    | [ur_ingest_session_plm_acct_project](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_acct_project)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | ur_ingest_session_plm_acct_project_issue_id | VARCHAR     |                   | false    | [ur_ingest_session_plm_acct_project_issue](/surveilr/reference/db/surveilr-state-schema/ur_ingest_session_plm_acct_project_issue) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| lebel                                       | TEXT        |                   | false    |                                                                                         |                                                         |
-| elaboration                                 | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
-| created_at                                  | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                         |                                                         |
-| created_by                                  | TEXT        | 'UNKNOWN'         | true     |                                                                                         |                                                         |
-| updated_at                                  | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
-| updated_by                                  | TEXT        |                   | true     |                                                                                         |                                                         |
-| deleted_at                                  | TIMESTAMPTZ |                   | true     |                                                                                         |                                                         |
-| deleted_by                                  | TEXT        |                   | true     |                                                                                         |                                                         |
-| activity_log                                | TEXT        |                   | true     |                                                                                         | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
+| lebel                                       | TEXT        |                   | false    |                                                                                                                                   |                                                         |
+| elaboration                                 | TEXT        |                   | true     |                                                                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
+| created_at                                  | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                                                                   |                                                         |
+| created_by                                  | TEXT        | 'UNKNOWN'         | true     |                                                                                                                                   |                                                         |
+| updated_at                                  | TIMESTAMPTZ |                   | true     |                                                                                                                                   |                                                         |
+| updated_by                                  | TEXT        |                   | true     |                                                                                                                                   |                                                         |
+| deleted_at                                  | TIMESTAMPTZ |                   | true     |                                                                                                                                   |                                                         |
+| deleted_by                                  | TEXT        |                   | true     |                                                                                                                                   |                                                         |
+| activity_log                                | TEXT        |                   | true     |                                                                                                                                   | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
@@ -65,4 +65,3 @@ CREATE TABLE "ur_ingest_session_plm_acct_label" (
 ## Relations
 
 ![er](../../../../../../assets/ur_ingest_session_plm_acct_label.svg)
-

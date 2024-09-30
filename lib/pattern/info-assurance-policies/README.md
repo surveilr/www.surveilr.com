@@ -1,10 +1,15 @@
 # `surveilr` Information assurance policies Explorer Pattern
 
-Information assurance policies are formal guidelines and rules designed to protect the confidentiality, integrity, and availability of an organization’s information systems and data. These policies define the framework for managing security risks, access controls, incident response, data protection, and compliance with legal and regulatory standards. They provide direction for employees and stakeholders on how to handle sensitive information, ensuring consistent security practices across the organization.
+Information assurance policies are formal guidelines and rules designed to
+protect the confidentiality, integrity, and availability of an organization’s
+information systems and data. These policies define the framework for managing
+security risks, access controls, incident response, data protection, and
+compliance with legal and regulatory standards. They provide direction for
+employees and stakeholders on how to handle sensitive information, ensuring
+consistent security practices across the organization.
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific controls data from the `uniform_resource.csv`
-  tables.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific controls data from the `uniform_resource.csv` tables.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.
@@ -28,14 +33,9 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/info-assurance-policies/info-schema.sql to see information assurance policies specific views and tables
 ```
 

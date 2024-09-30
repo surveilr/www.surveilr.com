@@ -4,7 +4,7 @@ title: orchestration_session_issue
 
 ## Description
 
-An orchestration issue is generated when an error or warning needs to  
+An orchestration issue is generated when an error or warning needs to\
 be created during the orchestration of an entry in a session.
 
 <details>
@@ -31,18 +31,18 @@ CREATE TABLE "orchestration_session_issue" (
 
 ## Columns
 
-| Name                           | Type    | Default | Nullable | Children                                                                        | Parents                                                       | Comment                                                                            |
-| ------------------------------ | ------- | ------- | -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| orchestration_session_issue_id | UUID    |         | false    | [orchestration_session_issue_relation](/surveilr/reference/db/surveilr-state-schema/orchestration_session_issue_relation) |                                                               | orchestration_session_issue primary key and internal label (UUID)                  |
-| session_id                     | VARCHAR |         | false    |                                                                                 | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                                  |
-| session_entry_id               | VARCHAR |         | true     |                                                                                 | [orchestration_session_entry](/surveilr/reference/db/surveilr-state-schema/orchestration_session_entry) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                                  |
-| issue_type                     | TEXT    |         | false    |                                                                                 |                                                               | The category of an issue                                                           |
-| issue_message                  | TEXT    |         | false    |                                                                                 |                                                               | The human-friendly message for an issue                                            |
-| issue_row                      | INTEGER |         | true     |                                                                                 |                                                               | The row number in which the issue occurred (may be NULL if not applicable)         |
-| issue_column                   | TEXT    |         | true     |                                                                                 |                                                               | The name of the column in which the issue occurred (may be NULL if not applicable) |
-| invalid_value                  | TEXT    |         | true     |                                                                                 |                                                               | The invalid value which caused the issue (may be NULL if not applicable)           |
-| remediation                    | TEXT    |         | true     |                                                                                 |                                                               | If the issue is correctable, explain how to correct it.                            |
-| elaboration                    | TEXT    |         | true     |                                                                                 |                                                               | isse-specific attributes/properties in JSON ("custom data")                        |
+| Name                           | Type    | Default | Nullable | Children                                                                                                                  | Parents                                                                                                 | Comment                                                                            |
+| ------------------------------ | ------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| orchestration_session_issue_id | UUID    |         | false    | [orchestration_session_issue_relation](/surveilr/reference/db/surveilr-state-schema/orchestration_session_issue_relation) |                                                                                                         | orchestration_session_issue primary key and internal label (UUID)                  |
+| session_id                     | VARCHAR |         | false    |                                                                                                                           | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                                  |
+| session_entry_id               | VARCHAR |         | true     |                                                                                                                           | [orchestration_session_entry](/surveilr/reference/db/surveilr-state-schema/orchestration_session_entry) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                                  |
+| issue_type                     | TEXT    |         | false    |                                                                                                                           |                                                                                                         | The category of an issue                                                           |
+| issue_message                  | TEXT    |         | false    |                                                                                                                           |                                                                                                         | The human-friendly message for an issue                                            |
+| issue_row                      | INTEGER |         | true     |                                                                                                                           |                                                                                                         | The row number in which the issue occurred (may be NULL if not applicable)         |
+| issue_column                   | TEXT    |         | true     |                                                                                                                           |                                                                                                         | The name of the column in which the issue occurred (may be NULL if not applicable) |
+| invalid_value                  | TEXT    |         | true     |                                                                                                                           |                                                                                                         | The invalid value which caused the issue (may be NULL if not applicable)           |
+| remediation                    | TEXT    |         | true     |                                                                                                                           |                                                                                                         | If the issue is correctable, explain how to correct it.                            |
+| elaboration                    | TEXT    |         | true     |                                                                                                                           |                                                                                                         | isse-specific attributes/properties in JSON ("custom data")                        |
 
 ## Constraints
 
@@ -63,4 +63,3 @@ CREATE TABLE "orchestration_session_issue" (
 ## Relations
 
 ![er](../../../../../../assets/orchestration_session_issue.svg)
-

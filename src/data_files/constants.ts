@@ -4,7 +4,8 @@ export const SITE = {
   title: "surveilr",
   organization: "Netspective Communications LLC",
   tagline: "Resource Surveillance & Integration Engine",
-  description: "Prove Security, Quality, and Compliance with Auditable, Queryable, and Machine-Attestable Evidence",
+  description:
+    "Prove Security, Quality, and Compliance with Auditable, Queryable, and Machine-Attestable Evidence",
   description_short: "Evidence Collection & Integration Engine",
   url: "https://surveilr.com",
   author: "Shahid N. Shah",

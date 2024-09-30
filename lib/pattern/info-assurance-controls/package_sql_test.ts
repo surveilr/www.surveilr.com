@@ -3,17 +3,17 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 const DEFAULT_RSSD_PATH = "./resource-surveillance.sqlite.db";
 
 Deno.test("View Check....", async (t) => {
-    await t.step("Check database...", async () => {
-        assertExists(
-            await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
-            `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
-        );
-    });
-    const db = new DB(DEFAULT_RSSD_PATH);
+  await t.step("Check database...", async () => {
+    assertExists(
+      await Deno.stat(DEFAULT_RSSD_PATH).catch(() => null),
+      `❌ Error: ${DEFAULT_RSSD_PATH} does not exist`,
+    );
+  });
+  const db = new DB(DEFAULT_RSSD_PATH);
 
-    await t.step("Control Regimes", () => {
-        try {
-            db.execute(`DROP VIEW IF EXISTS control_regimes;
+  await t.step("Control Regimes", () => {
+    try {
+      db.execute(`DROP VIEW IF EXISTS control_regimes;
             CREATE VIEW control_regimes AS
             SELECT
                 reg.name as control_regime,
@@ -23,18 +23,18 @@ Deno.test("View Check....", async (t) => {
             FROM
                 control_regime as audit
             INNER JOIN control_regime as reg ON audit.parent_id = reg.control_regime_id;`);
-        } catch (e) {
-            console.error(`Failed to create view control_group: ${e.message}`);
-        }
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM control_regimes`,
-        );
-        assertEquals(result.length, 1);
-    });
+    } catch (e) {
+      console.error(`Failed to create view control_group: ${e.message}`);
+    }
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM control_regimes`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Control Group", () => {
-        try {
-            db.execute(`DROP VIEW IF EXISTS control_group;
+  await t.step("Control Group", () => {
+    try {
+      db.execute(`DROP VIEW IF EXISTS control_group;
             CREATE VIEW control_group AS
             SELECT
               cast("#" as int)  as display_order,
@@ -180,18 +180,18 @@ Deno.test("View Check....", async (t) => {
               NULL AS parent_id
             FROM  uniform_resource_scheduled_audit
             GROUP BY "Common Criteria";`);
-        } catch (e) {
-            console.error(`Failed to create view control_group: ${e.message}`);
-        }
+    } catch (e) {
+      console.error(`Failed to create view control_group: ${e.message}`);
+    }
 
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM control_group`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM control_group`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    await t.step("Controls", () => {
-        db.execute(`DROP VIEW IF EXISTS control;
+  await t.step("Controls", () => {
+    db.execute(`DROP VIEW IF EXISTS control;
                     CREATE VIEW control AS
                     WITH control_regime_cte AS (
                     SELECT
@@ -450,11 +450,11 @@ Deno.test("View Check....", async (t) => {
         FROM uniform_resource_scheduled_audit cntl
         INNER JOIN control_group cg ON cg.title=cntl."Common Criteria"
         WHERE cg.audit_type_id=(SELECT audit_type_id FROM control_regime_cte WHERE audit_type_name='Scheduled Audit');`);
-        const result = db.query(
-            `SELECT COUNT(*) AS count FROM control`,
-        );
-        assertEquals(result.length, 1);
-    });
+    const result = db.query(
+      `SELECT COUNT(*) AS count FROM control`,
+    );
+    assertEquals(result.length, 1);
+  });
 
-    db.close();
+  db.close();
 });

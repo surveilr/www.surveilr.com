@@ -1,12 +1,15 @@
 ---
 title: code_notebook_state
-description: Explanation of the `code_notebook_state` 
+description: Explanation of the `code_notebook_state`
 ---
-
 
 ## Description
 
-Records the state of a notebook's cells' executions, computations, and results for Kernels that are stateful.  For example, a SQL Notebook Cell that creates tables should only be run once (meaning it's statefule).  Other Kernels might store results for functions and output defined in one cell can be used in later cells.
+Records the state of a notebook's cells' executions, computations, and results
+for Kernels that are stateful. For example, a SQL Notebook Cell that creates
+tables should only be run once (meaning it's statefule). Other Kernels might
+store results for functions and output defined in one cell can be used in later
+cells.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -37,23 +40,23 @@ CREATE TABLE "code_notebook_state" (
 
 ## Columns
 
-| Name                   | Type      | Default           | Nullable | Parents                                     | Comment                                                                   |
-| ---------------------- | --------- | ----------------- | -------- | ------------------------------------------- | ------------------------------------------------------------------------- |
-| code_notebook_state_id | VARCHAR   |                   | false    |                                             | code_notebook_state primary key                                           |
+| Name                   | Type      | Default           | Nullable | Parents                                                                                        | Comment                                                                   |
+| ---------------------- | --------- | ----------------- | -------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| code_notebook_state_id | VARCHAR   |                   | false    |                                                                                                | code_notebook_state primary key                                           |
 | code_notebook_cell_id  | VARCHAR   |                   | false    | [code_notebook_cell](/surveilr/reference/db/surveilr-code-notebooks-schema/code_notebook_cell) | code_notebook_cell row this state describes                               |
-| from_state             | TEXT      |                   | false    |                                             | the previous state (set to "INITIAL" when it's the first transition)      |
-| to_state               | TEXT      |                   | false    |                                             | the current state; if no rows exist it means no state transition occurred |
-| transition_result      | TEXT      |                   | true     |                                             | if the result of state change is necessary for future use                 |
-| transition_reason      | TEXT      |                   | true     |                                             | short text or code explaining why the transition occurred                 |
-| transitioned_at        | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                             | when the transition occurred                                              |
-| elaboration            | TEXT      |                   | true     |                                             | any elaboration needed for the state transition                           |
-| created_at             | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                             |                                                                           |
-| created_by             | TEXT      | 'UNKNOWN'         | true     |                                             |                                                                           |
-| updated_at             | TIMESTAMP |                   | true     |                                             |                                                                           |
-| updated_by             | TEXT      |                   | true     |                                             |                                                                           |
-| deleted_at             | TIMESTAMP |                   | true     |                                             |                                                                           |
-| deleted_by             | TEXT      |                   | true     |                                             |                                                                           |
-| activity_log           | TEXT      |                   | true     |                                             | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}                   |
+| from_state             | TEXT      |                   | false    |                                                                                                | the previous state (set to "INITIAL" when it's the first transition)      |
+| to_state               | TEXT      |                   | false    |                                                                                                | the current state; if no rows exist it means no state transition occurred |
+| transition_result      | TEXT      |                   | true     |                                                                                                | if the result of state change is necessary for future use                 |
+| transition_reason      | TEXT      |                   | true     |                                                                                                | short text or code explaining why the transition occurred                 |
+| transitioned_at        | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                                                                                | when the transition occurred                                              |
+| elaboration            | TEXT      |                   | true     |                                                                                                | any elaboration needed for the state transition                           |
+| created_at             | TIMESTAMP | CURRENT_TIMESTAMP | true     |                                                                                                |                                                                           |
+| created_by             | TEXT      | 'UNKNOWN'         | true     |                                                                                                |                                                                           |
+| updated_at             | TIMESTAMP |                   | true     |                                                                                                |                                                                           |
+| updated_by             | TEXT      |                   | true     |                                                                                                |                                                                           |
+| deleted_at             | TIMESTAMP |                   | true     |                                                                                                |                                                                           |
+| deleted_by             | TEXT      |                   | true     |                                                                                                |                                                                           |
+| activity_log           | TEXT      |                   | true     |                                                                                                | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true}                   |
 
 ## Constraints
 

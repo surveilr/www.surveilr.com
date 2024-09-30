@@ -81,16 +81,10 @@ messages are appropriately processed and stored for further analysis.
 
 # `surveilr` Direct Messaging Service Patterns
 
-- `stateless-dms.surveilr.sql` script focuses on creating views that define how
+- `stateless.sql` script focuses on creating views that define how
   to extract and present specific direct messaging data from the
   `uniform_resource.content` JSONB column. It does not modify or store any
   persistent data; it only sets up views for querying.
-- `orchestrate-stateful-dms.surveilr.sql` script is responsible for creating
-  tables that cache data extracted by views. These tables serve as "materialized
-  views", allowing for faster access to the data but are static. When new data
-  is ingested, the tables need to be dropped and recreated manually, and any
-  changes in the source data will not be reflected until the tables are
-  refreshed.
 
 ## Try it out on any device without this repo (if you're just using the SQL scripts)
 
@@ -164,8 +158,7 @@ $ surveilr web-ui --port 9000
 # launch a browser and go to http://localhost:9000/dms/index.sql
 ```
 
-Once you ingest all the files using `surveilr`, apply
-`orchestrate-stateful-dms.surveilr.sql` and `stateless-dms.surveilr.sql` all
+Once you ingest all the files using `surveilr`, apply `stateless.sql` all
 content will be accessed through views or `*.cached` tables in
 `resource-surveillance.sqlite.db`.
 
@@ -190,7 +183,8 @@ reporting tools, DBeaver, DataGrip, or any other SQLite data access tools.
 
 ### Prepare the Sample Files for Ingestion
 
-wget https://github.com/surveilr/www.surveilr.com/raw/main/lib/pattern/direct-messaging-service/ingest.zip
+wget
+https://github.com/surveilr/www.surveilr.com/raw/main/lib/pattern/direct-messaging-service/ingest.zip
 
 #### Extract the Zip File
 
@@ -209,9 +203,8 @@ Once unzipped, you should see the sample files in the ingest folder. The
 |   ├── 20240808171534044_messageDeliveryStatus.json
 │   ├── 00000191-31c8-a179-d9f7-ae67ed7c3b80_20240808171502355_content.json
 │   └── 00000191-31c8-a179-d9f7-ae67ed7c3b80_20240808171502355_sample.pdf
-├── orchestrate-stateful-dms.surveilr.sql
 ├── package.sql.ts
-└── stateless-dms.surveilr.sql
+└── stateless.sql
 ```
 
 Now
@@ -226,8 +219,7 @@ $ ./surveilr ingest files -r ingest/
 After ingestion, you will only work with these files:
 
 ```
-├── orchestrate-stateful-dms.surveilr.sql
-├── stateless-dms.surveilr.sql
+├── stateless.sql
 └── resource-surveillance.sqlite.db            # SQLite database
 ```
 
@@ -241,19 +233,13 @@ other dependencies.
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
-# if you want to start surveilr embedded SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std
-# browse http://localhost:9000/ to see web UI
-
-# if you want to start a standalone SQLPage in "watch" mode to re-load files automatically
-$ ../../universal/sqlpagectl.ts dev --watch . --watch ../../std --standalone
-# browse http://localhost:9000/ to see web UI
-
-# browse http://localhost:9000/dms/info-schema.sql to see DMS-specific
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
+# browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
 ```
 
-Once you apply `orchestrate-stateful-dms.surveilr.sql` and
-`stateless-dms.surveilr.sql` you can ignore those files and all content will be
+Once you apply `stateless.sql` you can ignore that files and all content will be
 accessed through views or `*.cached` tables in
 `resource-surveillance.sqlite.db`. At this point you can rename the SQLite
 database file, archive it, use in reporting tools, DBeaver, DataGrip, or any
@@ -266,7 +252,7 @@ to automatically re-load the contents into SQLite regularly. Since it can be
 time-consuming to re-run the same command in the CLI manually each time a file
 changes, you can use _watch mode_ instead.
 
-See: [`sqlpagectl.ts`](../../universal/sqlpagectl.ts).
+See: [`surveilrctl.ts`](../../std/surveilrctl.ts).
 
 ## How to Run the Tests
 

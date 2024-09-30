@@ -3,6 +3,7 @@ title: IMAP Email Ingestion
 description: Documentation for the resource surveillance CLI tool.
 ---
 
+
 Surveilr provides the capability to ingest IMAP emails directly into the RSSD (Resource Surveillance State Database) through its `surveilr ingest imap` command. This tool automates the process of fetching emails from a specified folder and batch size, transforming them into structured JSON data, and inserting the data into the RSSD's `ur_ingest_session_imap_acct_folder_message` table.
 
 This capability extends to all email providers supporting IMAP. Additionally, for Microsoft 365 users, Surveilr facilitates seamless connectivity by providing guidance on connecting to the Microsoft Graph API, ensuring comprehensive access to email data within the platform.

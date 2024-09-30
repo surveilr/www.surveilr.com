@@ -1056,13 +1056,13 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       constraints: (props, tableName) => {
         const c = SQLa.tableConstraints(tableName, props);
         return [
-          c.unique("ingest_session_id", "org_name"),
+          c.unique("provider", "org_name"),
         ];
       },
       indexes: (props, tableName) => {
         const tif = SQLa.tableIndexesFactory(tableName, props);
         return [
-          tif.index({ isIdempotent: true }, "ingest_session_id", "org_name"),
+          tif.index({ isIdempotent: true }, "provider", "org_name"),
         ];
       },
       populateQS: (t, _c, cols, _tableName) => {
@@ -1095,13 +1095,13 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       constraints: (props, tableName) => {
         const c = SQLa.tableConstraints(tableName, props);
         return [
-          c.unique("ingest_session_id", "name"),
+          c.unique("name", "description"),
         ];
       },
       indexes: (props, tableName) => {
         const tif = SQLa.tableIndexesFactory(tableName, props);
         return [
-          tif.index({ isIdempotent: true }, "ingest_session_id", "name"),
+          tif.index({ isIdempotent: true }, "name", "description"),
         ];
       },
       populateQS: (t, c, cols, _tableName) => {
@@ -1543,10 +1543,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
           c.unique(
             "title",
             "issue_id",
-            "body",
             "state",
             "assigned_to",
-            "issue_number",
           ),
         ];
       },
@@ -1555,7 +1553,10 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
         return [
           tif.index(
             { isIdempotent: true },
-            "ingest_session_id",
+            "title",
+            "issue_id",
+            "state",
+            "assigned_to",
           ),
         ];
       },

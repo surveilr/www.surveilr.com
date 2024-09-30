@@ -4,7 +4,10 @@ title: orchestration_session_state
 
 ## Description
 
-Records the state of an orchestration session, computations, and results for Kernels that are stateful.  For example, a SQL Notebook Cell that creates tables should only be run once (meaning it's stateful).  Other Kernels might store results for functions and output defined in one cell can be used in later cells.
+Records the state of an orchestration session, computations, and results for
+Kernels that are stateful. For example, a SQL Notebook Cell that creates tables
+should only be run once (meaning it's stateful). Other Kernels might store
+results for functions and output defined in one cell can be used in later cells.
 
 <details>
 <summary><strong>Table Definition</strong></summary>
@@ -30,17 +33,17 @@ CREATE TABLE "orchestration_session_state" (
 
 ## Columns
 
-| Name                           | Type        | Default           | Nullable | Parents                                                       | Comment                                                                   |
-| ------------------------------ | ----------- | ----------------- | -------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| orchestration_session_state_id | VARCHAR     |                   | false    |                                                               | orchestration_session_state primary key                                   |
+| Name                           | Type        | Default           | Nullable | Parents                                                                                                 | Comment                                                                   |
+| ------------------------------ | ----------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| orchestration_session_state_id | VARCHAR     |                   | false    |                                                                                                         | orchestration_session_state primary key                                   |
 | session_id                     | VARCHAR     |                   | false    | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session)             | orchestration_session row this state describes                            |
 | session_entry_id               | VARCHAR     |                   | true     | [orchestration_session_entry](/surveilr/reference/db/surveilr-state-schema/orchestration_session_entry) | orchestration_session_entry row this state describes (optional)           |
-| from_state                     | TEXT        |                   | false    |                                                               | the previous state (set to "INITIAL" when it's the first transition)      |
-| to_state                       | TEXT        |                   | false    |                                                               | the current state; if no rows exist it means no state transition occurred |
-| transition_result              | TEXT        |                   | true     |                                                               | if the result of state change is necessary for future use                 |
-| transition_reason              | TEXT        |                   | true     |                                                               | short text or code explaining why the transition occurred                 |
-| transitioned_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                               | when the transition occurred                                              |
-| elaboration                    | TEXT        |                   | true     |                                                               | any elaboration needed for the state transition                           |
+| from_state                     | TEXT        |                   | false    |                                                                                                         | the previous state (set to "INITIAL" when it's the first transition)      |
+| to_state                       | TEXT        |                   | false    |                                                                                                         | the current state; if no rows exist it means no state transition occurred |
+| transition_result              | TEXT        |                   | true     |                                                                                                         | if the result of state change is necessary for future use                 |
+| transition_reason              | TEXT        |                   | true     |                                                                                                         | short text or code explaining why the transition occurred                 |
+| transitioned_at                | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                                         | when the transition occurred                                              |
+| elaboration                    | TEXT        |                   | true     |                                                                                                         | any elaboration needed for the state transition                           |
 
 ## Constraints
 
@@ -64,4 +67,3 @@ CREATE TABLE "orchestration_session_state" (
 ## Relations
 
 ![er](../../../../../../assets/orchestration_session_state.svg)
-

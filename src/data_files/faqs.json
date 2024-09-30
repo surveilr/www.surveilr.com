@@ -61,5 +61,5 @@
       "question": "Can <code>surveilr</code> provide evidence for audits?",
       "answer": "Yes, <code>surveilr</code> automatically generates auditable, queryable evidence for use in compliance audits, security reviews, and quality assessments. The platform ensures that all data is captured, stored, and organized in a way that is easily accessible for both internal teams and external auditors."
     }
-  ]  
+  ]
 }
