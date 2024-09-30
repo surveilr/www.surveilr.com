@@ -89,50 +89,8 @@ export default defineConfig({
                   ],
                 },
                 {
-                  label: "Other Commands",
-                  collapsed: true,
-                  items: [
-                    {
-                      label: "CLI Commands",
-                      link: "/docs/core/cli/other-commands/commands",
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              label: "Standard library",
-              items: [
-                {
-                  label: "Notebooks Schema",
-                  collapsed: true,
-                  items: [
-                    {
-                      label: "Notebooks Schema",
-                      link:
-                        "/docs/core/standard-library/surveilr-code-notebooks-schema/notebooks_schema",
-                    },
-                    {
-                      label: "Assurance Schema",
-                      link:
-                        "/docs/core/standard-library/surveilr-code-notebooks-schema/assurance_schema",
-                    },
-                    {
-                      label: "Code Notebook Cell",
-                      link:
-                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_cell",
-                    },
-                    {
-                      label: "Code Notebook Kernel",
-                      link:
-                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_kernel",
-                    },
-                    {
-                      label: "Code Notebook State",
-                      link:
-                        "/docs/core/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
-                    },
-                  ],
+                  label: "CLI Commands",
+                  link: "/docs/core/cli/cli-commands",
                 },
               ],
             },
@@ -142,13 +100,11 @@ export default defineConfig({
               items: [
                 {
                   label: "Content Extensibility with Capturable Executables",
-                  link:
-                    "/docs/core/capturable-executables/content-extensibility",
+                  link: "/docs/core/capturable-executables/content-extensibility",
                 },
                 {
                   label: "SQL DDL Extensibility with SQL Notebooks",
-                  link:
-                    "/docs/core/capturable-executables/sql-ddl-extensibility",
+                  link: "/docs/core/capturable-executables/sql-ddl-extensibility",
                 },
                 {
                   label:
@@ -164,12 +120,199 @@ export default defineConfig({
           items: [],
         },
         {
-          label: "Standard library",
-          items: [],
+          label: "Standard Library",
+          items: [
+            {
+              label: "Notebooks Schema",
+              collapsed: true,
+              items: [
+                {
+                  label: "Notebooks Schema",
+                  link: "/docs/standard-library/surveilr-code-notebooks-schema/notebooks_schema",
+                },
+                {
+                  label: "Assurance Schema",
+                  link: "/docs/standard-library/surveilr-code-notebooks-schema/assurance_schema",
+                },
+                {
+                  label: "Code Notebook Cell",
+                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_cell",
+                },
+                {
+                  label: "Code Notebook Kernel",
+                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_kernel",
+                },
+                {
+                  label: "Code Notebook State",
+                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
+                },
+              ],
+            },
+          ],
         },
+
         {
           label: "Patterns",
-          items: [],
+          items: [
+            {
+              label: "Discipline-centric Patterns",
+              collapsed: true,
+              items: [
+                {
+                  label: "Software Engineers",
+                  link: "/docs/patterns/disciplines/software-engineer",
+                },
+                {
+                  label: "System Engineers",
+                  link: "/docs/patterns/disciplines/system-engineer",
+                },
+                {
+                  label: "QA Engineers",
+                  link: "/docs/patterns/disciplines/qa",
+                },
+                {
+                  label: "Security Analysts/Engineers",
+                  link: "/docs/patterns/disciplines/security-analyst",
+                },
+                {
+                  label: "Compliance Officers",
+                  link: "/docs/patterns/disciplines/compliance-officer",
+                },
+                {
+                  label: "Regulatory Affairs Specialists",
+                  link: "/docs/patterns/disciplines/regulatory-affairs",
+                },
+                {
+                  label: "Project Managers",
+                  link: "/docs/patterns/disciplines/project-manager",
+                },
+                {
+                  label: "Configuration Management Specialists",
+                  link: "/docs/patterns/disciplines/configuration",
+                },
+                {
+                  label: "Database Administrators",
+                  link: "/docs/patterns/disciplines/database-admin",
+                },
+                {
+                  label: "Network Administrators",
+                  link: "/docs/patterns/disciplines/network-admin",
+                },
+                {
+                  label: "DevOps Engineers",
+                  link: "/docs/patterns/disciplines/devops",
+                },
+                {
+                  label: "Technical Writers",
+                  link: "/docs/patterns/disciplines/technical-writer",
+                },
+                {
+                  label: "UI/UX Designers",
+                  link: "/docs/patterns/disciplines/user-experience",
+                },
+                {
+                  label: "Legal Counsel",
+                  link: "/docs/patterns/disciplines/legal-counsel",
+                },
+                {
+                  label: "Subject Matter Experts",
+                  link: "/docs/patterns/disciplines/subject-matter-expert",
+                },
+                {
+                  label: "Customer Support Representatives",
+                  link: "/docs/patterns/disciplines/customer-support",
+                },
+                {
+                  label: "Training and Education Specialists",
+                  link: "/docs/patterns/disciplines/training",
+                },
+                {
+                  label: "Risk Management Specialists",
+                  link: "/docs/patterns/disciplines/risk-management",
+                },
+                {
+                  label: "Incident Response Team Members",
+                  link: "/docs/patterns/disciplines/incident-response",
+                },
+                {
+                  label: "Performance and Reliability Engineers",
+                  link: "/docs/patterns/disciplines/performance-reliability",
+                },
+                {
+                  label: "Procurement Specialists",
+                  link: "/docs/patterns/disciplines/procurement-specialist",
+                },
+                {
+                  label: "Auditors",
+                  link: "/docs/patterns/disciplines/auditors",
+                },
+                {
+                  label: "External Assessors",
+                  link: "/docs/patterns/disciplines/external-assessor",
+                },
+                {
+                  label: "Ethical Hackers",
+                  link: "/docs/patterns/disciplines/ethical-hacker",
+                },
+                {
+                  label: "Penetration Testers",
+                  link: "/docs/patterns/disciplines/penetration-tester",
+                },
+                {
+                  label: "Compliance Automation Specialists",
+                  link: "/docs/patterns/disciplines/compliance-automation",
+                },
+                {
+                  label: "Business Analysts",
+                  link: "/docs/patterns/disciplines/business-analyst",
+                },
+                {
+                  label: "Product Owners",
+                  link: "/docs/patterns/disciplines/product-owner",
+                },
+                {
+                  label: "Product Managers",
+                  link: "/docs/patterns/disciplines/product-managers",
+                },
+                {
+                  label: "Human Factors Engineers",
+                  link: "/docs/patterns/disciplines/human-factors-engineers",
+                },
+                {
+                  label: "System Integrators",
+                  link: "/docs/patterns/disciplines/system-integrators",
+                },
+                {
+                  label: "Change Management Specialists",
+                  link: "/docs/patterns/disciplines/change-management",
+                },
+                {
+                  label: "Legal and Regulatory Consultants",
+                  link: "/docs/patterns/disciplines/legal-consultants",
+                },
+                {
+                  label: "Supply Chain Managers",
+                  link: "/docs/patterns/disciplines/supply-chain-managers",
+                },
+                {
+                  label: "Facilities Managers",
+                  link: "/docs/patterns/disciplines/facilities-managers",
+                },
+                {
+                  label: "Medical Device Specialists",
+                  link: "/docs/patterns/disciplines/medical-device-specialists",
+                },
+                {
+                  label: "Aerospace Engineers",
+                  link: "/docs/patterns/disciplines/aerospace-engineers",
+                },
+                {
+                  label: "Automotive Engineers",
+                  link: "/docs/patterns/disciplines/automotive-engineers",
+                },
+              ],
+            },
+          ],
         },
         {
           label: "Services",

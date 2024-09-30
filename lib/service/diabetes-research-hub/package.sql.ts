@@ -149,7 +149,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
             SELECT
                   'card'                      as component,
-                  'Welcome to the Diabetes Research Hub' as title,
+                  'Welcome to the Diabetes Research Hub EDGE UI' as title,
                   1                           as columns;
 
             SELECT
@@ -1028,7 +1028,7 @@ export async function drhSQL() {
       async statelessDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless-drh-surveilr.sql"),
+          import.meta.resolve("./stateless.sql"),
         );
       }
 
