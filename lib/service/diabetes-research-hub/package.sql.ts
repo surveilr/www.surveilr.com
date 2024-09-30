@@ -25,7 +25,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
     shellConfig.image =
       "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
     shellConfig.icon = "";
-    shellConfig.link = "/";
+    shellConfig.link = "/drh/";
     return shellConfig;
   }
 
@@ -44,23 +44,26 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         : value
         ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
         : "NULL";
-    const selectNavMenuItems = (rootPath: string, caption: string) =>
+    const selectNavMenuItems = (rootPath: string, caption: string, target: string ='') =>
       `json_object(
             'link', '${rootPath}',
-            'title', ${literal(caption)},
+            'title', ${literal(caption)},      
+            'target', '${target}',      
             'submenu', (
                 SELECT json_group_array(
                     json_object(
                         'title', title,
                         'link', link,
-                        'description', description
+                        'description', description,
+                        'target', target                      
                     )
                 )
                 FROM (
                     SELECT
                         COALESCE(abbreviated_caption, caption) as title,
                         COALESCE(url, path) as link,
-                        description
+                        description,
+                        elaboration as target
                     FROM sqlpage_aide_navigation
                     WHERE namespace = 'prime' AND parent_path = '${rootPath}'
                     ORDER BY sibling_order
@@ -79,7 +82,13 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         items.push(
           selectNavMenuItems("/orchestration", "Orchestration"),
         );
-        items.push(selectNavMenuItems("/site", "DRH"));
+        // items.push(selectNavMenuItems("/site", "DRH"));
+        items.push(
+          selectNavMenuItems("https://drh.diabetestechnology.org/", "DRH Home","__blank"),
+        );
+        items.push(
+          selectNavMenuItems("https://www.diabetestechnology.org/", "DTS Home","__blank"),
+        );
         return items;
       },
       footer: () =>
@@ -126,10 +135,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
   menuDDL() {
     return this.SQL`
-  INSERT OR IGNORE INTO sqlpage_aide_navigation ("path", caption, namespace, parent_path, sibling_order, url, title, abbreviated_caption, description) VALUES
-  ('/site', 'DRH Menus', 'prime', '/', 1, '/site', NULL, NULL, NULL),
-  ('/site/public.sql', 'Diabetes Research Hub', 'prime', '/site', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL),
-  ('/site/dtsorg.sql', 'Diabetes Technology Society', 'prime', '/site', 2, 'https://www.diabetestechnology.org/', NULL, NULL, NULL);
+  INSERT OR IGNORE INTO sqlpage_aide_navigation ("path", caption, namespace, parent_path, sibling_order, url, title, abbreviated_caption, description,elaboration) VALUES
+  (NULL, 'DRH Home', 'prime', '/external', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }'),
+  (NULL, 'DTS Home', 'prime', '/external', 1, 'https://www.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }')
   `;
   }
 
@@ -632,6 +640,114 @@ ${pagination.renderSimpleMarkdown()}
   }
 
   @drhNav({
+    caption: "Participant Information",
+    abbreviatedCaption: "Participant Information",
+    description: "The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.",
+    siblingOrder: 20,
+  })
+  "drh/participant-info/index.sql"() {    
+    return this.SQL`
+  ${this.activePageTitle()}
+
+    SELECT
+     'card'     as component,
+     '' as title,
+      1         as columns;
+    SELECT 
+     'The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.' as description;
+  
+select 
+    'form'            as component,
+    'Filter by Date Range'   as title,
+    'Submit' as validate,    
+    'Clear'           as reset;
+select 
+    'start_date' as name,
+    'Start Date' as label,
+    '2017-11-02' as value,
+    'date'       as type,
+    6            as width;
+select 
+    'end_date' as name,
+    'End Date' as label,
+    '2018-02-23'  as value,
+    'date'       as type,
+    6             as width;
+
+
+
+  SELECT
+    'datagrid' AS component;
+  SELECT
+      'MRN: ' || participant_id || '' AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      'Study: ' || study_arm || '' AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  
+  SELECT
+      'Age: '|| age || ' Years' AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      'hba1c: ' || baseline_hba1c || '' AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      'BMI: '|| bmi || '' AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      'Diabetes Type: '|| diabetes_type || ''  AS title,
+      ' ' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      strftime('Generated: %Y-%m-%d %H:%M:%S', 'now') AS title,
+      ' ' AS description
+  
+
+  SELECT
+     'card'     as component,
+     '' as title,
+      2         as columns;
+
+  SELECT
+     'GLUCOSE STATISTICS AND TARGETS' AS title,
+     '' AS description
+  FROM
+      drh_study_vanity_metrics_details;
+
+  SELECT
+
+      'Goals for Type 1 and Type 2 Diabetes' AS title,
+     '' AS description
+  FROM
+    drh_number_cgm_count;
+
+  `;
+  }
+
+  @drhNav({
     caption: "Study Participant Dashboard",
     abbreviatedCaption: "Study Participant Dashboard",
     description: "Study Participant Dashboard",
@@ -746,9 +862,10 @@ ${pagination.renderSimpleMarkdown()}
 
     -- Display uniform_resource table with pagination
     SELECT 'table' AS component,
+          'participant_id' as markdown,
           TRUE AS sort,
           TRUE AS search;
-    SELECT participant_id,gender,age,study_arm,baseline_hba1c FROM ${viewName}
+    SELECT format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM ${viewName}
     LIMIT $limit
     OFFSET $offset;
 

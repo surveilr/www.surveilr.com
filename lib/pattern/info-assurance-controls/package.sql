@@ -563,6 +563,7 @@ CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
     title TEXT, -- for full titles when elaboration is required, default to caption if NULL
     abbreviated_caption TEXT, -- for breadcrumbs and other "short" form, default to caption if NULL
     description TEXT, -- for elaboration or explanation
+    elaboration TEXT, -- optional attributes for e.g. { "target": "__blank" }
     -- TODO: figure out why Rusqlite does not allow this but sqlite3 does
     -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
     CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
@@ -571,15 +572,15 @@ DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/console/%';
 DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/';
 
 -- all @navigation decorated entries are automatically added to this.navigation
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', NULL, 1, '/', '/', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)'),
-    ('prime', '/', 999, '/console', '/console/', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files'),
-    ('prime', '/console', 1, '/console/info-schema', '/console/info-schema/', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation'),
-    ('prime', '/console', 3, '/console/sqlpage-files', '/console/sqlpage-files/', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI'),
-    ('prime', '/console', 3, '/console/sqlpage-files/content.sql', '/console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables'),
-    ('prime', '/console', 3, '/console/sqlpage-nav', '/console/sqlpage-nav/', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table'),
-    ('prime', '/console', 2, '/console/notebooks', '/console/notebooks/', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks')
+    ('prime', NULL, 1, '/', '/', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)', NULL),
+    ('prime', '/', 999, '/console', '/console/', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files', NULL),
+    ('prime', '/console', 1, '/console/info-schema', '/console/info-schema/', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-files', '/console/sqlpage-files/', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-files/content.sql', '/console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-nav', '/console/sqlpage-nav/', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table', NULL),
+    ('prime', '/console', 2, '/console/notebooks', '/console/notebooks/', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 
@@ -721,11 +722,11 @@ INSERT OR REPLACE INTO code_notebook_cell (notebook_kernel_id, code_notebook_cel
       -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows
 -- delete all /fhir-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE path like '/fhir%';
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/ur', '/ur/', 'Uniform Resource', NULL, NULL, 'Explore ingested resources'),
-    ('prime', '/ur', 99, '/ur/info-schema.sql', '/ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects'),
-    ('prime', '/ur', 1, '/ur/uniform-resource-files.sql', '/ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table')
+    ('prime', '/', 1, '/ur', '/ur/', 'Uniform Resource', NULL, NULL, 'Explore ingested resources', NULL),
+    ('prime', '/ur', 99, '/ur/info-schema.sql', '/ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects', NULL),
+    ('prime', '/ur', 1, '/ur/uniform-resource-files.sql', '/ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 DROP VIEW IF EXISTS uniform_resource_file;
@@ -739,10 +740,10 @@ CREATE VIEW uniform_resource_file AS
   LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
   LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
   WHERE ur.ingest_fs_path_id IS NOT NULL;
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/orchestration', '/orchestration/', 'Orchestration', NULL, NULL, 'Explore details about all orchestration'),
-    ('prime', '/orchestration', 99, '/orchestration/info-schema.sql', '/orchestration/info-schema.sql', 'Orchestration Tables and Views', NULL, NULL, 'Information Schema documentation for orchestrated objects')
+    ('prime', '/', 1, '/orchestration', '/orchestration/', 'Orchestration', NULL, NULL, 'Explore details about all orchestration', NULL),
+    ('prime', '/orchestration', 99, '/orchestration/info-schema.sql', '/orchestration/info-schema.sql', 'Orchestration Tables and Views', NULL, NULL, 'Information Schema documentation for orchestrated objects', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
  DROP VIEW IF EXISTS orchestration_session_by_device;
@@ -841,18 +842,18 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
  GROUP BY os.orchestration_session_id, onature.nature, osl.category;
 -- delete all /ip-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE path like '/opsfolio/info/control%';
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/opsfolio', '/opsfolio/', 'Opsfolio', NULL, NULL, 'Opsfolio'),
+    ('prime', '/', 1, '/opsfolio', '/opsfolio/', 'Opsfolio', NULL, NULL, 'Opsfolio', NULL),
     ('prime', '/opsfolio', 2, '/opsfolio/info/control/control_dashboard.sql', '/opsfolio/info/control/control_dashboard.sql', 'Information Assurance Controls', NULL, NULL, 'The Infra Controls is designed to manage and implement controls specific
       to various audit requirements, such as CC1001, CC1002, and others. This project
       provides a platform for defining, applying, and tracking the effectiveness of
       these controls, ensuring that your organization meets the necessary standards
-      for audit compliance.'),
-    ('prime', '/opsfolio', 3, '/opsfolio/info/control/control.sql', '/opsfolio/info/control/control.sql', 'Control Regimes', NULL, NULL, NULL),
-    ('prime', '/opsfolio', 4, '/opsfolio/info/control/control_regime.sql', '/opsfolio/info/control/control_regime.sql', 'Audit Types', NULL, NULL, NULL),
-    ('prime', '/opsfolio', 5, '/opsfolio/info/control/controls.sql', '/opsfolio/info/control/controls.sql', 'Control List', NULL, NULL, NULL),
-    ('prime', '/opsfolio', 6, '/opsfolio/info/control/control_detail.sql', '/opsfolio/info/control/control_detail.sql', 'Control Details', NULL, NULL, NULL)
+      for audit compliance.', NULL),
+    ('prime', '/opsfolio', 3, '/opsfolio/info/control/control.sql', '/opsfolio/info/control/control.sql', 'Control Regimes', NULL, NULL, NULL, NULL),
+    ('prime', '/opsfolio', 4, '/opsfolio/info/control/control_regime.sql', '/opsfolio/info/control/control_regime.sql', 'Audit Types', NULL, NULL, NULL, NULL),
+    ('prime', '/opsfolio', 5, '/opsfolio/info/control/controls.sql', '/opsfolio/info/control/controls.sql', 'Control List', NULL, NULL, NULL, NULL),
+    ('prime', '/opsfolio', 6, '/opsfolio/info/control/control_detail.sql', '/opsfolio/info/control/control_detail.sql', 'Control Details', NULL, NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (

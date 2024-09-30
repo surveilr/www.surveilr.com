@@ -489,6 +489,7 @@ CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
     title TEXT, -- for full titles when elaboration is required, default to caption if NULL
     abbreviated_caption TEXT, -- for breadcrumbs and other "short" form, default to caption if NULL
     description TEXT, -- for elaboration or explanation
+    elaboration TEXT, -- optional attributes for e.g. { "target": "__blank" }
     -- TODO: figure out why Rusqlite does not allow this but sqlite3 does
     -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
     CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
@@ -497,15 +498,15 @@ DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/console/%';
 DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/';
 
 -- all @navigation decorated entries are automatically added to this.navigation
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', NULL, 1, '/', '/', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)'),
-    ('prime', '/', 999, '/console', '/console/', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files'),
-    ('prime', '/console', 1, '/console/info-schema', '/console/info-schema/', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation'),
-    ('prime', '/console', 3, '/console/sqlpage-files', '/console/sqlpage-files/', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI'),
-    ('prime', '/console', 3, '/console/sqlpage-files/content.sql', '/console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables'),
-    ('prime', '/console', 3, '/console/sqlpage-nav', '/console/sqlpage-nav/', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table'),
-    ('prime', '/console', 2, '/console/notebooks', '/console/notebooks/', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks')
+    ('prime', NULL, 1, '/', '/', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)', NULL),
+    ('prime', '/', 999, '/console', '/console/', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files', NULL),
+    ('prime', '/console', 1, '/console/info-schema', '/console/info-schema/', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-files', '/console/sqlpage-files/', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-files/content.sql', '/console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables', NULL),
+    ('prime', '/console', 3, '/console/sqlpage-nav', '/console/sqlpage-nav/', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table', NULL),
+    ('prime', '/console', 2, '/console/notebooks', '/console/notebooks/', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 
@@ -647,11 +648,11 @@ INSERT OR REPLACE INTO code_notebook_cell (notebook_kernel_id, code_notebook_cel
       -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows
 -- delete all /fhir-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE path like '/fhir%';
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/ur', '/ur/', 'Uniform Resource', NULL, NULL, 'Explore ingested resources'),
-    ('prime', '/ur', 99, '/ur/info-schema.sql', '/ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects'),
-    ('prime', '/ur', 1, '/ur/uniform-resource-files.sql', '/ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table')
+    ('prime', '/', 1, '/ur', '/ur/', 'Uniform Resource', NULL, NULL, 'Explore ingested resources', NULL),
+    ('prime', '/ur', 99, '/ur/info-schema.sql', '/ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects', NULL),
+    ('prime', '/ur', 1, '/ur/uniform-resource-files.sql', '/ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 DROP VIEW IF EXISTS uniform_resource_file;
@@ -665,10 +666,10 @@ CREATE VIEW uniform_resource_file AS
   LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
   LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
   WHERE ur.ingest_fs_path_id IS NOT NULL;
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/orchestration', '/orchestration/', 'Orchestration', NULL, NULL, 'Explore details about all orchestration'),
-    ('prime', '/orchestration', 99, '/orchestration/info-schema.sql', '/orchestration/info-schema.sql', 'Orchestration Tables and Views', NULL, NULL, 'Information Schema documentation for orchestrated objects')
+    ('prime', '/', 1, '/orchestration', '/orchestration/', 'Orchestration', NULL, NULL, 'Explore details about all orchestration', NULL),
+    ('prime', '/orchestration', 99, '/orchestration/info-schema.sql', '/orchestration/info-schema.sql', 'Orchestration Tables and Views', NULL, NULL, 'Information Schema documentation for orchestrated objects', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
  DROP VIEW IF EXISTS orchestration_session_by_device;
@@ -767,26 +768,26 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
  GROUP BY os.orchestration_session_id, onature.nature, osl.category;
 -- delete all /drh-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE path like '/drh%';
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/drh', '/drh/', 'DRH EDGE UI Home', NULL, NULL, 'Welcome to Diabetes Research Hub EDGE UI'),
-    ('prime', '/drh', 4, '/drh/researcher-related-data', '/drh/researcher-related-data/', 'Researcher And Associated Information', 'Researcher And Associated Information', NULL, 'Researcher And Associated Information'),
-    ('prime', '/drh', 5, '/drh/study-related-data', '/drh/study-related-data/', 'Study and Participant Information', 'Study and Participant Information', NULL, 'Study and Participant Information'),
-    ('prime', '/drh', 6, '/drh/uniform-resource-participant.sql', '/drh/uniform-resource-participant.sql', 'Uniform Resource Participant', NULL, NULL, 'Participant demographics with pagination'),
-    ('prime', '/drh', 7, '/drh/author-pub-data', '/drh/author-pub-data/', 'Author Publication Information', 'Author Publication Information', NULL, 'Author Publication Information'),
-    ('prime', '/drh', 8, '/drh/deidentification-log', '/drh/deidentification-log/', 'PHI DeIdentification Results', 'PHI DeIdentification Results', NULL, 'PHI DeIdentification Results'),
-    ('prime', '/drh', 9, '/drh/cgm-associated-data', '/drh/cgm-associated-data/', 'CGM File MetaData Information', 'CGM File MetaData Information', NULL, 'CGM File MetaData Information'),
-    ('prime', '/drh', 10, '/drh/cgm-data', '/drh/cgm-data/', 'Raw CGM Data', 'Raw CGM Data', NULL, 'Raw CGM Data'),
-    ('prime', '/drh', 11, '/drh/ingestion-log', '/drh/ingestion-log/', 'Study Files', 'Study Files', NULL, 'Study Files'),
-    ('prime', '/drh', 12, '/drh/study-participant-dashboard', '/drh/study-participant-dashboard/', 'Study Participant Dashboard', 'Study Participant Dashboard', NULL, 'Study Participant Dashboard'),
-    ('prime', '/drh', 13, '/drh/verification-validation-log', '/drh/verification-validation-log/', 'Verfication And Validation Results', 'Verfication And Validation Results', NULL, 'Verfication And Validation Results'),
-    ('prime', '/drh', 19, '/drh/participant-related-data', '/drh/participant-related-data/', 'Participant Information', 'Participant Information', NULL, NULL)
+    ('prime', '/', 1, '/drh', '/drh/', 'DRH EDGE UI Home', NULL, NULL, 'Welcome to Diabetes Research Hub EDGE UI', NULL),
+    ('prime', '/drh', 4, '/drh/researcher-related-data', '/drh/researcher-related-data/', 'Researcher And Associated Information', 'Researcher And Associated Information', NULL, 'Researcher And Associated Information', NULL),
+    ('prime', '/drh', 5, '/drh/study-related-data', '/drh/study-related-data/', 'Study and Participant Information', 'Study and Participant Information', NULL, 'Study and Participant Information', NULL),
+    ('prime', '/drh', 6, '/drh/uniform-resource-participant.sql', '/drh/uniform-resource-participant.sql', 'Uniform Resource Participant', NULL, NULL, 'Participant demographics with pagination', NULL),
+    ('prime', '/drh', 7, '/drh/author-pub-data', '/drh/author-pub-data/', 'Author Publication Information', 'Author Publication Information', NULL, 'Author Publication Information', NULL),
+    ('prime', '/drh', 8, '/drh/deidentification-log', '/drh/deidentification-log/', 'PHI DeIdentification Results', 'PHI DeIdentification Results', NULL, 'PHI DeIdentification Results', NULL),
+    ('prime', '/drh', 9, '/drh/cgm-associated-data', '/drh/cgm-associated-data/', 'CGM File MetaData Information', 'CGM File MetaData Information', NULL, 'CGM File MetaData Information', NULL),
+    ('prime', '/drh', 10, '/drh/cgm-data', '/drh/cgm-data/', 'Raw CGM Data', 'Raw CGM Data', NULL, 'Raw CGM Data', NULL),
+    ('prime', '/drh', 11, '/drh/ingestion-log', '/drh/ingestion-log/', 'Study Files', 'Study Files', NULL, 'Study Files', NULL),
+    ('prime', '/drh', 20, '/drh/participant-info', '/drh/participant-info/', 'Participant Information', 'Participant Information', NULL, 'The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.', NULL),
+    ('prime', '/drh', 12, '/drh/study-participant-dashboard', '/drh/study-participant-dashboard/', 'Study Participant Dashboard', 'Study Participant Dashboard', NULL, 'Study Participant Dashboard', NULL),
+    ('prime', '/drh', 13, '/drh/verification-validation-log', '/drh/verification-validation-log/', 'Verfication And Validation Results', 'Verfication And Validation Results', NULL, 'Verfication And Validation Results', NULL),
+    ('prime', '/drh', 19, '/drh/participant-related-data', '/drh/participant-related-data/', 'Participant Information', 'Participant Information', NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
-INSERT OR IGNORE INTO sqlpage_aide_navigation ("path", caption, namespace, parent_path, sibling_order, url, title, abbreviated_caption, description) VALUES
-('/site', 'DRH Menus', 'prime', '/', 1, '/site', NULL, NULL, NULL),
-('/site/public.sql', 'Diabetes Research Hub', 'prime', '/site', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL),
-('/site/dtsorg.sql', 'Diabetes Technology Society', 'prime', '/site', 2, 'https://www.diabetestechnology.org/', NULL, NULL, NULL);
+INSERT OR IGNORE INTO sqlpage_aide_navigation ("path", caption, namespace, parent_path, sibling_order, url, title, abbreviated_caption, description,elaboration) VALUES
+(NULL, 'DRH Home', 'prime', '/external', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }'),
+(NULL, 'DTS Home', 'prime', '/external', 1, 'https://www.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }');
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
@@ -795,7 +796,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   "icon": "",
   "layout": "fluid",
   "fixed_top_menu": true,
-  "link": "/",
+  "link": "/drh/",
   "menu_item": [
     {
       "link": "/",
@@ -820,7 +821,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        NULL AS icon,
        ''fluid'' AS layout,
        true AS fixed_top_menu,
-       ''/'' AS link,
+       ''/drh/'' AS link,
        ''{"link":"/","title":"Home"}'' AS menu_item,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js'' AS javascript,
@@ -828,20 +829,23 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js'' AS javascript,
        json_object(
             ''link'', ''/ur'',
-            ''title'', ''Uniform Resource'',
+            ''title'', ''Uniform Resource'',      
+            ''target'', '''',      
             ''submenu'', (
                 SELECT json_group_array(
                     json_object(
                         ''title'', title,
                         ''link'', link,
-                        ''description'', description
+                        ''description'', description,
+                        ''target'', target                      
                     )
                 )
                 FROM (
                     SELECT
                         COALESCE(abbreviated_caption, caption) as title,
                         COALESCE(url, path) as link,
-                        description
+                        description,
+                        elaboration as target
                     FROM sqlpage_aide_navigation
                     WHERE namespace = ''prime'' AND parent_path = ''/ur''
                     ORDER BY sibling_order
@@ -850,20 +854,23 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
         ) as menu_item,
        json_object(
             ''link'', ''/console'',
-            ''title'', ''Console'',
+            ''title'', ''Console'',      
+            ''target'', '''',      
             ''submenu'', (
                 SELECT json_group_array(
                     json_object(
                         ''title'', title,
                         ''link'', link,
-                        ''description'', description
+                        ''description'', description,
+                        ''target'', target                      
                     )
                 )
                 FROM (
                     SELECT
                         COALESCE(abbreviated_caption, caption) as title,
                         COALESCE(url, path) as link,
-                        description
+                        description,
+                        elaboration as target
                     FROM sqlpage_aide_navigation
                     WHERE namespace = ''prime'' AND parent_path = ''/console''
                     ORDER BY sibling_order
@@ -872,20 +879,23 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
         ) as menu_item,
        json_object(
             ''link'', ''/orchestration'',
-            ''title'', ''Orchestration'',
+            ''title'', ''Orchestration'',      
+            ''target'', '''',      
             ''submenu'', (
                 SELECT json_group_array(
                     json_object(
                         ''title'', title,
                         ''link'', link,
-                        ''description'', description
+                        ''description'', description,
+                        ''target'', target                      
                     )
                 )
                 FROM (
                     SELECT
                         COALESCE(abbreviated_caption, caption) as title,
                         COALESCE(url, path) as link,
-                        description
+                        description,
+                        elaboration as target
                     FROM sqlpage_aide_navigation
                     WHERE namespace = ''prime'' AND parent_path = ''/orchestration''
                     ORDER BY sibling_order
@@ -893,23 +903,51 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
             )
         ) as menu_item,
        json_object(
-            ''link'', ''/site'',
-            ''title'', ''DRH'',
+            ''link'', ''https://drh.diabetestechnology.org/'',
+            ''title'', ''DRH Home'',      
+            ''target'', ''__blank'',      
             ''submenu'', (
                 SELECT json_group_array(
                     json_object(
                         ''title'', title,
                         ''link'', link,
-                        ''description'', description
+                        ''description'', description,
+                        ''target'', target                      
                     )
                 )
                 FROM (
                     SELECT
                         COALESCE(abbreviated_caption, caption) as title,
                         COALESCE(url, path) as link,
-                        description
+                        description,
+                        elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''/site''
+                    WHERE namespace = ''prime'' AND parent_path = ''https://drh.diabetestechnology.org/''
+                    ORDER BY sibling_order
+                )
+            )
+        ) as menu_item,
+       json_object(
+            ''link'', ''https://www.diabetestechnology.org/'',
+            ''title'', ''DTS Home'',      
+            ''target'', ''__blank'',      
+            ''submenu'', (
+                SELECT json_group_array(
+                    json_object(
+                        ''title'', title,
+                        ''link'', link,
+                        ''description'', description,
+                        ''target'', target                      
+                    )
+                )
+                FROM (
+                    SELECT
+                        COALESCE(abbreviated_caption, caption) as title,
+                        COALESCE(url, path) as link,
+                        description,
+                        elaboration as target
+                    FROM sqlpage_aide_navigation
+                    WHERE namespace = ''prime'' AND parent_path = ''https://www.diabetestechnology.org/''
                     ORDER BY sibling_order
                 )
             )
@@ -2343,6 +2381,132 @@ SET current_page = ($offset / $limit) + 1;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'drh/participant-info/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path = ''/drh/participant-info''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title, link FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              
+  SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''/drh/participant-info/index.sql'') as contents;
+    ;
+
+    SELECT
+     ''card''     as component,
+     '''' as title,
+      1         as columns;
+    SELECT 
+     ''The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.'' as description;
+  
+select 
+    ''form''            as component,
+    ''Filter by Date Range''   as title,
+    ''Submit'' as validate,    
+    ''Clear''           as reset;
+select 
+    ''start_date'' as name,
+    ''Start Date'' as label,
+    ''2017-11-02'' as value,
+    ''date''       as type,
+    6            as width;
+select 
+    ''end_date'' as name,
+    ''End Date'' as label,
+    ''2018-02-23''  as value,
+    ''date''       as type,
+    6             as width;
+
+
+
+  SELECT
+    ''datagrid'' AS component;
+  SELECT
+      ''MRN: '' || participant_id || '''' AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      ''Study: '' || study_arm || '''' AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  
+  SELECT
+      ''Age: ''|| age || '' Years'' AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      ''hba1c: '' || baseline_hba1c || '''' AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      ''BMI: ''|| bmi || '''' AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      ''Diabetes Type: ''|| diabetes_type || ''''  AS title,
+      '' '' AS description
+  FROM
+      drh_participant_data
+  WHERE participant_id = $participant_id;
+
+  SELECT
+      strftime(''Generated: %Y-%m-%d %H:%M:%S'', ''now'') AS title,
+      '' '' AS description
+  
+
+  SELECT
+     ''card''     as component,
+     '''' as title,
+      2         as columns;
+
+  SELECT
+     ''GLUCOSE STATISTICS AND TARGETS'' AS title,
+     '''' AS description
+  FROM
+      drh_study_vanity_metrics_details;
+
+  SELECT
+
+      ''Goals for Type 1 and Type 2 Diabetes'' AS title,
+     '''' AS description
+  FROM
+    drh_number_cgm_count;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'drh/study-participant-dashboard/index.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
@@ -2477,9 +2641,10 @@ SET current_page = ($offset / $limit) + 1;
 
   -- Display uniform_resource table with pagination
   SELECT ''table'' AS component,
+        ''participant_id'' as markdown,
         TRUE AS sort,
         TRUE AS search;
-  SELECT participant_id,gender,age,study_arm,baseline_hba1c FROM drh_participant_data
+  SELECT format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM drh_participant_data
   LIMIT $limit
   OFFSET $offset;
 
