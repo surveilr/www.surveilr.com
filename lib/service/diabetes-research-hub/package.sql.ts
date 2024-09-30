@@ -21,11 +21,11 @@ function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
 export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
     const shellConfig = super.defaultShell();
-    shellConfig.title = "Diabetes Research Hub";
+    shellConfig.title = "Diabetes Research Hub EDGE";
     shellConfig.image =
-      "https://surveilr.com/lib/service/diabetes-research-hub/assets/diabetic-research-hub-logo.png";
+      "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
     shellConfig.icon = "";
-    shellConfig.link = "https://drh.diabetestechnology.org/";
+    shellConfig.link = "/";
     return shellConfig;
   }
 
@@ -134,14 +134,14 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "DRH Home",
-    description: "Welcome to Diabetes Research Hub",
+    caption: "DRH EDGE UI Home",
+    description: "Welcome to Diabetes Research Hub EDGE UI",
   })
   "drh/index.sql"() {
     return this.SQL`
             SELECT
                   'card'                      as component,
-                  'Welcome to the Diabetes Research Hub' as title,
+                  'Welcome to the Diabetes Research Hub EDGE UI' as title,
                   1                           as columns;
 
             SELECT
@@ -911,7 +911,7 @@ export async function drhSQL() {
       async statelessDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless-drh-surveilr.sql"),
+          import.meta.resolve("./stateless.sql"),
         );
       }
 
