@@ -144,6 +144,7 @@ export type RouteConfig = {
   readonly abbreviatedCaption?: string;
   readonly title?: string;
   readonly description?: string;
+  readonly elaboration?: string;
 };
 
 /**
@@ -428,9 +429,9 @@ export class TypicalSqlPageNotebook
         : "NULL";
     // deno-fmt-ignore
     return this.SQL`
-      INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
+      INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
       VALUES
-          ${nav.map(n => `(${[n.namespace, n.parentPath, n.siblingOrder ?? 1, n.path, n.url, n.caption, n.abbreviatedCaption, n.title, n.description].map(v => literal(v)).join(', ')})`).join(",\n    ")}
+          ${nav.map(n => `(${[n.namespace, n.parentPath, n.siblingOrder ?? 1, n.path, n.url, n.caption, n.abbreviatedCaption, n.title, n.description,n.elaboration].map(v => literal(v)).join(', ')})`).join(",\n    ")}
       ON CONFLICT (namespace, parent_path, path)
       DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;`
   }
