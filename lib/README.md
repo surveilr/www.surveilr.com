@@ -69,8 +69,7 @@ lib/
 ├── pattern/                All public patterns (composable) that are too big to put into a Cookbook
 ├── service/                All public services that are too big to put into a Pattern (might be a full "app" or "service")
 ├── std/                    surveilr Standard Library (used by all patterns)
-└── universal/              Universally applicable modules (can be used
-anywhere)
+└── universal/              Universally applicable modules (can be used anywhere, even outside of `surveilr` context)
 ```
 
 ## Serving through `surveilr.com/lib/*`
