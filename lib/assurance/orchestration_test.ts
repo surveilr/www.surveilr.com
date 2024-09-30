@@ -10,7 +10,7 @@ import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 import { countFilesInDirectory } from "./ingest_test.ts";
 
 const E2E_TEST_DIR = join(Deno.cwd(), "lib/assurance");
-const DRH_DIR = join(Deno.cwd(), "service/diabetes-research-hub");
+const DRH_DIR = join(Deno.cwd(), "lib/service/diabetes-research-hub");
 const STUDY_FILES_ZIP = join(DRH_DIR, "study-files.zip");
 const STUDY_FILES_INGEST_DIR = join(DRH_DIR, "study-files");
 const RSSD_PATH = join(
@@ -176,7 +176,7 @@ Deno.test("orchestration and transformations", async (t) => {
 
   await t.step("execute remote v&v script", async () => {
     const sciptUrl =
-      `https://raw.githubusercontent.com/opsfolio/resource-surveillance-commons/main/service/diabetes-research-hub/verfication-validation/orchestrate-drh-vv.sql`;
+      `https://raw.githubusercontent.com/surveilr/www.surveilr.com/refs/heads/main/lib/service/diabetes-research-hub/verfication-validation/orchestrate-drh-vv.sql`;
     const orchestrateResult =
       await $`surveilr orchestrate -d ${RSSD_PATH} -n "v&v" -s ${sciptUrl}`;
     assertEquals(
@@ -189,7 +189,7 @@ Deno.test("orchestration and transformations", async (t) => {
   await t.step("verify orchestrated remote v&v script", async (t) => {
     await t.step("verify orchestration nature ID", () => {
       const orchestrationNatureId = db.query(
-        "SELECT orchestration_nature_id FROM orchestration_nature WHERE nature = 'Verfication and Validation'",
+        "SELECT orchestration_nature_id FROM orchestration_nature WHERE nature = 'Verification and Validation'",
       );
       assertEquals(
         orchestrationNatureId.length,
