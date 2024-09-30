@@ -123,28 +123,217 @@ export default defineConfig({
           label: "Standard Library",
           items: [
             {
+              label: "RSSD Schema",
+              collapsed: true,
+              items: [
+                {
+                  label: "State Schema",
+                  link: "/docs/standard-library/rssd-schema/state_schema",
+                },
+                {
+                  label: "Behavior",
+                  link: "/docs/standard-library/rssd-schema/behavior",
+                },
+                {
+                  label: "Device",
+                  link: "/docs/standard-library/rssd-schema/device",
+                },
+                {
+                  label: "Device Party Relationship",
+                  link: "/docs/standard-library/rssd-schema/device_party_relationship",
+                },
+                {
+                  label: "Gender Type",
+                  link: "/docs/standard-library/rssd-schema/gender_type",
+                },
+                {
+                  label: "Orchestration Nature",
+                  link: "/docs/standard-library/rssd-schema/orchestration_nature",
+                },
+                {
+                  label: "Orchestration Session",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session",
+                },
+                {
+                  label: "Orchestration Session Log",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_log",
+                },
+                {
+                  label: "Orchestration Session Entry",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_entry",
+                },
+                {
+                  label: "Orchestration Session Exec",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_exec",
+                },
+                {
+                  label: "Orchestration Session Issue",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_issue",
+                },
+                {
+                  label: "Orchestration Session Issue Relation",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_issue_relation",
+                },
+                {
+                  label: "Orchestration Session State",
+                  link: "/docs/standard-library/rssd-schema/orchestration_session_state",
+                },
+                {
+                  label: "Organization",
+                  link: "/docs/standard-library/rssd-schema/organization",
+                },
+                {
+                  label: "Organization Role",
+                  link: "/docs/standard-library/rssd-schema/organization_role",
+                },
+                {
+                  label: "Organization Role Type",
+                  link: "/docs/standard-library/rssd-schema/organization_role_type",
+                },
+                {
+                  label: "Party",
+                  link: "/docs/standard-library/rssd-schema/party",
+                },
+                {
+                  label: "Party Type",
+                  link: "/docs/standard-library/rssd-schema/party_type",
+                },
+                {
+                  label: "Party Relation",
+                  link: "/docs/standard-library/rssd-schema/party_relation",
+                },
+                {
+                  label: "Party Relation Type",
+                  link: "/docs/standard-library/rssd-schema/party_relation_type",
+                },
+                {
+                  label: "Person",
+                  link: "/docs/standard-library/rssd-schema/person",
+                },
+                {
+                  label: "Uniform Resource",
+                  link: "/docs/standard-library/rssd-schema/uniform_resource",
+                },
+                {
+                  label: "Uniform Resource Transform",
+                  link: "/docs/standard-library/rssd-schema/uniform_resource_transform",
+                },
+                {
+                  label: "Uniform Resource Ingest Resource Path Match Rule ",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_resource_path_match_rule",
+                },
+                {
+                  label: "Uniform Resource Ingest Resource Path Rewrite Rule ",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_resource_path_rewrite_rule",
+                },
+                {
+                  label: "Uniform Resource Ingest Session",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session",
+                },
+                {
+                  label: "Uniform Resource Ingest Session Attachment",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_attachment",
+                },
+                {
+                  label: "Uniform Resource Ingest Session Fs Path",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_fs_path",
+                },
+                {
+                  label: "Uniform Resource Ingest Session Fs Path Entry",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_fs_path_entry",
+                },
+                {
+                  label: "Uniform Resource Ingest Session IMAP Account",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_imap_account",
+                },
+                {
+                  label: "Uniform Resource Ingest Session IMAP Account Folder",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_imap_acct_folder",
+                },
+                {
+                  label:
+                    "Uniform Resource Ingest Session IMAP Account Folder Message",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_imap_acct_folder_message",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Account",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_account",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Account Label",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_label",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Account Project",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_project",
+                },
+                {
+                  label:
+                    "Uniform Resource Ingest Session PLM Account Project Issue",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_project_issue",
+                },
+                {
+                  label:
+                    "Uniform Resource Ingest Session PLM Account Relationship",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_relationship",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Comment",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_comment",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Issue Reaction",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_issue_reaction",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Issue Type",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_issue_type",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Milestone",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_milestone",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM Reaction",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_reaction",
+                },
+                {
+                  label: "Uniform Resource Ingest Session PLM User",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_plm_user",
+                },
+                {
+                  label: "Uniform Resource Ingest Session Task",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_task",
+                },
+                {
+                  label: "Uniform Resource Ingest Session UDI-PGP SQL",
+                  link: "/docs/standard-library/rssd-schema/ur_ingest_session_udi_pgp_sql",
+                },
+              ],
+            },
+            {
               label: "Notebooks Schema",
               collapsed: true,
               items: [
                 {
                   label: "Notebooks Schema",
-                  link: "/docs/standard-library/surveilr-code-notebooks-schema/notebooks_schema",
+                  link: "/docs/standard-library/notebooks-schema/notebooks_schema",
                 },
                 {
                   label: "Assurance Schema",
-                  link: "/docs/standard-library/surveilr-code-notebooks-schema/assurance_schema",
+                  link: "/docs/standard-library/notebooks-schema/assurance_schema",
                 },
                 {
                   label: "Code Notebook Cell",
-                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_cell",
+                  link: "/docs/standard-library/notebooks-schema/code_notebook_cell",
                 },
                 {
                   label: "Code Notebook Kernel",
-                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_kernel",
+                  link: "/docs/standard-library/notebooks-schema/code_notebook_kernel",
                 },
                 {
                   label: "Code Notebook State",
-                  link: "/docs/standard-library/surveilr-code-notebooks-schema/code_notebook_state",
+                  link: "/docs/standard-library/notebooks-schema/code_notebook_state",
                 },
               ],
             },
