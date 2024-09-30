@@ -1,0 +1,716 @@
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="801px" height="690px" viewBox="-0.5 -0.5 801 690" content="&lt;mxfile&gt;&lt;diagram id=&quot;XBJvAmJbHGPJu648zyPd&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <defs/>
+    <g>
+        <path d="M 455 556 L 582.42 506.99" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 587.32 505.11 L 582.05 510.89 L 582.42 506.99 L 579.53 504.35 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 455 556.08 L 668.63 556.41" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 673.88 556.41 L 666.88 559.9 L 668.63 556.41 L 666.89 552.9 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 557px; margin-left: 575px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 9px; font-family: &quot;Comic Sans MS&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                ETL or FDW or DBLink
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="575" y="559" fill="rgb(0, 0, 0)" font-family="Comic Sans MS" font-size="9px" text-anchor="middle">
+                    ETL or FDW or DBLink
+                </text>
+            </switch>
+        </g>
+        <path d="M 345 535.33 C 345 532.94 369.62 531 400 531 C 414.59 531 428.58 531.46 438.89 532.27 C 449.21 533.08 455 534.18 455 535.33 L 455 576.67 C 455 579.06 430.38 581 400 581 C 369.62 581 345 579.06 345 576.67 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 455 535.33 C 455 537.73 430.38 539.67 400 539.67 C 369.62 539.67 345 537.73 345 535.33" fill="none" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 560px; margin-left: 346px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <b>
+                                    Aggregated RSSD
+                                </b>
+                                (SQLite)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="400" y="564" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Aggregated RSSD (S...
+                </text>
+            </switch>
+        </g>
+        <path d="M 615 456 C 587 456 580 481 602.4 486 C 580 497 605.2 521 623.4 511 C 636 531 678 531 692 511 C 720 511 720 491 702.5 481 C 720 461 692 441 667.5 451 C 650 436 622 436 615 456 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 138px; height: 1px; padding-top: 481px; margin-left: 581px;">
+                        <div data-drawio-colors="color: #333333; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(51, 51, 51); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <br/>
+                                feeds any service
+                                <br/>
+                                or application
+                                <br/>
+                                that can query
+                                <br/>
+                                SQLite
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="650" y="485" fill="#333333" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    feeds any service...
+                </text>
+            </switch>
+        </g>
+        <path d="M 400 140 L 400 193.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 400 198.88 L 396.5 191.88 L 400 193.63 L 403.5 191.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 166px; margin-left: 402px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 9px; font-family: &quot;Comic Sans MS&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                download
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="402" y="168" fill="rgb(0, 0, 0)" font-family="Comic Sans MS" font-size="9px" text-anchor="middle">
+                    download
+                </text>
+            </switch>
+        </g>
+        <path d="M 361.25 140 L 250.66 197.08" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 245.99 199.49 L 250.61 193.17 L 250.66 197.08 L 253.82 199.39 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 436.25 140 L 539.42 196.92" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 544.02 199.46 L 536.2 199.14 L 539.42 196.92 L 539.58 193.01 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="340" y="100" width="120" height="40" fill="#d5e8d4" stroke="#82b366" pointer-events="all"/>
+        <path d="M 352 100 L 352 140 M 448 100 L 448 140" fill="none" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 94px; height: 1px; padding-top: 120px; margin-left: 353px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; overflow-wrap: normal;">
+                                <font face="Lucida Console">
+                                    surveilr
+                                </font>
+                                <br/>
+                                <span style="font-weight: normal;">
+                                    (single binary)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="400" y="124" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle" font-weight="bold">
+                    surveilr...
+                </text>
+            </switch>
+        </g>
+        <rect x="340" y="10" width="460" height="120" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 452px; height: 1px; padding-top: 0px; margin-left: 345px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left; max-height: 130px; overflow: hidden;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <h1 style="line-height: 100%;">
+                                    <font style="">
+                                        <span style="font-size: 18px;">
+                                            Resource Surveillance (
+                                        </span>
+                                        <font face="Lucida Console" style="font-size: 16px;">
+                                            surveilr
+                                        </font>
+                                        <span style="font-size: 18px;">
+                                            )
+                                        </span>
+                                    </font>
+                                </h1>
+                                A single binary contains all the bootstrap SQL and SQL notebooks to prepare resource databases on Linux, Windows, and MacOS.
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="345" y="12" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">
+                    Resource Surveillance (surveilr)A single binary contains all the bootstrap...
+                </text>
+            </switch>
+        </g>
+        <path d="M 250.29 260 L 250.74 306.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 250.79 311.88 L 247.23 304.92 L 250.74 306.63 L 254.23 304.85 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 287px; margin-left: 251px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Lucida Console&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                <font style="font-size: 9px;">
+                                    surveilr ingest
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="251" y="290" fill="rgb(0, 0, 0)" font-family="Lucida Console" font-size="11px" text-anchor="middle">
+                    surveilr ingest
+                </text>
+            </switch>
+        </g>
+        <path d="M 190 200 L 300 200 L 310 210 L 310 260 L 200 260 L 190 250 L 190 200 Z" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 190 200 L 300 200 L 310 210 L 200 210 Z" fill-opacity="0.05" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 190 200 L 200 210 L 200 260 L 190 250 Z" fill-opacity="0.1" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 200 260 L 200 210 L 190 200 M 200 210 L 310 210" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 235px; margin-left: 201px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Workstation running
+                                <font face="Lucida Console" style="border-color: var(--border-color);">
+                                    surveilr
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="255" y="239" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Workstation runnin...
+                </text>
+            </switch>
+        </g>
+        <path d="M 340 200 L 450 200 L 460 210 L 460 260 L 350 260 L 340 250 L 340 200 Z" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 340 200 L 450 200 L 460 210 L 350 210 Z" fill-opacity="0.05" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 340 200 L 350 210 L 350 260 L 340 250 Z" fill-opacity="0.1" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 350 260 L 350 210 L 340 200 M 350 210 L 460 210" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 235px; margin-left: 351px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Server running
+                                <font face="Lucida Console" style="border-color: var(--border-color);">
+                                    surveilr
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="405" y="239" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Server running sur...
+                </text>
+            </switch>
+        </g>
+        <path d="M 490 200 L 600 200 L 610 210 L 610 260 L 500 260 L 490 250 L 490 200 Z" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 490 200 L 600 200 L 610 210 L 500 210 Z" fill-opacity="0.05" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 490 200 L 500 210 L 500 260 L 490 250 Z" fill-opacity="0.1" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 500 260 L 500 210 L 490 200 M 500 210 L 610 210" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 235px; margin-left: 501px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Any device running
+                                <font face="Lucida Console">
+                                    surveilr
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="555" y="239" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Any device running...
+                </text>
+            </switch>
+        </g>
+        <path d="M 263.57 353 L 291.61 397.61" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 294.41 402.05 L 287.72 397.99 L 291.61 397.61 L 293.64 394.26 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 368px; margin-left: 274px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Comic Sans MS&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                OneDrive
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="274" y="372" fill="rgb(0, 0, 0)" font-family="Comic Sans MS" font-size="11px" text-anchor="middle">
+                    OneDrive
+                </text>
+            </switch>
+        </g>
+        <path d="M 211 317.33 C 211 314.94 228.91 313 251 313 C 261.61 313 271.78 313.46 279.28 314.27 C 286.79 315.08 291 316.18 291 317.33 L 291 348.67 C 291 351.06 273.09 353 251 353 C 228.91 353 211 351.06 211 348.67 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 291 317.33 C 291 319.73 273.09 321.67 251 321.67 C 228.91 321.67 211 319.73 211 317.33" fill="none" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 78px; height: 1px; padding-top: 337px; margin-left: 212px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Device RSSD (SQLite)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="251" y="341" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Device RSSD (...
+                </text>
+            </switch>
+        </g>
+        <path d="M 396.16 261.02 L 398.59 306.64" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 398.87 311.88 L 395.01 305.08 L 398.59 306.64 L 402 304.71 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 287px; margin-left: 398px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Lucida Console&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                <font style="font-size: 9px;">
+                                    surveilr
+                                </font>
+                                <span style="font-size: 9px;">
+                                    ingest
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="398" y="290" fill="rgb(0, 0, 0)" font-family="Lucida Console" font-size="11px" text-anchor="middle">
+                    surveilr ingest
+                </text>
+            </switch>
+        </g>
+        <path d="M 400 353 L 400 396.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 400 401.88 L 396.5 394.88 L 400 396.63 L 403.5 394.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 368px; margin-left: 401px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Comic Sans MS&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                SFTP
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="401" y="371" fill="rgb(0, 0, 0)" font-family="Comic Sans MS" font-size="11px" text-anchor="middle">
+                    SFTP
+                </text>
+            </switch>
+        </g>
+        <path d="M 360 317.33 C 360 314.94 377.91 313 400 313 C 410.61 313 420.78 313.46 428.28 314.27 C 435.79 315.08 440 316.18 440 317.33 L 440 348.67 C 440 351.06 422.09 353 400 353 C 377.91 353 360 351.06 360 348.67 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 440 317.33 C 440 319.73 422.09 321.67 400 321.67 C 377.91 321.67 360 319.73 360 317.33" fill="none" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 78px; height: 1px; padding-top: 337px; margin-left: 361px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Device RSSD (SQLite)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="400" y="341" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Device RSSD (...
+                </text>
+            </switch>
+        </g>
+        <path d="M 547 261.02 L 548.9 306.64" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 549.12 311.88 L 545.33 305.03 L 548.9 306.64 L 552.33 304.74 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 287px; margin-left: 548px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Lucida Console&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                <font style="font-size: 9px;">
+                                    surveilr
+                                </font>
+                                <span style="font-size: 9px;">
+                                    ingest
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="548" y="290" fill="rgb(0, 0, 0)" font-family="Lucida Console" font-size="11px" text-anchor="middle">
+                    surveilr ingest
+                </text>
+            </switch>
+        </g>
+        <path d="M 536.67 353 L 503.53 402.7" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 500.62 407.07 L 501.59 399.3 L 503.53 402.7 L 507.42 403.19 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 367px; margin-left: 531px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Comic Sans MS&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                SCP
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="531" y="370" fill="rgb(0, 0, 0)" font-family="Comic Sans MS" font-size="11px" text-anchor="middle">
+                    SCP
+                </text>
+            </switch>
+        </g>
+        <path d="M 510 317.33 C 510 314.94 527.91 313 550 313 C 560.61 313 570.78 313.46 578.28 314.27 C 585.79 315.08 590 316.18 590 317.33 L 590 348.67 C 590 351.06 572.09 353 550 353 C 527.91 353 510 351.06 510 348.67 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 590 317.33 C 590 319.73 572.09 321.67 550 321.67 C 527.91 321.67 510 319.73 510 317.33" fill="none" stroke="#82b366" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 78px; height: 1px; padding-top: 337px; margin-left: 511px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Device RSSD (SQLite)
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="550" y="341" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Device RSSD (...
+                </text>
+            </switch>
+        </g>
+        <rect x="620" y="200" width="160" height="60" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 230px; margin-left: 700px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; font-style: italic; white-space: nowrap;">
+                                <font>
+                                    ...as many devices
+                                    <br/>
+                                    as you have...create as
+                                    <br/>
+                                    many files as you need...
+                                    <br/>
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="700" y="234" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="12px" text-anchor="middle" font-style="italic">
+                    ...as many devices...
+                </text>
+            </switch>
+        </g>
+        <path d="M 400 463 L 400 524.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 400 529.88 L 396.5 522.88 L 400 524.63 L 403.5 522.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 486px; margin-left: 401px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Lucida Console&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; background-color: rgb(255, 255, 255); white-space: nowrap;">
+                                surveilr admin merge
+                                <br/>
+                                <font style="font-size: 9px;">
+                                    surveilr admin merge --sql-only
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="401" y="489" fill="rgb(0, 0, 0)" font-family="Lucida Console" font-size="11px" text-anchor="middle">
+                    surveilr admin merge...
+                </text>
+            </switch>
+        </g>
+        <path d="M 295 403 L 495 403 L 505 413 L 505 463 L 305 463 L 295 453 L 295 403 Z" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 295 403 L 495 403 L 505 413 L 305 413 Z" fill-opacity="0.05" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 295 403 L 305 413 L 305 463 L 295 453 Z" fill-opacity="0.1" fill="#000000" stroke="none" pointer-events="all"/>
+        <path d="M 305 463 L 305 413 L 295 403 M 305 413 L 505 413" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 198px; height: 1px; padding-top: 438px; margin-left: 306px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                Aggregation Device
+                                <br/>
+                                (usually a server) running
+                                <br/>
+                                <font face="Lucida Console" style="border-color: var(--border-color);">
+                                    surveilr
+                                </font>
+                                and
+                                <font face="Lucida Console" style="border-color: var(--border-color);">
+                                    sqlite3
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="405" y="442" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Aggregation Device...
+                </text>
+            </switch>
+        </g>
+        <rect x="10" y="413" width="270" height="40" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 433px; margin-left: 145px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; font-style: italic; white-space: nowrap;">
+                                <font>
+                                    ...use any protocol(s) to put the SQLite files from all
+                                    <br/>
+                                    the other devices onto an aggregation device...
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="145" y="437" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="12px" text-anchor="middle" font-style="italic">
+                    ...use any protocol(s) to put the SQLite file...
+                </text>
+            </switch>
+        </g>
+        <rect x="345" y="588" width="330" height="50" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 328px; height: 1px; padding-top: 595px; margin-left: 347px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 11px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    Once the
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    <b>
+                                        Aggregated RSSD
+                                    </b>
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    is created, the SQLite database is portable and contains full versioned state ready to be queried by any system that supports SQLite (or ETL'd into another DB).
+                                    <br/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="347" y="606" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="11px">
+                    Once the Aggregated RSSD is created, the SQLite database is...
+                </text>
+            </switch>
+        </g>
+        <rect x="345" y="638" width="420" height="50" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 418px; height: 1px; padding-top: 645px; margin-left: 347px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 11px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    All the resources in the SQLite database are in their native formats and can be queried directly in HTML, JSON, Markdown (with Frontmatter), full-text search, etc. and other content sharing capabilities such as https//:contentlayer.dev/.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="347" y="656" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="11px">
+                    All the resources in the SQLite database are in their native formats and can...
+                </text>
+            </switch>
+        </g>
+        <rect x="0" y="286" width="200" height="78" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 198px; height: 1px; padding-top: 293px; margin-left: 2px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    Once the
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    <b>
+                                        Device RSSD
+                                    </b>
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    is created, the SQLite database is portable and contains full versioned content ready to aggregated and queried.
+                                    <br/>
+                                    <br/>
+                                    Because it contains only the resources (content) you requested, it's secure.
+                                    <br/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="2" y="304" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="11px">
+                    Once the Device RSSD is created, the...
+                </text>
+            </switch>
+        </g>
+        <rect x="0" y="186" width="180" height="90" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 178px; height: 1px; padding-top: 193px; margin-left: 2px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 11px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    Collect existing files ("
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    <b style="">
+                                        <font face="Lucida Console" style="font-size: 9px;">
+                                            resources
+                                        </font>
+                                    </b>
+                                </span>
+                                <span style="color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    ") or execute commands and capture output from osQuery, Mergestat, Steampipe, cnquery.io, or any custom scripts that run on any device connecting to any cloud.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="2" y="204" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="11px">
+                    Collect existing files ("resourc...
+                </text>
+            </switch>
+        </g>
+        <path d="M 675 535.33 C 675 532.94 699.62 531 730 531 C 744.59 531 758.58 531.46 768.89 532.27 C 779.21 533.08 785 534.18 785 535.33 L 785 619.67 C 785 622.06 760.38 624 730 624 C 699.62 624 675 622.06 675 619.67 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 785 535.33 C 785 537.73 760.38 539.67 730 539.67 C 699.62 539.67 675 537.73 675 535.33" fill="none" stroke="#666666" stroke-miterlimit="10" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 582px; margin-left: 676px;">
+                        <div data-drawio-colors="color: #333333; " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(51, 51, 51); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <b>
+                                    Any Enterprise or App Database
+                                    <br/>
+                                </b>
+                                <font style="font-size: 9px;">
+                                    (PostgreSQL, MySQL, ORACLE, SQL*Server, Splunk,DuckDB, etc.)
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="730" y="585" fill="#333333" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    Any Enterprise or...
+                </text>
+            </switch>
+        </g>
+        <rect x="610" y="298" width="180" height="70" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 333px; margin-left: 700px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; font-style: italic; white-space: nowrap;">
+                                <font>
+                                    Query the device-specific
+                                    <br/>
+                                    RSSD files via SQL individually
+                                    <br/>
+                                    or aggregate them for combined
+                                    <br/>
+                                    querying through SQL.
+                                    <br/>
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="700" y="337" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="12px" text-anchor="middle" font-style="italic">
+                    Query the device-specific...
+                </text>
+            </switch>
+        </g>
+        <path d="M 287 572.93 L 338.89 557.78" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 343.93 556.31 L 338.19 561.63 L 338.89 557.78 L 336.23 554.91 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="57" y="525" width="230" height="163" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 228px; height: 1px; padding-top: 532px; margin-left: 59px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 11px; font-family: Garamond; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <span style="orphans: 2; text-align: left; text-indent: 0px; widows: 2; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;">
+                                    Consider using these SQLite Extensions for enhnaced querying:
+                                    <br/>
+                                    <br/>
+                                    <font face="Lucida Console" style="font-size: 8px;">
+                                        sqlite.org/json1.html
+                                    </font>
+                                    lets you use SQL to query JSON1...JSON5 directly in RSSDs.
+                                    <br/>
+                                    <br/>
+                                    <font face="Lucida Console" style="font-size: 8px;">
+                                        github.com/asg017/sqlite-html
+                                    </font>
+                                    lets you use SQL to query HTML directly in RSSDs.
+                                    <br/>
+                                    <br/>
+                                    <font face="Lucida Console" style="font-size: 8px;">
+                                        github.com/asg017/sqlite-md
+                                    </font>
+                                    lets you use SQL to query Markdown directly in RSSDs.
+                                    <br/>
+                                    <br/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="59" y="543" fill="rgb(0, 0, 0)" font-family="Garamond" font-size="11px">
+                    Consider using these SQLite Extensions for...
+                </text>
+            </switch>
+        </g>
+        <path d="M 585 421.48 L 511.24 436.71" fill="none" stroke="#666666" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 506.09 437.77 L 512.24 432.93 L 511.24 436.71 L 513.66 439.79 Z" fill="#666666" stroke="#666666" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="585" y="386" width="150" height="40" fill="none" stroke="none" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 406px; margin-left: 660px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: &quot;Times New Roman&quot;; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; font-style: italic; white-space: nowrap;">
+                                <font>
+                                    `rclone` may be useful to
+                                    <br/>
+                                    automate gathering of files
+                                    <br/>
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="660" y="410" fill="rgb(0, 0, 0)" font-family="Times New Roman" font-size="12px" text-anchor="middle" font-style="italic">
+                    `rclone` may be useful to...
+                </text>
+            </switch>
+        </g>
+    </g>
+    <switch>
+        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
+        <a transform="translate(0,-5)" xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems" target="_blank">
+            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
+                Text is not SVG - cannot display
+            </text>
+        </a>
+    </switch>
+</svg>

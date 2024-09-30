@@ -17,16 +17,15 @@ Adopt `surveilr` for an automatic, dependable, and quick method of confirming th
 ### How to install `surveilr`
 
 :::tip[Tip]
-- **SQLite3 CLI Tool**: The example queries used in this documentation make use SQLite v3.45. There may be slight differences if you're using an older version.
-  
+
 - **System Requirements**: While `surveilr` can run on low-performing systems, we recommend at least a dual-core processor, 2GB of RAM, and 8GB of available disk space for optimal performance.
 :::
 
 For installing `surveilr` in your infrastructure, you can check the following sections of our documentation:
 
-* The [Quickstart](/surveilr/how-to/installation-guide#quick-start) is an automated way of installing `surveilr` in just a few minutes.
+* The [Quickstart](/docs/core/installation#quick-start) is an automated way of installing `surveilr` in just a few minutes.
   
-* The [Installation guide](/surveilr/how-to/installation-guide/#installation-guide) provides detailed instructions on how to install `surveilr` on different platforms.
+* The [Installation guide](/docs/core/installation#installation-guide) provides detailed instructions on how to install `surveilr` on different platforms.
   
 
 
@@ -34,4 +33,4 @@ For installing `surveilr` in your infrastructure, you can check the following se
 
 ### Still Got Questions ?
 
-Check out our [FAQ](/surveilr/faq/faqs)
+Check out our [FAQ](https://www.surveilr.com/#faqs)
