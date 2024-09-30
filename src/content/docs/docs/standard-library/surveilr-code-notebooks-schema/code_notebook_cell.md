@@ -77,4 +77,4 @@ CREATE TABLE "code_notebook_cell" (
 
 ## Relations
 
-![er](../../../../../../assets/code_notebook_cell.svg)
+![er](../../../../../assets/code_notebook_cell.svg)

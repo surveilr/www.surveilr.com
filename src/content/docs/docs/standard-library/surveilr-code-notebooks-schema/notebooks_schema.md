@@ -15,4 +15,4 @@ description: Resource Surveillance Notebooks Schema
 
 ## Relations
 
-![er](../../../../../../assets/notebooks_schema.svg)
+![er](../../../../../assets/notebooks_schema.svg)
