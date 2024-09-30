@@ -769,7 +769,7 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
 DELETE FROM sqlpage_aide_navigation WHERE path like '/drh%';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description)
 VALUES
-    ('prime', '/', 1, '/drh', '/drh/', 'DRH Home', NULL, NULL, 'Welcome to Diabetes Research Hub'),
+    ('prime', '/', 1, '/drh', '/drh/', 'DRH EDGE UI Home', NULL, NULL, 'Welcome to Diabetes Research Hub EDGE UI'),
     ('prime', '/drh', 4, '/drh/researcher-related-data', '/drh/researcher-related-data/', 'Researcher And Associated Information', 'Researcher And Associated Information', NULL, 'Researcher And Associated Information'),
     ('prime', '/drh', 5, '/drh/study-related-data', '/drh/study-related-data/', 'Study and Participant Information', 'Study and Participant Information', NULL, 'Study and Participant Information'),
     ('prime', '/drh', 6, '/drh/uniform-resource-participant.sql', '/drh/uniform-resource-participant.sql', 'Uniform Resource Participant', NULL, NULL, 'Participant demographics with pagination'),
@@ -791,11 +791,11 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
   "component": "shell",
-  "title": "Diabetes Research Hub",
+  "title": "Diabetes Research Hub EDGE",
   "icon": "",
   "layout": "fluid",
   "fixed_top_menu": true,
-  "link": "https://drh.diabetestechnology.org/",
+  "link": "/",
   "menu_item": [
     {
       "link": "/",
@@ -809,18 +809,18 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js"
   ],
   "footer": "Resource Surveillance Web UI",
-  "image": "https://surveilr.com/lib/service/diabetes-research-hub/assets/diabetic-research-hub-logo.png"
+  "image": "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png"
 };',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
       'SELECT ''shell'' AS component,
-       ''Diabetes Research Hub'' AS title,
+       ''Diabetes Research Hub EDGE'' AS title,
        NULL AS icon,
        ''fluid'' AS layout,
        true AS fixed_top_menu,
-       ''https://drh.diabetestechnology.org/'' AS link,
+       ''/'' AS link,
        ''{"link":"/","title":"Home"}'' AS menu_item,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js'' AS javascript,
@@ -915,7 +915,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
             )
         ) as menu_item,
        ''Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || ''](/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), 2) || '')'' as footer,
-       ''https://surveilr.com/lib/service/diabetes-research-hub/assets/diabetic-research-hub-logo.png'' AS image;',
+       ''https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png'' AS image;',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -1676,7 +1676,7 @@ SELECT title, link FROM breadcrumbs ORDER BY level DESC;
 
               SELECT
       ''card''                      as component,
-      ''Welcome to the Diabetes Research Hub'' as title,
+      ''Welcome to the Diabetes Research Hub EDGE UI'' as title,
       1                           as columns;
 
 SELECT
