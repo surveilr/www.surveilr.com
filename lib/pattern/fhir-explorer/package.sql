@@ -54,7 +54,8 @@ CREATE VIEW fhir_v4_bundle_resource AS
 SELECT
     content ->> '$.id' AS bundle_id,
     entry.value ->> '$.resource.resourceType' AS resource_type,
-    entry.value AS resource_content
+    entry.value AS resource_content,
+    last_modified_at
 FROM
     fhir_v4_candidate,
     json_each(content -> '$.entry') AS entry
@@ -87,7 +88,8 @@ WITH patient_resources AS (
     -- Iterate over each item in the "extension" array
     SELECT
       resource_content,
-      json_each.value AS ext
+      json_each.value AS ext,
+      last_modified_at
     FROM
       fhir_v4_bundle_resource,
       json_each(fhir_v4_bundle_resource.resource_content, '$.resource.extension')
@@ -96,7 +98,8 @@ WITH patient_resources AS (
   )
   SELECT
     resource_content,
-    json_extract(json_each.value, '$.valueString') AS file_name
+    json_extract(json_each.value, '$.valueString') AS file_name,
+    last_modified_at
   FROM
     extensions,
     json_each(extensions.ext, '$."lineage meta data"')
@@ -127,7 +130,8 @@ SELECT
   resource_content ->> '$.resource.meta.lastUpdated' AS lastUpdated,
   resource_content ->> '$.resource.telecom[0].value' AS telecom,
   resource_content ->> '$.resource.identifier[0].value' AS medical_record_number,
-  file_name AS lineage_meta_data_filename  
+  file_name AS lineage_meta_data_filename  ,
+  last_modified_at
 FROM
   patient_resources;
 
@@ -154,7 +158,8 @@ DROP VIEW IF EXISTS fhir_v4_bundle_resource_observation;
 CREATE VIEW fhir_v4_bundle_resource_observation AS
 WITH observation_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -204,7 +209,8 @@ SELECT
     resource_content ->> '$.resource.valueString' AS value_string,
     resource_content ->> '$.resource.valueCodeableConcept.coding[0].code' AS value_codeable_concept_code,
     resource_content ->> '$.resource.valueCodeableConcept.coding[0].display' AS value_codeable_concept_display,
-    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+    last_modified_at
 FROM
     observation_resources;
 
@@ -214,7 +220,8 @@ DROP VIEW IF EXISTS fhir_v4_bundle_resource_encounter;
 CREATE VIEW fhir_v4_bundle_resource_encounter AS
     WITH Encounter_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -249,7 +256,8 @@ SELECT
     resource_content ->> '$.resource.reasonReference[0].reference' reasonReference_reference,
     resource_content ->> '$.resource.participant.type.coding[0].code' participant_type_code,
     resource_content ->> '$.resource.resourceType' resourceType,
-    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+    last_modified_at
 FROM
     Encounter_resources;
  
@@ -259,7 +267,8 @@ DROP VIEW IF EXISTS fhir_v4_bundle_resource_condition;
 CREATE VIEW fhir_v4_bundle_resource_condition AS
   WITH condition_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -279,7 +288,8 @@ CREATE VIEW fhir_v4_bundle_resource_condition AS
   resource_content ->> '$.resource.onsetDateTime' onsetDateTime,
   resource_content ->> '$.resource.Slices for category.category:us-core.coding[0].code' category_code,
   resource_content ->> '$.resource.Slices for category.category:us-core.coding[0].system' category_system,
-  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+  last_modified_at
 FROM
    condition_resources;
   
@@ -287,7 +297,8 @@ DROP VIEW IF EXISTS fhir_v4_bundle_resource_service_request;
 CREATE VIEW fhir_v4_bundle_resource_service_request AS
   WITH servicerequest_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -311,7 +322,8 @@ CREATE VIEW fhir_v4_bundle_resource_service_request AS
   resource_content ->> '$.resource.occurrencePeriod.start' occurrencePeriod_start,
   resource_content ->> '$.resource.occurrencePeriod.end' occurrencePeriod_end,
   resource_content ->> '$.resource.occurrenceDateTime' occurrenceDateTime,
-  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+  resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+  last_modified_at
 FROM
      servicerequest_resources;
 
@@ -321,7 +333,8 @@ DROP VIEW IF EXISTS fhir_v4_bundle_resource_procedure;
 CREATE VIEW fhir_v4_bundle_resource_procedure AS
 WITH procedure_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -349,14 +362,16 @@ SELECT
     resource_content->>'$.resource.identifier[3].value' AS identifier_value_3,
     resource_content->>'$.resource.identifier[4].value' AS identifier_value_4,
     resource_content->>'$.resource.performedDateTime' AS performedDateTime,
-    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+    last_modified_at
 FROM procedure_resources;
 
 DROP VIEW IF EXISTS fhir_v4_bundle_resource_practitioner;
 CREATE VIEW fhir_v4_bundle_resource_practitioner AS
 WITH practitioner_resources AS (
     SELECT
-        resource_content
+        resource_content,
+        last_modified_at
     FROM
         fhir_v4_bundle_resource
     WHERE
@@ -370,7 +385,8 @@ SELECT
     resource_content->>'$.resource.extension[0].lineage meta data[1].url' AS lineage_meta_data_url_1,
     resource_content->>'$.resource.extension[0].lineage meta data[1].valueString' AS lineage_meta_data_value_1,
     resource_content->>'$.resource.extension[0].lineage meta data[2].url' AS lineage_meta_data_url_2,
-    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename
+    resource_content->>'$.resource.extension[0].lineage meta data[2].valueString' AS lineage_meta_data_filename,
+    last_modified_at
 FROM
     practitioner_resources;
 
