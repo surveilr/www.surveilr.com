@@ -1,0 +1,6 @@
+- 42a5eead - docs: migrated rssd schema to std library (2024-09-30)
+- caf79263 - fix: fixed unresolved svg paths (2024-09-30)
+- 12bbf944 - chore: remove conflicting files (2024-09-29)
+- 471543ab - docs: migrate surveilr docs and fix broken image reference (2024-09-29)
+- 46c47365 - fix: fixed sidebar not scrolling in docs (2024-09-26)
+- 85f97180 - fix: fixed sidebar not scrolling in docs (2024-09-26)
