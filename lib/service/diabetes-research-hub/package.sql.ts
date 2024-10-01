@@ -9,7 +9,6 @@ import {
 
 import * as sppn from "../..//std/notebook/sqlpage.ts";
 
-
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -44,7 +43,11 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         : value
         ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
         : "NULL";
-    const selectNavMenuItems = (rootPath: string, caption: string, target: string ='') =>
+    const selectNavMenuItems = (
+      rootPath: string,
+      caption: string,
+      target: string = "",
+    ) =>
       `json_object(
             'link', '${rootPath}',
             'title', ${literal(caption)},      
@@ -84,10 +87,18 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         );
         // items.push(selectNavMenuItems("/site", "DRH"));
         items.push(
-          selectNavMenuItems("https://drh.diabetestechnology.org/", "DRH Home","__blank"),
+          selectNavMenuItems(
+            "https://drh.diabetestechnology.org/",
+            "DRH Home",
+            "__blank",
+          ),
         );
         items.push(
-          selectNavMenuItems("https://www.diabetestechnology.org/", "DTS Home","__blank"),
+          selectNavMenuItems(
+            "https://www.diabetestechnology.org/",
+            "DTS Home",
+            "__blank",
+          ),
         );
         return items;
       },
@@ -642,10 +653,11 @@ ${pagination.renderSimpleMarkdown()}
   @drhNav({
     caption: "Participant Information",
     abbreviatedCaption: "Participant Information",
-    description: "The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.",
+    description:
+      "The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.",
     siblingOrder: 20,
   })
-  "drh/participant-info/index.sql"() {    
+  "drh/participant-info/index.sql"() {
     return this.SQL`
   ${this.activePageTitle()}
 

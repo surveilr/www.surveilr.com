@@ -200,7 +200,7 @@ export function textAssetCell<
 }
 
 /**
- * Represents a code notebook base class that generates SQL for `surveilr` 
+ * Represents a code notebook base class that generates SQL for `surveilr`
  * code_notebook_* tables to handle the storage and execution of code cells
  * within an RSSD (for surveilr `notebook` subcommands and SQL info schema
  * lifecycle migrations).

@@ -142,7 +142,7 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );  
+  );
   uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
