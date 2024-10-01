@@ -146,9 +146,13 @@ export async function getStaticPaths() {
     {
       acceptFn: (path) => path.startsWith("lib/service"),
       endpointFn: typicalEndpointsFn,
-    },
+    },    
     {
       acceptFn: (path) => path.startsWith("lib/std"),
+      endpointFn: typicalEndpointsFn,
+    },
+    {
+      acceptFn: (path) => path.startsWith("lib/universal"),
       endpointFn: typicalEndpointsFn,
     },
   ]);

@@ -7,14 +7,14 @@ import {
   FlexibleTextSupplierSync,
   spawnedResult,
   textFromSupplierSync,
-} from "../../../lib/universal/spawn.ts";
+} from "../../universal/spawn.ts";
 
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
-const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
+const toolCmd = isWindows ? ".\\surveilr" : "./surveilr";
 
 const RSC_BASE_URL =
-  "http://localhost:4321/lib/service/diabetes-research-hub";
+  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -142,10 +142,7 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );
-  /*uxSQL = await fetchSqlContent(
-  `${RSC_BASE_URL}/ux.auto.sql`,
- );*/
+  );  
   uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
