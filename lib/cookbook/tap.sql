@@ -5,6 +5,8 @@
 This script demonstrates how to create a Test Anything Protocol (TAP) report using SQLite, following TAP version 14.
 It includes multiple test cases, and subtests are formatted with indentation per TAP 14's subtest style.
 
+The `tap.sql.ts` source code shows how to generate TAP views via TypeScript classes.
+
 Key Concepts Demonstrated:
 1. TAP Version Declaration: Specifies that TAP version 14 is being used.
 2. TAP Plan: Indicates how many tests will be run (1..7 main tests, but one test contains subtests).

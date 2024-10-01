@@ -38,7 +38,7 @@ export function isNotTestCase() {
 }
 
 /**
- * Decorator function to mark a test case as "skiped" in TAP.
+ * Decorator function to mark a test case as "skipped" in TAP.
  * @returns A decorator function that adds metadata to the method.
  *
  * @example
@@ -111,7 +111,7 @@ export function skip() {
  *   aUsefulMethod() {
  *     // whatever you want
  *   }
- * 
+ *
  *   // because this is not decorated with @isNotTestCase() it will be a test case;
  *   // simple single-clause assertion with SQL expression with separate pass
  *   // and fail messages
@@ -136,7 +136,7 @@ export function skip() {
  *
  *   // because this is not decorated with @isNotTestCase() it will be a test case;
  *   // multiple assertions, first with TAP `---` attributes
- *   last_test() {
+ *   another_test() {
  *     return
  *       this.assertThat`
  *         SELECT age, LENGTH(name) AS name_length
@@ -144,12 +144,22 @@ export function skip() {
  *          WHERE name = 'Bob'`
  *         .case(`age = 25`, `"Bob" is 25 years old`,
  *               { expr: `"Bob" is not 25 years old`,
- *                 diags: { 
+ *                 diags: {
  *                   'expected' : 25,
  *                   'got': "` || age || `", // `...` signifies "break out of SQL literal"
  *                 }
  *               })
  *         .case(`name_length = 3`, `"Bob" has a 3-character name`);
+ *   }
+ *
+ *   // because this is not decorated with @isNotTestCase() it will be a test case;
+ *   // instead of `assertThat`, use `testCase` for full control
+ *   another_test() {
+ *     return
+ *       this.testCase`
+ *         SELECT '# Skipping the check for user "Eve" as she is not expected in the dataset' AS tap_result
+ *         UNION ALL
+ *         SELECT 'ok - Skipping test for user "Eve" # SKIP: User "Eve" not expected in this dataset' AS tap_result`;
  *   }
  * }
  *
@@ -179,7 +189,10 @@ export class TestSuiteNotebook
   extends SurveilrSqlNotebook<SQLa.SqlEmitContext> {
   readonly methodIsNotTestCase: Set<string> = new Set();
   readonly tapSkipMethodNames: Set<string> = new Set();
-  constructor(readonly notebookName: string) {
+  constructor(
+    readonly notebookName: string,
+    readonly tapResultColName = "tap_result",
+  ) {
     super();
   }
 
@@ -187,6 +200,8 @@ export class TestSuiteNotebook
     return yaml.stringify(d, { skipInvalid: true });
   }
 
+  // use this for more convenient, typical TAP output (use `testCase` method
+  // if you want more control)
   get assertThat() {
     const cases: {
       readonly when: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
@@ -226,6 +241,7 @@ export class TestSuiteNotebook
         isAssertion: true,
         SQL,
         cases,
+        casesCount: () => cases.length,
         case: (
           when: typeof cases[number]["when"],
           then: typeof cases[number]["then"],
@@ -273,7 +289,7 @@ export class TestSuiteNotebook
                   exprOrLit("ok", then, index)
                 } ELSE ${
                   exprOrLit("not ok", otherwise ?? then, index)
-                } END AS tap_result FROM test_case`,
+                } END AS ${this.tapResultColName} FROM test_case`,
             }),
           });
           // use "builder" pattern to chain multiple `.case` so return the object
@@ -281,6 +297,26 @@ export class TestSuiteNotebook
         },
       };
       return result;
+    };
+  }
+
+  // use this in your test cases when you want full control over TAP output
+  get testCase() {
+    return (
+      ...args: Parameters<ReturnType<typeof SQLa.SQL<SQLa.SqlEmitContext>>>
+    ) => {
+      const SQL = (tcName: string, tcIndex: number) => {
+        const testCaseBodySQL = SQLa.SQL<SQLa.SqlEmitContext>(this.ddlOptions)(
+          ...args,
+        );
+        // deno-fmt-ignore
+        return this.SQL`
+            -- ${tcIndex}: ${tcName}
+            "${tcName}" AS (
+              ${testCaseBodySQL.SQL(this.emitCtx)}
+            )`.SQL(this.emitCtx);
+      };
+      return { SQL, casesCount: () => 1 };
     };
   }
 
@@ -320,40 +356,56 @@ export class TestSuiteNotebook
             : arbitrarySqlStmtRegEx.test(String(c)) == false,
       }).map(
         async (c) => {
-          const assertion = await c.call() as ReturnType<
-            TestSuiteNotebook["assertThat"]
-          >;
+          const methodResult = await c.call();
+          const strategy: "assertThat" | "testCase" | "invalid" =
+            typeof methodResult === "object" && "isAssertion" in methodResult
+              ? "assertThat"
+              : (typeof methodResult === "object" && "SQL" in methodResult
+                ? "testCase"
+                : "invalid");
+          const body:
+            | ReturnType<TestSuiteNotebook["testCase"]>
+            | ReturnType<TestSuiteNotebook["assertThat"]>
+            | undefined = strategy == "testCase"
+              ? methodResult as ReturnType<TestSuiteNotebook["testCase"]>
+              : (strategy == "assertThat"
+                ? methodResult as ReturnType<TestSuiteNotebook["assertThat"]>
+                : undefined);
           return {
             notebook: c.source.instance,
-            tcName: String(c.callable),
-            friendlyName: String(c.callable).replace(/_test$/, ""),
-            assertion,
-            isValid: typeof assertion === "object" && assertion["isAssertion"],
+            name: String(c.callable),
+            methodResult,
+            strategy,
+            body,
           };
         },
       ),
     );
 
-    const valid = testCases.filter((tc) => tc.isValid);
+    const valid = testCases.filter((tc) => tc.strategy != "invalid");
     const totalCases = valid.reduce(
-      (total, tc) => total + tc.assertion.cases.length,
+      (total, tc) => total + (tc.body ? tc.body.casesCount() : 1),
       0,
     );
+
+    const defaultNB = sources[0];
+    const viewName = defaultNB?.notebookName;
+    const tapResultColName = defaultNB?.tapResultColName;
 
     // deno-fmt-ignore
     return [
       ...arbitrarySqlStmts,
-      ...testCases.filter((tc) => !tc.isValid).map(tc => `-- Test Case "${tc.tcName}" did not return an assertThat instance (is ${typeof tc.assertion} instead)`),
-      `CREATE VIEW "${sources[0]?.notebookName}" AS`,
+      ...testCases.filter((tc) => tc.strategy == "invalid").map(tc => `-- Test Case "${tc.name}" did not return an assertThat or testCase instance (is ${typeof tc.body} instead)`),
+      `CREATE VIEW "${viewName}" AS`,
       `    WITH`,
-      `        tap_version AS (SELECT 'TAP version 14' AS tap_result),`,
-      `        tap_plan AS (SELECT '1..${totalCases}' AS tap_result),`,
-      `        ${valid.map((tc, index) => tc.assertion.SQL(tc.tcName, index + 1))}`,
-      `    SELECT tap_result FROM tap_version`,
+      `        tap_version AS (SELECT 'TAP version 14' AS ${tapResultColName}),`,
+      `        tap_plan AS (SELECT '1..${totalCases}' AS ${tapResultColName}),`,
+      `        ${valid.map((tc, index) => tc.body!.SQL(tc.name, index + 1))}`,
+      `    SELECT ${tapResultColName} FROM tap_version`,
       `    UNION ALL`,
-      `    SELECT tap_result FROM tap_plan`,
+      `    SELECT ${tapResultColName} FROM tap_plan`,
       `    UNION ALL`,
-      `    ${valid.map((tc) => `SELECT tap_result FROM "${tc.tcName}"`).join("\n    UNION ALL\n")};`,
+      `    ${valid.map((tc) => `SELECT ${tapResultColName} FROM "${tc.name}"`).join("\n    UNION ALL\n")};`,
     ];
   }
 }

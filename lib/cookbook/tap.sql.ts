@@ -34,7 +34,7 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
     }
 
     "Check if a user named 'Alice' exists in the table"() {
-        const checkUser = 'Alice';
+        const checkUser = "Alice";
         return this.assertThat`
             SELECT COUNT(*) AS user_count
               FROM users
@@ -59,6 +59,14 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
             })
             .case(`name_length = 3`, `"Bob" has a 3-character name`);
     }
+
+    // instead of `assertThat`, use `testCase` for full control
+    another_test() {
+        return this.testCase`
+            SELECT '# Skipping the check for user "Eve" as she is not expected in the dataset' AS tap_result
+            UNION ALL
+            SELECT 'ok - Skipping test for user "Eve" # SKIP: User "Eve" not expected in this dataset' AS tap_result`;
+    }
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
@@ -67,4 +75,5 @@ if (import.meta.main) {
         new SyntheticTestSuite("synthetic_test_suite"),
     );
     console.log(SQL.join("\n"));
+    console.log(`SELECT * FROM synthetic_test_suite;`);
 }
