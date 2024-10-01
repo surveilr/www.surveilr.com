@@ -4,12 +4,11 @@ import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 
 // # TODO: automatically upgrade surveilr
-// admin merge command
 // # TODO: commands
 // # 1. add notebook orchestration: surveilr orchestrate notebooks --cell="%htmlAnchors%" -a "key1=value1" -a "name=starting"
 // # 2. IMAP
 
-const E2E_TEST_DIR = path.join(Deno.cwd(), "assurance");
+const E2E_TEST_DIR = path.join(Deno.cwd(), "lib/assurance");
 const ZIP_URL =
   "https://synthetichealth.github.io/synthea-sample-data/downloads/10k_synthea_covid19_csv.zip";
 const ZIP_FILE = path.join(E2E_TEST_DIR, "10k_synthea_covid19_csv.zip");
