@@ -2,21 +2,19 @@
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.6.0/mod.ts";
-import * as drhux from "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/package.sql.ts";
+import * as drhux from "./package.sql.ts";
 import {
   FlexibleTextSupplierSync,
   spawnedResult,
   textFromSupplierSync,
-} from "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/universal/spawn.ts";
+} from "../../universal/spawn.ts";
 
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
-const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
+const toolCmd = isWindows ? ".\\surveilr" : "./surveilr";
 
 const RSC_BASE_URL =
   "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
-
-  const REPO_URL="https://www.surveilr.com/lib/service/diabetes-research-hub";
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -131,7 +129,7 @@ const dbFilePath = "./resource-surveillance.sqlite.db";
 const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
   deidentificationSQL;
 const vvSQLSupplier: FlexibleTextSupplierSync = () => vvSQL;
-const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
+//const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
 
 let deidentificationSQL: string;
 let vvSQL: string;
@@ -144,10 +142,7 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );
-  uxSQL = await fetchSqlContent(
-  `${REPO_URL}/package.sql`,
- );
+  );  
   uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
@@ -215,8 +210,7 @@ try {
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
-  //executeSqlCommands(uxSQL); // Execute UX SQL commands
-  await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.red("Error during UX orchestration:"), error.message);
