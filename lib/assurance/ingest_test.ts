@@ -4,7 +4,6 @@ import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 
 // # TODO: automatically upgrade surveilr
-// admin merge command
 // # TODO: commands
 // # 1. add notebook orchestration: surveilr orchestrate notebooks --cell="%htmlAnchors%" -a "key1=value1" -a "name=starting"
 // # 2. IMAP
