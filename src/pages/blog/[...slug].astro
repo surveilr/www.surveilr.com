@@ -11,6 +11,7 @@ import { capitalize, formatDate } from "@utils/utils";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import { SITE } from "@data/constants";
+import { getImage } from "astro:assets";
 
 // Update getStaticPaths for English posts
 export async function getStaticPaths() {
@@ -44,9 +45,41 @@ const relatedPosts: CollectionEntry<"blog">[] = blogPosts.filter(
 );
 
 const pageTitle: string = `${post.data.title} | ${SITE.title}`;
+
+const socialImageRes = await getImage({
+  src: post.data.cardImage,
+  width: 1200,
+  height: 600,
+});
+const socialImage = Astro.url.origin + socialImageRes.src;
+const structuredData: object = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": `https://www.surveilr.com/blog/${post.slug.replace(/^en\//, "")}/`,
+  },
+  headline: post.data.title,
+  description: post.data.description,
+  image: socialImage,
+  publisher: {
+    "@type": "Organization",
+    name: "Surveilr",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.surveilr.com/_astro/surveilr-logo-with-text-264x66px.CdbY10CM_ZAn8Qa.webp",
+    },
+  },
+  datePublished: post.data.pubDate,
+  dateModified: post.data.pubDate,
+};
 ---
 
-<MainLayout title={pageTitle} meta={post.data.description}>
+<MainLayout
+  title={pageTitle}
+  meta={post.data.description}
+  structuredData={structuredData}
+>
   <section class="mx-auto max-w-3xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
     <div class="max-w-2xl">
       <div class="mb-6 flex items-center justify-between">
