@@ -21,7 +21,7 @@ CREATE TABLE "organization_role_type" (
 
 | Name       | Type        | Default           | Nullable | Children                                                                            | Comment |
 | ---------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------------- | ------- |
-| code       | TEXT        |                   | false    | [organization_role](/surveilr/reference/db/surveilr-state-schema/organization_role) |         |
+| code       | TEXT        |                   | false    | [organization_role](/docs/standard-library/rssd-schema/organization_role) |         |
 | value      | TEXT        |                   | false    |                                                                                     |         |
 | created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                     |         |
 

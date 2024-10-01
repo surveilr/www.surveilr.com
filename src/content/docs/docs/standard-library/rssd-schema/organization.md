@@ -38,7 +38,7 @@ CREATE TABLE "organization" (
 
 | Name               | Type        | Default           | Nullable | Parents                                                     | Comment                                                           |
 | ------------------ | ----------- | ----------------- | -------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| organization_id    | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                 |
+| organization_id    | VARCHAR     |                   | false    | [party](/docs/standard-library/rssd-schema/party) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                 |
 | name               | TEXT        |                   | false    |                                                             | The name of the organization.                                     |
 | alias              | TEXT        |                   | true     |                                                             | An alias or alternative name for the organization, if applicable. |
 | description        | TEXT        |                   | true     |                                                             | A description of the organization.                                |
