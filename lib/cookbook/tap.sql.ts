@@ -1,6 +1,8 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
 import { tapNB } from "../std/notebook/mod.ts";
 
+type TestCaseContext = tapNB.TestCaseContext;
+
 export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
     // any method that ends in DDL, SQL, DML, or DQL will be "arbitrary SQL"
     // and included in the SQL stream before all the test cases
@@ -23,19 +25,15 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         // example showing that arbitrary methods are possible, too
     }
 
-    "Ensure at least two users"() {
-        return this.assertThat`
+    "Ensure at least two users"(ctx: TestCaseContext) {
+        return this.assertThat<"user_count">(ctx)`
             SELECT COUNT(*) AS user_count FROM users`
-            .case(
-                "user_count = 2", // the assertion SQL expression goes into `CASE WHEN`
-                "Found expected number of users (`|| user_count ||`)", // the literal or SQL expression for "pass"
-                // no "fail" is given so it uses the same as "pass"
-            );
+        .equals("user_count", 2);
     }
 
-    "Check if a user named 'Alice' exists in the table"() {
+    "Check if a user named 'Alice' exists in the table"(ctx: TestCaseContext) {
         const checkUser = "Alice";
-        return this.assertThat`
+        return this.assertThat(ctx)`
             SELECT COUNT(*) AS user_count
               FROM users
              WHERE name = '${checkUser}'
@@ -45,24 +43,24 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         );
     }
 
-    "Check Bob's data"() {
-        return this.assertThat`
+    "Check Bob's data"(ctx: TestCaseContext) {
+        return this.assertThat(ctx)`
             SELECT age, LENGTH(name) AS name_length
               FROM users
              WHERE name = 'Bob'`
-            .case(`age = 25`, `"Bob" is 25 years old`, {
-                expr: `"Bob" is not 25 years old`,
-                diags: {
-                    "expected": 25,
-                    "got": "` || age || `", // `...` signifies "break out of SQL literal and use SQL expression"
-                },
-            })
-            .case(`name_length = 3`, `"Bob" has a 3-character name`);
+        .case(`age = 25`, `"Bob" is 25 years old`, {
+            expr: `"Bob" is not 25 years old`,
+            diags: {
+                "expected": 25,
+                "got": "` || age || `", // `...` signifies "break out of SQL literal and use SQL expression"
+            },
+        })
+        .case(`name_length = 3`, `"Bob" has a 3-character name`);
     }
 
     // instead of `assertThat`, use `testCase` for full control
-    another_test() {
-        return this.testCase`
+    another_test(ctx: TestCaseContext) {
+        return this.testCase(ctx)`
             SELECT '# Skipping the check for user "Eve" as she is not expected in the dataset' AS tap_result
             UNION ALL
             SELECT 'ok - Skipping test for user "Eve" # SKIP: User "Eve" not expected in this dataset' AS tap_result`;
