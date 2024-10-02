@@ -21,7 +21,7 @@ CREATE TABLE "party_type" (
 
 | Name       | Type        | Default           | Nullable | Children                                                    | Comment |
 | ---------- | ----------- | ----------------- | -------- | ----------------------------------------------------------- | ------- |
-| code       | TEXT        |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party) |         |
+| code       | TEXT        |                   | false    | [party](/docs/standard-library/rssd-schema/party) |         |
 | value      | TEXT        |                   | false    |                                                             |         |
 | created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                             |         |
 

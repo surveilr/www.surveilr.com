@@ -113,6 +113,30 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              label: "Concepts",
+              collapsed: true,
+              items: [
+                {
+                  label: "RSSD",
+                  link: "/docs/core/concepts/resource-surveillance",
+                },
+                {
+                  label: "WPAs",
+                  link: "/docs/core/concepts/work-product-artifacts",
+                },
+              ],
+            },
+            {
+              label: "Admin",
+              collapsed: true,
+              items: [
+                {
+                  label: "Merge",
+                  link: "/docs/core/admin/merge",
+                },
+              ],
+            },
           ],
         },
         {

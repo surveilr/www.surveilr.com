@@ -31,7 +31,7 @@ CREATE TABLE "orchestration_nature" (
 
 | Name                    | Type        | Default           | Nullable | Children                                                                                    | Comment                                                 |
 | ----------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| orchestration_nature_id | TEXT        |                   | false    | [orchestration_session](/surveilr/reference/db/surveilr-state-schema/orchestration_session) |                                                         |
+| orchestration_nature_id | TEXT        |                   | false    | [orchestration_session](/docs/standard-library/rssd-schema/orchestration_session) |                                                         |
 | nature                  | TEXT        |                   | false    |                                                                                             |                                                         |
 | elaboration             | TEXT        |                   | true     |                                                                                             | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
 | created_at              | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                                             |                                                         |

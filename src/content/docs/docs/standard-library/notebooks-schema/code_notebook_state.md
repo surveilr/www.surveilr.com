@@ -40,7 +40,7 @@ CREATE TABLE "code_notebook_state" (
 | Name                   | Type      | Default           | Nullable | Parents                                     | Comment                                                                   |
 | ---------------------- | --------- | ----------------- | -------- | ------------------------------------------- | ------------------------------------------------------------------------- |
 | code_notebook_state_id | VARCHAR   |                   | false    |                                             | code_notebook_state primary key                                           |
-| code_notebook_cell_id  | VARCHAR   |                   | false    | [code_notebook_cell](/surveilr/reference/db/surveilr-code-notebooks-schema/code_notebook_cell) | code_notebook_cell row this state describes                               |
+| code_notebook_cell_id  | VARCHAR   |                   | false    | [code_notebook_cell](/docs/standard-library/notebooks-schema/code_notebook_cell) | code_notebook_cell row this state describes                               |
 | from_state             | TEXT      |                   | false    |                                             | the previous state (set to "INITIAL" when it's the first transition)      |
 | to_state               | TEXT      |                   | false    |                                             | the current state; if no rows exist it means no state transition occurred |
 | transition_result      | TEXT      |                   | true     |                                             | if the result of state change is necessary for future use                 |
