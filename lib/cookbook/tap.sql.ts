@@ -43,7 +43,7 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         );
     }
 
-    "Check Bob's data"(ctx: TestCaseContext) {
+    "Check Bob's data custom cases"(ctx: TestCaseContext) {
         return this.assertThat(ctx)`
             SELECT age, LENGTH(name) AS name_length
               FROM users
@@ -58,12 +58,22 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         .case(`name_length = 3`, `"Bob" has a 3-character name`);
     }
 
-    // instead of `assertThat`, use `testCase` for full control
+    "Check Bob's data simple cases"(ctx: TestCaseContext) {
+        return this.assertThat<"age" | "name_length">(ctx)`
+            SELECT age, LENGTH(name) AS name_length
+              FROM users
+             WHERE name = 'Bob'`
+        .equals(`age`, 25)
+        .equals(`name_length`, 3);
+    }
+
+    // instead of `assertThat`, use `testCase` for full control, be sure to use
+    // ${this.tapResultColName} for proper `tap_result` column name
     another_test(ctx: TestCaseContext) {
         return this.testCase(ctx)`
-            SELECT '# Skipping the check for user "Eve" as she is not expected in the dataset' AS tap_result
+            SELECT '# Skipping the check for user "Eve" as she is not expected in the dataset' AS ${this.tapResultColName}
             UNION ALL
-            SELECT 'ok - Skipping test for user "Eve" # SKIP: User "Eve" not expected in this dataset' AS tap_result`;
+            SELECT 'ok - Skipping test for user "Eve" # SKIP: User "Eve" not expected in this dataset' AS ${this.tapResultColName}`;
     }
 }
 
