@@ -1,6 +1,6 @@
--- Drop and recreate the device_data view
-DROP VIEW IF EXISTS drh_device_data;
-CREATE VIEW drh_device_data AS
+-- Drop and recreate the device view
+DROP VIEW IF EXISTS drh_device;
+CREATE VIEW drh_device AS
 SELECT device_id, name, created_at
 FROM device d;
 
@@ -64,9 +64,9 @@ SELECT
     input_text, exec_error_text, output_text, output_nature, narrative_md
 FROM orchestration_session_exec;
 
--- Drop and recreate the study_data view
-DROP VIEW IF EXISTS drh_study_data;
-CREATE VIEW drh_study_data AS
+-- Drop and recreate the study view
+DROP VIEW IF EXISTS drh_study;
+CREATE VIEW drh_study AS
 SELECT
     study_id, study_name, start_date, end_date, treatment_modalities,
     funding_source, nct_number, study_description
@@ -82,54 +82,54 @@ SELECT
     data_end_date, study_id
 FROM uniform_resource_cgm_file_metadata;
 
--- Drop and recreate the author_data view
-DROP VIEW IF EXISTS drh_author_data;
-CREATE VIEW drh_author_data AS
+-- Drop and recreate the author view
+DROP VIEW IF EXISTS drh_author;
+CREATE VIEW drh_author AS
 SELECT
     author_id, name, email, investigator_id, study_id
 FROM uniform_resource_author;
 
--- Drop and recreate the institution_data view
-DROP VIEW IF EXISTS drh_institution_data;
-CREATE VIEW drh_institution_data AS
+-- Drop and recreate the institution view
+DROP VIEW IF EXISTS drh_institution;
+CREATE VIEW drh_institution AS
 SELECT
     institution_id, institution_name, city, state, country
 FROM uniform_resource_institution;
 
--- Drop and recreate the investigator_data view
-DROP VIEW IF EXISTS drh_investigator_data;
-CREATE VIEW drh_investigator_data AS
+-- Drop and recreate the investigator view
+DROP VIEW IF EXISTS drh_investigator;
+CREATE VIEW drh_investigator AS
 SELECT
     investigator_id, investigator_name, email, institution_id, study_id
 FROM uniform_resource_investigator;
 
--- Drop and recreate the lab_data view
-DROP VIEW IF EXISTS drh_lab_data;
-CREATE VIEW drh_lab_data AS
+-- Drop and recreate the lab view
+DROP VIEW IF EXISTS drh_lab;
+CREATE VIEW drh_lab AS
 SELECT
     lab_id, lab_name, lab_pi, institution_id, study_id
 FROM uniform_resource_lab;
 
--- Drop and recreate the participant_data view
-DROP VIEW IF EXISTS drh_participant_data;
-CREATE VIEW drh_participant_data AS
+-- Drop and recreate the participant view
+DROP VIEW IF EXISTS drh_participant;
+CREATE VIEW drh_participant AS
 SELECT
     participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
     diabetes_type, study_arm
 FROM uniform_resource_participant;
 
--- Drop and recreate the publication_data view
-DROP VIEW IF EXISTS drh_publication_data;
-CREATE VIEW drh_publication_data AS
+-- Drop and recreate the publication view
+DROP VIEW IF EXISTS drh_publication;
+CREATE VIEW drh_publication AS
 SELECT
     publication_id, publication_title, digital_object_identifier,
     publication_site, study_id
 FROM uniform_resource_publication;
 
--- Drop and recreate the site_data view
-DROP VIEW IF EXISTS drh_site_data;
-CREATE VIEW drh_site_data AS
+-- Drop and recreate the site view
+DROP VIEW IF EXISTS drh_site;
+CREATE VIEW drh_site AS
 SELECT
     study_id, site_id, site_name, site_type
 FROM uniform_resource_site;
@@ -268,8 +268,8 @@ LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
 
 
-DROP TABLE IF EXISTS raw_cgm_data_lst_cached;
-CREATE TABLE raw_cgm_data_lst_cached AS 
+DROP TABLE IF EXISTS raw_cgm_lst_cached;
+CREATE TABLE raw_cgm_lst_cached AS 
   SELECT * FROM drh_raw_cgm_table_lst;
 
 DROP VIEW IF EXISTS drh_study_files_table_info;
