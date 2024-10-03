@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
   "contents" TEXT NOT NULL,
   "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
--- Drop and recreate the device_data view
-DROP VIEW IF EXISTS drh_device_data;
-CREATE VIEW drh_device_data AS
+-- Drop and recreate the device view
+DROP VIEW IF EXISTS drh_device;
+CREATE VIEW drh_device AS
 SELECT device_id, name, created_at
 FROM device d;
 
@@ -71,9 +71,9 @@ SELECT
     input_text, exec_error_text, output_text, output_nature, narrative_md
 FROM orchestration_session_exec;
 
--- Drop and recreate the study_data view
-DROP VIEW IF EXISTS drh_study_data;
-CREATE VIEW drh_study_data AS
+-- Drop and recreate the study view
+DROP VIEW IF EXISTS drh_study;
+CREATE VIEW drh_study AS
 SELECT
     study_id, study_name, start_date, end_date, treatment_modalities,
     funding_source, nct_number, study_description
@@ -89,54 +89,54 @@ SELECT
     data_end_date, study_id
 FROM uniform_resource_cgm_file_metadata;
 
--- Drop and recreate the author_data view
-DROP VIEW IF EXISTS drh_author_data;
-CREATE VIEW drh_author_data AS
+-- Drop and recreate the author view
+DROP VIEW IF EXISTS drh_author;
+CREATE VIEW drh_author AS
 SELECT
     author_id, name, email, investigator_id, study_id
 FROM uniform_resource_author;
 
--- Drop and recreate the institution_data view
-DROP VIEW IF EXISTS drh_institution_data;
-CREATE VIEW drh_institution_data AS
+-- Drop and recreate the institution view
+DROP VIEW IF EXISTS drh_institution;
+CREATE VIEW drh_institution AS
 SELECT
     institution_id, institution_name, city, state, country
 FROM uniform_resource_institution;
 
--- Drop and recreate the investigator_data view
-DROP VIEW IF EXISTS drh_investigator_data;
-CREATE VIEW drh_investigator_data AS
+-- Drop and recreate the investigator view
+DROP VIEW IF EXISTS drh_investigator;
+CREATE VIEW drh_investigator AS
 SELECT
     investigator_id, investigator_name, email, institution_id, study_id
 FROM uniform_resource_investigator;
 
--- Drop and recreate the lab_data view
-DROP VIEW IF EXISTS drh_lab_data;
-CREATE VIEW drh_lab_data AS
+-- Drop and recreate the lab view
+DROP VIEW IF EXISTS drh_lab;
+CREATE VIEW drh_lab AS
 SELECT
     lab_id, lab_name, lab_pi, institution_id, study_id
 FROM uniform_resource_lab;
 
--- Drop and recreate the participant_data view
-DROP VIEW IF EXISTS drh_participant_data;
-CREATE VIEW drh_participant_data AS
+-- Drop and recreate the participant view
+DROP VIEW IF EXISTS drh_participant;
+CREATE VIEW drh_participant AS
 SELECT
     participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
     diabetes_type, study_arm
 FROM uniform_resource_participant;
 
--- Drop and recreate the publication_data view
-DROP VIEW IF EXISTS drh_publication_data;
-CREATE VIEW drh_publication_data AS
+-- Drop and recreate the publication view
+DROP VIEW IF EXISTS drh_publication;
+CREATE VIEW drh_publication AS
 SELECT
     publication_id, publication_title, digital_object_identifier,
     publication_site, study_id
 FROM uniform_resource_publication;
 
--- Drop and recreate the site_data view
-DROP VIEW IF EXISTS drh_site_data;
-CREATE VIEW drh_site_data AS
+-- Drop and recreate the site view
+DROP VIEW IF EXISTS drh_site;
+CREATE VIEW drh_site AS
 SELECT
     study_id, site_id, site_name, site_type
 FROM uniform_resource_site;
@@ -275,8 +275,8 @@ LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
 
 
-DROP TABLE IF EXISTS raw_cgm_data_lst_cached;
-CREATE TABLE raw_cgm_data_lst_cached AS 
+DROP TABLE IF EXISTS raw_cgm_lst_cached;
+CREATE TABLE raw_cgm_lst_cached AS 
   SELECT * FROM drh_raw_cgm_table_lst;
 
 DROP VIEW IF EXISTS drh_study_files_table_info;
@@ -1871,7 +1871,7 @@ SELECT
 SELECT
   ''These are scientific professionals and medical experts who design and conduct studies related to diabetes management and treatment. Their expertise ranges from clinical research to data analysis, and they are crucial in interpreting results and guiding future research directions.Principal investigators lead the research projects, overseeing the study design, implementation, and data collection. They ensure the research adheres to ethical standards and provides valuable insights into diabetes management.'' as contents;
 SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-SELECT * from drh_investigator_data;
+SELECT * from drh_investigator;
 
 SELECT
   ''text'' as component,
@@ -1879,7 +1879,7 @@ SELECT
 SELECT
   ''The researchers and investigators are associated with various institutions, including universities, research institutes, and hospitals. These institutions provide the necessary resources, facilities, and support for conducting high-quality research. Each institution brings its unique strengths and expertise to the collaborative research efforts.'' as contents;
 SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-SELECT * from drh_institution_data;
+SELECT * from drh_institution;
 
 
 SELECT
@@ -1888,7 +1888,7 @@ SELECT
 SELECT
   ''Within these institutions, specialized labs are equipped with state-of-the-art technology to conduct diabetes research. These labs focus on different aspects of diabetes studies, such as glucose monitoring, metabolic analysis, and data processing. They play a critical role in executing experiments, analyzing samples, and generating data that drive research conclusions.'' as contents;
 SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-SELECT * from drh_lab_data;
+SELECT * from drh_lab;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1939,7 +1939,7 @@ SELECT title, link FROM breadcrumbs ORDER BY level DESC;
   '' as contents_md;
 
   SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_study_data;
+  SELECT * from drh_study;
 
 
       SELECT
@@ -1960,7 +1960,7 @@ Research sites are locations where the studies are conducted. They include clini
       '' as contents_md;
 
       SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-      SELECT * from drh_site_data;
+      SELECT * from drh_site;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1993,7 +1993,7 @@ SELECT title, link FROM breadcrumbs ORDER BY level DESC;
     ;
 
 
-SET total_rows = (SELECT COUNT(*) FROM drh_participant_data);
+SET total_rows = (SELECT COUNT(*) FROM drh_participant);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -2003,7 +2003,7 @@ SET current_page = ($offset / $limit) + 1;
 SELECT ''table'' AS component,
       TRUE AS sort,
       TRUE AS search;
-SELECT * FROM drh_participant_data
+SELECT * FROM drh_participant
  LIMIT $limit
 OFFSET $offset;
 
@@ -2064,7 +2064,7 @@ This section contains information about the authors involved in study publicatio
       '' as contents_md;
 
   SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_author_data;
+  SELECT * from drh_author;
   SELECT
   ''text'' as component,
   ''
@@ -2084,7 +2084,7 @@ This section provides information about the publications resulting from a study.
   '' as contents_md;
 
   SELECT ''table'' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_publication_data;
+  SELECT * from drh_publication;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2442,14 +2442,14 @@ select
       ''MRN: '' || participant_id || '''' AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       ''Study: '' || study_arm || '''' AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   
@@ -2457,28 +2457,28 @@ select
       ''Age: ''|| age || '' Years'' AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       ''hba1c: '' || baseline_hba1c || '''' AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       ''BMI: ''|| bmi || '''' AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       ''Diabetes Type: ''|| diabetes_type || ''''  AS title,
       '' '' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
@@ -2633,7 +2633,7 @@ FROM
 ''text'' as component,
 ''# Participant Dashboard'' as contents_md;
 
-    SET total_rows = (SELECT COUNT(*) FROM drh_participant_data);
+    SET total_rows = (SELECT COUNT(*) FROM drh_participant);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -2644,7 +2644,7 @@ SET current_page = ($offset / $limit) + 1;
         ''participant_id'' as markdown,
         TRUE AS sort,
         TRUE AS search;
-  SELECT format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM drh_participant_data
+  SELECT format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM drh_participant
   LIMIT $limit
   OFFSET $offset;
 
@@ -2829,7 +2829,7 @@ Participants are individuals who volunteer to take part in CGM research studies.
 
       '' as contents_md;
 
-      SET total_rows = (SELECT COUNT(*) FROM drh_participant_data);
+      SET total_rows = (SELECT COUNT(*) FROM drh_participant);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -2839,7 +2839,7 @@ SET current_page = ($offset / $limit) + 1;
     SELECT ''table'' AS component,
           TRUE AS sort,
           TRUE AS search;
-    SELECT * FROM drh_participant_data
+    SELECT * FROM drh_participant
      LIMIT $limit
     OFFSET $offset;
 
