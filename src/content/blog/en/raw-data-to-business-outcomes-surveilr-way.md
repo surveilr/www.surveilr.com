@@ -1,5 +1,6 @@
 ---
 title: "Raw Data to Business Outcomes at Scale: The surveilr Way"
+metaTitle: "Transform Raw Data into Scalable Business Outcomes with Surveilr"
 description: "Discover how Surveilr turns raw data into actionable insights, enhancing decision-making and operational efficiency for data-driven organizations."
 author: "Pradeep Narayanan"
 authorImage: "@/images/blog/pradeep-narayanan.avif"

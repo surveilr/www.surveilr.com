@@ -6,7 +6,13 @@ import FooterSection from "@components/sections/navbar&footer/FooterSection.astr
 import { SITE } from "@data/constants";
 
 // Setting expected props
-const { title = SITE.title, meta, structuredData, lang = "en" } = Astro.props;
+const {
+  title = SITE.title,
+  meta,
+  structuredData,
+  lang = "en",
+  metaTitle,
+} = Astro.props;
 
 // Interface to type-check the properties
 interface Props {
@@ -14,6 +20,7 @@ interface Props {
   meta?: string;
   structuredData?: object;
   lang?: string;
+  metaTitle?: string;
 }
 ---
 
@@ -26,7 +33,7 @@ We set the language of the page to English and add classes for scrollbar and scr
     <!-- Adding metadata to the HTML document -->
     <Meta meta={meta} structuredData={structuredData} />
     <!-- Define the title of the page -->
-    <title>{title}</title>
+    <title>{metaTitle || title}</title>
     <script is:inline>
       // Script to handle dark mode. It will check if the theme is stored in localStorage or if dark theme is preferred by system settings
       if (

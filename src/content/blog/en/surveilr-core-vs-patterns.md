@@ -1,6 +1,7 @@
 ---
 title: "The surveilr Ecosystem: Core and Patterns"
-description: "surveilr's flexibility to adapt to a wide range of industries, disciplines, and use cases"
+metaTitle: "Surveilr Ecosystem delivers flexible compliance and security solutions"
+description: "Discover how Surveilr Core and Patterns enable adaptable, evidence-based workflows for compliance, security, and quality management across industries."
 author: "Shahid N. Shah"
 authorImage: "@/images/blog/shahid-shah.avif"
 authorImageAlt: "Shahid Shah"

@@ -1,6 +1,7 @@
 ---
 title: "Quality Management for Safety-Critical Industries"
-description: "`surveilr` makes it easier to verify that proper safety and quality processes are being followed"
+metaTitle: "Quality Management for Safety-Critical Sectors with Surveilr"
+description: "`surveilr` ensures compliance in safety-critical industries by streamlining data audits and verifying adherence to quality protocols."
 author: "Shahid N. Shah"
 role: "Strategic Marketing Manager"
 authorImage: "@/images/blog/shahid-shah.avif"

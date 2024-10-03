@@ -45,6 +45,7 @@ const relatedPosts: CollectionEntry<"blog">[] = blogPosts.filter(
 );
 
 const pageTitle: string = `${post.data.title} | ${SITE.title}`;
+const metaTitle: string = post.data.metaTitle || post.data.title; // Fallback to post title if metaTitle is not defined
 
 const socialImageRes = await getImage({
   src: post.data.cardImage,
@@ -79,6 +80,7 @@ const structuredData: object = {
   title={pageTitle}
   meta={post.data.description}
   structuredData={structuredData}
+  metaTitle={metaTitle}
 >
   <section class="mx-auto max-w-3xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
     <div class="max-w-2xl">

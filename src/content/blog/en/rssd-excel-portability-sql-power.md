@@ -1,6 +1,7 @@
 ---
 title: "RSSDs: Portability of Excel, Power of SQL"
-description: "Resource Surveillance State Databases (RSSDs) are simple as Excel with the power of SQL"
+metaTitle: "RSSDs Deliver Portable, SQL-Powered Data Integration for Compliance"
+description: "Learn how RSSDs combine the flexibility of Excel with the power of SQL to simplify data tracking, management, and querying for regulatory and compliance needs."
 author: "Shahid N. Shah"
 authorImage: "@/images/blog/shahid-shah.avif"
 authorImageAlt: "Avatar Description"
