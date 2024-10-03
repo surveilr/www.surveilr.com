@@ -60,7 +60,7 @@ const structuredData: object = {
     "@type": "WebPage",
     "@id": `https://www.surveilr.com/blog/${post.slug.replace(/^en\//, "")}/`,
   },
-  headline: post.data.title,
+  headline: metaTitle,
   description: post.data.description,
   image: socialImage,
   publisher: {
