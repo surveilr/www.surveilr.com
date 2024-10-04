@@ -24,7 +24,7 @@ const footerLinks = [
       { name: "About Netspective", url: "https://www.netspective.com" },
       { name: "About Opsfolio", url: "https://www.opsfolio.com" },
       { name: "Blog", url: "/blog" },
-      { name: "Discord", url: "#" },
+      { name: "Discord", url: "https://discord.gg/fYHv3zzB" },
     ],
   },
 ];
@@ -34,7 +34,7 @@ const socialLinks = {
   x: "https://twitter.com/netspective",
   github: "https://github.com/surveilr",
   google: "https://plus.google.com/+Netspective",
-  discord: "#",
+  discord: "https://discord.gg/fYHv3zzB",
 };
 
 export default {
