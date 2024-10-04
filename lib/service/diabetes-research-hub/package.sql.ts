@@ -303,7 +303,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'These are scientific professionals and medical experts who design and conduct studies related to diabetes management and treatment. Their expertise ranges from clinical research to data analysis, and they are crucial in interpreting results and guiding future research directions.Principal investigators lead the research projects, overseeing the study design, implementation, and data collection. They ensure the research adheres to ethical standards and provides valuable insights into diabetes management.' as contents;
     SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-    SELECT * from drh_investigator_data;
+    SELECT * from drh_investigator;
 
     SELECT
       'text' as component,
@@ -311,7 +311,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'The researchers and investigators are associated with various institutions, including universities, research institutes, and hospitals. These institutions provide the necessary resources, facilities, and support for conducting high-quality research. Each institution brings its unique strengths and expertise to the collaborative research efforts.' as contents;
     SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-    SELECT * from drh_institution_data;
+    SELECT * from drh_institution;
 
 
     SELECT
@@ -320,7 +320,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'Within these institutions, specialized labs are equipped with state-of-the-art technology to conduct diabetes research. These labs focus on different aspects of diabetes studies, such as glucose monitoring, metabolic analysis, and data processing. They play a critical role in executing experiments, analyzing samples, and generating data that drive research conclusions.' as contents;
     SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-    SELECT * from drh_lab_data;
+    SELECT * from drh_lab;
 
 
 
@@ -334,7 +334,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     siblingOrder: 5,
   })
   "drh/study-related-data/index.sql"() {
-    const viewName = `drh_participant_data`;
+    const viewName = `drh_participant`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
   ${this.activePageTitle()}
@@ -357,7 +357,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   ' as contents_md;
 
   SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_study_data;
+  SELECT * from drh_study;
 
 
       SELECT
@@ -378,7 +378,7 @@ Research sites are locations where the studies are conducted. They include clini
       ' as contents_md;
 
       SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-      SELECT * from drh_site_data;
+      SELECT * from drh_site;
 
 
 
@@ -391,7 +391,7 @@ Research sites are locations where the studies are conducted. They include clini
     siblingOrder: 6,
   })
   "drh/uniform-resource-participant.sql"() {
-    const viewName = `drh_participant_data`;
+    const viewName = `drh_participant`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
     ${this.activePageTitle()}
@@ -441,7 +441,7 @@ This section contains information about the authors involved in study publicatio
       ' as contents_md;
 
   SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_author_data;
+  SELECT * from drh_author;
   SELECT
   'text' as component,
   '
@@ -461,7 +461,7 @@ This section provides information about the publications resulting from a study.
   ' as contents_md;
 
   SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows;
-  SELECT * from drh_publication_data;
+  SELECT * from drh_publication;
 
 
       `;
@@ -694,14 +694,14 @@ select
       'MRN: ' || participant_id || '' AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       'Study: ' || study_arm || '' AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   
@@ -709,28 +709,28 @@ select
       'Age: '|| age || ' Years' AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       'hba1c: ' || baseline_hba1c || '' AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       'BMI: '|| bmi || '' AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
       'Diabetes Type: '|| diabetes_type || ''  AS title,
       ' ' AS description
   FROM
-      drh_participant_data
+      drh_participant
   WHERE participant_id = $participant_id;
 
   SELECT
@@ -766,7 +766,7 @@ select
     siblingOrder: 12,
   })
   "drh/study-participant-dashboard/index.sql"() {
-    const viewName = `drh_participant_data`;
+    const viewName = `drh_participant`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
   ${this.activePageTitle()}
@@ -987,7 +987,7 @@ SELECT
     siblingOrder: 19,
   })
   "drh/participant-related-data/index.sql"() {
-    const viewName = `drh_participant_data`;
+    const viewName = `drh_participant`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
   ${this.activePageTitle()}
