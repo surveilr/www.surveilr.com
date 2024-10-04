@@ -37,7 +37,7 @@ CREATE TABLE "code_notebook_kernel" (
 
 | Name                    | Type      | Default           | Nullable | Children                                    | Comment                                                                                            |
 | ----------------------- | --------- | ----------------- | -------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| code_notebook_kernel_id | VARCHAR   |                   | false    | [code_notebook_cell](/surveilr/reference/db/surveilr-code-notebooks-schema/code_notebook_cell) | code_notebook_kernel primary key and internal label (not a ULID)                                   |
+| code_notebook_kernel_id | VARCHAR   |                   | false    | [code_notebook_cell](/docs/standard-library/notebooks-schema/code_notebook_cell) | code_notebook_kernel primary key and internal label (not a ULID)                                   |
 | kernel_name             | TEXT      |                   | false    |                                             | the kernel name for human/display use cases                                                        |
 | description             | TEXT      |                   | true     |                                             | any further description of the kernel for human/display use cases                                  |
 | mime_type               | TEXT      |                   | true     |                                             | MIME type of this kernel's code in case it will be served                                          |

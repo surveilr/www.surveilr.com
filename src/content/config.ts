@@ -75,6 +75,7 @@ const blogCollection = defineCollection({
       cardImageAlt: z.string(),
       readTime: z.number(),
       tags: z.array(z.string()).optional(),
+      metaTitle: z.string().optional(),
     }),
 });
 

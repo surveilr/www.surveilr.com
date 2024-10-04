@@ -21,7 +21,7 @@ CREATE TABLE "gender_type" (
 
 | Name       | Type        | Default           | Nullable | Children                                                      | Comment |
 | ---------- | ----------- | ----------------- | -------- | ------------------------------------------------------------- | ------- |
-| code       | TEXT        |                   | false    | [person](/surveilr/reference/db/surveilr-state-schema/person) |         |
+| code       | TEXT        |                   | false    | [person](/docs/standard-library/rssd-schema/person) |         |
 | value      | TEXT        |                   | false    |                                                               |         |
 | created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                               |         |
 

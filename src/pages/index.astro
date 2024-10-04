@@ -33,71 +33,14 @@ const pageTitle: string =
   "Compliance Evidence Automation for Continuous Security - Surveilr";
 const pageDescription: string =
   "Automate compliance evidence for continuous security with Surveilr’s free secure, auditable, and local-first solutions.";
-const structuredData = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Compliance Evidence Automation for Continuous Security - Surveilr",
-    alternateName: "Surveilr",
-    url: "https://www.surveilr.com/",
-    logo: "https://www.surveilr.com/_astro/surveilr-logo-with-text-264x66px.CdbY10CM_ZAn8Qa.webp",
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Compliance Evidence Automation for Continuous Security - Surveilr",
-    description:
-      "Automate compliance evidence for continuous security with Surveilr’s free secure, auditable, and local-first solutions.",
-    url: "https://www.surveilr.com/",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: "https://www.surveilr.com/{search_term_string}",
-      "query-input": "required name=search_term_string",
-    },
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Home",
-    url: "https://www.surveilr.com/",
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Docs",
-    url: "https://www.surveilr.com/docs",
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Patterns",
-    url: "https://www.surveilr.com/pattern",
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Services",
-    url: "https://www.surveilr.com/services",
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Blog",
-    url: "https://www.surveilr.com/blog",
-  },
-  {
-    "@context": "https://schema.org/",
-    "@type": "SiteNavigationElement",
-    "@id": "https://www.surveilr.com/",
-    name: "Contact",
-    url: "https://www.surveilr.com/contact",
-  },
-];
+const structuredData: object = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Compliance Evidence Automation for Continuous Security - Surveilr",
+  alternateName: "Surveilr",
+  url: "https://www.surveilr.com/",
+  logo: "https://www.surveilr.com/_astro/surveilr-logo-with-text-264x66px.CdbY10CM_ZAn8Qa.webp",
+};
 ---
 
 <MainLayout

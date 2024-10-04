@@ -35,8 +35,8 @@ CREATE TABLE "device_party_relationship" (
 | Name                         | Type        | Default           | Nullable | Parents                                                       | Comment                                                 |
 | ---------------------------- | ----------- | ----------------- | -------- | ------------------------------------------------------------- | ------------------------------------------------------- |
 | device_party_relationship_id | VARCHAR     |                   | false    |                                                               | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| device_id                    | VARCHAR     |                   | false    | [device](/surveilr/reference/db/surveilr-state-schema/device) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
-| party_id                     | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| device_id                    | VARCHAR     |                   | false    | [device](/docs/standard-library/rssd-schema/device) | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
+| party_id                     | VARCHAR     |                   | false    | [party](/docs/standard-library/rssd-schema/party)   | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}       |
 | elaboration                  | TEXT        |                   | true     |                                                               | {"isSqlDomainZodDescrMeta":true,"isJsonText":true}      |
 | created_at                   | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                               |                                                         |
 | created_by                   | TEXT        | 'UNKNOWN'         | true     |                                                               |                                                         |

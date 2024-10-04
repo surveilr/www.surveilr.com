@@ -30,9 +30,10 @@ into the target RSSD as shown below:
    $ surveilr ingest files --dry-run -r <PATHNAME> -r <PATHNAME>
    ```
 
-:::tip[Did you know?] You can
-[configure unique identifiers](/surveilr/reference/concepts/resource-surveillance#configuring-unique-identifiers-for-rssd-databases)
-for `RSSD`s :::
+:::tip[Did you know?] 
+You can [configure unique identifiers](/docs/core/concepts/resource-surveillance#configuring-unique-identifiers-for-rssd-databases)
+for `RSSD`s 
+:::
 
 ## Performing File Ingestions
 

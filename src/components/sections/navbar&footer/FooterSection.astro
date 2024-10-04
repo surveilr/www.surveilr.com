@@ -1,12 +1,12 @@
 ---
 // Import the necessary dependencies
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 import FooterSocialLink from "@components/ui/links/FooterSocialLink.astro";
 import EmailFooterInput from "@components/ui/forms/input/EmailFooterInput.astro";
 import enStrings from "@utils/navigation.ts";
 import frStrings from "@utils/fr/navigation.ts";
 import Icon from "@components/ui/icons/Icon.astro";
-import BrandLogo from "@components/surveilr-logo-with-text-264x66px.png";
+import BrandLogo from "@components/surveilr-logo-with-tagline.png";
 import { SITE } from "@data/constants";
 import { exec } from "child_process";
 
@@ -35,24 +35,30 @@ function getLastCommitDate(filePath: string = "."): Promise<Date> {
 const repositoryPath = process.cwd();
 const lastCommitDate = await getLastCommitDate(repositoryPath);
 //const formattedDate = `Last commit date: ${lastCommitDate.toLocaleDateString()}`;
-const formattedDateTime = ` 🕰️ Publication created ${lastCommitDate.toLocaleString('en-US', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-  hour: 'numeric',
-  minute: '2-digit',
-  hour12: true
-}).replace(',', '').replace(' at', ' at')}.`;
-
+const formattedDateTime = ` 🕰️ Publication created ${lastCommitDate
+  .toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+  .replace(",", "")
+  .replace(" at", " at")}.`;
 
 // Select the correct translation based on the page's lang prop:
 const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
 
 // Define the variables that will be used in this component
-const sectionThreeTitle: string = Astro.currentLocale === "fr" ? "Rester à jour" : "Stay up to date";
-const sectionThreeContent: string = Astro.currentLocale === "fr" ? "Restez informé des derniers outils et des offres exclusives." :
-  "Stay updated with the latest tools and exclusive deals.";
-const crafted: string = Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafted by";
+const sectionThreeTitle: string =
+  Astro.currentLocale === "fr" ? "Rester à jour" : "Stay up to date";
+const sectionThreeContent: string =
+  Astro.currentLocale === "fr"
+    ? "Restez informé des derniers outils et des offres exclusives."
+    : "Stay updated with the latest tools and exclusive deals.";
+const crafted: string =
+  Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafted by";
 ---
 
 <footer class="w-full bg-neutral-300 dark:bg-neutral-900">
@@ -62,7 +68,7 @@ const crafted: string = Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafte
     <div class="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5">
       <div class="col-span-full lg:col-span-1">
         <!-- Brand Logo -->
-        <Image src={BrandLogo} alt="surveilr logo"/>
+        <Image src={BrandLogo} alt="surveilr logo" />
       </div>
       <!-- An array of links for Pattern and Company sections -->
       {
@@ -111,20 +117,22 @@ const crafted: string = Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafte
     >
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          © <span id="current-year"></span> {SITE.organization}. {crafted} 
+          © <span id="current-year"></span>
+          {SITE.organization}. {crafted}
           <a
             class="rounded-lg font-medium underline underline-offset-2 outline-none ring-zinc-500 transition duration-300 hover:text-neutral-700 hover:decoration-dashed focus:outline-none focus-visible:ring dark:ring-zinc-200 dark:hover:text-neutral-300"
             href="https://shahidshah.com"
             target="_blank"
-            rel="noopener noreferrer">{SITE.author}</a>.
-            <span>{formattedDateTime}</span>
+            rel="noopener noreferrer">{SITE.author}</a
+          >.
+          <span>{formattedDateTime}</span>
         </p>
       </div>
 
       <!-- Social Brands -->
       <div>
-        <FooterSocialLink url={strings.socialLinks.facebook}
-          ><Icon name="facebookFooter" />
+        <FooterSocialLink url={strings.socialLinks.linkedIn}
+          ><Icon name="linkedinFooter" />
         </FooterSocialLink>
 
         <FooterSocialLink url={strings.socialLinks.x}
@@ -139,8 +147,8 @@ const crafted: string = Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafte
           ><Icon name="googleFooter" />
         </FooterSocialLink>
 
-        <FooterSocialLink url={strings.socialLinks.slack}
-          ><Icon name="slackFooter" />
+        <FooterSocialLink url={strings.socialLinks.discord}
+          ><Icon name="discordFooter" />
         </FooterSocialLink>
       </div>
     </div>

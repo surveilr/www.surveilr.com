@@ -39,13 +39,13 @@ CREATE TABLE "person" (
 
 | Name               | Type        | Default           | Nullable | Parents                                                                 | Comment                                                            |
 | ------------------ | ----------- | ----------------- | -------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| person_id          | VARCHAR     |                   | false    | [party](/surveilr/reference/db/surveilr-state-schema/party)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                  |
+| person_id          | VARCHAR     |                   | false    | [party](/docs/standard-library/rssd-schema/party)             | {"isSqlDomainZodDescrMeta":true,"isVarChar":true}                  |
 | person_first_name  | TEXT        |                   | false    |                                                                         | The first name of the person.                                      |
 | person_middle_name | TEXT        |                   | true     |                                                                         | The middle name of the person, if applicable.                      |
 | person_last_name   | TEXT        |                   | false    |                                                                         | The last name of the person.                                       |
 | honorific_prefix   | TEXT        |                   | true     |                                                                         | An honorific prefix for the person, such as "Mr.", "Ms.", or "Dr." |
 | honorific_suffix   | TEXT        |                   | true     |                                                                         | An honorific suffix for the person, such as "Jr." or "Sr."         |
-| gender_id          | TEXT        |                   | false    | [gender_type](/surveilr/reference/db/surveilr-state-schema/gender_type) |                                                                    |
+| gender_id          | TEXT        |                   | false    | [gender_type](/docs/standard-library/rssd-schema/gender_type) |                                                                    |
 | elaboration        | TEXT        |                   | true     |                                                                         | Any elaboration needed for the person.                             |
 | created_at         | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                         |                                                                    |
 | created_by         | TEXT        | 'UNKNOWN'         | true     |                                                                         |                                                                    |

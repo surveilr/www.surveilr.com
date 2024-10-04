@@ -1,6 +1,7 @@
 ---
 title: "Evidence-Based Decision Making"
-description: "surveilr makes evidence-based decision making possible"
+metaTitle: "Unified Evidence-Based Decision Making Platform for Business Leaders"
+description: "Surveilr simplifies evidence-based decisions by organizing data into a secure, queryable format, helping executives and analysts make informed choices."
 author: "Shahid N. Shah"
 authorImage: "@/images/blog/shahid-shah.avif"
 authorImageAlt: "Avatar Description"

@@ -6,7 +6,14 @@ import FooterSection from "@components/sections/navbar&footer/FooterSection.astr
 import { SITE } from "@data/constants";
 
 // Setting expected props
-const { title = SITE.title, meta, structuredData, lang = "en" } = Astro.props;
+const {
+  title = SITE.title,
+  meta,
+  structuredData,
+  lang = "en",
+  metaTitle,
+  socialImage,
+} = Astro.props;
 
 // Interface to type-check the properties
 interface Props {
@@ -14,6 +21,8 @@ interface Props {
   meta?: string;
   structuredData?: object;
   lang?: string;
+  metaTitle?: string;
+  socialImage?: string;
 }
 ---
 
@@ -24,9 +33,18 @@ We set the language of the page to English and add classes for scrollbar and scr
 <html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
   <head>
     <!-- Adding metadata to the HTML document -->
-    <Meta meta={meta} structuredData={structuredData} />
+    <Meta
+      meta={meta}
+      structuredData={structuredData}
+      ogData={{
+        title: metaTitle || title,
+        description: meta,
+        url: Astro.url.href,
+        image: socialImage,
+      }}
+    />
     <!-- Define the title of the page -->
-    <title>{title}</title>
+    <title>{metaTitle || title}</title>
     <script is:inline>
       // Script to handle dark mode. It will check if the theme is stored in localStorage or if dark theme is preferred by system settings
       if (
@@ -42,10 +60,80 @@ We set the language of the page to English and add classes for scrollbar and scr
     <script>
       import "@scripts/lenisSmoothScroll.js";
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Website",
+        "name": " Compliance Evidence Automation for Continuous Security - Surveilr",
+        "description": "Automate compliance evidence for continuous security with Surveilr’s free secure, auditable, and local-first solutions.",
+        "url": "https://www.surveilr.com/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.surveilr.com/{search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Home",
+          "url": "https://www.surveilr.com/"
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Docs",
+          "url": "https://www.surveilr.com/docs"
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Patterns",
+          "url": "https://www.surveilr.com/pattern"
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Services",
+          "url": "https://www.surveilr.com/services"
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Blog",
+          "url": "https://www.surveilr.com/blog"
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.surveilr.com/",
+          "name": "Contact",
+          "url": "https://www.surveilr.com/contact"
+        }
+      ]
+    </script>
   </head>
   <body
     class="bg-neutral-200 selection:bg-yellow-400 selection:text-neutral-700 dark:bg-neutral-800"
   >
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-53HB45F9"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"></iframe></noscript
+    >
+    <!-- End Google Tag Manager (noscript) -->
+
     <!--
     Setting up the main structure of the page.
     The Navbar is placed at the top, with a slot for the main content and FooterSection at the bottom.

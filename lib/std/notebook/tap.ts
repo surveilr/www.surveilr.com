@@ -1,5 +1,5 @@
-import { callable as c, SQLa, yaml } from "../deps.ts";
-import { SurveilrSqlNotebook } from "./rssd.ts";
+import { callable as c, SQLa, ws, yaml } from "../deps.ts";
+import { SurveilrSqlNotebook, unindentedText } from "./rssd.ts";
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -38,7 +38,7 @@ export function isNotTestCase() {
 }
 
 /**
- * Decorator function to mark a test case as "skiped" in TAP.
+ * Decorator function to mark a test case as "skipped" in TAP.
  * @returns A decorator function that adds metadata to the method.
  *
  * @example
@@ -61,6 +61,197 @@ export function skip() {
   };
 }
 
+export class AssertThat<ColumnName extends string>
+  implements SQLa.SqlTextSupplier<SQLa.SqlEmitContext> {
+  readonly cases: {
+    readonly when: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+    readonly then: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext> | {
+      readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+      readonly diags: Record<string, unknown>;
+    };
+    readonly otherwise?:
+      | string
+      | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
+      | {
+        readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+        readonly diags: Record<string, unknown>;
+      };
+    readonly selectCaseExpr: (
+      index: string,
+    ) => SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+  }[] = [];
+
+  constructor(
+    readonly ctx: TestCaseContext,
+    readonly body: string,
+    readonly emitCtx: SQLa.SqlEmitContext,
+  ) {
+  }
+
+  diags(d: Record<string, unknown>) {
+    return yaml.stringify(d, { skipInvalid: true });
+  }
+
+  sqlExpr(
+    expr: number | string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
+    tcIndex: string,
+  ) {
+    return (typeof expr === "number"
+      ? String(expr)
+      : typeof expr === "string"
+      ? expr
+      : expr.SQL(this.emitCtx))
+      .replaceAll("tcIndex", String(tcIndex));
+  }
+
+  sqlExprOrLiteral(
+    suppliedExpr:
+      | number
+      | string
+      | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
+      | {
+        readonly expr:
+          | number
+          | string
+          | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+      },
+    tcIndex: string,
+  ) {
+    const e = typeof suppliedExpr === "object" && "expr" in suppliedExpr
+      ? suppliedExpr.expr
+      : suppliedExpr;
+    return (typeof e === "number"
+      ? String(e)
+      : typeof e === "string"
+      ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+      : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex));
+  }
+
+  selectCaseExpr(
+    when: typeof this.cases[number]["when"],
+    then: typeof this.cases[number]["then"],
+    otherwise?: typeof this.cases[number]["otherwise"],
+  ) {
+    const exprOrLit = (
+      state: string,
+      suppliedExpr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext> | {
+        readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+        readonly diags: Record<string, unknown>;
+      },
+      tcIndex: string,
+    ) => {
+      const [_, d] = typeof suppliedExpr === "object" && "expr" in suppliedExpr
+        ? [suppliedExpr.expr, suppliedExpr.diags]
+        : [suppliedExpr, undefined];
+      const expr = `'${state} ${tcIndex} ' || (` +
+        this.sqlExprOrLiteral(suppliedExpr, tcIndex) + ")";
+      return d
+        ? `${expr} || ${
+          SQLa.typicalQuotedSqlLiteral(
+            `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
+          )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+        }`
+        : expr;
+    };
+    return (index: string) => ({
+      SQL: () =>
+        `SELECT CASE WHEN ${this.sqlExpr(when, index)} THEN ${
+          exprOrLit("ok", then, index)
+        } ELSE ${
+          exprOrLit("not ok", otherwise ?? then, index)
+        } END AS ${this.ctx.tapResultColName} FROM test_case`,
+    });
+  }
+
+  SQL() {
+    // deno-fmt-ignore
+    return unindentedText`
+    -- ${this.ctx.index}: ${this.ctx.name}
+    "${this.ctx.name}" AS (
+      WITH test_case AS (
+        ${this.body}
+      )
+      ${this.cases.map((tc, subTcIndex) => tc.selectCaseExpr(this.cases.length > 1 ? `${this.ctx.index}.${subTcIndex + 1}` : String(this.ctx.index)).SQL(this.emitCtx)).join("\nUNION ALL\n")}
+    )`;
+  }
+
+  case(
+    when: typeof this.cases[number]["when"],
+    then: typeof this.cases[number]["then"],
+    otherwise?: typeof this.cases[number]["otherwise"],
+  ) {
+    this.ctx.casesCount++;
+    const c = {
+      when,
+      then,
+      otherwise,
+      selectCaseExpr: this.selectCaseExpr(when, then, otherwise),
+    };
+    this.cases.push(c);
+    return this; // we use the builder pattern for fluent assertions
+  }
+
+  equals(
+    colName: ColumnName,
+    value: number | string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
+  ) {
+    this.case(
+      `${colName} = ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} is ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} should be ${
+        this.sqlExpr(value, String(this.ctx.index))
+      }, is \` || ${colName} || \` instead`,
+    );
+    return this; // we use the builder pattern for fluent assertions
+  }
+
+  greaterThan(
+    colName: ColumnName,
+    value: number | string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
+  ) {
+    this.case(
+      `${colName} > ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} is greater than ${
+        this.sqlExpr(value, String(this.ctx.index))
+      }`,
+      `${colName} should be greater than ${
+        this.sqlExpr(value, String(this.ctx.index))
+      }, is \` || ${colName} || \` instead`,
+    );
+    return this; // return this to chain calls
+  }
+
+  lessThan(
+    colName: ColumnName,
+    value: number | string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
+  ) {
+    this.case(
+      `${colName} < ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} is less than ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} should be less than ${
+        this.sqlExpr(value, String(this.ctx.index))
+      }, is \` || ${colName} || \` instead`,
+    );
+    return this; // return this to chain calls
+  }
+
+  startsWith(
+    colName: ColumnName,
+    value: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
+  ) {
+    this.case(
+      `${colName} LIKE '${this.sqlExpr(value, String(this.ctx.index))}%'`,
+      `${colName} starts with ${this.sqlExpr(value, String(this.ctx.index))}`,
+      `${colName} should start with ${
+        this.sqlExpr(value, String(this.ctx.index))
+      }, is \` || ${colName} || \` instead`,
+    );
+    return this; // return this to chain calls
+  }
+}
+
+export type TestCaseContext = ReturnType<TestSuiteNotebook["testCaseContext"]>;
+
 /**
  * Represents a Test Anything Protocol (TAP) notebook base class that generates
  * SQL for `surveilr` tap test views to handle SQL-focused unit and integration
@@ -76,110 +267,16 @@ export function skip() {
  *   SQL statements that will be included before any of the tests are performed
  *   (e.g. "test setup").
  *
- * ### Example Usage
- *
- * ```typescript
- * class MyTestSuite extends TestSuiteNotebook {
- *   // because this method ends in `DDL` it means it'll be emitted before tests
- *   setupDDL() {
- *      return this.SQL`
- *        -- Create a table for testing purposes
- *        CREATE TABLE users (
- *          id INTEGER PRIMARY KEY AUTOINCREMENT,
- *          name TEXT NOT NULL,
- *          age INTEGER NOT NULL
- *        );
- *        -- Insert some sample data into the table
- *        INSERT INTO users (name, age) VALUES ('Alice', 30);
- *        INSERT INTO users (name, age) VALUES ('Bob', 25);
- *      `;
- *   }
- *
- *   // because this is not decorated with @isNotTestCase() it will be a test case;
- *   // simple single-clause assertion with SQL expression and "pass" message;
- *   // automatically generates "fail" message
- *   first_test() {
- *     return this.assertThat`
- *        SELECT COUNT(*) AS user_count
- *          FROM users
- *         WHERE name = 'Alice'`
- *       .case(`user_count = 1`, `User "Alice" exists in the table`);
- *   }
- *
- *   // because this is decorated with @isNotTestCase() it will be a regular method
- *   @isNotTestCase()
- *   aUsefulMethod() {
- *     // whatever you want
- *   }
- * 
- *   // because this is not decorated with @isNotTestCase() it will be a test case;
- *   // simple single-clause assertion with SQL expression with separate pass
- *   // and fail messages
- *   second_test() {
- *     return this.assertThat`
- *        SELECT COUNT(*) AS user_count
- *          FROM users
- *         WHERE name = 'Charlie'`
- *        .case(`user_count = 1`, `User "Charlie" exists in the table`,
- *              `User "Charlie" does not exist in the table # TODO: Implement user creation for "Charlie"`),
- *   }
- *
- *   // because it's decorated with @skip() will be a marked as a "skipped" test case
- *   @skip()
- *   third_test_skip() {
- *     return this.skip(`
- *        SELECT COUNT(*) AS user_count
- *          FROM users
- *         WHERE name = 'Eve'`,
- *        `Skipping test for user "Eve"`);
- *   }
- *
- *   // because this is not decorated with @isNotTestCase() it will be a test case;
- *   // multiple assertions, first with TAP `---` attributes
- *   last_test() {
- *     return
- *       this.assertThat`
- *         SELECT age, LENGTH(name) AS name_length
- *           FROM users
- *          WHERE name = 'Bob'`
- *         .case(`age = 25`, `"Bob" is 25 years old`,
- *               { expr: `"Bob" is not 25 years old`,
- *                 diags: { 
- *                   'expected' : 25,
- *                   'got': "` || age || `", // `...` signifies "break out of SQL literal"
- *                 }
- *               })
- *         .case(`name_length = 3`, `"Bob" has a 3-character name`);
- *   }
- * }
- *
- * // Create an instance of the notebook
- * const notebook = new MyTestSuite();
- *
- * // Generate SQL statements from the notebook methods
- * const sqlStatements = await TestSuiteNotebook.SQL(notebook);
- *
- * // Outputs SQL including the test suite TAP wrapper
- * console.log(sqlStatements);
- * ```
- *
- * ### Fetching and Using External Code
- *
- * The `TestSuiteNotebook` class also provides utility functions, such as `fetchText()`, to fetch external
- * code or data that can be used within the notebook's cells, making it flexible and extensible for various
- * use cases.
- *
- * @example
- * // Example for fetching external code
- * const externalCode = await TestSuiteNotebook.fetchText("https://example.com/code.sql");
- * console.log(externalCode);
- * ```
+ * @see lib/cookbook/tap.sql.ts for an example
  */
 export class TestSuiteNotebook
   extends SurveilrSqlNotebook<SQLa.SqlEmitContext> {
   readonly methodIsNotTestCase: Set<string> = new Set();
   readonly tapSkipMethodNames: Set<string> = new Set();
-  constructor(readonly notebookName: string) {
+  constructor(
+    readonly notebookName: string,
+    readonly tapResultColName = "tap_result",
+  ) {
     super();
   }
 
@@ -187,100 +284,56 @@ export class TestSuiteNotebook
     return yaml.stringify(d, { skipInvalid: true });
   }
 
-  get assertThat() {
-    const cases: {
-      readonly when: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-      readonly then: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext> | {
-        readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-        readonly diags: Record<string, unknown>;
-      };
-      readonly otherwise?:
-        | string
-        | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
-        | {
-          readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-          readonly diags: Record<string, unknown>;
-        };
-      readonly selectCaseExpr: (
-        index: string,
-      ) => SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-    }[] = [];
+  testCaseContext(name: string, index: number) {
+    return {
+      name,
+      index,
+      casesCount: 0,
+      tapResultColName: this.tapResultColName,
+    };
+  }
+
+  /**
+   * Generate the SQL for an individual Test Case clause that is part of the
+   * "master" Test Suite CTE.
+   * @param ctx which test case is being generated
+   * @returns a string template literal which supplies the SQL and is wrapped in the CTE
+   */
+  testCase(ctx: TestCaseContext) {
     return (
       ...args: Parameters<ReturnType<typeof SQLa.SQL<SQLa.SqlEmitContext>>>
     ) => {
-      const SQL = (tcName: string, tcIndex: number) => {
-        const testCaseBodySQL = SQLa.SQL<SQLa.SqlEmitContext>(this.ddlOptions)(
-          ...args,
-        );
-        // deno-fmt-ignore
-        return this.SQL`
-            -- ${tcIndex}: ${tcName}
-            "${tcName}" AS (
-              WITH test_case AS (
-                ${testCaseBodySQL.SQL(this.emitCtx)}
-              )
-              ${cases.map((tc, index) => tc.selectCaseExpr(cases.length > 1 ? `${tcIndex}.${index+1}` : String(tcIndex)).SQL(this.emitCtx)).join("\nUNION ALL\n")}
-            )`.SQL(this.emitCtx);
-      };
-      const result = {
-        isAssertion: true,
-        SQL,
-        cases,
-        case: (
-          when: typeof cases[number]["when"],
-          then: typeof cases[number]["then"],
-          otherwise?: typeof cases[number]["otherwise"],
-        ) => {
-          const expr = (
-            expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>,
-            tcIndex: string,
-          ) => {
-            return (typeof expr === "string" ? expr : expr.SQL(this.emitCtx))
-              .replaceAll("tcIndex", String(tcIndex));
-          };
-          const exprOrLit = (
-            state: string,
-            suppliedExpr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext> | {
-              readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-              readonly diags: Record<string, unknown>;
-            },
-            tcIndex: string,
-          ) => {
-            const [e, d] =
-              typeof suppliedExpr === "object" && "expr" in suppliedExpr
-                ? [suppliedExpr.expr, suppliedExpr.diags]
-                : [suppliedExpr, undefined];
-            const expr = `'${state} ${tcIndex} ' || (` +
-              (typeof e === "string"
-                ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
-                : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex)) +
-              ")";
-            return d
-              ? `${expr} || ${
-                SQLa.typicalQuotedSqlLiteral(
-                  `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
-                )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
-              }`
-              : expr;
-          };
-          cases.push({
-            when,
-            then,
-            otherwise,
-            selectCaseExpr: (index) => ({
-              SQL: () =>
-                `SELECT CASE WHEN ${expr(when, index)} THEN ${
-                  exprOrLit("ok", then, index)
-                } ELSE ${
-                  exprOrLit("not ok", otherwise ?? then, index)
-                } END AS tap_result FROM test_case`,
-            }),
-          });
-          // use "builder" pattern to chain multiple `.case` so return the object
-          return result;
-        },
-      };
-      return result;
+      const testCaseBodySQL = SQLa.SQL<SQLa.SqlEmitContext>(this.ddlOptions)(
+        ...args,
+      );
+      ctx.casesCount++;
+      // deno-fmt-ignore
+      return this.SQL`
+        -- ${ctx.index}: ${ctx.name}
+        "${ctx.name}" AS (
+          ${ws.unindentWhitespace(testCaseBodySQL.SQL(this.emitCtx), true)}
+        )`;
+    };
+  }
+
+  /**
+   * Generate the SQL for an individual Test Case clause that is part of the
+   * "master" Test Suite CTE when the one or more fluent assertions are implemented
+   * as CASE statements.
+   * @param ctx which test case is being generated
+   * @returns a string template literal which supplies the SQL and is wrapped in the CTE
+   */
+  assertThat<ColumnName extends string>(ctx: TestCaseContext) {
+    return (
+      ...args: Parameters<ReturnType<typeof SQLa.SQL<SQLa.SqlEmitContext>>>
+    ) => {
+      return new AssertThat<ColumnName>(
+        ctx,
+        SQLa.SQL<SQLa.SqlEmitContext>(this.ddlOptions)(...args).SQL(
+          this.emitCtx,
+        ),
+        this.emitCtx,
+      );
     };
   }
 
@@ -312,48 +365,61 @@ export class TestSuiteNotebook
       ),
     );
 
+    // test case methods are those that don't have @isNotTestCase are are not
+    // methods that end in SQL, DQL, DML or DDL
+    const testCaseMethods = cc.filter({
+      include: (c, instance) =>
+        instance.methodIsNotTestCase.has(String(c))
+          ? false
+          : arbitrarySqlStmtRegEx.test(String(c)) == false,
+    });
+
     const testCases = await Promise.all(
-      cc.filter({
-        include: (c, instance) =>
-          instance.methodIsNotTestCase.has(String(c))
-            ? false
-            : arbitrarySqlStmtRegEx.test(String(c)) == false,
-      }).map(
-        async (c) => {
-          const assertion = await c.call() as ReturnType<
-            TestSuiteNotebook["assertThat"]
+      testCaseMethods.map(
+        async (c, index) => {
+          // NOTE: ctx is mutatable (especially the ctx.casesCount)
+          const ctx = c.source.instance.testCaseContext(
+            String(c.callable),
+            index,
+          );
+          const body = await c.call(ctx) as SQLa.SqlTextSupplier<
+            SQLa.SqlEmitContext
           >;
           return {
+            ctx,
             notebook: c.source.instance,
-            tcName: String(c.callable),
-            friendlyName: String(c.callable).replace(/_test$/, ""),
-            assertion,
-            isValid: typeof assertion === "object" && assertion["isAssertion"],
+            name: String(c.callable),
+            body,
           };
         },
       ),
     );
 
-    const valid = testCases.filter((tc) => tc.isValid);
+    const valid = testCases.filter((tc) => SQLa.isSqlTextSupplier(tc.body));
     const totalCases = valid.reduce(
-      (total, tc) => total + tc.assertion.cases.length,
+      (total, tc) => total + tc.ctx.casesCount,
       0,
     );
+
+    const defaultNB = sources[0];
+    const viewName = defaultNB?.notebookName;
+    const tapResultColName = defaultNB?.tapResultColName;
 
     // deno-fmt-ignore
     return [
       ...arbitrarySqlStmts,
-      ...testCases.filter((tc) => !tc.isValid).map(tc => `-- Test Case "${tc.tcName}" did not return an assertThat instance (is ${typeof tc.assertion} instead)`),
-      `CREATE VIEW "${sources[0]?.notebookName}" AS`,
+      ...testCases.filter((tc) => !SQLa.isSqlTextSupplier(tc.body)).map(tc => `-- Test Case "${tc.name}" did not return SqlTextSupplier instance (is ${typeof tc.body} instead)`),
+      `DROP VIEW IF EXISTS "${viewName}";`,
+      `CREATE VIEW "${viewName}" AS`,
       `    WITH`,
-      `        tap_version AS (SELECT 'TAP version 14' AS tap_result),`,
-      `        tap_plan AS (SELECT '1..${totalCases}' AS tap_result),`,
-      `        ${valid.map((tc, index) => tc.assertion.SQL(tc.tcName, index + 1))}`,
-      `    SELECT tap_result FROM tap_version`,
+      `        tap_version AS (SELECT 'TAP version 14' AS ${tapResultColName}),`,
+      `        tap_plan AS (SELECT '1..${totalCases}' AS ${tapResultColName}),`,
+      `        ${valid.map((tc) => tc.body.SQL(defaultNB.emitCtx)).join(",\n  ")}`,
+      `    SELECT ${tapResultColName} FROM tap_version`,
       `    UNION ALL`,
-      `    SELECT tap_result FROM tap_plan`,
+      `    SELECT ${tapResultColName} FROM tap_plan`,
       `    UNION ALL`,
-      `    ${valid.map((tc) => `SELECT tap_result FROM "${tc.tcName}"`).join("\n    UNION ALL\n")};`,
+      `    ${valid.map((tc) => `SELECT ${tapResultColName} FROM "${tc.name}"`).join("\n    UNION ALL\n")};`,
     ];
   }
 }

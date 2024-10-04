@@ -24,17 +24,17 @@ const footerLinks = [
       { name: "About Netspective", url: "https://www.netspective.com" },
       { name: "About Opsfolio", url: "https://www.opsfolio.com" },
       { name: "Blog", url: "/blog" },
-      { name: "Discord", url: "#" },
+      { name: "Discord", url: "https://discord.gg/fYHv3zzB" },
     ],
   },
 ];
 // An object of links for social icons
 const socialLinks = {
-  facebook: "https://www.facebook.com/",
-  x: "https://twitter.com/",
-  github: "https://github.com/mearashadowfax/ScrewFast",
-  google: "https://www.google.com/",
-  slack: "https://slack.com/",
+  linkedIn: "https://www.linkedin.com/company/netspective-communications-llc",
+  x: "https://twitter.com/netspective",
+  github: "https://github.com/surveilr",
+  google: "https://plus.google.com/+Netspective",
+  discord: "https://discord.gg/fYHv3zzB",
 };
 
 export default {
