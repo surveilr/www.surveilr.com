@@ -8,6 +8,7 @@ import {
   spawnedResult,
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
+import { createCombinedView } from './combined-cgm-tracing-generator.ts'; // Adjust the path accordingly
 
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
@@ -33,6 +34,32 @@ async function fetchSqlContent(url: string): Promise<string> {
   }
 }
 
+
+// Function to check for table existence and create combined view
+async function checkAndCreateCombinedView() {
+  const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
+  const db = new DB(dbFilePath);
+
+  try {
+    // Check if the specific table exists
+    const tableName = 'uniform_resource_cgm_file_metadata'; // Change to your required table name
+    const tableExists = db.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`).length > 0;
+    
+
+    if (tableExists) {
+        console.log(colors.green("Required table exists. Proceeding to create the combined view."));
+        await createCombinedView(); // Call the function to create the combined view
+      
+    } else {
+      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
+    }
+  } catch (error) {
+    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
+  } finally {
+    // Close the database connection
+    db.close();
+  }
+}
 // Helper function to execute a command
 async function executeCommand(
   cmd: string[],
@@ -175,6 +202,15 @@ try {
   );
 } catch (error) {
   console.error(colors.red("Error transforming CSV files:"), error.message);
+  Deno.exit(1);
+}
+
+try {
+  console.log(colors.dim(`Generate combined views: ${folderName}...`));
+  checkAndCreateCombinedView(); 
+  console.log(colors.green("View generation completed successfully."));
+} catch (error) {
+  console.error(colors.red("Error during View generation:"), error.message);
   Deno.exit(1);
 }
 
