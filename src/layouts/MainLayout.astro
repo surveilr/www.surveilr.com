@@ -12,6 +12,7 @@ const {
   structuredData,
   lang = "en",
   metaTitle,
+  socialImage,
 } = Astro.props;
 
 // Interface to type-check the properties
@@ -21,6 +22,7 @@ interface Props {
   structuredData?: object;
   lang?: string;
   metaTitle?: string;
+  socialImage?: string;
 }
 ---
 
@@ -31,7 +33,16 @@ We set the language of the page to English and add classes for scrollbar and scr
 <html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
   <head>
     <!-- Adding metadata to the HTML document -->
-    <Meta meta={meta} structuredData={structuredData} />
+    <Meta
+      meta={meta}
+      structuredData={structuredData}
+      ogData={{
+        title: metaTitle || title,
+        description: meta,
+        url: Astro.url.href,
+        image: socialImage,
+      }}
+    />
     <!-- Define the title of the page -->
     <title>{metaTitle || title}</title>
     <script is:inline>
