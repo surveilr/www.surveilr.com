@@ -240,15 +240,15 @@ FROM sqlite_master
 WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
 
-DROP VIEW IF EXISTS drh_participant_file_names;
-CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
-SELECT
-  patient_id,
-  GROUP_CONCAT(file_name, ', ') AS file_names
-FROM
-  uniform_resource_cgm_file_metadata
-GROUP BY
-  patient_id;
+-- DROP VIEW IF EXISTS drh_participant_file_names;
+-- CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
+-- SELECT
+--   patient_id,
+--   GROUP_CONCAT(file_name, ', ') AS file_names
+-- FROM
+--   uniform_resource_cgm_file_metadata
+-- GROUP BY
+--   patient_id;
 
 DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW drh_study_vanity_metrics_details AS
