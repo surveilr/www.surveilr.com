@@ -20,6 +20,6 @@ Ease development using `watch` mode:
 $ ./surveilrctl.ts dev
 ```
 
-The above would start a `surveilr` web server instance and automatically reload all
-`*.sql*` files so you can just save from your IDE and refresh the web page to
-see changes.
+The above would start a `surveilr` web server instance and automatically reload
+all `*.sql*` files so you can just save from your IDE and refresh the web page
+to see changes.

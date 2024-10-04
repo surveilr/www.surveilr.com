@@ -81,10 +81,10 @@ messages are appropriately processed and stored for further analysis.
 
 # `surveilr` Direct Messaging Service Patterns
 
-- `stateless.sql` script focuses on creating views that define how
-  to extract and present specific direct messaging data from the
-  `uniform_resource.content` JSONB column. It does not modify or store any
-  persistent data; it only sets up views for querying.
+- `stateless.sql` script focuses on creating views that define how to extract
+  and present specific direct messaging data from the `uniform_resource.content`
+  JSONB column. It does not modify or store any persistent data; it only sets up
+  views for querying.
 
 ## Try it out on any device without this repo (if you're just using the SQL scripts)
 
