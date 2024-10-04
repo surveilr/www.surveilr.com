@@ -70,12 +70,12 @@ export class AssertThat<ColumnName extends string>
       readonly diags: Record<string, unknown>;
     };
     readonly otherwise?:
-      | string
-      | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
-      | {
-        readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-        readonly diags: Record<string, unknown>;
-      };
+    | string
+    | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
+    | {
+      readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+      readonly diags: Record<string, unknown>;
+    };
     readonly selectCaseExpr: (
       index: string,
     ) => SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
@@ -99,8 +99,8 @@ export class AssertThat<ColumnName extends string>
     return (typeof expr === "number"
       ? String(expr)
       : typeof expr === "string"
-      ? expr
-      : expr.SQL(this.emitCtx))
+        ? expr
+        : expr.SQL(this.emitCtx))
       .replaceAll("tcIndex", String(tcIndex));
   }
 
@@ -111,9 +111,9 @@ export class AssertThat<ColumnName extends string>
       | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
       | {
         readonly expr:
-          | number
-          | string
-          | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+        | number
+        | string
+        | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
       },
     tcIndex: string,
   ) {
@@ -123,8 +123,8 @@ export class AssertThat<ColumnName extends string>
     return (typeof e === "number"
       ? String(e)
       : typeof e === "string"
-      ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
-      : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex));
+        ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+        : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex));
   }
 
   selectCaseExpr(
@@ -146,19 +146,16 @@ export class AssertThat<ColumnName extends string>
       const expr = `'${state} ${tcIndex} ' || (` +
         this.sqlExprOrLiteral(suppliedExpr, tcIndex) + ")";
       return d
-        ? `${expr} || ${
-          SQLa.typicalQuotedSqlLiteral(
-            `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
-          )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+        ? `${expr} || ${SQLa.typicalQuotedSqlLiteral(
+          `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
+        )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
         }`
         : expr;
     };
     return (index: string) => ({
       SQL: () =>
-        `SELECT CASE WHEN ${this.sqlExpr(when, index)} THEN ${
-          exprOrLit("ok", then, index)
-        } ELSE ${
-          exprOrLit("not ok", otherwise ?? then, index)
+        `SELECT CASE WHEN ${this.sqlExpr(when, index)} THEN ${exprOrLit("ok", then, index)
+        } ELSE ${exprOrLit("not ok", otherwise ?? then, index)
         } END AS ${this.ctx.tapResultColName} FROM test_case`,
     });
   }
@@ -171,7 +168,7 @@ export class AssertThat<ColumnName extends string>
       WITH test_case AS (
         ${this.body}
       )
-      ${this.cases.map((tc, subTcIndex) => tc.selectCaseExpr(this.cases.length > 1 ? `${this.ctx.index}.${subTcIndex+1}` : String(this.ctx.index)).SQL(this.emitCtx)).join("\nUNION ALL\n")}
+      ${this.cases.map((tc, subTcIndex) => tc.selectCaseExpr(this.cases.length > 1 ? `${this.ctx.index}.${subTcIndex + 1}` : String(this.ctx.index)).SQL(this.emitCtx)).join("\nUNION ALL\n")}
     )`;
   }
 
@@ -198,8 +195,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} = ${this.sqlExpr(value, String(this.ctx.index))}`,
       `${colName} is ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should be ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // we use the builder pattern for fluent assertions
@@ -211,11 +207,9 @@ export class AssertThat<ColumnName extends string>
   ) {
     this.case(
       `${colName} > ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} is greater than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} is greater than ${this.sqlExpr(value, String(this.ctx.index))
       }`,
-      `${colName} should be greater than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be greater than ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -228,8 +222,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} < ${this.sqlExpr(value, String(this.ctx.index))}`,
       `${colName} is less than ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should be less than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be less than ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -242,8 +235,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} LIKE '${this.sqlExpr(value, String(this.ctx.index))}%'`,
       `${colName} starts with ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should start with ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should start with ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -409,6 +401,7 @@ export class TestSuiteNotebook
     return [
       ...arbitrarySqlStmts,
       ...testCases.filter((tc) => !SQLa.isSqlTextSupplier(tc.body)).map(tc => `-- Test Case "${tc.name}" did not return SqlTextSupplier instance (is ${typeof tc.body} instead)`),
+      `DROP VIEW IF EXISTS "${viewName}";`,
       `CREATE VIEW "${viewName}" AS`,
       `    WITH`,
       `        tap_version AS (SELECT 'TAP version 14' AS ${tapResultColName}),`,
