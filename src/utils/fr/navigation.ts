@@ -27,11 +27,11 @@ const footerLinks = [
 ];
 
 const socialLinks = {
-  facebook: "#",
+  linkedIn: "#",
   x: "#",
   github: "https://github.com/mearashadowfax/ScrewFast",
   google: "#",
-  slack: "#",
+  discord: "#",
 };
 
 export default {
