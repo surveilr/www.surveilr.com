@@ -5,14 +5,14 @@
 
 - `package.sql.ts` script is the entry point used to generate SQL DDL and DML
   for typical database objects and Web UI content plus the following:
-  - `stateless.sql` script focuses on creating views that define how
-    to extract and present specific FHIR data from the `uniform_resource.content`
-    JSONB column. It does not modify or store any persistent data; it only sets up
+  - `stateless.sql` script focuses on creating views that define how to extract
+    and present specific FHIR data from the `uniform_resource.content` JSONB
+    column. It does not modify or store any persistent data; it only sets up
     views for querying.
-  - `orchestrate-stateful.sql` script is responsible for creating
-    tables that cache data extracted by views. These tables serve as "materialized
-    views", allowing for faster access to the data but are static. When new data
-    is ingested, the tables need to be dropped and recreated manually, and any
+  - `orchestrate-stateful.sql` script is responsible for creating tables that
+    cache data extracted by views. These tables serve as "materialized views",
+    allowing for faster access to the data but are static. When new data is
+    ingested, the tables need to be dropped and recreated manually, and any
     changes in the source data will not be reflected until the tables are
     refreshed.
 
@@ -49,8 +49,8 @@ tools, DBeaver, DataGrip, or any other SQLite data access tools.
 The typical `pattern/fhir-explorer/package.sql` will only create simple SQL
 convenience views on top of ingested data. On fast machines the simple SQL views
 will perform well. However, if performance is slow, you can apply
-`orchestrate-stateful.sql` which will add denormalized `*_cached`
-tables in `resource-surveillance.sqlite.db`.
+`orchestrate-stateful.sql` which will add denormalized `*_cached` tables in
+`resource-surveillance.sqlite.db`.
 
 ## Try it out in this repo (if you're developing SQL scripts)
 

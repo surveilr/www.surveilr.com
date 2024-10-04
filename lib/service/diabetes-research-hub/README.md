@@ -1,11 +1,11 @@
-# Surveilr Data Transformation and SQLPage Preview Guide 
+# Surveilr Data Transformation and SQLPage Preview Guide
 
 ## Overview
 
-Welcome to the Surveilr Data Transformation and SQLPage Preview guide! This
-tool allows you to securely convert your CSV files, perform de-identification,
-and conduct verification and validation (V&V) processes behind your firewall.
-You can view the results directly on your local system. The following steps will
+Welcome to the Surveilr Data Transformation and SQLPage Preview guide! This tool
+allows you to securely convert your CSV files, perform de-identification, and
+conduct verification and validation (V&V) processes behind your firewall. You
+can view the results directly on your local system. The following steps will
 guide you through converting your files, performing de-identification, V&V, and
 verifying the data all within your own environment.
 
@@ -58,29 +58,27 @@ Installation steps may vary depending on your operating system.
   deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts study-files
   ```
 
-
   - After the above command completes execution launch your browser and go to
     [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
 
-  This method provides a streamlined approach to complete the process and see the
-  results quickly.
+  This method provides a streamlined approach to complete the process and see
+  the results quickly.
 
 ### Step 5 : Verify the Verification Validation Results in the UI
 
-  - Check the below section in UI and Perform the steps as in the second image
+- Check the below section in UI and Perform the steps as in the second image
 
-  <p align="center">
+<p align="center">
    <img src="../diabetes-research-hub/assets/vv-image.png" alt="vv-image">
   </p>
 
-  <p align="center"><b>Image 1</b></p>   
+<p align="center"><b>Image 1</b></p>
 
-
-  <p align="center">
+<p align="center">
    <img src="../diabetes-research-hub/assets/vv-step-img.png" alt="vv-steps-image">
   </p>
 
-  <p align="center"><b>Image 2</b></p>
+<p align="center"><b>Image 2</b></p>
 
 # Try it out in this repo using automation script
 
@@ -103,8 +101,7 @@ into this directory,and use the automation script
 $ deno run -A ./drhctl.ts study-files
 ```
 
-**Note**: 
-`study-files` is  the folder name containing csv files.
+**Note**: `study-files` is the folder name containing csv files.
 
 # Try it out in this repo(for development activities)
 
@@ -137,7 +134,6 @@ The directory should look like this now:
 ├── verfication-validation
 |   ├──orchestrate-drh-vv.sql
 ├── stateless.sql
-
 ```
 
 Now
@@ -149,17 +145,15 @@ into this directory, then ingest and query the data:
 $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
 ```
 
-
 ```bash
 # Apply de-identification
 $ cat de-identification/drh-deidentification.sql| surveilr orchestrate -n "deidentification"
-````
+```
 
 ```bash
 # Perform verification and validation
 $ cat verfication-validation/orchestrate-drh-vv.sql | surveilr orchestrate -n "v&v"
 ```
-
 
 ```bash
 # load the "Console" and other menu/routing utilities plus DRH Web UI (both are same, just run one)
@@ -172,5 +166,4 @@ $ ../../std/surveilrctl.ts dev
 
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/drh/index.sql to view DRH speciifc UI
-
-
+```
