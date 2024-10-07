@@ -35,7 +35,7 @@ export default defineConfig({
       },
     }),
     starlight({
-      title: "Surveilr Docs",
+      title: "surveilr Docs",
       defaultLocale: "root",
       // https://github.com/withastro/starlight/blob/main/packages/starlight/CHANGELOG.md
       // If no Astro and Starlight i18n configurations are provided, the built-in default locale is used in Starlight and a matching Astro i18n configuration is generated/used.
