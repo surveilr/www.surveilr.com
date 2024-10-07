@@ -102,4 +102,4 @@ CREATE TABLE "uniform_resource" (
 
 ## Relations
 
-![er](../../../../../assets/uniform_resource.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/uniform_resource.svg)

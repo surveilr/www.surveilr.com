@@ -127,4 +127,4 @@ CREATE TABLE "ur_ingest_session_plm_acct_project_issue" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_plm_acct_project_issue.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_project_issue.svg)

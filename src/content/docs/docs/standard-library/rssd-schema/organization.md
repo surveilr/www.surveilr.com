@@ -71,4 +71,4 @@ CREATE TABLE "organization" (
 
 ## Relations
 
-![er](../../../../../assets/organization.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/organization.svg)

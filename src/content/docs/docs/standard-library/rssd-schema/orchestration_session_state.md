@@ -66,4 +66,4 @@ CREATE TABLE "orchestration_session_state" (
 
 ## Relations
 
-![er](../../../../../assets/orchestration_session_state.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/orchestration_session_state.svg)

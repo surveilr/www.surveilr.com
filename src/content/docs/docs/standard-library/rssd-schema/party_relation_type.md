@@ -40,4 +40,4 @@ CREATE TABLE "party_relation_type" (
 
 ## Relations
 
-![er](../../../../../assets/party_relation_type.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/party_relation_type.svg)

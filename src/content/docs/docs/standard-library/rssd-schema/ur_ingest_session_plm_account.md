@@ -69,4 +69,4 @@ CREATE TABLE "ur_ingest_session_plm_account" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_plm_account.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_plm_account.svg)

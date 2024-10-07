@@ -71,4 +71,4 @@ CREATE TABLE "ur_ingest_session_plm_issue_type" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_plm_issue_type.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_plm_issue_type.svg)

@@ -73,4 +73,4 @@ CREATE TABLE "person" (
 
 ## Relations
 
-![er](../../../../../assets/person.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/person.svg)

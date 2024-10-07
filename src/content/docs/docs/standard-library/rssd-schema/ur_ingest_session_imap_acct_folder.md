@@ -71,4 +71,4 @@ CREATE TABLE "ur_ingest_session_imap_acct_folder" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_imap_acct_folder.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_imap_acct_folder.svg)

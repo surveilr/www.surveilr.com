@@ -77,4 +77,4 @@ CREATE TABLE "ur_ingest_session_plm_comment" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_plm_comment.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_plm_comment.svg)

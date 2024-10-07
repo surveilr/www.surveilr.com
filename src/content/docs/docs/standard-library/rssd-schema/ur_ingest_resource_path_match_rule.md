@@ -72,4 +72,4 @@ CREATE TABLE "ur_ingest_resource_path_match_rule" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_resource_path_match_rule.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_resource_path_match_rule.svg)

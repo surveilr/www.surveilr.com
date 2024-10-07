@@ -40,4 +40,4 @@ CREATE TABLE "gender_type" (
 
 ## Relations
 
-![er](../../../../../assets/gender_type.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/gender_type.svg)

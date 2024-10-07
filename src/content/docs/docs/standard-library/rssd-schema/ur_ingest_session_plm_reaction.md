@@ -61,4 +61,4 @@ CREATE TABLE "ur_ingest_session_plm_reaction" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_plm_reaction.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_plm_reaction.svg)

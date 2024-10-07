@@ -73,4 +73,4 @@ CREATE TABLE "device" (
 
 ## Relations
 
-![er](../../../../../assets/device.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/device.svg)

@@ -67,4 +67,4 @@ CREATE TABLE "device_party_relationship" (
 
 ## Relations
 
-![er](../../../../../assets/device_party_relationship.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/device_party_relationship.svg)

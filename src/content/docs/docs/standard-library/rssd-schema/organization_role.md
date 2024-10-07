@@ -72,4 +72,4 @@ CREATE TABLE "organization_role" (
 
 ## Relations
 
-![er](../../../../../assets/organization_role.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/organization_role.svg)

@@ -15,19 +15,19 @@ To use the `surveilr ingest imap` command with Microsoft 365 authentication meth
 1. **Sign in to the** [Azure Portal](https://portal.azure.com/#home).
 
 2. Click **Applications** to create a new app.
- ![New registration](../../../../../../assets/images/applications.avif) 
+ ![New registration](../../../../../../assets/images/content/docs/core/cli/ingest-commands/applications.avif) 
 
 3. In the left navigation panel, select **App registrations**  
- ![App registrations](../../../../../../assets/images/app-registrations.avif)
+ ![App registrations](../../../../../../assets/images/content/docs/core/cli/ingest-commands/app-registrations.avif)
 
 1. Provide a name for your app, such as "Surveilr App" 
- ![Surveilr App](../../../../../../assets/images/surveilr-app.avif)
+ ![Surveilr App](../../../../../../assets/images/content/docs/core/cli/ingest-commands/surveilr-app.avif)
 
 1. Choose the appropriate **Supported account types** for your app by clicking on Authentication and selecting "Accounts in any organizational directory." 
- ![Authentication](../../../../../../assets/images/authentication.avif)
+ ![Authentication](../../../../../../assets/images/content/docs/core/cli/ingest-commands/authentication.avif)
 
 1. Set the **Redirect URI** as application's redirect URL (e.g., `https://your-redirect-uri.com/redirect`). 
- ![redirect URL](../../../../../../assets/images/redirect-url.avif)
+ ![redirect URL](../../../../../../assets/images/content/docs/core/cli/ingest-commands/redirect-url.avif)
 
 
     **Note**: Redirect URL will be a proxy pass (https) connection to the `surveilr imap ingest` service.
@@ -40,7 +40,7 @@ To use the `surveilr ingest imap` command with Microsoft 365 authentication meth
 9. Copy the **Application (client) ID** and the newly created **client secret** as you will need them for authentication.
 
 10. Set the necessary permissions for the application.
- ![API_permission](../../../../../../assets/images/api-permission.avif)
+ ![API_permission](../../../../../../assets/images/content/docs/core/cli/ingest-commands/api-permission.avif)
 
 
 
