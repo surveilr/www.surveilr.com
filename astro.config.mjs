@@ -7,7 +7,7 @@ import starlight from "@astrojs/starlight";
 // https://astro.build/config
 export default defineConfig({
   // https://docs.astro.build/en/guides/images/#authorizing-remote-images
-  //site: "https://screwfast.uk",
+  
   site: "https://www.surveilr.com",
   image: {
     domains: ["images.unsplash.com"],
@@ -27,7 +27,7 @@ export default defineConfig({
     tailwind(),
     sitemap({
       i18n: {
-        defaultLocale: "en", // All urls that don't contain `fr` after `https://screwfast.uk/` will be treated as default locale, i.e. `en`
+        defaultLocale: "en", // All urls that don't contain `fr` after domain will be treated as default locale, i.e. `en`
         locales: {
           en: "en", // The `defaultLocale` value must present in `locales` keys
           fr: "fr",
@@ -35,7 +35,7 @@ export default defineConfig({
       },
     }),
     starlight({
-      title: "ScrewFast Docs",
+      title: "Surveilr Docs",
       defaultLocale: "root",
       // https://github.com/withastro/starlight/blob/main/packages/starlight/CHANGELOG.md
       // If no Astro and Starlight i18n configurations are provided, the built-in default locale is used in Starlight and a matching Astro i18n configuration is generated/used.
@@ -47,12 +47,12 @@ export default defineConfig({
           label: "English",
           lang: "en",
         },
-        de: { label: "Deutsch", lang: "de" },
-        es: { label: "Español", lang: "es" },
-        fa: { label: "Persian", lang: "fa", dir: "rtl" },
-        fr: { label: "Français", lang: "fr" },
-        ja: { label: "日本語", lang: "ja" },
-        "zh-cn": { label: "简体中文", lang: "zh-CN" },
+        // de: { label: "Deutsch", lang: "de" },
+        // es: { label: "Español", lang: "es" },
+        // fa: { label: "Persian", lang: "fa", dir: "rtl" },
+        // fr: { label: "Français", lang: "fr" },
+        // ja: { label: "日本語", lang: "ja" },
+        // "zh-cn": { label: "简体中文", lang: "zh-CN" },
       },
       // https://starlight.astro.build/guides/sidebar/
       sidebar: [
@@ -554,14 +554,14 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content: "https://screwfast.uk" + "/social.webp",
+            content: "https://www.surveilr.com" + "/social.webp",
           },
         },
         {
           tag: "meta",
           attrs: {
             property: "twitter:image",
-            content: "https://screwfast.uk" + "/social.webp",
+            content: "https://www.surveilr.com" + "/social.webp",
           },
         },
       ],
