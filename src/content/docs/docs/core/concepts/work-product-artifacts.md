@@ -1,6 +1,8 @@
 ---
 title: Work Product Artifacts - WPAs
 description: Explains Work Product Artifacts (WPA).
+sidebar:
+    label: WPAs
 ---
 
 ### What are Work Product Artifacts ( WPAs) ?

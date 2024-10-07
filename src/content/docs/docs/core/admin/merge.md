@@ -1,6 +1,8 @@
 ---
 title: Merging `RSSD`s
 description: Merging multiple RSSDs into one.
+sidebar:
+  label: Merge
 ---
 
 `surveilr` provides the ability to merge multiple RSSDs into one with or without SQLite.
