@@ -4,7 +4,7 @@ import { DB } from "https://deno.land/x/sqlite/mod.ts";
 const dbFilePath = "resource-surveillance.sqlite.db";
 
 // Function to create a combined view of CGM tracing
-export function createCombinedView() {
+
   // Open the existing database
   const db = new DB(dbFilePath);
   console.log(`Opened database: ${dbFilePath}`);
@@ -88,13 +88,18 @@ export function createCombinedView() {
     const combinedUnionAllQuery = sqlParts.join(' UNION ALL ');
     const createCombinedViewSql = `CREATE VIEW IF NOT EXISTS combined_cgm_tracing AS ${combinedUnionAllQuery};`;
     //console.log(`Creating combined view with SQL:\n${createCombinedViewSql}`);
+    
+    //return createCombinedViewSql;
     db.execute(createCombinedViewSql);
+    // db.close();
+
     console.log("Combined view 'combined_cgm_tracing' created successfully.");
+    
   } else {
     console.log("No participant tables found, so the combined view will not be created.");
   }
 
   // Close the database connection
-  db.close();
+ db.close();
   console.log(`Closed database: ${dbFilePath}`);
-}
+
