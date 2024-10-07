@@ -1,5 +1,5 @@
 ---
-title: uniform_resource
+title: Uniform Resource
 ---
 
 ## Description

@@ -1,5 +1,5 @@
 ---
-title: party_relation_type
+title: Party Relation Type
 ---
 
 ## Description

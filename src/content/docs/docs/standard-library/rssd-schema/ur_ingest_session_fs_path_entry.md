@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_fs_path_entry
+title: Uniform Resource Ingest Session Fs Path Entry
 ---
 
 ## Description

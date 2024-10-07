@@ -1,5 +1,5 @@
 ---
-title: party
+title: Party
 ---
 
 ## Description

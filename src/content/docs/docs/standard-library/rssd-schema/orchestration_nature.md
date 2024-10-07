@@ -1,5 +1,5 @@
 ---
-title: orchestration_nature
+title: Orchestration Nature
 ---
 
 ## Description

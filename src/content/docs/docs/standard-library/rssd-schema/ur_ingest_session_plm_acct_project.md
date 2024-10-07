@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_plm_acct_project
+title: Uniform Resource Ingest Session PLM Account Project
 ---
 
 ## Description

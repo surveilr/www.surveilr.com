@@ -1,5 +1,5 @@
 ---
-title: code_notebook_cell
+title: Code Notebook Cell
 description: Explanation of the `code_notebook_cell` 
 ---
 

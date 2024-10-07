@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_attachment
+title: Uniform Resource Ingest Session Attachment
 ---
 
 ## Description

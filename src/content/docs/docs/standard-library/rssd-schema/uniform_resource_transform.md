@@ -1,5 +1,5 @@
 ---
-title: uniform_resource_transform
+title: Uniform Resource Transform
 ---
 
 ## Description

@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_plm_account
+title: Uniform Resource Ingest Session PLM Account
 ---
 
 ## Description

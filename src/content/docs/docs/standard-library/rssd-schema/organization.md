@@ -1,5 +1,5 @@
 ---
-title: organization
+title: Organization
 ---
 
 ## Description
