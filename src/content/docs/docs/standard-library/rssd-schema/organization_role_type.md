@@ -40,4 +40,4 @@ CREATE TABLE "organization_role_type" (
 
 ## Relations
 
-![er](../../../../../assets/organization_role_type.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/organization_role_type.svg)

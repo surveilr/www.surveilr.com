@@ -57,26 +57,43 @@ This creates a `dist/` directory with our built site (configurable via
 ## Project Structure
 
 ```md
-lib/ # surveilr Patterns code src/ # Astro site code ├── assets/\
-│ ├── scripts/ # JS scripts │ └── styles/ # CSS styles ├── components/ #
-Reusable components │ ├── Meta.astro # Meta component for SEO │ ├── sections/ #
-Components for various sections of the website │ ├── ThemeIcon.astro # Component
-for toggling light/dark themes │ └── ui/ # UI components categorized by
-functionality ├── content/ # Markdown files for blog posts, insights, patterns,
-and site configuration │ ├── blog/ │ ├── docs/\
-│ ├── insights/ │ ├── patterns/\
-│ └── config.ts # Contains site-wide configuration options ├── data_files/ #
-Strings stored as JSON files ├── images/ # Static image assets for use across
-the website ├── layouts/ # Components defining layout templates │ └──
-MainLayout.astro # The main wrapping layout for all pages ├── pages/ # Astro
-files representing individual pages and website sections │ ├── 404.astro #
-Custom 404 page │ ├── blog/\
-│ ├── fr/ # Localized content │ ├── contact.astro\
-│ ├── index.astro # The landing/home page │ ├── insights/ # TODO: need to make
-this singular\
-│ ├── pattern/\
-│ ├── robots.txt.ts # Dynamically generates robots.txt │ └── services.astro └──
-utils/ # Shared utility functions and helpers
+lib/                      # surveilr Patterns code
+src/                      # Astro site code
+├── assets/               
+│   ├── images/           
+│   |   ├── content/      # Images for content collections (match structure exactly)
+│   |   |   ├── docs/     # e.g. if src/content/docs has subdirectories, so will this
+│   |   |   ├── insights/
+│   |   |   ├── patterns/         
+│   |   |   └── (...)     # all other content collections
+|   |   └── (..static)    # Static image assets for use across the site
+│   ├── scripts/          # JS scripts
+│   └── styles/           # CSS styles
+├── components/           # Reusable components
+│   ├── Meta.astro        # Meta component for SEO
+│   ├── sections/         # Components for various sections of the website
+│   ├── ThemeIcon.astro   # Component for toggling light/dark themes
+│   └── ui/               # UI components categorized by functionality
+├── content/              # Markdown files for blog posts, insights, patterns, and site configuration
+│   ├── blog/
+│   ├── docs/           
+│   ├── insights/
+│   ├── patterns/         
+│   └── config.ts         # Contains site-wide configuration options
+├── data_files/           # Strings stored as JSON files
+├── layouts/              # Components defining layout templates
+│   └── MainLayout.astro  # The main wrapping layout for all pages
+├── pages/                # Astro files representing individual pages and website sections
+│   ├── 404.astro         # Custom 404 page
+│   ├── blog/   
+│   ├── fr/               # Localized content
+│   ├── contact.astro     
+│   ├── index.astro       # The landing/home page
+│   ├── insights/         # TODO: need to make this singular         
+│   ├── pattern/         
+│   ├── robots.txt.ts     # Dynamically generates robots.txt
+│   └── services.astro
+└── utils/                # Shared utility functions and helpers
 ```
 
 ## Static Assets and Public Resources

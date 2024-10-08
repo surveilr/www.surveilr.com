@@ -72,4 +72,4 @@ CREATE TABLE "party_relation" (
 
 ## Relations
 
-![er](../../../../../assets/party_relation.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/party_relation.svg)

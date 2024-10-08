@@ -52,4 +52,4 @@ CREATE TABLE "orchestration_session_log" (
 
 ## Relations
 
-![er](../../../../../assets/orchestration_session_log.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/orchestration_session_log.svg)

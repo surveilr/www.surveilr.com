@@ -54,4 +54,4 @@ description: Documentation for the resource surveillance CLI tool.
 
 ## Relations
 
-![er](../../../../../assets/schema.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/schema.svg)

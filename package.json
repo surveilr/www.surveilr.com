@@ -16,9 +16,9 @@
     "@astrojs/starlight-tailwind": "^2.0.3",
     "@astrojs/tailwind": "^5.1.1",
     "@preline/accordion": "^2.4.1",
-    "@preline/collapse": "^2.4.1",
-    "@preline/dropdown": "^2.4.1",
-    "@preline/overlay": "^2.4.1",
+    "@preline/collapse": "^2.5.0",
+    "@preline/dropdown": "^2.5.0",
+    "@preline/overlay": "^2.5.0",
     "@preline/tabs": "^2.4.1",
     "@vercel/nft": "^0.27.4",
     "astro": "^4.15.8",
@@ -28,7 +28,7 @@
     "gsap": "^3.12.5",
     "html-minifier-terser": "^7.2.0",
     "lenis": "^1.1.13",
-    "preline": "^2.4.1",
+    "preline": "^2.5.0",
     "rimraf": "^6.0.1",
     "sharp": "^0.33.5",
     "sharp-ico": "^0.1.5",
@@ -39,7 +39,7 @@
     "astro-vtbot": "^1.9.4",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.6.6",
+    "prettier-plugin-tailwindcss": "^0.6.8",
     "typescript": "^5.6.2"
   }
 }

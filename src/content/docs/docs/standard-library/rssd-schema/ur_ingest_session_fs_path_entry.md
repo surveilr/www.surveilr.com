@@ -95,4 +95,4 @@ CREATE TABLE "ur_ingest_session_fs_path_entry" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_fs_path_entry.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_fs_path_entry.svg)

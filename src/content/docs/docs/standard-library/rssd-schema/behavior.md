@@ -78,4 +78,4 @@ CREATE TABLE "behavior" (
 
 ## Relations
 
-![er](../../../../../assets/behavior.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/behavior.svg)

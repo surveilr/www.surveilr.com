@@ -64,4 +64,4 @@ CREATE TABLE "assurance_schema" (
 
 ## Relations
 
-![er](../../../../../assets/assurance_schema.svg)
+![er](../../../../../assets/images/content/docs/standard-library/notebooks-schema/assurance_schema.svg)

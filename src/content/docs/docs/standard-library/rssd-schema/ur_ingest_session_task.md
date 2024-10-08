@@ -81,4 +81,4 @@ CREATE TABLE "ur_ingest_session_task" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_task.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_task.svg)

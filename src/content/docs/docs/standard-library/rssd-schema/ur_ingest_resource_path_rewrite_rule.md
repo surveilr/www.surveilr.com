@@ -69,4 +69,4 @@ CREATE TABLE "ur_ingest_resource_path_rewrite_rule" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_resource_path_rewrite_rule.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_resource_path_rewrite_rule.svg)

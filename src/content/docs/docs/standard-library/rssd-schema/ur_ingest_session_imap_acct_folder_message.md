@@ -96,4 +96,4 @@ CREATE TABLE "ur_ingest_session_imap_acct_folder_message" (
 
 ## Relations
 
-![er](../../../../../assets/ur_ingest_session_imap_acct_folder_message.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/ur_ingest_session_imap_acct_folder_message.svg)

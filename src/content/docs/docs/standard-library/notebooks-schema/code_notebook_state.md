@@ -75,4 +75,4 @@ CREATE TABLE "code_notebook_state" (
 
 ## Relations
 
-![er](../../../../../assets/code_notebook_state.svg)
+![er](../../../../../assets/images/content/docs/standard-library/notebooks-schema/code_notebook_state.svg)

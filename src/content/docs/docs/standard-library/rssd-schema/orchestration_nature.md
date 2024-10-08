@@ -61,4 +61,4 @@ CREATE TABLE "orchestration_nature" (
 
 ## Relations
 
-![er](../../../../../assets/orchestration_nature.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/orchestration_nature.svg)
