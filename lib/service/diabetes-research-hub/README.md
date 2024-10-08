@@ -146,6 +146,11 @@ $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
 ```
 
 ```bash
+# generate the combined  cgm tracing
+$ deno run -A ./combined-cgm-tracing-generator.ts
+```
+
+```bash
 # Apply de-identification
 $ cat de-identification/drh-deidentification.sql| surveilr orchestrate -n "deidentification"
 ```
