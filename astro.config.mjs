@@ -61,7 +61,7 @@ export default defineConfig({
           items: [
             {
               label: "Getting Started",
-              link: "/docs/core/getting-started",
+              slug: "docs/core/getting-started",
             },
             {
               label: "surveilr CLI",
@@ -75,7 +75,7 @@ export default defineConfig({
                 },
                 {
                   label: "CLI Commands",
-                  link: "/docs/core/cli/cli-commands",
+                  slug: "docs/core/cli/cli-commands",
                 },
               ],
             },
