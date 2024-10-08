@@ -6,7 +6,7 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  // https://docs.astro.build/en/guides/images/#authorizing-remote-images
+  // https://docs.astro.build/docs/guides/images/#authorizing-remote-images
 
   site: "https://www.surveilr.com",
   image: {
@@ -61,7 +61,7 @@ export default defineConfig({
           items: [
             {
               label: "Getting Started",
-              slug: "en/core/getting-started",
+              slug: "docs/core/getting-started",
             },
             {
               label: "surveilr CLI",
@@ -70,12 +70,12 @@ export default defineConfig({
                   label: "Ingest Commands",
                   collapsed: true,
                   autogenerate: {
-                    directory: "en/core/cli/ingest-commands",
+                    directory: "docs/core/cli/ingest-commands",
                   },
                 },
                 {
                   label: "CLI Commands",
-                  slug: "en/core/cli/cli-commands",
+                  slug: "docs/core/cli/cli-commands",
                 },
               ],
             },
@@ -83,21 +83,21 @@ export default defineConfig({
               label: "Capturable Executables",
               collapsed: true,
               autogenerate: {
-                directory: "en/core/capturable-executables",
+                directory: "docs/core/capturable-executables",
               },
             },
             {
               label: "Concepts",
               collapsed: true,
               autogenerate: {
-                directory: "en/core/concepts",
+                directory: "docs/core/concepts",
               },
             },
             {
               label: "Admin",
               collapsed: true,
               autogenerate: {
-                directory: "en/core/admin",
+                directory: "docs/core/admin",
               },
             },
           ],
@@ -112,13 +112,13 @@ export default defineConfig({
             {
               label: "RSSD Schema",
               autogenerate: {
-                directory: "en/standard-library/rssd-schema",
+                directory: "docs/standard-library/rssd-schema",
               },
             },
             {
               label: "Notebooks Schema",
               autogenerate: {
-                directory: "en/standard-library/notebooks-schema",
+                directory: "docs/standard-library/notebooks-schema",
               },
             },
           ],
@@ -130,7 +130,7 @@ export default defineConfig({
               label: "Discipline-centric Patterns",
               collapsed: true,
               autogenerate: {
-                directory: "en/patterns/disciplines",
+                directory: "docs/patterns/disciplines",
               },
             },
           ],
