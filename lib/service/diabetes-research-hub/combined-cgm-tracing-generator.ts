@@ -4,7 +4,7 @@ import { DB } from "https://deno.land/x/sqlite/mod.ts";
 export function createCombinedCGMView(dbFilePath: string): void {
   // Open the existing database
   const db = new DB(dbFilePath);
-  console.log(`Opened database: ${dbFilePath}`);
+  //console.log(`Opened database: ${dbFilePath}`);
 
   // Create error log table if it doesn't exist
   db.execute(`
@@ -14,7 +14,7 @@ export function createCombinedCGMView(dbFilePath: string): void {
       error_message TEXT
     );
   `);
-  console.log("Error log table created or already exists.");
+  //console.log("Error log table created or already exists.");
 
   // Drop the view if it exists and create it
   try {
@@ -29,7 +29,7 @@ export function createCombinedCGMView(dbFilePath: string): void {
       GROUP BY
         patient_id;
     `);
-    console.log("View 'drh_participant_file_names' created successfully.");
+    //console.log("View 'drh_participant_file_names' created successfully.");
   } catch (error) {
     console.error("Error creating view 'drh_participant_file_names':", error);
     const sqlQuery = "INSERT INTO error_log (error_message) VALUES (?);";
@@ -80,11 +80,11 @@ export function createCombinedCGMView(dbFilePath: string): void {
   }
 
   db.close();
-  console.log(`Closed database: ${dbFilePath}`);
+  //console.log(`Closed database: ${dbFilePath}`);
 }
 
 // If the script is being run directly, execute the function
 if (import.meta.main) {
-  const dbFilePath = "resource-surveillance.sqlite.db"; // You can modify this path as needed
+  const dbFilePath = "resource-surveillance.sqlite.db"; 
   createCombinedCGMView(dbFilePath);
 }
