@@ -61,7 +61,7 @@ export default defineConfig({
           items: [
             {
               label: "Getting Started",
-              slug: "docs/core/getting-started",
+              slug: "en/core/getting-started",
             },
             {
               label: "surveilr CLI",
@@ -70,12 +70,12 @@ export default defineConfig({
                   label: "Ingest Commands",
                   collapsed: true,
                   autogenerate: {
-                    directory: "docs/core/cli/ingest-commands",
+                    directory: "en/core/cli/ingest-commands",
                   },
                 },
                 {
                   label: "CLI Commands",
-                  slug: "docs/core/cli/cli-commands",
+                  slug: "en/core/cli/cli-commands",
                 },
               ],
             },
@@ -83,21 +83,21 @@ export default defineConfig({
               label: "Capturable Executables",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/capturable-executables",
+                directory: "en/core/capturable-executables",
               },
             },
             {
               label: "Concepts",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/concepts",
+                directory: "en/core/concepts",
               },
             },
             {
               label: "Admin",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/admin",
+                directory: "en/core/admin",
               },
             },
           ],
@@ -112,13 +112,13 @@ export default defineConfig({
             {
               label: "RSSD Schema",
               autogenerate: {
-                directory: "docs/standard-library/rssd-schema",
+                directory: "en/standard-library/rssd-schema",
               },
             },
             {
               label: "Notebooks Schema",
               autogenerate: {
-                directory: "docs/standard-library/notebooks-schema",
+                directory: "en/standard-library/notebooks-schema",
               },
             },
           ],
@@ -130,7 +130,7 @@ export default defineConfig({
               label: "Discipline-centric Patterns",
               collapsed: true,
               autogenerate: {
-                directory: "docs/patterns/disciplines",
+                directory: "en/patterns/disciplines",
               },
             },
           ],
