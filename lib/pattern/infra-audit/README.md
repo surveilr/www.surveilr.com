@@ -37,3 +37,18 @@ $ ../../std/surveilrctl.ts dev
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/infra-audit/info-schema.sql to see infra-audit views and tables
 ```
+
+## How to Run the Tap Tests
+
+### RUN THIS TEST this using CLI
+
+`rm -f tap.sql &&  deno run -A ./tap.sql.ts > tap.sql`
+
+This will generate a tap.sql file from tap.sql.ts
+
+`cat tap.sql | sqlite3 resource-surveillance.sqlite.db && sqlite3 resource-surveillance.sqlite.db -cmd "
+SELECT * FROM synthetic_test_suite;"`
+
+This script demonstrates how to create a Test Anything Protocol (TAP) report
+using SQLite, following TAP version 14. It includes multiple test cases, and
+subtests are formatted with indentation per TAP 14's subtest style.
