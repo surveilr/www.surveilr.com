@@ -17,7 +17,7 @@ To use the `surveilr ingest imap` command with Microsoft 365 authentication meth
 2. Click **Applications** to create a new app.
  ![New registration](../../../../../../assets/images/content/docs/core/cli/ingest-commands/applications.avif) 
 
-3. In the left navigation panel, select **App registrations**  
+1. In the left navigation panel, select **App registrations**  
  ![App registrations](../../../../../../assets/images/content/docs/core/cli/ingest-commands/app-registrations.avif)
 
 1. Provide a name for your app, such as "Surveilr App" 

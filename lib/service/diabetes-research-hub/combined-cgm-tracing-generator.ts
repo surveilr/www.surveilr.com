@@ -20,7 +20,7 @@ export function createCombinedCGMView(dbFilePath: string): void {
   try {
     db.execute(`DROP VIEW IF EXISTS drh_participant_file_names;`);
     db.execute(`
-      CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
+      CREATE VIEW  drh_participant_file_names AS
       SELECT
         patient_id,
         GROUP_CONCAT(file_name, ', ') AS file_names
@@ -29,7 +29,7 @@ export function createCombinedCGMView(dbFilePath: string): void {
       GROUP BY
         patient_id;
     `);
-    //console.log("View 'drh_participant_file_names' created successfully.");
+    console.log("View 'drh_participant_file_names' created successfully.");
   } catch (error) {
     console.error("Error creating view 'drh_participant_file_names':", error);
     const sqlQuery = "INSERT INTO error_log (error_message) VALUES (?);";
