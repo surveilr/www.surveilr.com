@@ -146,10 +146,10 @@ let uxSQL: string;
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
   deidentificationSQL = await fetchSqlContent(
-    `${RSC_BASE_URL}/de-identification/drh-deidentification.sql`,
+    `${UX_URL}/de-identification/drh-deidentification.sql`,
   );
   vvSQL = await fetchSqlContent(
-    `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
+    `${UX_URL}/verfication-validation/orchestrate-drh-vv.sql`,
   );  
   uxSQL = await fetchSqlContent(
     `${UX_URL}/package.sql`,
