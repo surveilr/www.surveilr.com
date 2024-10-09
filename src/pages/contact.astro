@@ -5,9 +5,25 @@ import ContactSection from "@components/sections/misc/ContactSection.astro";
 import { SITE } from "@data/constants";
 
 const pageTitle: string = `Contact | ${SITE.title}`;
+
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: pageTitle,
+  url: Astro.url.href,
+  description: SITE.description,
+  publisher: {
+    "@type": "Organization",
+    name: "Surveilr",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.surveilr.com/_astro/surveilr-logo-without-tagline.DVJj0veE_1F2RH4.webp",
+    },
+  },
+};
 ---
 
 <!--Utilizing MainLayout for the outer layout of the page, and defining meta for SEO purposes-->
-<MainLayout title={pageTitle}>
+<MainLayout title={pageTitle} structuredData={webPageSchema}>
   <ContactSection />
 </MainLayout>

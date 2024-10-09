@@ -37,8 +37,7 @@ const articles: Article[] = [
   {
     isRightSection: false,
     title: "Free Best-Effort Support via GitHub Help Desk",
-    subTitle:
-      `Our free support service is available to all users via the GitHub Help Desk. This includes best-effort support for general questions, troubleshooting, and assistance with surveilr. A collaborative community where you can ask questions, get advice, and share experiences with other surveilr users is ready to help.`,
+    subTitle: `Our free support service is available to all users via the GitHub Help Desk. This includes best-effort support for general questions, troubleshooting, and assistance with surveilr. A collaborative community where you can ask questions, get advice, and share experiences with other surveilr users is ready to help.`,
     img: beforeAfter,
     imgAlt: "Construction site before and after",
     btnExists: true,
@@ -48,8 +47,7 @@ const articles: Article[] = [
   {
     isRightSection: true,
     title: "Paid Support with SLAs: Monthly or Annual Maintenance",
-    subTitle:
-      `For organizations that need priority support or more dedicated assistance, we offer paid support plans. Email and phone support for for timely assistance with your specific needs. We offer support with Service Level Agreements (SLAs) that include guaranteed response times, ensuring your issues are addressed promptly, especially in mission-critical scenarios.`,
+    subTitle: `For organizations that need priority support or more dedicated assistance, we offer paid support plans. Email and phone support for for timely assistance with your specific needs. We offer support with Service Level Agreements (SLAs) that include guaranteed response times, ensuring your issues are addressed promptly, especially in mission-critical scenarios.`,
     single: false,
     imgOne: constructionWorkers,
     imgOneAlt: "Construction workers orchestrating a project",
@@ -59,8 +57,7 @@ const articles: Article[] = [
   {
     isRightSection: false,
     title: "Custom Professional Services",
-    subTitle:
-      `For organizations with unique use cases, custom compliance requirements, or those needing specialized features, we offer tailored professional services. We can develop specific Industry or Discipline Patterns that cater to your exact needs, whether it’s integrating a specific regulatory framework or creating custom reporting tools. Need more than what’s available in our out-of-the-box solutions? We offer bespoke development to extend surveilr to meet your organization’s exact specifications.`,
+    subTitle: `For organizations with unique use cases, custom compliance requirements, or those needing specialized features, we offer tailored professional services. We can develop specific Industry or Discipline Patterns that cater to your exact needs, whether it’s integrating a specific regulatory framework or creating custom reporting tools. Need more than what’s available in our out-of-the-box solutions? We offer bespoke development to extend surveilr to meet your organization’s exact specifications.`,
     img: usingTools,
     imgAlt:
       "Man in orange and black vest wearing white helmet holding yellow and black power tool",
@@ -68,8 +65,7 @@ const articles: Article[] = [
   {
     isRightSection: true,
     title: "Why Choose Our Professional Services?",
-    subTitle:
-      `We have deep experience working with organizations that face regulatory hurdles, compliance audits, and security challenges. We understand the stakes and are equipped to provide solutions tailored to your environment. Whether you need occasional assistance or full, dedicated support, we offer flexible plans that fit your needs—ensuring your organization is never left without help when it’s needed most.`,
+    subTitle: `We have deep experience working with organizations that face regulatory hurdles, compliance audits, and security challenges. We understand the stakes and are equipped to provide solutions tailored to your environment. Whether you need occasional assistance or full, dedicated support, we offer flexible plans that fit your needs—ensuring your organization is never left without help when it’s needed most.`,
     single: false,
     imgOne: progressBuilding,
     imgOneAlt: "In progress building structure",
@@ -82,26 +78,25 @@ const articles: Article[] = [
 ];
 
 const pageTitle: string = `Services | ${SITE.title}`;
+
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: pageTitle,
+  url: Astro.url.href,
+  description: SITE.description,
+  publisher: {
+    "@type": "Organization",
+    name: "Surveilr",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.surveilr.com/_astro/surveilr-logo-without-tagline.DVJj0veE_1F2RH4.webp",
+    },
+  },
+};
 ---
 
-<MainLayout
-  title={pageTitle}
-  structuredData={{
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": "https://survelir.com/services",
-    "url": "https://survelir.com/services",
-    "name": "Expert Consultation Services | surveilr",
-    "description": "Professional Services for Mission-Critical Use Cases",
-    "isPartOf": {
-        "@type": "WebSite",
-        "url": "https://survelir.com",
-        "name": "survelir",
-        "description": "surveilr offers top-tier compliance tools and expert construction services to meet all your project needs."
-    },
-    "inLanguage": "en-US"
-  }}
->
+<MainLayout title={pageTitle}>
   <!--MainSection is the introductory section of the page, it also contains a CTA button-->
   <MainSection
     title="Professional Services for Mission-Critical Use Cases"
@@ -119,7 +114,7 @@ const pageTitle: string = `Services | ${SITE.title}`;
   If 'single' is true, it displays one image, otherwise it displays two.
   -->
   {
-    articles.map(article => {
+    articles.map((article) => {
       return article.isRightSection ? (
         <RightSection
           title={article.title}

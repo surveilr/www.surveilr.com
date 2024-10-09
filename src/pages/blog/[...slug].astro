@@ -53,27 +53,44 @@ const socialImageRes = await getImage({
   height: 600,
 });
 const socialImage = Astro.url.origin + socialImageRes.src;
-const structuredData: object = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  mainEntityOfPage: {
-    "@type": "WebPage",
-    "@id": `https://www.surveilr.com/blog/${post.slug.replace(/^en\//, "")}/`,
+const structuredData: object = [
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://www.surveilr.com/blog/${post.slug.replace(/^en\//, "")}/`,
+    },
+    headline: metaTitle,
+    description: post.data.description,
+    image: socialImage,
+    publisher: {
+      "@type": "Organization",
+      name: "Surveilr",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.surveilr.com/_astro/surveilr-logo-with-text-264x66px.CdbY10CM_ZAn8Qa.webp",
+      },
+    },
+    datePublished: post.data.pubDate,
+    dateModified: post.data.pubDate,
   },
-  headline: metaTitle,
-  description: post.data.description,
-  image: socialImage,
-  publisher: {
-    "@type": "Organization",
-    name: "Surveilr",
-    logo: {
-      "@type": "ImageObject",
-      url: "https://www.surveilr.com/_astro/surveilr-logo-with-text-264x66px.CdbY10CM_ZAn8Qa.webp",
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: metaTitle,
+    url: Astro.url.href,
+    description: post.data.description,
+    publisher: {
+      "@type": "Organization",
+      name: "Surveilr",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.surveilr.com/_astro/surveilr-logo-without-tagline.DVJj0veE_1F2RH4.webp",
+      },
     },
   },
-  datePublished: post.data.pubDate,
-  dateModified: post.data.pubDate,
-};
+];
 ---
 
 <MainLayout

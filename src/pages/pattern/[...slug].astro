@@ -18,7 +18,7 @@ declare global {
 
 export async function getStaticPaths() {
   const patternEntries = await getCollection("patterns", ({ id }) =>
-    id.startsWith("en/")
+    id.startsWith("en/"),
   );
   return patternEntries.map((pattern) => {
     const slugWithoutLang = pattern.slug.replace(/^en\//, ""); // Remove the "en/" prefix
@@ -32,9 +32,25 @@ export async function getStaticPaths() {
 const { pattern } = Astro.props;
 
 const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
+
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: pageTitle,
+  url: Astro.url.href,
+  description: SITE.description,
+  publisher: {
+    "@type": "Organization",
+    name: "Surveilr",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.surveilr.com/_astro/surveilr-logo-without-tagline.DVJj0veE_1F2RH4.webp",
+    },
+  },
+};
 ---
 
-<MainLayout title={pageTitle}>
+<MainLayout title={pageTitle} structuredData={webPageSchema}>
   <div id="overlay" class="fixed inset-0 bg-neutral-200 dark:bg-neutral-800">
   </div>
 
@@ -184,7 +200,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
                                     >
                                       {header}
                                     </th>
-                                  )
+                                  ),
                                 )}
                               </tr>
                             </thead>
@@ -201,7 +217,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
                                       </td>
                                     ))}
                                   </tr>
-                                ))
+                                )),
                               )}
                             </tbody>
                           </table>
@@ -263,7 +279,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
 
   function setElementAnimationDefaults(
     id: string,
-    settings: AnimationSettings
+    settings: AnimationSettings,
   ) {
     gsap.set(id, settings);
   }
@@ -299,13 +315,13 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
   timeline.to(
     "#fadeInUp",
     { duration: 1.5, autoAlpha: 1, y: 0, ease: "power2.out" },
-    "-=1.2"
+    "-=1.2",
   );
 
   timeline.to(
     "#fadeInMoveRight",
     { duration: 1.5, autoAlpha: 1, x: 0, ease: "power2.inOut" },
-    "-=1.4"
+    "-=1.4",
   );
 
   timeline.to("#overlay", { duration: 1, autoAlpha: 0, delay: 0.2 });
@@ -318,7 +334,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
           "active",
           "bg-neutral-100",
           "hover:border-transparent",
-          "dark:bg-white/[.05]"
+          "dark:bg-white/[.05]",
         );
 
         const tabId = btn.getAttribute("data-target");
@@ -332,7 +348,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
         changeHeadingStyle(
           btn,
           ["text-neutral-800", "dark:text-neutral-200"],
-          ["text-orange-400", "dark:text-orange-300"]
+          ["text-orange-400", "dark:text-orange-300"],
         );
       }
     }
@@ -342,7 +358,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
         "active",
         "bg-neutral-100",
         ",hover:border-transparent",
-        "dark:bg-white/[.05]"
+        "dark:bg-white/[.05]",
       );
 
       const tabId = button.getAttribute("data-target");
@@ -356,14 +372,14 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
       changeHeadingStyle(
         button,
         ["text-orange-400", "dark:text-orange-300"],
-        ["text-neutral-800", "dark:text-neutral-200"]
+        ["text-neutral-800", "dark:text-neutral-200"],
       );
     }
 
     function changeHeadingStyle(
       button: any,
       addClasses: any,
-      removeClasses: any
+      removeClasses: any,
     ) {
       let heading = button.querySelector("span");
       if (heading) {
@@ -378,7 +394,7 @@ const pageTitle: string = `${pattern.data.title} | ${SITE.title}`;
       changeHeadingStyle(
         tabButtons[0],
         ["text-orange-400", "dark:text-orange-300"],
-        []
+        [],
       );
     }
 
