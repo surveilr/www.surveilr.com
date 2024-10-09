@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.6.0/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 import * as drhux from "./package.sql.ts";
 import { createCombinedCGMView } from "./combined-cgm-tracing-generator.ts";
 import {
@@ -34,7 +34,7 @@ async function fetchSqlContent(url: string): Promise<string> {
       colors.red(`Error fetching SQL content from ${url}:`),
       error.message,
     );
-    Deno.exit(1);
+    //Deno.exit(1);
   }
 }
 
@@ -63,7 +63,7 @@ async function executeCommand(
       colors.red(`Error executing command ${cmd.join(" ")}:`),
       error.message,
     );
-    Deno.exit(1);
+    //Deno.exit(1);
   }
 }
 
@@ -86,7 +86,7 @@ async function checkAndDeleteFile(filePath: string) {
         colors.red(`Error checking or deleting file ${filePath}:`),
         error.message,
       );
-      Deno.exit(1);
+      //Deno.exit(1);
     }
   }
 }
@@ -161,7 +161,7 @@ try {
     ),
     error.message,
   );
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 // Check and delete the file if it exists
@@ -175,7 +175,7 @@ try {
   await executeCommand([toolCmd, "ingest", "files", "-r", `${folderName}/`]);
 } catch (error) {
   console.error(colors.red("Error ingesting files:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 
@@ -186,7 +186,7 @@ try {
   );
 } catch (error) {
   console.error(colors.red("Error transforming CSV files:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 // Check and delete the file if it exists
@@ -198,7 +198,7 @@ try {
   console.log(colors.green("View generation completed successfully."));
 } catch (error) {
   console.error(colors.red("Error during View generation:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 
@@ -211,7 +211,7 @@ try {
   console.log(colors.green("Deidentification successful."));
 } catch (error) {
   console.error(colors.red("Error during DeIdentification:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 try {
@@ -229,7 +229,7 @@ try {
     colors.red("Error during Verification and Validation:"),
     error.message,
   );
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 try {
@@ -238,7 +238,7 @@ try {
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.red("Error during UX orchestration:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
 
 try {
@@ -250,5 +250,5 @@ try {
   await executeCommand([toolCmd, "web-ui", "--port", "9000"]);
 } catch (error) {
   console.error(colors.red("Error starting DRH Edge UI:"), error.message);
-  Deno.exit(1);
+  //Deno.exit(1);
 }
