@@ -31,7 +31,7 @@ async function fetchSqlContent(url: string): Promise<string> {
     return response.text();
   } catch (error) {
     console.error(
-      colors.red(`Error fetching SQL content from ${url}:`),
+      colors.cyan(`Error fetching SQL content from ${url}:`),
       error.message,
     );
     //Deno.exit(1);
@@ -60,7 +60,7 @@ async function executeCommand(
     }
   } catch (error) {
     console.error(
-      colors.red(`Error executing command ${cmd.join(" ")}:`),
+      colors.cyan(`Error executing command ${cmd.join(" ")}:`),
       error.message,
     );
     //Deno.exit(1);
@@ -83,7 +83,7 @@ async function checkAndDeleteFile(filePath: string) {
       );
     } else {
       console.error(
-        colors.red(`Error checking or deleting file ${filePath}:`),
+        colors.cyan(`Error checking or deleting file ${filePath}:`),
         error.message,
       );
       //Deno.exit(1);
@@ -106,10 +106,10 @@ async function checkAndCreateCombinedView() {
         await createCombinedCGMView(dbFilePath); // Call the function to create the combined view
       
     } else {
-      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
+      console.error(colors.cyan("The required table does not exist. Cannot create the combined view."));
     }
   } catch (error) {
-    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
+    console.error(colors.cyan("Error in checkAndCreateCombinedView:"), error.message);
   } finally {
     // Close the database connection
     db.close();
@@ -119,7 +119,7 @@ async function checkAndCreateCombinedView() {
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
   console.error(
-    colors.red("No folder name provided. Please provide a folder name."),
+    colors.cyan("No folder name provided. Please provide a folder name."),
   );
   Deno.exit(1);
 }
@@ -146,17 +146,17 @@ let uxSQL: string;
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
   deidentificationSQL = await fetchSqlContent(
-    `${UX_URL}/de-identification/drh-deidentification.sql`,
+    `${RSC_BASE_URL}/de-identification/drh-deidentification.sql`,
   );
   vvSQL = await fetchSqlContent(
-    `${UX_URL}/verfication-validation/orchestrate-drh-vv.sql`,
+    `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
   );  
   uxSQL = await fetchSqlContent(
     `${UX_URL}/package.sql`,
   );
 } catch (error) {
   console.error(
-    colors.red(
+    colors.cyan(
       "Error fetching SQL contents for DeIdentification and Verification & Validation:",
     ),
     error.message,
@@ -174,7 +174,7 @@ try {
   console.log(colors.dim(`Ingesting files from folder: ${folderName}...`));
   await executeCommand([toolCmd, "ingest", "files", "-r", `${folderName}/`]);
 } catch (error) {
-  console.error(colors.red("Error ingesting files:"), error.message);
+  console.error(colors.cyan("Error ingesting files:"), error.message);
   //Deno.exit(1);
 }
 
@@ -185,19 +185,19 @@ try {
     colors.green("Files ingestion and CSV transformation successful."),
   );
 } catch (error) {
-  console.error(colors.red("Error transforming CSV files:"), error.message);
+  console.error(colors.cyan("Error transforming CSV files:"), error.message);
   //Deno.exit(1);
 }
 
 // Check and delete the file if it exists
-await checkAndDeleteFile(dbjournalfile);
+//await checkAndDeleteFile(dbjournalfile);
 
 try {
   console.log(colors.dim(`Generate combined views: ${folderName}...`));
   checkAndCreateCombinedView(); 
   console.log(colors.green("View generation completed successfully."));
 } catch (error) {
-  console.error(colors.red("Error during View generation:"), error.message);
+  console.error(colors.cyan("Error during View generation:"), error.message);
   //Deno.exit(1);
 }
 
@@ -210,7 +210,7 @@ try {
   );
   console.log(colors.green("Deidentification successful."));
 } catch (error) {
-  console.error(colors.red("Error during DeIdentification:"), error.message);
+  console.error(colors.cyan("Error during DeIdentification:"), error.message);
   //Deno.exit(1);
 }
 
@@ -226,7 +226,7 @@ try {
   );
 } catch (error) {
   console.error(
-    colors.red("Error during Verification and Validation:"),
+    colors.cyan("Error during Verification and Validation:"),
     error.message,
   );
   //Deno.exit(1);
@@ -237,7 +237,7 @@ try {
   await executeCommand([toolCmd, "shell"], uxSQLSupplier);
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
-  console.error(colors.red("Error during UX orchestration:"), error.message);
+  console.error(colors.cyan("Error during UX orchestration:"), error.message);
   //Deno.exit(1);
 }
 
@@ -249,6 +249,6 @@ try {
   );
   await executeCommand([toolCmd, "web-ui", "--port", "9000"]);
 } catch (error) {
-  console.error(colors.red("Error starting DRH Edge UI:"), error.message);
+  console.error(colors.cyan("Error starting DRH Edge UI:"), error.message);
   //Deno.exit(1);
 }
