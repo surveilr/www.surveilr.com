@@ -97,16 +97,16 @@ async function checkAndCreateCombinedView() {
 
   try {
     // Check if the specific table exists
-    const tableName = 'uniform_resource_cgm_file_metadata'; // Change to your requicyan table name
+    const tableName = 'uniform_resource_cgm_file_metadata'; // Change to your required table name
     const tableExists = db.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`).length > 0;
     
 
     if (tableExists) {
-        console.log(colors.green("Requicyan table exists. Proceeding to create the combined view."));
+        console.log(colors.green("Required table exists. Proceeding to create the combined view."));
         await createCombinedCGMView(dbFilePath); // Call the function to create the combined view
       
     } else {
-      console.error(colors.cyan("The requicyan table does not exist. Cannot create the combined view."));
+      console.error(colors.cyan("The required table does not exist. Cannot create the combined view."));
     }
   } catch (error) {
     console.error(colors.cyan("Error in checkAndCreateCombinedView:"), error.message);
