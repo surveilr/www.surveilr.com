@@ -1043,13 +1043,7 @@ export async function drhSQL() {
           import.meta.resolve("./stateless.sql"),
         );
       }
-
-      async metricsDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./drh-metrics.sql"),
-        );
-      }
+      
       
     }(),
     // new sh.ShellSqlPages(),
