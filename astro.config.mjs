@@ -70,7 +70,7 @@ export default defineConfig({
                   label: "Ingest Commands",
                   collapsed: true,
                   autogenerate: {
-                    directory: "docs/core/cli/ingest-commands",
+                    directory: "core/cli/ingest-commands",
                   },
                 },
                 {
@@ -83,21 +83,21 @@ export default defineConfig({
               label: "Capturable Executables",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/capturable-executables",
+                directory: "core/capturable-executables",
               },
             },
             {
               label: "Concepts",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/concepts",
+                directory: "core/concepts",
               },
             },
             {
               label: "Admin",
               collapsed: true,
               autogenerate: {
-                directory: "docs/core/admin",
+                directory: "core/admin",
               },
             },
           ],
@@ -112,13 +112,13 @@ export default defineConfig({
             {
               label: "RSSD Schema",
               autogenerate: {
-                directory: "docs/standard-library/rssd-schema",
+                directory: "standard-library/rssd-schema",
               },
             },
             {
               label: "Notebooks Schema",
               autogenerate: {
-                directory: "docs/standard-library/notebooks-schema",
+                directory: "standard-library/notebooks-schema",
               },
             },
           ],
@@ -130,7 +130,7 @@ export default defineConfig({
               label: "Discipline-centric Patterns",
               collapsed: true,
               autogenerate: {
-                directory: "docs/patterns/disciplines",
+                directory: "patterns/disciplines",
               },
             },
           ],
