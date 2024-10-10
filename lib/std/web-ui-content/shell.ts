@@ -5,7 +5,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
     return {
       component: "shell",
       title: "Resource Surveillance State Database (RSSD)",
-      icon: "database",
+      icon: "",
+      image: "https://www.surveilr.com/assets/brand/surveilr-icon.png",
       layout: "fluid",
       fixed_top_menu: true,
       link: "/",
@@ -35,8 +36,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       typeof value === "number"
         ? value
         : value
-        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-        : "NULL";
+          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+          : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
               'link', '${rootPath}',
