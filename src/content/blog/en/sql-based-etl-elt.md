@@ -1,6 +1,7 @@
 ---
 title: "Modern Lightweight ETL with SQLite"
-description: "How surveilr can build a unified view across tables of different formats using ELT"
+metaTitle: "Leverage SQLite for Lightweight ELT in Remote Patient Monitoring Data"
+description: "Explore how to use SQLite and SQL views for an efficient ELT process, unifying remote patient monitoring data for seamless analysis and reporting."
 author: "Shahid N. Shah"
 authorImage: "@/images/blog/shahid-shah.avif"
 authorImageAlt: "Shahid Shah"

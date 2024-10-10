@@ -1,7 +1,7 @@
 ---
 title: "Unlocking surveilr's Full Potential the Smart Way: The Power of SQL and SQL views capabilities"
-metaTitle: "The Power of SQL and SQL views capabilities in `surveilr`"
-description: "Discover the SQL centric capability of `surveilr`"
+metaTitle: "Unlocking surveilr's Power with SQL Views for Data Integration"
+description: "Discover how SQL views enhance surveilr's data integration, simplifying complex queries while ensuring security and compliance for regulated sectors."
 author: "Pradeep Narayanan"
 authorImage: "@/images/blog/pradeep-narayanan.avif"
 authorImageAlt: "Avatar Description"

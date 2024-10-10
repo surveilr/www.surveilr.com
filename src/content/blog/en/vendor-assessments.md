@@ -1,7 +1,7 @@
 ---
 title: "Vendor Assessment and Corporate Compliance Evidence Warehouse"
-metaTitle: "Vendor Assessment and Corporate Compliance Evidence Warehouse"
-description: "`surveilr` ensures compliance for supply chain partners (vendor assessments)."
+metaTitle: "Enhance Vendor Compliance with Effective Evidence Management"
+description: "Streamline vendor assessments and ensure compliance with surveilr's secure evidence management, protecting sensitive data while verifying policy adherence."
 author: "Shahid N. Shah"
 role: "Strategic Marketing Manager"
 authorImage: "@/images/blog/shahid-shah.avif"

@@ -1,7 +1,7 @@
 ---
 title: "surveilr: A Local-First, Edge-based SQL-Centric Integration Engine"
-metaTitle: "A Local-First, Edge-based SQL-Centric Integration Engine"
-description: "Discover how surveilr can be used as an integration engine."
+metaTitle: "Local-First Edge-Based SQL Integration Engine for Data Management"
+description: "Discover how surveilr’s local-first, edge-based architecture enhances data integration and compliance for healthcare and regulated sectors."
 author: "Pradeep Narayanan"
 authorImage: "@/images/blog/pradeep-narayanan.avif"
 authorImageAlt: "Avatar Description"
