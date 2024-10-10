@@ -14,7 +14,7 @@ Companies usually have security, privacy, safety and regulatory compliance polic
 
 ## Capturing Compliance Evidence with `surveilr` 
 
-Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/reference/ingest/files#ingest-files) [command](/surveilr/reference/cli/commands/) for software engineers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/surveilr/reference/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/surveilr/reference/concepts/resource-surveillance) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) table. 
+Resource surveillance (`surveilr`)  provides the [file ingestion](/docs/core/cli/ingest-commands/files#ingest-files) [command](/docs/core/cli/cli-commands) for software engineers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/docs/core/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/docs/core/concepts/resource-surveillance/) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/docs/standard-library/rssd-schema/uniform_resource/) table. 
 
 ### Evidence Types
 
@@ -23,7 +23,7 @@ Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/refe
 
 ### Common commands 
 
-- To [ingest files](/surveilr/reference/ingest/files#ingest-files) in the current directory:
+- To [ingest files](/docs/core/cli/ingest-commands/files#ingest-files) in the current directory:
   ```bash
   $ surveilr ingest files
   ```
@@ -45,7 +45,7 @@ A company's policy might state: **"All software engineers/developers who are not
 - Regularly update the OS and development environment for compatibility and security.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies by [capturing evidence](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr). After gathering evidence, `surveilr` captures the machine's operating system information and stores it in the [device](/surveilr/reference/db/surveilr-state-schema/device) table.
+The next step is to use `surveilr` to ensure compliance with these policies by [capturing evidence](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr). After gathering evidence, `surveilr` captures the machine's operating system information and stores it in the [device](/docs/standard-library/rssd-schema/device/) table.
 
 
  #### SQL Query for Verification of Operating System Compliance
@@ -88,7 +88,7 @@ A company's policy might state: **"All Software engineers/developers across all 
 
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 
 #### SQL Query for Verification of Packages Installation Compliance
@@ -163,11 +163,11 @@ WHERE
 A company's policy might state: **"All Software engineers/developers across all the projects must have a consistent code coverage process."** This policy can be broken down into the following requirements:
 
 - All developers who use ReactJS as programming language must use Jest and React Testing Library as the coverage tools.
-- All developers who use ReactJS as programming language must follow Code [Unit testing](/surveilr/disciplines/software-engineer#unit-tests) Policy.
+- All developers who use ReactJS as programming language must follow Code [Unit testing](/docs/patterns/disciplines/software-engineer#unit-tests) Policy.
 - All React developers must ensure they are following React reference Project for React code quality.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Packages Installation Compliance
 
@@ -245,7 +245,7 @@ A company's policy might state: **"All Software engineers/developers across all 
 - All developers who use ReactJS as programming language must use Playwright as the e2e testing tools.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Packages Installation Compliance
 
@@ -315,7 +315,7 @@ A company's policy might state: **"All Software engineers/developers across all 
 - All Node.js projects must use Husky to manage Git hooks
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 
 #### SQL Query for Verification of Husky Installation Compliance
@@ -362,7 +362,7 @@ A company's policy might state: **"All Software engineers/developers across all 
 - All developers who use Node.js as a runtime for their programming language must use Prettier as the formatting tool. 
   
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 
 #### SQL Query for Verification of Code Formatter Installation Compliance
@@ -406,7 +406,7 @@ A company's policy might state: **"All Software engineers/developers across all 
 - All developers who use Node.js as a runtime for their programming language must use ESLint as the linting tool.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/software-engineer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 
 #### SQL Query for Verification of ESLint as Linting Tool Compliance

@@ -13,7 +13,7 @@ Quality Engineers play an essential role in ensuring that software products meet
 
 ## Capturing Compliance Evidence with `surveilr` 
 
-Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/reference/ingest/files#ingest-files) [command](/surveilr/reference/cli/commands/) for QA engineers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/surveilr/reference/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/surveilr/reference/concepts/resource-surveillance) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) table. 
+Resource surveillance (`surveilr`)  provides the [file ingestion](/docs/core/cli/ingest-commands/files#ingest-files) [command](/docs/core/cli/cli-commands) for QA engineers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/docs/core/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/docs/core/concepts/resource-surveillance/) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/docs/standard-library/rssd-schema/uniform_resource/) table. 
 
 ### Evidence Types
 
@@ -22,7 +22,7 @@ Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/refe
 
 ### Common Commands
 
-- To [ingest files](/surveilr/reference/ingest/files#ingest-files) in the current directory:
+- To [ingest files](/docs/core/cli/ingest-commands/files#ingest-files) in the current directory:
   ```bash
   $ surveilr ingest files
   ```
@@ -44,7 +44,7 @@ A company’s policy might state: **“All quality engineers must create a detai
 
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Test Plan Compliance
 
@@ -84,7 +84,7 @@ A company's policy might state: **“All quality engineers must design test case
 - Ensure test cases cover all relevant functionalities.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Designing Test Cases 
 
@@ -123,7 +123,7 @@ A company’s policy might state: **“All quality engineers must set up test en
 - Ensure environments are regularly updated and maintained.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Setting Test Environments
 
@@ -162,7 +162,7 @@ A company’s policy might state: **“All quality engineers must manually execu
 - Document the results of each test execution.
   
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 #### SQL Query for Verification of Manual Test Execution
 
 ```sql
@@ -199,7 +199,7 @@ A company’s policy might state: **“All quality engineers must develop and ex
 - Increase test coverage with automated scripts.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Automated Test Scripts
 
@@ -237,7 +237,7 @@ A company’s policy might state: **“All quality engineers must perform regres
 - Document any issues found during regression testing.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Regression Testing
 
@@ -275,7 +275,7 @@ A company's policy might state: **“All quality engineers must conduct performa
 - Document the performance benchmarks and test results.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/qa#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Performance Testing
 

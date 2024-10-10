@@ -40,39 +40,38 @@ Get the latest `surveilr` by following these steps to complete the installation:
 
 - Visit our GitHub Releases page:
 
-   - Navigate to our [GitHub Releases](https://github.com/opsfolio/releases.opsfolio.com/releases) page to download the latest version of `surveilr` that’s compatible with your operating system.
+  - Navigate to our [GitHub Releases](https://github.com/opsfolio/releases.opsfolio.com/releases) page to download the latest version of `surveilr` that’s compatible with your operating system.
 
--  Download the appropriate version:
+- Download the appropriate version:
 
-   - Select and download the version that matches your operating system (Windows, macOS, or Linux).
+  - Select and download the version that matches your operating system (Windows, macOS, or Linux).
 
 - Extract the executable file from the downloaded archive:
 
-   - **Windows:**
+  - **Windows:**
 
-     - Extract the downloaded zip file
-     - Copy the executable ( ends with `.exe` ) file from the extracted zip folder and move to your desired path or directory
-     - Open your terminal and change directory (cd) to where the extracted file was moved
+    - Extract the downloaded zip file
+    - Copy the executable ( ends with `.exe` ) file from the extracted zip folder and move to your desired path or directory
+    - Open your terminal and change directory (cd) to where the extracted file was moved
 
-   - **macOS and Linux:**
-     - Follow the instructions in [quick start](/docs/core/installation#quick-start)
+  - **macOS and Linux:**
+    - Follow the instructions in [quick start](/docs/core/installation#quick-start)
 
 - Run verification steps [here](/docs/core/installation#verify-installation).
-
 
 ### Alternative Installation for Linux Using Eget
 
 - Before you can get anything, you have to get [Eget](https://github.com/zyedidia/eget):
 
-   ```bash
-   $ curl https://zyedidia.github.io/eget.sh | sh
-   ```
+  ```bash
+  $ curl https://zyedidia.github.io/eget.sh | sh
+  ```
 
 - Now install `surveilr` using `eget`:
 
-   ```bash
-   $ eget opsfolio/releases.opsfolio.com --asset tar.gz
-   ```
+  ```bash
+  $ eget opsfolio/releases.opsfolio.com --asset tar.gz
+  ```
 
 - Run verification steps [here](/docs/core/installation#verify-installation).
 
@@ -87,7 +86,6 @@ $ surveilr --help                         # get CLI help (pay special attention 
 ```
 
 Checkout more commands in the [reference section](/docs/core/cli/cli-commands)
-
 
 ### Upgrading `surveilr`
 
@@ -116,4 +114,5 @@ The following commands shows how to downgrade `surveilr` to any version:
 ```bash
 $ surveilr upgrade -v 0.12.0 ## downgrades to version 0.12.0
 ```
+
 This takes the same form as the `upgrade` command with the only difference being that a lower version is passed.

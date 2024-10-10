@@ -12,7 +12,7 @@ DevOps engineers play a crucial role in ensuring that a company's infrastructure
 
 ## Capturing Compliance Evidence with `surveilr`
 
-`surveilr` provides several types of [ingestion](/surveilr/reference/ingest/files#ingest-files) [commands](/surveilr/reference/cli/commands/) for DevOps engineers to execute. These commands captures compliance evidence from [Work Product Artifacts (WPAs)](/surveilr/reference/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/surveilr/reference/concepts/resource-surveillance) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) table. 
+`surveilr` provides several types of [ingestion](/docs/core/cli/ingest-commands/files#ingest-files) [commands](/docs/core/cli/cli-commands) for DevOps engineers to execute. These commands captures compliance evidence from [Work Product Artifacts (WPAs)](/docs/core/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/docs/core/concepts/resource-surveillance/) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/docs/standard-library/rssd-schema/uniform_resource/) table. 
 
 ### Evidence Types
 
@@ -22,12 +22,12 @@ DevOps engineers play a crucial role in ensuring that a company's infrastructure
 
 ### Common Commands
 
-- To [ingest files](/surveilr/reference/ingest/files#ingest-files) in the current directory:
+- To [ingest files](/docs/core/cli/ingest-commands/files#ingest-files) in the current directory:
   ```bash
   $ surveilr ingest files
   ```
 
-- Testing shell [tasks](/surveilr/reference/ingest/tasks/)
+- Testing shell [tasks](/docs/core/cli/ingest-commands/tasks/)
 
   ```bash
   $ cat <filename> | surveilr ingest tasks
@@ -63,7 +63,7 @@ To automate tasks related to security audits and updates, DevOps engineers can u
 
 2. Remote Server Integration:
 
-    - [Merge](/surveilr/reference/admin/merge) data from remote servers into a consolidated RSSD using:
+    - [Merge](http://localhost:4321/docs/core/admin/merge/) data from remote servers into a consolidated RSSD using:
   
         ```bash
         $ surveilr admin merge

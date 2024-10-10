@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_plm_acct_label
+title: Uniform Resource Ingest Session PLM Account Label
 ---
 
 ## Description

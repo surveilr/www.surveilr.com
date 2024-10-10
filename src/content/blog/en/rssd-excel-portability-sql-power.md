@@ -36,14 +36,14 @@ Surveillance State Database (RSSD)** as something similar to **Microsoft
 Excel**—a tool most of us have used at some point. Here’s a breakdown of how the
 RSSD works, using an Excel analogy:
 
-### **RSSD is Like an Excel Workbook**
+### RSSD is Like an Excel Workbook
 
 Just like an Excel workbook is a **single file** that contains all of your data,
 an RSSD is also a **single file** that contains all of the data surveilr is
 managing. This single file can store everything from simple numbers to complex
 records that need to be tracked and queried.
 
-### **Tables are Like Excel Worksheets**
+### Tables are Like Excel Worksheets
 
 In Excel, you organize data into **worksheets**. Similarly, in the RSSD, the
 data is organized into **tables**. Just as a worksheet holds rows and columns of
@@ -51,7 +51,7 @@ data, a table in the RSSD holds **rows of records and columns of fields**. For
 example, you might have one table for customer data, another for transactions,
 and yet another for logs.
 
-### **SQL is Like Excel Formulas**
+### SQL is Like Excel Formulas
 
 In Excel, you use **formulas** to manipulate your data. These formulas allow you
 to perform calculations, look up values, or summarize data across your
@@ -63,7 +63,7 @@ Just like in Excel, where you can create simple to complex formulas depending on
 your needs, the RSSD allows you to extract insights from your data using
 flexible SQL queries that work across different tables of information.
 
-### **Flexibility and Power**
+### Flexibility and Power
 
 Just as Excel gives you the ability to manipulate, organize, and analyze your
 data in many different ways, the RSSD allows you to do all of this too—only it
@@ -71,7 +71,7 @@ uses SQL, which is more powerful when working with large datasets. For example,
 while Excel might slow down with very large workbooks, the RSSD, thanks to
 SQLite, can handle **millions of records** without breaking a sweat.
 
-### **Portable and Self-Contained**
+### Portable and Self-Contained
 
 In the same way that you can take an Excel file and send it to someone else (and
 they’ll have access to all the worksheets and data), the RSSD is a
@@ -80,7 +80,7 @@ with all its tables and data, simply by copying the RSSD file to another
 location. There’s no need for a complex setup or configuration—just open it and
 start working with the data.
 
-### How RSSD Works as a SQLite Database
+## How RSSD Works as a SQLite Database
 
 The **Resource Surveillance State Database (RSSD)** leverages **SQLite**, a
 fully-featured relational database that is known for being:
@@ -103,7 +103,7 @@ fully-featured relational database that is known for being:
   can move the entire state of your data from one environment to another by
   copying a single file.
 
-### Why SQLite?
+## Why SQLite?
 
 1. **Local-First Processing**: SQLite's small footprint and self-contained
    nature make it an ideal choice for **local-first** and **edge-based** data
@@ -122,7 +122,7 @@ flexibility and performance in a portable, easy-to-manage format.
 
 ## Why RSSD makes Data Integration easier for those without IT departments
 
-### **No Server Setup Required**
+### No Server Setup Required
 
 One of the biggest advantages of using **SQLite** for the RSSD is that there’s
 no need for a dedicated database server. Everything happens locally within a
@@ -130,7 +130,7 @@ single file. This simplifies setup, reduces costs, and minimizes dependencies on
 external infrastructure, which is especially beneficial for smaller
 organizations that may not have large IT departments.
 
-### **Fast and Lightweight**
+### Fast and Lightweight
 
 Because the RSSD is built on **SQLite**, it’s designed to be **fast and
 lightweight**. This is critical for local-first operations, where data needs to
@@ -138,7 +138,7 @@ be processed efficiently on edge devices or local machines before being
 synchronized with a central system. Despite being lightweight, the RSSD can
 handle a high volume of data with **excellent performance**.
 
-### **SQL for All Data Operations**
+### SQL for All Data Operations
 
 By standardizing all data operations with **SQL**, the RSSD makes it easy for
 non-technical users who are familiar with SQL (or even just comfortable with
@@ -146,14 +146,14 @@ Excel formulas) to work with the data. SQL is a widely-known language that
 allows users to run **queries**, **generate reports**, and **analyze data**
 without needing to learn a new, proprietary system.
 
-### **Reliability and Durability**
+### Reliability and Durability
 
 The RSSD ensures data consistency through its **ACID-compliant** transactions,
 meaning you can trust that your data is safe, even during system failures. Every
 change made to the RSSD is guaranteed to be completed fully or not at all, so
 you never end up with incomplete or corrupted data.
 
-### **Portable and Easy to Backup**
+### Portable and Easy to Backup
 
 Because the entire database is stored as a single file, **backing up** and
 **restoring** data is as simple as copying the RSSD file. This simplicity makes

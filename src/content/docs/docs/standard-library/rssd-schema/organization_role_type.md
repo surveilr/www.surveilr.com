@@ -1,5 +1,5 @@
 ---
-title: organization_role_type
+title: Organization Role Type
 ---
 
 ## Description

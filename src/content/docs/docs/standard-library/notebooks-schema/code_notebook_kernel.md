@@ -1,5 +1,5 @@
 ---
-title: code_notebook_kernel
+title: Code Notebook Kernel
 description: Explanation of the `code_notebook_kernel` 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_resource_path_match_rule
+title: Uniform Resource Ingest Resource Path Match Rule
 ---
 
 ## Description

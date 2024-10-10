@@ -1,5 +1,5 @@
 ---
-title: gender_type
+title: Gender Type
 ---
 
 ## Description

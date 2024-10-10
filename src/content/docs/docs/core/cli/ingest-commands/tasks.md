@@ -115,4 +115,4 @@ structured output data in the RSSD.
 
 To test the output of shell tasks without persisting with `ingest tasks`, take a
 look at
-[capturable executables](/surveilr/reference/ingest/capexec#testing-shell-tasks)
+[capturable executables](/docs/core/cli/ingest-commands/capexec#testing-shell-tasks)

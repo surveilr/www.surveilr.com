@@ -1,5 +1,5 @@
 ---
-title: party_type
+title: Party Type
 ---
 
 ## Description

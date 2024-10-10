@@ -1,5 +1,5 @@
 ---
-title: ur_ingest_session_task
+title: Uniform Resource Ingest Session Task
 ---
 
 ## Description
