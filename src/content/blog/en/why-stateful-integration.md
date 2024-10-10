@@ -25,7 +25,7 @@ across various systems can be frustrating. This is exactly where **stateful
 integration** makes a difference—helping non-technical staff access, query, and
 manage their data efficiently without the need for a large IT team.
 
-### How Surveilr Works
+## How Surveilr Works
 
 1. **Stateful Data Integration**: Unlike simple data transfer tools, surveilr
    doesn’t just move data between systems. It stores and organizes the data in a
@@ -63,7 +63,7 @@ processed, surveilr does this automatically. It retains the “state” of the d
 so non-technical staff can focus on **using** the data rather than trying to
 figure out how it got there.
 
-### Why is This So Important for Non-Technical Teams?
+## Why is This So Important for Non-Technical Teams?
 
 In many small and mid-sized businesses, the burden of data integration often
 falls on **analysts**, **compliance officers**, or **business managers**—not
@@ -93,7 +93,7 @@ complexity), surveilr offers a structured, pre-defined approach to how data is
 stored and organized. This makes life easier for **non-technical staff** in
 several key ways:
 
-### 1. **Less Guesswork, More Usability**
+### 1. Less Guesswork, More Usability
 
 When a system imposes a standardized structure on your data, you don’t have to
 spend time figuring out how to organize or label everything yourself. The
@@ -105,7 +105,7 @@ For non-technical users, this removes a major hurdle. With surveilr, the data is
 already organized in a meaningful, searchable way. You can start querying it
 immediately using **basic SQL** knowledge.
 
-### 2. **SQL Queries Become Simpler**
+### 2. SQL Queries Become Simpler
 
 In an unstructured or loosely structured system, writing SQL queries can become
 difficult and time-consuming. You need to know where the data is located, how
@@ -120,7 +120,7 @@ structured. As a result, analysts don’t need to spend time crafting complex
 queries. They can quickly access the information they need with simple,
 straightforward SQL commands.
 
-### 3. **Fewer Errors, Greater Accuracy**
+### 3. Fewer Errors, Greater Accuracy
 
 When you don’t have a team of IT professionals maintaining your data systems,
 errors can slip through the cracks—especially if different parts of the
