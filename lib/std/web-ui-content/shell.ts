@@ -6,6 +6,7 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       component: "shell",
       title: "Resource Surveillance State Database (RSSD)",
       icon: "",
+      favicon: "https://www.surveilr.com/assets/brand/surveilr-icon.png",
       image: "https://www.surveilr.com/assets/brand/surveilr-icon.png",
       layout: "fluid",
       fixed_top_menu: true,
