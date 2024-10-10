@@ -792,6 +792,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   "component": "shell",
   "title": "Diabetes Research Hub EDGE",
   "icon": "",
+  "image": "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png",
   "layout": "fluid",
   "fixed_top_menu": true,
   "link": "/drh/",
@@ -807,8 +808,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js"
   ],
-  "footer": "Resource Surveillance Web UI",
-  "image": "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png"
+  "footer": "Resource Surveillance Web UI"
 };',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -817,6 +817,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'SELECT ''shell'' AS component,
        ''Diabetes Research Hub EDGE'' AS title,
        NULL AS icon,
+       ''https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png'' AS image,
        ''fluid'' AS layout,
        true AS fixed_top_menu,
        ''/drh/'' AS link,
@@ -950,8 +951,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                 )
             )
         ) as menu_item,
-       ''Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || ''](/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), 2) || '')'' as footer,
-       ''https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png'' AS image;',
+       ''Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || ''](/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), 2) || '')'' as footer;',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
