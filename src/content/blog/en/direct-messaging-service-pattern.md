@@ -1,6 +1,7 @@
 ---
 title: "How surveilr Transforms Secure Health Data Exchange in Clinical Workflows"
-description: "surveilr usage in secure messaging service integration"
+metaTitle: How `surveilr` Enhances Secure Health Data Exchange for HISPs
+description: "`surveilr` automates Direct Secure Messaging for HISPs, ensuring regulatory compliance, data integrity, and seamless integration with healthcare IT systems."
 author: "Ditty Bijil"
 authorImage: "@/images/blog/user-no-image.avif"
 authorImageAlt: "Ditty Bijil"

@@ -1,7 +1,7 @@
 ---
 title: "surveilr: A Local-First, Edge-based SQL-Centric Integration Engine"
-metaTitle: "A Local-First, Edge-based SQL-Centric Integration Engine"
-description: "Discover how surveilr can be used as an integration engine."
+metaTitle: "Local-First Edge-Based SQL Integration Engine for Data Management"
+description: "Discover how surveilr’s local-first, edge-based architecture enhances data integration and compliance for healthcare and regulated sectors."
 author: "Pradeep Narayanan"
 authorImage: "@/images/blog/pradeep-narayanan.avif"
 authorImageAlt: "Avatar Description"
@@ -19,31 +19,41 @@ Here’s what that means and why it’s crucial:
 ## Why surveilr’s Architecture Matters?
 
 ### Local-First:
+
 Unlike traditional platforms where data is sent to the cloud for processing, `surveilr` prioritizes local data handling. Data is prepared and processed locally before being transmitted to cloud or central servers, reducing latency and enhancing control over sensitive information.
+
 ### Edge-Based:
+
 `surveilr` focuses on processing data as close to its source as possible. This means data is collected, processed, and sometimes even analyzed on devices near the point of collection, such as workstations, mobile phones, or local servers, minimizing the need for centralization.
-### Stateful: 
+
+### Stateful:
+
 `surveilr` doesn’t just pass data between systems—it stores it in a universal schema with full SQL querying capabilities. This means data can be analyzed, processed, and queried at any stage of the pipeline, giving users unparalleled control and flexibility.
+
 ### SQL-Centric:
+
 Data is structured to be fully queryable via SQL. This allows for orchestrated workflows and seamless data manipulation, making it easier to integrate, process, and analyze large datasets.
+
 ### Agility:
+
 You can easily configure queries, data models, or applications without the need for pre-planning. In addition to SQL queries, the data ingestion and integration strategy is well suited to support real-time analytics, , and machine learning.
+
 ### Speed:
+
 Keeping data in a raw state also makes it available for use far faster since you don’t have to perform time-intensive tasks such as transforming the data and developing additional table(s) and view(s) until you define the business question(s) that need to be addressed.
 
-##  `surveilr` Features and Use Cases
+## `surveilr` Features and Use Cases
 
 The various functional components/layers of the **Resource Surveillance Integration Engine** (`surveilr`) are given below,
 
-| Components/Layers | Details |
-|-------------------|----------|
-| Acquisition of Content (Data) | Steps involves in the content acquisition i.e preparation of the files/data for ingestion. In addition to the local files, we can use technologies such as WebDAV, SFTP, AWS S3, Git and Virtual Printer capabilities are the part of this layer. |
-| Advanced Data Acquisition Layer | This layer helps users for enhanced data preparation using Capturable Executables(CEs). With the support of processing instructions (PI) Capturable Executables(CEs) further helps the user to prepare data with specific message standards like JSON, plain/text etc |
-| Message format/standard Support | The Resource Surveillance & Integration Engine supports a wide range of standards like HL7, FHIR, JSON, and XML but can also handle a variety of file types for exchange, such as CSV, Excel, or custom formats. |
-| Stateful Ingestion | Involves the steps of ingesting and processing data into a structured universal schema with full SQL querying support. surveilr leverages state tables to track the status of ingested files, ensuring that files are not re-ingested unless changes are detected. This approach prevents redundant ingestion, optimizes performance, and supports incremental updates. By maintaining the state of ingested data, surveilr ensures efficient data management, scalability, and transparency, while also providing a clear audit trail of the ingestion history. |
-| Web UI for Viewing Ingested Data Locally | Resource Surveillance & Integration Engine (`surveilr`) provides a Web UI component that allows users to view ingested data in real time and access data processed offline |
-| Data Synchronization and Aggregation | The Data Synchronization and Aggregation phase involves systematically synchronizing and aggregating the ingested and processed data into a central data store. This ensures the data is ready for advanced analytics, reporting, and integration with other supporting systems. |
-
+| Components/Layers                        | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Acquisition of Content (Data)            | Steps involves in the content acquisition i.e preparation of the files/data for ingestion. In addition to the local files, we can use technologies such as WebDAV, SFTP, AWS S3, Git and Virtual Printer capabilities are the part of this layer.                                                                                                                                                                                                                                                                                                                |
+| Advanced Data Acquisition Layer          | This layer helps users for enhanced data preparation using Capturable Executables(CEs). With the support of processing instructions (PI) Capturable Executables(CEs) further helps the user to prepare data with specific message standards like JSON, plain/text etc                                                                                                                                                                                                                                                                                            |
+| Message format/standard Support          | The Resource Surveillance & Integration Engine supports a wide range of standards like HL7, FHIR, JSON, and XML but can also handle a variety of file types for exchange, such as CSV, Excel, or custom formats.                                                                                                                                                                                                                                                                                                                                                 |
+| Stateful Ingestion                       | Involves the steps of ingesting and processing data into a structured universal schema with full SQL querying support. surveilr leverages state tables to track the status of ingested files, ensuring that files are not re-ingested unless changes are detected. This approach prevents redundant ingestion, optimizes performance, and supports incremental updates. By maintaining the state of ingested data, surveilr ensures efficient data management, scalability, and transparency, while also providing a clear audit trail of the ingestion history. |
+| Web UI for Viewing Ingested Data Locally | Resource Surveillance & Integration Engine (`surveilr`) provides a Web UI component that allows users to view ingested data in real time and access data processed offline                                                                                                                                                                                                                                                                                                                                                                                       |
+| Data Synchronization and Aggregation     | The Data Synchronization and Aggregation phase involves systematically synchronizing and aggregating the ingested and processed data into a central data store. This ensures the data is ready for advanced analytics, reporting, and integration with other supporting systems.                                                                                                                                                                                                                                                                                 |
 
 ## surveilr’s Ingestion/Integration Pipeline
 
@@ -133,7 +143,7 @@ Consolidated data enables sophisticated analysis and reporting through:
 
 ### Integration with Other Systems
 
- `surveilr` facilitates data exchange across different systems through:
+`surveilr` facilitates data exchange across different systems through:
 
 - **APIs:** Provides APIs for external systems to access aggregated data.
 - **Data Export:** Exports data in formats like CSV and JSON.
@@ -166,41 +176,43 @@ Once acquired, data passes through robust ingestion pipelines:
 
 - Multiple Format Support:
 
-    - Structured data: JSON, XML, CSV
-    - Industry protocols: HL7, FHIR, EDI
+  - Structured data: JSON, XML, CSV
+  - Industry protocols: HL7, FHIR, EDI
 
 - Data Transformation:
 
-    - Conversion into queryable formats, primarily JSON
-    - Optimization through columnar storage formats like Parquet
-    - Focus on enhancing analytics and reporting capabilities
+  - Conversion into queryable formats, primarily JSON
+  - Optimization through columnar storage formats like Parquet
+  - Focus on enhancing analytics and reporting capabilities
 
 ### System Integration and Storage
 
 Data flows seamlessly between various systems:
 
 - Integration Points:
-    - PLM systems (GitHub, Jira)
-    - ERP systems
-    - Messaging platforms
+  - PLM systems (GitHub, Jira)
+  - ERP systems
+  - Messaging platforms
 - Data Storage and Processing:
-     - Custom SQL tables
-      - Built-in SQL views
-    - Multiple database support:
-        - SQLite,PostgreSQL,MySQL,Cloud-based systems (DuckDB)
+  - Custom SQL tables
+  - Built-in SQL views
+  - Multiple database support:
+    - SQLite,PostgreSQL,MySQL,Cloud-based systems (DuckDB)
+
 ### User Interaction Layer
 
 The data flow culminates in two primary interfaces:
 
 - Surveilr Web UI:
-    - SQL query execution
-    - Content management capabilities
+  - SQL query execution
+  - Content management capabilities
 - Console Interface:
-    - SQL navigation tools
-    - Orchestration features
-    - Audit functionality
+  - SQL navigation tools
+  - Orchestration features
+  - Audit functionality
 
 ## Looking Ahead
+
 As edge computing continues to evolve, surveilr's local-first, stateful approach to data integration positions it as a powerful tool for organizations looking to optimize their data processing and integration pipelines. Whether you're dealing with healthcare data, infrastructure monitoring, or complex content assembly, surveilr provides the flexibility, security, and performance needed in today's data landscape.
 
 Ready to transform your data integration strategy? Explore `surveilr` and experience the power of local-first, edge-based, SQL centric data processing engine.
