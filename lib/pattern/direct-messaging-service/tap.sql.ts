@@ -54,32 +54,72 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         `View "${viewName}" exists in the DB`,
       );
   }
-
-  // "Check for each inbox item a patient data exists in 'patient_detail'"(
-  //   ctx: TestCaseContext,
-  // ) {
-  //   const patientDetailView = "patient_detail";
-  //   const inboxView = "inbox";
-  //   return this.assertThat<"inbox_patient_record">(ctx)`
-  //           SELECT count(*) as patient_count
-  //             ${inboxView} i
-  //             INNER JOIN ${patientDetailView}
-  //            WHERE i.id = message_uid`
-  //     .equals(
-  //       patient_count,
-  //       `select count(*) as inbox_count from ${inboxView}`
-  //     )
-  // }
-  "Check for each inbox item a patient data exists in 'patient_detail'"(ctx: TestCaseContext) {
+  "Check for each inbox item, a patient data exists in 'patient_detail'"(ctx: TestCaseContext) {
     const patientDetailView = "patient_detail";
     const inboxView = "inbox";
     return this.assertThat<"patient_count">(ctx)`
       SELECT count(*) as patient_count from ${inboxView} i INNER JOIN ${patientDetailView} WHERE i.id = message_uid`
       .equals("patient_count", `(select count(*) as inbox_count from ${inboxView})`);
   }
+  "Check if a view 'patient_observation' exists"(ctx: TestCaseContext) {
+    const viewName = "patient_observation";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
+  "Check if a view 'author_detail' exists"(ctx: TestCaseContext) {
+    const viewName = "author_detail";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
+  "Check if a view 'patient_lab_report' exists"(ctx: TestCaseContext) {
+    const viewName = "patient_lab_report";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
+  "Check if a view 'patient_social_history' exists"(ctx: TestCaseContext) {
+    const viewName = "patient_social_history";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
+  "Check if a view 'patient_immunization_data' exists"(ctx: TestCaseContext) {
+    const viewName = "patient_immunization_data";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
+
+  "Check if a view 'patient_medical_equipment' exists"(ctx: TestCaseContext) {
+    const viewName = "patient_medical_equipment";
+    return this.assertThat(ctx)`
+            SELECT name FROM sqlite_master WHERE type = 'view' AND name = '${viewName}'`
+      .case(
+        `name = '${viewName}'`, // the assertion SQL expression goes into `CASE WHEN`
+        `View "${viewName}" exists in the DB`,
+      );
+  }
 
 
 }
+
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
