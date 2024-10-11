@@ -16,10 +16,9 @@ const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
 //const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
-const RSC_BASE_URL = "https://raw.githubusercontent.com/surveilr/www.surveilr.com/ani/feat/ui-parity/lib/service/diabetes-research-hub";
 
-//const UX_URL ="https://www.surveilr.com/lib/service/diabetes-research-hub"
-const UX_URL ="http://localhost:4321/lib/service/diabetes-research-hub"
+const UX_URL ="https://www.surveilr.com/lib/service/diabetes-research-hub"
+//const UX_URL ="http://localhost:4321/lib/service/diabetes-research-hub"
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -154,7 +153,7 @@ try {
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
   );  
   uxSQL = await fetchSqlContent(
-    `${RSC_BASE_URL}/package.sql`,
+    `${UX_URL}/package.sql`,
   );
   //uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
