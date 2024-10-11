@@ -15,10 +15,9 @@ const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-//const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 
-const UX_URL ="https://www.surveilr.com/lib/service/diabetes-research-hub"
-//const UX_URL ="http://localhost:4321/lib/service/diabetes-research-hub"
+
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -130,6 +129,19 @@ if (Deno.args.length === 0) {
 
 // Store the folder name in a variable
 const folderName = Deno.args[0];
+
+// Determine UX_URL based on the hostname
+let UX_URL: string;
+const hostname = Deno.env.get("HOST") || "localhost"; // Default to localhost if not set
+if (hostname === "localhost" || hostname === "127.0.0.1") {
+  console.log(colors.cyan(`Running in localhost`));
+  UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
+} else {
+  console.log(colors.cyan(`Executing from remote study folder`));
+  UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
+}
+
+console.log(colors.cyan(`Using UX_URL: ${UX_URL}`));
 
 
 // Define synchronous suppliers
