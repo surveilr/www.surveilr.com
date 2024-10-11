@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
@@ -16,6 +16,8 @@ const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
 const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
+//const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub"; // can be used if local server is accessible
 
 
 
@@ -129,19 +131,6 @@ if (Deno.args.length === 0) {
 
 // Store the folder name in a variable
 const folderName = Deno.args[0];
-
-// Determine UX_URL based on the hostname
-let UX_URL: string;
-const hostname = Deno.env.get("HOST") || "localhost"; // Default to localhost if not set
-if (hostname === "localhost" || hostname === "127.0.0.1") {
-  console.log(colors.cyan(`Running in localhost`));
-  UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
-} else {
-  console.log(colors.cyan(`Executing from remote study folder`));
-  UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
-}
-
-console.log(colors.cyan(`Using UX_URL: ${UX_URL}`));
 
 
 // Define synchronous suppliers
