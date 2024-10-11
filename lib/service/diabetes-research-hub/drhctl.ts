@@ -15,10 +15,9 @@ const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-const RSC_BASE_URL =
-  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 
-const UX_URL ="https://www.surveilr.com/lib/service/diabetes-research-hub"
+
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -31,9 +30,10 @@ async function fetchSqlContent(url: string): Promise<string> {
   } catch (error) {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,
+      error.message,      
     );
-    //Deno.exit(1);
+    Deno.exit(1);
+    return '';
   }
 }
 
@@ -55,7 +55,7 @@ async function executeCommand(
     );
 
     if (!result.success) {
-      //console.log(`Error ${result.stderr}`);
+      console.log(`Error ${result.stderr()}`);
       throw new Error(`Command failed with status ${result.code}`);
     }
   } catch (error) {
@@ -63,7 +63,7 @@ async function executeCommand(
       colors.cyan(`Error executing command ${cmd.join(" ")}:`),
       error.message,
     );
-    //Deno.exit(1);
+    Deno.exit(1);
   }
 }
 
@@ -86,7 +86,7 @@ async function checkAndDeleteFile(filePath: string) {
         colors.cyan(`Error checking or deleting file ${filePath}:`),
         error.message,
       );
-      //Deno.exit(1);
+      Deno.exit(1);
     }
   }
 }
@@ -130,12 +130,25 @@ if (Deno.args.length === 0) {
 // Store the folder name in a variable
 const folderName = Deno.args[0];
 
+// Determine UX_URL based on the hostname
+let UX_URL: string;
+const hostname = Deno.env.get("HOST") || "localhost"; // Default to localhost if not set
+if (hostname === "localhost" || hostname === "127.0.0.1") {
+  console.log(colors.cyan(`Running in localhost`));
+  UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
+} else {
+  console.log(colors.cyan(`Executing from remote study folder`));
+  UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
+}
+
+console.log(colors.cyan(`Using UX_URL: ${UX_URL}`));
+
 
 // Define synchronous suppliers
 const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
   deidentificationSQL;
 const vvSQLSupplier: FlexibleTextSupplierSync = () => vvSQL;
-//const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
+const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
 
 let deidentificationSQL: string;
 let vvSQL: string;
@@ -151,10 +164,10 @@ try {
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
   );  
-  // uxSQL = await fetchSqlContent(
-  //   `${UX_URL}/package.sql`,
-  // );
-  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
+  uxSQL = await fetchSqlContent(
+    `${UX_URL}/package.sql`,
+  );
+  //uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
     colors.cyan(
@@ -162,7 +175,7 @@ try {
     ),
     error.message,
   );
-  //Deno.exit(1);
+  Deno.exit(1);
 }
 
 // Check and delete the file if it exists
@@ -176,7 +189,7 @@ try {
   await executeCommand([toolCmd, "ingest", "files", "-r", `${folderName}/`]);
 } catch (error) {
   console.error(colors.cyan("Error ingesting files:"), error.message);
-  //Deno.exit(1);
+  Deno.exit(1);
 }
 
 
@@ -187,48 +200,49 @@ try {
   );
 } catch (error) {
   console.error(colors.cyan("Error transforming CSV files:"), error.message);
-  //Deno.exit(1);
+  Deno.exit(1);
 }
 
 
-try {
-  console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
-  await executeCommand(
-    [toolCmd, "orchestrate", "-n", "deidentification"],
-    deidentificationSQLSupplier,
-  );
-  console.log(colors.green("Deidentification successful."));
-} catch (error) {
-  console.error(colors.cyan("Error during DeIdentification:"), error.message);
-  //Deno.exit(1);
-}
+// try {
+//   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
+//   await executeCommand(
+//     [toolCmd, "orchestrate", "-n", "deidentification"],
+//     deidentificationSQLSupplier,
+//   );
+//   console.log(colors.green("Deidentification successful."));
+// } catch (error) {
+//   console.error(colors.cyan("Error during DeIdentification:"), error.message);
+//   Deno.exit(1);
+// }
 
-try {
-  console.log(
-    colors.dim(`Performing Verification and Validation: ${folderName}...`),
-  );
-  await executeCommand([toolCmd, "orchestrate", "-n", "v&v"], vvSQLSupplier);
-  console.log(
-    colors.green(
-      "Verification and validation orchestration completed successfully.",
-    ),
-  );
-} catch (error) {
-  console.error(
-    colors.cyan("Error during Verification and Validation:"),
-    error.message,
-  );
-  //Deno.exit(1);
-}
+// try {
+//   console.log(
+//     colors.dim(`Performing Verification and Validation: ${folderName}...`),
+//   );
+//   await executeCommand([toolCmd, "orchestrate", "-n", "v&v"], vvSQLSupplier);
+//   console.log(
+//     colors.green(
+//       "Verification and validation orchestration completed successfully.",
+//     ),
+//   );
+// } catch (error) {
+//   console.error(
+//     colors.cyan("Error during Verification and Validation:"),
+//     error.message,
+//   );
+//   Deno.exit(1);
+// }
+
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
-  //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  executeSqlCommands(uxSQL); // Execute UX SQL commands
+  await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  //executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
-  //Deno.exit(1);
+  Deno.exit(1);
 }
 
 try {
@@ -240,5 +254,5 @@ try {
   await executeCommand([toolCmd, "web-ui", "--port", "9000"]);
 } catch (error) {
   console.error(colors.cyan("Error starting DRH Edge UI:"), error.message);
-  //Deno.exit(1);
+  Deno.exit(1);
 }
