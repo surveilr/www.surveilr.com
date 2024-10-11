@@ -3,7 +3,6 @@
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 import * as drhux from "./package.sql.ts";
-import { createCombinedCGMView } from "./combined-cgm-tracing-generator.ts";
 import {
   FlexibleTextSupplierSync,
   spawnedResult,
@@ -16,13 +15,11 @@ const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-//const RSC_BASE_URL =
-  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
-const RSC_BASE_URL =
-  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/ani/feat/ui-parity/lib/service/diabetes-research-hub";
+//const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL = "https://raw.githubusercontent.com/surveilr/www.surveilr.com/ani/feat/ui-parity/lib/service/diabetes-research-hub";
 
 //const UX_URL ="https://www.surveilr.com/lib/service/diabetes-research-hub"
-//const UX_URL ="http://localhost:4321/lib/service/diabetes-research-hub"
+const UX_URL ="http://localhost:4321/lib/service/diabetes-research-hub"
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -123,31 +120,6 @@ function executeSqlCommands(sqlCommands: string) {
   }
 }
 
-// Function to check for table existence and create combined view
-async function checkAndCreateCombinedView() {  
-  const db = new DB(dbFilePath);
-
-  try {
-    // Check if the specific table exists
-    const tableName = 'uniform_resource_cgm_file_metadata'; // Change to your required table name
-    const tableExists = db.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`).length > 0;
-    
-
-    if (tableExists) {
-        console.log(colors.green("Required table exists. Proceeding to create the combined view."));
-        await createCombinedCGMView(dbFilePath); // Call the function to create the combined view
-      
-    } else {
-      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
-    }
-  } catch (error) {
-    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
-  } finally {
-    // Close the database connection
-    db.close();
-  }
-}
-
 
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
@@ -221,44 +193,36 @@ try {
 }
 
 
-try {
-  console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
-  await executeCommand(
-    [toolCmd, "orchestrate", "-n", "deidentification"],
-    deidentificationSQLSupplier,
-  );
-  console.log(colors.green("Deidentification successful."));
-} catch (error) {
-  console.error(colors.cyan("Error during DeIdentification:"), error.message);
-  Deno.exit(1);
-}
+// try {
+//   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
+//   await executeCommand(
+//     [toolCmd, "orchestrate", "-n", "deidentification"],
+//     deidentificationSQLSupplier,
+//   );
+//   console.log(colors.green("Deidentification successful."));
+// } catch (error) {
+//   console.error(colors.cyan("Error during DeIdentification:"), error.message);
+//   Deno.exit(1);
+// }
 
-try {
-  console.log(
-    colors.dim(`Performing Verification and Validation: ${folderName}...`),
-  );
-  await executeCommand([toolCmd, "orchestrate", "-n", "v&v"], vvSQLSupplier);
-  console.log(
-    colors.green(
-      "Verification and validation orchestration completed successfully.",
-    ),
-  );
-} catch (error) {
-  console.error(
-    colors.cyan("Error during Verification and Validation:"),
-    error.message,
-  );
-  Deno.exit(1);
-}
+// try {
+//   console.log(
+//     colors.dim(`Performing Verification and Validation: ${folderName}...`),
+//   );
+//   await executeCommand([toolCmd, "orchestrate", "-n", "v&v"], vvSQLSupplier);
+//   console.log(
+//     colors.green(
+//       "Verification and validation orchestration completed successfully.",
+//     ),
+//   );
+// } catch (error) {
+//   console.error(
+//     colors.cyan("Error during Verification and Validation:"),
+//     error.message,
+//   );
+//   Deno.exit(1);
+// }
 
-try {
-  console.log(colors.dim(`Generate combined views: ${folderName}...`));
-  checkAndCreateCombinedView(); 
-  console.log(colors.green("View generation completed successfully."));
-} catch (error) {
-  console.error(colors.red("Error during View generation:"), error.message);
-  Deno.exit(1);
-}
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  

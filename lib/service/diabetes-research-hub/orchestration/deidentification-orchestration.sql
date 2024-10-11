@@ -12,6 +12,12 @@ UPDATE uniform_resource_author
 SET email = anonymize_email(email)
 WHERE email IS NOT NULL;
 
+
+CREATE TEMP VIEW IF NOT EXISTS device_info AS
+SELECT device_id, name, created_at
+FROM device d;
+
+
 -- Insert into orchestration_nature only if it doesn't exist
 INSERT OR IGNORE INTO orchestration_nature (
     orchestration_nature_id,
@@ -36,7 +42,7 @@ SELECT
     NULL,                       -- Not deleted
     NULL,                       -- No deleter yet
     NULL                        -- No activity log yet
-FROM drh_device d
+FROM device_info d
 LIMIT 1;  -- Limiting to 1 device
 
 -- Insert into orchestration_session only if it doesn't exist
@@ -54,7 +60,7 @@ INSERT OR IGNORE INTO orchestration_session (
 )
 SELECT
     'ORCHSESSID-' || hex(randomblob(16)),  -- Generate a random hex blob for orchestration_session_id
-    d.device_id,                             -- Pull device_id from the drh_device view
+    d.device_id,                             -- Pull device_id from the device_info view
     'deidentification',                      -- Reference to the orchestration_nature_id we just inserted
     '',                                      -- Version (placeholder)
     CURRENT_TIMESTAMP,                       -- Start time
@@ -63,7 +69,7 @@ SELECT
     NULL,                                    -- Args JSON (if any)
     NULL,                                    -- Diagnostics JSON (if any)
     NULL                                     -- Diagnostics MD (if any)
-FROM drh_device d
+FROM device_info d
 LIMIT 1;  -- Limiting to 1 device
 
 -- Create a temporary view to retrieve orchestration session information
