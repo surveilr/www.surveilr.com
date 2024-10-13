@@ -22,8 +22,29 @@ type Any = any;
  *                  an object with a `walk` property that specifies how to collect URIs (with an optional `walkAccept` filter),
  *                  or a Buffer containing CSV data.
  * @param ingestOptions - Optional configuration options for PapaParse to customize the parsing behavior.
- *                       This can include options like `delimiter`, `quoteChar`, etc., as well as `onRowIssue`, `onSrcIssue`,
- *                       `columnNames`, and `tableName` for custom error handling and table creation.
+ *                       This can include options like `delimiter`, `quoteChar`, etc., as well as additional options for handling
+ *                       table creation and row validation.
+ *
+ *                       ### Options:
+ *                       - **tableName**: Specify the name of the table to be created or used.
+ *                       - **columnNames**: A function that returns column names based on the metadata. Useful for modifying column names
+ *                         based on the CSV headers or adding custom columns.
+ *                       - **dropTableDDL**: A function that generates a DDL statement to drop the table if it exists. This can be useful if you
+ *                         need to recreate the table for each ingestion or manage table lifecycles differently.
+ *                       - **createTableDDL**: A function that generates a DDL statement for creating the table. This allows for customized
+ *                         creation of the SQLite table, such as adding specific data types, constraints, or indices.
+ *                       - **insertRowStmtDML**: A function that generates an INSERT statement for adding rows to the table. This is useful for
+ *                         modifying how rows are inserted, such as inserting only specific columns or adding computed fields.
+ *                       - **insertRowBindValues**: A function that takes the parsed row and CSV field names, and returns the values to bind in
+ *                         the prepared statement. Useful for transforming or validating data before it gets inserted into the table.
+ *                       - **inspectRow**: A function to inspect or modify each parsed row before inserting it into the database. This is useful
+ *                         for performing custom validation or transformation on the row data. You could use this to integrate external
+ *                         validation libraries like Zod to enforce data integrity.
+ *                       - **onRowIssue**: A callback function for handling any issues that arise when processing a row. If it returns `false`,
+ *                         the problematic row will be skipped. This is useful for gracefully handling validation errors or other issues
+ *                         without aborting the entire parsing process.
+ *                       - **onSrcIssue**: A callback function for handling any issues that arise at the source level, such as file reading
+ *                         errors. This can be used to report and handle source-level issues while still processing other sources.
  *
  * @returns A promise that resolves when the data ingestion is complete.
  *
@@ -31,14 +52,35 @@ type Any = any;
  *
  * Usage Example:
  * ```typescript
- * import { ingestDelimited } from './ingest-csv.ts';
+ * import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
+ * import { ingestDelimited } from './ingest-delimited.ts';
  *
- * ingestDelimited("./resource-surveillance.sqlite.db", "./example.csv", {
- *   tableName: (contentUri) => basename(contentUri, ".csv"), // same name as file without `.csv` extension
- *   columnNames: (_uri, meta) => meta.fields,
- * })
- *   .then(() => console.log("Data ingested successfully."))
- *   .catch(err => console.error("Failed to ingest data: ", err));
+ * const csvContent = `id,name,age\n1,John Doe,30\n2,Jane Smith,25\n3,Bob Johnson,40`;
+ * const db = new DB();
+ *
+ * await ingestDelimited(db, csvContent, (_src, index) => ({
+ *   tableName: "test_table",
+ *   dynamicTyping: true,
+ *   inspectRow: (row) => {
+ *     // Example: Use a validation library like Zod to validate each row
+ *     if (typeof row.data.age !== "number") {
+ *       row.errors.push({
+ *         row: row.meta.cursor,
+ *         type: "FieldMismatch",
+ *         code: "NotANumber" as Any,
+ *         message: "Age is not a number",
+ *       });
+ *     }
+ *   },
+ *   onRowIssue: (_row, _error, _tableName, _db, _src) => {
+ *     // Skip problematic rows
+ *     return false;
+ *   },
+ * }));
+ *
+ * const rows = [...db.query(`SELECT * FROM test_table ORDER BY id;`)];
+ * console.log(rows);
+ * db.close();
  * ```
  */
 export async function ingestDelimited<T = unknown>(
