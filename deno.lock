@@ -10,9 +10,6 @@
       "npm:@astrojs/starlight@^0.28.2": "npm:@astrojs/starlight@0.28.2_astro@4.15.9__@babel+core@7.25.2__typescript@5.6.2__vite@5.4.8__zod@3.23.8_typescript@5.6.2",
       "npm:@astrojs/tailwind@^5.1.1": "npm:@astrojs/tailwind@5.1.1_astro@4.15.9__@babel+core@7.25.2__typescript@5.6.2__vite@5.4.8__zod@3.23.8_tailwindcss@3.4.13__postcss@8.4.47_postcss@8.4.47_typescript@5.6.2",
       "npm:@preline/accordion@^2.4.1": "npm:@preline/accordion@2.5.0",
-      "npm:@preline/collapse@^2.4.1": "npm:@preline/collapse@2.5.0",
-      "npm:@preline/dropdown@^2.4.1": "npm:@preline/dropdown@2.5.0",
-      "npm:@preline/overlay@^2.4.1": "npm:@preline/overlay@2.5.0",
       "npm:@preline/tabs@^2.4.1": "npm:@preline/tabs@2.5.0",
       "npm:@tailwindcss/forms@^0.5.9": "npm:@tailwindcss/forms@0.5.9_tailwindcss@3.4.13__postcss@8.4.47",
       "npm:@types/node": "npm:@types/node@18.16.19",
@@ -26,9 +23,7 @@
       "npm:gsap@^3.12.5": "npm:gsap@3.12.5",
       "npm:html-minifier-terser@^7.2.0": "npm:html-minifier-terser@7.2.0",
       "npm:lenis@^1.1.13": "npm:lenis@1.1.13",
-      "npm:preline@^2.4.1": "npm:preline@2.5.0",
       "npm:prettier-plugin-astro@^0.14.1": "npm:prettier-plugin-astro@0.14.1",
-      "npm:prettier-plugin-tailwindcss@^0.6.6": "npm:prettier-plugin-tailwindcss@0.6.8_prettier@3.3.3_prettier-plugin-astro@0.14.1",
       "npm:prettier@^3.3.3": "npm:prettier@3.3.3",
       "npm:quicktype-core": "npm:quicktype-core@23.0.116",
       "npm:rimraf@^6.0.1": "npm:rimraf@6.0.1",
@@ -811,24 +806,8 @@
         "integrity": "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==",
         "dependencies": {}
       },
-      "@popperjs/core@2.11.8": {
-        "integrity": "sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==",
-        "dependencies": {}
-      },
       "@preline/accordion@2.5.0": {
         "integrity": "sha512-vQnRTJ0W1FNHsgwgQ/i6OXXDkRuT1oaR9WNjgTX8jeldQfnU40NYCJdjyhdPX5kCkNH2Q8AW6ihG/8XI2DNGJA==",
-        "dependencies": {}
-      },
-      "@preline/collapse@2.5.0": {
-        "integrity": "sha512-FFVB+T7FXn66EUmwgR8c1OtxXDlL74pRvBXtntXwwQ+9fqCZML1xPTOXfdeRL4e46kroAtigVcp/Y28lEpkXTQ==",
-        "dependencies": {}
-      },
-      "@preline/dropdown@2.5.0": {
-        "integrity": "sha512-ydKGBx02eLWzmCn8gkaaTe/gXXqvkZKZCgCYCWETRdy31qhaam43hvJMcpsGOROWSjlPNBgVyGrwYdAgJUO68g==",
-        "dependencies": {}
-      },
-      "@preline/overlay@2.5.0": {
-        "integrity": "sha512-5eWzP2N3sTOKhgoefXdrrxUNQh8F678von6ehN1cD79ujVfShYdWowvjtzMlUiTePbF0pgM/wG6D6mRzicOMzw==",
         "dependencies": {}
       },
       "@preline/tabs@2.5.0": {
@@ -3714,25 +3693,12 @@
           "which-pm": "which-pm@3.0.0"
         }
       },
-      "preline@2.5.0": {
-        "integrity": "sha512-UC+ddXHsL3xXU0TogA/O3DGqy+xF2/xQYnTSR6vpzEpD3+Te5R9m4NbQy/zhAkFMAfQKKJ9yQBgpA3ML5nPYGg==",
-        "dependencies": {
-          "@popperjs/core": "@popperjs/core@2.11.8"
-        }
-      },
       "prettier-plugin-astro@0.14.1": {
         "integrity": "sha512-RiBETaaP9veVstE4vUwSIcdATj6dKmXljouXc/DDNwBSPTp8FRkLGDSGFClKsAFeeg+13SB0Z1JZvbD76bigJw==",
         "dependencies": {
           "@astrojs/compiler": "@astrojs/compiler@2.10.3",
           "prettier": "prettier@3.3.3",
           "sass-formatter": "sass-formatter@0.7.9"
-        }
-      },
-      "prettier-plugin-tailwindcss@0.6.8_prettier@3.3.3_prettier-plugin-astro@0.14.1": {
-        "integrity": "sha512-dGu3kdm7SXPkiW4nzeWKCl3uoImdd5CTZEJGxyypEPL37Wj0HT2pLqjrvSei1nTeuQfO4PUfjeW5cTUNRLZ4sA==",
-        "dependencies": {
-          "prettier": "prettier@3.3.3",
-          "prettier-plugin-astro": "prettier-plugin-astro@0.14.1"
         }
       },
       "prettier@2.8.7": {
@@ -5523,9 +5489,9 @@
         "npm:@astrojs/starlight@^0.28.2",
         "npm:@astrojs/tailwind@^5.1.1",
         "npm:@preline/accordion@^2.4.1",
-        "npm:@preline/collapse@^2.4.1",
-        "npm:@preline/dropdown@^2.4.1",
-        "npm:@preline/overlay@^2.4.1",
+        "npm:@preline/collapse@^2.5.0",
+        "npm:@preline/dropdown@^2.5.0",
+        "npm:@preline/overlay@^2.5.0",
         "npm:@preline/tabs@^2.4.1",
         "npm:@tailwindcss/forms@^0.5.9",
         "npm:@vercel/nft@^0.27.4",
@@ -5537,9 +5503,9 @@
         "npm:gsap@^3.12.5",
         "npm:html-minifier-terser@^7.2.0",
         "npm:lenis@^1.1.13",
-        "npm:preline@^2.4.1",
+        "npm:preline@^2.5.0",
         "npm:prettier-plugin-astro@^0.14.1",
-        "npm:prettier-plugin-tailwindcss@^0.6.6",
+        "npm:prettier-plugin-tailwindcss@^0.6.8",
         "npm:prettier@^3.3.3",
         "npm:rimraf@^6.0.1",
         "npm:sharp-ico@^0.1.5",
