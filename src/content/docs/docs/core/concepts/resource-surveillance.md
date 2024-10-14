@@ -1,5 +1,5 @@
 ---
-title: Resource Surveillance State Database - RSSD
+title: Resource Surveillance State Database (RSSD)
 description: Explains resource surveillance database (RSSD).
 ---
 

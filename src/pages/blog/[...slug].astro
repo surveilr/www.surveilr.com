@@ -16,7 +16,7 @@ import { getImage } from "astro:assets";
 // Update getStaticPaths for English posts
 export async function getStaticPaths() {
   const blogPosts = await getCollection("blog", ({ id }) =>
-    id.startsWith("en/"),
+    id.startsWith("en/")
   );
   return blogPosts.map((post) => {
     const slugWithoutLang = post.slug.replace(/^en\//, ""); // Remove the "en/" prefix
@@ -33,7 +33,7 @@ const { Content } = await post.render();
 
 const blogPosts: CollectionEntry<"blog">[] = await getCollection(
   "blog",
-  ({ id }) => id.startsWith("en/"),
+  ({ id }) => id.startsWith("en/")
 );
 
 // Filter out the current post to get related posts
@@ -41,7 +41,7 @@ const blogPosts: CollectionEntry<"blog">[] = await getCollection(
 // In a production site, you might want to implement a more robust algorithm, choosing related posts based on tags, categories, dates, authors, or keywords.
 // See example: https://blog.codybrunner.com/2024/adding-related-articles-with-astro-content-collections/
 const relatedPosts: CollectionEntry<"blog">[] = blogPosts.filter(
-  (blogEntry) => blogEntry.slug !== post.slug,
+  (blogEntry) => blogEntry.slug !== post.slug
 );
 
 const pageTitle: string = `${post.data.title} | ${SITE.title}`;
@@ -69,7 +69,7 @@ const structuredData: object = [
       name: "Surveilr",
       logo: {
         "@type": "ImageObject",
-      url: "https://www.surveilr.com/assets/brand/surveilr-logo-with-tagline.png",
+        url: "https://www.surveilr.com/assets/brand/surveilr-logo-with-tagline.png",
       },
     },
     datePublished: post.data.pubDate,
@@ -247,5 +247,11 @@ const structuredData: object = [
     display: list-item;
     text-align: -webkit-match-parent;
     unicode-bidi: isolate;
+  }
+  a {
+    color: #b73d00;
+  }
+  a:hover {
+    color: #ae8a5e;
   }
 </style>

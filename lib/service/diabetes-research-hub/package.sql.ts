@@ -25,6 +25,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
     shellConfig.icon = "";
     shellConfig.link = "/drh/";
+    shellConfig.favicon ="https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
     return shellConfig;
   }
 
@@ -1037,12 +1038,25 @@ Participants are individuals who volunteer to take part in CGM research studies.
 export async function drhSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
+      async deidentifyDRHSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./orchestration/deidentification-orchestration.sql"),
+        );
+      }
+
+      async vandvDRHSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./orchestration/vv-orchestration.sql"),
+        );
+      }
       async statelessDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./stateless.sql"),
         );
-      }
+      }      
       
       
     }(),
