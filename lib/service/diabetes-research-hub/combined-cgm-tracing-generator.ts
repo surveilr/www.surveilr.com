@@ -40,7 +40,9 @@ export function createCombinedCGMView(dbFilePath: string): void {
   }
 
   // Get the list of participant IDs from the view
-  const participants = db.query("SELECT DISTINCT patient_id FROM drh_participant_file_names;");
+  const participants = db.query(
+    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
+  );
 
   // Array to hold SQL parts for the combined view
   const sqlParts: string[] = [];
@@ -48,7 +50,10 @@ export function createCombinedCGMView(dbFilePath: string): void {
   for (const [patient_id_raw] of participants) {
     const patient_id: string = patient_id_raw as string;
 
-    const [file_names_row] = db.query("SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?", [patient_id]);
+    const [file_names_row] = db.query(
+      "SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?",
+      [patient_id],
+    );
     if (!file_names_row) {
       console.log(`No file names found for participant ${patient_id}.`);
       continue;
@@ -56,8 +61,10 @@ export function createCombinedCGMView(dbFilePath: string): void {
 
     const file_names = file_names_row[0];
     if (file_names) {
-      const participantTableNames = file_names.split(', ').map(fileName => `uniform_resource_${fileName}`);
-      participantTableNames.forEach(tableName => {
+      const participantTableNames = file_names.split(", ").map((fileName) =>
+        `uniform_resource_${fileName}`
+      );
+      participantTableNames.forEach((tableName) => {
         sqlParts.push(`
           SELECT 
             '${patient_id}' as participant_id, 
@@ -70,13 +77,16 @@ export function createCombinedCGMView(dbFilePath: string): void {
   }
 
   if (sqlParts.length > 0) {
-    const combinedUnionAllQuery = sqlParts.join(' UNION ALL ');
-    const createCombinedViewSql = `CREATE VIEW IF NOT EXISTS combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    const createCombinedViewSql =
+      `CREATE VIEW IF NOT EXISTS combined_cgm_tracing AS ${combinedUnionAllQuery};`;
 
     db.execute(createCombinedViewSql);
     console.log("Combined view 'combined_cgm_tracing' created successfully.");
   } else {
-    console.log("No participant tables found, so the combined view will not be created.");
+    console.log(
+      "No participant tables found, so the combined view will not be created.",
+    );
   }
 
   db.close();
@@ -85,6 +95,6 @@ export function createCombinedCGMView(dbFilePath: string): void {
 
 // If the script is being run directly, execute the function
 if (import.meta.main) {
-  const dbFilePath = "resource-surveillance.sqlite.db"; 
+  const dbFilePath = "resource-surveillance.sqlite.db";
   createCombinedCGMView(dbFilePath);
 }

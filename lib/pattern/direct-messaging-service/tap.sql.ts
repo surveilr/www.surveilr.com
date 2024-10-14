@@ -7,7 +7,6 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
   // any method that ends in DDL, SQL, DML, or DQL will be "arbitrary SQL"
   // and included in the SQL stream before all the test cases
 
-
   "Check table 'sql_page_aide_navigation' exists"(ctx: TestCaseContext) {
     const tableName = "inbox";
     return this.assertThat(ctx)`
@@ -34,7 +33,6 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
       .greaterThan("inbox_count", 0);
   }
 
-
   "Check if a view 'mail_content_attachment' exists"(ctx: TestCaseContext) {
     const viewName = "mail_content_attachment";
     return this.assertThat(ctx)`
@@ -54,12 +52,17 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         `View "${viewName}" exists in the DB`,
       );
   }
-  "Check for each inbox item, a patient data exists in 'patient_detail'"(ctx: TestCaseContext) {
+  "Check for each inbox item, a patient data exists in 'patient_detail'"(
+    ctx: TestCaseContext,
+  ) {
     const patientDetailView = "patient_detail";
     const inboxView = "inbox";
     return this.assertThat<"patient_count">(ctx)`
       SELECT count(*) as patient_count from ${inboxView} i INNER JOIN ${patientDetailView} WHERE i.id = message_uid`
-      .equals("patient_count", `(select count(*) as inbox_count from ${inboxView})`);
+      .equals(
+        "patient_count",
+        `(select count(*) as inbox_count from ${inboxView})`,
+      );
   }
   "Check if a view 'patient_observation' exists"(ctx: TestCaseContext) {
     const viewName = "patient_observation";
@@ -116,10 +119,7 @@ export class SyntheticTestSuite extends tapNB.TestSuiteNotebook {
         `View "${viewName}" exists in the DB`,
       );
   }
-
-
 }
-
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
