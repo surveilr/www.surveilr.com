@@ -9,17 +9,15 @@ import {
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
 
-
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL =
+  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
 //const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub"; // can be used if local server is accessible
-
-
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -32,14 +30,12 @@ async function fetchSqlContent(url: string): Promise<string> {
   } catch (error) {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,      
+      error.message,
     );
     Deno.exit(1);
-    return '';
+    return "";
   }
 }
-
-
 
 // Helper function to execute a command
 async function executeCommand(
@@ -120,7 +116,6 @@ function executeSqlCommands(sqlCommands: string) {
   }
 }
 
-
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
   console.error(
@@ -132,7 +127,6 @@ if (Deno.args.length === 0) {
 // Store the folder name in a variable
 const folderName = Deno.args[0];
 
-
 // Define synchronous suppliers
 const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
   deidentificationSQL;
@@ -143,8 +137,6 @@ let deidentificationSQL: string;
 let vvSQL: string;
 let uxSQL: string;
 
-
-
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
   deidentificationSQL = await fetchSqlContent(
@@ -152,7 +144,7 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );  
+  );
   uxSQL = await fetchSqlContent(
     `${UX_URL}/package.sql`,
   );
@@ -181,7 +173,6 @@ try {
   Deno.exit(1);
 }
 
-
 try {
   await executeCommand([toolCmd, "orchestrate", "transform-csv"]);
   console.log(
@@ -191,7 +182,6 @@ try {
   console.error(colors.cyan("Error transforming CSV files:"), error.message);
   Deno.exit(1);
 }
-
 
 // try {
 //   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
@@ -223,9 +213,8 @@ try {
 //   Deno.exit(1);
 // }
 
-
 try {
-  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
+  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
   await executeCommand([toolCmd, "shell"], uxSQLSupplier);
   //executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));

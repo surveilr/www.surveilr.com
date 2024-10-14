@@ -3,8 +3,9 @@
 * surveilr_version - Returns the current version of `suvrveilr` that's being executed
 * surveilr_orchestration_context_session_id - The active context, if present. It returns the ID of the current session
 * surveilr_orchestration_nature_id(<nature_type>), e.g surveilr_orchestration_nature_id('v&v') - Returns the ID of the orchestration nature if present, else it is null.
-* TODO:  surveilr_assert_tabular_object(<name-of-table-or-view>)
-* TODO:  surveilr_assert_tabular_column(<name-of-table-or-view>, <a-list-of-column-names>)
+* surveilr_assert_tabular_object(<name-of-table-or-view>)insert into issues where assertion fails
+* surveilr_assert_tabular_column(<name-of-table-or-view>, <a-list-of-column-names>) -- run check then insert into orchestration_issue table
+* TODO: surveilr_assert_tabular_column_extended(<name-of-table-or-view>, <a-list-of-column-names>) --column-name may be of the format "column:type" or 
 * surveilr_ensure_orchestration_nature(<nature_id>, <nature>)
 * surveilr_get_orchestration_session_info(<session_id>) - returns the orchestration_session_entry_id for the current session
 * De Identification Functions

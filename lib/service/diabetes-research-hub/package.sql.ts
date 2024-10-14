@@ -25,7 +25,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
     shellConfig.icon = "";
     shellConfig.link = "/drh/";
-    shellConfig.favicon ="https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
+    shellConfig.favicon =
+      "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
     return shellConfig;
   }
 
@@ -1041,7 +1042,9 @@ export async function drhSQL() {
       async deidentifyDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./orchestration/deidentification-orchestration.sql"),
+          import.meta.resolve(
+            "./orchestration/deidentification-orchestration.sql",
+          ),
         );
       }
 
@@ -1056,9 +1059,7 @@ export async function drhSQL() {
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./stateless.sql"),
         );
-      }      
-      
-      
+      }
     }(),
     // new sh.ShellSqlPages(),
     new DrhShellSqlPages(),
