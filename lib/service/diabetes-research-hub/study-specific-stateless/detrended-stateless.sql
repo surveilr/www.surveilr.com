@@ -29,33 +29,6 @@ FROM
     uniform_resource_clinical_data;
 
 
-    --combined cgm tracing  view
-DROP VIEW IF EXISTS combined_cgm_tracing;
-CREATE VIEW combined_cgm_tracing AS
-SELECT
-    '1' AS SID,                                             -- Use '1' as SID for table uniform_resource_case_1
-    strftime('%Y-%m-%d %H:%M:%S', hora) AS Date_Time,       -- Convert 'hora' to 'YYYY-MM-DD HH:MM:SS'
-    CAST(glucemia AS REAL) AS cgm_value                     -- Rename and cast 'glucemia' as cgm_value
-FROM
-    uniform_resource_case__1
-UNION ALL
-SELECT
-    '2' AS SID,                                             -- Use '2' as SID for table uniform_resource_case_2
-    strftime('%Y-%m-%d %H:%M:%S', hora) AS Date_Time,
-    CAST(glucemia AS REAL) AS cgm_value
-FROM
-    uniform_resource_case__2
-UNION ALL
-SELECT
-    '3' AS SID,                                             -- Use '3' as SID for table uniform_resource_case_3
-    strftime('%Y-%m-%d %H:%M:%S', hora) AS Date_Time,
-    CAST(glucemia AS REAL) AS cgm_value
-FROM
-    uniform_resource_case__3;
- --complete for other tables
-
-
-
 -----------------------------------------------------------------------------
 --device details and converted files views----------------------------------
    
@@ -438,6 +411,7 @@ SELECT
         AS contents_md;
     '
 FROM raw_cgm_table_name;
+
 
 
 

@@ -193,6 +193,10 @@ $ deno run -A ./package.sql.ts | surveilr shell
 
 # Option 2 (preferred)
 $ surveilr shell ./package.sql.ts
+
+# Option 3 (without surveilr shell: until issue with surveilr shell is resolved)
+$ deno run -A ./package.sql.ts | sqlite3 resource-surveillance.sqlite.db
+
 ```
 
 To enable "watch" mode, which automatically reloads `package.sql.ts`:

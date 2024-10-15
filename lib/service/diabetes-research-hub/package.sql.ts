@@ -6,8 +6,8 @@ import {
   shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
-
 import * as sppn from "../..//std/notebook/sqlpage.ts";
+import { generateCombinedCGMViewSQL } from './study-specific-stateless/generate-detrended-combined-sql.ts'; 
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -152,6 +152,16 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   (NULL, 'DRH Home', 'prime', '/external', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }'),
   (NULL, 'DTS Home', 'prime', '/external', 1, 'https://www.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }')
   `;
+  }
+
+  //use this only for detrended analysis study
+  combinedViewDDL()
+  {
+    const dbFilePath = "./resource-surveillance.sqlite.db"; 
+    const sqlStatements = generateCombinedCGMViewSQL(dbFilePath);    
+    return this.SQL`
+        ${sqlStatements} 
+    `;  
   }
 
   @spn.navigationPrimeTopLevel({
@@ -1033,7 +1043,7 @@ Participants are individuals who volunteer to take part in CGM research studies.
     ${pagination.renderSimpleMarkdown()}
 
       `;
-  }
+  }  
 }
 
 export async function drhSQL() {
