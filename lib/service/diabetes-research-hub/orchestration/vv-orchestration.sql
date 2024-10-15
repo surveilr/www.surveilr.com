@@ -72,6 +72,10 @@ UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_start_date', 'TEXT'
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_end_date', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'study_id', 'TEXT', 0, 1;
 
+CREATE TEMP VIEW IF NOT EXISTS device_info AS
+SELECT device_id, name, created_at
+FROM device d;
+
 
 INSERT OR IGNORE INTO orchestration_nature (
     orchestration_nature_id,

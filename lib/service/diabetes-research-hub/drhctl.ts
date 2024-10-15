@@ -1,23 +1,27 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
+import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import * as drhux from "./package.sql.ts";
+import { createCombinedCGMView } from "./combined-cgm-tracing-generator.ts";
 import {
   FlexibleTextSupplierSync,
   spawnedResult,
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
 
+
+
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-const RSC_BASE_URL =
-  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
-//const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub"; // can be used if local server is accessible
+
+
+
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -30,12 +34,14 @@ async function fetchSqlContent(url: string): Promise<string> {
   } catch (error) {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,
+      error.message,      
     );
     Deno.exit(1);
-    return "";
+    return '';
   }
 }
+
+
 
 // Helper function to execute a command
 async function executeCommand(
@@ -99,22 +105,53 @@ async function fetchUxSqlContent(): Promise<string> {
       colors.red("Error fetching UX SQL content:"),
       error.message,
     );
-    Deno.exit(1);
+    return '';
+    //Deno.exit(1);
   }
 }
 
 // Function to execute SQL commands directly on SQLite database
-function executeSqlCommands(sqlCommands: string) {
+function executeSqlCommands(sqlCommands: string): void {
+  let db: Database | null = null; // Initialize db variable
+
   try {
-    const db = new DB(dbFilePath);
-    db.execute(sqlCommands); // Execute the SQL commands
-    db.close();
-    console.log(colors.green("UX SQL executed successfully."));
+    db = new Database(dbFilePath); // Open the database
+    db.exec(sqlCommands); // Execute the SQL commands
+    console.log(colors.green("SQL executed successfully."));
   } catch (error) {
     console.error(colors.red("Error executing SQL commands:"), error.message);
     Deno.exit(1);
+  } finally {
+    if (db) {
+      db.close(); // Close the database if it was opened
+    }
   }
 }
+
+// Function to check for table existence and create combined view
+async function checkAndCreateCombinedView(dbFilePath: string) {
+  const db = new Database(dbFilePath);
+
+  try {
+    const tableName = 'uniform_resource_cgm_file_metadata';
+    // Check if the required table exists
+    const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`);
+    const rows = stmt.all(tableName);
+    
+    if (rows.length > 0) {
+      console.log(colors.green("Required table exists. Proceeding to create the combined view."));
+      await createCombinedCGMView(dbFilePath); // Ensure this function is defined elsewhere
+    } else {
+      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
+    }
+  } catch (error) {
+    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
+  } finally {
+    db.close();
+  }
+}
+
+
 
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
@@ -127,6 +164,7 @@ if (Deno.args.length === 0) {
 // Store the folder name in a variable
 const folderName = Deno.args[0];
 
+
 // Define synchronous suppliers
 const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
   deidentificationSQL;
@@ -137,6 +175,8 @@ let deidentificationSQL: string;
 let vvSQL: string;
 let uxSQL: string;
 
+
+
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
   deidentificationSQL = await fetchSqlContent(
@@ -144,11 +184,11 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );
-  uxSQL = await fetchSqlContent(
-    `${UX_URL}/package.sql`,
-  );
-  //uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
+  );  
+  // uxSQL = await fetchSqlContent(
+  //   `${UX_URL}/package.sql`,
+  // );
+  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
     colors.cyan(
@@ -173,6 +213,7 @@ try {
   Deno.exit(1);
 }
 
+
 try {
   await executeCommand([toolCmd, "orchestrate", "transform-csv"]);
   console.log(
@@ -183,6 +224,11 @@ try {
   Deno.exit(1);
 }
 
+
+// This function retrieves the SQL script for data de-identification.
+// Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
+// Issues prevail while executing these commands on Windows OS.
+// Therefore avoiding deidentification till the issue is resolved
 // try {
 //   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
 //   await executeCommand(
@@ -192,31 +238,22 @@ try {
 //   console.log(colors.green("Deidentification successful."));
 // } catch (error) {
 //   console.error(colors.cyan("Error during DeIdentification:"), error.message);
-//   Deno.exit(1);
+//   //Deno.exit(1);
 // }
 
+// This function is for the dynamic combined view generation
 // try {
-//   console.log(
-//     colors.dim(`Performing Verification and Validation: ${folderName}...`),
-//   );
-//   await executeCommand([toolCmd, "orchestrate", "-n", "v&v"], vvSQLSupplier);
-//   console.log(
-//     colors.green(
-//       "Verification and validation orchestration completed successfully.",
-//     ),
-//   );
+//   await checkAndCreateCombinedView(dbFilePath);
+//   console.log(colors.green("View generation completed successfully."));
 // } catch (error) {
-//   console.error(
-//     colors.cyan("Error during Verification and Validation:"),
-//     error.message,
-//   );
-//   Deno.exit(1);
+//   console.error(colors.red("Error during view generation:"), error.message);
 // }
+
 
 try {
-  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
-  await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  //executeSqlCommands(uxSQL); // Execute UX SQL commands
+  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
+  //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
