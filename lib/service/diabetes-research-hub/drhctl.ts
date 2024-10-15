@@ -9,6 +9,7 @@ import {
   spawnedResult,
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
+import { resolveModuleName } from "../../../node_modules/typescript/lib/typescript.d.ts";
 
 
 // Detect platform-specific command format
@@ -227,17 +228,18 @@ try {
 // This function retrieves the SQL script for data de-identification.
 // Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
 // Issues prevail while executing these commands on Windows OS.
-try {
-  console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
-  await executeCommand(
-    [toolCmd, "orchestrate", "-n", "deidentification"],
-    deidentificationSQLSupplier,
-  );
-  console.log(colors.green("Deidentification successful."));
-} catch (error) {
-  console.error(colors.cyan("Error during DeIdentification:"), error.message);
-  //Deno.exit(1);
-}
+// Therefore avoiding deidentification till the issue is resolved
+// try {
+//   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
+//   await executeCommand(
+//     [toolCmd, "orchestrate", "-n", "deidentification"],
+//     deidentificationSQLSupplier,
+//   );
+//   console.log(colors.green("Deidentification successful."));
+// } catch (error) {
+//   console.error(colors.cyan("Error during DeIdentification:"), error.message);
+//   //Deno.exit(1);
+// }
 
 // This function is for the dynamic combined view generation
 // try {
