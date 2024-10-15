@@ -55,7 +55,7 @@ In these cases, the power of **imperative programming** becomes essential. This 
 
 Languages like TypeScript and JavaScript, running on **Deno** or **NodeJS**, provide rich libraries and tools for advanced orchestration, making them ideal for expanding the capabilities of `surveilr`.
 
-Consider a scenario where we want to orchestrate a compliance check for a set of resources ingested into the **`uniform_resource`** table. This compliance check involves verifying that each resource has been properly signed off and validated against an external system.
+Consider a scenario where we want to orchestrate a compliance check for a set of resources ingested into the [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) table. This compliance check involves verifying that each resource has been properly signed off and validated against an external system.
 
 Here is an example using TypeScript and NodeJS:
 
@@ -90,11 +90,11 @@ db.all(`SELECT uniform_resource_id, uri, content_digest FROM uniform_resource WH
 });
 ```
 
-In this example, we are using TypeScript to orchestrate a **verification workflow** that involves an external compliance API. Each resource is verified, and the **`uniform_resource`** table is updated accordingly. The combination of **NodeJS** for asynchronous operations and **SQLite** for data persistence makes this type of orchestration both powerful and flexible.
+In this example, we are using TypeScript to orchestrate a **verification workflow** that involves an external compliance API. Each resource is verified, and the [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) table is updated accordingly. The combination of **NodeJS** for asynchronous operations and **SQLite** for data persistence makes this type of orchestration both powerful and flexible.
 
 ## Python for Advanced Integration Workflows
 
-**Python** is another great choice for advanced orchestration, particularly due to its extensive ecosystem of libraries for data processing, compliance, and orchestration. Python’s **sqlite3** module allows seamless interaction with the RSSD database, and its rich set of packages like **requests** and **pandas** allows for powerful data integration capabilities.
+**Python** is another great choice for advanced orchestration, particularly due to its extensive ecosystem of libraries for data processing, compliance, and orchestration. Python’s **sqlite3** module allows seamless interaction with the [RSSD](/docs/core/concepts/resource-surveillance/) database, and its rich set of packages like **requests** and **pandas** allows for powerful data integration capabilities.
 
 Consider a scenario where we need to orchestrate an **ETL process** that reads resource data, transforms it, and exports it for further analysis. Here’s an example using Python:
 
@@ -131,19 +131,19 @@ for resource in resources:
 db_connection.close()
 ```
 
-In this Python script, we extract logs from the **`uniform_resource`** table, perform a transformation, and send the transformed content to an external system for further processing. Python's versatility and simplicity make it an excellent choice for such ETL tasks, especially when combined with **SQLite** for local persistence.
+In this Python script, we extract logs from the [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) table, perform a transformation, and send the transformed content to an external system for further processing. Python's versatility and simplicity make it an excellent choice for such ETL tasks, especially when combined with **SQLite** for local persistence.
 
 ## Multi-Language Integration for Compliance and Evidence Gathering
 
-When dealing with compliance and evidence gathering, there is often a need to combine different tools and languages to meet complex requirements. The **RSSD** format, being an SQLite database, makes this integration seamless across ecosystems.
+When dealing with compliance and evidence gathering, there is often a need to combine different tools and languages to meet complex requirements. The [**RSSD**](/docs/core/concepts/resource-surveillance/) format, being an SQLite database, makes this integration seamless across ecosystems.
 
 For instance, an **evidence-gathering workflow** could start with data ingestion using SQL and `surveilr`, followed by resource transformation and validation using **Python**, and finally, advanced reporting and data visualization using **JavaScript** with frameworks like **D3.js** or **Chart.js**.
 
 Consider the following scenario:
 
-- **Ingestion and Tracking**: Use `surveilr` to ingest documents into the `uniform_resource` table, capturing metadata like the ingestion session, device, and content hash for integrity.
-- **Validation with Python**: Validate document signatures against a compliance database using Python scripts, updating the RSSD database with the results.
-- **Advanced Reporting**: Use a JavaScript-based web application to generate compliance reports, visualizing resource status from the `uniform_resource` table using D3.js for an intuitive graphical representation.
+- **Ingestion and Tracking**: Use `surveilr` to ingest documents into the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table, capturing metadata like the [ingestion session](docs/standard-library/rssd-schema/ur_ingest_session/), [device](/docs/standard-library/rssd-schema/device/), and content hash for integrity.
+- **Validation with Python**: Validate document signatures against a compliance database using Python scripts, updating the [RSSD](/docs/core/concepts/resource-surveillance/) database with the results.
+- **Advanced Reporting**: Use a JavaScript-based web application to generate compliance reports, visualizing resource status from the [`uniform_resource`](/docs/core/concepts/resource-surveillance/) table using D3.js for an intuitive graphical representation.
 
 This **multi-language approach** allows you to leverage the strengths of each language, providing a highly flexible and scalable solution for orchestration in compliance and cybersecurity environments.
 
@@ -151,8 +151,8 @@ This **multi-language approach** allows you to leverage the strengths of each la
 
 The **Resource Surveillance & Integration Engine (`surveilr`)** is powerful on its own, allowing you to orchestrate many tasks using declarative SQL and built-in SQLite extensions. However, advanced orchestration often requires additional capabilities—complex logic, integrations, or transformations that benefit from imperative programming.
 
-With the **Resource Surveillance State Database (RSSD)** format being fully portable across different language ecosystems, you can choose the right language and tool for the job, whether it's **TypeScript** for API orchestration, **Python** for data transformation, or **JavaScript** for visualization and reporting.
+With the [**Resource Surveillance State Database (RSSD)**](/docs/core/concepts/resource-surveillance/) format being fully portable across different language ecosystems, you can choose the right language and tool for the job, whether it's **TypeScript** for API orchestration, **Python** for data transformation, or **JavaScript** for visualization and reporting.
 
-The **`uniform_resource`** table, with its constellation of related tables, forms the core of resource management, compliance, and evidence tracking. Using languages like **TypeScript**, **JavaScript**, **Python**, and others to orchestrate workflows around RSSD databases can empower you to handle even the most complex compliance and integration challenges.
+The [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) table, with its constellation of related tables, forms the core of resource management, compliance, and evidence tracking. Using languages like **TypeScript**, **JavaScript**, **Python**, and others to orchestrate workflows around [RSSD](/docs/core/concepts/resource-surveillance/) databases can empower you to handle even the most complex compliance and integration challenges.
 
 Do you have use cases that require advanced orchestration? We'd love to hear how you integrate **`surveilr`** with your favorite programming languages to create powerful, compliance-focused workflows.
