@@ -9,7 +9,7 @@ import {
   spawnedResult,
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
-import { resolveModuleName } from "../../../node_modules/typescript/lib/typescript.d.ts";
+
 
 
 // Detect platform-specific command format
