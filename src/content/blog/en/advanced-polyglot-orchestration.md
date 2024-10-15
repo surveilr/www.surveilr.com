@@ -14,15 +14,15 @@ tags: ["etl", "elt"]
 
 The **Resource Surveillance & Integration Engine**, known as `surveilr`, offers extensive built-in capabilities for ingestion, ETL, ELT, and other integration tasks. Many of these tasks can be orchestrated declaratively within **SQL** using the SQLite ecosystem alongside the extension functions and virtual tables provided by `surveilr`. By leveraging the versatility of SQLite, `surveilr` can handle a range of transformations, integrations, and data workflows, all from within the database itself.
 
-However, there are scenarios where more complex orchestration is needed—tasks that require imperative programming, advanced logic, or capabilities beyond what `surveilr` provides out of the box. In such cases, languages like **TypeScript** and **JavaScript** (using **Deno** or **NodeJS**), **Python**, and many others that support SQLite integration come to the rescue. The **Resource Surveillance State Database (RSSD)**, which is an opinionated **SQLite** database, provides a strong foundation for multi-modal ingestion and transformation, making it ideal for advanced orchestration using external languages and tools.
+However, there are scenarios where more complex orchestration is needed—tasks that require imperative programming, advanced logic, or capabilities beyond what `surveilr` provides out of the box. In such cases, languages like **TypeScript** and **JavaScript** (using **Deno** or **NodeJS**), **Python**, and many others that support SQLite integration come to the rescue. The [**Resource Surveillance State Database (RSSD)**](/docs/core/concepts/resource-surveillance/), which is an opinionated **SQLite** database, provides a strong foundation for multi-modal ingestion and transformation, making it ideal for advanced orchestration using external languages and tools.
 
-In this blog post, we will explore advanced orchestration strategies using various languages to complement `surveilr`. We will provide examples from a compliance and evidence-gathering perspective, using `uniform_resource` and related tables to demonstrate how to manage resources, track provenance, and execute sophisticated integration workflows. One of the key strengths of the RSSD format is that it is fully portable across different language ecosystems, which allows developers to use the tools and languages best suited for their specific orchestration needs.
+In this blog post, we will explore advanced orchestration strategies using various languages to complement `surveilr`. We will provide examples from a compliance and evidence-gathering perspective, using [`uniform_resource`](/docs/core/concepts/uniform-resource/) and related tables to demonstrate how to manage resources, track provenance, and execute sophisticated integration workflows. One of the key strengths of the [RSSD](/docs/core/concepts/resource-surveillance/) format is that it is fully portable across different language ecosystems, which allows developers to use the tools and languages best suited for their specific orchestration needs.
 
 ## Orchestration with Declarative SQL in `surveilr`
 
-Before diving into advanced orchestration techniques, it is important to understand the power of **declarative SQL** within `surveilr`. The **`uniform_resource`** table and the constellation of related tables provide a robust framework for resource ingestion and metadata tracking. By utilizing SQL and built-in virtual tables, many integration workflows can be managed with ease.
+Before diving into advanced orchestration techniques, it is important to understand the power of **declarative SQL** within `surveilr`. The [**`uniform_resource`**](/docs/core/concepts/uniform-resource/) table and the constellation of [related tables](/docs/core/concepts/uniform-resource#related-tables) provide a robust framework for resource ingestion and metadata tracking. By utilizing SQL and built-in virtual tables, many integration workflows can be managed with ease.
 
-For example, consider a compliance use case where a set of files must be ingested, tracked, and audited:
+For example, consider a compliance use case where a set of [files must be ingested](https://www.surveilr.com/docs/core/cli/ingest-commands/files/), tracked, and audited:
 
 ```sql
 INSERT INTO uniform_resource (uniform_resource_id, device_id, ingest_session_id, uri, content_digest, nature, size_bytes, created_at)
@@ -38,7 +38,7 @@ VALUES (
 );
 ```
 
-In this example, a new resource is ingested and registered with all relevant metadata, including **device**, **ingestion session**, **content digest** for data integrity, and **URI** for identification. With `surveilr`'s built-in capabilities, this can be automated for bulk ingestion using declarative SQL commands and virtual tables.
+In this example, a new [resource](/docs/core/concepts/resource/) is ingested and registered with all relevant metadata, including [**device**](/docs/standard-library/rssd-schema/device/), [**ingestion session**](docs/standard-library/rssd-schema/ur_ingest_session/), **content digest** for data integrity, and **URI** for identification. With `surveilr`'s built-in capabilities, this can be automated for bulk ingestion using declarative SQL commands and virtual tables.
 
 ## The Need for Advanced Orchestration
 
