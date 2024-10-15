@@ -1052,19 +1052,19 @@ export async function drhSQL() {
       //   );
       // }
 
-      async vandvDRHSQL() {
-        // This function retrieves the SQL script for verfication and validation
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./orchestration/vv-orchestration.sql"),
-        );
-      }
+      // async vandvDRHSQL() {
+      //   // This function retrieves the SQL script for verfication and validation
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./orchestration/vv-orchestration.sql"),
+      //   );
+      // }
 
-      async statelessDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless.sql"),
-        );
-      }
+      // async statelessDRHSQL() {
+      //   // read the file from either local or remote (depending on location of this file)
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./stateless.sql"),
+      //   );
+      // }
 
       
       // async metricsDRHSQL() {
@@ -1074,6 +1074,23 @@ export async function drhSQL() {
       //     import.meta.resolve("./drh-metrics.sql"),
       //   );
       // }
+
+      
+      // async statelessAndersonSQL() {
+      //   // stateless sql for ctr-anderson study
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./study-specific-stateless/ctr-anderson-stateless.sql"),
+      //   );
+      // }     
+      
+
+      
+      async statelessdetrendedAnalysisSQL() {
+        // stateless sql for detrendedAnalysis study
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./study-specific-stateless/detrended-stateless.sql"),
+        );
+      }   
 
     }(),
     // new sh.ShellSqlPages(),
