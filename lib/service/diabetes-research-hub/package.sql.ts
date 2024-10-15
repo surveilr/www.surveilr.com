@@ -1039,27 +1039,42 @@ Participants are individuals who volunteer to take part in CGM research studies.
 export async function drhSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
-      async deidentifyDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve(
-            "./orchestration/deidentification-orchestration.sql",
-          ),
-        );
-      }
+
+      
+      // async deidentifyDRHSQL() {
+      //   // This function retrieves the SQL script for data de-identification.
+      //   // Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
+      //   // Issues prevail while executing these commands on Windows OS.
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve(
+      //       "./orchestration/deidentification-orchestration.sql",
+      //     ),
+      //   );
+      // }
 
       async vandvDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
+        // This function retrieves the SQL script for verfication and validation
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./orchestration/vv-orchestration.sql"),
         );
       }
+
       async statelessDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./stateless.sql"),
         );
       }
+
+      
+      // async metricsDRHSQL() {
+      //   // This function fetches the SQL query for DRH metrics after the combined view has been generated.
+      //   // Ensure that the combined view is created before calling this function.        
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./drh-metrics.sql"),
+      //   );
+      // }
+
     }(),
     // new sh.ShellSqlPages(),
     new DrhShellSqlPages(),
