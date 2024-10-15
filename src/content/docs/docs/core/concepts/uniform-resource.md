@@ -3,20 +3,20 @@ title: uniform_resource Table
 description: Explains resources and the constellation of uniform_resource-related tables.
 ---
 
-A **resource** can be any entity that contains data or is used to facilitate
+A [**resource**](/docs/core/concepts/resource/) can be any entity that contains data or is used to facilitate
 system operations. In a typical information system, resources include files,
 devices, network components, web services, users, applications, and more.
 Effective resource management helps ensure security, efficiency, and compliance
 by allowing for proper monitoring, maintenance, and control of these entities.
 
 One of the benefits of `surveilr` is its _heavily opinionated_ relational
-database schema in general and design of the `uniform_resource` table used in
-particular. The `uniform_resource` table is built to serve complex requirements
+database schema in general and design of the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table used in
+particular. The [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table is built to serve complex requirements
 in cybersecurity, compliance, and resource management scenarios. We will also
 cover its related tables and provide practical SQL examples to demonstrate their
 use.
 
-In an RSSD, **`uniform_resource`** represents a central element designed for
+In an [RSSD](/docs/core/concepts/resource-surveillance/), [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) represents a central element designed for
 append-only, immutable storage of entities in a file system. It is highly
 opinionated, aiming to maintain a history of resources by linking back to
 ingestion sessions, devices, and their original sources. This design ensures not
@@ -28,7 +28,7 @@ files or data components. Key features include the ability to record unique
 identifiers, content digests for data integrity, and paths of origin, all of
 which are critical in compliance and cybersecurity use cases.
 
-Let's look at the schema for the `uniform_resource` table to get a better
+Let's look at the schema for the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table to get a better
 understanding:
 
 ```sql
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS "uniform_resource" (
 
 ### Breaking Down the `uniform_resource` Table
 
-The `uniform_resource` table is opinionated in its approach, ensuring that the
+The [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table is opinionated in its approach, ensuring that the
 database maintains a rich historical record of any given resource. Let us dive
 into some of the core attributes of the table:
 
@@ -92,7 +92,7 @@ into some of the core attributes of the table:
 
 ### Related Tables
 
-The `uniform_resource` table interacts with several other tables, forming a
+The [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table interacts with several other tables, forming a
 comprehensive system to manage, audit, and secure resources. This constellation
 of related tables understands the diverse sources, multiple modalities, and
 various formats that a resource can have, whether it’s a file, an email message,
@@ -100,7 +100,7 @@ or an issue from a PLM system.
 
 #### 1. `ur_ingest_session`
 
-The **`ur_ingest_session`** table captures sessions during which resources are
+The [**`ur_ingest_session`**](/docs/standard-library/rssd-schema/ur_ingest_session/) table captures sessions during which resources are
 ingested into the system. Each ingestion session is recorded with metadata,
 providing a timestamp and a snapshot of the state at that point.
 
@@ -123,7 +123,7 @@ WHERE uis.ingest_started_at BETWEEN '2024-01-01' AND '2024-12-31';
 
 #### 2. `ur_ingest_session_fs_path`
 
-The **`ur_ingest_session_fs_path`** table stores file system paths linked to an
+The [**`ur_ingest_session_fs_path`**](/docs/standard-library/rssd-schema/ur_ingest_session_fs_path/) table stores file system paths linked to an
 ingestion session. It ensures traceability for the file system structure when
 resources were ingested.
 
@@ -146,7 +146,7 @@ WHERE ur.device_id = 'DEVICE1234';
 
 #### 3. `ur_ingest_session_imap_account`
 
-The **`ur_ingest_session_imap_account`** table records details about IMAP
+The [**`ur_ingest_session_imap_account`**](/docs/standard-library/rssd-schema/ur_ingest_session_imap_account/) table records details about IMAP
 accounts used during an ingestion session, particularly for email messages.
 
 - **Purpose**: To manage email accounts that are used as sources for ingestion,
@@ -158,7 +158,7 @@ accounts used during an ingestion session, particularly for email messages.
 
 #### 4. `ur_ingest_session_imap_acct_folder`
 
-The **`ur_ingest_session_imap_acct_folder`** table captures details about the
+The [**`ur_ingest_session_imap_acct_folder`**](/docs/standard-library/rssd-schema/ur_ingest_session_imap_acct_folder/) table captures details about the
 folders within an IMAP account from which messages were ingested.
 
 - **Purpose**: To track email folders involved in ingestion, such as inboxes or
@@ -171,7 +171,7 @@ folders within an IMAP account from which messages were ingested.
 
 #### 5. `ur_ingest_session_plm_acct_project`
 
-The **`ur_ingest_session_plm_acct_project`** table stores information about
+The [**`ur_ingest_session_plm_acct_project`**](/docs/standard-library/rssd-schema/ur_ingest_session_plm_acct_project/) table stores information about
 Product Lifecycle Management (PLM) projects, such as those from GitHub or Jira,
 involved in an ingestion session.
 
@@ -183,7 +183,7 @@ involved in an ingestion session.
 
 #### 6. `ur_ingest_session_fs_path_entry`
 
-The **`ur_ingest_session_fs_path_entry`** table records individual file entries
+The [**`ur_ingest_session_fs_path_entry`**](/docs/standard-library/rssd-schema/ur_ingest_session_fs_path_entry/) table records individual file entries
 within a file system that are part of an ingestion session.
 
 - **Purpose**: To provide detailed tracking of files that were ingested,
@@ -192,12 +192,12 @@ within a file system that are part of an ingestion session.
   - `ur_ingest_session_fs_path_entry_id`: Primary key for the file system path
     entry.
   - `file_path_abs`, `file_basename`: Details about the file path and name.
-  - `uniform_resource_id`: Links the file entry to the `uniform_resource` table.
+  - `uniform_resource_id`: Links the file entry to the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table.
 
 ### Compliance and Security Aspects
 
-The RSSD database is designed with a focus on compliance and security. Here’s
-how `uniform_resource` helps achieve this:
+The [RSSD](/docs/core/concepts/resource-surveillance/) database is designed with a focus on compliance and security. Here’s
+how [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) helps achieve this:
 
 1. **Immutability**: All tables are append-only. Any modification is essentially
    a new version, which ensures historical integrity and auditability. This
@@ -210,7 +210,7 @@ how `uniform_resource` helps achieve this:
    corruption.
 
 3. **Detailed Provenance Tracking**: With links to ingestion sessions, file
-   paths, and originating devices, the `uniform_resource` table can help
+   paths, and originating devices, the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table can help
    reconstruct the history of a resource. This is crucial in cybersecurity for
    incident analysis and forensic purposes.
 
@@ -235,12 +235,12 @@ ORDER BY ur.created_at DESC;
 This SQL query helps us track how a file (`security.log`) has been captured over
 multiple ingestion sessions, providing a snapshot of its historical changes.
 
-The **`uniform_resource`** table is a robust solution for managing resources
+The [**`uniform_resource`**](/docs/standard-library/rssd-schema/uniform_resource/) table is a robust solution for managing resources
 with immutability and traceability in mind. By combining the resource with
-associated devices, ingestion sessions, and file paths, the RSSD database is
+associated devices, ingestion sessions, and file paths, the [RSSD](/docs/core/concepts/resource-surveillance/) database is
 built to cater to the high-demand needs of compliance and cybersecurity.
 
-With its opinionated approach, the `uniform_resource` table doesn’t just capture
+With its opinionated approach, the [`uniform_resource`](/docs/standard-library/rssd-schema/uniform_resource/) table doesn’t just capture
 the current state of resources—it also records the entire historical context,
 making it suitable for audit, analysis, and compliance. This elaborate
 infrastructure ensures data integrity, reliability, and full transparency into
