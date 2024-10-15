@@ -1,7 +1,7 @@
 ---
 title: "Diagnosing RSSD Size Issues in surveilr shell"
 metaTitle: "A Guide To Using the console_table_physical_stat Virtual Table"
-description: "Discover how Surveilr's stateful integration and SQL interface help non-technical teams manage, query, and track data effortlessly while ensuring compliance."
+description: "A guide to diagnosing and resolving unexpected database bloat in surveilr shell by using the console_table_physical_stat virtual table to track and compare RSSD file size changes."
 author: "Abdulbaasit Seriki"
 authorImage: "@/images/blog/user-no-image.avif"
 authorImageAlt: "Avatar Description"
