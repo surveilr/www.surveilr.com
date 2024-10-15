@@ -1,0 +1,12 @@
+@use "astro-breadcrumbs/breadcrumbs.scss" with ( /// Your config goes here
+    $size-font: 15px,
+    // $bem-root: "c-breadcrumbs",
+    $color-separator: #d3d3d3,
+    //$color-is-current: green,
+    $truncated: true,
+    $color-link: #b9b9b9,
+    $color-hover-link: #214EA2
+);
+.c-breadcrumbs__link {
+    line-height: normal!important;
+}
