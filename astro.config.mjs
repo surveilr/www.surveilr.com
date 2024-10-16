@@ -60,8 +60,16 @@ export default defineConfig({
           label: "surveilr Core",
           items: [
             {
-              label: "Getting Started",
-              slug: "docs/core/getting-started",
+              label: "What is surveilr",
+              slug: "docs/core/what-is-surveilr",
+            },
+            {
+              label: "Quick Start",
+              slug: "docs/core/quick-start",
+            },
+            {
+              label: "Installation",
+              slug: "docs/core/installation",
             },
             {
               label: "surveilr CLI",
