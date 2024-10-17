@@ -156,3 +156,18 @@ Deno.test("surveilr specific functions", async (t) => {
     assertEquals(value, "*********");
   });
 });
+
+Deno.test("ast functions", async (t) => {
+  await t.step("markdown to ast url", async () => {
+    const url =
+      `https://raw.githubusercontent.com/surveilr/www.surveilr.com/refs/heads/main/lib/assurance/test-fixtures/README.md`;
+    const mdResult =
+      await $`surveilr shell --cmd "select surveilr_markdown_uri_ast(${url}) as json_ast"`
+        .stdout("piped");
+    assertEquals(
+      mdResult.code,
+      0,
+      "❌ Error: Failed to check status.",
+    );
+  });
+});
