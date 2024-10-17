@@ -70,12 +70,12 @@ export class AssertThat<ColumnName extends string>
       readonly diags: Record<string, unknown>;
     };
     readonly otherwise?:
-      | string
-      | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
-      | {
-        readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
-        readonly diags: Record<string, unknown>;
-      };
+    | string
+    | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
+    | {
+      readonly expr: string | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+      readonly diags: Record<string, unknown>;
+    };
     readonly selectCaseExpr: (
       index: string,
     ) => SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
@@ -99,8 +99,8 @@ export class AssertThat<ColumnName extends string>
     return (typeof expr === "number"
       ? String(expr)
       : typeof expr === "string"
-      ? expr
-      : expr.SQL(this.emitCtx))
+        ? expr
+        : expr.SQL(this.emitCtx))
       .replaceAll("tcIndex", String(tcIndex));
   }
 
@@ -111,9 +111,9 @@ export class AssertThat<ColumnName extends string>
       | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>
       | {
         readonly expr:
-          | number
-          | string
-          | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
+        | number
+        | string
+        | SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
       },
     tcIndex: string,
   ) {
@@ -123,8 +123,8 @@ export class AssertThat<ColumnName extends string>
     return (typeof e === "number"
       ? String(e)
       : typeof e === "string"
-      ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
-      : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex));
+        ? SQLa.typicalQuotedSqlLiteral(e)[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+        : e.SQL(this.emitCtx)).replaceAll("tcIndex", String(tcIndex));
   }
 
   selectCaseExpr(
@@ -146,19 +146,16 @@ export class AssertThat<ColumnName extends string>
       const expr = `'${state} ${tcIndex} ' || (` +
         this.sqlExprOrLiteral(suppliedExpr, tcIndex) + ")";
       return d
-        ? `${expr} || ${
-          SQLa.typicalQuotedSqlLiteral(
-            `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
-          )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
+        ? `${expr} || ${SQLa.typicalQuotedSqlLiteral(
+          `\n  ---\n  ${this.diags(d).replaceAll("\n", "\n  ")}...`,
+        )[1].replaceAll("`", "'") // ` means "break out of SQL literal"
         }`
         : expr;
     };
     return (index: string) => ({
       SQL: () =>
-        `SELECT CASE WHEN ${this.sqlExpr(when, index)} THEN ${
-          exprOrLit("ok", then, index)
-        } ELSE ${
-          exprOrLit("not ok", otherwise ?? then, index)
+        `SELECT CASE WHEN ${this.sqlExpr(when, index)} THEN ${exprOrLit("ok", then, index)
+        } ELSE ${exprOrLit("not ok", otherwise ?? then, index)
         } END AS ${this.ctx.tapResultColName} FROM test_case`,
     });
   }
@@ -198,8 +195,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} = ${this.sqlExpr(value, String(this.ctx.index))}`,
       `${colName} is ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should be ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // we use the builder pattern for fluent assertions
@@ -211,11 +207,9 @@ export class AssertThat<ColumnName extends string>
   ) {
     this.case(
       `${colName} > ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} is greater than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} is greater than ${this.sqlExpr(value, String(this.ctx.index))
       }`,
-      `${colName} should be greater than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be greater than ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -228,8 +222,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} < ${this.sqlExpr(value, String(this.ctx.index))}`,
       `${colName} is less than ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should be less than ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should be less than ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -242,8 +235,7 @@ export class AssertThat<ColumnName extends string>
     this.case(
       `${colName} LIKE '${this.sqlExpr(value, String(this.ctx.index))}%'`,
       `${colName} starts with ${this.sqlExpr(value, String(this.ctx.index))}`,
-      `${colName} should start with ${
-        this.sqlExpr(value, String(this.ctx.index))
+      `${colName} should start with ${this.sqlExpr(value, String(this.ctx.index))
       }, is \` || ${colName} || \` instead`,
     );
     return this; // return this to chain calls
@@ -336,6 +328,41 @@ export class TestSuiteNotebook
       );
     };
   }
+  /**
+  * Asserts that the specified views exist in the database.
+  * @param ctx The test case context
+  * @param views Array of view names to check
+  */
+  assertView(ctx: TestCaseContext, ...views: string[]) {
+    const viewList = views.map(view => `'${view}'`).join(',');
+    const assertThat = this.assertThat(ctx)`
+       SELECT name FROM sqlite_master WHERE type = 'view' AND name in (${viewList})`;
+    views.map(view => {
+      assertThat.case(
+        `COUNT(CASE WHEN name = '${view}' THEN 1 END) > 0`,
+        `View "'${view}'" exists in the DB`,
+      );
+    });
+    return assertThat;
+  }
+
+  /**
+ * Asserts that the specified tables exist in the database.
+ * @param ctx The test case context
+ * @param tables Array of table names to check
+ */
+  assertTable(ctx: TestCaseContext, ...tables: string[]) {
+    const tableList = tables.map(table => `'${table}'`).join(',');
+    const assertThat = this.assertThat(ctx)`
+       SELECT name FROM sqlite_master WHERE type = 'table' AND name in (${tableList})`;
+    tables.map(table => {
+      assertThat.case(
+        `COUNT(CASE WHEN name = '${table}' THEN 1 END) > 0`,
+        `Table "'${table}'" exists in the DB`,
+      );
+    });
+    return assertThat;
+  }
 
   /**
    * Generates SQL statements from TestSuiteNotebook subclasses' method-based "test case" notebooks.
@@ -394,7 +421,6 @@ export class TestSuiteNotebook
         },
       ),
     );
-
     const valid = testCases.filter((tc) => SQLa.isSqlTextSupplier(tc.body));
     const totalCases = valid.reduce(
       (total, tc) => total + tc.ctx.casesCount,
@@ -404,22 +430,21 @@ export class TestSuiteNotebook
     const defaultNB = sources[0];
     const viewName = defaultNB?.notebookName;
     const tapResultColName = defaultNB?.tapResultColName;
-
     // deno-fmt-ignore
     return [
       ...arbitrarySqlStmts,
-      ...testCases.filter((tc) => !SQLa.isSqlTextSupplier(tc.body)).map(tc => `-- Test Case "${tc.name}" did not return SqlTextSupplier instance (is ${typeof tc.body} instead)`),
-      `DROP VIEW IF EXISTS "${viewName}";`,
+      ...testCases.filter((tc) => !SQLa.isSqlTextSupplier(tc.body)).map(tc => `-- Test Case "${tc.name}" did not return SqlTextSupplier instance(is ${typeof tc.body} instead)`),
+      `DROP VIEW IF EXISTS "${viewName}"; `,
       `CREATE VIEW "${viewName}" AS`,
       `    WITH`,
-      `        tap_version AS (SELECT 'TAP version 14' AS ${tapResultColName}),`,
-      `        tap_plan AS (SELECT '1..${totalCases}' AS ${tapResultColName}),`,
-      `        ${valid.map((tc) => tc.body.SQL(defaultNB.emitCtx)).join(",\n  ")}`,
+      `        tap_version AS(SELECT 'TAP version 14' AS ${tapResultColName}), `,
+      `        tap_plan AS(SELECT '1..${totalCases}' AS ${tapResultColName}), `,
+      `        ${valid.map((tc) => tc.body.SQL(defaultNB.emitCtx)).join(",\n  ")} `,
       `    SELECT ${tapResultColName} FROM tap_version`,
       `    UNION ALL`,
       `    SELECT ${tapResultColName} FROM tap_plan`,
       `    UNION ALL`,
-      `    ${valid.map((tc) => `SELECT ${tapResultColName} FROM "${tc.name}"`).join("\n    UNION ALL\n")};`,
+      `    ${valid.map((tc) => `SELECT ${tapResultColName} FROM "${tc.name}"`).join("\n    UNION ALL\n")}; `,
     ];
   }
 }
