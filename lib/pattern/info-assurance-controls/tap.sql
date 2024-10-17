@@ -1,8 +1,8 @@
-DROP VIEW IF EXISTS "synthetic_test_suite";
+DROP VIEW IF EXISTS "synthetic_test_suite"; 
 CREATE VIEW "synthetic_test_suite" AS
     WITH
-        tap_version AS (SELECT 'TAP version 14' AS tap_result),
-        tap_plan AS (SELECT '1..6' AS tap_result),
+        tap_version AS(SELECT 'TAP version 14' AS tap_result), 
+        tap_plan AS(SELECT '1..6' AS tap_result), 
         -- 0: Check if a view 'control_regimes' exists
 "Check if a view 'control_regimes' exists" AS (
   WITH test_case AS (
@@ -44,7 +44,7 @@ CREATE VIEW "synthetic_test_suite" AS
     SELECT COUNT(*) AS control_count FROM control
   )
   SELECT CASE WHEN control_count > 0 THEN 'ok 5 ' || ('control_count is greater than 0') ELSE 'not ok 5 ' || ('control_count should be greater than 0, is ' || control_count || ' instead') END AS tap_result FROM test_case
-)
+) 
     SELECT tap_result FROM tap_version
     UNION ALL
     SELECT tap_result FROM tap_plan
@@ -59,5 +59,5 @@ SELECT tap_result FROM "Ensure 'control_group' view has values "
     UNION ALL
 SELECT tap_result FROM "Check if a view 'control' exists"
     UNION ALL
-SELECT tap_result FROM "Ensure 'control' view has values ";
+SELECT tap_result FROM "Ensure 'control' view has values "; 
 SELECT * FROM synthetic_test_suite;

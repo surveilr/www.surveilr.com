@@ -1,8 +1,8 @@
-DROP VIEW IF EXISTS "synthetic_test_suite";
+DROP VIEW IF EXISTS "synthetic_test_suite"; 
 CREATE VIEW "synthetic_test_suite" AS
     WITH
-        tap_version AS (SELECT 'TAP version 14' AS tap_result),
-        tap_plan AS (SELECT '1..32' AS tap_result),
+        tap_version AS(SELECT 'TAP version 14' AS tap_result), 
+        tap_plan AS(SELECT '1..32' AS tap_result), 
         -- 0: Check if a view 'policy_dashboard' exists
 "Check if a view 'policy_dashboard' exists" AS (
   WITH test_case AS (
@@ -226,7 +226,7 @@ CREATE VIEW "synthetic_test_suite" AS
     SELECT COUNT(*) AS viauthentication_count FROM viauthentication
   )
   SELECT CASE WHEN viauthentication_count > 0 THEN 'ok 31 ' || ('viauthentication_count is greater than 0') ELSE 'not ok 31 ' || ('viauthentication_count should be greater than 0, is ' || viauthentication_count || ' instead') END AS tap_result FROM test_case
-)
+) 
     SELECT tap_result FROM tap_version
     UNION ALL
     SELECT tap_result FROM tap_plan
@@ -293,5 +293,5 @@ SELECT tap_result FROM "Ensure 'viunsuccessful_attempts_log' view has values "
     UNION ALL
 SELECT tap_result FROM "Check if a view 'viauthentication' exists"
     UNION ALL
-SELECT tap_result FROM "Ensure 'viauthentication' view has values ";
+SELECT tap_result FROM "Ensure 'viauthentication' view has values "; 
 SELECT * FROM synthetic_test_suite;

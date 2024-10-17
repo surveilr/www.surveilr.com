@@ -1,8 +1,8 @@
-DROP VIEW IF EXISTS "synthetic_test_suite";
+DROP VIEW IF EXISTS "synthetic_test_suite"; 
 CREATE VIEW "synthetic_test_suite" AS
     WITH
-        tap_version AS (SELECT 'TAP version 14' AS tap_result),
-        tap_plan AS (SELECT '1..10' AS tap_result),
+        tap_version AS(SELECT 'TAP version 14' AS tap_result), 
+        tap_plan AS(SELECT '1..10' AS tap_result), 
         -- 0: Check if a view 'border_boundary' exists
 "Check if a view 'border_boundary' exists" AS (
   WITH test_case AS (
@@ -80,7 +80,7 @@ CREATE VIEW "synthetic_test_suite" AS
     SELECT count(name) as exist FROM sqlite_master WHERE type = 'view' AND name = 'security_impact_analysis_view'
   )
   SELECT CASE WHEN exist = 1 THEN 'ok 9 ' || ('View "security_impact_analysis_view" exists in the DB') ELSE 'not ok 9 ' || ('View "security_impact_analysis_view" not exists in the DB') END AS tap_result FROM test_case
-)
+) 
     SELECT tap_result FROM tap_version
     UNION ALL
     SELECT tap_result FROM tap_plan
@@ -103,5 +103,5 @@ SELECT tap_result FROM "Check if a view 'server_data' exists"
     UNION ALL
 SELECT tap_result FROM "Check if a view 'security_incident_response_view' exists"
     UNION ALL
-SELECT tap_result FROM "Check if a view 'security_impact_analysis_view' exists";
+SELECT tap_result FROM "Check if a view 'security_impact_analysis_view' exists"; 
 SELECT * FROM synthetic_test_suite;
