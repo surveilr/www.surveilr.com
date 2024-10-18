@@ -136,6 +136,7 @@ We set the language of the page to English and add classes for scrollbar and scr
             truncated={true}
             ellipsisAriaLabel="Show more breadcrumbs"
             excludeCurrentPage={hideBreadcrumbs || false}
+            customizeLinks={[{ index: "last", "aria-disabled": true }]}
             >
             <svg
               slot="separator"
