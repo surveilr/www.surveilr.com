@@ -19,6 +19,7 @@ const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
 const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
+//const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
 
 
 
@@ -225,21 +226,17 @@ try {
 }
 
 
-// This function retrieves the SQL script for data de-identification.
-// Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
-// Issues prevail while executing these commands on Windows OS.
-// Therefore avoiding deidentification till the issue is resolved
-// try {
-//   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
-//   await executeCommand(
-//     [toolCmd, "orchestrate", "-n", "deidentification"],
-//     deidentificationSQLSupplier,
-//   );
-//   console.log(colors.green("Deidentification successful."));
-// } catch (error) {
-//   console.error(colors.cyan("Error during DeIdentification:"), error.message);
-//   //Deno.exit(1);
-// }
+try {
+  console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
+  await executeCommand(
+    [toolCmd, "orchestrate", "-n", "deidentification"],
+    deidentificationSQLSupplier,
+  );
+  console.log(colors.green("Deidentification successful."));
+} catch (error) {
+  console.error(colors.cyan("Error during DeIdentification:"), error.message);
+  //Deno.exit(1);
+}
 
 // This function is for the dynamic combined view generation
 // try {
@@ -252,8 +249,8 @@ try {
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
-  //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  executeSqlCommands(uxSQL); // Execute UX SQL commands
+  await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  //executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
