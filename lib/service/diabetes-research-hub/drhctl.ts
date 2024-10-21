@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net --allowffi
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
@@ -21,9 +21,6 @@ const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.c
 //const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
 //const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
 
-
-
-
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
   try {
@@ -41,7 +38,6 @@ async function fetchSqlContent(url: string): Promise<string> {
     return '';
   }
 }
-
 
 
 // Helper function to execute a command
@@ -165,7 +161,6 @@ if (Deno.args.length === 0) {
 // Store the folder name in a variable
 const folderName = Deno.args[0];
 
-
 // Define synchronous suppliers
 const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
   deidentificationSQL;
@@ -177,6 +172,8 @@ let vvSQL: string;
 let uxSQL: string;
 
 
+// Check and delete the file if it exists
+await checkAndDeleteFile(dbFilePath);
 
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
@@ -185,12 +182,8 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );  
-  // uxSQL = await fetchSqlContent(
-  //   `${UX_URL}/package.sql`,
-  // );
-  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
-} catch (error) {
+  );       
+} catch (error) {                    
   console.error(
     colors.cyan(
       "Error fetching SQL contents for DeIdentification and Verification & Validation:",
@@ -199,9 +192,6 @@ try {
   );
   Deno.exit(1);
 }
-
-// Check and delete the file if it exists
-await checkAndDeleteFile(dbFilePath);
 
 // Log the start of the process
 console.log(colors.cyan(`Starting the process for folder: ${folderName}`));
@@ -238,19 +228,11 @@ try {
   //Deno.exit(1);
 }
 
-// This function is for the dynamic combined view generation
-// try {
-//   await checkAndCreateCombinedView(dbFilePath);
-//   console.log(colors.green("View generation completed successfully."));
-// } catch (error) {
-//   console.error(colors.red("Error during view generation:"), error.message);
-// }
-
-
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
+  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content   
   //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  executeSqlCommands(uxSQL); // Execute UX SQL commands
+  executeSqlCommands(uxSQL); // Execute UX SQL commands  
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
