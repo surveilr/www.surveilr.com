@@ -7,7 +7,7 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sppn from "../..//std/notebook/sqlpage.ts";
-import { createUVACombinedCGMViewSQL,generateDetrendedDSCombinedCGMViewSQL } from './study-specific-stateless/generate-cgm-combined-sql.ts';
+import { createUVACombinedCGMViewSQL} from './study-specific-stateless/generate-cgm-combined-sql.ts';
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -158,10 +158,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   //based on the ingested dataset the function call must be handled
   combinedViewDDL()
   {
-    const dbFilePath = "./resource-surveillance.sqlite.db"; 
-    //const sqlStatements = generateCombinedCGMViewSQL(dbFilePath);    
-    //const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);
-    const sqlStatements = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);    
+    const dbFilePath = "./resource-surveillance.sqlite.db";     
+    const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);     
     return this.SQL`
         ${sqlStatements} 
     `;  
@@ -1103,59 +1101,23 @@ Participants are individuals who volunteer to take part in CGM research studies.
 
 export async function drhSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
-    new class extends spn.TypicalSqlPageNotebook {
-
-      
-      // async deidentifyDRHSQL() {
-      //   // This function retrieves the SQL script for data de-identification.
-      //   // Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
-      //   // Issues prevail while executing these commands on Windows OS.
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve(
-      //       "./orchestration/deidentification-orchestration.sql",
-      //     ),
-      //   );
-      // }
-
-      // async vandvDRHSQL() {
-      //   // This function retrieves the SQL script for verfication and validation
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./orchestration/vv-orchestration.sql"),
-      //   );
-      // }
-
-      // async statelessDRHSQL() {
-      //   // read the file from either local or remote (depending on location of this file)
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./stateless.sql"),
-      //   );
-      // }
-
-      
-      // async metricsDRHSQL() {
-      //   // This function fetches the SQL query for DRH metrics after the combined view has been generated.
-      //   // Ensure that the combined view is created before calling this function.        
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./drh-metrics.sql"),
-      //   );
-      // }
-
-      
-      // async statelessAndersonSQL() {
-      //   // stateless sql for ctr-anderson study
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./study-specific-stateless/ctr-anderson-stateless.sql"),
-      //   );
-      // }     
+    new class extends spn.TypicalSqlPageNotebook {      
       
 
-      
-      async statelessdetrendedAnalysisSQL() {
-        // stateless sql for detrendedAnalysis study
+      async vandvDRHSQL() {
+        // This function retrieves the SQL script for verfication and validation
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./study-specific-stateless/detrended-stateless.sql"),
+          import.meta.resolve("./orchestration/vv-orchestration.sql"),
         );
-      }   
+      }
+
+      async statelessDRHSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateless.sql"),
+        );
+      }                
+      
 
     }(),
     // new sh.ShellSqlPages(),
