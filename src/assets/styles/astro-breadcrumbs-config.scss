@@ -5,8 +5,15 @@
     //$color-is-current: green,
     $truncated: true,
     $color-link: #b9b9b9,
-    $color-hover-link: #214EA2
-);
+    $color-hover-link: #214EA2);
+
 .c-breadcrumbs__link {
-    line-height: normal!important;
+    line-height: normal !important;
+}
+
+.c-breadcrumbs__link[aria-disabled="true"] {
+    pointer-events: none;
+    cursor: default;
+    color: #b9b9b9;
+    text-decoration: none;
 }
