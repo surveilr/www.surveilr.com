@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys  --allow-ffi
 import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
@@ -8,6 +8,7 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 import * as sppn from "../..//std/notebook/sqlpage.ts";
+import { createUVACombinedCGMViewSQL,generateDetrendedDSCombinedCGMViewSQL } from './study-specific-stateless/generate-cgm-combined-sql.ts';
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -154,6 +155,15 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
+  combinedViewDDL()
+  {
+    const dbFilePath = "./resource-surveillance.sqlite.db";      
+    const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);      
+    return this.SQL`
+        ${sqlStatements} 
+    `;  
+  }
+
   @spn.navigationPrimeTopLevel({
     caption: "DRH EDGE UI Home",
     description: "Welcome to Diabetes Research Hub EDGE UI",
@@ -204,7 +214,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
             SELECT
                   'card'                  as component,
                   'Features ' as title,
-                  8                     as columns;
+                  9                     as columns;
 
 
             SELECT
@@ -266,6 +276,13 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
                 'Raw CGM Data Description' AS title,
                 '/drh/cgm-data/index.sql' AS link,
                 'Explore detailed information about glucose levels over time, including timestamp, and glucose value.' AS description,
+                'book'                as icon,
+                'red'                    as color;
+
+            SELECT
+                'Combined CGM Tracing' AS title,
+                '/drh/cgm-combined-data/index.sql' AS link,
+                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
                 'book'                as icon,
                 'red'                    as color;
 
@@ -500,6 +517,51 @@ This section provides information about the publications resulting from a study.
   SELECT input_text as "deidentified column", orch_started_at,orch_finished_at ,diagnostics_md from drh_vw_orchestration_deidentify;
   `;
   }
+
+
+  @drhNav({
+    caption: "Combined CGM Tracing",
+    abbreviatedCaption: "Combined CGM Tracing",
+    description: "Combined CGM Tracing",
+    siblingOrder: 21,
+  })
+  "drh/cgm-combined-data/index.sql"() {
+    const viewName = `combined_cgm_tracing`;
+    const pagination = this.pagination({ tableOrViewName: viewName });
+    return this.SQL`
+  ${this.activePageTitle()}
+
+
+    SELECT
+'text' as component,
+'
+
+The **Combined CGM Tracing** refers to a consolidated dataset of continuous glucose monitoring (CGM) data, collected from multiple participants in a research study. CGM devices track glucose levels at regular intervals throughout the day, providing detailed insights into the participants'' glycemic control over time.
+
+In a research study, this combined dataset is crucial for analyzing glucose trends across different participants and understanding overall patterns in response to interventions or treatments. The **Combined CGM Tracing** dataset typically includes:
+- **Participant ID**: A unique identifier for each participant, ensuring the data is de-identified while allowing for tracking individual responses.
+- **Date_Time**: The timestamp for each CGM reading, formatted uniformly to allow accurate time-based analysis.(YYYY-MM-DD HH:MM:SS)
+- **CGM_Value**: The recorded glucose level at each time point, often converted to a standard unit (e.g., mg/dL or mmol/L) and stored as a real number for precise calculations.
+
+This combined view enables researchers to perform comparative analyses, evaluate glycemic variability, and assess overall glycemic control across participants, which is essential for understanding the efficacy of treatments or interventions in the study. By aggregating data from multiple sources, researchers can identify population-level trends while maintaining the integrity of individual data. 
+
+' as contents_md;
+
+${pagination.init()}
+
+-- Display uniform_resource table with pagination
+SELECT 'table' AS component,
+    TRUE AS sort,
+    TRUE AS search;
+SELECT * FROM ${viewName} 
+LIMIT $limit
+OFFSET $offset;
+
+${pagination.renderSimpleMarkdown()}
+
+      `;
+  }
+
 
   @drhNav({
     caption: "CGM File MetaData Information",
@@ -1038,19 +1100,8 @@ Participants are individuals who volunteer to take part in CGM research studies.
 
 export async function drhSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
-    new class extends spn.TypicalSqlPageNotebook {
-
+    new class extends spn.TypicalSqlPageNotebook {      
       
-      // async deidentifyDRHSQL() {
-      //   // This function retrieves the SQL script for data de-identification.
-      //   // Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
-      //   // Issues prevail while executing these commands on Windows OS.
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve(
-      //       "./orchestration/deidentification-orchestration.sql",
-      //     ),
-      //   );
-      // }
 
       async vandvDRHSQL() {
         // This function retrieves the SQL script for verfication and validation
