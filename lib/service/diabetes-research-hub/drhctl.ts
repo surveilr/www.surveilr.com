@@ -18,7 +18,7 @@ const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
 const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
-const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
+//const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
 //const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
 
 
@@ -249,8 +249,8 @@ try {
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
-  await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  //executeSqlCommands(uxSQL); // Execute UX SQL commands
+  //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
