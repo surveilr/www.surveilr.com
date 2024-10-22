@@ -1,10 +1,38 @@
+DROP VIEW IF EXISTS drh_participant;
+CREATE VIEW drh_participant AS
+SELECT 
+    'CTR3-' || DeidentID AS participant_id, -- Concatenating 'CTR3-' with DeidentID
+    'CTR3' AS study_id, -- Static assignment of 'CTR3' for study_id
+    SiteOrig AS site_id, -- Using SiteOrig as site_id
+    "Age at Diagnosis" AS diagnosis_icd, -- Mapping Age at Diagnosis to diagnosis_icd
+    DailyIns AS med_rxnorm, -- Assuming DailyIns is related to medication or insulin
+    CASE 
+        WHEN Novolog IS NOT NULL THEN 'Novolog'
+        WHEN Humalog IS NOT NULL THEN 'Humalog'
+        WHEN Regular IS NOT NULL THEN 'Regular'
+        WHEN Apidra IS NOT NULL THEN 'Apidra'
+        ELSE 'Other'
+    END AS treatment_modality, -- Mapping insulin types to treatment_modality
+    Gender AS gender, -- Direct mapping for gender
+    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenating Race and Ethnicity
+    "Age at Enrollment" AS age, -- Mapping Age at Enrollment to age
+    CASE 
+        WHEN Weight IS NOT NULL AND Height IS NOT NULL 
+        THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation
+        ELSE NULL
+    END AS bmi, -- Calculating BMI from Weight and Height
+    HbA1CTest AS baseline_hba1c, -- Mapping HbA1CTest to baseline_hba1c
+    '' AS diabetes_type, -- Placeholder for diabetes_type, needs further definition
+    '' AS study_arm -- Placeholder for study_arm, needs further definition
+FROM uniform_resource_enrollment;
+
 -- Drop the view if it exists, then create the view for uniform_resource_visitinfo
 DROP VIEW IF EXISTS drh_vw_uniform_resource_visitinfo;
 
 CREATE VIEW drh_vw_uniform_resource_visitinfo AS
 SELECT 
     ParentLoginVisitID,
-    DeidentID AS participant_id,  -- patient identifier
+    'CTR3-' || DeidentID AS participant_id,  -- patient identifier
     RecID,
     Visit,
     VisitDt,
@@ -20,7 +48,7 @@ DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
 
 CREATE VIEW drh_vw_uniform_resource_cgm AS
 SELECT
-    DeidentID AS participant_id,  
+    'CTR3-' || DeidentID AS participant_id,  
     strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time,
     CAST(CGM AS REAL) AS CGM_value  
 FROM 
@@ -31,7 +59,7 @@ DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
 
 CREATE VIEW drh_vw_uniform_resource_cgmcal AS
 SELECT
-    DeidentID AS participant_id,  
+    'CTR3-' || DeidentID AS participant_id,  
     strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time,
     CAST(Cal AS REAL) AS CGM_value  
 FROM 
@@ -42,7 +70,7 @@ DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
 
 CREATE VIEW drh_vw_uniform_resource_monitorcgm AS
 SELECT
-    DeidentID AS participant_id,  
+    'CTR3-' || DeidentID AS participant_id,  
     strftime('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time,
     CAST(CGM AS REAL) AS CGM_value  
 FROM 
@@ -319,14 +347,6 @@ SELECT
     lab_id, lab_name, lab_pi, institution_id, study_id
 FROM uniform_resource_lab;
 
--- Drop and recreate the participant view
-DROP VIEW IF EXISTS drh_participant;
-CREATE VIEW drh_participant AS
-SELECT
-    participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
-    treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
-    diabetes_type, study_arm
-FROM uniform_resource_participant;
 
 -- Drop and recreate the publication view
 DROP VIEW IF EXISTS drh_publication;
@@ -359,7 +379,7 @@ SELECT s.study_id,
        (CAST(SUM(CASE WHEN p.gender = 'F' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*)) * 100 AS percentage_of_females, 
        GROUP_CONCAT(DISTINCT i.investigator_name) AS investigators 
 FROM uniform_resource_study s 
-LEFT JOIN uniform_resource_participant p ON s.study_id = p.participant_id
+LEFT JOIN drh_participant p ON s.study_id = p.participant_id
 LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id 
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
 
@@ -385,15 +405,6 @@ FROM sqlite_master
 WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
 
 
-DROP VIEW IF EXISTS drh_participant_file_names;
-CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
-SELECT
-  patient_id,
-  GROUP_CONCAT(file_name, ', ') AS file_names
-FROM
-  uniform_resource_cgm_file_metadata
-GROUP BY
-  patient_id;
 
 DROP VIEW IF EXISTS drh_device_file_count_view;
 CREATE VIEW drh_device_file_count_view AS

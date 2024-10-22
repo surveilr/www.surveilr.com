@@ -156,14 +156,14 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
   //use this only for combined view sql generation
   //based on the ingested dataset the function call must be handled
-  combinedViewDDL()
-  {
-    const dbFilePath = "./resource-surveillance.sqlite.db";     
-    const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);     
-    return this.SQL`
-        ${sqlStatements} 
-    `;  
-  }
+  // combinedViewDDL()
+  // {
+  //   const dbFilePath = "./resource-surveillance.sqlite.db";     
+  //   const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);     
+  //   return this.SQL`
+  //       ${sqlStatements} 
+  //   `;  
+  // }
 
 
   @spn.navigationPrimeTopLevel({
@@ -1104,19 +1104,26 @@ export async function drhSQL() {
     new class extends spn.TypicalSqlPageNotebook {      
       
 
-      async vandvDRHSQL() {
-        // This function retrieves the SQL script for verfication and validation
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./orchestration/vv-orchestration.sql"),
-        );
-      }
+      // async vandvDRHSQL() {
+      //   // This function retrieves the SQL script for verfication and validation
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./orchestration/vv-orchestration.sql"),
+      //   );
+      // }
 
-      async statelessDRHSQL() {
+      // async statelessDRHSQL() {
+      //   // read the file from either local or remote (depending on location of this file)
+      //   return await spn.TypicalSqlPageNotebook.fetchText(
+      //     import.meta.resolve("./stateless.sql"),
+      //   );
+      // }    
+
+      async ctr3andersonDRHSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless.sql"),
+          import.meta.resolve("./study-specific-stateless/ctr-anderson-stateless.sql"),
         );
-      }                
+      }              
       
 
     }(),
