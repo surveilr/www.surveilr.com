@@ -171,3 +171,89 @@ Deno.test("ast functions", async (t) => {
     );
   });
 });
+
+Deno.test("text functions", async (t) => {
+  await t.step("text_substring", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_substring('hello world', 7);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_substring function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "world");
+  });
+
+  await t.step("text_substring_end", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_substring('hello world', 7, 5);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_substring function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "world");
+  });
+
+  await t.step("text_slice positive start", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_slice('hello world', 7);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_slice function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "world");
+  });
+
+  await t.step("text_slice negative start and end", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_slice('hello world', -5, -2);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_slice function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "wor");
+  });
+
+  await t.step("text_right", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_right('hello world', 5);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_right function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "world");
+  });
+
+  await t.step("text_index", async () => {
+    const result =
+      await $`surveilr shell --cmd "select text_index('hello yellow', 'ello');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr text_index function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, 2);
+  });
+});
