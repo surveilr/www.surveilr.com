@@ -27,12 +27,16 @@ export function createCombinedCGMView(dbFilePath: string): void {
     return;
   }
 
-  const participantsStmt = db.prepare("SELECT DISTINCT patient_id FROM drh_participant_file_names;");
+  const participantsStmt = db.prepare(
+    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
+  );
   const participants = participantsStmt.all();
 
   const sqlParts: string[] = [];
   for (const { patient_id } of participants) {
-    const fileNamesStmt = db.prepare("SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?;");
+    const fileNamesStmt = db.prepare(
+      "SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?;",
+    );
     const file_names_row = fileNamesStmt.get(patient_id);
 
     if (!file_names_row) {
@@ -42,8 +46,10 @@ export function createCombinedCGMView(dbFilePath: string): void {
 
     const file_names = file_names_row.file_names; // Access property directly
     if (file_names) {
-      const participantTableNames = file_names.split(', ').map(fileName => `uniform_resource_${fileName}`);
-      participantTableNames.forEach(tableName => {
+      const participantTableNames = file_names.split(", ").map((fileName) =>
+        `uniform_resource_${fileName}`
+      );
+      participantTableNames.forEach((tableName) => {
         sqlParts.push(`
           SELECT 
             '${patient_id}' as participant_id, 
@@ -57,19 +63,24 @@ export function createCombinedCGMView(dbFilePath: string): void {
   }
 
   if (sqlParts.length > 0) {
-    const combinedUnionAllQuery = sqlParts.join(' UNION ALL ');
-    const createCombinedViewSql = `CREATE VIEW IF NOT EXISTS combined_cgm_tracing AS ${combinedUnionAllQuery};`;
-    
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    const createCombinedViewSql =
+      `CREATE VIEW IF NOT EXISTS combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+
     try {
       db.exec(createCombinedViewSql);
       console.log("Combined view 'combined_cgm_tracing' created successfully.");
     } catch (error) {
       console.error("Error creating combined view:", error);
       const params = JSON.stringify({ message: error.message });
-      db.prepare("INSERT INTO error_log (error_message) VALUES (?);").run(params);
+      db.prepare("INSERT INTO error_log (error_message) VALUES (?);").run(
+        params,
+      );
     }
   } else {
-    console.log("No participant tables found, so the combined view will not be created.");
+    console.log(
+      "No participant tables found, so the combined view will not be created.",
+    );
   }
 
   participantsStmt.finalize(); // Clean up
@@ -78,6 +89,6 @@ export function createCombinedCGMView(dbFilePath: string): void {
 
 // If the script is being run directly, execute the function
 if (import.meta.main) {
-  const dbFilePath = "resource-surveillance.sqlite.db"; 
+  const dbFilePath = "resource-surveillance.sqlite.db";
   createCombinedCGMView(dbFilePath);
 }
