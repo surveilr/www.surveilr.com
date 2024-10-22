@@ -257,3 +257,61 @@ Deno.test("text functions", async (t) => {
     assertEquals(value, 2);
   });
 });
+
+Deno.test("regexp functions", async (t) => {
+  await t.step("regexp_like", async () => {
+    const result =
+      await $`surveilr shell --cmd "select regexp_like('the year is 2021', '[0-9]+');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr regexp_like function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, 1);
+  });
+
+  await t.step("regexp_substr", async () => {
+    const result =
+      await $`surveilr shell --cmd "select regexp_substr('the year is 2021', '[0-9]+');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr regexp_substr function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "2021");
+  });
+
+  await t.step("regexp_capture", async () => {
+    const result =
+      await $`surveilr shell --cmd "select regexp_capture('years is 2021', '\d\d(\d\d)', 1);"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr regexp_capture function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "21");
+  });
+
+  await t.step("regexp_replace", async () => {
+    const result =
+      await $`surveilr shell --cmd "select regexp_replace('the year is 2021', '[0-9]+', '2050');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr regexp_replace function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, "the year is 2050");
+  });
+});

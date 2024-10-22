@@ -8,7 +8,10 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 import * as sppn from "../..//std/notebook/sqlpage.ts";
-import { createUVACombinedCGMViewSQL,generateDetrendedDSCombinedCGMViewSQL } from './study-specific-stateless/generate-cgm-combined-sql.ts';
+import {
+  createUVACombinedCGMViewSQL,
+  generateDetrendedDSCombinedCGMViewSQL,
+} from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -155,13 +158,12 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
-  combinedViewDDL()
-  {
-    const dbFilePath = "./resource-surveillance.sqlite.db";      
-    const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);      
+  combinedViewDDL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const sqlStatements = createUVACombinedCGMViewSQL(dbFilePath);
     return this.SQL`
         ${sqlStatements} 
-    `;  
+    `;
   }
 
   @spn.navigationPrimeTopLevel({
@@ -518,7 +520,6 @@ This section provides information about the publications resulting from a study.
   `;
   }
 
-
   @drhNav({
     caption: "Combined CGM Tracing",
     abbreviatedCaption: "Combined CGM Tracing",
@@ -561,7 +562,6 @@ ${pagination.renderSimpleMarkdown()}
 
       `;
   }
-
 
   @drhNav({
     caption: "CGM File MetaData Information",
@@ -1100,9 +1100,7 @@ Participants are individuals who volunteer to take part in CGM research studies.
 
 export async function drhSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
-    new class extends spn.TypicalSqlPageNotebook {      
-      
-
+    new class extends spn.TypicalSqlPageNotebook {
       async vandvDRHSQL() {
         // This function retrieves the SQL script for verfication and validation
         return await spn.TypicalSqlPageNotebook.fetchText(
@@ -1117,15 +1115,13 @@ export async function drhSQL() {
         );
       }
 
-      
       // async metricsDRHSQL() {
       //   // This function fetches the SQL query for DRH metrics after the combined view has been generated.
-      //   // Ensure that the combined view is created before calling this function.        
+      //   // Ensure that the combined view is created before calling this function.
       //   return await spn.TypicalSqlPageNotebook.fetchText(
       //     import.meta.resolve("./drh-metrics.sql"),
       //   );
       // }
-
     }(),
     // new sh.ShellSqlPages(),
     new DrhShellSqlPages(),

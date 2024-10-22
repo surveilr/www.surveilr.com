@@ -10,14 +10,13 @@ import {
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
 
-
-
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+const RSC_BASE_URL =
+  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 //const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
 //const UX_URL = "http://localhost:4321/lib/service/diabetes-research-hub";
 
@@ -32,13 +31,12 @@ async function fetchSqlContent(url: string): Promise<string> {
   } catch (error) {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,      
+      error.message,
     );
     Deno.exit(1);
-    return '';
+    return "";
   }
 }
-
 
 // Helper function to execute a command
 async function executeCommand(
@@ -102,7 +100,7 @@ async function fetchUxSqlContent(): Promise<string> {
       colors.red("Error fetching UX SQL content:"),
       error.message,
     );
-    return '';
+    return "";
     //Deno.exit(1);
   }
 }
@@ -130,25 +128,36 @@ async function checkAndCreateCombinedView(dbFilePath: string) {
   const db = new Database(dbFilePath);
 
   try {
-    const tableName = 'uniform_resource_cgm_file_metadata';
+    const tableName = "uniform_resource_cgm_file_metadata";
     // Check if the required table exists
-    const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`);
+    const stmt = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+    );
     const rows = stmt.all(tableName);
-    
+
     if (rows.length > 0) {
-      console.log(colors.green("Required table exists. Proceeding to create the combined view."));
+      console.log(
+        colors.green(
+          "Required table exists. Proceeding to create the combined view.",
+        ),
+      );
       await createCombinedCGMView(dbFilePath); // Ensure this function is defined elsewhere
     } else {
-      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
+      console.error(
+        colors.red(
+          "The required table does not exist. Cannot create the combined view.",
+        ),
+      );
     }
   } catch (error) {
-    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
+    console.error(
+      colors.red("Error in checkAndCreateCombinedView:"),
+      error.message,
+    );
   } finally {
     db.close();
   }
 }
-
-
 
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
@@ -171,7 +180,6 @@ let deidentificationSQL: string;
 let vvSQL: string;
 let uxSQL: string;
 
-
 // Check and delete the file if it exists
 await checkAndDeleteFile(dbFilePath);
 
@@ -182,8 +190,8 @@ try {
   );
   vvSQL = await fetchSqlContent(
     `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );       
-} catch (error) {                    
+  );
+} catch (error) {
   console.error(
     colors.cyan(
       "Error fetching SQL contents for DeIdentification and Verification & Validation:",
@@ -204,7 +212,6 @@ try {
   Deno.exit(1);
 }
 
-
 try {
   await executeCommand([toolCmd, "orchestrate", "transform-csv"]);
   console.log(
@@ -214,7 +221,6 @@ try {
   console.error(colors.cyan("Error transforming CSV files:"), error.message);
   Deno.exit(1);
 }
-
 
 try {
   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
@@ -229,10 +235,10 @@ try {
 }
 
 try {
-  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
-  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content   
+  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
+  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
   //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  executeSqlCommands(uxSQL); // Execute UX SQL commands  
+  executeSqlCommands(uxSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);
