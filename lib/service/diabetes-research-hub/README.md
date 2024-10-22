@@ -13,8 +13,8 @@ verifying the data all within your own environment.
 
 ### Requirements for Previewing the Edge UI:
 
-1. **Surveilr Tool** (use latest version surveilr)
-2. **Deno Runtime** (requires `deno` v1.40 or above):
+1. **Surveilr Tool** (use latest version surveilr(0.30.1))
+2. **Deno Runtime** (requires `deno` v2.0):
    [Deno Installation Guide](https://docs.deno.com/runtime/manual/getting_started/installation/)
 
 Installation steps may vary depending on your operating system.
@@ -146,24 +146,13 @@ $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
 ```
 
 ```bash
-# generate the combined  cgm tracing
-$ deno run -A ./combined-cgm-tracing-generator.ts
-```
-
-```bash
 # Apply de-identification
 $ cat de-identification/drh-deidentification.sql| surveilr orchestrate -n "deidentification"
 ```
 
-```bash
-# Perform verification and validation
-$ cat verfication-validation/orchestrate-drh-vv.sql | surveilr orchestrate -n "v&v"
-```
-
-```bash
-# load the "Console" and other menu/routing utilities plus DRH Web UI (both are same, just run one)
-$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2.Use the option 2 as the option1 has some issues)
-$ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
+```bash 
+# perform v&v ,generate combined cgm tracing views and sqlpage steup
+$ surveilr shell ./package.sql.ts                 
 
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
