@@ -400,7 +400,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           ur_ingest_resource_path_match_rule_id: "typical ingestion extensions",
           namespace,
           regex:
-            "\\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7)$",
+            "\\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7|pdf|docx|doc|pptx|ppt|xlsx|xls)$",
           flags: "CONTENT_ACQUIRABLE",
           nature: "?P<nature>", // should be same as src/resource.rs::PFRE_READ_NATURE_FROM_REGEX
           description:
