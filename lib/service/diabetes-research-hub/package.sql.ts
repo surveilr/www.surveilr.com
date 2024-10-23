@@ -1104,22 +1104,22 @@ export async function drhSQL() {
     new class extends spn.TypicalSqlPageNotebook {      
       
 
-      // async vandvDRHSQL() {
+      // async vandvDCLP1SQL() {
       //   // This function retrieves the SQL script for verfication and validation
       //   return await spn.TypicalSqlPageNotebook.fetchText(
       //     import.meta.resolve("./orchestration/vv-orchestration.sql"),
       //   );
       // }
 
-      // async statelessDRHSQL() {
+      // async statelessDCLP1SQL() {
       //   // read the file from either local or remote (depending on location of this file)
       //   return await spn.TypicalSqlPageNotebook.fetchText(
       //     import.meta.resolve("./stateless.sql"),
       //   );
       // }    
 
-      async ctr3andersonDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
+      async statelessAndersonSQL() {
+        // stateless SQL for CTR3 Anderson (2016) Dataset 
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./study-specific-stateless/ctr-anderson-stateless.sql"),
         );

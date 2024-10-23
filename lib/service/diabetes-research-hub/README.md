@@ -110,7 +110,7 @@ $ deno run -A ./drhctl.ts study-files
 The following sample files are available in the repository:
 
 - `/service/diabetes-research-hub/study-files.zip`
-- `/service/diabetes-research-hub/ctr-study-files.zip`
+- `/service/diabetes-research-hub/transformed-ctr-study-files.zip`
 - `/service/diabetes-research-hub/de-trended-analysis-files.zip`
 
 Each of these folders contains different datasets.
@@ -142,7 +142,7 @@ Depending on the dataset you're working with, use the appropriate folder name in
 $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
 
 # Ingest and transform the CSV files in the "ctr-study-files/" directory
-$ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
+$ surveilr ingest files -r transformed-ctr-study-files/ && surveilr orchestrate transform-csv
 
 # Ingest and transform the CSV files in the "de-trended-analysis-files/" directory
 $ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv
@@ -163,24 +163,22 @@ The de-identification and V&V scripts are specific to the first dataset (`study-
 
 ```bash
 # Apply de-identification (only for the first dataset)
+# deidentification and v&v moved inside respective DS for 2nd and 3rd DS
 $ cat de-identification/drh-deidentification.sql | surveilr orchestrate -n "deidentification"
 ```
 
-For other datasets, such as `ctr-study-files` or `de-trended-analysis-files`, use the corresponding SQL packages:
+For other datasets, such as `transformed-ctr-study-files` or `de-trended-analysis-files`, use the corresponding SQL packages:
 
 ```bash
+# Example for "study-files" dataset(DCLP1)
+statelessDCLP1SQL within package.sql.ts
+
+
 # Example for "ctr-study-files" dataset
 statelessAndersonSQL within package.sql.ts
 
 # Example for "de-trended-analysis-files" dataset
 statelessdetrendedAnalysisSQL within package.sql.ts
-```
-
-### DRH Metrics SQL
-
-```bash
-# Use this only after running the combined CGM tracing generator for the first dataset
-metricsDRHSQL within package.sql.ts generates metrics views.
 ```
 
 ### Running the SQL Package and Web UI
