@@ -30,9 +30,26 @@ const pageTitle: string = `${post.data.title} | ${SITE.title}`;
 <MainLayout title={pageTitle}>
   <section class="py-6 sm:py-8 lg:py-12">
     <div class="mx-auto max-w-screen-xl px-4 md:px-8">
-      <div class="grid gap-8 md:grid-cols-2 lg:gap-12">
-        <div>
-          <div class="h-64 overflow-hidden rounded-lg shadow-lg md:h-auto">
+      <div class="grid gap-8 md:grid-cols-12 lg:gap-12">
+        <!-- Table of Contents -->
+        <div class="md:col-span-3">
+          <div id="pin" class="space-y-4 hidden md:block">
+            <div class="h-px w-full overflow-hidden bg-neutral-300 dark:bg-neutral-700">
+              <div id="progress" class="h-px w-full bg-gradient-to-r from-orange-400/30 to-orange-400"></div>
+            </div>
+            <p class="text-pretty text-sm font-light text-neutral-500 mt-0">Table of Contents:</p>
+            <div id="toc">
+              <ul class="space-y-2 text-pretty text-base text-neutral-700 transition duration-300 dark:text-neutral-400">
+                <!-- Your dynamically generated ToC will go here -->
+              </ul>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Main Content -->
+        <div class="md:col-span-9">
+          <!-- Adjust the height of the image -->
+          <div class="h-48 overflow-hidden rounded-lg shadow-lg md:h-64 lg:h-72">
             <Image
               class="h-full w-full object-cover object-center"
               src={post.data.cardImage}
@@ -41,49 +58,23 @@ const pageTitle: string = `${post.data.title} | ${SITE.title}`;
               format={"avif"}
             />
           </div>
-          <div
-            id="progress-mobile"
-            class="fixed left-0 top-0 h-2 w-full bg-gradient-to-r from-orange-400/30 to-orange-400 md:hidden"
-          >
+  
+          <div id="progress-mobile" class="fixed left-0 top-0 h-2 w-full bg-gradient-to-r from-orange-400/30 to-orange-400 md:hidden"></div>
+  
+          <div class="md:pt-8">
+            <h1 class="mb-4 text-balance text-center text-2xl font-bold text-neutral-800 dark:text-neutral-200 sm:text-3xl md:mb-6 md:text-left">
+              {post.data.title}
+            </h1>
+  
+            <article class="text-pretty text-lg text-neutral-700 dark:text-neutral-300">
+              <Content />
+            </article>
           </div>
-          <div id="pin" class="mt-10 hidden space-y-4 md:block">
-            <div
-              class="h-px w-full overflow-hidden bg-neutral-300 dark:bg-neutral-700"
-            >
-              <div
-                id="progress"
-                class="h-px w-full bg-gradient-to-r from-orange-400/30 to-orange-400"
-              >
-              </div>
-            </div>
-            <p class="text-pretty text-sm font-light text-neutral-500">
-              Table of Contents:
-            </p>
-            <div id="toc" class="">
-              <ul
-                class="space-y-2 text-pretty text-base text-neutral-700 transition duration-300 dark:text-neutral-400"
-              >
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="md:pt-8">
-          <h1
-            class="mb-4 text-balance text-center text-2xl font-bold text-neutral-800 dark:text-neutral-200 sm:text-3xl md:mb-6 md:text-left"
-          >
-            {post.data.title}
-          </h1>
-
-          <article
-            class="text-pretty text-lg text-neutral-700 dark:text-neutral-300"
-          >
-            <Content />
-          </article>
         </div>
       </div>
     </div>
-  </section>
+  </section> 
+  
 </MainLayout>
 
 <style is:global>
@@ -129,6 +120,8 @@ const pageTitle: string = `${post.data.title} | ${SITE.title}`;
     align-items: center;
     opacity: 0.8;
     transition: all 300ms var(--transition-cubic);
+    border-bottom: 1px solid #d1c8c8;
+    padding-bottom: 3px;
   }
 
   #toc li.selected {

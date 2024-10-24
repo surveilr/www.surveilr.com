@@ -1,0 +1,66 @@
+---
+// Import necessary components, modules and types
+import MainLayout from "@/layouts/MainLayout.astro";
+import CardInsight from "@components/ui/cards/CardInsight.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { SITE } from "@data/constants";
+
+// Get all blogs post in English and sort them based on publish date
+
+const englishInsightsEntries = await getCollection("insights", ({ id }) => {
+  return id.startsWith("en/");
+});
+
+// Get all insights posts
+const insightPosts: CollectionEntry<"insights">[] = englishInsightsEntries;
+
+// Define variables for page content
+const secondTitle: string = "Insights";
+const secondSubTitle: string =
+  "Stay up-to-date with the latest trends and developments in the compliance industry with insights from our team of industry experts. ";
+
+const pageTitle: string = `Insights | ${SITE.title}`;
+
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: pageTitle,
+  url: Astro.url.href,
+  description: SITE.description,
+  publisher: {
+    "@type": "Organization",
+    name: "Surveilr",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.surveilr.com/assets/brand/surveilr-logo-without-tagline.png",
+    },
+  },
+};
+---
+
+<MainLayout title={pageTitle} structuredData={webPageSchema}>
+    
+  <section
+    class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+  >
+    <div class="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
+      <h2
+        class="text-2xl font-bold text-neutral-800 dark:text-neutral-200 md:text-4xl md:leading-tight"
+      >
+        {secondTitle}
+      </h2>
+      <p class="mt-1 text-pretty text-neutral-600 dark:text-neutral-400">
+        {secondSubTitle}
+      </p>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        insightPosts.map((insightEntry) => (
+          <CardInsight insightEntry={insightEntry} />
+        ))
+      }
+    </div>
+  </section>
+  
+</MainLayout>
