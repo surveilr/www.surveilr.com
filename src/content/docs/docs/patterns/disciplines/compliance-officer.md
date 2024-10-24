@@ -13,7 +13,7 @@ Compliance Officers ensure that the organization adheres to legal standards and 
 
 ## Capturing Compliance Evidence with `surveilr` 
 
-Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/reference/ingest/files#ingest-files) [command](/surveilr/reference/cli/commands/) for compliance officers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/surveilr/reference/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/surveilr/reference/concepts/resource-surveillance) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/surveilr/reference/db/surveilr-state-schema/uniform_resource) table. 
+Resource surveillance (`surveilr`)  provides the [file ingestion](/docs/core/cli/ingest-commands/files#ingest-files) [command](/docs/core/cli/cli-commands/) for compliance officers to execute. This command captures compliance evidence from [Work Product Artifacts (WPAs)](/docs/core/concepts/work-product-artifacts/) and store them in a [Resource Surveillance State Database (RSSD)](/docs/core/concepts/resource-surveillance/) named `resource-surveillance.sqlite.db`, under the [uniform_resource](/docs/standard-library/rssd-schema/uniform_resource/) table. 
 
 ### Evidence Types
 
@@ -22,7 +22,7 @@ Resource surveillance (`surveilr`)  provides the [file ingestion](/surveilr/refe
 
 ### Common commands 
 
-- To [ingest files](/surveilr/reference/ingest/files#ingest-files) in the current directory:
+- To [ingest files](/docs/core/cli/ingest-commands/files/) in the current directory:
   ```bash
   $ surveilr ingest files
   ```
@@ -41,7 +41,7 @@ A company's policy might state: **“All compliance officers must create a compr
 - Ensure the framework is documented and accessible to all stakeholders.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Compliance Framework
 
@@ -80,7 +80,7 @@ A company's policy might state: **“All compliance officers must regularly cond
 - Document the audit findings and corrective actions.
   
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Audits
 
@@ -115,7 +115,7 @@ A company's policy might state: **“All compliance officers must monitor and im
 - Update the compliance framework and policies accordingly.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Regulatory Monitoring
 
@@ -154,7 +154,7 @@ A company's policy might state: **“All compliance officers must train employee
 - Ensure employees understand and adhere to compliance policies.
 
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Training Sessions
 
@@ -193,7 +193,7 @@ A company's policy might state: **“All compliance officers must maintain thoro
 - Ensure regular reporting to senior management and stakeholders.
   
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Compliance Documentation
 
@@ -228,7 +228,7 @@ A company's policy might state: **“All compliance officers must manage and mit
 - Implement measures to mitigate identified risks.
   
 #### Using `surveilr` for Policy Compliance and Evidence Capture
-The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/surveilr/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
+The next step is to use `surveilr` to ensure compliance with these policies, [capturing](/docs/patterns/disciplines/compliance-officer#capturing-compliance-evidence-with-surveilr) the necessary details and storing them under the database table.
 
 #### SQL Query for Verification of Risk Management
 

@@ -86,12 +86,8 @@ There are sample JSONL files provided that demonstrate different types of tasks:
   `osqueryi` for device security tasks such as checking multi-factor
   authentication (MFA), encrypted passwords, and more.
 
-Refer to the
-[Typical Tasks directory](https://github.com/opsfolio/resource-surveillance/tree/main/support/tasks/typical)
-for examples of JSONL files and additional details on the structure and types of
-tasks. Please review the
-[README](https://github.com/opsfolio/resource-surveillance/blob/main/support/tasks/typical/README.md)
-for installing pkgx, osquery, and other utilities as per the requirements.
+Refer to the [Typical Tasks directory](https://github.com/opsfolio/resource-surveillance/tree/main/support/tasks/typical) for examples of JSONL files and additional details on the structure and types of
+tasks. Please review the [README](https://github.com/opsfolio/resource-surveillance/blob/main/support/tasks/typical/README.md) for installing pkgx, osquery, and other utilities as per the requirements.
 
 ### Usage
 
