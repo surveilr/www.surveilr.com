@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net --allowffi
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 
@@ -16,22 +16,19 @@ function logError(db: Database, errorMessage: string): void {
 
 // Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
 export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
-  const db = new Database(dbFilePath);
+  const db = new Database(dbFilePath);  
 
   // Check if the required table exists
-  const tableName = "uniform_resource_cgm_file_metadata";
-  const checkTableStmt = db.prepare(
-    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-  );
+  const tableName = 'uniform_resource_cgm_file_metadata';
+  const checkTableStmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`);
   const tableExists = checkTableStmt.get(tableName);
 
   if (!tableExists) {
-    console.error(
-      `The required table "${tableName}" does not exist. Cannot create the combined view.`,
-    );
+    console.error(`The required table "${tableName}" does not exist. Cannot create the combined view.`);
     db.close();
     return "";
   }
+
 
   try {
     // Execute the initial view
@@ -50,16 +47,12 @@ export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
     return "";
   }
 
-  const participantsStmt = db.prepare(
-    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
-  );
+  const participantsStmt = db.prepare("SELECT DISTINCT patient_id FROM drh_participant_file_names;");
   const participants = participantsStmt.all();
 
   const sqlParts: string[] = [];
   for (const { patient_id } of participants) {
-    const fileNamesStmt = db.prepare(
-      "SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?;",
-    );
+    const fileNamesStmt = db.prepare("SELECT file_names FROM drh_participant_file_names WHERE patient_id = ?;");
     const file_names_row = fileNamesStmt.get(patient_id);
 
     if (!file_names_row) {
@@ -69,10 +62,8 @@ export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
 
     const file_names = file_names_row.file_names;
     if (file_names) {
-      const participantTableNames = file_names.split(", ").map((fileName) =>
-        `uniform_resource_${fileName}`
-      );
-      participantTableNames.forEach((tableName) => {
+      const participantTableNames = file_names.split(', ').map(fileName => `uniform_resource_${fileName}`);
+      participantTableNames.forEach(tableName => {
         sqlParts.push(`
           SELECT 
             '${patient_id}' as participant_id, 
@@ -85,36 +76,31 @@ export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
     fileNamesStmt.finalize();
   }
 
-  let combinedViewSQL = "";
+  let combinedViewSQL = '';
   if (sqlParts.length > 0) {
-    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
-    combinedViewSQL =
-      `CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+    const combinedUnionAllQuery = sqlParts.join(' UNION ALL ');
+    combinedViewSQL = `CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
   } else {
     //console.log("No participant tables found, so the combined view will not be created.");
   }
 
   participantsStmt.finalize();
   db.close();
-
+  
   return combinedViewSQL; // Return the SQL string instead of executing it
 }
 
 // Function to generate the combined CGM tracing view SQL for the second dataset
-export function generateDetrendedDSCombinedCGMViewSQL(
-  dbFilePath: string,
-): string {
+export function generateDetrendedDSCombinedCGMViewSQL(dbFilePath: string): string {
   const db = new Database(dbFilePath);
 
-  const tablesStmt = db.prepare(
-    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_case__%'",
-  );
+  const tablesStmt = db.prepare("SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_case__%'");
   const tables = tablesStmt.all();
   const sqlParts: string[] = [];
 
   // Loop through each table and generate the SQL for their CGM data
   for (const { table_name } of tables) {
-    const participantId = table_name.split("__").pop(); // Extract participant ID from the table name
+    const participantId = table_name.split('__').pop(); // Extract participant ID from the table name
 
     // Generate SQL for each participant's CGM data
     sqlParts.push(`
@@ -126,35 +112,32 @@ export function generateDetrendedDSCombinedCGMViewSQL(
     `);
   }
 
-  let combinedViewSQL = "";
+  let combinedViewSQL = '';
   if (sqlParts.length > 0) {
-    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
-    combinedViewSQL =
-      `CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+    const combinedUnionAllQuery = sqlParts.join(' UNION ALL ');
+    combinedViewSQL = `CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
   } else {
     //console.log("No participant tables found, so the combined view will not be created.");
   }
 
   db.close();
-
+  
   return combinedViewSQL; // Return the SQL string instead of executing it
 }
 
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
-  const dbFilePath = "resource-surveillance.sqlite.db";
+  const dbFilePath = "resource-surveillance.sqlite.db"; 
 
   // Run the first dataset view creation and get the SQL for combined view
-  const dclp1combinedCGMViewSQL = createUVACombinedCGMViewSQL(dbFilePath);
+  const dclp1combinedCGMViewSQL= createUVACombinedCGMViewSQL(dbFilePath);
   if (dclp1combinedCGMViewSQL) {
     console.log("Generated SQL for DCLP1 Study dataset:");
     console.log(dclp1combinedCGMViewSQL);
   }
 
   // Generate and log the SQL for the second dataset
-  const detrendedDSCombinedCGMViewSQL = generateDetrendedDSCombinedCGMViewSQL(
-    dbFilePath,
-  );
+  const detrendedDSCombinedCGMViewSQL = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);
   if (detrendedDSCombinedCGMViewSQL) {
     console.log("Generated SQL for detrended fluctuation analysis dataset:");
     console.log(detrendedDSCombinedCGMViewSQL);
