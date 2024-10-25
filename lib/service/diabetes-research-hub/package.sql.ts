@@ -86,12 +86,14 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         items.map((item) => `${literal(JSON.stringify(item))} AS ${key}`),
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
+        items.push(
+          selectNavMenuItems("/drh/study/", "Study"),
+        );
         items.push(selectNavMenuItems("/ur", "Uniform Resource"));
         items.push(selectNavMenuItems("/console", "Console"));
         items.push(
           selectNavMenuItems("/orchestration", "Orchestration"),
         );
-        // items.push(selectNavMenuItems("/site", "DRH"));
         items.push(
           selectNavMenuItems(
             "https://drh.diabetestechnology.org/",
@@ -150,13 +152,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
-  menuDDL() {
-    return this.SQL`
-  INSERT OR IGNORE INTO sqlpage_aide_navigation ("path", caption, namespace, parent_path, sibling_order, url, title, abbreviated_caption, description,elaboration) VALUES
-  (NULL, 'DRH Home', 'prime', '/external', 1, 'https://drh.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }'),
-  (NULL, 'DTS Home', 'prime', '/external', 1, 'https://www.diabetestechnology.org/', NULL, NULL, NULL,'{ "target": "_blank" }')
-  `;
-  }
+
 
   combinedViewDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
@@ -346,6 +342,51 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
 
    `;
+  }
+
+  @drhNav({
+    caption: "Study and Participant Information",
+    abbreviatedCaption: "Study and Participant Information",
+    description: "Study and Participant Information",
+    siblingOrder: 5,
+  })
+  "drh/study/index.sql"() {
+    const viewName = `drh_participant_data`;
+    const pagination = this.pagination({ tableOrViewName: viewName });
+    return this.SQL`
+  ${this.activePageTitle()}
+    SELECT
+  'text' as component,
+    '
+    In Continuous Glucose Monitoring (CGM) research, studies are designed to evaluate the effectiveness, accuracy, and impact of CGM systems on diabetes management. Each study aims to gather comprehensive data on glucose levels, treatment efficacy, and patient outcomes to advance our understanding of diabetes care.
+
+    ### Study Details
+
+    - **Study ID**: A unique identifier assigned to each study.
+    - **Study Name**: The name or title of the study.
+    - **Start Date**: The date when the study begins.
+    - **End Date**: The date when the study concludes.
+    - **Treatment Modalities**: Different treatment methods or interventions used in the study.
+    - **Funding Source**: The source(s) of financial support for the study.
+    - **NCT Number**: ClinicalTrials.gov identifier for the study.
+    - **Study Description**: A description of the study’s objectives, methodology, and scope.
+
+    ' as contents_md;
+
+    SELECT 'table' as component, 1 as search, 1 as sort, 1 as hover, 1 as striped_rows,'study_id' as markdown;
+    SELECT 
+      format('[%s](/drh/study-participant-dashboard/index.sql?study_id=%s)',study_id, study_id) as study_id,      
+      study_name,
+      start_date,
+      end_date,
+      treatment_modalities,
+      funding_source,
+      nct_number,
+      study_description  
+    from drh_study;
+
+
+      `;
   }
 
   @drhNav({
@@ -732,7 +773,7 @@ ${pagination.renderSimpleMarkdown()}
     SELECT 
      'The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.' as description;
   
-select 
+/*select 
     'form'            as component,
     'Filter by Date Range'   as title,
     'Submit' as validate,    
@@ -748,7 +789,7 @@ select
     'End Date' as label,
     '2018-02-23'  as value,
     'date'       as type,
-    6             as width;
+    6             as width;*/ 
 
 
 
@@ -800,26 +841,440 @@ select
   SELECT
       strftime('Generated: %Y-%m-%d %H:%M:%S', 'now') AS title,
       ' ' AS description
+ 
+  SELECT    
+    'html' as component,
+      '<input type="hidden" name="participant_id" class="participant_id" value="'|| $participant_id ||'">' as html;      
+      
+    SELECT 
+    'card' as component,    
+    2      as columns;
+SELECT 
+    'GLUCOSE STATISTICS AND TARGETS' as title,
+    '/drh/gluecose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;         
+SELECT 
+    'Goals for Type 1 and Type 2 Diabetes' as title,
+    '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;
+SELECT 
+    'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
+    '/drh/ambulatory-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+SELECT 
+    'DAILY GLUCOSE PROFILE' as title,
+    '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+SELECT 
+    'Glycemia Risk Index' as title,
+    '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; 
+ SELECT 
+    '' as title,
+    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+  `;
+  }     
   
 
-  SELECT
-     'card'     as component,
-     '' as title,
-      2         as columns;
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/gluecose-statistics-and-targets/index.sql"() {
+    return this.SQL`
+     SELECT  
+    'html' as component;
+    SELECT  
+      '<div class="card-content my-1">'|| strftime('%Y-%m-%d', cgm_start_date) || ' - ' ||  strftime('%Y-%m-%d', cgm_end_date) || ' <span style="float: right;">'|| CAST(julianday(cgm_end_date) - julianday(cgm_start_date) AS INTEGER) ||' days</span></div>' as html
+    FROM  
+        drh_participant_cgm_dates
+    WHERE 
+        participant_id = $participant_id;
 
-  SELECT
-     'GLUCOSE STATISTICS AND TARGETS' AS title,
-     '' AS description
-  FROM
-      drh_study_vanity_metrics_details;
+    SELECT  
+      '<div class="card-content my-1"><b>Time CGM Active</b> <span style="float: right;"><b>' || percentage_active || '</b> %</span></div>' as html
+    FROM
+      drh_percentage_active_days  
+    WHERE 
+      participant_id = $participant_id; 
 
-  SELECT
+    SELECT  
+      '<div class="card-content my-1"><b>Number of Days CGM Worn</b> <span style="float: right;"><b>'|| number_of_days_cgm_worn ||'</b> days</span></div>' as html
+    FROM
+        drh_cgm_worn_days  
+    WHERE 
+        participant_id = $participant_id; 
 
-      'Goals for Type 1 and Type 2 Diabetes' AS title,
-     '' AS description
-  FROM
-    drh_number_cgm_count;
+    SELECT  
+      '<div class="card-body" style="background-color: lightgray;border: 1px solid black;">
+                      <div class="table-responsive">
+                        <table class="table">                           
+                           <tbody class="table-tbody list">
+                           <tr>
+                                <th colspan="2" style="text-align: center;">
+                                  Ranges And Targets For Type 1 or Type 2 Diabetes
+                                </th>
+                              </tr>
+                              <tr>
+                                <th>
+                                  Glucose Ranges
+                                </th>
+                                <th>
+                                  Targets % of Readings (Time/Day)
+                                </th>
+                              </tr>
+                              <tr>
+                                <td>Target Range 70-180 mg/dL</td>
+                                <td>Greater than 70% (16h 48min)</td>
+                              </tr>
+                              <tr>
+                                <td>Below 70 mg/dL</td>
+                                <td>Less than 4% (58min)</td>
+                              </tr>
+                              <tr>
+                                <td>Below 54 mg/dL</td>
+                                <td>Less than 1% (14min)</td>
+                              </tr>
+                              <tr>
+                                <td>Above 180 mg/dL</td>
+                                <td>Less than 25% (6h)</td>
+                              </tr>
+                              <tr>
+                                <td>Above 250 mg/dL</td>
+                                <td>Less than 5% (1h 12min)</td>
+                              </tr>
+                              <tr>
+                                <td colspan="2">Each 5% increase in time in range (70-180 mg/dL) is clinically beneficial.</td>                                
+                              </tr>
+                           </tbody>
+                        </table>
+                      </div>
+                    </div>' as html; 
 
+    SELECT  
+      '<div class="card-content my-1"><b>Mean Glucose</b> <span style="float: right;"><b>'|| mean_glucose ||'</b> mg/dL</span></div>' as html
+    FROM
+      drh_mean_glucose  
+    WHERE 
+      participant_id = $participant_id; 
+
+    SELECT  
+      '<div class="card-content my-1"><b>Glucose Management Indicator (GMI)</b> <span style="float: right;"><b>'|| gmi ||'</b> %</span></div>' as html
+    FROM
+      drh_glucose_management_indicator  
+    WHERE 
+      participant_id = $participant_id; 
+      
+    SELECT  
+      '<div class="card-content my-1"><b>Glucose Variability</b> <span style="float: right;"><b>'|| coefficient_of_variation ||'</b> %</span></div>' as html   
+    FROM
+      drh_coefficient_of_variation  
+    WHERE 
+      participant_id = $participant_id;   
+      
+    SELECT  
+      '<div class="card-content my-1">Defined as percent coefficient of variation (%CV); target ≤36%</div>' as html;                         
+    
+  `;
+  }
+
+
+  @spn.shell({ eliminate: true })
+  "js/chart-component.js"() {
+    return Deno.readTextFileSync("./d3-aide-component.js");    
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/api/time_range_stacked_metrics/index.sql"() {
+    return this.SQL`
+    SELECT 'json' AS component, 
+        JSON_OBJECT(
+            'timeMetrics', (
+                SELECT 
+                    JSON_OBJECT(
+                        'participant_id', participant_id, 
+                        'timeBelowRangeLow', CAST(time_below_range_low_percentage AS INTEGER),                        
+                        'timeBelowRangeVeryLow', CAST(time_below_range_very_low_percentage AS INTEGER),                        
+                        'timeInRange', CAST(time_in_range_percentage AS INTEGER),                        
+                        'timeAboveRangeVeryHigh', CAST(time_above_vh_percentage AS INTEGER),                        
+                        'timeAboveRangeHigh', CAST(time_above_range_high_percentage AS INTEGER)
+                    
+                ) 
+                  FROM
+                    drh_time_range_stacked_metrics
+                  WHERE
+                    participant_id = $participant_id
+            )
+        ) AS contents; 
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/goals-for-type-1-and-type-2-diabetes/index.sql"() {
+
+    return this.SQL`
+    SELECT 'html' as component,
+    '<div class="chartContainer">
+      <svg id="tir-chart" class="m-0"></svg>
+    </div>
+    ' as html; 
+    `;
+
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/api/ambulatory-glucose-profile/index.sql"() {
+    return this.SQL`
+    SELECT 'json' AS component, 
+        JSON_OBJECT(
+            'ambulatoryGlucoseProfile', (
+                SELECT JSON_GROUP_ARRAY(
+                    JSON_OBJECT(
+                        'participant_id', participant_id, 
+                        'hour', hour,                        
+                        'p5', p5,                        
+                        'p25', p25,                        
+                        'p50', p50,                        
+                        'p75', p75,                        
+                        'p95', p95                      
+                    )
+                ) 
+                  FROM
+                    drh_agp_metrics
+                  WHERE
+                    participant_id = $participant_id
+            )
+        ) AS contents;
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/ambulatory-gluecose-profile/index.sql"() {
+
+    return this.SQL`
+    SELECT 'html' as component,
+    '<style>
+        .text-\\[11px\\] { 
+            font-size: 11px;  
+        }
+    </style>  
+    <div id="agp-chart-ctr">
+        <svg id="agp-chart"></svg> 
+    </div> 
+    ' as html;
+    `;
+
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/api/daily-glcuose-profile/index.sql"() {
+    return this.SQL`
+    SELECT 'json' AS component, 
+        JSON_OBJECT(
+            'daily_glucose_profile', (
+                SELECT JSON_GROUP_ARRAY(
+                    JSON_OBJECT(
+                        'date_time', Date_Time, 
+                        'date', strftime('%Y-%m-%d', Date_Time), 
+                        'hour', strftime('%H', Date_Time),                        
+                        'glucose', CGM_Value                     
+                    )
+                ) 
+                  FROM
+                    combined_cgm_tracing
+                  WHERE
+                    participant_id = $participant_id
+            )
+        ) AS contents;   
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/daily-gluecose-profile/index.sql"() {
+    return this.SQL`
+    SELECT 'html' as component,
+        '<style>
+    .line {
+        fill: none;
+        stroke: lightgrey;
+        stroke-width: 1px;
+    }
+
+    .highlight-area {
+        fill: lightgreen;
+        opacity: 1;
+    }
+
+    .highlight-line {
+        fill: none;
+        stroke: green;
+        stroke-width: 1px;
+    }
+
+    .highlight-glucose-h-line {
+        fill: none;
+        stroke: orange;
+        stroke-width: 1px;
+    }
+
+    .highlight-glucose-l-line {
+        fill: none;
+        stroke: red;
+        stroke-width: 1px;
+    }
+
+    .reference-line {
+        stroke: black;
+        stroke-width: 1px;
+    }
+
+    .vertical-line {
+        stroke: rgb(223, 223, 223);
+        stroke-width: 1px;
+    }
+
+    .day-label {
+        font-size: 10px;
+        fill: #000;
+    }
+
+    .day-label-top {
+        font-size: 12px;
+        text-anchor: middle;
+        fill: #000;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        shape-rendering: crispEdges;
+    }
+
+    .mg-dl-label {
+        font-size: 14px;
+        font-weight: bold;
+        text-anchor: middle;
+        fill: #000;
+        transform: rotate(-90deg);
+        transform-origin: left center;
+    }
+
+    .horizontal-line {
+        stroke: rgb(223, 223, 223);
+        stroke-width: 1px;
+    }
+</style>  
+        <div id="daily-gp1"> 
+            <svg id="dgp-wk1"></svg>
+        </div>
+        <div id="daily-gp2" class="mt-4">
+            <svg id="dgp-wk2"></svg>
+        </div>
+        <p class="py-2 px-4 text-gray-800 font-normal text-xs hidden" id="dgp-note"><b>NOTE:</b> The Daily Glucose
+            Profile
+            plots the glucose levels of the last 14 days.</p>
+    ' as html;
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/api/glycemic_risk_indicator/index.sql"() {
+    return this.SQL`
+    SELECT 'json' AS component, 
+        JSON_OBJECT(
+            'glycemicRiskIndicator', (
+                SELECT JSON_OBJECT(
+                        'time_above_VH_percentage', time_above_VH_percentage, 
+                        'time_above_H_percentage', time_above_H_percentage, 
+                        'time_in_range_percentage', time_in_range_percentage,                        
+                        'time_below_low_percentage', time_below_low_percentage,                     
+                        'time_below_VL_percentage', time_below_VL_percentage,                     
+                        'Hypoglycemia_Component', Hypoglycemia_Component,                     
+                        'Hyperglycemia_Component', Hyperglycemia_Component,                     
+                        'GRI', GRI
+                ) 
+                  FROM
+                    drh_glycemic_risk_indicator
+                  WHERE
+                    participant_id = $participant_id 
+            )
+        ) AS contents;   
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/glycemic_risk_indicator/index.sql"() {
+    return this.SQL`
+    SELECT 'html' as component,
+        '<style>
+        svg {
+          display: block;
+          margin: auto;
+        }
+      </style>
+        <svg class="gri-chart hidden"></svg>' as html; 
+      SELECT '
+        <table class="w-full text-center border">
+        <thead>
+          <tr class="bg-gray-900">
+            <th >TIR</th>
+            <th >TAR(VH)</th>
+            <th >TAR(H)</th>
+            <th >TBR(L)</th>
+            <th >TBR(VL)</th>
+            <th >TITR</th>
+            <th >GRI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="TIR"></td>
+            <td class="TAR_VH"></td>
+            <td class="TAR_H"></td>
+            <td class="TBR_L"></td>
+            <td class="TBR_VL"></td>
+            <td class="timeInTightRangeCdata"></td>
+            <td class="GRI"></td>
+          </tr>
+        </tbody> 
+      </table>
+    ' as html; 
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/api/advanced_metrics/index.sql"() {
+    return this.SQL`
+    SELECT 'json' AS component, 
+        JSON_OBJECT(
+            'advancedMetrics', (
+                SELECT JSON_OBJECT(
+                        'time_in_tight_range_percentage', round(time_in_tight_range_percentage,3) 
+                ) 
+                  FROM 
+                    drh_advanced_metrics
+                  WHERE
+                    participant_id = $participant_id 
+            )
+        ) AS contents;   
+  `;
+  } 
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
+  "drh/advanced_metrics/index.sql"() {
+    return this.SQL`
+     SELECT  
+    'html' as component;
+    SELECT  
+      '<div class="card-content my-3 border-bottom">Liability Index <span style="float: right;">'|| liability_index ||' mg/dL</span></div>
+      <div class="card-content my-3 border-bottom">Hypoglycemic Episodes <span style="float: right;">'|| hypoglycemic_episodes ||'</span></div>
+      <div class="card-content my-3 border-bottom">Euglycemic Episodes <span style="float: right;">'|| euglycemic_episodes ||'</span></div>
+      <div class="card-content my-3 border-bottom">Hyperglycemic Episodes <span style="float: right;">'|| hyperglycemic_episodes ||'</span></div>
+      <div class="card-content my-3 border-bottom">M Value <span style="float: right;">'|| round(m_value,3) ||' mg/dL</span></div> 
+      <div class="card-content my-3 border-bottom">Mean Amplitude <span style="float: right;">'|| round(mean_amplitude,3) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>
+      <div class="card-content my-3 border-bottom">J Index <span style="float: right;">'|| j_index ||' mg/dL</span></div>
+      <div class="card-content my-3 border-bottom">Low Blood Glucose Index <span style="float: right;">'|| lbgi ||'</span></div>
+      <div class="card-content my-3 border-bottom">High Blood Glucose Index <span style="float: right;">'|| hbgi ||'</span></div> 
+      <div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(avg_risk_score,3) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Continuous Overall Net Glycemic Action (CONGA) <span style="float: right;">'|| round(conga_hourly,3) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(mean_daily_diff,3) ||'</span></div>' as html                            
+    FROM  
+      drh_advanced_metrics   
+    WHERE
+      participant_id = $participant_id      
   `;
   }
 
@@ -837,7 +1292,7 @@ select
 
 
   SELECT
-  'datagrid' AS component;
+  'datagrid' AS component; 
 
   SELECT
       'Study Name' AS title,
@@ -1090,7 +1545,7 @@ Participants are individuals who volunteer to take part in CGM research studies.
           TRUE AS search;
     SELECT * FROM ${viewName}
      LIMIT $limit
-    OFFSET $offset;
+    OFFSET $offset; 
 
     ${pagination.renderSimpleMarkdown()}
 
