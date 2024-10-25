@@ -44,14 +44,14 @@ Installation steps may vary depending on your operating system.
 
 ### Step 4 : Execute the commands below
 
-1. Run the ingestion**
+  1. **Perform Ingestion and transformation**
 
    ```bash
-   # Use the command below if all the files in the study files folder are of type CSV 
+   # Execute the command below if the files in the study folder are of the CSV format.
    surveilr ingest files -r `study-files-folder-name`/ && surveilr orchestrate transform-csv
    ```
 
-- Replace `study-files-folder-name` with the name of your folder containing all CSV files to
+  - Replace `study-files-folder-name` with the name of your folder containing all CSV files to
   be converted.
 
   **Example:**
@@ -59,30 +59,28 @@ Installation steps may vary depending on your operating system.
   ```bash
   surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
   ```
-2.Transformation and UI execution process
+  2. **SQL Transformation process**
 
-Example: Dataset pattern is UVA DCLP1
+  Example: Considering the Dataset pattern is 'UVA DCLP1'
 
-execute 
+  ```bash
+    surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
+  ```
+  3. **Server UI execution**
 
-```bash
-  surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
-```
-3. server ui execution
+  execute 
 
-execute 
+  ```bash
+    surveilr web-ui --port 9000
 
-```bash
-  surveilr web-ui --port 9000
-
-```
+  ```
   - After the above command completes execution launch your browser and go to
     [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
 
   This method provides a streamlined approach to complete the process and see
   the results quickly.
 
-Note: Based on the dataset pattern,the steps 1 and 2 will change in the foldername as well as in the .sql.ts file to be invoked.
+  Note: Based on the dataset pattern,the steps 1 and 2 will change in the foldername as well as in the .sql.ts file to be invoked.
 
 ### Step 5 : Verify the Verification Validation Results in the UI
 
@@ -100,6 +98,34 @@ Note: Based on the dataset pattern,the steps 1 and 2 will change in the folderna
 
 <p align="center"><b>Image 2</b></p>
 
+# Using the Automation Script
+
+The automation script currently assumes the dataset pattern is UVA DCLP1. If your dataset pattern differs, the automation script must invoke the SQL package specific to that pattern.
+
+**Clear Cache and Execute Command**
+
+Clear the cache by running the following command:
+
+```bash
+deno cache --reload https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 
+```
+**Single execution process**
+
+After clearing the cache, run the single execution command:
+
+```bash
+deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 'foldername'
+```
+
+Replace `foldername` with the name of your folder containing all CSV files to be converted.
+
+**Example:**
+
+```bash
+deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts study-files
+```
+
+After the above command completes execution, launch your browser and go to [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
 
 
 # Try It Out in This Repo (For Development Activities)
