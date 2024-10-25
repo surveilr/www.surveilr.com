@@ -25,12 +25,14 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
     const shellConfig = super.defaultShell();
     shellConfig.title = "Diabetes Research Hub EDGE";
-    shellConfig.image =
-      "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
+    shellConfig.image = "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
+    shellConfig.favicon = "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
     shellConfig.icon = "";
-    shellConfig.link = "/drh/";
-    shellConfig.favicon =
-      "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
+    shellConfig.link = "/";
+    shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/d3@7");
+    shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6");
+    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");    
+    shellConfig.javascript.push("/js/chart-component.js"); 
     return shellConfig;
   }
 
