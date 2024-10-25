@@ -7,10 +7,7 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sppn from "../..//std/notebook/sqlpage.ts";
-import {
-  createUVACombinedCGMViewSQL,
-  generateDetrendedDSCombinedCGMViewSQL,
-} from "./study-specific-stateless/generate-cgm-combined-sql.ts";
+
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
