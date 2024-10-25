@@ -63,7 +63,7 @@ To automate tasks related to security audits and updates, DevOps engineers can u
 
 2. Remote Server Integration:
 
-    - [Merge](http://localhost:4321/docs/core/admin/merge/) data from remote servers into a consolidated RSSD using:
+    - [Merge](/docs/core/admin/merge/) data from remote servers into a consolidated RSSD using:
   
         ```bash
         $ surveilr admin merge

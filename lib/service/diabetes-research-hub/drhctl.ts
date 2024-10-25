@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net --allowffi
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
@@ -35,8 +35,10 @@ async function fetchSqlContent(url: string): Promise<string> {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
       error.message,
+      error.message,
     );
     Deno.exit(1);
+    return "";
     return "";
   }
 }
@@ -128,6 +130,7 @@ async function fetchUxSqlContent(): Promise<string> {
       error.message,
     );
     return "";
+    return "";
     //Deno.exit(1);
   }
 }
@@ -156,13 +159,23 @@ async function checkAndCreateCombinedView(dbFilePath: string) {
 
   try {
     const tableName = "uniform_resource_cgm_file_metadata";
+    const tableName = "uniform_resource_cgm_file_metadata";
     // Check if the required table exists
+    const stmt = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+    );
     const stmt = db.prepare(
       `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
     );
     const rows = stmt.all(tableName);
 
+
     if (rows.length > 0) {
+      console.log(
+        colors.green(
+          "Required table exists. Proceeding to create the combined view.",
+        ),
+      );
       console.log(
         colors.green(
           "Required table exists. Proceeding to create the combined view.",
@@ -175,8 +188,17 @@ async function checkAndCreateCombinedView(dbFilePath: string) {
           "The required table does not exist. Cannot create the combined view.",
         ),
       );
+      console.error(
+        colors.red(
+          "The required table does not exist. Cannot create the combined view.",
+        ),
+      );
     }
   } catch (error) {
+    console.error(
+      colors.red("Error in checkAndCreateCombinedView:"),
+      error.message,
+    );
     console.error(
       colors.red("Error in checkAndCreateCombinedView:"),
       error.message,
@@ -301,9 +323,6 @@ try {
   );
   Deno.exit(1);
 }
-
-// Check and delete the file if it exists
-await checkAndDeleteFile(dbFilePath);
 
 // Log the start of the process
 console.log(colors.cyan(`Starting the process for folder: ${folderName}`));

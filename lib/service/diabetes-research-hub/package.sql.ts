@@ -7,6 +7,10 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sppn from "../..//std/notebook/sqlpage.ts";
+import {
+  createUVACombinedCGMViewSQL,
+  generateDetrendedDSCombinedCGMViewSQL,
+} from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -278,6 +282,21 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
                 'Explore detailed information about glucose levels over time, including timestamp, and glucose value.' AS description,
                 'book'                as icon,
                 'red'                    as color;                
+
+            SELECT
+                'Combined CGM Tracing' AS title,
+                '/drh/cgm-combined-data/index.sql' AS link,
+                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
+                'book'                as icon,
+                'red'                    as color;
+
+
+            SELECT
+                'Combined CGM Tracing' AS title,
+                '/drh/cgm-combined-data/index.sql' AS link,
+                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
+                'book'                as icon,
+                'red'                    as color;
 
 
             SELECT

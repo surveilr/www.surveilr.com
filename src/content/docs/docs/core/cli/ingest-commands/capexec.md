@@ -89,7 +89,7 @@ $ surveilr capturable-exec ls --markdown > capturable-exec.md  # find CEs, try t
 ```
 
 Running `surveilr capturable-exec ls` on the
-[test-fixtures](https://github.com/opsfolio/docs.opsfolio.com/tree/main/public/test-fixtures)
+[test-fixtures](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance/test-fixtures)
 should show something similar to this:
 
 ```bash

@@ -151,6 +151,11 @@ export default defineConfig({
           label: "Cookbook and Snippets",
           items: [],
         },
+        {
+          label: "Releases",
+          autogenerate: { directory: "docs/releases" },
+          collapsed: true,
+        },
       ],
       social: {
         github: "https://github.com/surveilr",

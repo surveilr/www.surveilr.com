@@ -1004,10 +1004,4 @@ Execute `sqlite3` and `duckdb` commands directly with unopinionated and very lig
 
 
 
-<hr/>
-
-<small><i>
-    This document was generated automatically by
-    <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
-</i></small>
 
