@@ -16,7 +16,19 @@ function logError(db: Database, errorMessage: string): void {
 
 // Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
 export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
-  const db = new Database(dbFilePath);
+  const db = new Database(dbFilePath);  
+
+  // Check if the required table exists
+  const tableName = 'uniform_resource_cgm_file_metadata';
+  const checkTableStmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`);
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist. Cannot create the combined view.`);
+    db.close();
+    return "";
+  }
+
 
   try {
     // Execute the initial view

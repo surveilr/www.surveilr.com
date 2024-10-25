@@ -2,26 +2,26 @@
 
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
-import * as drhux from "./package.sql.ts";
-import { createCombinedCGMView } from "./combined-cgm-tracing-generator.ts";
+//import * as drhux from "./package.sql.ts";
+import * as uvaUx from "./dataset-specific-package/dclp1-uva-study.sql.ts";
+import { existsSync } from "https://deno.land/std/fs/mod.ts";
+
 import {
   FlexibleTextSupplierSync,
   spawnedResult,
   textFromSupplierSync,
 } from "../../universal/spawn.ts";
 
-
-
 // Detect platform-specific command format
 const isWindows = Deno.build.os === "windows";
 const toolCmd = isWindows ? ".\\surveilr" : "surveilr";
 const dbFilePath = "resource-surveillance.sqlite.db"; // Path to your SQLite DB
 
-const RSC_BASE_URL =  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
-const UX_URL = "https://www.surveilr.com/lib/service/diabetes-research-hub";
-
-
-
+const RSC_BASE_URL =
+  "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
+// Setting up automation script with the default study dataset pattern as "UVA DCLP1".
+//The package sql to be invoked will vary depending on different Dataset pattern
+const UVA_SQL = "./dataset-specific-package/dclp1-uva-study.sql.ts";
 
 // Helper function to fetch SQL content
 async function fetchSqlContent(url: string): Promise<string> {
@@ -34,14 +34,35 @@ async function fetchSqlContent(url: string): Promise<string> {
   } catch (error) {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,      
+      error.message,
     );
     Deno.exit(1);
-    return '';
+    return "";
   }
 }
 
-
+async function fetchFileContent(pathOrUrl: string): Promise<string> {
+  try {
+    if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
+      // Handle remote URL
+      const response = await fetch(pathOrUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch content from ${pathOrUrl}`);
+      }
+      return await response.text();
+    } else {
+      // Handle local file path
+      return await Deno.readTextFile(pathOrUrl);
+    }
+  } catch (error) {
+    console.error(
+      colors.cyan(`Error accessing content from ${pathOrUrl}:`),
+      error.message,
+    );
+    Deno.exit(1);
+    return "";
+  }
+}
 
 // Helper function to execute a command
 async function executeCommand(
@@ -98,14 +119,15 @@ async function checkAndDeleteFile(filePath: string) {
 // Function to fetch UX SQL content
 async function fetchUxSqlContent(): Promise<string> {
   try {
-    const uxSQLContent = await drhux.drhSQL();
+    //const uxSQLContent = await drhux.drhSQL();
+    const uxSQLContent = await uvaUx.uvadclp1SQL();
     return uxSQLContent.join("\n");
   } catch (error) {
     console.error(
       colors.red("Error fetching UX SQL content:"),
       error.message,
     );
-    return '';
+    return "";
     //Deno.exit(1);
   }
 }
@@ -133,25 +155,102 @@ async function checkAndCreateCombinedView(dbFilePath: string) {
   const db = new Database(dbFilePath);
 
   try {
-    const tableName = 'uniform_resource_cgm_file_metadata';
+    const tableName = "uniform_resource_cgm_file_metadata";
     // Check if the required table exists
-    const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`);
+    const stmt = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+    );
     const rows = stmt.all(tableName);
-    
+
     if (rows.length > 0) {
-      console.log(colors.green("Required table exists. Proceeding to create the combined view."));
+      console.log(
+        colors.green(
+          "Required table exists. Proceeding to create the combined view.",
+        ),
+      );
       await createCombinedCGMView(dbFilePath); // Ensure this function is defined elsewhere
     } else {
-      console.error(colors.red("The required table does not exist. Cannot create the combined view."));
+      console.error(
+        colors.red(
+          "The required table does not exist. Cannot create the combined view.",
+        ),
+      );
     }
   } catch (error) {
-    console.error(colors.red("Error in checkAndCreateCombinedView:"), error.message);
+    console.error(
+      colors.red("Error in checkAndCreateCombinedView:"),
+      error.message,
+    );
   } finally {
     db.close();
   }
 }
 
+/// Function to check if a folder exists and list its contents
+async function checkFolderContents(pathOrUrl: string): Promise<void> {
+  try {
+    // Trim spaces from the path
+    pathOrUrl = pathOrUrl.trim();
 
+    // Check if the path contains spaces
+    if (/\s/.test(pathOrUrl)) {
+      console.error(
+        colors.red(
+          `Error: The specified path "${pathOrUrl}" should not contain spaces.`,
+        ),
+      );
+      Deno.exit(1);
+    }
+
+    // Check if the path exists
+    if (!existsSync(pathOrUrl)) {
+      console.error(
+        colors.red(`Error: The specified folder "${pathOrUrl}" does not exist.`),
+      );
+      Deno.exit(1);
+    }
+
+    // Handle local directory
+    const entries = Deno.readDir(pathOrUrl); // Use async readDir
+    console.log(
+      colors.cyan(`Verifying the Contents of folder "${pathOrUrl}"....`),
+    );
+    let validFilesFound = false; // Flag to check for valid file types
+
+    for await (const entry of entries) {
+      if (entry.isFile) {
+        const fileExtension = entry.name.split(".").pop()?.toLowerCase();
+        //console.log(colors.green(`File: ${entry.name}`));
+        //console.log(colors.dim(`Type: ${fileExtension}`));
+
+        // Check if the file type is valid
+        if (
+          ["csv", "txt", "pdf", "xls", "xlsx"].includes(fileExtension || "")
+        ) {
+          validFilesFound = true; // Mark valid file found
+        }
+      } else if (entry.isDirectory) {
+        console.log(colors.yellow(`Directory: ${entry.name}`));
+      }
+    }
+
+    // If no valid files were found, exit the script
+    if (!validFilesFound) {
+      console.error(
+        colors.red(
+          `No valid files (CSV, TXT, PDF, XLS, XLSX) found in the folder "${pathOrUrl}".`,
+        ),
+      );
+      Deno.exit(1);
+    }
+  } catch (error) {
+    console.error(
+      colors.red(`Error checking folder contents from "${pathOrUrl}":`),
+      error.message,
+    );
+    Deno.exit(1);
+  }
+}
 
 // Check if a folder name was provided
 if (Deno.args.length === 0) {
@@ -164,31 +263,35 @@ if (Deno.args.length === 0) {
 // Store the folder name in a variable
 const folderName = Deno.args[0];
 
+// Check for folder contents
+await checkFolderContents(folderName);
 
 // Define synchronous suppliers
-const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
-  deidentificationSQL;
-const vvSQLSupplier: FlexibleTextSupplierSync = () => vvSQL;
-const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
+// const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
+//   deidentificationSQL;
+// const vvSQLSupplier: FlexibleTextSupplierSync = () => vvSQL;
+// const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
+const uvaSQLSupplier: FlexibleTextSupplierSync = () => uvaSQL;
 
-let deidentificationSQL: string;
-let vvSQL: string;
-let uxSQL: string;
-
-
+// let deidentificationSQL: string;
+// let vvSQL: string;
+// let uxSQL: string;
+let uvaSQL: string;
 
 try {
   // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
-  deidentificationSQL = await fetchSqlContent(
-    `${RSC_BASE_URL}/de-identification/drh-deidentification.sql`,
-  );
-  vvSQL = await fetchSqlContent(
-    `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  );  
+  // deidentificationSQL = await fetchSqlContent(
+  //   `${RSC_BASE_URL}/de-identification/drh-deidentification.sql`,
+  // );
+  // vvSQL = await fetchSqlContent(
+  //   `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
+  // );
   // uxSQL = await fetchSqlContent(
   //   `${UX_URL}/package.sql`,
   // );
-  uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
+  //uvaSQL = await fetchFileContent(UVA_SQL);
+  uvaSQL = await fetchUxSqlContent();
+  //uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
     colors.cyan(
@@ -213,7 +316,6 @@ try {
   Deno.exit(1);
 }
 
-
 try {
   await executeCommand([toolCmd, "orchestrate", "transform-csv"]);
   console.log(
@@ -224,36 +326,11 @@ try {
   Deno.exit(1);
 }
 
-
-// This function retrieves the SQL script for data de-identification.
-// Note: Deidentification functions are only available through the `surveilr shell` or `surveilr orchestrate` commands.
-// Issues prevail while executing these commands on Windows OS.
-// Therefore avoiding deidentification till the issue is resolved
-// try {
-//   console.log(colors.dim(`Performing DeIdentification: ${folderName}...`));
-//   await executeCommand(
-//     [toolCmd, "orchestrate", "-n", "deidentification"],
-//     deidentificationSQLSupplier,
-//   );
-//   console.log(colors.green("Deidentification successful."));
-// } catch (error) {
-//   console.error(colors.cyan("Error during DeIdentification:"), error.message);
-//   //Deno.exit(1);
-// }
-
-// This function is for the dynamic combined view generation
-// try {
-//   await checkAndCreateCombinedView(dbFilePath);
-//   console.log(colors.green("View generation completed successfully."));
-// } catch (error) {
-//   console.error(colors.red("Error during view generation:"), error.message);
-// }
-
-
 try {
-  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));  
+  console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
   //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
-  executeSqlCommands(uxSQL); // Execute UX SQL commands
+  await executeCommand([toolCmd, "shell"], uvaSQLSupplier);
+  //executeSqlCommands(uvaSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
 } catch (error) {
   console.error(colors.cyan("Error during UX orchestration:"), error.message);

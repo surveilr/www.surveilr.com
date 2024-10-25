@@ -1,4 +1,83 @@
 
+-- Drop the view if it exists, then create the drh_participant view
+DROP VIEW IF EXISTS drh_participant;
+CREATE VIEW drh_participant AS
+SELECT 
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID to form participant_id
+    'CTR3' AS study_id,                       -- Static assignment of study_id as 'CTR3'
+    '' AS site_id,                            -- Placeholder for site_id
+    '' AS diagnosis_icd,                     -- Placeholder for diagnosis ICD
+    '' AS med_rxnorm,                         -- Placeholder for medication RxNorm
+    '' AS treatment_modality,                 -- Placeholder for treatment modality
+    Gender AS gender,                         -- Direct mapping of Gender
+    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenate Race and Ethnicity for race_ethnicity
+    "Age at Enrollment" AS age,               -- Direct mapping of Age at Enrollment
+    CASE 
+        WHEN Weight IS NOT NULL AND Height IS NOT NULL 
+        THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation if Weight and Height are available
+        ELSE NULL
+    END AS bmi,                               -- Alias for BMI calculation
+    HbA1CTest AS baseline_hba1c,             -- Mapping HbA1CTest to baseline_hba1c
+    '' AS diabetes_type,                      -- Placeholder for diabetes type
+    '' AS study_arm                           -- Placeholder for study arm
+FROM uniform_resource_enrollment;
+
+-- Drop the view if it exists, then create the view for uniform_resource_cgm
+DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
+CREATE VIEW drh_vw_uniform_resource_cgm AS
+SELECT
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
+    CAST(CGM AS REAL) AS CGM_value             -- Cast CGM to REAL for numeric representation
+FROM 
+    uniform_resource_cgm;
+
+-- Drop the view if it exists, then create the view for uniform_resource_cgmcal
+DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
+CREATE VIEW drh_vw_uniform_resource_cgmcal AS
+SELECT
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
+    CAST(Cal AS REAL) AS CGM_value             -- Cast Cal to REAL for numeric representation
+FROM 
+    uniform_resource_cgmcal;
+
+-- Drop the view if it exists, then create the view for uniform_resource_monitorcgm
+DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
+CREATE VIEW drh_vw_uniform_resource_monitorcgm AS
+SELECT
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time, -- Format LocalDtTm to Date_Time
+    CAST(CGM AS REAL) AS CGM_value             -- Cast CGM to REAL for numeric representation
+FROM 
+    uniform_resource_monitorcgm;
+
+-- Drop the view if it exists, then create the combined CGM tracing view
+DROP VIEW IF EXISTS combined_cgm_tracing;
+CREATE VIEW combined_cgm_tracing AS
+SELECT 
+    participant_id, 
+    Date_Time, 
+    CGM_value
+FROM 
+    drh_vw_uniform_resource_cgm
+UNION ALL
+SELECT 
+    participant_id, 
+    Date_Time, 
+    CGM_value
+FROM 
+    drh_vw_uniform_resource_cgmcal
+UNION ALL
+SELECT 
+    participant_id, 
+    Date_Time, 
+    CGM_value
+FROM 
+    drh_vw_uniform_resource_monitorcgm;
+
+-------------------------------------------------------------------------------
+
 -- Perform De-identification
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
@@ -171,97 +250,6 @@ SET
     diagnostics_md = 'De-identification process completed'  -- Markdown summary
 WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_session_info LIMIT 1);  -- Update the session identified in the temp view
 
---enrollment.text files contains participant info
-DROP VIEW IF EXISTS drh_participant;
-CREATE VIEW drh_participant AS
-SELECT 
-    'CTR3-' || DeidentID AS participant_id, -- Concatenating 'CTR3-' with DeidentID
-    'CTR3' AS study_id, -- Static assignment of 'CTR3' for study_id
-    '' AS site_id, -- 
-    ''  AS diagnosis_icd, 
-    '' AS med_rxnorm, 
-    '' AS treatment_modality, 
-    Gender AS gender,
-    Race || ', ' || Ethnicity AS race_ethnicity, 
-    "Age at Enrollment" AS age, 
-    CASE 
-        WHEN Weight IS NOT NULL AND Height IS NOT NULL 
-        THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation
-        ELSE NULL
-    END AS bmi, -- Calculating BMI from Weight and Height
-    HbA1CTest AS baseline_hba1c, -- Mapping HbA1CTest to baseline_hba1c
-    '' AS diabetes_type, 
-    '' AS study_arm 
-FROM uniform_resource_enrollment;
-
--- CGM RAW DATA was found in below 3 files
-
--- Drop the view if it exists, then create the view for uniform_resource_cgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
-
-CREATE VIEW drh_vw_uniform_resource_cgm AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id,
-    strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time,
-    CAST(CGM AS REAL) AS CGM_value  
-FROM 
-    uniform_resource_cgm;
-
--- Drop the view if it exists, then create the view for uniform_resource_cgmcal
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
-
-CREATE VIEW drh_vw_uniform_resource_cgmcal AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id, 
-    strftime('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time,
-    CAST(Cal AS REAL) AS CGM_value  
-FROM 
-    uniform_resource_cgmcal;
-
--- Drop the view if it exists, then create the view for uniform_resource_monitorcgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
-
-CREATE VIEW drh_vw_uniform_resource_monitorcgm AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id,
-    strftime('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time,
-    CAST(CGM AS REAL) AS CGM_value  
-FROM 
-    uniform_resource_monitorcgm;
-   
---create the combined CGM tracing view
- -- Drop the view if it exists
-DROP VIEW IF EXISTS combined_cgm_tracing;
-
--- Create the combined_cgm_tracing view
-CREATE VIEW combined_cgm_tracing AS
-SELECT 
-    participant_id, 
-    Date_Time, 
-    CGM_value
-    --'uniform_resource_cgm' AS source_view  -- Indicate source as drh_vw_uniform_resource_cgm
-FROM 
-    drh_vw_uniform_resource_cgm
-
-UNION ALL
-
-SELECT 
-    participant_id, 
-    Date_Time, 
-    CGM_value
-    --'uniform_resource_cgmcal' AS source_view  -- Indicate source as drh_vw_uniform_resource_cgmcal
-FROM 
-    drh_vw_uniform_resource_cgmcal
-
-UNION ALL
-
-SELECT 
-    participant_id, 
-    Date_Time, 
-    CGM_value
-    --'uniform_resource_monitorcgm' AS source_view  -- Indicate source as drh_vw_uniform_resource_monitorcgm
-FROM 
-    drh_vw_uniform_resource_monitorcgm;
 
 -----------------------------------------------------------------------------
 -- Verification and validation process
@@ -1493,13 +1481,16 @@ WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_sess
 --Sqlpage display db views-----------------------------------------------
    
 
---Drop and recreate the device view
+-- Drop and recreate the device view
+-- This view contains the basic information about devices used in the system.
 DROP VIEW IF EXISTS drh_device;
 CREATE VIEW drh_device AS
 SELECT device_id, name, created_at
 FROM device d;
 
 -- Drop and recreate the number_of_files_converted view
+-- This view calculates the total number of files that have been converted,
+-- excluding those with a placeholder content_digest.
 DROP VIEW IF EXISTS drh_number_of_files_converted;
 CREATE VIEW drh_number_of_files_converted AS
 SELECT COUNT(*) AS file_count
@@ -1507,13 +1498,16 @@ FROM uniform_resource
 WHERE content_digest != '-';
 
 -- Drop and recreate the converted_files_list view
+-- This view lists all converted files based on their file extensions.
 DROP VIEW IF EXISTS drh_converted_files_list;
 CREATE VIEW drh_converted_files_list AS
 SELECT file_basename
 FROM ur_ingest_session_fs_path_entry
-WHERE file_extn IN ('csv', 'xls', 'xlsx', 'json','html');
+WHERE file_extn IN ('csv', 'xls', 'xlsx', 'json', 'html');
 
 -- Drop and recreate the converted_table_list view
+-- This view retrieves the names of all converted tables, filtering out
+-- certain specific tables from the results.
 DROP VIEW IF EXISTS drh_converted_table_list;
 CREATE VIEW drh_converted_table_list AS
 SELECT tbl_name AS table_name
@@ -1523,19 +1517,22 @@ WHERE type = 'table'
   AND name != 'uniform_resource_transform'
   AND name != 'uniform_resource';
 
-
+-- Drop and recreate the study files table info view
+-- This view provides detailed information about study files, including 
+-- their formats and relative file names. It joins multiple tables to gather
+-- comprehensive details.
 DROP VIEW IF EXISTS drh_study_files_table_info;
 CREATE VIEW IF NOT EXISTS drh_study_files_table_info AS
        SELECT ur.uniform_resource_id,
-       ur.nature AS file_format,
-       SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) as file_name,
-       'uniform_resource_' || SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) AS table_name
+              ur.nature AS file_format,
+              SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) as file_name,
+              'uniform_resource_' || SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) AS table_name
 FROM uniform_resource ur
 LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
 LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
 WHERE ur.ingest_fs_path_id IS NOT NULL;
 
--- Create a view to display the files transformed
+-- Create a view to display the status of files transformed during the ingestion sessions
 DROP VIEW IF EXISTS drh_vw_ingest_session_entries_status;
 CREATE VIEW drh_vw_ingest_session_entries_status AS
 SELECT
@@ -1588,9 +1585,10 @@ FROM
     JOIN ur_ingest_session_fs_path fspath ON isession.ur_ingest_session_id = fspath.ingest_session_id
     JOIN ur_ingest_session_fs_path_entry entry ON fspath.ur_ingest_session_fs_path_id = entry.ingest_fs_path_id;
 
---orchestration views-----------------------------------------------------------------------
+-- Orchestration views-----------------------------------------------------------------------
 
--- Drop and recreate the orch_session_view view
+-- Drop and recreate the orchestration session view
+-- This view summarizes the orchestration session details for monitoring purposes.
 DROP VIEW IF EXISTS drh_orch_session_view;
 CREATE VIEW drh_orch_session_view AS
 SELECT
@@ -1599,7 +1597,8 @@ SELECT
     diagnostics_json, diagnostics_md
 FROM orchestration_session;
 
--- Drop and recreate the orch_session_deidentifyview view
+-- Drop and recreate the deidentification orchestration session view
+-- This view specifically filters orchestration sessions related to deidentification.
 DROP VIEW IF EXISTS drh_orch_session_deidentifyview;
 CREATE VIEW drh_orch_session_deidentifyview AS
 SELECT
@@ -1609,14 +1608,16 @@ SELECT
 FROM orchestration_session
 WHERE orchestration_nature_id = 'deidentification';
 
--- Drop and recreate the orchestration_session_entry_view view
+-- Drop and recreate the orchestration session entry view
+-- This view lists details about individual entries within orchestration sessions.
 DROP VIEW IF EXISTS drh_orchestration_session_entry_view;
 CREATE VIEW drh_orchestration_session_entry_view AS
 SELECT
     orchestration_session_entry_id, session_id, ingest_src, ingest_table_name
 FROM orchestration_session_entry;
 
--- Drop and recreate the orchestration_session_exec_view view
+-- Drop and recreate the orchestration session execution view
+-- This view captures execution details of orchestration sessions for auditing.
 DROP VIEW IF EXISTS drh_orchestration_session_exec_view;
 CREATE VIEW drh_orchestration_session_exec_view AS
 SELECT
@@ -1625,7 +1626,8 @@ SELECT
     input_text, exec_error_text, output_text, output_nature, narrative_md
 FROM orchestration_session_exec;
 
--- Drop and recreate the vw_orchestration_deidentify view
+-- Drop and recreate the orchestration deidentification view
+-- This view aggregates information from orchestration session executions related to deidentification.
 DROP VIEW IF EXISTS drh_vw_orchestration_deidentify;
 CREATE VIEW drh_vw_orchestration_deidentify AS
 SELECT
@@ -1657,17 +1659,18 @@ FROM
 WHERE
     os.orchestration_nature_id = 'deidentification';
 
-
-
+-- Drop and recreate the V&V orchestration issues view
+-- This view summarizes the issues encountered during validation and verification
+-- of orchestration sessions, providing useful diagnostics.
 DROP VIEW IF EXISTS drh_vandv_orch_issues;
 CREATE VIEW drh_vandv_orch_issues AS
 SELECT    
-    osi.issue_type as 'Issue Type',
-    osi.issue_message as 'Issue Message',
-    osi.issue_column as 'Issue column',
-    osi.remediation,
-    osi.issue_row as 'Issue Row',    
-    osi.invalid_value  
+    osi.issue_type AS 'Issue Type',
+    osi.issue_message AS 'Issue Message',
+    osi.issue_column AS 'Issue Column',
+    osi.remediation AS 'Remediation',
+    osi.issue_row AS 'Issue Row',    
+    osi.invalid_value AS 'Invalid Value'  
 FROM
     orchestration_session_issue osi
 JOIN
@@ -1677,9 +1680,9 @@ ON
 WHERE
     os.orchestration_nature_id = 'V&V';
 
-----------------------DRH specific views------------------------------------------------------
 
--- Drop and recreate the study view
+----------------------DRH specific views------------------------------------------------------
+-- Drop and recreate the study view to consolidate study details
 DROP VIEW IF EXISTS drh_study;
 CREATE VIEW drh_study AS
 SELECT
@@ -1687,8 +1690,7 @@ SELECT
     funding_source, nct_number, study_description
 FROM uniform_resource_study;
 
-
--- Drop and recreate the cgmfilemetadata_view view
+-- Drop and recreate the CGM file metadata view for easier access to file-related information
 DROP VIEW IF EXISTS drh_cgmfilemetadata_view;
 CREATE VIEW drh_cgmfilemetadata_view AS
 SELECT
@@ -1697,36 +1699,35 @@ SELECT
     data_end_date, study_id
 FROM uniform_resource_cgm_file_metadata;
 
--- Drop and recreate the author view
+-- Drop and recreate the author view to manage author details related to studies
 DROP VIEW IF EXISTS drh_author;
 CREATE VIEW drh_author AS
 SELECT
     author_id, name, email, investigator_id, study_id
 FROM uniform_resource_author;
 
--- Drop and recreate the institution view
+-- Drop and recreate the institution view for organizing institution-related data
 DROP VIEW IF EXISTS drh_institution;
 CREATE VIEW drh_institution AS
 SELECT
     institution_id, institution_name, city, state, country
 FROM uniform_resource_institution;
 
--- Drop and recreate the investigator view
+-- Drop and recreate the investigator view to manage investigator details associated with studies
 DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW drh_investigator AS
 SELECT
     investigator_id, investigator_name, email, institution_id, study_id
 FROM uniform_resource_investigator;
 
--- Drop and recreate the lab view
+-- Drop and recreate the lab view to consolidate laboratory information
 DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW drh_lab AS
 SELECT
     lab_id, lab_name, lab_pi, institution_id, study_id
 FROM uniform_resource_lab;
 
-
--- Drop and recreate the publication view
+-- Drop and recreate the publication view for managing publication details related to studies
 DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW drh_publication AS
 SELECT
@@ -1734,16 +1735,14 @@ SELECT
     publication_site, study_id
 FROM uniform_resource_publication;
 
--- Drop and recreate the site view
+-- Drop and recreate the site view to maintain site-related data for studies
 DROP VIEW IF EXISTS drh_site;
 CREATE VIEW drh_site AS
 SELECT
     study_id, site_id, site_name, site_type
 FROM uniform_resource_site;
 
-
----study-participant dashboard
-
+--- Create a comprehensive study-participant dashboard view
 DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW drh_study_vanity_metrics_details AS
 SELECT s.study_id, 
@@ -1761,8 +1760,9 @@ LEFT JOIN drh_participant p ON s.study_id = p.study_id
 LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id 
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
 
----raw cgm views-------------------------
+--- Create views related to raw CGM data files
 
+-- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 CREATE VIEW drh_number_of_cgm_tracing_files_view AS
 SELECT COUNT(*) AS table_count
@@ -1770,20 +1770,21 @@ FROM sqlite_master
 WHERE type = 'table' 
 AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
 
+-- View to list the names of raw CGM tables
 DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
 CREATE VIEW drh_raw_cgm_table_lst AS
 SELECT name, tbl_name as table_name
 FROM sqlite_master
 WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
 
+-- View to count the total number of CGM raw files
 DROP VIEW IF EXISTS drh_number_cgm_count;
 CREATE VIEW drh_number_cgm_count AS
 SELECT count(*) as number_of_cgm_raw_files
 FROM sqlite_master
 WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
 
-
-
+-- View to count the number of files for each device in the CGM file metadata
 DROP VIEW IF EXISTS drh_device_file_count_view;
 CREATE VIEW drh_device_file_count_view AS
 SELECT 
@@ -1796,16 +1797,15 @@ GROUP BY
 ORDER BY 
     number_of_files DESC;
 
-
+-- Create a temporary table to cache the list of raw CGM tables
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 CREATE TABLE raw_cgm_lst_cached AS 
   SELECT * FROM drh_raw_cgm_table_lst;
 
-
--------------Dynamically insert the sqlpages for CGM raw tables--------------------------
+------------- Dynamically insert the SQLPage configurations for CGM raw tables --------------------------
 
 WITH raw_cgm_table_name AS (
-    -- Select all table names
+    -- Select all table names from the cached list of raw CGM tables
     SELECT table_name
     FROM drh_raw_cgm_table_lst
 )
@@ -1814,10 +1814,10 @@ SELECT
     'drh/cgm-data/raw-cgm/' || table_name||'.sql' AS path,
     '
     SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-    -- not including breadcrumbs from sqlpage_aide_navigation
-    -- not including page title from sqlpage_aide_navigation
+    -- Not including breadcrumbs from sqlpage_aide_navigation
+    -- Not including page title from sqlpage_aide_navigation
 
-    SELECT ''breadcrumb'' as component;
+    SELECT ''breadcrumb'' AS component;
     WITH RECURSIVE breadcrumbs AS (
         SELECT
             COALESCE(abbreviated_caption, caption) AS title,
@@ -1840,21 +1840,22 @@ SELECT
     SELECT ''title'' AS component, ''' || table_name || ''' AS contents;
     
 
-    -- Initialize pagination
-    SET total_rows = (SELECT COUNT(*) FROM ''' || table_name || ''');
-    SET limit = COALESCE($limit, 50);
-    SET offset = COALESCE($offset, 0);
-    SET total_pages = ($total_rows + $limit - 1) / $limit;
-    SET current_page = ($offset / $limit) + 1;
+    -- Initialize pagination parameters
+    SET total_rows = (SELECT COUNT(*) FROM ''' || table_name || ''');  -- Total rows in the current table
+    SET limit = COALESCE($limit, 50);  -- Limit for pagination, defaulting to 50
+    SET offset = COALESCE($offset, 0);  -- Offset for pagination, defaulting to 0
+    SET total_pages = ($total_rows + $limit - 1) / $limit;  -- Calculate total number of pages
+    SET current_page = ($offset / $limit) + 1;  -- Calculate current page number
 
     -- Display table with pagination
     SELECT ''table'' AS component,
-        TRUE AS sort,
-        TRUE AS search;
+        TRUE AS sort,  -- Enable sorting
+        TRUE AS search;  -- Enable searching
     SELECT * FROM ''' || table_name || '''
     LIMIT $limit
     OFFSET $offset;    
 
+    -- Pagination controls for navigating through pages
     SELECT ''text'' AS component,
         (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END) || '' '' ||
         ''(Page '' || $current_page || '' of '' || $total_pages || '')'' || '' '' ||
@@ -1862,8 +1863,3 @@ SELECT
         AS contents_md;
     '
 FROM raw_cgm_table_name;
-
-
-
-
-

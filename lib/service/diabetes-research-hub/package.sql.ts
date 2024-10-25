@@ -7,7 +7,6 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sppn from "../..//std/notebook/sqlpage.ts";
-import { createUVACombinedCGMViewSQL} from './study-specific-stateless/generate-cgm-combined-sql.ts';
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -154,17 +153,16 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
-  //use this only for combined view sql generation
-  //based on the ingested dataset the function call must be handled
-  // combinedViewDDL()
-  // {
-  //   const dbFilePath = "./resource-surveillance.sqlite.db";     
-  //   const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);     
+  // //use this only for combined view sql generation
+  // //based on the ingested dataset the function call must be handled
+  // combinedViewDDL() {
+  //   const dbFilePath = "./resource-surveillance.sqlite.db";
+  //   //const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);
+  //   const sqlStatements = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);
   //   return this.SQL`
-  //       ${sqlStatements} 
-  //   `;  
+  //       ${sqlStatements}
+  //   `;
   // }
-
 
   @spn.navigationPrimeTopLevel({
     caption: "DRH EDGE UI Home",
@@ -1096,36 +1094,12 @@ Participants are individuals who volunteer to take part in CGM research studies.
     ${pagination.renderSimpleMarkdown()}
 
       `;
-  }  
+  }
 }
 
-export async function drhSQL() {
-  return await spn.TypicalSqlPageNotebook.SQL(
-    new class extends spn.TypicalSqlPageNotebook {      
-      
-
-      // async vandvDCLP1SQL() {
-      //   // This function retrieves the SQL script for verfication and validation
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./orchestration/vv-orchestration.sql"),
-      //   );
-      // }
-
-      // async statelessDCLP1SQL() {
-      //   // read the file from either local or remote (depending on location of this file)
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./stateless.sql"),
-      //   );
-      // }    
-
-      async statelessAndersonSQL() {
-        // stateless SQL for CTR3 Anderson (2016) Dataset 
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./study-specific-stateless/ctr-anderson-stateless.sql"),
-        );
-      }              
-      
-
+export async function drhNotebooks() {
+  return [
+    new class extends spn.TypicalSqlPageNotebook {
     }(),
     // new sh.ShellSqlPages(),
     new DrhShellSqlPages(),
@@ -1133,6 +1107,12 @@ export async function drhSQL() {
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
     new DRHSqlPages(),
+  ];
+}
+
+export async function drhSQL() {
+  return await spn.TypicalSqlPageNotebook.SQL(
+    ...(await drhNotebooks()),
   );
 }
 

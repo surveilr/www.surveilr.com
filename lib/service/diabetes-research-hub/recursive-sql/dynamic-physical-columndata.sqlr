@@ -1,0 +1,22 @@
+WITH table_selects AS (
+  SELECT
+    'SELECT ''' || name || ''' AS table_name, ' ||
+    '(SELECT COUNT(*) FROM pragma_table_info(''' || name || ''')) AS total_columns, ' ||
+    '(SELECT COUNT(*) FROM ' || quote(name) || ') AS total_rows, ' ||
+    '(SELECT IFNULL(SUM(pgsize), 0) FROM dbstat WHERE name = ''' || name || ''') AS size_bytes, ' ||
+    'CURRENT_TIMESTAMP AS prepared_at, ' ||
+    '(SELECT json_group_array(json_object(''column_name'', name, ''data_type'', type)) ' ||
+    'FROM pragma_table_info(''' || name || ''')) AS columns_info'
+  AS select_statement
+  FROM sqlite_master
+  WHERE type = 'table'
+    AND name NOT LIKE 'sqlite_%'
+)
+SELECT
+  'DROP TABLE IF EXISTS console_information_schema_table_physical;' || char(10) ||
+  'CREATE TABLE console_information_schema_table_physical AS' || char(10) || 
+  GROUP_CONCAT(
+    '    ' || select_statement,
+    ' UNION ALL' || char(10)
+  ) || ';'
+FROM table_selects;
