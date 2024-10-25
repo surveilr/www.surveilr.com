@@ -84,8 +84,8 @@ and scoring link importance.
      including:
      - Enriched metadata payloads.
      - Filtered and ranked list of links based on calculated scores.
-   - Reporting and Insights: Offer insights on content popularity, source
-     diversity, and engagement levels to assist decision-makers.
+     - Reporting and Insights: Offer insights on content popularity, source
+       diversity, and engagement levels to assist decision-makers.
 
 ### Commands Used:
 
@@ -117,7 +117,7 @@ and scoring link importance.
 This framework helps ensure efficient, automated content management with the
 ability to adapt and optimize over time.
 
-### TBD: To up webui
+### TBD: To up WebUI
 
 ```bash
 # load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
