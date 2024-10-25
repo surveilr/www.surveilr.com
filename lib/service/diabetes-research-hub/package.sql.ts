@@ -31,8 +31,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
     shellConfig.link = "/";
     shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/d3@7");
     shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6");
-    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");    
-    shellConfig.javascript.push("/js/chart-component.js"); 
+    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");
+    shellConfig.javascript.push("/js/chart-component.js");
     return shellConfig;
   }
 
@@ -49,8 +49,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       typeof value === "number"
         ? value
         : value
-        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-        : "NULL";
+          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+          : "NULL";
     const selectNavMenuItems = (
       rootPath: string,
       caption: string,
@@ -775,23 +775,33 @@ ${pagination.renderSimpleMarkdown()}
     SELECT 
      'The Participants Detail page is a comprehensive report that includes glucose statistics, such as the Ambulatory Glucose Profile (AGP), Glycemia Risk Index (GRI), Daily Glucose Profile, and all other metrics data.' as description;
   
-/*select 
-    'form'            as component,
-    'Filter by Date Range'   as title,
-    'Submit' as validate,    
-    'Clear'           as reset;
-select 
-    'start_date' as name,
-    'Start Date' as label,
-    '2017-11-02' as value,
-    'date'       as type,
-    6            as width;
-select 
-    'end_date' as name,
-    'End Date' as label,
-    '2018-02-23'  as value,
-    'date'       as type,
-    6             as width;*/ 
+     
+
+    SELECT 
+        'form'            as component,
+        'Filter by Date Range'   as title,
+        'Submit' as validate,    
+        'Clear'           as reset;
+    SELECT 
+        'start_date' as name,
+        'Start Date' as label,
+        strftime('%Y-%m-%d', MIN(Date_Time))  as value, 
+        'date'       as type,
+        6            as width
+    FROM     
+        combined_cgm_tracing        
+    WHERE 
+        participant_id = $participant_id;  
+    SELECT 
+        'end_date' as name,
+        'End Date' as label,
+         strftime('%Y-%m-%d', MAX(Date_Time))  as value, 
+        'date'       as type,
+         6             as width
+    FROM     
+        combined_cgm_tracing        
+    WHERE 
+        participant_id = $participant_id; 
 
 
 
@@ -852,14 +862,37 @@ select
     'card' as component,    
     2      as columns;
 SELECT 
-    'GLUCOSE STATISTICS AND TARGETS' as title,
-    '/drh/gluecose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;         
+    'GLUCOSE STATISTICS AND TARGETS' AS title,
+    '/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
+    '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
+    '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
+FROM 
+    (SELECT participant_id, 
+            MIN(Date_Time) AS cgm_start_date, 
+            MAX(Date_Time) AS cgm_end_date
+     FROM combined_cgm_tracing
+     GROUP BY participant_id) AS participant_cgm_dates
+WHERE 
+    participant_cgm_dates.participant_id = $participant_id;  
+
+         
 SELECT 
     'Goals for Type 1 and Type 2 Diabetes' as title,
-    '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;
-SELECT 
+    '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
+    '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
+    '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
+FROM 
+    (SELECT participant_id, 
+            MIN(Date_Time) AS cgm_start_date, 
+            MAX(Date_Time) AS cgm_end_date
+     FROM combined_cgm_tracing
+     GROUP BY participant_id) AS participant_cgm_dates
+WHERE 
+    participant_cgm_dates.participant_id = $participant_id;  
+
+/*SELECT 
     'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
-    '/drh/ambulatory-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+    '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'DAILY GLUCOSE PROFILE' as title,
     '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
@@ -868,36 +901,42 @@ SELECT
     '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; 
  SELECT 
     '' as title,
-    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; */  
   `;
-  }     
-  
+  }
+
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
-  "drh/gluecose-statistics-and-targets/index.sql"() {
+  "drh/glucose-statistics-and-targets/index.sql"() {
     return this.SQL`
      SELECT  
     'html' as component;
     SELECT  
-      '<div class="card-content my-1">'|| strftime('%Y-%m-%d', cgm_start_date) || ' - ' ||  strftime('%Y-%m-%d', cgm_end_date) || ' <span style="float: right;">'|| CAST(julianday(cgm_end_date) - julianday(cgm_start_date) AS INTEGER) ||' days</span></div>' as html
+      '<div class="card-content my-1">'|| strftime('%Y-%m-%d', MIN(Date_Time)) || ' - ' ||  strftime('%Y-%m-%d', MAX(Date_Time)) || ' <span style="float: right;">'|| CAST(julianday(MAX(Date_Time)) - julianday(MIN(Date_Time)) AS INTEGER) ||' days</span></div>' as html
     FROM  
-        drh_participant_cgm_dates
+        combined_cgm_tracing
     WHERE 
-        participant_id = $participant_id;
+        participant_id = $participant_id
+     AND Date_Time BETWEEN $start_date AND $end_date;   
 
     SELECT  
-      '<div class="card-content my-1"><b>Time CGM Active</b> <span style="float: right;"><b>' || percentage_active || '</b> %</span></div>' as html
+      '<div class="card-content my-1"><b>Time CGM Active</b> <span style="float: right;"><b>' || ROUND(
+        (COUNT(DISTINCT DATE(Date_Time)) / 
+        ROUND((julianday(MAX(Date_Time)) - julianday(MIN(Date_Time)) + 1))
+        ) * 100, 2) || '</b> %</span></div>' as html
     FROM
-      drh_percentage_active_days  
+      combined_cgm_tracing  
     WHERE 
-      participant_id = $participant_id; 
+      participant_id = $participant_id
+    AND Date_Time BETWEEN $start_date AND $end_date;    
 
     SELECT  
-      '<div class="card-content my-1"><b>Number of Days CGM Worn</b> <span style="float: right;"><b>'|| number_of_days_cgm_worn ||'</b> days</span></div>' as html
+      '<div class="card-content my-1"><b>Number of Days CGM Worn</b> <span style="float: right;"><b>'|| COUNT(DISTINCT DATE(Date_Time)) ||'</b> days</span></div>' as html
     FROM
-        drh_cgm_worn_days  
+        combined_cgm_tracing  
     WHERE 
-        participant_id = $participant_id; 
+        participant_id = $participant_id
+    AND Date_Time BETWEEN $start_date AND $end_date;
 
     SELECT  
       '<div class="card-body" style="background-color: lightgray;border: 1px solid black;">
@@ -909,7 +948,7 @@ SELECT
                                   Ranges And Targets For Type 1 or Type 2 Diabetes
                                 </th>
                               </tr>
-                              <tr>
+                              <tr> 
                                 <th>
                                   Glucose Ranges
                                 </th>
@@ -946,25 +985,28 @@ SELECT
                     </div>' as html; 
 
     SELECT  
-      '<div class="card-content my-1"><b>Mean Glucose</b> <span style="float: right;"><b>'|| mean_glucose ||'</b> mg/dL</span></div>' as html
+      '<div class="card-content my-1"><b>Mean Glucose</b> <span style="float: right;"><b>'|| ROUND(AVG(CGM_Value), 2) ||'</b> mg/dL</span></div>' as html
     FROM
-      drh_mean_glucose  
+      combined_cgm_tracing  
     WHERE 
-      participant_id = $participant_id; 
+      participant_id = $participant_id
+    AND Date_Time BETWEEN $start_date AND $end_date;
 
     SELECT  
-      '<div class="card-content my-1"><b>Glucose Management Indicator (GMI)</b> <span style="float: right;"><b>'|| gmi ||'</b> %</span></div>' as html
+      '<div class="card-content my-1"><b>Glucose Management Indicator (GMI)</b> <span style="float: right;"><b>'|| ROUND(AVG(CGM_Value) * 0.155 + 95, 2) ||'</b> %</span></div>' as html
     FROM
-      drh_glucose_management_indicator  
+      combined_cgm_tracing  
     WHERE 
-      participant_id = $participant_id; 
+      participant_id = $participant_id
+    AND Date_Time BETWEEN $start_date AND $end_date;
       
     SELECT  
-      '<div class="card-content my-1"><b>Glucose Variability</b> <span style="float: right;"><b>'|| coefficient_of_variation ||'</b> %</span></div>' as html   
+      '<div class="card-content my-1"><b>Glucose Variability</b> <span style="float: right;"><b>'|| ROUND((SQRT(AVG(CGM_Value * CGM_Value) - AVG(CGM_Value) * AVG(CGM_Value)) / AVG(CGM_Value)) * 100, 2) ||'</b> %</span></div>' as html   
     FROM
-      drh_coefficient_of_variation  
+      combined_cgm_tracing  
     WHERE 
-      participant_id = $participant_id;   
+      participant_id = $participant_id
+    AND Date_Time BETWEEN $start_date AND $end_date;  
       
     SELECT  
       '<div class="card-content my-1">Defined as percent coefficient of variation (%CV); target ≤36%</div>' as html;                         
@@ -975,7 +1017,7 @@ SELECT
 
   @spn.shell({ eliminate: true })
   "js/chart-component.js"() {
-    return Deno.readTextFileSync("./d3-aide-component.js");    
+    return Deno.readTextFileSync("./d3-aide-component.js");
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
@@ -997,7 +1039,7 @@ SELECT
                   FROM
                     drh_time_range_stacked_metrics
                   WHERE
-                    participant_id = $participant_id
+                    participant_id = $participant_id  
             )
         ) AS contents; 
   `;
@@ -1008,7 +1050,10 @@ SELECT
 
     return this.SQL`
     SELECT 'html' as component,
-    '<div class="chartContainer">
+    '
+    <input type="hidden" name="start_date" class="start_date" value="'|| $start_date ||'">
+    <input type="hidden" name="end_date" class="end_date" value="'|| $end_date ||'">
+    <div class="chartContainer">
       <svg id="tir-chart" class="m-0"></svg>
     </div>
     ' as html; 
@@ -1252,7 +1297,7 @@ SELECT
             )
         ) AS contents;   
   `;
-  } 
+  }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/advanced_metrics/index.sql"() {
