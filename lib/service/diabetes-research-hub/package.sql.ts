@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys  --allow-ffi
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
@@ -6,12 +6,8 @@ import {
   shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
-
 import * as sppn from "../..//std/notebook/sqlpage.ts";
-import {
-  createUVACombinedCGMViewSQL,
-  generateDetrendedDSCombinedCGMViewSQL,
-} from "./study-specific-stateless/generate-cgm-combined-sql.ts";
+
 
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -158,13 +154,16 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
-  combinedViewDDL() {
-    const dbFilePath = "./resource-surveillance.sqlite.db";
-    const sqlStatements = createUVACombinedCGMViewSQL(dbFilePath);
-    return this.SQL`
-        ${sqlStatements} 
-    `;
-  }
+  // //use this only for combined view sql generation
+  // //based on the ingested dataset the function call must be handled
+  // combinedViewDDL() {
+  //   const dbFilePath = "./resource-surveillance.sqlite.db";
+  //   //const sqlStatements= createUVACombinedCGMViewSQL(dbFilePath);
+  //   const sqlStatements = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);
+  //   return this.SQL`
+  //       ${sqlStatements}
+  //   `;
+  // }
 
   @spn.navigationPrimeTopLevel({
     caption: "DRH EDGE UI Home",
@@ -279,7 +278,23 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
                 '/drh/cgm-data/index.sql' AS link,
                 'Explore detailed information about glucose levels over time, including timestamp, and glucose value.' AS description,
                 'book'                as icon,
+                'red'                    as color;                
+
+            SELECT
+                'Combined CGM Tracing' AS title,
+                '/drh/cgm-combined-data/index.sql' AS link,
+                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
+                'book'                as icon,
                 'red'                    as color;
+
+
+            SELECT
+                'Combined CGM Tracing' AS title,
+                '/drh/cgm-combined-data/index.sql' AS link,
+                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
+                'book'                as icon,
+                'red'                    as color;
+
 
             SELECT
                 'Combined CGM Tracing' AS title,
@@ -1098,30 +1113,9 @@ Participants are individuals who volunteer to take part in CGM research studies.
   }
 }
 
-export async function drhSQL() {
-  return await spn.TypicalSqlPageNotebook.SQL(
+export async function drhNotebooks() {
+  return [
     new class extends spn.TypicalSqlPageNotebook {
-      async vandvDRHSQL() {
-        // This function retrieves the SQL script for verfication and validation
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./orchestration/vv-orchestration.sql"),
-        );
-      }
-
-      async statelessDRHSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless.sql"),
-        );
-      }
-
-      // async metricsDRHSQL() {
-      //   // This function fetches the SQL query for DRH metrics after the combined view has been generated.
-      //   // Ensure that the combined view is created before calling this function.
-      //   return await spn.TypicalSqlPageNotebook.fetchText(
-      //     import.meta.resolve("./drh-metrics.sql"),
-      //   );
-      // }
     }(),
     // new sh.ShellSqlPages(),
     new DrhShellSqlPages(),
@@ -1129,6 +1123,12 @@ export async function drhSQL() {
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
     new DRHSqlPages(),
+  ];
+}
+
+export async function drhSQL() {
+  return await spn.TypicalSqlPageNotebook.SQL(
+    ...(await drhNotebooks()),
   );
 }
 
