@@ -69,13 +69,18 @@ via **SQLite Full Text Search (FTS)** for further analysis.
 
 You can use **`surveilr ingest`** commands to pull content from:
 
-- **Direct Files**: CSVs or JSON outputs from analytics platforms such as Google
-  Analytics or SEO tools.
+- **Content Files**: Use [HTTrack](https://www.httrack.com/).
+  - Download an entire site to a local directory, building recursively all
+    directories, getting HTML, images, and other files from the server to your
+    computer where you're running `surveilr`.
+  - Use `surveilr ingest files` to load the content into an RSSD.
+- **External Site Quality Files**: CSVs or JSON outputs from analytics platforms
+  such as Google Analytics or SEO tools.
 - **Google Search Console APIs**: Via Capturable Executables (CEs) that automate
   API requests and pull data from Google Search Console.
-- **Web Crawlers**: Using CEs written in TypeScript or Python that interact with
-  web crawling libraries such as **Puppeteer**, **Playwright**, or **Scrapy** to
-  fetch HTML content.
+- **Custom Web Crawlers**: Using CEs written in TypeScript or Python that
+  interact with web crawling libraries such as **Puppeteer**, **Playwright**, or
+  **Scrapy** to fetch HTML content.
 
 ### Supported Formats
 
