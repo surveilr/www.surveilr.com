@@ -69,7 +69,9 @@ via **SQLite Full Text Search (FTS)** for further analysis.
 
 You can use **`surveilr ingest`** commands to pull content from:
 
-- **Content Files**: Use [HTTrack](https://www.httrack.com/).
+- **Content Files**: Use
+  [`wget --mirror`](https://gist.github.com/crittermike/fe02c59fed1aeebd0a9697cf7e9f5c0c)
+  or [HTTrack](https://www.httrack.com/).
   - Download an entire site to a local directory, building recursively all
     directories, getting HTML, images, and other files from the server to your
     computer where you're running `surveilr`.
