@@ -283,24 +283,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
                 '/drh/cgm-combined-data/index.sql' AS link,
                 'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
                 'book'                as icon,
-                'red'                    as color;
-
-
-            SELECT
-                'Combined CGM Tracing' AS title,
-                '/drh/cgm-combined-data/index.sql' AS link,
-                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
-                'book'                as icon,
-                'red'                    as color;
-
-
-            SELECT
-                'Combined CGM Tracing' AS title,
-                '/drh/cgm-combined-data/index.sql' AS link,
-                'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
-                'book'                as icon,
-                'red'                    as color;
-
+                'red'                    as color;         
+            
 
             SELECT
                 'PHI De-Identification Results' AS title,
@@ -1347,7 +1331,7 @@ SELECT
     siblingOrder: 12,
   })
   "drh/study-participant-dashboard/index.sql"() {
-    const viewName = `drh_participant`;
+    const viewName = `study_combined_dashboard_participant_metrics_view`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
   ${this.activePageTitle()}
@@ -1457,8 +1441,8 @@ SELECT
     SELECT 'table' AS component,
           'participant_id' as markdown,
           TRUE AS sort,
-          TRUE AS search;
-    SELECT format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM ${viewName}
+          TRUE AS search;        
+    SELECT format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
     LIMIT $limit
     OFFSET $offset;
 

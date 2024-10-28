@@ -105,7 +105,7 @@ export function generateDetrendedDSCombinedCGMViewSQL(dbFilePath: string): strin
     // Generate SQL for each participant's CGM data
     sqlParts.push(`
       SELECT 
-        '${participantId}' AS participant_id, 
+        TRIM('DFA-'||'${participantId}') AS participant_id, 
         TRIM('2012-01-01 ' || hora ) AS Date_Time,
         CAST(glucemia AS REAL) AS CGM_Value 
       FROM ${table_name}

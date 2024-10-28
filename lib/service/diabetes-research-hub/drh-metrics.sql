@@ -9,75 +9,8 @@ FROM
     combined_cgm_tracing
 GROUP BY 
     participant_id;
-
-   
--- Drop the view if it exists
-DROP VIEW IF EXISTS drh_mean_glucose;
-
--- Create the view to calculate mean glucose for each participant
-CREATE VIEW drh_mean_glucose AS
-SELECT 
-    participant_id,
-    ROUND(AVG(CGM_Value), 2) AS mean_glucose
-FROM 
-    combined_cgm_tracing
-GROUP BY 
-    participant_id;
-
-   
-   -- Drop the view if it exists
-DROP VIEW IF EXISTS drh_cgm_worn_days;
-
--- Create the view to calculate the number of days CGM worn for each participant
-CREATE VIEW drh_cgm_worn_days AS
-SELECT 
-    participant_id,
-    COUNT(DISTINCT DATE(Date_Time)) AS number_of_days_cgm_worn
-FROM 
-    combined_cgm_tracing
-GROUP BY 
-    participant_id;
-   
-   
--- Drop the view if it exists
-DROP VIEW IF EXISTS drh_percentage_active_days;
-
--- Create the view to calculate the percentage of active days for each participant
-CREATE VIEW drh_percentage_active_days AS
-SELECT 
-    participant_id,
-    ROUND(
-        (COUNT(DISTINCT DATE(Date_Time)) / 
-        ROUND((julianday(MAX(Date_Time)) - julianday(MIN(Date_Time)) + 1))
-        ) * 100, 2) AS percentage_active
-FROM 
-    combined_cgm_tracing
-GROUP BY 
-    participant_id;
-   
-   
--- Drop the view if it exists
-DROP VIEW IF EXISTS drh_glucose_management_indicator;
-
--- Create the view to calculate the GMI for each participant
-CREATE VIEW drh_glucose_management_indicator AS
-SELECT 
-    participant_id,    
-    ROUND(AVG(CGM_Value) * 0.155 + 95, 2) AS gmi 
-FROM 
-    combined_cgm_tracing
-GROUP BY 
-    participant_id;
    
 
-DROP VIEW IF EXISTS drh_coefficient_of_variation;
--- Create the view to calculate the coefficient_of_variation for each participant
-CREATE VIEW drh_coefficient_of_variation AS  
-SELECT participant_id,ROUND((SQRT(AVG(CGM_Value * CGM_Value) - AVG(CGM_Value) * AVG(CGM_Value)) / AVG(CGM_Value)) * 100, 2) AS coefficient_of_variation 
-FROM combined_cgm_tracing 
-GROUP BY 
-    participant_id;
-   
 
 DROP VIEW IF EXISTS drh_participant_metrics;
 
@@ -408,6 +341,59 @@ FROM (
     FROM combined_cgm_tracing
 ) AS p;
 
+
+
+DROP VIEW IF EXISTS study_combined_dashboard_participant_metrics_view;
+CREATE VIEW study_combined_dashboard_participant_metrics_view AS
+WITH combined_data AS (
+    SELECT 
+        CAST(SUBSTR(dg.participant_id, 1, INSTR(dg.participant_id, '-') - 1) AS TEXT) AS study_id,        
+        dg.participant_id,
+        dg.gender,
+        dg.age,
+        dg.study_arm,
+        dg.baseline_hba1c,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tir,
+        ROUND(SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_vh,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_h,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_l,
+        ROUND(SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_vl,
+        ROUND(SUM(CASE WHEN dc.CGM_Value > 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value)*100, 2) AS tar,
+        ROUND(SUM(CASE WHEN dc.CGM_Value < 70 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value)*100, 2) AS tbr,
+        CEIL((AVG(dc.CGM_Value) * 0.155) + 95) AS gmi,
+        ROUND((SQRT(AVG(dc.CGM_Value * dc.CGM_Value) - AVG(dc.CGM_Value) * AVG(dc.CGM_Value)) / AVG(dc.CGM_Value)) * 100, 2) AS percent_gv,
+        ROUND((3.0 * ((SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.8 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))) + (1.6 * ((SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.5 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) ))), 2) AS gri,
+        COUNT(DISTINCT DATE(dc.Date_Time)) AS days_of_wear,
+        MIN(DATE(dc.Date_Time)) AS data_start_date,
+        MAX(DATE(dc.Date_Time)) AS data_end_date
+    FROM drh_participant dg 
+    JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
+    GROUP BY study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c
+)
+SELECT *,
+    ROUND(
+        COALESCE(
+            (days_of_wear * 1.0 / 
+            (JULIANDAY(data_end_date) - JULIANDAY(data_start_date) + 1)) * 100, 
+            0), 
+        2) AS wear_time_percentage FROM combined_data;
+
+
+DROP VIEW IF EXISTS participant_cgm_date_range_view;
+CREATE VIEW participant_cgm_date_range_view AS 
+SELECT 
+    participant_id,
+    CAST(strftime('%Y-%m-%d', MIN(Date_Time)) AS TEXT) AS participant_cgm_start_date,
+    CAST(strftime('%Y-%m-%d', MAX(Date_Time)) AS TEXT) AS participant_cgm_end_date,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-1 day')) AS TEXT) AS end_date_minus_1_day,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-7 day')) AS TEXT) AS end_date_minus_7_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-14 day')) AS TEXT) AS end_date_minus_14_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-30 day')) AS TEXT) AS end_date_minus_30_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-90 day')) AS TEXT) AS end_date_minus_90_days
+FROM 
+    combined_cgm_tracing  
+GROUP BY 
+    participant_id;
 
 
 
