@@ -13,6 +13,16 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
         ${sqlStatements} 
     `;
   }
+ 
+  //metrics static views shall be generated after the combined_cgm_tracing is created.
+  async statelessMetricsSQL() {
+    // stateless SQL for the metrics
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve(
+        "../drh-metrics.sql",
+      ),
+    );
+  }
 }
 
 export async function uvadclp1SQL() {
@@ -31,6 +41,7 @@ export async function uvadclp1SQL() {
           ),
         );
       }
+      
     }(),    
     ...(await pkg.drhNotebooks()),
     new uvadclp1SqlPages(),

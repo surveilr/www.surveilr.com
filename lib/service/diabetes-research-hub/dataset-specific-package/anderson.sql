@@ -3311,23 +3311,7 @@ SELECT
     ''/drh/cgm-combined-data/index.sql'' AS link,
     ''Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.'' AS description,
     ''book''                as icon,
-    ''red''                    as color;
-
-
-SELECT
-    ''Combined CGM Tracing'' AS title,
-    ''/drh/cgm-combined-data/index.sql'' AS link,
-    ''Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.'' AS description,
-    ''book''                as icon,
-    ''red''                    as color;
-
-
-SELECT
-    ''Combined CGM Tracing'' AS title,
-    ''/drh/cgm-combined-data/index.sql'' AS link,
-    ''Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.'' AS description,
-    ''book''                as icon,
-    ''red''                    as color;
+    ''red''                    as color;         
 
 
 SELECT
@@ -4208,7 +4192,7 @@ FROM
 ''text'' as component,
 ''# Participant Dashboard'' as contents_md;
 
-    SET total_rows = (SELECT COUNT(*) FROM drh_participant);
+    SET total_rows = (SELECT COUNT(*) FROM study_combined_dashboard_participant_metrics_view);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -4218,8 +4202,8 @@ SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' AS component,
         ''participant_id'' as markdown,
         TRUE AS sort,
-        TRUE AS search;
-  SELECT format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c FROM drh_participant
+        TRUE AS search;        
+  SELECT format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM study_combined_dashboard_participant_metrics_view
   LIMIT $limit
   OFFSET $offset;
 
