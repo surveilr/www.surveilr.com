@@ -9,12 +9,13 @@ can view the results directly on your local system. The following steps will
 guide you through converting your files, performing de-identification, V&V, and
 verifying the data all within your own environment.
 
+
 # Try outside this repo
 
 ### Requirements for Previewing the Edge UI:
 
-1. **Surveilr Tool** (use latest version surveilr(0.30.1))
-2. **Deno Runtime** (requires `deno` v2.0):
+1. **Surveilr Tool** (use latest version surveilr)
+2. **Deno Runtime** (requires `deno2.0` ):
    [Deno Installation Guide](https://docs.deno.com/runtime/manual/getting_started/installation/)
 
 Installation steps may vary depending on your operating system.
@@ -43,26 +44,43 @@ Installation steps may vary depending on your operating system.
 
 ### Step 4 : Execute the commands below
 
-1. Run the single execution command:**
+  1. **Perform Ingestion and transformation**
 
    ```bash
-   deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 'foldername'
+   # Execute the command below if the files in the study folder are of the CSV format.
+   surveilr ingest files -r `study-files-folder-name`/ && surveilr orchestrate transform-csv
    ```
 
-- Replace `foldername` with the name of your folder containing all CSV files to
+  - Replace `study-files-folder-name` with the name of your folder containing all CSV files to
   be converted.
 
   **Example:**
 
   ```bash
-  deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts study-files
+  surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
   ```
+  2. **SQL Transformation process**
 
+  Example: Considering the Dataset pattern is 'UVA DCLP1'
+
+  ```bash
+    surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
+  ```
+  3. **Server UI execution**
+
+  execute 
+
+  ```bash
+    surveilr web-ui --port 9000
+
+  ```
   - After the above command completes execution launch your browser and go to
     [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
 
   This method provides a streamlined approach to complete the process and see
   the results quickly.
+
+  Note: Based on the dataset pattern,the steps 1 and 2 will change in the foldername as well as in the .sql.ts file to be invoked.
 
 ### Step 5 : Verify the Verification Validation Results in the UI
 
@@ -80,84 +98,112 @@ Installation steps may vary depending on your operating system.
 
 <p align="center"><b>Image 2</b></p>
 
-# Try it out in this repo using automation script
+# Using the Automation Script
 
-**Note**: Reference sample files can be found in the repository folder:
-/service/diabetes-research-hub/study-files.zip
+The automation script currently assumes the dataset pattern is UVA DCLP1. If your dataset pattern differs, the automation script must invoke the SQL package specific to that pattern.
 
-First, prepare the directory with sample files and copy them to this folder, or
-extract the sample files and move them to this folder:
+**Clear Cache and Execute Command**
+
+Clear the cache by running the following command:
+
+```bash
+deno cache --reload https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 
+```
+**Single execution process**
+
+After clearing the cache, run the single execution command:
+
+```bash
+deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 'foldername'
+```
+
+Replace `foldername` with the name of your folder containing all CSV files to be converted.
+
+**Example:**
+
+```bash
+deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts study-files
+```
+
+After the above command completes execution, launch your browser and go to [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
+
+
+# Try It Out in This Repo (For Development Activities)
+
+Each new dataset type requires manual review to assess study files, determine the mode of ingestion through Surveilr, and prepare a transformation SQL for DRH views. For every dataset, a new transform sql for the study, a combinedTracingView generator, and <studyName>.sql.ts must be created and maintained.
+
+The process isn’t automated, the appropriate ingestion and transformation commands in Surveilr need to be manually selected based on the file types in the dataset folder
+
+### Reference Sample Files
+
+The following sample files are available in the repository:
+
+- `/service/diabetes-research-hub/study-files.zip`
+- `/service/diabetes-research-hub/ctr-study-files.zip`
+- `/service/diabetes-research-hub/de-trended-analysis-files.zip`
+
+Each of these folders contains different datasets.
+
+### Preparing the Directory
+
+First, prepare the directory by copying or extracting the required sample files into the appropriate folder:
 
 ```bash
 $ cd service/diabetes-research-hub
 ```
 
-Now
-[Download `surveilr`](https://docs.opsfolio.com/surveilr/how-to/installation-guide/)
-into this directory,and use the automation script
+Next, download and install [Surveilr](https://docs.opsfolio.com/surveilr/how-to/installation-guide/) into this directory, then ingest and transform the data.
+
+### Removing the Old RSSD
+
+When switching between different datasets, be sure to remove the old RSSD before ingesting the new dataset:
 
 ```bash
-# Use the automation script
-$ deno run -A ./drhctl.ts study-files
+$ rm resource-surveillance.sqlite.db
 ```
 
-**Note**: `study-files` is the folder name containing csv files.
+### Ingesting and Transforming Data
 
-# Try it out in this repo(for development activities)
-
-The following SQL scripts will be used:
-
-- drh-deidentification.sql: De-identifies sensitive columns in the study data.
-- stateless.sql: Creates database views for SQLPage preview.
-- orchestrate-drh-vv.sql: Performs verification and validation on the study data
-  tables.
-
-**Note**: Reference sample files can be found in the repository folder:
-/service/diabetes-research-hub/study-files.zip
-
-First, prepare the directory with sample files and copy them to this folder, or
-extract the sample files and move them to this folder:
+Depending on the dataset you're working with, use the appropriate folder name in the `surveilr ingest` command. Below are examples for each dataset:
 
 ```bash
-$ cd service/diabetes-research-hub
-```
-
-The directory should look like this now:
-
-```
-├── de-identification
-|   ├──drh-deidentification.sql
-├── study-files
-│   ├── author.csv
-│   ├── publication.csv
-│   └── ...many other study files    
-├── verfication-validation
-|   ├──orchestrate-drh-vv.sql
-├── stateless.sql
-```
-
-Now
-[Download `surveilr`](https://docs.opsfolio.com/surveilr/how-to/installation-guide/)
-into this directory, then ingest and query the data:
-
-```bash
-# ingest and transform the CSV files in the "study-files/" directory, creating resource-surveillance.sqlite.db
+# Ingest and transform the CSV files in the "study-files/" directory, creating resource-surveillance.sqlite.db
 $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
+
+# Ingest and transform the CSV files in the "ctr-study-files/" directory
+$ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
+
+# Ingest and transform the CSV files in the "de-trended-analysis-files/" directory
+$ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv
+```
+
+### Running the SQL Package and Web UI
+
+For each Dataset a custom <packagefilename>.sql.ts will be created that perfoms the custom file transformation SQl generation and sqlpage setup
+
+```bash
+# For DCLP1 study Dataset  
+$ surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts 
+```
+
+
+```bash
+# For CTR Anderson(2016) study Dataset  
+$ surveilr shell ./dataset-specific-package/anderson.sql.ts 
 ```
 
 ```bash
-# Apply de-identification
-$ cat de-identification/drh-deidentification.sql| surveilr orchestrate -n "deidentification"
+# For Detrended Fluctuation Analysis (colas 2019) study Dataset  
+$ surveilr shell ./dataset-specific-package/detrended-analysis.sql.ts
+```
+# Start the server 
+
+```bash
+$ surveilr web-ui --port 9000
 ```
 
-```bash 
-# perform v&v ,generate combined cgm tracing views and sqlpage steup
-$ surveilr shell ./package.sql.ts                 
 
+You can now browse the Surveilr Web UI:
 
-# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
-$ ../../std/surveilrctl.ts dev
-
-# browse http://localhost:9000/ to see surveilr web UI
-# browse http://localhost:9000/drh/index.sql to view DRH speciifc UI
-```
+- **http://localhost:9000/**: Main Surveilr Web UI
+- **http://localhost:9000/drh/index.sql**: DRH-specific UI

@@ -1,0 +1,95 @@
+---
+// Import section components
+import { SITE } from "@data/constants";
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getCollection } from "astro:content";
+
+// Use `getStaticPaths` to generate static routes for generated pages on build
+export async function getStaticPaths() {
+  const legalPosts = await getCollection("legal", ({ id }) =>
+    id.startsWith("en/")
+  );
+  return legalPosts.map((post) => {
+    const slugWithoutLang = post.slug.replace(/^en\//, ""); // Remove the "fr/" prefix
+    return {
+      params: { slug: slugWithoutLang },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+
+const { Content } = await post.render();
+
+const pageTitle: string = `${post.data.title} | ${SITE.title}`;
+---
+
+<MainLayout title={pageTitle}>
+  <section class="py-6 sm:py-8 lg:py-12">
+    <div class="mx-auto max-w-screen-xl px-4 md:px-8">
+      <div class="grid gap-8 md:grid-cols-12 lg:gap-12">
+        
+        <!-- Main Content -->
+        <div class="md:col-span-12">      
+  
+          <div class="md:pt-8">
+            <h1 class="mb-4 text-balance text-center text-2xl font-bold text-neutral-800 dark:text-neutral-200 sm:text-3xl md:mb-6 md:text-left">
+              {post.data.title}
+            </h1>
+  
+            <article class="text-pretty text-lg text-neutral-700 dark:text-neutral-300">
+              <Content />
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> 
+  
+</MainLayout>
+
+<style is:global>
+  :root {
+    --transition-cubic: cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  article h2,
+  article h3,
+  article h4,
+  article h5,
+  article h6 {
+    font-weight: bold;
+    margin-top: 2.5rem;
+    scroll-margin-top: 3rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  p {
+    margin-top: 1.5rem;
+  }
+  a {
+    color: #b73d00;
+  }
+  a:hover {
+    color: #ae8a5e;
+  }
+</style>

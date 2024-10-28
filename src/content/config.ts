@@ -90,10 +90,20 @@ const insightsCollection = defineCollection({
       cardImageAlt: z.string(),
     }),
 });
+const legalCollection = defineCollection({
+  type: "content",
+  schema: () =>
+    z.object({
+      title: z.string(),
+      metaTitle: z.string().optional(),
+      description: z.string().optional(),
+    }),
+});
 
 export const collections = {
   docs: defineCollection({ schema: docsSchema() }),
   "patterns": patternsCollection,
   "blog": blogCollection,
   "insights": insightsCollection,
+  "legal": legalCollection,
 };

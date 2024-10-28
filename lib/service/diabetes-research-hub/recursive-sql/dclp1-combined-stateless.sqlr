@@ -1,0 +1,46 @@
+WITH table_selects AS (
+  SELECT
+    'SELECT ''' || name || ''' AS table_name, ' ||
+    '(SELECT COUNT(*) FROM pragma_table_info(''' || name || ''')) AS total_columns, ' ||
+    '(SELECT COUNT(*) FROM ' || quote(name) || ') AS total_rows, ' ||
+    '(SELECT IFNULL(SUM(pgsize), 0) FROM dbstat WHERE name = ''' || name || ''') AS size_bytes, ' ||
+    'CURRENT_TIMESTAMP AS prepared_at, ' ||
+    '(SELECT json_group_array(json_object(''column_name'', name, ''data_type'', type)) ' ||
+    'FROM pragma_table_info(''' || name || ''')) AS columns_info'
+  AS select_statement
+  FROM sqlite_master
+  WHERE type = 'table'
+    AND name NOT LIKE 'sqlite_%'
+)
+SELECT
+  'DROP TABLE IF EXISTS console_information_schema_table_physical;' || char(10) ||
+  'CREATE TABLE console_information_schema_table_physical AS' || char(10) || 
+  GROUP_CONCAT(
+    '    ' || select_statement,
+    ' UNION ALL' || char(10)
+  ) || ';'
+FROM table_selects;
+
+
+WITH cgm_tracing_tables AS (
+    SELECT
+        'SELECT 
+            SID AS participant_id, 
+            strftime(''%Y-%m-%d %H:%M:%S'', Date_Time) AS Date_Time, 
+            CAST(CGM_Value AS REAL) AS CGM_Value 
+        FROM ' || quote(name) AS select_statement
+    FROM sqlite_master
+    WHERE type = 'table'
+      AND name LIKE 'uniform_resource_cgm_tracing_%'
+)
+SELECT
+    'DROP VIEW IF EXISTS combined_cgm_tracing;' || char(10) ||
+    'CREATE VIEW combined_cgm_tracing AS' || char(10) || 
+    GROUP_CONCAT(
+        '    ' || select_statement,
+        ' UNION ALL' || char(10)
+    ) || ';' AS select_sql
+FROM cgm_tracing_tables;
+
+
+
