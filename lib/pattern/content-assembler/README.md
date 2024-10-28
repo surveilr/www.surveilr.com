@@ -144,3 +144,19 @@ time-consuming to re-run the same command in the CLI manually each time a file
 changes, you can use _watch mode_ instead.
 
 See: [`surveilrctl.ts`](../../std/surveilrctl.ts).
+
+## How to Run the Tests
+
+To execute test and ensure that `surveilr` is functioning correctly:
+
+1. Run the tests using Deno:
+
+   ```bash
+   deno test -A  # Executes test
+   ```
+
+This process will create an 'assurance' folder, where you can find the files
+related to the test, including the database and ingestion folder
+
+The `-A` flag provides all necessary permissions for the tests to run, including
+file system access and network permissions.

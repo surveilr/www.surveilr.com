@@ -5,13 +5,13 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
   "contents" TEXT NOT NULL,
   "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-DROP TABLE IF EXISTS ur_transform_html_email_anchor;
-CREATE TABLE ur_transform_html_email_anchor AS
+DROP TABLE IF EXISTS ur_transform_html_flattened_email_anchor;
+CREATE TABLE ur_transform_html_flattened_email_anchor AS
 SELECT
     uniform_resource_transform_id,
     uniform_resource_id,
     json_extract(json_each.value, '$.attributes.href') AS anchor,
-    json_extract(json_each.value, '$.children[0]') AS text
+    json_extract(json_each.value, '$.children[0]') AS anchor_text
 FROM
     uniform_resource_transform,
     json_each(content);
@@ -24,12 +24,48 @@ SELECT
     uniform_resource_id,
     anchor,
     CASE
-        WHEN regexp_like(anchor, '(?i)optout') THEN 'optout'
-        WHEN regexp_like(anchor, '(?i)unsubscribe') THEN 'unsubscribe'
-    END AS type,
-    text
+        WHEN regexp_like(anchor, '(?i)unsubscribe|list-unsubscribe') THEN 'Unsubscribe'
+        WHEN regexp_like(anchor, '(?i)optout|opt-out') THEN 'Optout'
+        WHEN regexp_like(anchor, '(?i)preferences') THEN 'Preferences'
+        WHEN regexp_like(anchor, '(?i)remove') THEN 'Remove'
+        WHEN regexp_like(anchor, '(?i)manage') THEN 'Manage'
+        WHEN regexp_like(anchor, '(?i)email-settings') THEN 'Email-settings'
+        WHEN regexp_like(anchor, '(?i)subscription|subscribe') THEN 'Subscribe'
+        WHEN regexp_like(anchor, '(?i)mailto:') THEN 'mailto'
+    END AS anchor_type,
+    anchor_text
 FROM
-    ur_transform_html_email_anchor;
+    ur_transform_html_flattened_email_anchor;
+
+DROP TABLE IF EXISTS ur_transform_html_email_anchor;
+CREATE TABLE ur_transform_html_email_anchor AS
+SELECT
+    uniform_resource_transform_id,
+    uniform_resource_id,
+    anchor,
+    anchor_text
+FROM
+    ur_transform_html_flattened_email_anchor
+    WHERE NOT regexp_like(anchor, '(?i)unsubscribe|optout|opt-out|preferences|remove|manage|email-settings|subscription|subscribe|list-unsubscribe|mailto:');
+drop view if exists inbox;
+CREATE VIEW inbox AS
+SELECT
+    ur_imap.uniform_resource_id AS base_uniform_resource_id,
+    ur_imap."from" AS message_from,
+    ur_imap."subject" AS message_subject,
+    ur_imap."date" AS message_date,
+    ur_extended.uniform_resource_id AS extended_uniform_resource_id,
+    ur_extended.uri AS extended_uri
+FROM
+    ur_ingest_session_imap_acct_folder_message ur_imap
+JOIN
+    uniform_resource ur_base
+    ON ur_base.uniform_resource_id = ur_imap.uniform_resource_id
+JOIN
+    uniform_resource ur_extended
+    ON ur_extended.uri = ur_base.uri || '/html'
+WHERE
+    ur_extended.uri LIKE '%/html';
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
 
 -- console_information_schema_* are convenience views
@@ -411,7 +447,8 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
 DELETE FROM sqlpage_aide_navigation WHERE path like '/cak%';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', '/', 1, '/cak', '/cak/', 'IMAP Email System', NULL, NULL, 'Email system with IMAP', NULL)
+    ('prime', '/', 1, '/cak', '/cak/', 'IMAP Email System', NULL, NULL, 'Email system with IMAP', NULL),
+    ('prime', '/cak', 1, '/cak/inbox.sql', '/cak/inbox.sql', 'Inbox', NULL, NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -1292,6 +1329,81 @@ SELECT caption as title, COALESCE(url, path) as link, description
   FROM sqlpage_aide_navigation
  WHERE namespace = ''prime'' AND parent_path = ''/cak''
  ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'cak/inbox.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path = ''/cak/inbox.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title, link FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''/cak/inbox.sql'') as contents;
+    ;
+
+SELECT ''table'' AS component,
+      ''subject'' AS markdown,
+      ''Column Count'' as align_right,
+      TRUE as sort,
+      TRUE as search;
+
+SELECT extended_uniform_resource_id as "uniform resource id",
+"message_from" as "message from",
+ ''['' || message_subject || ''](/cak/email-detail.sql?id='' || extended_uniform_resource_id || '')'' AS "subject",
+ strftime(''%m/%d/%Y'', message_date) as "message date"
+from inbox;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'cak/email-detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              select
+''breadcrumb'' as component;
+select
+    ''Home'' as title,
+    ''/''    as link;
+select
+    ''IMAP Email System'' as title,
+    ''/cak/'' as link;
+select
+    ''inbox'' as title,
+    ''/cak/inbox.sql'' as link;
+select
+    "message_subject" as title from inbox where CAST(extended_uniform_resource_id AS TEXT)=CAST($id AS TEXT);
+
+SELECT ''table'' AS component,
+            ''Column Count'' as align_right,
+            TRUE as sort,
+            TRUE as search;
+ SELECT
+  uniform_resource_id,
+  anchor as "News letter link",
+  anchor_text as "link text"
+  from
+    ur_transform_html_email_anchor where CAST(uniform_resource_id AS TEXT)=CAST($id AS TEXT);
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
