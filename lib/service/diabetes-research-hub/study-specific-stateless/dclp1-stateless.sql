@@ -1238,7 +1238,7 @@ SET
     diagnostics_json = '{"status": "completed"}',     -- Diagnostics status in JSON format
     diagnostics_md = 'Verification Validation process completed'  -- Markdown summary
 WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_session_info LIMIT 1);  -- Update the session identified in the temp view
-
+------------------------------------------------------------------------------------------------------------------------------------
 
 -- Drop and recreate the device view
 DROP VIEW IF EXISTS drh_device;
@@ -1376,12 +1376,6 @@ SELECT
     study_id, site_id, site_name, site_type
 FROM uniform_resource_site;
 
--- SQLPage query to count tables matching the pattern 'uniform_resource_cgm_tracing%'
-DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
-CREATE VIEW drh_number_of_cgm_tracing_files_view AS
-SELECT COUNT(*) AS table_count
-FROM sqlite_master
-WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
 -- Drop and recreate the vw_orchestration_deidentify view
 DROP VIEW IF EXISTS drh_vw_orchestration_deidentify;
@@ -1481,6 +1475,19 @@ SELECT count(*) as number_of_cgm_raw_files
 FROM sqlite_master
 WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
+DROP VIEW IF EXISTS study_wise_csv_file_names;
+CREATE VIEW study_wise_csv_file_names AS
+SELECT name 
+FROM sqlite_master
+WHERE type = 'table' AND name LIKE 'uniform_resource_%' and name !='uniform_resource_transform';
+
+
+DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
+CREATE VIEW study_wise_number_cgm_raw_files_count AS
+SELECT count(*) as number_of_cgm_raw_files
+FROM sqlite_master
+WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
+
 
 -- DROP VIEW IF EXISTS drh_participant_file_names;
 -- CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
@@ -1505,9 +1512,10 @@ SELECT s.study_id,
        (CAST(SUM(CASE WHEN p.gender = 'F' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*)) * 100 AS percentage_of_females, 
        GROUP_CONCAT(DISTINCT i.investigator_name) AS investigators 
 FROM uniform_resource_study s 
-LEFT JOIN uniform_resource_participant p ON s.study_id = p.study_id 
+LEFT JOIN drh_participant p ON s.study_id = p.study_id 
 LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id 
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
+
 
 
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
