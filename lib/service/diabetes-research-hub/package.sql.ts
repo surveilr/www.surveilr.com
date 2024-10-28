@@ -85,7 +85,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
         items.push(
-          selectNavMenuItems("/drh/study/", "Study"),
+          selectNavMenuItems("/drh/study/", "Study"),   
         );
         items.push(selectNavMenuItems("/ur", "Uniform Resource"));
         items.push(selectNavMenuItems("/console", "Console"));
