@@ -5,7 +5,7 @@
 DROP VIEW IF EXISTS drh_participant;
 CREATE VIEW drh_participant AS
 SELECT
-    pid AS participant_id,                         -- Map pid to participant_id
+    'DFA-' || pid AS participant_id,                -- Map pid to participant_id
     'DFA' AS study_id,                              -- No equivalent column, set to NULL
     '' AS site_id,                               -- No equivalent column, set to NULL
     '' AS diagnosis_icd,                         -- No equivalent column, set to NULL
@@ -1557,15 +1557,19 @@ FROM sqlite_master
 WHERE type = 'table' AND name LIKE 'uniform_resource_case_%';
 
 
-DROP VIEW IF EXISTS drh_participant_file_names;
-CREATE VIEW IF NOT EXISTS drh_participant_file_names AS
-SELECT
-  patient_id,
-  GROUP_CONCAT(file_name, ', ') AS file_names
-FROM
-  uniform_resource_cgm_file_metadata
-GROUP BY
-  patient_id;
+DROP VIEW IF EXISTS study_wise_csv_file_names;
+CREATE VIEW study_wise_csv_file_names AS
+SELECT name 
+FROM sqlite_master
+WHERE type = 'table' AND name LIKE 'uniform_resource_%' and name !='uniform_resource_transform';
+
+
+DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
+CREATE VIEW study_wise_number_cgm_raw_files_count AS
+SELECT count(*) as number_of_cgm_raw_files
+FROM sqlite_master
+WHERE type = 'table' AND name LIKE 'uniform_resource_case_%';
+
 
 DROP VIEW IF EXISTS drh_device_file_count_view;
 CREATE VIEW drh_device_file_count_view AS
