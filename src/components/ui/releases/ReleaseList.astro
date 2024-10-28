@@ -1,0 +1,16 @@
+---
+import { marked } from 'marked';
+
+const response = await fetch('https://api.github.com/repos/opsfolio/releases.opsfolio.com/releases');
+const releases = await response.json();
+---
+
+<ul>
+  {releases.map((release: { name: unknown; body: string; html_url: string | URL | null | undefined; }) => (
+    <li>
+      <h2>{release.name}</h2>
+      <div set:html={marked(release.body)}></div>
+      <a href={release.html_url} target="_blank">View Release</a>
+    </li>
+  ))}
+</ul>
