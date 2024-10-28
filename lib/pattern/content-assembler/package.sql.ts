@@ -59,6 +59,58 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
        WHERE namespace = 'prime' AND parent_path = '/cak'
        ORDER BY sibling_order;`;
   }
+
+  @cakNav({
+    caption: "Inbox",
+    description: ``,
+    siblingOrder: 1,
+  })
+  "cak/inbox.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+
+      SELECT 'table' AS component,
+            'subject' AS markdown,
+            'Column Count' as align_right,
+            TRUE as sort,
+            TRUE as search;
+
+      SELECT extended_uniform_resource_id as "uniform resource id",
+      "message_from" as "message from",
+       '[' || message_subject || '](/cak/email-detail.sql?id=' || extended_uniform_resource_id || ')' AS "subject",
+       strftime('%m/%d/%Y', message_date) as "message date"
+      from inbox
+      `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "cak/email-detail.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+      select
+          'Home' as title,
+          '/'    as link;
+      select
+          'IMAP Email System' as title,
+          '/cak/' as link;
+      select
+          'inbox' as title,
+          '/cak/inbox.sql' as link;
+      select
+          "message_subject" as title from inbox where CAST(extended_uniform_resource_id AS TEXT)=CAST($id AS TEXT);
+
+      SELECT 'table' AS component,
+                  'Column Count' as align_right,
+                  TRUE as sort,
+                  TRUE as search;
+       SELECT
+        uniform_resource_id,
+        anchor as "News letter link",
+        anchor_text as "link text"
+        from
+          ur_transform_html_email_anchor where CAST(uniform_resource_id AS TEXT)=CAST($id AS TEXT);`;
+  }
 }
 
 export async function SQL() {
@@ -68,6 +120,12 @@ export async function SQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve("./statefull.sql"),
+        );
+      }
+      async statelesscakSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateless.sql"),
         );
       }
     }(),
