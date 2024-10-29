@@ -106,7 +106,7 @@ export function generateDetrendedDSCombinedCGMViewSQL(dbFilePath: string): strin
     sqlParts.push(`
       SELECT 
         TRIM('DFA-'||'${participantId}') AS participant_id, 
-        TRIM('2012-01-01 ' || hora ) AS Date_Time,
+        strftime('%Y-%m-%d %H:%M:%S', hora ) AS Date_Time,
         CAST(glucemia AS REAL) AS CGM_Value 
       FROM ${table_name}
     `);

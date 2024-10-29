@@ -76,6 +76,45 @@ SELECT
 FROM 
     drh_vw_uniform_resource_monitorcgm;
 
+
+--CTR DS to DRH model (standarization with server UI)
+
+-- View to count the number of CGM tracing files
+DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
+CREATE VIEW drh_number_of_cgm_tracing_files_view AS
+SELECT COUNT(*) AS table_count
+FROM sqlite_master
+WHERE type = 'table' 
+AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
+
+-- View to list the names of raw CGM tables
+DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
+CREATE VIEW drh_raw_cgm_table_lst AS
+SELECT name, tbl_name as table_name
+FROM sqlite_master
+WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
+
+-- View to count the total number of CGM raw files
+DROP VIEW IF EXISTS drh_number_cgm_count;
+CREATE VIEW drh_number_cgm_count AS
+SELECT count(*) as number_of_cgm_raw_files
+FROM sqlite_master
+WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
+
+DROP VIEW IF EXISTS study_wise_csv_file_names;
+CREATE VIEW study_wise_csv_file_names AS
+SELECT name 
+FROM sqlite_master
+WHERE type = 'table' AND name LIKE 'uniform_resource_%' and name !='uniform_resource_transform';
+
+
+DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
+CREATE VIEW study_wise_number_cgm_raw_files_count AS
+SELECT count(*) as number_of_cgm_raw_files
+FROM sqlite_master
+WHERE type = 'table' AND name  IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
+
+-------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
 -- Perform De-identification
@@ -1479,7 +1518,6 @@ WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_sess
 
 
 --Sqlpage display db views-----------------------------------------------
-   
 
 -- Drop and recreate the device view
 -- This view contains the basic information about devices used in the system.
@@ -1760,29 +1798,6 @@ LEFT JOIN drh_participant p ON s.study_id = p.study_id
 LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id 
 GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number;
 
---- Create views related to raw CGM data files
-
--- View to count the number of CGM tracing files
-DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
-CREATE VIEW drh_number_of_cgm_tracing_files_view AS
-SELECT COUNT(*) AS table_count
-FROM sqlite_master
-WHERE type = 'table' 
-AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
-
--- View to list the names of raw CGM tables
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-CREATE VIEW drh_raw_cgm_table_lst AS
-SELECT name, tbl_name as table_name
-FROM sqlite_master
-WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
-
--- View to count the total number of CGM raw files
-DROP VIEW IF EXISTS drh_number_cgm_count;
-CREATE VIEW drh_number_cgm_count AS
-SELECT count(*) as number_of_cgm_raw_files
-FROM sqlite_master
-WHERE type = 'table' AND name IN ('uniform_resource_cgm', 'uniform_resource_cgmcal', 'uniform_resource_monitorcgm');
 
 -- View to count the number of files for each device in the CGM file metadata
 DROP VIEW IF EXISTS drh_device_file_count_view;

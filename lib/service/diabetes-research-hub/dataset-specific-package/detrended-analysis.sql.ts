@@ -13,6 +13,25 @@ export class detrendedSqlPages extends spn.TypicalSqlPageNotebook {
         ${sqlStatements} 
     `;
   }
+
+  //metrics static views shall be generated after the combined_cgm_tracing is created.
+  async statelessMetricsSQL() {
+    // stateless SQL for the metrics
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve(
+        "../drh-metrics.sql",
+      ),
+    );
+  }
+
+  async statelessMetricsExplanationSQL() {
+    // Metrics explanations to be displayed in Hover Menu
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve(
+        "../metrics-explanation-dml.sql",
+      ),
+    );
+  }
 }
 
 export async function detrendedSQL() {
