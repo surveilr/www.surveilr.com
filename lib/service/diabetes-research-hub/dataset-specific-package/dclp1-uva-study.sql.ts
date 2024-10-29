@@ -23,6 +23,15 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
       ),
     );
   }
+
+  async statelessMetricsExplanationSQL() {
+    // Metrics explanations to be displayed in Hover Menu
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve(
+        "../metrics-explanation-dml.sql",
+      ),
+    );
+  }
 }
 
 export async function uvadclp1SQL() {
