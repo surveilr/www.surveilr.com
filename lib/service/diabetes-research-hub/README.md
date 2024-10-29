@@ -202,6 +202,7 @@ $ surveilr shell ./dataset-specific-package/detrended-analysis.sql.ts
 $ surveilr web-ui --port 9000
 ```
 
+# ../../std/surveilrctl.ts dev
 
 You can now browse the Surveilr Web UI:
 

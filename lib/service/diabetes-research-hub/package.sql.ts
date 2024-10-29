@@ -27,7 +27,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
     shellConfig.link = "/";
     shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/d3@7");
     shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6");
-    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");
+    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");     
     shellConfig.javascript.push("/js/chart-component.js");
     return shellConfig;
   }
@@ -784,9 +784,10 @@ ${pagination.renderSimpleMarkdown()}
     SELECT 
         'start_date' as name,
         'Start Date' as label,
-        strftime('%Y-%m-%d', MIN(Date_Time))  as value, 
+         strftime('%Y-%m-%d', MIN(Date_Time))  as value, 
         'date'       as type,
-        6            as width
+        6            as width,
+        'mt-1' as class
     FROM     
         combined_cgm_tracing        
     WHERE 
@@ -796,7 +797,8 @@ ${pagination.renderSimpleMarkdown()}
         'End Date' as label,
          strftime('%Y-%m-%d', MAX(Date_Time))  as value, 
         'date'       as type,
-         6             as width
+         6             as width,
+         'mt-1' as class
     FROM     
         combined_cgm_tracing        
     WHERE 
@@ -889,7 +891,7 @@ FROM
 WHERE 
     participant_cgm_dates.participant_id = $participant_id;  
 
-/*SELECT 
+SELECT 
     'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
     '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
@@ -898,9 +900,19 @@ SELECT
 SELECT 
     'Glycemia Risk Index' as title,
     '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; 
- SELECT 
+  SELECT 
     '' as title,
-    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; */  
+    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  ||
+    '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
+    '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
+    FROM 
+        (SELECT participant_id, 
+                MIN(Date_Time) AS cgm_start_date, 
+                MAX(Date_Time) AS cgm_end_date
+        FROM combined_cgm_tracing
+        GROUP BY participant_id) AS participant_cgm_dates
+    WHERE 
+        participant_cgm_dates.participant_id = $participant_id;  
   `;
   }
 
@@ -1028,19 +1040,19 @@ SELECT
                 SELECT 
                     JSON_OBJECT(
                         'participant_id', participant_id, 
-                        'timeBelowRangeLow', CAST(time_below_range_low_percentage AS INTEGER),                        
-                        'timeBelowRangeVeryLow', CAST(time_below_range_very_low_percentage AS INTEGER),                        
-                        'timeInRange', CAST(time_in_range_percentage AS INTEGER),                        
-                        'timeAboveRangeVeryHigh', CAST(time_above_vh_percentage AS INTEGER),                        
-                        'timeAboveRangeHigh', CAST(time_above_range_high_percentage AS INTEGER)
-                    
-                ) 
-                  FROM
-                    drh_time_range_stacked_metrics
-                  WHERE
-                    participant_id = $participant_id  
+                        'timeBelowRangeLow', CAST(COALESCE(SUM(CASE WHEN CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 0) AS INTEGER),                        
+                        'timeBelowRangeVeryLow', CAST(COALESCE(SUM(CASE WHEN CGM_Value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 0) AS INTEGER),                        
+                        'timeInRange', CAST(COALESCE(SUM(CASE WHEN CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 0) AS INTEGER),                        
+                        'timeAboveRangeVeryHigh', CAST(COALESCE(SUM(CASE WHEN CGM_Value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 0) AS INTEGER),                        
+                        'timeAboveRangeHigh', CAST(COALESCE(SUM(CASE WHEN CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 0) AS INTEGER) 
+                    )
+                FROM 
+                    combined_cgm_tracing
+                WHERE 
+                    participant_id = $participant_id    
+                AND Date_Time BETWEEN $start_date AND $end_date
             )
-        ) AS contents; 
+        ) AS contents;   
   `;
   }
 
@@ -1066,28 +1078,63 @@ SELECT
     SELECT 'json' AS component, 
         JSON_OBJECT(
             'ambulatoryGlucoseProfile', (
-                SELECT JSON_GROUP_ARRAY(
-                    JSON_OBJECT(
-                        'participant_id', participant_id, 
-                        'hour', hour,                        
-                        'p5', p5,                        
-                        'p25', p25,                        
-                        'p50', p50,                        
-                        'p75', p75,                        
-                        'p95', p95                      
-                    )
-                ) 
+                        WITH glucose_data AS (
+              SELECT
+                  participant_id,
+                  strftime('%H', Date_Time) AS hourValue,
+                  CGM_Value AS glucose_level
+              FROM
+                  combined_cgm_tracing
+              WHERE
+                  participant_id = $participant_id
+              AND Date_Time BETWEEN $start_date AND $end_date
+          ),
+          percentiles AS (
+              SELECT
+                  participant_id,
+                  hourValue AS hour,
+                  MAX(CASE WHEN row_num = CAST(0.05 * total_count AS INT) THEN glucose_level END) AS p5,
+                  MAX(CASE WHEN row_num = CAST(0.25 * total_count AS INT) THEN glucose_level END) AS p25,
+                  MAX(CASE WHEN row_num = CAST(0.50 * total_count AS INT) THEN glucose_level END) AS p50,
+                  MAX(CASE WHEN row_num = CAST(0.75 * total_count AS INT) THEN glucose_level END) AS p75,
+                  MAX(CASE WHEN row_num = CAST(0.95 * total_count AS INT) THEN glucose_level END) AS p95
+              FROM (
+                  SELECT
+                      participant_id,
+                      hourValue,
+                      glucose_level,
+                      ROW_NUMBER() OVER (PARTITION BY participant_id, hourValue ORDER BY glucose_level) AS row_num,
+                      COUNT(*) OVER (PARTITION BY participant_id, hourValue) AS total_count
                   FROM
-                    drh_agp_metrics
-                  WHERE
-                    participant_id = $participant_id
+                      glucose_data
+              ) ranked_data
+              GROUP BY
+                  participant_id, hourValue
+          )
+          SELECT JSON_GROUP_ARRAY(
+                    JSON_OBJECT(
+                        'participant_id', participant_id,
+                        'hour', hour,
+                        'p5', COALESCE(p5, 0),
+                        'p25', COALESCE(p25, 0),
+                        'p50', COALESCE(p50, 0),
+                        'p75', COALESCE(p75, 0),
+                        'p95', COALESCE(p95, 0)
+                    )
+                ) AS result
+          FROM
+              percentiles
+          GROUP BY
+              participant_id
+   
+
             )
         ) AS contents;
   `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
-  "drh/ambulatory-gluecose-profile/index.sql"() {
+  "drh/ambulatory-glucose-profile/index.sql"() {
 
     return this.SQL`
     SELECT 'html' as component,
@@ -1122,6 +1169,7 @@ SELECT
                     combined_cgm_tracing
                   WHERE
                     participant_id = $participant_id
+                  AND Date_Time BETWEEN $start_date AND $end_date
             )
         ) AS contents;   
   `;
@@ -1222,19 +1270,25 @@ SELECT
         JSON_OBJECT(
             'glycemicRiskIndicator', (
                 SELECT JSON_OBJECT(
-                        'time_above_VH_percentage', time_above_VH_percentage, 
-                        'time_above_H_percentage', time_above_H_percentage, 
-                        'time_in_range_percentage', time_in_range_percentage,                        
-                        'time_below_low_percentage', time_below_low_percentage,                     
-                        'time_below_VL_percentage', time_below_VL_percentage,                     
-                        'Hypoglycemia_Component', Hypoglycemia_Component,                     
-                        'Hyperglycemia_Component', Hyperglycemia_Component,                     
-                        'GRI', GRI
+                        'time_above_VH_percentage', ROUND(COALESCE((SUM(CASE WHEN cgm_value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 0), 2),
+                        'time_above_H_percentage', ROUND(COALESCE((SUM(CASE WHEN cgm_value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 0), 2),
+                        'time_in_range_percentage', ROUND(COALESCE((SUM(CASE WHEN cgm_value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 0), 2),
+                        'time_below_low_percentage', ROUND(COALESCE((SUM(CASE WHEN cgm_value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 0), 2),
+                        'time_below_VL_percentage', ROUND(COALESCE((SUM(CASE WHEN cgm_value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 0), 2),
+                        'Hypoglycemia_Component', ROUND(COALESCE((SUM(CASE WHEN cgm_value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                                                              (0.8 * (SUM(CASE WHEN cgm_value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))), 0), 2),
+                        'Hyperglycemia_Component', ROUND(COALESCE((SUM(CASE WHEN cgm_value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                                                                  (0.5 * (SUM(CASE WHEN cgm_value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))), 0), 2),
+                        'GRI', ROUND(COALESCE((3.0 * ((SUM(CASE WHEN cgm_value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                                                    (0.8 * (SUM(CASE WHEN cgm_value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))) + 
+                                        (1.6 * ((SUM(CASE WHEN cgm_value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                                                (0.5 * (SUM(CASE WHEN cgm_value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))), 0), 2)
                 ) 
                   FROM
-                    drh_glycemic_risk_indicator
+                    combined_cgm_tracing
                   WHERE
                     participant_id = $participant_id 
+                  AND Date_Time BETWEEN $start_date AND $end_date
             )
         ) AS contents;   
   `;
@@ -1304,23 +1358,37 @@ SELECT
      SELECT  
     'html' as component;
     SELECT  
-      '<div class="card-content my-3 border-bottom">Liability Index <span style="float: right;">'|| liability_index ||' mg/dL</span></div>
-      <div class="card-content my-3 border-bottom">Hypoglycemic Episodes <span style="float: right;">'|| hypoglycemic_episodes ||'</span></div>
-      <div class="card-content my-3 border-bottom">Euglycemic Episodes <span style="float: right;">'|| euglycemic_episodes ||'</span></div>
-      <div class="card-content my-3 border-bottom">Hyperglycemic Episodes <span style="float: right;">'|| hyperglycemic_episodes ||'</span></div>
-      <div class="card-content my-3 border-bottom">M Value <span style="float: right;">'|| round(m_value,3) ||' mg/dL</span></div> 
-      <div class="card-content my-3 border-bottom">Mean Amplitude <span style="float: right;">'|| round(mean_amplitude,3) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>
+      '<div class="card-content my-3 border-bottom">Liability Index <span style="float: right;">'|| ROUND(CAST((SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) + SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END)) AS REAL) / COUNT(*), 2) ||' mg/dL</span></div>
+      <div class="card-content my-3 border-bottom">Hypoglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Euglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Hyperglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END) ||'</span></div>' as html 
+      FROM combined_cgm_tracing 
+                    WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date
+                    GROUP BY participant_id;
+     SELECT  
+      '<div class="card-content my-3 border-bottom">M Value <span style="float: right;">'|| round((MAX(CGM_Value) - MIN(CGM_Value)) / 
+    ((strftime('%s', MAX(DATETIME(Date_Time))) - strftime('%s', MIN(DATETIME(Date_Time)))) / 60.0),3) ||' mg/dL</span></div>' as html   
+      FROM combined_cgm_tracing 
+                    WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date
+                    GROUP BY participant_id;
+      SELECT  
+      '<div class="card-content my-3 border-bottom">Mean Amplitude <span style="float: right;">'|| round(AVG(amplitude),3) ||'</span></div>' as html  
+      FROM (SELECT ABS(MAX(CGM_Value) - MIN(CGM_Value)) AS amplitude   
+      FROM combined_cgm_tracing  WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date   
+      GROUP BY DATE(Date_Time) 
+      ); 
+      SELECT  
+      '<div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>
       <div class="card-content my-3 border-bottom">J Index <span style="float: right;">'|| j_index ||' mg/dL</span></div>
       <div class="card-content my-3 border-bottom">Low Blood Glucose Index <span style="float: right;">'|| lbgi ||'</span></div>
       <div class="card-content my-3 border-bottom">High Blood Glucose Index <span style="float: right;">'|| hbgi ||'</span></div> 
-      <div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(avg_risk_score,3) ||'</span></div>
+      <div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(grade,3) ||'</span></div>
       <div class="card-content my-3 border-bottom">Continuous Overall Net Glycemic Action (CONGA) <span style="float: right;">'|| round(conga_hourly,3) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(mean_daily_diff,3) ||'</span></div>' as html                            
+      <div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(mean_daily_diff,3) ||'</span></div>' as html                           
     FROM  
       drh_advanced_metrics   
     WHERE
-      participant_id = $participant_id      
+      participant_id = $participant_id ;     
   `;
   }
 
