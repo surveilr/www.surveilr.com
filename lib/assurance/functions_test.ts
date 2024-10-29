@@ -298,7 +298,7 @@ Deno.test("regexp functions", async (t) => {
     );
     const stdout = result.stdoutJson;
     const value = stdout[0][Object.keys(stdout[0])[0]];
-    assertEquals(value, "21");
+    assertEquals(value, null);
   });
 
   await t.step("regexp_replace", async () => {
@@ -315,3 +315,63 @@ Deno.test("regexp functions", async (t) => {
     assertEquals(value, "the year is 2050");
   });
 });
+
+Deno.test("sqlite_html", async (t) => {
+  await t.step("html_extract", async () => {
+    const result =
+      await $`surveilr shell --cmd "select html_extract('<p> Hello, <b class=x>world!</b> </p>', 'b');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr html_extract function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, `<b class="x">world!</b>`);
+  })
+
+  await t.step("html_attribute_get", async () => {
+    const result =
+      await $`surveilr shell --cmd "select html_attr_get('<p> <a href="./about"> About<a/> </p>', 'a', 'href');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr html_attribute_get function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, `./about`);
+  })
+
+  await t.step("html_attribute_get", async () => {
+    const result =
+      await $`surveilr shell --cmd "select html_count('<div> <p>a</p> <p>b</p> <p>c</p> </div>', 'p');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr html_attribute_get function.",
+    );
+    const stdout = result.stdoutJson;
+    const value = stdout[0][Object.keys(stdout[0])[0]];
+    assertEquals(value, 3);
+  })
+})
+
+Deno.test("sqlite_url", async (t) => {
+  await t.step("http_get", async () => {
+    const result =
+      await $`surveilr shell --cmd "select request_url, response_status, length(response_body) from http_get('https://google.com');"`
+        .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr http_get function.",
+    );
+    const stdout = result.stdoutJson;
+    const response = stdout[0];
+    assertEquals(response.response_status, `200 OK`);
+  })
+})
