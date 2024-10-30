@@ -33,6 +33,9 @@ resource-surveillance-aggregated.sqlite.db
 # when testing in this repo, we might have ingest samples / exemplars
 ingest/
 study-files/
+ctr-study-files/
+de-trended-analysis-files/
+
 10k*
 
 # sometimes we'll test local files in SQLPage but we don't want those tracked
