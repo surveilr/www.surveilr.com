@@ -94,30 +94,158 @@ and scoring link importance.
    surveilr ingest imap -f="Inbox" -u="account@test.com" -p="password" -a="imap.com"
    ```
    This command ingests email data from the specified inbox into the
-   `uniform_resource` table in the resource surveillance database.
+   `uniform_resource` table in the resource surveillance database. Specifically:
+
+   - Email content is added to the content field of the `uniform_resource`
+     table.
+   - An entry is also created for the ingest_imap_acct_folder_id field in the
+     `uniform_resource` table to establish the link between the ingested email
+     content and its folder.
+   - Additionally, information about the email’s folder is stored in the
+     `ur_ingest_session_imap_acct_folder` table, and individual email data is
+     added to the `ur_ingest_session_imap_acct_folder_message` table.
+
+     ###### Related Table Details:
+     - `ur_ingest_session_imap_acct_folder` table stores folder details of the
+       ingested emails, including:
+       - `ur_ingest_session_imap_acct_folder_id`: Primary key to uniquely
+         identify each folder entry.
+       - `ingest_session_id` and ingest_account_id: Link the folder to specific
+         ingest sessions and accounts.
+       - `folder_name`: Name of the email folder (e.g., "Inbox").
+       - `elaboration`: Optional JSON field to store extra details about the
+         folder.
+       - `created_at` and `updated_at`: Timestamps for tracking when the folder
+         entry was created and last updated.
+
+     - `ur_ingest_session_imap_acct_folder_message` table captures detailed
+       message data from each email within a folder:
+
+       - `ur_ingest_session_imap_acct_folder_message_id`: Primary key for unique
+         identification of each message.
+       - `ingest_session_id`: Links each message to its ingest session.
+       - `ingest_imap_acct_folder_id`: Foreign key linking each message to its
+         folder in `ur_ingest_session_imap_acct_folder`.
+       - `uniform_resource_id`: Links the message to a corresponding entry in
+         `uniform_resource`.
+       - `message_id`, `subject`, `from`, `cc`, `bcc`, and `status`: Fields to
+         store details such as message ID, subject, sender, CC, BCC, and status
+         of the email.
+       - `date`: Date of the email message.
+       - `email_references`: JSON array of email references related to the
+         message.
 
 2. **Transform and Save Email Content**:
    ```bash
    surveilr orchestrate transform-html --css-select 'email-anchors:a'
    ```
-   This command is used to transform the ingested email content based on
-   specific CSS selectors and save it in the `uniform_resource_transform` table.
 
-### Workflow Summary:
+This command transforms email content stored in the `uniform_resource` table,
+selecting specific elements based on CSS selectors (in this case,
+email-anchors:a). The transformation process extracts and refines portions of
+the original email data, which is then saved in the `uniform_resource_transform`
+table.
 
-1. The system identifies the business need and curates a list of web feeds or
-   URLs related to the industry.
-2. The feeds are ingested, filtered, and categorized.
-3. Using machine learning and automated filters, irrelevant topics are
-   discarded.
-4. The filtered content is transformed and posted to social media or websites.
-5. Analytics and reviews are performed to assess content impact, and the
-   strategy is refined for continuous improvement.
+The transformed data in `uniform_resource_transform` serves as a processed
+version of the original, enabling efficient retrieval and further analysis of
+specific content elements, such as URLs or images, while maintaining a link to
+the source email.
 
-This framework helps ensure efficient, automated content management with the
-ability to adapt and optimize over time.
+###### Table Details: uniform_resource_transform
 
-### TBD: To up WebUI
+The `uniform_resource_transform` table holds each transformed email’s processed
+content, linked back to its original data in `uniform_resource`. Key fields in
+this table include:
+
+- `uniform_resource_transform_id`: Unique identifier for each transformation
+  record, serving as the primary key.
+- `uniform_resource_id`: Foreign key linking the transformed content to the
+  original entry in `uniform_resource`, ensuring a traceable connection between
+  raw and transformed data.
+- `uri`: Stores the URI associated with the transformed content, enabling
+  reference to specific resources or sections within an email.
+- `content_digest`: A digest or hash of the transformed content to track unique
+  transformations and detect duplicates.
+- `content`: Holds the transformed content itself, stored as a BLOB. This
+  content is extracted and processed based on the CSS selectors specified during
+  transformation.
+- `nature`: An optional field to classify the content type (e.g., “text”,
+  “html”, “image”), enabling refined filtering or categorization of transformed
+  resources.
+- `size_bytes`: Indicates the size of the transformed content in bytes, aiding
+  in managing storage and retrieval performance.
+
+- `elaboration`: A JSON field to capture additional metadata or notes about the
+  transformation process, such as processing details or criteria applied. This
+  field accepts only valid JSON data or remains empty if unused.
+
+### Additional Tables Created for Processing Email Links
+
+After transforming the email content, a series of tables is generated to filter
+and categorize specific types of anchor links commonly found in email
+newsletters, such as subscription management or general content links.
+
+1. **Flattened Email Anchors Table** (ur_transform_html_flattened_email_anchor)
+   **Purpose**: This table is used to extract and flatten all anchor tags found
+   within the transformed email content, allowing easy access to each URL and
+   its accompanying text.
+
+   _**Fields**_:
+
+- `uniform_resource_transform_id` and `uniform_resource_id`: Link back to the
+  source of the transformed content.
+- `anchor`: Contains the URL from each anchor tag.
+- `anchor_text`: The text displayed for the link, which often indicates its
+  purpose (e.g., "Unsubscribe" or "View Online").
+
+  This flat structure simplifies the process of applying filters and
+  categorizing each link by providing a clean list of anchors extracted from the
+  HTML.
+
+2. **Filtered Subscription Management Anchors Table**
+   (ur_transform_html_email_anchor_subscription_filter)
+
+   **Purpose**: This table categorizes anchors based on keywords associated with
+   common newsletter actions, such as unsubscribing, managing preferences, or
+   updating subscription settings. By categorizing links in this way, specific
+   actions (e.g., "Unsubscribe") can be quickly identified and processed.
+
+   **Categories**:
+
+   - Unsubscribe: Captures links with keywords like "unsubscribe" or
+     "list-unsubscribe."
+   - Optout: Recognizes links labeled "optout" or "opt-out."
+   - Additional categories include Preferences, Remove, Manage, Email-settings,
+     Subscribe, and mailto, covering various newsletter management options.
+
+   **Fields**:
+
+   - `uniform_resource_transform_id` and `uniform_resource_id`: Link back to the
+     original email content.
+   - `anchor`: Stores the URL within each anchor tag.
+   - `anchor_type`: Categorizes each link based on its identified purpose.
+   - `anchor_text`: Provides the display text of the categorized link for
+     further context.
+
+3. **General Email Anchors Table** (ur_transform_html_email_anchor)
+
+   **Purpose**: The final table isolates all non-subscription-related links,
+   capturing only general content links for later analysis. This allows a
+   distinction between subscription management links and other types of links
+   found in email content.
+
+   **Fields**:
+
+   - `uniform_resource_transform_id` and `uniform_resource_id`: Reference the
+     source of the transformed content.
+   - `anchor`: Contains the URL for each non-subscription link.
+   - `anchor_text`: Provides the display text for each general link.
+
+   By excluding subscription management links, this table presents a filtered
+   view of links directly related to the content of the email, such as links to
+   articles or promotional content.
+
+### To up WebUI
 
 ```bash
 # load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)

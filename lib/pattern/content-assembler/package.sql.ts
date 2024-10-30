@@ -42,7 +42,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "IMAP Email System",
+    caption: "Content Assembler IMAP",
     description: "Email system with IMAP",
   })
   "cak/index.sql"() {
@@ -116,10 +116,10 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
 export async function SQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
-      async statefullcakSQL() {
+      async statefulcakSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./statefull.sql"),
+          import.meta.resolve("./stateful.sql"),
         );
       }
       async statelesscakSQL() {
