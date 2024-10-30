@@ -254,7 +254,7 @@ INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "d
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('AI LLM Prompt', 'Generative AI Large Language Model Prompt', NULL, 'text/plain', '.llm-prompt.txt', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.puml)', 'Text Asset (.puml)', NULL, 'text/plain', '.puml', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.rs)', 'Text Asset (.rs)', NULL, 'text/plain', '.rs', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMDRYR58H3MTGEVF100', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK5EQAGK72HBWP7CQ1J', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user'', ''runner'') ON CONFLICT DO UPDATE SET value = excluded.value;
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user_name'', ''UNKNOWN'') ON CONFLICT DO UPDATE SET value = excluded.value;
 
@@ -501,16 +501,24 @@ CREATE VIEW IF NOT EXISTS "code_notebook_migration_sql" AS
                 ON c.code_notebook_cell_id = s.code_notebook_cell_id AND s.to_state = ''EXECUTED''
             ORDER BY
                 c.cell_name;', '937f852925c6c939d20b36517fdc121c45c50415', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMEF3XHS78Q0KK51NFS', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6Y5D8WKAPP2J35VDW', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 
 CREATE TABLE IF NOT EXISTS "party_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "party_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "party" (
     "party_id" VARCHAR PRIMARY KEY NOT NULL,
-    "party_type_id" TEXT NOT NULL,
+    "party_type_id" ULID NOT NULL,
     "party_name" TEXT NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -520,18 +528,26 @@ CREATE TABLE IF NOT EXISTS "party" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("party_type_id") REFERENCES "party_type"("code")
+    FOREIGN KEY("party_type_id") REFERENCES "party_type"("party_type_id")
 );
 CREATE TABLE IF NOT EXISTS "party_relation_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "party_relation_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "party_relation" (
     "party_relation_id" VARCHAR PRIMARY KEY NOT NULL,
     "party_id" VARCHAR NOT NULL,
     "related_party_id" VARCHAR NOT NULL,
-    "relation_type_id" TEXT NOT NULL,
+    "relation_type_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -542,22 +558,60 @@ CREATE TABLE IF NOT EXISTS "party_relation" (
     "activity_log" TEXT,
     FOREIGN KEY("party_id") REFERENCES "party"("party_id"),
     FOREIGN KEY("related_party_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("relation_type_id") REFERENCES "party_relation_type"("code"),
+    FOREIGN KEY("relation_type_id") REFERENCES "party_relation_type"("party_relation_type_id"),
     UNIQUE("party_id", "related_party_id", "relation_type_id")
 );
 CREATE TABLE IF NOT EXISTS "gender_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "gender_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+CREATE TABLE IF NOT EXISTS "sex_type" (
+    "sex_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+CREATE TABLE IF NOT EXISTS "person_type" (
+    "person_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "person" (
-    "person_id" VARCHAR NOT NULL,
+    "person_id" ULID PRIMARY KEY NOT NULL,
+    "party_id" VARCHAR NOT NULL,
+    "person_type_id" ULID NOT NULL,
     "person_first_name" TEXT NOT NULL,
     "person_middle_name" TEXT,
     "person_last_name" TEXT NOT NULL,
+    "previous_name" TEXT,
     "honorific_prefix" TEXT,
     "honorific_suffix" TEXT,
-    "gender_id" TEXT NOT NULL,
+    "gender_id" ULID NOT NULL,
+    "sex_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -566,18 +620,20 @@ CREATE TABLE IF NOT EXISTS "person" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("person_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("gender_id") REFERENCES "gender_type"("code"),
-    UNIQUE("person_id")
+    FOREIGN KEY("party_id") REFERENCES "party"("party_id"),
+    FOREIGN KEY("person_type_id") REFERENCES "person_type"("person_type_id"),
+    FOREIGN KEY("gender_id") REFERENCES "gender_type"("gender_type_id"),
+    FOREIGN KEY("sex_id") REFERENCES "sex_type"("sex_type_id")
 );
 CREATE TABLE IF NOT EXISTS "organization" (
-    "organization_id" VARCHAR NOT NULL,
+    "organization_id" ULID PRIMARY KEY NOT NULL,
+    "party_id" VARCHAR NOT NULL,
     "name" TEXT NOT NULL,
     "alias" TEXT,
     "description" TEXT,
-    "license" TEXT,
+    "license" TEXT NOT NULL,
     "federal_tax_id_num" TEXT,
-    "registration_date" TIMESTAMPTZ,
+    "registration_date" DATE NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -586,19 +642,26 @@ CREATE TABLE IF NOT EXISTS "organization" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("organization_id") REFERENCES "party"("party_id"),
-    UNIQUE("organization_id", "name")
+    FOREIGN KEY("party_id") REFERENCES "party"("party_id")
 );
 CREATE TABLE IF NOT EXISTS "organization_role_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "organization_role_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "organization_role" (
     "organization_role_id" VARCHAR PRIMARY KEY NOT NULL,
     "person_id" VARCHAR NOT NULL,
     "organization_id" VARCHAR NOT NULL,
-    "organization_role_type_id" TEXT NOT NULL,
+    "organization_role_type_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -609,7 +672,7 @@ CREATE TABLE IF NOT EXISTS "organization_role" (
     "activity_log" TEXT,
     FOREIGN KEY("person_id") REFERENCES "party"("party_id"),
     FOREIGN KEY("organization_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("organization_role_type_id") REFERENCES "organization_role_type"("code"),
+    FOREIGN KEY("organization_role_type_id") REFERENCES "organization_role_type"("organization_role_type_id"),
     UNIQUE("person_id", "organization_id", "organization_role_type_id")
 );
 CREATE TABLE IF NOT EXISTS "device" (
@@ -738,7 +801,7 @@ CREATE TABLE IF NOT EXISTS "uniform_resource" (
     "device_id" VARCHAR NOT NULL,
     "ingest_session_id" VARCHAR NOT NULL,
     "ingest_fs_path_id" VARCHAR,
-    "ingest_imap_acct_folder_id" VARCHAR,
+    "ingest_session_imap_acct_folder_message" VARCHAR,
     "ingest_issue_acct_project_id" VARCHAR,
     "uri" TEXT NOT NULL,
     "content_digest" TEXT NOT NULL,
@@ -759,7 +822,7 @@ CREATE TABLE IF NOT EXISTS "uniform_resource" (
     FOREIGN KEY("device_id") REFERENCES "device"("device_id"),
     FOREIGN KEY("ingest_session_id") REFERENCES "ur_ingest_session"("ur_ingest_session_id"),
     FOREIGN KEY("ingest_fs_path_id") REFERENCES "ur_ingest_session_fs_path"("ur_ingest_session_fs_path_id"),
-    FOREIGN KEY("ingest_imap_acct_folder_id") REFERENCES "ur_ingest_session_imap_acct_folder"("ur_ingest_session_imap_acct_folder_id"),
+    FOREIGN KEY("ingest_session_imap_acct_folder_message") REFERENCES "ur_ingest_session_imap_acct_folder_message"("ur_ingest_session_imap_acct_folder_message_id"),
     FOREIGN KEY("ingest_issue_acct_project_id") REFERENCES "ur_ingest_session_plm_acct_project"("ur_ingest_session_plm_acct_project_id"),
     UNIQUE("device_id", "content_digest", "uri", "size_bytes")
 );
@@ -865,7 +928,6 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_imap_acct_folder_message" (
     "ur_ingest_session_imap_acct_folder_message_id" VARCHAR PRIMARY KEY NOT NULL,
     "ingest_session_id" VARCHAR NOT NULL,
     "ingest_imap_acct_folder_id" VARCHAR NOT NULL,
-    "uniform_resource_id" VARCHAR,
     "message" TEXT NOT NULL,
     "message_id" TEXT NOT NULL,
     "subject" TEXT NOT NULL,
@@ -884,7 +946,6 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_imap_acct_folder_message" (
     "activity_log" TEXT,
     FOREIGN KEY("ingest_session_id") REFERENCES "ur_ingest_session"("ur_ingest_session_id"),
     FOREIGN KEY("ingest_imap_acct_folder_id") REFERENCES "ur_ingest_session_imap_acct_folder"("ur_ingest_session_imap_acct_folder_id"),
-    FOREIGN KEY("uniform_resource_id") REFERENCES "uniform_resource"("uniform_resource_id"),
     UNIQUE("message", "message_id")
 );
 CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_account" (
@@ -1037,7 +1098,7 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_user" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    UNIQUE("user_id", "login", "email", "name")
+    UNIQUE("user_id", "login")
 );
 CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_comment" (
     "ur_ingest_session_plm_comment_id" VARCHAR PRIMARY KEY NOT NULL,
@@ -1254,8 +1315,6 @@ CREATE TABLE IF NOT EXISTS "orchestration_session_log" (
 
 CREATE INDEX IF NOT EXISTS "idx_party__party_type_id__party_name" ON "party"("party_type_id", "party_name");
 CREATE INDEX IF NOT EXISTS "idx_party_relation__party_id__related_party_id__relation_type_id" ON "party_relation"("party_id", "related_party_id", "relation_type_id");
-CREATE INDEX IF NOT EXISTS "idx_person__person_id__person_first_name__person_middle_name__person_last_name" ON "person"("person_id", "person_first_name", "person_middle_name", "person_last_name");
-CREATE INDEX IF NOT EXISTS "idx_organization__organization_id__name" ON "organization"("organization_id", "name");
 CREATE INDEX IF NOT EXISTS "idx_organization_role__person_id__organization_id__organization_role_type_id" ON "organization_role"("person_id", "organization_id", "organization_role_type_id");
 CREATE INDEX IF NOT EXISTS "idx_device__name__state" ON "device"("name", "state");
 CREATE INDEX IF NOT EXISTS "idx_device_party_relationship__device_id__party_id" ON "device_party_relationship"("device_id", "party_id");
@@ -1273,15 +1332,15 @@ CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_project_issue__title_
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_label__ur_ingest_session_plm_acct_project_issue_id" ON "ur_ingest_session_plm_acct_label"("ur_ingest_session_plm_acct_project_issue_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_milestone__ur_ingest_session_plm_acct_project_id" ON "ur_ingest_session_plm_milestone"("ur_ingest_session_plm_acct_project_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_relationship__ur_ingest_session_plm_acct_project_id_prime" ON "ur_ingest_session_plm_acct_relationship"("ur_ingest_session_plm_acct_project_id_prime");
-CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_user__user_id" ON "ur_ingest_session_plm_user"("user_id");
+CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_user__user_id__login" ON "ur_ingest_session_plm_user"("user_id", "login");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_comment__ur_ingest_session_plm_acct_project_issue_id" ON "ur_ingest_session_plm_comment"("ur_ingest_session_plm_acct_project_issue_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_reaction__ur_ingest_session_plm_reaction_id" ON "ur_ingest_session_plm_reaction"("ur_ingest_session_plm_reaction_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_issue_reaction__ur_ingest_session_plm_issue_reaction_id" ON "ur_ingest_session_plm_issue_reaction"("ur_ingest_session_plm_issue_reaction_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_issue_type__id" ON "ur_ingest_session_plm_issue_type"("id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_attachment__uniform_resource_id__content" ON "ur_ingest_session_attachment"("uniform_resource_id", "content");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_udi_pgp_sql__ingest_session_id" ON "ur_ingest_session_udi_pgp_sql"("ingest_session_id");
-CREATE INDEX IF NOT EXISTS "idx_orchestration_nature__orchestration_nature_id__nature" ON "orchestration_nature"("orchestration_nature_id", "nature");', 'd5a380d80eb2fd3e468cd30130ef9367618788af', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMEJB9ERMS77D3N5A66', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
+CREATE INDEX IF NOT EXISTS "idx_orchestration_nature__orchestration_nature_id__nature" ON "orchestration_nature"("orchestration_nature_id", "nature");', 'd30f4914e1f34972e691f2c30f52e09b31f34f17', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6G4RG52CE4T0XM4NC', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''typical ingestion extensions'', ''default'', ''\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7|pdf|docx|doc|pptx|ppt|xlsx|xls)$'', ''CONTENT_ACQUIRABLE'', ''?P<nature>'', NULL, ''Ingest the content for md, mdx, html, json, jsonc, puml, txt, toml, and yml extensions. Assume the nature is the same as the extension.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-[NATURE] style capturable executable'', ''default'', ''surveilr\[(?P<nature>[^\]]*)\]'', ''CAPTURABLE_EXECUTABLE'', ''?P<nature>'', NULL, ''Any entry with `surveilr-[XYZ]` in the path will be treated as a capturable executable extracting `XYZ` as the nature'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-SQL capturable executable'', ''default'', ''surveilr-SQL'', ''CAPTURABLE_EXECUTABLE | CAPTURABLE_SQL'', NULL, NULL, ''Any entry with surveilr-SQL in the path will be treated as a capturable SQL executable and allow execution of the SQL'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
@@ -1290,13 +1349,13 @@ INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rew
 INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rewrite_rule_id", "namespace", "regex", "replace", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''.text -> .txt'', ''default'', ''(\.text)$'', ''.txt'', NULL, ''Treat .text as .txt files'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rewrite_rule_id", "namespace", "regex", "replace", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''.yaml -> .yml'', ''default'', ''(\.yaml)$'', ''.yml'', NULL, ''Treat .yaml as .yml files'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 
-INSERT INTO "party_type" ("code", "value", "created_at") VALUES (''ORGANIZATION'', ''Organization'', NULL) ON CONFLICT DO NOTHING;
-INSERT INTO "party_type" ("code", "value", "created_at") VALUES (''PERSON'', ''Person'', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO "party_type" ("party_type_id", "code", "value", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (NULL, ''ORGANIZATION'', ''Organization'', NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
+INSERT INTO "party_type" ("party_type_id", "code", "value", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (NULL, ''PERSON'', ''Person'', NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 
 INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-csv'', ''Transform CSV'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-xml'', ''Transform XML'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
-INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-html'', ''Transform HTML'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;', '1c6c81da95e5f34982d6ac95080d7c54cc09c869', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMEZZK28K37868K5FKQ', 'SQL', 'ConstructionSqlNotebook', 'v002_fsContentIngestSessionFilesStatsViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_files_stats";
+INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-html'', ''Transform HTML'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;', '412b224ef00978cd17afd269c5593f983d43b23b', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK678DAJDMM69VD7T31', 'SQL', 'ConstructionSqlNotebook', 'v002_fsContentIngestSessionFilesStatsViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_files_stats";
 CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats" AS
     WITH Summary AS (
         SELECT
@@ -1355,7 +1414,7 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats" AS
         device_id,
         ingest_session_finished_at,
         file_extension;', '9870d0c179334958ddda85827e4966b406c86e0c', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CME6Y4ZBQS461ZGWJ37', 'SQL', 'ConstructionSqlNotebook', 'v002_fsContentIngestSessionFilesStatsLatestViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_files_stats_latest";
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6DJKFRZ75MZRH9CVA', 'SQL', 'ConstructionSqlNotebook', 'v002_fsContentIngestSessionFilesStatsLatestViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_files_stats_latest";
 CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats_latest" AS
     SELECT iss.*
       FROM ur_ingest_session_files_stats AS iss
@@ -1364,7 +1423,7 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats_latest" AS
             ORDER BY ur_ingest_session.ingest_finished_at DESC
                LIMIT 1) AS latest
         ON iss.ingest_session_id = latest.latest_session_id;', 'f7a286b3b64881e069f05950d992a3b04af5c8f3', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMEQCBSP6D7AXBCTY6S', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionTasksStatsViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats";
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6KWCCQ9BX54BCZDCQ', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionTasksStatsViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats";
 CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats" AS
       WITH Summary AS (
           SELECT
@@ -1418,7 +1477,7 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats" AS
         device_id,
         ingest_session_finished_at,
         ur_status;', '1f7a7f2e454cf81922df584750d84a4d39a2381e', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMECB98NX8Z4ADRMJJM', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionTasksStatsLatestViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats_latest";
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6MFRPE9M1FCE2MTTG', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionTasksStatsLatestViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats_latest";
 CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats_latest" AS
     SELECT iss.*
       FROM ur_ingest_session_tasks_stats AS iss
@@ -1427,7 +1486,7 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats_latest" AS
             ORDER BY ur_ingest_session.ingest_finished_at DESC
                LIMIT 1) AS latest
         ON iss.ingest_session_id = latest.latest_session_id;', '633501882d79e8bf255919bff540f9d0143489e3', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMEVFDH1KNACDS3123W', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionFileIssueViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_file_issue";
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK64MSFT9A9E5KQJFE6', 'SQL', 'ConstructionSqlNotebook', 'v002_urIngestSessionFileIssueViewDDL', NULL, 'DROP VIEW IF EXISTS "ur_ingest_session_file_issue";
 CREATE VIEW IF NOT EXISTS "ur_ingest_session_file_issue" AS
       SELECT us.device_id,
              us.ur_ingest_session_id,
@@ -1449,7 +1508,7 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_file_issue" AS
              ufs.file_path_abs,
              ufs.ur_status,
              ufs.ur_diagnostics;', '99136e34dcf27424fa7b873b319ac5400786691e', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CME8EJA9Z3KCYB6QKB4', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK6BTHWZ4ZSB78ZP76R', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
 The database comprises three main tables: ''code_notebook_kernel'', ''code_notebook_cell'', and ''code_notebook_state''.
 
 1. ''code_notebook_kernel'': A Notebook is a group of Cells. A kernel is a computational engine that executes the code contained in a notebook cell.
@@ -1729,7 +1788,7 @@ CREATE VIEW IF NOT EXISTS "code_notebook_migration_sql" AS
                 ON c.code_notebook_cell_id = s.code_notebook_cell_id AND s.to_state = ''EXECUTED''
             ORDER BY
                 c.cell_name;', 'c8ca408c48613bee7f576c69167610fdf54f6a13', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMFJBMY5NBDXWYMBN0T', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK8A2G68CQ485Q08X6D', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
 The database is designed to store devices in the ''device'' table and entities called ''resources'' stored in the immutable append-only
 ''uniform_resource'' table. Each time files are "walked" they are stored in ingestion session and link back to ''uniform_resource''. Because all
 tables are generally append only and immutable it means that the ingest_session_fs_path_entry table can be used for revision control
@@ -1740,13 +1799,21 @@ Use the following SQLite Schema to generate SQL queries that interact with these
 -- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 
 CREATE TABLE IF NOT EXISTS "party_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "party_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "party" (
     "party_id" VARCHAR PRIMARY KEY NOT NULL,
-    "party_type_id" TEXT NOT NULL,
+    "party_type_id" ULID NOT NULL,
     "party_name" TEXT NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -1756,18 +1823,26 @@ CREATE TABLE IF NOT EXISTS "party" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("party_type_id") REFERENCES "party_type"("code")
+    FOREIGN KEY("party_type_id") REFERENCES "party_type"("party_type_id")
 );
 CREATE TABLE IF NOT EXISTS "party_relation_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "party_relation_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "party_relation" (
     "party_relation_id" VARCHAR PRIMARY KEY NOT NULL,
     "party_id" VARCHAR NOT NULL,
     "related_party_id" VARCHAR NOT NULL,
-    "relation_type_id" TEXT NOT NULL,
+    "relation_type_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -1778,22 +1853,60 @@ CREATE TABLE IF NOT EXISTS "party_relation" (
     "activity_log" TEXT,
     FOREIGN KEY("party_id") REFERENCES "party"("party_id"),
     FOREIGN KEY("related_party_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("relation_type_id") REFERENCES "party_relation_type"("code"),
+    FOREIGN KEY("relation_type_id") REFERENCES "party_relation_type"("party_relation_type_id"),
     UNIQUE("party_id", "related_party_id", "relation_type_id")
 );
 CREATE TABLE IF NOT EXISTS "gender_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "gender_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+CREATE TABLE IF NOT EXISTS "sex_type" (
+    "sex_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+CREATE TABLE IF NOT EXISTS "person_type" (
+    "person_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "person" (
-    "person_id" VARCHAR NOT NULL,
+    "person_id" ULID PRIMARY KEY NOT NULL,
+    "party_id" VARCHAR NOT NULL,
+    "person_type_id" ULID NOT NULL,
     "person_first_name" TEXT NOT NULL,
     "person_middle_name" TEXT,
     "person_last_name" TEXT NOT NULL,
+    "previous_name" TEXT,
     "honorific_prefix" TEXT,
     "honorific_suffix" TEXT,
-    "gender_id" TEXT NOT NULL,
+    "gender_id" ULID NOT NULL,
+    "sex_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -1802,18 +1915,20 @@ CREATE TABLE IF NOT EXISTS "person" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("person_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("gender_id") REFERENCES "gender_type"("code"),
-    UNIQUE("person_id")
+    FOREIGN KEY("party_id") REFERENCES "party"("party_id"),
+    FOREIGN KEY("person_type_id") REFERENCES "person_type"("person_type_id"),
+    FOREIGN KEY("gender_id") REFERENCES "gender_type"("gender_type_id"),
+    FOREIGN KEY("sex_id") REFERENCES "sex_type"("sex_type_id")
 );
 CREATE TABLE IF NOT EXISTS "organization" (
-    "organization_id" VARCHAR NOT NULL,
+    "organization_id" ULID PRIMARY KEY NOT NULL,
+    "party_id" VARCHAR NOT NULL,
     "name" TEXT NOT NULL,
     "alias" TEXT,
     "description" TEXT,
-    "license" TEXT,
+    "license" TEXT NOT NULL,
     "federal_tax_id_num" TEXT,
-    "registration_date" TIMESTAMPTZ,
+    "registration_date" DATE NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -1822,19 +1937,26 @@ CREATE TABLE IF NOT EXISTS "organization" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("organization_id") REFERENCES "party"("party_id"),
-    UNIQUE("organization_id", "name")
+    FOREIGN KEY("party_id") REFERENCES "party"("party_id")
 );
 CREATE TABLE IF NOT EXISTS "organization_role_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "organization_role_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT ''UNKNOWN'',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 );
 CREATE TABLE IF NOT EXISTS "organization_role" (
     "organization_role_id" VARCHAR PRIMARY KEY NOT NULL,
     "person_id" VARCHAR NOT NULL,
     "organization_id" VARCHAR NOT NULL,
-    "organization_role_type_id" TEXT NOT NULL,
+    "organization_role_type_id" ULID NOT NULL,
     "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT DEFAULT ''UNKNOWN'',
@@ -1845,7 +1967,7 @@ CREATE TABLE IF NOT EXISTS "organization_role" (
     "activity_log" TEXT,
     FOREIGN KEY("person_id") REFERENCES "party"("party_id"),
     FOREIGN KEY("organization_id") REFERENCES "party"("party_id"),
-    FOREIGN KEY("organization_role_type_id") REFERENCES "organization_role_type"("code"),
+    FOREIGN KEY("organization_role_type_id") REFERENCES "organization_role_type"("organization_role_type_id"),
     UNIQUE("person_id", "organization_id", "organization_role_type_id")
 );
 CREATE TABLE IF NOT EXISTS "device" (
@@ -1974,7 +2096,7 @@ CREATE TABLE IF NOT EXISTS "uniform_resource" (
     "device_id" VARCHAR NOT NULL,
     "ingest_session_id" VARCHAR NOT NULL,
     "ingest_fs_path_id" VARCHAR,
-    "ingest_imap_acct_folder_id" VARCHAR,
+    "ingest_session_imap_acct_folder_message" VARCHAR,
     "ingest_issue_acct_project_id" VARCHAR,
     "uri" TEXT NOT NULL,
     "content_digest" TEXT NOT NULL,
@@ -1995,7 +2117,7 @@ CREATE TABLE IF NOT EXISTS "uniform_resource" (
     FOREIGN KEY("device_id") REFERENCES "device"("device_id"),
     FOREIGN KEY("ingest_session_id") REFERENCES "ur_ingest_session"("ur_ingest_session_id"),
     FOREIGN KEY("ingest_fs_path_id") REFERENCES "ur_ingest_session_fs_path"("ur_ingest_session_fs_path_id"),
-    FOREIGN KEY("ingest_imap_acct_folder_id") REFERENCES "ur_ingest_session_imap_acct_folder"("ur_ingest_session_imap_acct_folder_id"),
+    FOREIGN KEY("ingest_session_imap_acct_folder_message") REFERENCES "ur_ingest_session_imap_acct_folder_message"("ur_ingest_session_imap_acct_folder_message_id"),
     FOREIGN KEY("ingest_issue_acct_project_id") REFERENCES "ur_ingest_session_plm_acct_project"("ur_ingest_session_plm_acct_project_id"),
     UNIQUE("device_id", "content_digest", "uri", "size_bytes")
 );
@@ -2101,7 +2223,6 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_imap_acct_folder_message" (
     "ur_ingest_session_imap_acct_folder_message_id" VARCHAR PRIMARY KEY NOT NULL,
     "ingest_session_id" VARCHAR NOT NULL,
     "ingest_imap_acct_folder_id" VARCHAR NOT NULL,
-    "uniform_resource_id" VARCHAR,
     "message" TEXT NOT NULL,
     "message_id" TEXT NOT NULL,
     "subject" TEXT NOT NULL,
@@ -2120,7 +2241,6 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_imap_acct_folder_message" (
     "activity_log" TEXT,
     FOREIGN KEY("ingest_session_id") REFERENCES "ur_ingest_session"("ur_ingest_session_id"),
     FOREIGN KEY("ingest_imap_acct_folder_id") REFERENCES "ur_ingest_session_imap_acct_folder"("ur_ingest_session_imap_acct_folder_id"),
-    FOREIGN KEY("uniform_resource_id") REFERENCES "uniform_resource"("uniform_resource_id"),
     UNIQUE("message", "message_id")
 );
 CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_account" (
@@ -2273,7 +2393,7 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_user" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    UNIQUE("user_id", "login", "email", "name")
+    UNIQUE("user_id", "login")
 );
 CREATE TABLE IF NOT EXISTS "ur_ingest_session_plm_comment" (
     "ur_ingest_session_plm_comment_id" VARCHAR PRIMARY KEY NOT NULL,
@@ -2490,8 +2610,6 @@ CREATE TABLE IF NOT EXISTS "orchestration_session_log" (
 
 CREATE INDEX IF NOT EXISTS "idx_party__party_type_id__party_name" ON "party"("party_type_id", "party_name");
 CREATE INDEX IF NOT EXISTS "idx_party_relation__party_id__related_party_id__relation_type_id" ON "party_relation"("party_id", "related_party_id", "relation_type_id");
-CREATE INDEX IF NOT EXISTS "idx_person__person_id__person_first_name__person_middle_name__person_last_name" ON "person"("person_id", "person_first_name", "person_middle_name", "person_last_name");
-CREATE INDEX IF NOT EXISTS "idx_organization__organization_id__name" ON "organization"("organization_id", "name");
 CREATE INDEX IF NOT EXISTS "idx_organization_role__person_id__organization_id__organization_role_type_id" ON "organization_role"("person_id", "organization_id", "organization_role_type_id");
 CREATE INDEX IF NOT EXISTS "idx_device__name__state" ON "device"("name", "state");
 CREATE INDEX IF NOT EXISTS "idx_device_party_relationship__device_id__party_id" ON "device_party_relationship"("device_id", "party_id");
@@ -2509,7 +2627,7 @@ CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_project_issue__title_
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_label__ur_ingest_session_plm_acct_project_issue_id" ON "ur_ingest_session_plm_acct_label"("ur_ingest_session_plm_acct_project_issue_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_milestone__ur_ingest_session_plm_acct_project_id" ON "ur_ingest_session_plm_milestone"("ur_ingest_session_plm_acct_project_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_acct_relationship__ur_ingest_session_plm_acct_project_id_prime" ON "ur_ingest_session_plm_acct_relationship"("ur_ingest_session_plm_acct_project_id_prime");
-CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_user__user_id" ON "ur_ingest_session_plm_user"("user_id");
+CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_user__user_id__login" ON "ur_ingest_session_plm_user"("user_id", "login");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_comment__ur_ingest_session_plm_acct_project_issue_id" ON "ur_ingest_session_plm_comment"("ur_ingest_session_plm_acct_project_issue_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_reaction__ur_ingest_session_plm_reaction_id" ON "ur_ingest_session_plm_reaction"("ur_ingest_session_plm_reaction_id");
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_plm_issue_reaction__ur_ingest_session_plm_issue_reaction_id" ON "ur_ingest_session_plm_issue_reaction"("ur_ingest_session_plm_issue_reaction_id");
@@ -2525,8 +2643,8 @@ INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rew
 INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rewrite_rule_id", "namespace", "regex", "replace", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''.text -> .txt'', ''default'', ''(\.text)$'', ''.txt'', NULL, ''Treat .text as .txt files'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 INSERT INTO "ur_ingest_resource_path_rewrite_rule" ("ur_ingest_resource_path_rewrite_rule_id", "namespace", "regex", "replace", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''.yaml -> .yml'', ''default'', ''(\.yaml)$'', ''.yml'', NULL, ''Treat .yaml as .yml files'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 
-INSERT INTO "party_type" ("code", "value", "created_at") VALUES (''ORGANIZATION'', ''Organization'', NULL) ON CONFLICT DO NOTHING;
-INSERT INTO "party_type" ("code", "value", "created_at") VALUES (''PERSON'', ''Person'', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO "party_type" ("party_type_id", "code", "value", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (NULL, ''ORGANIZATION'', ''Organization'', NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
+INSERT INTO "party_type" ("party_type_id", "code", "value", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (NULL, ''PERSON'', ''Person'', NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 
 INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-csv'', ''Transform CSV'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-transform-xml'', ''Transform XML'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO NOTHING;
@@ -2679,8 +2797,8 @@ CREATE VIEW IF NOT EXISTS "ur_ingest_session_file_issue" AS
              ufs.file_path_abs,
              ufs.ur_status,
              ufs.ur_diagnostics;
-      ', 'f166f333b6d2926ba05ae3bf615b35227242188a', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMGNP9DY7902ACCGA4M', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
+      ', '9f8f6264c9c63621b8c35c141852702f146470f7', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AK80TMWSE3H696AKD7Z', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -2742,7 +2860,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   code_notebook_kernel |o..o{ code_notebook_cell
   code_notebook_cell |o..o{ code_notebook_state
 @enduml', '84e0fc3aa026060b7e071785c89d02eaf87e6cbf', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMNC1N6574225RV1GGC', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AKE77AAGHHZZJ2PN2AF', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -2755,22 +2873,24 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   }
 
   entity "party_type" as party_type {
-    * **code**: TEXT
+    * **party_type_id**: ULID
     --
+    * code: TEXT
     * value: TEXT
   }
 
   entity "party" as party {
     * **party_id**: VARCHAR
     --
-    * party_type_id: TEXT
+    * party_type_id: ULID
     * party_name: TEXT
       elaboration: TEXT
   }
 
   entity "party_relation_type" as party_relation_type {
-    * **code**: TEXT
+    * **party_relation_type_id**: ULID
     --
+    * code: TEXT
     * value: TEXT
   }
 
@@ -2779,41 +2899,64 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
     --
     * party_id: VARCHAR
     * related_party_id: VARCHAR
-    * relation_type_id: TEXT
+    * relation_type_id: ULID
       elaboration: TEXT
   }
 
   entity "gender_type" as gender_type {
-    * **code**: TEXT
+    * **gender_type_id**: ULID
     --
+    * code: TEXT
+    * value: TEXT
+  }
+
+  entity "sex_type" as sex_type {
+    * **sex_type_id**: ULID
+    --
+    * code: TEXT
+    * value: TEXT
+  }
+
+  entity "person_type" as person_type {
+    * **person_type_id**: ULID
+    --
+    * code: TEXT
     * value: TEXT
   }
 
   entity "person" as person {
-    * person_id: VARCHAR
+    * **person_id**: ULID
+    --
+    * party_id: VARCHAR
+    * person_type_id: ULID
     * person_first_name: TEXT
       person_middle_name: TEXT
     * person_last_name: TEXT
+      previous_name: TEXT
       honorific_prefix: TEXT
       honorific_suffix: TEXT
-    * gender_id: TEXT
+    * gender_id: ULID
+    * sex_id: ULID
       elaboration: TEXT
   }
 
   entity "organization" as organization {
-    * organization_id: VARCHAR
+    * **organization_id**: ULID
+    --
+    * party_id: VARCHAR
     * name: TEXT
       alias: TEXT
       description: TEXT
-      license: TEXT
+    * license: TEXT
       federal_tax_id_num: TEXT
-      registration_date: TIMESTAMPTZ
+    * registration_date: DATE
       elaboration: TEXT
   }
 
   entity "organization_role_type" as organization_role_type {
-    * **code**: TEXT
+    * **organization_role_type_id**: ULID
     --
+    * code: TEXT
     * value: TEXT
   }
 
@@ -2822,7 +2965,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
     --
     * person_id: VARCHAR
     * organization_id: VARCHAR
-    * organization_role_type_id: TEXT
+    * organization_role_type_id: ULID
       elaboration: TEXT
   }
 
@@ -2924,7 +3067,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
     * device_id: VARCHAR
     * ingest_session_id: VARCHAR
       ingest_fs_path_id: VARCHAR
-      ingest_imap_acct_folder_id: VARCHAR
+      ingest_session_imap_acct_folder_message: VARCHAR
       ingest_issue_acct_project_id: VARCHAR
     * uri: TEXT
     * content_digest: TEXT
@@ -3010,7 +3153,6 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
     --
     * ingest_session_id: VARCHAR
     * ingest_imap_acct_folder_id: VARCHAR
-      uniform_resource_id: VARCHAR
     * message: TEXT
     * message_id: TEXT
     * subject: TEXT
@@ -3323,7 +3465,9 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   party |o..o{ party_relation
   party_relation_type |o..o{ party_relation
   party |o..o{ person
+  person_type |o..o{ person
   gender_type |o..o{ person
+  sex_type |o..o{ person
   party |o..o{ organization
   party |o..o{ organization_role
   party |o..o{ organization_role
@@ -3337,7 +3481,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   device |o..o{ uniform_resource
   ur_ingest_session |o..o{ uniform_resource
   ur_ingest_session_fs_path |o..o{ uniform_resource
-  ur_ingest_session_imap_acct_folder |o..o{ uniform_resource
+  ur_ingest_session_imap_acct_folder_message |o..o{ uniform_resource
   ur_ingest_session_plm_acct_project |o..o{ uniform_resource
   uniform_resource |o..o{ uniform_resource_transform
   ur_ingest_session |o..o{ ur_ingest_session_fs_path_entry
@@ -3350,7 +3494,6 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   ur_ingest_session_imap_account |o..o{ ur_ingest_session_imap_acct_folder
   ur_ingest_session |o..o{ ur_ingest_session_imap_acct_folder_message
   ur_ingest_session_imap_acct_folder |o..o{ ur_ingest_session_imap_acct_folder_message
-  uniform_resource |o..o{ ur_ingest_session_imap_acct_folder_message
   ur_ingest_session |o..o{ ur_ingest_session_plm_account
   ur_ingest_session |o..o{ ur_ingest_session_plm_acct_project
   ur_ingest_session_plm_account |o..o{ ur_ingest_session_plm_acct_project
@@ -3383,13 +3526,15 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   orchestration_session_entry |o..o{ orchestration_session_issue
   orchestration_session_issue |o..o{ orchestration_session_issue_relation
   orchestration_session_log |o..o{ orchestration_session_log
-@enduml', '4b969b52a269e847a64619c377d3fa61e7dd9796', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEF8CMPQZCZW67ZWXD4291S', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
+@enduml', '15048301048a1ff0cc9fd3a32128a154f1b7feae', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JBEM9AKGKX0AE6PSJ4J1X0BP', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
 const PARTY_TYPE: &str = "party_type";
 const PARTY: &str = "party";
 const PARTY_RELATION_TYPE: &str = "party_relation_type";
 const PARTY_RELATION: &str = "party_relation";
 const GENDER_TYPE: &str = "gender_type";
+const SEX_TYPE: &str = "sex_type";
+const PERSON_TYPE: &str = "person_type";
 const PERSON: &str = "person";
 const ORGANIZATION: &str = "organization";
 const ORGANIZATION_ROLE_TYPE: &str = "organization_role_type";
@@ -3438,7 +3583,8 @@ const CODE_NOTEBOOK_STATE: &str = "code_notebook_state";
 // `party_type` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PartyType {
-    code: String, // PRIMARY KEY (''string'' maps directly to Rust type)
+    party_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
     value: String, // ''string'' maps directly to Rust type
 }
 
@@ -3446,7 +3592,7 @@ pub struct PartyType {
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Party {
     party_id: String, // PRIMARY KEY (''string'' maps directly to Rust type)
-    party_type_id: String, // ''string'' maps directly to Rust type
+    party_type_id: String, // uknown type ''string::ulid'', mapping to String by default
     party_name: String, // ''string'' maps directly to Rust type
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
@@ -3454,7 +3600,8 @@ pub struct Party {
 // `party_relation_type` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PartyRelationType {
-    code: String, // PRIMARY KEY (''string'' maps directly to Rust type)
+    party_relation_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
     value: String, // ''string'' maps directly to Rust type
 }
 
@@ -3464,47 +3611,70 @@ pub struct PartyRelation {
     party_relation_id: String, // PRIMARY KEY (''string'' maps directly to Rust type)
     party_id: String, // ''string'' maps directly to Rust type
     related_party_id: String, // ''string'' maps directly to Rust type
-    relation_type_id: String, // ''string'' maps directly to Rust type
+    relation_type_id: String, // uknown type ''string::ulid'', mapping to String by default
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
 
 // `gender_type` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct GenderType {
-    code: String, // PRIMARY KEY (''string'' maps directly to Rust type)
+    gender_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
+    value: String, // ''string'' maps directly to Rust type
+}
+
+// `sex_type` table
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SexType {
+    sex_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
+    value: String, // ''string'' maps directly to Rust type
+}
+
+// `person_type` table
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PersonType {
+    person_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
     value: String, // ''string'' maps directly to Rust type
 }
 
 // `person` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Person {
-    person_id: String, // ''string'' maps directly to Rust type
+    person_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    party_id: String, // ''string'' maps directly to Rust type
+    person_type_id: String, // uknown type ''string::ulid'', mapping to String by default
     person_first_name: String, // ''string'' maps directly to Rust type
     person_middle_name: Option<String>, // ''string'' maps directly to Rust type
     person_last_name: String, // ''string'' maps directly to Rust type
+    previous_name: Option<String>, // ''string'' maps directly to Rust type
     honorific_prefix: Option<String>, // ''string'' maps directly to Rust type
     honorific_suffix: Option<String>, // ''string'' maps directly to Rust type
-    gender_id: String, // ''string'' maps directly to Rust type
+    gender_id: String, // uknown type ''string::ulid'', mapping to String by default
+    sex_id: String, // uknown type ''string::ulid'', mapping to String by default
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
 
 // `organization` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Organization {
-    organization_id: String, // ''string'' maps directly to Rust type
+    organization_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    party_id: String, // ''string'' maps directly to Rust type
     name: String, // ''string'' maps directly to Rust type
     alias: Option<String>, // ''string'' maps directly to Rust type
     description: Option<String>, // ''string'' maps directly to Rust type
-    license: Option<String>, // ''string'' maps directly to Rust type
+    license: String, // ''string'' maps directly to Rust type
     federal_tax_id_num: Option<String>, // ''string'' maps directly to Rust type
-    registration_date: Option<String>, // uknown type ''TIMESTAMPTZ'', mapping to String by default
+    registration_date: chrono::NaiveDate, // Using chrono crate for ''date''
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
 
 // `organization_role_type` table
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OrganizationRoleType {
-    code: String, // PRIMARY KEY (''string'' maps directly to Rust type)
+    organization_role_type_id: String, // PRIMARY KEY (uknown type ''string::ulid'', mapping to String by default)
+    code: String, // ''string'' maps directly to Rust type
     value: String, // ''string'' maps directly to Rust type
 }
 
@@ -3514,7 +3684,7 @@ pub struct OrganizationRole {
     organization_role_id: String, // PRIMARY KEY (''string'' maps directly to Rust type)
     person_id: String, // ''string'' maps directly to Rust type
     organization_id: String, // ''string'' maps directly to Rust type
-    organization_role_type_id: String, // ''string'' maps directly to Rust type
+    organization_role_type_id: String, // uknown type ''string::ulid'', mapping to String by default
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
 
@@ -3620,7 +3790,7 @@ pub struct UniformResource {
     device_id: String, // ''string'' maps directly to Rust type
     ingest_session_id: String, // ''string'' maps directly to Rust type
     ingest_fs_path_id: Option<String>, // ''string'' maps directly to Rust type
-    ingest_imap_acct_folder_id: Option<String>, // ''string'' maps directly to Rust type
+    ingest_session_imap_acct_folder_message: Option<String>, // ''string'' maps directly to Rust type
     ingest_issue_acct_project_id: Option<String>, // ''string'' maps directly to Rust type
     uri: String, // ''string'' maps directly to Rust type
     content_digest: String, // ''string'' maps directly to Rust type
@@ -3709,7 +3879,6 @@ pub struct UrIngestSessionImapAcctFolderMessage {
     ur_ingest_session_imap_acct_folder_message_id: String, // PRIMARY KEY (''string'' maps directly to Rust type)
     ingest_session_id: String, // ''string'' maps directly to Rust type
     ingest_imap_acct_folder_id: String, // ''string'' maps directly to Rust type
-    uniform_resource_id: Option<String>, // ''string'' maps directly to Rust type
     message: String, // ''string'' maps directly to Rust type
     message_id: String, // ''string'' maps directly to Rust type
     subject: String, // ''string'' maps directly to Rust type
@@ -4077,4 +4246,4 @@ pub struct CodeNotebookState {
     transitioned_at: Option<String>, // uknown type ''TIMESTAMPTZ'', mapping to String by default
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
-', 'c29d1aab909513f6875d6b1b264dae939a7bf5f3', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+', 'e09450b128203300a734a8a978abb9cf7f0e41c2', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
