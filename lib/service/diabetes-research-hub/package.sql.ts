@@ -899,12 +899,12 @@ SELECT
     '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'Glycemia Risk Index' as title,
-    '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed; 
+    '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
   SELECT 
     '' as title,
-    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  ||
+    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  || 
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
-    '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
+    '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
     FROM 
         (SELECT participant_id, 
                 MIN(Date_Time) AS cgm_start_date, 
@@ -1376,19 +1376,138 @@ SELECT
       FROM (SELECT ABS(MAX(CGM_Value) - MIN(CGM_Value)) AS amplitude   
       FROM combined_cgm_tracing  WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date   
       GROUP BY DATE(Date_Time) 
-      ); 
+      );      
+
+      CREATE TEMPORARY TABLE DailyRisk AS 
+      SELECT 
+          participant_id, 
+          DATE(date_time) AS day, 
+          MAX(CGM_Value) - MIN(CGM_Value) AS daily_range 
+      FROM 
+          combined_cgm_tracing cct 
+      WHERE 
+          participant_id = $participant_id
+          AND DATE(date_time) BETWEEN DATE($start_date) AND DATE($end_date) 
+      GROUP BY 
+          participant_id, 
+          DATE(date_time);
+
+      CREATE TEMPORARY TABLE AverageDailyRisk AS 
+      SELECT 
+          participant_id, 
+          AVG(daily_range) AS average_daily_risk 
+      FROM 
+          DailyRisk 
+      WHERE 
+          participant_id = $participant_id
+      GROUP BY 
+          participant_id;    
+
       SELECT  
-      '<div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>
-      <div class="card-content my-3 border-bottom">J Index <span style="float: right;">'|| j_index ||' mg/dL</span></div>
-      <div class="card-content my-3 border-bottom">Low Blood Glucose Index <span style="float: right;">'|| lbgi ||'</span></div>
-      <div class="card-content my-3 border-bottom">High Blood Glucose Index <span style="float: right;">'|| hbgi ||'</span></div> 
-      <div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(grade,3) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Continuous Overall Net Glycemic Action (CONGA) <span style="float: right;">'|| round(conga_hourly,3) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(mean_daily_diff,3) ||'</span></div>' as html                           
-    FROM  
-      drh_advanced_metrics   
-    WHERE
-      participant_id = $participant_id ;     
+      '<div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>' as html  
+      FROM 
+          AverageDailyRisk 
+      WHERE 
+           participant_id = $participant_id;
+
+      DROP TABLE IF EXISTS DailyRisk;
+      DROP TABLE IF EXISTS AverageDailyRisk;
+
+      CREATE TEMPORARY TABLE glucose_stats AS 
+      SELECT
+          participant_id,
+          AVG(CGM_Value) AS mean_glucose,
+          (AVG(CGM_Value * CGM_Value) - AVG(CGM_Value) * AVG(CGM_Value)) AS variance_glucose
+      FROM
+          combined_cgm_tracing
+      WHERE
+          participant_id = $participant_id
+          AND DATE(Date_Time) BETWEEN DATE($start_date) AND DATE($end_date) 
+      GROUP BY
+          participant_id;
+
+      SELECT  
+      '<div class="card-content my-3 border-bottom">J Index <span style="float: right;">'|| ROUND(0.001 * (mean_glucose + SQRT(variance_glucose)) * (mean_glucose + SQRT(variance_glucose)), 2) ||' mg/dL</span></div>' as html  
+      FROM
+        glucose_stats;
+      DROP TABLE IF EXISTS glucose_stats;
+
+    SELECT  
+      '<div class="card-content my-3 border-bottom">Low Blood Glucose Index <span style="float: right;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 2.5) / 2.5 > 0 
+                   THEN ((CGM_Value - 2.5) / 2.5) * ((CGM_Value - 2.5) / 2.5) 
+                   ELSE 0 
+              END) * 5, 2) ||'</span></div>
+      <div class="card-content my-3 border-bottom">High Blood Glucose Index <span style="float: right;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 9.5) / 9.5 > 0 
+                   THEN ((CGM_Value - 9.5) / 9.5) * ((CGM_Value - 9.5) / 9.5) 
+                   ELSE 0 
+              END) * 5, 2) ||'</span></div>' as html  
+      FROM 
+          combined_cgm_tracing
+      WHERE 
+          participant_id = $participant_id
+          AND DATE(Date_Time) BETWEEN $start_date AND $end_date;   
+
+      SELECT  
+      '<div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(AVG(CASE
+            WHEN CGM_Value < 90 THEN 10 * (5 - (CGM_Value / 18.0)) * (5 - (CGM_Value / 18.0))
+            WHEN CGM_Value > 180 THEN 10 * ((CGM_Value / 18.0) - 10) * ((CGM_Value / 18.0) - 10)
+            ELSE 0
+        END),3) ||'</span></div>' as html
+      FROM 
+          combined_cgm_tracing
+      WHERE 
+          participant_id = $participant_id
+          AND DATE(Date_Time) BETWEEN $start_date AND $end_date;
+
+
+      CREATE TEMPORARY TABLE lag_values AS 
+      SELECT 
+          participant_id,
+          Date_Time,
+          CGM_Value,
+          LAG(CGM_Value) OVER (PARTITION BY participant_id ORDER BY Date_Time) AS lag_CGM_Value
+      FROM 
+          combined_cgm_tracing
+      WHERE
+         participant_id = $participant_id
+          AND DATE(Date_Time) BETWEEN $start_date AND $end_date;
+
+      CREATE TEMPORARY TABLE conga_hourly AS 
+      SELECT 
+          participant_id,
+          SQRT(
+              AVG(
+                  (CGM_Value - lag_CGM_Value) * (CGM_Value - lag_CGM_Value)
+              ) OVER (PARTITION BY participant_id ORDER BY Date_Time)
+          ) AS conga_hourly
+      FROM 
+          lag_values
+      WHERE 
+          lag_CGM_Value IS NOT NULL;    
+
+      SELECT  
+      '<div class="card-content my-3 border-bottom">Continuous Overall Net Glycemic Action (CONGA) <span style="float: right;">'|| round(AVG(conga_hourly),3) ||'</span></div>' as html
+      FROM 
+        conga_hourly;
+
+        DROP TABLE IF EXISTS lag_values;
+        DROP TABLE IF EXISTS conga_hourly;
+
+      SELECT  
+      '<div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(AVG(daily_diff),3) ||'</span></div>' as html  
+      FROM (
+          SELECT
+              participant_id,
+              CGM_Value - LAG(CGM_Value) OVER (PARTITION BY participant_id ORDER BY DATE(Date_Time)) AS daily_diff
+          FROM
+              combined_cgm_tracing
+          WHERE 
+              participant_id = $participant_id
+          AND DATE(Date_Time) BETWEEN $start_date AND $end_date
+      ) AS daily_diffs
+      WHERE
+          daily_diff IS NOT NULL;                          
+       
   `;
   }
 
