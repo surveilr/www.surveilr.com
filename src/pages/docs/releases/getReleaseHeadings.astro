@@ -1,0 +1,8 @@
+---
+import { getReleaseHeadings } from '@components/ui/releases/getReleaseHeadings'; 
+
+const headings = await getReleaseHeadings();
+return new Response(JSON.stringify(headings), {
+  headers: { 'Content-Type': 'application/json' },
+});
+---
