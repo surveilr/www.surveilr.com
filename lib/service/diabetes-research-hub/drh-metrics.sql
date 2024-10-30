@@ -378,6 +378,14 @@ SELECT *,
             0), 
         2) AS wear_time_percentage FROM combined_data;
 
+        
+
+-- Drop the cached table if it already exists
+DROP TABLE IF EXISTS participant_dashboard_cached;
+-- Create and populate the table with data from the view
+CREATE TABLE participant_dashboard_cached AS
+SELECT * FROM study_combined_dashboard_participant_metrics_view;
+
 
 DROP VIEW IF EXISTS participant_cgm_date_range_view;
 CREATE VIEW participant_cgm_date_range_view AS 

@@ -1518,7 +1518,7 @@ SELECT
     siblingOrder: 12,
   })
   "drh/study-participant-dashboard/index.sql"() {
-    const viewName = `study_combined_dashboard_participant_metrics_view`;
+    const viewName = `participant_dashboard_cached`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
   ${this.activePageTitle()}
