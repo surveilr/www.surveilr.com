@@ -469,10 +469,12 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
       return [
         partyType.insertDML({
+          party_type_id: this.sqlEngineNewUlid,
           code: "ORGANIZATION",
           value: lcm.PartyType.ORGANIZATION,
         }, options),
         partyType.insertDML({
+          party_type_id: this.sqlEngineNewUlid,
           code: "PERSON",
           value: lcm.PartyType.PERSON,
         }, options),
