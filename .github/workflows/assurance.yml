@@ -42,4 +42,4 @@ jobs:
           fi
 
       - name: Run Deno Tests
-        run: deno test -A ./lib/assurance/ --fail-fast
+        run: pwd && deno test -A ./lib/assurance/ --fail-fast
