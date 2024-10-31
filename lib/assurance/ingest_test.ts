@@ -1,7 +1,7 @@
 import { assert, assertEquals, assertExists } from "jsr:@std/assert@1";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 
 // # TODO: automatically upgrade surveilr
 

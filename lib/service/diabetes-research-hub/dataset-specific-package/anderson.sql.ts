@@ -3,7 +3,6 @@ import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../package.sql.ts";
 
 export class andersonSqlPages extends spn.TypicalSqlPageNotebook {
-  
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics
@@ -22,7 +21,6 @@ export class andersonSqlPages extends spn.TypicalSqlPageNotebook {
       ),
     );
   }
-  
 }
 
 export async function andersonSQL() {

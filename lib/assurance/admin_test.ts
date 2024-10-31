@@ -4,7 +4,7 @@ import {
   assertExists,
 } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 
 const E2E_TEST_DIR = path.join(Deno.cwd(), "lib/assurance");
 
