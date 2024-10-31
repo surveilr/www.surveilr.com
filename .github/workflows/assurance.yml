@@ -42,4 +42,4 @@ jobs:
           fi
 
       - name: Run Deno Tests
-        run: tree -L 2 && deno test -A ./lib/assurance/ --fail-fast
+        run: cd .. && pwd && tree -L 2 && deno test -A ./lib/assurance/ --fail-fast
