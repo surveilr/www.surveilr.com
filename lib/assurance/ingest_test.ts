@@ -4,9 +4,6 @@ import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 
 // # TODO: automatically upgrade surveilr
-// # TODO: commands
-// # 1. add notebook orchestration: surveilr orchestrate notebooks --cell="%htmlAnchors%" -a "key1=value1" -a "name=starting"
-// # 2. IMAP
 
 const E2E_TEST_DIR = path.join(Deno.cwd(), "lib/assurance");
 const ZIP_URL =
@@ -48,7 +45,7 @@ Deno.test("file ingestion", async (t) => {
     name: "",
     fn: async () => {
       if (!await Deno.stat(ZIP_FILE).catch(() => false)) {
-        await $`wget ${ZIP_URL}`;
+        await $`wget ${ZIP_URL} -P ${E2E_TEST_DIR}`;
       }
 
       assertExists(
