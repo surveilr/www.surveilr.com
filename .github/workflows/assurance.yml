@@ -1,0 +1,45 @@
+name: surveilr End-to-End Quality Assurance Patterns
+
+# on:
+#   release:
+#     types: [published]
+on:
+    push:
+      branches: ["main"]
+    pull_request:
+      branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.46.3
+
+      - name: Check Deno Version
+        run: |
+          echo "Checking Deno version..."
+          deno --version
+
+      - name: Install eget
+        run: |
+          echo "Installing eget..."
+          curl -sSL https://zyedidia.github.io/eget.sh | bash
+          sudo mv ./eget /usr/local/bin/
+
+      - name: Install or Upgrade surveilr
+        run: |
+          if command -v surveilr &>/dev/null; then
+              echo "surveilr is installed. Upgrading..."
+              surveilr upgrade
+          else
+              echo "surveilr not found. Installing..."
+              eget opsfolio/releases.opsfolio.com --asset tar.gz
+              sudo mv surveilr /usr/local/bin/
+          fi
+
+      - name: Run Deno Tests
+        run: deno test -A ./lib/assurance/ --fail-fast
