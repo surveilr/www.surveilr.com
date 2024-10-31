@@ -7,7 +7,6 @@ import {
 } from "jsr:@std/assert@1";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
-import { countFilesInDirectory } from "./ingest_test.ts";
 
 const E2E_TEST_DIR = join(Deno.cwd(), "lib/assurance");
 const DRH_DIR = join(Deno.cwd(), "lib/service/diabetes-research-hub");
@@ -17,6 +16,20 @@ const RSSD_PATH = join(
   E2E_TEST_DIR,
   "orchestration-e2e-test.sqlite.db",
 );
+
+export async function countFilesInDirectory(
+  directoryPath: string,
+): Promise<number> {
+  let fileCount = 0;
+
+  for await (const dirEntry of Deno.readDir(directoryPath)) {
+    if (dirEntry.isFile) {
+      fileCount++;
+    }
+  }
+
+  return fileCount;
+}
 
 async function listFilesWithoutExtension(directory: string) {
   const filesWithoutExtension: string[] = [];

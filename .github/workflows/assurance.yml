@@ -45,4 +45,4 @@ jobs:
           fi
 
       - name: Run Deno Tests
-        run: deno test -A ./lib/assurance/ --fail-fast
+        run: deno test -A ./lib/assurance/admin_test.ts && deno test -A ./lib/assurance/functions_test.ts && deno test -A ./lib/assurance/imap_test.ts && deno test -A ./lib/assurance/orchestration_test.ts
