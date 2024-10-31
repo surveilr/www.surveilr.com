@@ -16,7 +16,7 @@ const DEFAULT_RSSD_PATH = path.join(
 );
 const TEST_FIXTURES_DIR = path.join(E2E_TEST_DIR, "test-fixtures");
 
-export async function countFilesInDirectory(
+async function countFilesInDirectory(
   directoryPath: string,
 ): Promise<number> {
   let fileCount = 0;
