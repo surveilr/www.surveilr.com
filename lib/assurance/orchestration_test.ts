@@ -6,7 +6,7 @@ import {
   assertNotEquals,
 } from "jsr:@std/assert@1";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 
 const E2E_TEST_DIR = join(Deno.cwd(), "lib/assurance");
 const DRH_DIR = join(Deno.cwd(), "lib/service/diabetes-research-hub");

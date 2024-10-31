@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../package.sql.ts";
-import {  
-  generateDetrendedDSCombinedCGMViewSQL
+import {
+  generateDetrendedDSCombinedCGMViewSQL,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class detrendedSqlPages extends spn.TypicalSqlPageNotebook {
@@ -43,13 +43,14 @@ export async function detrendedSQL() {
       }
 
       async statelessDetrendedColasSQL() {
-        // stateless SQL for Colas 2019 detrended Dataset 
+        // stateless SQL for Colas 2019 detrended Dataset
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("../study-specific-stateless/detrended-stateless.sql"),
+          import.meta.resolve(
+            "../study-specific-stateless/detrended-stateless.sql",
+          ),
         );
-      } 
-
-    }(),    
+      }
+    }(),
     ...(await pkg.drhNotebooks()),
     new detrendedSqlPages(),
   );

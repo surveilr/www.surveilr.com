@@ -8,7 +8,6 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 import * as sppn from "../..//std/notebook/sqlpage.ts";
 
-
 // custom decorator that makes navigation for this notebook type-safe
 function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -21,13 +20,19 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
     const shellConfig = super.defaultShell();
     shellConfig.title = "Diabetes Research Hub EDGE";
-    shellConfig.image = "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
-    shellConfig.favicon = "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
+    shellConfig.image =
+      "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
+    shellConfig.favicon =
+      "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
     shellConfig.icon = "";
     shellConfig.link = "/";
     shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/d3@7");
-    shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6");
-    shellConfig.javascript.push("https://app.devl.drh.diabetestechnology.org/js/d3-aide.js");     
+    shellConfig.javascript.push(
+      "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6",
+    );
+    shellConfig.javascript.push(
+      "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
+    );
     shellConfig.javascript.push("/js/chart-component.js");
     return shellConfig;
   }
@@ -45,8 +50,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       typeof value === "number"
         ? value
         : value
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+        : "NULL";
     const selectNavMenuItems = (
       rootPath: string,
       caption: string,
@@ -85,7 +90,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
         items.push(
-          selectNavMenuItems("/drh/study/", "Study"),   
+          selectNavMenuItems("/drh/study/", "Study"),
         );
         items.push(selectNavMenuItems("/ur", "Uniform Resource"));
         items.push(selectNavMenuItems("/console", "Console"));
@@ -149,8 +154,6 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
     ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
   `;
   }
-
-
 
   // //use this only for combined view sql generation
   // //based on the ingested dataset the function call must be handled
@@ -916,7 +919,6 @@ SELECT
   `;
   }
 
-
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/glucose-statistics-and-targets/index.sql"() {
     return this.SQL`
@@ -1025,7 +1027,6 @@ SELECT
   `;
   }
 
-
   @spn.shell({ eliminate: true })
   "js/chart-component.js"() {
     return Deno.readTextFileSync("./d3-aide-component.js");
@@ -1058,7 +1059,6 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/goals-for-type-1-and-type-2-diabetes/index.sql"() {
-
     return this.SQL`
     SELECT 'html' as component,
     '
@@ -1069,7 +1069,6 @@ SELECT
     </div>
     ' as html; 
     `;
-
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
@@ -1135,7 +1134,6 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/ambulatory-glucose-profile/index.sql"() {
-
     return this.SQL`
     SELECT 'html' as component,
     '<style>
@@ -1148,7 +1146,6 @@ SELECT
     </div> 
     ' as html;
     `;
-
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })

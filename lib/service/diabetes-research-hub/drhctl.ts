@@ -35,11 +35,9 @@ async function fetchSqlContent(url: string): Promise<string> {
     console.error(
       colors.cyan(`Error fetching SQL content from ${url}:`),
       error.message,
-      
     );
     Deno.exit(1);
     return "";
-    
   }
 }
 
@@ -129,7 +127,7 @@ async function fetchUxSqlContent(): Promise<string> {
       colors.red("Error fetching UX SQL content:"),
       error.message,
     );
-    return "";   
+    return "";
     //Deno.exit(1);
   }
 }
@@ -157,33 +155,32 @@ async function checkAndCreateCombinedView(dbFilePath: string) {
   const db = new Database(dbFilePath);
 
   try {
-    const tableName = "uniform_resource_cgm_file_metadata";    
+    const tableName = "uniform_resource_cgm_file_metadata";
     // Check if the required table exists
     const stmt = db.prepare(
       `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-    );    
+    );
     const rows = stmt.all(tableName);
-
 
     if (rows.length > 0) {
       console.log(
         colors.green(
           "Required table exists. Proceeding to create the combined view.",
         ),
-      );      
+      );
       await createCombinedCGMView(dbFilePath); // Ensure this function is defined elsewhere
     } else {
       console.error(
         colors.red(
           "The required table does not exist. Cannot create the combined view.",
         ),
-      );      
+      );
     }
   } catch (error) {
     console.error(
       colors.red("Error in checkAndCreateCombinedView:"),
       error.message,
-    );    
+    );
   } finally {
     db.close();
   }
@@ -208,7 +205,9 @@ async function checkFolderContents(pathOrUrl: string): Promise<void> {
     // Check if the path exists
     if (!existsSync(pathOrUrl)) {
       console.error(
-        colors.red(`Error: The specified folder "${pathOrUrl}" does not exist.`),
+        colors.red(
+          `Error: The specified folder "${pathOrUrl}" does not exist.`,
+        ),
       );
       Deno.exit(1);
     }
@@ -269,7 +268,6 @@ const folderName = Deno.args[0];
 // Check for folder contents
 await checkFolderContents(folderName);
 
-
 // Define synchronous suppliers
 // const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
 //   deidentificationSQL;
@@ -308,7 +306,6 @@ try {
 
 // Check and delete the file if it exists
 await checkAndDeleteFile(dbFilePath);
-
 
 // Log the start of the process
 console.log(colors.cyan(`Starting the process for folder: ${folderName}`));

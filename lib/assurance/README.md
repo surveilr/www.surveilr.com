@@ -47,7 +47,7 @@ but not limited to:
 
 To run these tests, ensure that you have the following installed on your system:
 
-1. **[Deno](https://deno.com/)**: A modern runtime for JavaScript and TypeScript
+1. **[Deno 2.0.0](https://deno.com/)**: A modern runtime for JavaScript and TypeScript
    that is used to execute the test scripts.
 2. [Download `surveilr` binary](https://docs.opsfolio.com/surveilr/how-to/installation-guide/)
 

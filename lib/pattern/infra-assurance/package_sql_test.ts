@@ -1,5 +1,6 @@
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
-import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
+
 const DEFAULT_RSSD_PATH = "./resource-surveillance.sqlite.db";
 
 Deno.test("View Check", async (t) => {

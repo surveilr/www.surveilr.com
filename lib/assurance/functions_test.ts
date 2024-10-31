@@ -329,7 +329,7 @@ Deno.test("sqlite_html", async (t) => {
     const stdout = result.stdoutJson;
     const value = stdout[0][Object.keys(stdout[0])[0]];
     assertEquals(value, `<b class="x">world!</b>`);
-  })
+  });
 
   await t.step("html_attribute_get", async () => {
     const result =
@@ -343,7 +343,7 @@ Deno.test("sqlite_html", async (t) => {
     const stdout = result.stdoutJson;
     const value = stdout[0][Object.keys(stdout[0])[0]];
     assertEquals(value, `./about`);
-  })
+  });
 
   await t.step("html_attribute_get", async () => {
     const result =
@@ -357,8 +357,8 @@ Deno.test("sqlite_html", async (t) => {
     const stdout = result.stdoutJson;
     const value = stdout[0][Object.keys(stdout[0])[0]];
     assertEquals(value, 3);
-  })
-})
+  });
+});
 
 Deno.test("sqlite_url", async (t) => {
   await t.step("http_get", async () => {
@@ -373,5 +373,5 @@ Deno.test("sqlite_url", async (t) => {
     const stdout = result.stdoutJson;
     const response = stdout[0];
     assertEquals(response.response_status, `200 OK`);
-  })
-})
+  });
+});
