@@ -82,63 +82,498 @@
 			scroller.scrollTop = window._starlightScrollRestore;
 			delete window._starlightScrollRestore;
 		})();
-	</script> </sl-sidebar-state-persist>  <div class="md:sl-hidden"> <div class="mobile-preferences sl-flex astro-5znlxet7"> <div class="sl-flex social-icons astro-5znlxet7"> <a href="https://github.com/surveilr" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <!-- Dark Theme Toggle Button --><button type="button" aria-label="Dark Theme Toggle" id="dark-theme-toggle-mobile" class="group flex h-8 w-8 items-center justify-center rounded-full font-medium text-neutral-600 outline-none ring-zinc-500 transition duration-300 hover:bg-neutral-200 hover:text-orange-400" data-hs-theme-click-value="dark"> <svg class="h-4 w-4 flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path> </svg> </button> <!-- Light Theme Toggle Button --> <button type="button" aria-label="Light Theme Toggle" id="light-theme-toggle-mobile" class="group flex hidden h-8 w-8 items-center justify-center rounded-full font-medium text-neutral-400 outline-none ring-zinc-500 transition duration-300 hover:bg-neutral-700 hover:text-orange-400" data-hs-theme-click-value="light"> <svg class="h-4 w-4 flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 8a2 2 0 1 0 4 4"></path> <path d="M12 2v2"></path> <path d="M12 20v2"></path> <path d="m4.93 4.93 1.41 1.41"></path> <path d="m17.66 17.66 1.41 1.41"></path> <path d="M2 12h2"></path> <path d="M20 12h2"></path> <path d="m6.34 17.66-1.41 1.41"></path> <path d="m19.07 4.93-1.41 1.41"></path> </svg> </button> <script type="module">function d(e){document.documentElement.setAttribute("data-theme",e),localStorage.setItem("starlight-theme",e),n(e)}function n(e){const t=document.getElementById("dark-theme-toggle-mobile"),o=document.getElementById("light-theme-toggle-mobile");e==="dark"?(t?.classList.add("hidden"),o?.classList.remove("hidden")):(t?.classList.remove("hidden"),o?.classList.add("hidden"))}document.getElementById("dark-theme-toggle-mobile")?.addEventListener("click",()=>{d("dark")});document.getElementById("light-theme-toggle-mobile")?.addEventListener("click",()=>{d("light")});document.addEventListener("DOMContentLoaded",()=>{const t=localStorage.getItem("starlight-theme")||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");d(t)});</script>  </div>  </div> </div> </div> </nav> <div class="main-frame astro-vrdttmbt">  <script type="module">const a=document.getElementById("starlight__sidebar"),n=a?.querySelector("sl-sidebar-state-persist"),o="sl-sidebar-state",i=()=>{let t=[];const e=n?.dataset.hash||"";try{const s=sessionStorage.getItem(o),r=JSON.parse(s||"{}");Array.isArray(r.open)&&r.hash===e&&(t=r.open)}catch{}return{hash:e,open:t,scroll:a?.scrollTop||0}},c=t=>{try{sessionStorage.setItem(o,JSON.stringify(t))}catch{}},d=()=>c(i()),l=(t,e)=>{const s=i();s.open[e]=t,c(s)};n?.addEventListener("click",t=>{if(!(t.target instanceof Element))return;const e=t.target.closest("summary")?.closest("details");if(!e)return;const s=e.querySelector("sl-sidebar-restore"),r=parseInt(s?.dataset.index||"");isNaN(r)||l(!e.open,r)});addEventListener("visibilitychange",()=>{document.visibilityState==="hidden"&&d()});addEventListener("pageHide",d);</script> <div class="lg:sl-flex astro-67yu43on"> <aside class="right-sidebar-container astro-67yu43on"> <div class="right-sidebar astro-67yu43on"> <div class="lg:sl-hidden astro-pb3aqygn"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-doynk5tl"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-doynk5tl"><details id="starlight__mobile-toc" class="astro-doynk5tl"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-doynk5tl"><div class="toggle sl-flex astro-doynk5tl">On this page<svg aria-hidden="true" class="caret astro-doynk5tl astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg> </div><span class="display-current astro-doynk5tl"></span></summary><div class="dropdown astro-doynk5tl"><ul class="isMobile astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#what-are-code-notebooks-in-surveilr" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">What are Code Notebooks in surveilr?</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#1-unified-data-exploration-and-analysis" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">1. Unified Data Exploration and Analysis</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#2-workflow-automation-and-scheduling" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">2. Workflow Automation and Scheduling</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#3-interactive-documentation-and-collaboration" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">3. Interactive Documentation and Collaboration</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#4-reproducibility-and-version-control" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">4. Reproducibility and Version Control</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#5-secure-access-control-and-data-privacy" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">5. Secure Access Control and Data Privacy</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#6-advanced-reporting-and-export-capabilities" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">6. Advanced Reporting and Export Capabilities</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#7-extensibility-with-data-science-libraries" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">7. Extensibility with Data Science Libraries</span> </a>  </li> </ul>  </li> </ul> </div></details></nav></mobile-starlight-toc><script type="module" src="/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.pz0qJK_l.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-pb3aqygn"><div class="sl-container astro-pb3aqygn"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#what-are-code-notebooks-in-surveilr" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">What are Code Notebooks in surveilr?</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#1-unified-data-exploration-and-analysis" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">1. Unified Data Exploration and Analysis</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#2-workflow-automation-and-scheduling" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">2. Workflow Automation and Scheduling</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#3-interactive-documentation-and-collaboration" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">3. Interactive Documentation and Collaboration</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#4-reproducibility-and-version-control" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">4. Reproducibility and Version Control</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#5-secure-access-control-and-data-privacy" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">5. Secure Access Control and Data Privacy</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#6-advanced-reporting-and-export-capabilities" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">6. Advanced Reporting and Export Capabilities</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#7-extensibility-with-data-science-libraries" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">7. Extensibility with Data Science Libraries</span> </a>  </li> </ul>  </li> </ul> </nav></starlight-toc><script type="module" src="/_astro/TableOfContents.astro_astro_type_script_index_0_lang.DCp6qTdA.js"></script></div></div> </div> </aside> <div class="main-pane astro-67yu43on">  <main data-pagefind-body lang="en" dir="ltr" class="astro-bguv2lll">    <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <h1 id="_top" class="astro-j6tvhyss">Code Notebooks</h1>  </div> </div>  <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <div class="sl-markdown-content"> <h2 id="what-are-code-notebooks-in-surveilr">What are Code Notebooks in <code dir="auto">surveilr</code>?</h2>
-<p><strong>Code Notebooks</strong> in <code dir="auto">surveilr</code> provide a powerful environment for interactive data analysis, compliance checks, and reporting, combining SQL and scripting languages like Python and R. These notebooks support in-depth, real-time analysis of data aggregated from multiple sources, enabling users to conduct advanced data exploration, document findings, and streamline compliance reporting. This overview breaks down the functionality, core benefits, and practical applications of <strong>Code Notebooks</strong> within <code dir="auto">surveilr</code>.</p>
-<hr>
-<h3 id="1-unified-data-exploration-and-analysis">1. Unified Data Exploration and Analysis</h3>
-<p><strong>Code Notebooks</strong> bring together data from diverse sources (e.g., EHRs, ERPs, CRMs, emails) into a unified workspace where users can:</p>
+	</script> </sl-sidebar-state-persist>  <div class="md:sl-hidden"> <div class="mobile-preferences sl-flex astro-5znlxet7"> <div class="sl-flex social-icons astro-5znlxet7"> <a href="https://github.com/surveilr" rel="me" class="sl-flex astro-wy4te6ga"><span class="sr-only astro-wy4te6ga">GitHub</span><svg aria-hidden="true" class="astro-wy4te6ga astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg> </a> </div> <!-- Dark Theme Toggle Button --><button type="button" aria-label="Dark Theme Toggle" id="dark-theme-toggle-mobile" class="group flex h-8 w-8 items-center justify-center rounded-full font-medium text-neutral-600 outline-none ring-zinc-500 transition duration-300 hover:bg-neutral-200 hover:text-orange-400" data-hs-theme-click-value="dark"> <svg class="h-4 w-4 flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path> </svg> </button> <!-- Light Theme Toggle Button --> <button type="button" aria-label="Light Theme Toggle" id="light-theme-toggle-mobile" class="group flex hidden h-8 w-8 items-center justify-center rounded-full font-medium text-neutral-400 outline-none ring-zinc-500 transition duration-300 hover:bg-neutral-700 hover:text-orange-400" data-hs-theme-click-value="light"> <svg class="h-4 w-4 flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 8a2 2 0 1 0 4 4"></path> <path d="M12 2v2"></path> <path d="M12 20v2"></path> <path d="m4.93 4.93 1.41 1.41"></path> <path d="m17.66 17.66 1.41 1.41"></path> <path d="M2 12h2"></path> <path d="M20 12h2"></path> <path d="m6.34 17.66-1.41 1.41"></path> <path d="m19.07 4.93-1.41 1.41"></path> </svg> </button> <script type="module">function d(e){document.documentElement.setAttribute("data-theme",e),localStorage.setItem("starlight-theme",e),n(e)}function n(e){const t=document.getElementById("dark-theme-toggle-mobile"),o=document.getElementById("light-theme-toggle-mobile");e==="dark"?(t?.classList.add("hidden"),o?.classList.remove("hidden")):(t?.classList.remove("hidden"),o?.classList.add("hidden"))}document.getElementById("dark-theme-toggle-mobile")?.addEventListener("click",()=>{d("dark")});document.getElementById("light-theme-toggle-mobile")?.addEventListener("click",()=>{d("light")});document.addEventListener("DOMContentLoaded",()=>{const t=localStorage.getItem("starlight-theme")||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");d(t)});</script>  </div>  </div> </div> </div> </nav> <div class="main-frame astro-vrdttmbt">  <script type="module">const a=document.getElementById("starlight__sidebar"),n=a?.querySelector("sl-sidebar-state-persist"),o="sl-sidebar-state",i=()=>{let t=[];const e=n?.dataset.hash||"";try{const s=sessionStorage.getItem(o),r=JSON.parse(s||"{}");Array.isArray(r.open)&&r.hash===e&&(t=r.open)}catch{}return{hash:e,open:t,scroll:a?.scrollTop||0}},c=t=>{try{sessionStorage.setItem(o,JSON.stringify(t))}catch{}},d=()=>c(i()),l=(t,e)=>{const s=i();s.open[e]=t,c(s)};n?.addEventListener("click",t=>{if(!(t.target instanceof Element))return;const e=t.target.closest("summary")?.closest("details");if(!e)return;const s=e.querySelector("sl-sidebar-restore"),r=parseInt(s?.dataset.index||"");isNaN(r)||l(!e.open,r)});addEventListener("visibilitychange",()=>{document.visibilityState==="hidden"&&d()});addEventListener("pageHide",d);</script> <div class="lg:sl-flex astro-67yu43on"> <aside class="right-sidebar-container astro-67yu43on"> <div class="right-sidebar astro-67yu43on"> <div class="lg:sl-hidden astro-pb3aqygn"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-doynk5tl"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-doynk5tl"><details id="starlight__mobile-toc" class="astro-doynk5tl"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-doynk5tl"><div class="toggle sl-flex astro-doynk5tl">On this page<svg aria-hidden="true" class="caret astro-doynk5tl astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg> </div><span class="display-current astro-doynk5tl"></span></summary><div class="dropdown astro-doynk5tl"><ul class="isMobile astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#key-database-tables" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Key Database Tables</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#example-of-how-these-tables-work-together" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Example of How These Tables Work Together</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#special-case-migratable-sql" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Special Case: Migratable SQL</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#code-notebooks-models-and-schema" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Code Notebooks Models and Schema</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#stateful-vs-stateless-execution" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Stateful vs Stateless Execution</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#notebook-cells-for-script-storage--execution-tracking" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Notebook Cells for Script Storage &amp; Execution Tracking</span> </a> <ul class="isMobile astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#migration-scripts--database-evolution" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Migration Scripts &amp; Database Evolution</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#cli-use" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">CLI Use</span> </a>  </li> </ul>  </li> </ul> </div></details></nav></mobile-starlight-toc><script type="module" src="/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.pz0qJK_l.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-pb3aqygn"><div class="sl-container astro-pb3aqygn"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-g2bywc46" style="--depth: 0;"> <li class="astro-g2bywc46" style="--depth: 0;"> <a href="#_top" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Overview</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#key-database-tables" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Key Database Tables</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#example-of-how-these-tables-work-together" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Example of How These Tables Work Together</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#special-case-migratable-sql" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Special Case: Migratable SQL</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#code-notebooks-models-and-schema" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Code Notebooks Models and Schema</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#stateful-vs-stateless-execution" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Stateful vs Stateless Execution</span> </a>  </li> </ul>  </li><li class="astro-g2bywc46" style="--depth: 0;"> <a href="#notebook-cells-for-script-storage--execution-tracking" class="astro-g2bywc46" style="--depth: 0;"> <span class="astro-g2bywc46" style="--depth: 0;">Notebook Cells for Script Storage &amp; Execution Tracking</span> </a> <ul class="astro-g2bywc46" style="--depth: 1;"> <li class="astro-g2bywc46" style="--depth: 1;"> <a href="#migration-scripts--database-evolution" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">Migration Scripts &amp; Database Evolution</span> </a>  </li><li class="astro-g2bywc46" style="--depth: 1;"> <a href="#cli-use" class="astro-g2bywc46" style="--depth: 1;"> <span class="astro-g2bywc46" style="--depth: 1;">CLI Use</span> </a>  </li> </ul>  </li> </ul> </nav></starlight-toc><script type="module" src="/_astro/TableOfContents.astro_astro_type_script_index_0_lang.DCp6qTdA.js"></script></div></div> </div> </aside> <div class="main-pane astro-67yu43on">  <main data-pagefind-body lang="en" dir="ltr" class="astro-bguv2lll">    <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <h1 id="_top" class="astro-j6tvhyss">Code Notebooks</h1>  </div> </div>  <div class="content-panel astro-7nkwcw3z"> <div class="sl-container astro-7nkwcw3z"> <div class="sl-markdown-content"> <p><strong>Resource Surveillance Code Notebooks (RSCNs)</strong> are a way to store and manage
+executable code, allowing SQL or other “polyglot” code (e.g., Python, R, AI
+prompt code) to be kept, tracked, and executed within a <strong>Resource Surveillance
+State Database (RSSD)</strong>. The structure enables detailed control over code
+execution and maintains a record of execution history and state transitions.</p>
+<p>In this system:</p>
+<ol>
+<li>Each notebook is split into individual <strong>cells</strong>.</li>
+<li>Each cell contains a single block of code or function and is treated as an
+independently executable unit.</li>
+<li>Notebooks can be associated with a <strong>kernel</strong>, which is a specific
+computational engine responsible for executing the code.</li>
+</ol>
+<p>The RSCN structure allows:</p>
 <ul>
-<li><strong>Query data</strong> using SQL, ideal for users with database knowledge.</li>
-<li><strong>Perform complex analyses</strong> using scripting languages, supporting advanced data science workflows, statistical modeling, and machine learning.</li>
+<li>Storing code in modular, traceable units (cells).</li>
+<li>Associating each cell with a specific kernel for execution.</li>
+<li>Tracking execution states and results for stateful operations, which is
+particularly useful for tasks like SQL migrations.</li>
+<li>Managing versioning and execution control for each cell independently, making
+the system flexible, auditable, and suitable for complex workflows in a
+controlled environment.</li>
 </ul>
-<p>This hybrid approach lets users harness SQL for efficient querying while using Python or R to apply custom logic and algorithms.</p>
-<p><strong>Example</strong>: An analyst working on a compliance audit can pull together data from CRM and ERP systems with SQL, then apply machine learning models in Python to identify high-risk records based on historical patterns.</p>
-<hr>
-<h3 id="2-workflow-automation-and-scheduling">2. Workflow Automation and Scheduling</h3>
-<p><strong>Code Notebooks</strong> integrate seamlessly with <code dir="auto">surveilr orchestrate</code> to automate and schedule notebook tasks, reducing manual intervention and ensuring consistent, routine analysis. Through this integration, users can set notebooks to run at defined intervals or trigger them based on specific events (e.g., data updates or threshold breaches).</p>
+<p>This database design enables precise control over notebook-based code execution,
+particularly in environments where code execution history and state consistency
+are crucial.</p>
+<h3 id="key-database-tables">Key Database Tables</h3>
+<p>There are three primary tables involved: <code dir="auto">code_notebook_kernel</code>,
+<code dir="auto">code_notebook_cell</code>, and <code dir="auto">code_notebook_state</code>.</p>
+<h4 id="1-code_notebook_kernel-table-kernel-information">1. <code dir="auto">code_notebook_kernel</code> Table: Kernel Information</h4>
+<p>The <strong><code dir="auto">code_notebook_kernel</code> table</strong> stores metadata about each <strong>kernel</strong> or
+<strong>execution engine</strong> used for running notebook code. Each record represents a
+unique kernel, including details like its name, description, MIME type, and
+associated file extension. This table allows for different types of kernels,
+depending on the language or environment needed to execute the notebook’s code.</p>
 <ul>
-<li><strong>Scheduled Workflows</strong>: Notebooks can be set to run daily, weekly, or monthly, making them ideal for compliance checks, data refreshes, and routine reporting.</li>
-<li><strong>Event-Triggered Execution</strong>: Users can set conditions that automatically trigger a notebook, such as new data ingestion or an anomaly detection alert.</li>
-</ul>
-<p><strong>Example</strong>: An environmental compliance team can schedule a notebook to retrieve and analyze air quality data every day, automatically generating alerts if any measurements exceed regulatory thresholds.</p>
-<hr>
-<h3 id="3-interactive-documentation-and-collaboration">3. Interactive Documentation and Collaboration</h3>
-<p>Each <strong>Code Notebook</strong> serves as a self-contained document that combines code, results, documentation, and visualizations. This setup supports transparent data exploration and reporting, making it easier for teams to:</p>
+<li><strong>Kernel</strong>: An engine that executes code in a particular language or
+environment.</li>
+<li><strong>Fields</strong>:
 <ul>
-<li><strong>Document analysis</strong> steps and findings directly within the notebook for clear, accessible explanations.</li>
-<li><strong>Collaborate</strong> with colleagues by sharing notebooks, allowing other users to understand, review, and build on the work.</li>
+<li><code dir="auto">kernel_name</code>: The unique name of the kernel (e.g., “SQLite”, “Python”).</li>
+<li><code dir="auto">mime_type</code> and <code dir="auto">file_extn</code>: Describe the type of code the kernel handles
+(e.g., <code dir="auto">application/sql</code> for SQL).</li>
+<li><strong>JSON fields</strong> (<code dir="auto">elaboration</code>, <code dir="auto">governance</code>): Optional metadata about
+kernel configurations or governance policies.</li>
+<li><strong>Timestamps</strong>: Creation and update timestamps for versioning and auditing.</li>
 </ul>
-<p>With the ability to add text annotations and visualizations, <strong>Code Notebooks</strong> bridge technical and non-technical understanding, creating clear narratives around complex data.</p>
-<p><strong>Example</strong>: During a fraud investigation, a data analyst uses a notebook to record each analytical step, summarizing their findings for the compliance team and ensuring that both technical and managerial staff can understand the findings.</p>
-<hr>
-<h3 id="4-reproducibility-and-version-control">4. Reproducibility and Version Control</h3>
-<p>Every <strong>Code Notebook</strong> in <code dir="auto">surveilr</code> includes version control, which maintains a complete history of changes, supports auditing, and ensures that analyses are reproducible. This feature is essential for regulated industries, where transparency and consistency are vital.</p>
+</li>
+</ul>
+<p>This table helps enforce that each kernel is uniquely defined by its
+<code dir="auto">kernel_name</code> and ensures each notebook cell has a compatible execution engine.</p>
+<h4 id="2-code_notebook_cell-table-individual-notebook-cells">2. <code dir="auto">code_notebook_cell</code> Table: Individual Notebook Cells</h4>
+<p>The <strong><code dir="auto">code_notebook_cell</code> table</strong> contains the actual code for each notebook,
+stored one code block per row. Each cell represents a unit of interpretable code
+tied to a specific notebook and kernel. This table’s schema supports versioning
+and tracking of individual cells.</p>
 <ul>
-<li><strong>Version History</strong>: Users can view, revert to, or compare previous versions of a notebook, which is especially useful in long-term audits.</li>
-<li><strong>Audit-Ready Documentation</strong>: Each step in the analysis process is recorded, helping to demonstrate consistent adherence to regulatory standards.</li>
-</ul>
-<p><strong>Example</strong>: In preparation for an audit, a healthcare compliance officer retrieves past versions of a notebook used for patient access reviews. By showing version history, the officer demonstrates compliance with data privacy guidelines over time.</p>
-<hr>
-<h3 id="5-secure-access-control-and-data-privacy">5. Secure Access Control and Data Privacy</h3>
-<p>Security is built into <strong>Code Notebooks</strong> through role-based access control and data privacy features. This ensures that sensitive data is only accessible to authorized users and allows organizations to enforce privacy requirements and maintain regulatory compliance.</p>
+<li>
+<p><strong>Cell Structure</strong>:</p>
 <ul>
-<li><strong>Role-Based Permissions</strong>: Access to specific notebooks or data sets can be limited based on user roles, reducing exposure of sensitive information.</li>
-<li><strong>Data Anonymization</strong>: Notebooks can automatically anonymize sensitive fields, particularly useful in privacy-sensitive environments like healthcare or finance.</li>
+<li><code dir="auto">notebook_name</code>: The name of the notebook the cell belongs to.</li>
+<li><code dir="auto">cell_name</code>: A unique identifier for the cell within its notebook.</li>
+<li><code dir="auto">interpretable_code</code>: The actual code or function that will be executed.</li>
+<li><code dir="auto">interpretable_code_hash</code>: A hash of the code, allowing detection of code
+modifications.</li>
+<li><code dir="auto">notebook_kernel_id</code>: A foreign key linking to <code dir="auto">code_notebook_kernel</code>,
+specifying the kernel that executes this cell’s code.</li>
 </ul>
-<p><strong>Example</strong>: A research institution restricts access to <strong>Code Notebooks</strong> containing patient data to specific compliance officers, automatically anonymizing sensitive data fields for regulatory compliance with standards like HIPAA.</p>
-<hr>
-<h3 id="6-advanced-reporting-and-export-capabilities">6. Advanced Reporting and Export Capabilities</h3>
-<p>For documentation and compliance reporting, <strong>Code Notebooks</strong> offer versatile export options. Users can save notebooks in formats like PDF, HTML, and markdown, creating professional, standalone reports that are easy to share with stakeholders and regulators.</p>
+</li>
+<li>
+<p><strong>Uniqueness Constraint</strong>:</p>
 <ul>
-<li><strong>Customizable Reports</strong>: Users can tailor reports directly in the notebook, adding relevant visualizations, data transformations, and annotations to explain findings.</li>
-<li><strong>Multiple Export Formats</strong>: Exported reports can be shared with non-technical stakeholders or included in official audit submissions.</li>
+<li>Cells are uniquely identified by a combination of <code dir="auto">notebook_name</code>,
+<code dir="auto">cell_name</code>, and <code dir="auto">interpretable_code_hash</code>, meaning cells with the same
+<code dir="auto">notebook_name</code> and <code dir="auto">cell_name</code> can exist in multiple versions if their code
+(<code dir="auto">interpretable_code</code>) changes.</li>
 </ul>
-<p><strong>Example</strong>: A financial institution uses a <strong>Code Notebook</strong> to track and analyze transaction data, exporting the final report as a PDF for quarterly submission to regulatory authorities.</p>
-<hr>
-<h3 id="7-extensibility-with-data-science-libraries">7. Extensibility with Data Science Libraries</h3>
-<p><strong>Code Notebooks</strong> support the integration of a variety of third-party data science libraries, allowing users to customize analyses, visualize data creatively, and apply statistical methods or machine learning models tailored to their needs.</p>
+</li>
+<li>
+<p><strong>JSON Metadata Fields</strong>:</p>
 <ul>
-<li><strong>Data Science Libraries</strong>: Libraries such as Pandas, Scikit-Learn, and Matplotlib (Python) can be used within notebooks, providing users with a full suite of tools for advanced analytics and visualization.</li>
-<li><strong>Adaptability for Specialized Analysis</strong>: By supporting both SQL and scripting, <strong>Code Notebooks</strong> are flexible enough to handle industry-specific workflows and specialized analyses.</li>
+<li><code dir="auto">arguments</code>: JSON object to define input arguments or parameters for code
+execution.</li>
+<li><code dir="auto">cell_governance</code>: JSON field for policy data (e.g., who can modify or
+execute the cell).</li>
 </ul>
-<p><strong>Example</strong>: A data scientist at a biotech firm uses Scikit-Learn within a <strong>Code Notebook</strong> to analyze clinical trial data, applying advanced statistical methods to validate study results and visualize outcomes for a regulatory submission.</p> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/docs/core/concepts/behaviors/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Behaviors</span> </span> </a> <a href="/docs/core/concepts/resource/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">RSSD Resource</span> </span> </a> </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
+</li>
+</ul>
+<p>This table organizes and manages each code unit, enabling efficient version
+control and traceability of modifications.</p>
+<h4 id="3-code_notebook_state-table-tracking-execution-states">3. <code dir="auto">code_notebook_state</code> Table: Tracking Execution States</h4>
+<p>The <strong><code dir="auto">code_notebook_state</code> table</strong> records the execution state and transitions
+for each cell, enabling detailed tracking of whether a cell has been executed
+and what the outcomes were. This is especially useful for <strong>stateful kernels</strong>
+where execution results impact future operations.</p>
+<ul>
+<li>
+<p><strong>State Tracking</strong>:</p>
+<ul>
+<li><code dir="auto">from_state</code> and <code dir="auto">to_state</code>: Indicate the cell’s state transition (e.g.,
+from <code dir="auto">PENDING</code> to <code dir="auto">EXECUTED</code>).</li>
+<li><strong>Transition Reasons and Results</strong>:
+<ul>
+<li><code dir="auto">transition_reason</code>: Explanation for why the state changed (e.g.,
+triggered by user, scheduled task).</li>
+<li><code dir="auto">transition_result</code>: JSON-encoded result or outcome of the code execution
+(e.g., output data, success/failure message).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Stateful vs Stateless Execution</strong>:</p>
+<ul>
+<li>Some cells are <strong>stateful</strong> (e.g., a cell that creates a table) and should
+only be executed once, as re-running could have unwanted effects.</li>
+<li>Others are <strong>stateless</strong> (e.g., cells that compute values without side
+effects) and can be run multiple times without changing the system state.</li>
+</ul>
+</li>
+</ul>
+<p>The state-tracking mechanism here helps ensure that cells are executed in a
+controlled, traceable way, preventing unintended re-executions and supporting
+auditability.</p>
+<h3 id="example-of-how-these-tables-work-together">Example of How These Tables Work Together</h3>
+<ol>
+<li>
+<p><strong>Kernel Definition</strong>:</p>
+<ul>
+<li>Suppose there’s a kernel with <code dir="auto">kernel_name = 'SQL'</code>, which is
+responsible for executing SQL code. This entry exists in
+<code dir="auto">code_notebook_kernel</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Notebook and Cell Definition</strong>:</p>
+<ul>
+<li>A SQL notebook named <code dir="auto">"ConstructionSqlNotebook"</code> is created, and it’s split
+into individual cells, each containing a SQL statement for data processing,
+schema modification, etc.</li>
+<li>Each cell is linked to the <code dir="auto">SQLite</code> kernel by the <code dir="auto">notebook_kernel_id</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Cell Execution and State Tracking</strong>:</p>
+<ul>
+<li>Each cell’s execution is tracked in <code dir="auto">code_notebook_state</code>, where it
+transitions from an initial state (like <code dir="auto">PENDING</code>) to a final state (like
+<code dir="auto">EXECUTED</code>) once the code runs successfully.</li>
+<li>If the notebook is used to manage SQL schema migrations, a cell in
+<code dir="auto">"ConstructionSqlNotebook"</code> might be marked as <code dir="auto">EXECUTED</code> once it has
+created a table, preventing redundant re-executions.</li>
+</ul>
+</li>
+</ol>
+<h3 id="special-case-migratable-sql">Special Case: Migratable SQL</h3>
+<p>For specific SQL notebooks, such as <code dir="auto">"ConstructionSqlNotebook"</code>, certain cells
+are candidates for migration. Cells that have not yet been executed (i.e.,
+without an <code dir="auto">EXECUTED</code> state in <code dir="auto">code_notebook_state</code>) are considered
+<strong>unmigrated</strong> and represent SQL code that hasn’t yet been applied to the
+database.</p>
+<p>This setup allows the system to track which parts of a SQL migration notebook
+have been applied and which are still pending, ensuring orderly migration
+processes without redundant operations.</p>
+<h2 id="code-notebooks-models-and-schema">Code Notebooks Models and Schema</h2>
+<p>The <code dir="auto">code_notebook_kernel</code> table defines each <strong>kernel</strong> or <strong>execution engine</strong>
+responsible for running code in the notebook cells. Each record represents a
+unique kernel, specifying the programming language or environment it supports.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code dir="auto">code_notebook_kernel_id</code></td><td>VARCHAR</td><td>Primary key, uniquely identifies each kernel.</td></tr><tr><td><code dir="auto">kernel_name</code></td><td>TEXT</td><td>Unique name of the kernel (e.g., <code dir="auto">SQLite</code>, <code dir="auto">Python</code>).</td></tr><tr><td><code dir="auto">description</code></td><td>TEXT</td><td>Description of the kernel.</td></tr><tr><td><code dir="auto">mime_type</code></td><td>TEXT</td><td>MIME type associated with the code language (e.g., <code dir="auto">application/sql</code> for SQL).</td></tr><tr><td><code dir="auto">file_extn</code></td><td>TEXT</td><td>File extension associated with the kernel (e.g., <code dir="auto">.sql</code>).</td></tr><tr><td><code dir="auto">elaboration</code></td><td>JSON (nullable)</td><td>Optional metadata about kernel configurations.</td></tr><tr><td><code dir="auto">governance</code></td><td>JSON (nullable)</td><td>Optional governance policies related to the kernel.</td></tr><tr><td><code dir="auto">created_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp when the kernel was created.</td></tr><tr><td><code dir="auto">created_by</code></td><td>TEXT</td><td>User who created the kernel.</td></tr><tr><td><code dir="auto">updated_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of the last update.</td></tr><tr><td><code dir="auto">updated_by</code></td><td>TEXT</td><td>User who last updated the kernel.</td></tr><tr><td><code dir="auto">deleted_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp if the kernel is deleted (soft delete).</td></tr><tr><td><code dir="auto">deleted_by</code></td><td>TEXT</td><td>User who deleted the kernel.</td></tr><tr><td><code dir="auto">activity_log</code></td><td>TEXT</td><td>Log of kernel activities for auditing purposes.</td></tr></tbody></table>
+<p>The <code dir="auto">code_notebook_cell</code> table stores the actual code for each notebook, with
+one row per code block or cell. Each cell is associated with a specific notebook
+and a kernel.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code dir="auto">code_notebook_cell_id</code></td><td>VARCHAR</td><td>Primary key, uniquely identifies each cell.</td></tr><tr><td><code dir="auto">notebook_kernel_id</code></td><td>VARCHAR</td><td>Foreign key linking to <code dir="auto">code_notebook_kernel</code>, specifies the kernel used for execution.</td></tr><tr><td><code dir="auto">notebook_name</code></td><td>TEXT</td><td>Name of the notebook this cell belongs to.</td></tr><tr><td><code dir="auto">cell_name</code></td><td>TEXT</td><td>Unique name of the cell within the notebook.</td></tr><tr><td><code dir="auto">interpretable_code</code></td><td>TEXT</td><td>The actual code to be executed.</td></tr><tr><td><code dir="auto">interpretable_code_hash</code></td><td>TEXT</td><td>Hash of the code, used for detecting code modifications.</td></tr><tr><td><code dir="auto">description</code></td><td>TEXT</td><td>Description of the cell’s purpose.</td></tr><tr><td><code dir="auto">arguments</code></td><td>JSON (nullable)</td><td>JSON object containing input arguments for code execution.</td></tr><tr><td><code dir="auto">cell_governance</code></td><td>JSON (nullable)</td><td>Governance policies related to the cell.</td></tr><tr><td><code dir="auto">created_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp when the cell was created.</td></tr><tr><td><code dir="auto">created_by</code></td><td>TEXT</td><td>User who created the cell.</td></tr><tr><td><code dir="auto">updated_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of the last update.</td></tr><tr><td><code dir="auto">updated_by</code></td><td>TEXT</td><td>User who last updated the cell.</td></tr><tr><td><code dir="auto">deleted_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp if the cell is deleted (soft delete).</td></tr><tr><td><code dir="auto">deleted_by</code></td><td>TEXT</td><td>User who deleted the cell.</td></tr><tr><td><code dir="auto">activity_log</code></td><td>TEXT</td><td>Log of cell activities for auditing purposes.</td></tr></tbody></table>
+<p><strong>Uniqueness Constraint</strong>: Cells are uniquely identified by a combination of
+<code dir="auto">notebook_name</code>, <code dir="auto">cell_name</code>, and <code dir="auto">interpretable_code_hash</code>. This enables
+multiple versions of a cell with the same name in the same notebook as long as
+the code differs.</p>
+<p>The <code dir="auto">code_notebook_state</code> table records the state transitions for each cell,
+allowing for tracking of code execution history, particularly for <strong>stateful
+kernels</strong>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code dir="auto">code_notebook_state_id</code></td><td>VARCHAR</td><td>Primary key, uniquely identifies each state record.</td></tr><tr><td><code dir="auto">code_notebook_cell_id</code></td><td>VARCHAR</td><td>Foreign key linking to <code dir="auto">code_notebook_cell</code>, identifies the cell whose state is being tracked.</td></tr><tr><td><code dir="auto">from_state</code></td><td>TEXT</td><td>State before the transition (e.g., <code dir="auto">PENDING</code>).</td></tr><tr><td><code dir="auto">to_state</code></td><td>TEXT</td><td>State after the transition (e.g., <code dir="auto">EXECUTED</code>).</td></tr><tr><td><code dir="auto">transition_reason</code></td><td>TEXT</td><td>Reason for the state change (e.g., triggered by user action).</td></tr><tr><td><code dir="auto">transition_result</code></td><td>JSON (nullable)</td><td>Result of the transition (e.g., success, error messages).</td></tr><tr><td><code dir="auto">transitioned_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of the state transition.</td></tr><tr><td><code dir="auto">elaboration</code></td><td>JSON (nullable)</td><td>Additional metadata related to the state transition.</td></tr><tr><td><code dir="auto">created_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp when the record was created.</td></tr><tr><td><code dir="auto">created_by</code></td><td>TEXT</td><td>User who created the record.</td></tr><tr><td><code dir="auto">updated_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of the last update.</td></tr><tr><td><code dir="auto">updated_by</code></td><td>TEXT</td><td>User who last updated the record.</td></tr><tr><td><code dir="auto">deleted_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp if the record is deleted (soft delete).</td></tr><tr><td><code dir="auto">deleted_by</code></td><td>TEXT</td><td>User who deleted the record.</td></tr><tr><td><code dir="auto">activity_log</code></td><td>TEXT</td><td>Log of state activities for auditing purposes.</td></tr></tbody></table>
+<h3 id="stateful-vs-stateless-execution">Stateful vs Stateless Execution</h3>
+<ul>
+<li><strong>Stateful Cells</strong>: Cells that perform persistent operations (e.g., creating
+tables) should only be executed once.</li>
+<li><strong>Stateless Cells</strong>: Cells that perform non-persistent computations can be
+executed multiple times without side effects.</li>
+</ul>
+<h2 id="notebook-cells-for-script-storage--execution-tracking">Notebook Cells for Script Storage &#x26; Execution Tracking</h2>
+<p>The <code dir="auto">code_notebook_cell</code> table serves as a comprehensive repository to store and
+manage SQL scripts of all kinds, including but not limited to:</p>
+<ul>
+<li><code dir="auto">SQL DDL</code>: For database structure modifications such as <code dir="auto">CREATE</code>, <code dir="auto">ALTER</code>, and
+<code dir="auto">DROP</code>.</li>
+<li><code dir="auto">SQL DQL</code>: Scripts related to data querying like <code dir="auto">SELECT</code> operations.</li>
+<li><code dir="auto">SQL DML</code>: Scripts for data manipulation including <code dir="auto">INSERT</code>, <code dir="auto">UPDATE</code>, and
+<code dir="auto">DELETE</code>.</li>
+<li>… and other SQL operations.</li>
+</ul>
+<p>While it’s versatile enough to manage various SQL tasks, <code dir="auto">code_notebook_cell</code>
+table’s primary advantage lies in storing SQL DDL scripts needed for migrations</p>
+<p><strong>Columns</strong>:</p>
+<ul>
+<li><code dir="auto">code_notebook_cell_id</code>: A unique identifier for each SQL script.</li>
+<li><code dir="auto">notebook_name</code>: Broad categorization or project name. Especially useful for
+grouping related migration scripts.</li>
+<li><code dir="auto">cell_name</code>: A descriptive name for the SQL operation or step.</li>
+<li><code dir="auto">cell_governance</code>: Optional JSON field for any governance or
+compliance-related data.</li>
+<li><code dir="auto">kernel</code>: The SQL dialect or interpreter the script targets, such as
+PostgreSQL, MySQL, etc. (might also support shebang-style for non SQL)</li>
+<li><code dir="auto">interpretable_code</code>: The SQL script itself (or any other runtime).</li>
+<li><code dir="auto">description</code>: A brief description or context regarding the purpose of the
+script.</li>
+<li><code dir="auto">activity_log</code>: optional JSON which stores the history of the changes to thie
+notebook cell</li>
+</ul>
+<h3 id="migration-scripts--database-evolution">Migration Scripts &#x26; Database Evolution</h3>
+<p>One of the best uses for <code dir="auto">code_notebook_cell</code> is to manage SQL DDL scripts
+crucial for database migrations. As databases evolve, tracking structural
+changes becomes vital. By cataloging these DDL scripts, one can maintain a clear
+version history, ensuring that database evolution is orderly, reversible, and
+auditable.</p>
+<p>To maintain a clear audit trail of script execution, the <code dir="auto">code_notebook_state</code>
+table logs each execution’s status. And, migration scripts can use the state to
+know whether something has already been executed.</p>
+<p><strong>Inserting a New Execution State</strong>:</p>
+<p>To log the execution of a script, you can add an entry like so:</p>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.j8ofn.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="sql"><code><div class="ec-line"><div class="code"><span style="--0:#C792EA;--1:#8D46B4">INSERT INTO</span><span style="--0:#D6DEEB;--1:#403F53"> code_notebook_state</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">(code_notebook_state_id, code_notebook_cell_id, from_state, to_state, created_at, created_by)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#C792EA;--1:#8D46B4">VALUES</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">(</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">generated_or_provided_state_id</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53">,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#D6DEEB;--1:#403F53">    </span></span><span style="--0:#D6DEEB;--1:#403F53">(</span><span style="--0:#C792EA;--1:#8D46B4">SELECT</span><span style="--0:#D6DEEB;--1:#403F53"> code_notebook_cell_id</span></div></div><div class="ec-line"><div class="code"><span class="indent">     </span><span style="--0:#C792EA;--1:#8D46B4">FROM</span><span style="--0:#D6DEEB;--1:#403F53"> code_notebook_cell</span></div></div><div class="ec-line"><div class="code"><span class="indent">     </span><span style="--0:#C792EA;--1:#8D46B4">WHERE</span><span style="--0:#D6DEEB;--1:#403F53"> notebook_name </span><span style="--0:#C792EA;--1:#8D46B4">=</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">specific_project_name</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div><div class="ec-line"><div class="code"><span class="indent">     </span><span style="--0:#C792EA;--1:#8D46B4">AND</span><span style="--0:#D6DEEB;--1:#403F53"> cell_name </span><span style="--0:#C792EA;--1:#8D46B4">=</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">specific_script_name</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53">),</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">INITIAL</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">EXECUTED</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53">,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#D6DEEB;--1:#403F53">    </span></span><span style="--0:#D6DEEB;--1:#403F53">CURRENT_TIMESTAMP,</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">executor_name_or_system</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">);</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="INSERT INTO code_notebook_state(code_notebook_state_id, code_notebook_cell_id, from_state, to_state, created_at, created_by)VALUES(    &#x27;generated_or_provided_state_id&#x27;,    (SELECT code_notebook_cell_id     FROM code_notebook_cell     WHERE notebook_name = &#x27;specific_project_name&#x27;     AND cell_name = &#x27;specific_script_name&#x27;),    &#x27;INITIAL&#x27;,    &#x27;EXECUTED&#x27;,    CURRENT_TIMESTAMP,    &#x27;executor_name_or_system&#x27;);"><div></div></button></div></figure></div>
+<p><strong>State Transitions</strong>:</p>
+<p>With <code dir="auto">from_state</code> and <code dir="auto">to_state</code>, you can track a script’s lifecycle, from its
+<code dir="auto">INITIAL</code> state to any subsequent states like ‘EXECUTED’, ‘ROLLED_BACK’, etc.
+This provides a traceable path of script interactions.</p>
+<h3 id="cli-use">CLI Use</h3>
+<p>One way to keep your code and the database in sync is to just use the database
+to get its SQL (instead of putting it into an app) and execute the SQL directly
+in the database.</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3C63B3">$</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">sqlite3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">xyz.db</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">select sql from code_notebook_cell where code_notebook_cell_id = 'infoSchemaMarkdown'</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#097174">|</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">sqlite3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">xyz.db</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="$ sqlite3 xyz.db &#x22;select sql from code_notebook_cell where code_notebook_cell_id = &#x27;infoSchemaMarkdown&#x27;&#x22; | sqlite3 xyz.db"><div></div></button></div></figure></div>
+<p>You can pass in arguments using <code dir="auto">.parameter</code> or <code dir="auto">sql_parameters</code> table, like:</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3C63B3">$</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">echo</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#9B504E">.parameter set X Y; $(</span><span style="--0:#82AAFF;--1:#3C63B3">sqlite3</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">xyz.db</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#F78C6C;--1:#AA0982">\"</span><span style="--0:#ECC48D;--1:#3C63B3">SELECT</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">sql</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">FROM</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">code_notebook_cell</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">where</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">code_notebook_cell_id</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#ECC48D;--1:#3C63B3">=</span><span style="--0:#ECC48D;--1:#9B504E"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#9B504E">init</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#F78C6C;--1:#AA0982">\"</span><span style="--0:#ECC48D;--1:#9B504E">)</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#097174">|</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3C63B3">sqlite3</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3C63B3">xyz.db</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="$ echo &#x22;.parameter set X Y; $(sqlite3 xyz.db \&#x22;SELECT sql FROM code_notebook_cell where code_notebook_cell_id = &#x27;init&#x27;\&#x22;)&#x22; | sqlite3 xyz.db"><div></div></button></div></figure></div> </div> <footer class="sl-flex astro-3yyafb3n"> <div class="meta sl-flex astro-3yyafb3n">   </div> <div class="pagination-links astro-u2l5gyhi" dir="ltr"> <a href="/docs/core/concepts/behaviors/" rel="prev" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>  <span class="astro-u2l5gyhi"> Previous <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">Behaviors</span> </span> </a> <a href="/docs/core/concepts/resource/" rel="next" class="astro-u2l5gyhi"> <svg aria-hidden="true" class="astro-u2l5gyhi astro-c6vsoqas" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg>  <span class="astro-u2l5gyhi"> Next <br class="astro-u2l5gyhi"> <span class="link-title astro-u2l5gyhi">RSSD Resource</span> </span> </a> </div>   </footer>  </div> </div>   </main> </div> </div>  </div> </div>  </body></html>
