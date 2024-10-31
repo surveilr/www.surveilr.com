@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
@@ -42,4 +45,4 @@ jobs:
           fi
 
       - name: Run Deno Tests
-        run: cd .. && pwd && tree -L 2 && deno test -A ./lib/assurance/ --fail-fast
+        run: deno test -A ./lib/assurance/ --fail-fast
