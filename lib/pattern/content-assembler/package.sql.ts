@@ -61,11 +61,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @cakNav({
-    caption: "Inbox",
+    caption: "IMAP Accounts",
     description: ``,
     siblingOrder: 1,
   })
-  "cak/inbox.sql"() {
+  "cak/accounts.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
 
@@ -73,13 +73,116 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             'subject' AS markdown,
             'Column Count' as align_right,
             TRUE as sort,
-            TRUE as search;
+            TRUE as search,
+            'accounts' AS markdown;
 
-      SELECT extended_uniform_resource_id as "uniform resource id",
-      "message_from" as "message from",
-       '[' || message_subject || '](/cak/email-detail.sql?id=' || extended_uniform_resource_id || ')' AS "subject",
-       strftime('%m/%d/%Y', message_date) as "message date"
-      from inbox
+       SELECT
+        '[' || email || '](/cak/account-folder.sql?imap_account_id=' || ur_ingest_session_imap_account_id || ')' AS "accounts"
+          FROM uniform_resource_imap
+          GROUP BY ur_ingest_session_imap_account_id
+          ORDER BY uniform_resource_id;
+      `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "cak/account-folder.sql"() {
+    return this.SQL`
+    SELECT 'breadcrumb' as component;
+      SELECT
+          'Home' as title,
+          '/'    as link;
+      SELECT
+          'Content Assembler IMAP' as title,
+          '/cak' as link;
+      SELECT
+          'IMAP Accounts' as title,
+          '/cak/accounts.sql' as link;
+      SELECT
+          (SELECT
+        'Folder (' || email || ')'
+          FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT
+          GROUP BY ur_ingest_session_imap_account_id
+          ORDER BY uniform_resource_id) as title,
+          '/cak/account-folder.sql?imap_account_id=' || $imap_account_id::TEXT as link;
+
+        SELECT
+          'title'   as component,
+          (SELECT
+        'Folder (' || email || ')'
+          FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT
+          GROUP BY ur_ingest_session_imap_account_id
+          ORDER BY uniform_resource_id) as contents;
+
+      SELECT 'table' AS component,
+            'subject' AS markdown,
+            'Column Count' as align_right,
+            TRUE as sort,
+            TRUE as search,
+            'folder' AS markdown;
+
+     SELECT '[' || folder_name || '](/cak/imap-mail-list.sql?folder_id=' || ur_ingest_session_imap_acct_folder_id || ')' AS "folder"
+        FROM uniform_resource_imap
+        WHERE ur_ingest_session_imap_account_id=$imap_account_id::TEXT
+        GROUP BY ur_ingest_session_imap_acct_folder_id
+        ORDER BY uniform_resource_id;
+      `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "cak/imap-mail-list.sql"() {
+    return this.SQL`
+    SELECT 'breadcrumb' as component;
+    SELECT
+          'Home' as title,
+          '/'    as link;
+      SELECT
+          'Content Assembler IMAP' as title,
+          '/cak' as link;
+      SELECT
+          'IMAP Accounts' as title,
+          '/cak/accounts.sql' as link;
+      SELECT
+          (SELECT
+        'Folder (' || email || ')'
+          FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+          GROUP BY ur_ingest_session_imap_account_id
+          ORDER BY uniform_resource_id) as title,
+          '/cak/account-folder.sql?imap_account_id=' || (SELECT
+        ur_ingest_session_imap_account_id
+          FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+          GROUP BY ur_ingest_session_imap_account_id) as link;
+
+      SELECT
+          (
+        SELECT email || ' (' || folder_name || ')'
+          FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+          GROUP BY ur_ingest_session_imap_account_id
+          ORDER BY uniform_resource_id) as title,
+          '/cak/imap-mail-list.sql?folder_id=' || $folder_id::TEXT as link;
+
+
+      SELECT 'table' AS component,
+            'Uniform Resources' AS title,
+            "Size (bytes)" as align_right,
+            TRUE AS sort,
+            TRUE AS search,
+            TRUE AS hover,
+            TRUE AS striped_rows,
+            TRUE AS small;
+
+     SELECT subject,"from",
+     CASE
+          WHEN ROUND(julianday('now') - julianday(date)) = 0 THEN 'Today'
+          WHEN ROUND(julianday('now') - julianday(date)) = 1 THEN '1 day ago'
+          WHEN ROUND(julianday('now') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday('now') - julianday(date)) AS INT) || ' days ago'
+          WHEN ROUND(julianday('now') - julianday(date)) < 30 THEN CAST(ROUND(julianday('now') - julianday(date)) AS INT) || ' days ago'
+          WHEN ROUND(julianday('now') - julianday(date)) < 365 THEN CAST(ROUND((julianday('now') - julianday(date)) / 30) AS INT) || ' months ago'
+          ELSE CAST(ROUND((julianday('now') - julianday(date)) / 365) AS INT) || ' years ago'
+      END AS "Relative Time",
+      strftime('%Y-%m-%d', substr(date, 1, 19)) as date
+      FROM uniform_resource_imap
+      WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
+      ORDER BY uniform_resource_id;
       `;
   }
 
