@@ -470,7 +470,7 @@ DELETE FROM sqlpage_aide_navigation WHERE path like '/cak%';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', '/', 1, '/cak', '/cak/', 'Content Assembler IMAP', NULL, NULL, 'Email system with IMAP', NULL),
-    ('prime', '/cak', 1, '/cak/inbox.sql', '/cak/inbox.sql', 'Inbox', NULL, NULL, NULL, NULL)
+    ('prime', '/cak', 1, '/cak/accounts.sql', '/cak/accounts.sql', 'IMAP Accounts', NULL, NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -1370,7 +1370,16 @@ SELECT ''table'' AS component,
       TRUE AS hover,
       TRUE AS striped_rows,
       TRUE AS small;
-SELECT subject,"from",strftime(''%Y-%m-%d %H:%M:%S'', substr(date, 1, 19)) as date
+SELECT subject,"from",
+  CASE
+    WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
+    WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
+    ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
+END AS "Relative Time",
+strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
 FROM uniform_resource_imap
 WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
 ORDER BY uniform_resource_id
@@ -1509,7 +1518,7 @@ SELECT caption as title, COALESCE(url, path) as link, description
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'cak/inbox.sql',
+      'cak/accounts.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -1519,7 +1528,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path = ''/cak/inbox.sql''
+    WHERE namespace = ''prime'' AND path = ''/cak/accounts.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -1533,20 +1542,129 @@ SELECT title, link FROM breadcrumbs ORDER BY level DESC;
 
               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''/cak/inbox.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''/cak/accounts.sql'') as contents;
     ;
 
 SELECT ''table'' AS component,
       ''subject'' AS markdown,
       ''Column Count'' as align_right,
       TRUE as sort,
-      TRUE as search;
+      TRUE as search,
+      ''accounts'' AS markdown;
 
-SELECT extended_uniform_resource_id as "uniform resource id",
-"message_from" as "message from",
- ''['' || message_subject || ''](/cak/email-detail.sql?id='' || extended_uniform_resource_id || '')'' AS "subject",
- strftime(''%m/%d/%Y'', message_date) as "message date"
-from inbox;
+ SELECT
+  ''['' || email || ''](/cak/account-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id || '')'' AS "accounts"
+    FROM uniform_resource_imap
+    GROUP BY ur_ingest_session_imap_account_id
+    ORDER BY uniform_resource_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'cak/account-folder.sql',
+      '             SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+             -- not including breadcrumbs from sqlpage_aide_navigation
+             -- not including page title from sqlpage_aide_navigation
+
+             SELECT ''breadcrumb'' as component;
+ SELECT
+     ''Home'' as title,
+     ''/''    as link;
+ SELECT
+     ''Content Assembler IMAP'' as title,
+     ''/cak'' as link;
+ SELECT
+     ''IMAP Accounts'' as title,
+     ''/cak/accounts.sql'' as link;
+ SELECT
+     (SELECT
+   ''Folder ('' || email || '')''
+     FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT
+     GROUP BY ur_ingest_session_imap_account_id
+     ORDER BY uniform_resource_id) as title,
+     ''/cak/account-folder.sql?imap_account_id='' || $imap_account_id::TEXT as link;
+
+   SELECT
+     ''title''   as component,
+     (SELECT
+   ''Folder ('' || email || '')''
+     FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT
+     GROUP BY ur_ingest_session_imap_account_id
+     ORDER BY uniform_resource_id) as contents;
+
+ SELECT ''table'' AS component,
+       ''subject'' AS markdown,
+       ''Column Count'' as align_right,
+       TRUE as sort,
+       TRUE as search,
+       ''folder'' AS markdown;
+
+SELECT ''['' || folder_name || ''](/cak/imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id || '')'' AS "folder"
+   FROM uniform_resource_imap
+   WHERE ur_ingest_session_imap_account_id=$imap_account_id::TEXT
+   GROUP BY ur_ingest_session_imap_acct_folder_id
+   ORDER BY uniform_resource_id;
+           ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'cak/imap-mail-list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT ''breadcrumb'' as component;
+SELECT
+      ''Home'' as title,
+      ''/''    as link;
+  SELECT
+      ''Content Assembler IMAP'' as title,
+      ''/cak'' as link;
+  SELECT
+      ''IMAP Accounts'' as title,
+      ''/cak/accounts.sql'' as link;
+  SELECT
+      (SELECT
+    ''Folder ('' || email || '')''
+      FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+      GROUP BY ur_ingest_session_imap_account_id
+      ORDER BY uniform_resource_id) as title,
+      ''/cak/account-folder.sql?imap_account_id='' || (SELECT
+    ur_ingest_session_imap_account_id
+      FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+      GROUP BY ur_ingest_session_imap_account_id) as link;
+
+  SELECT
+      (
+    SELECT email || '' ('' || folder_name || '')''
+      FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT
+      GROUP BY ur_ingest_session_imap_account_id
+      ORDER BY uniform_resource_id) as title,
+      ''/cak/imap-mail-list.sql?folder_id='' || $folder_id::TEXT as link;
+
+
+  SELECT ''table'' AS component,
+        ''Uniform Resources'' AS title,
+        "Size (bytes)" as align_right,
+        TRUE AS sort,
+        TRUE AS search,
+        TRUE AS hover,
+        TRUE AS striped_rows,
+        TRUE AS small;
+
+ SELECT subject,"from",
+ CASE
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
+      ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
+  END AS "Relative Time",
+  strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
+  ORDER BY uniform_resource_id;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

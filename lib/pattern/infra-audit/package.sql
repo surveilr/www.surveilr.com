@@ -2837,7 +2837,16 @@ SELECT ''table'' AS component,
       TRUE AS hover,
       TRUE AS striped_rows,
       TRUE AS small;
-SELECT subject,"from",strftime(''%Y-%m-%d %H:%M:%S'', substr(date, 1, 19)) as date
+SELECT subject,"from",
+  CASE
+    WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
+    WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+    WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
+    ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
+END AS "Relative Time",
+strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
 FROM uniform_resource_imap
 WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
 ORDER BY uniform_resource_id
