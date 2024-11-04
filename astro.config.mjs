@@ -3,6 +3,7 @@ import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
 import compressor from "astro-compressor";
 import starlight from "@astrojs/starlight";
+import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,6 +26,7 @@ export default defineConfig({
   prefetch: true,
   integrations: [
     tailwind(),
+    react(),
     sitemap({
       i18n: {
         defaultLocale: "en", // All urls that don't contain `fr` after domain will be treated as default locale, i.e. `en`
