@@ -51,10 +51,10 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
               ur.size_bytes,
               ur.nature
         FROM uniform_resource ur
-        LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON ur.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
+        LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ur.ingest_session_imap_acct_folder_message
+        LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
         LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-        LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
-        WHERE ur.ingest_imap_acct_folder_id IS NOT NULL;
+        WHERE ur.ingest_session_imap_acct_folder_message IS NOT NULL;
     `;
   }
 
