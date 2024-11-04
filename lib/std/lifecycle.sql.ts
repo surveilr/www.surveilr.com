@@ -3,6 +3,7 @@ import * as nb from "./notebook/rssd.ts";
 import * as cnb from "./notebook/code.ts";
 import { lifecycle as lcm } from "./models/mod.ts";
 import { polygen as p, SQLa } from "./deps.ts";
+import * as stdPackage from "./package.sql.ts"
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -894,7 +895,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 }
 
 export async function SQL() {
-  return await RssdInitSqlNotebook.SQL(new RssdInitSqlNotebook());
+  return [...await RssdInitSqlNotebook.SQL(new RssdInitSqlNotebook()), ...await stdPackage.SQL()];
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
