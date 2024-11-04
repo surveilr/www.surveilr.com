@@ -50,7 +50,7 @@ FROM
 drop view if exists inbox;
 CREATE VIEW inbox AS
 SELECT
-    ur_imap.uniform_resource_id AS base_uniform_resource_id,
+    ur_base.uniform_resource_id AS base_uniform_resource_id,
     ur_imap."from" AS message_from,
     ur_imap."subject" AS message_subject,
     ur_imap."date" AS message_date,
@@ -60,7 +60,8 @@ FROM
     ur_ingest_session_imap_acct_folder_message ur_imap
 JOIN
     uniform_resource ur_base
-    ON ur_base.uniform_resource_id = ur_imap.uniform_resource_id
+    -- the `uniform_resource` table is connected to the `ur_ingest_session_imap_acct_folder_message` table through a foreign key
+    ON ur_base.ingest_session_imap_acct_folder_message = ur_imap.ur_ingest_session_imap_acct_folder_message_id
 JOIN
     uniform_resource ur_extended
     ON ur_extended.uri = ur_base.uri || '/html'
@@ -361,10 +362,10 @@ CREATE VIEW uniform_resource_file AS
         ur.size_bytes,
         ur.nature
   FROM uniform_resource ur
-  LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON ur.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
+  LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ur.ingest_session_imap_acct_folder_message
+  LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
   LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-  LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
-  WHERE ur.ingest_imap_acct_folder_id IS NOT NULL;
+  WHERE ur.ingest_session_imap_acct_folder_message IS NOT NULL;
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', '/', 1, '/orchestration', '/orchestration/', 'Orchestration', NULL, NULL, 'Explore details about all orchestration', NULL),
