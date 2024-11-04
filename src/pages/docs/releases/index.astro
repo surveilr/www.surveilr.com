@@ -1,23 +1,21 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import ReleasesList from '@/components/ui/releases/ReleaseList.astro';
+//import ReleasesList from '@/components/ui/releases/ReleaseList.astro';
+import ReleasesList from '@/components/ui/releases/ReleasesList';
 
-const baseUrl = Astro.url.origin
-console.log(baseUrl);
+const baseUrl = Astro.url.origin;
 let headings = [];
+
 try {
   const response = await fetch(`${baseUrl}/docs/releases/getReleaseHeadings`);
   if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-   headings = await response.json();
-
+  headings = await response.json();
 } catch (error) {
   console.error("Failed to fetch release headings:", error);
-   headings = []; 
+  headings = []; 
 }
 ---
 
 <StarlightPage frontmatter={{ title: 'Releases' }} headings={headings}>
-
-<ReleasesList />
-
+  <ReleasesList client:load />
 </StarlightPage>
