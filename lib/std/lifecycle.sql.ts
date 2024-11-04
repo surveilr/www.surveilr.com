@@ -361,6 +361,17 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${this.serviceModels.informationSchema.tableIndexes}`;
   }
 
+  @migratableCell({
+    description:
+      "Creates a session_state_ephemeral table for session arguments",
+  })
+  session_ephemeral_table() {
+    // deno-fmt-ignore
+    return this.SQL`
+      ${this.sessionStateTable}
+      `;
+  }
+
   // TODO: check with DML should only be inserted once so that if customers override
   //       content, a future migration won't overwrite their data
   @migratableCell({
