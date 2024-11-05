@@ -394,13 +394,12 @@ Deno.test("sqlite_lines", async (t) => {
     );
 
     const stdout = result.stdoutJson;
-    const response = stdout[0];
-    console.log({ response });
+    const response = stdout;
 
     const expectedLines = fileContent.split("\n");
     for (const [index, line] of expectedLines.entries()) {
       assertEquals(
-        response[index],
+        response[index]["line"],
         line,
         `❌ Error: Line ${index + 1} does not match.`,
       );
