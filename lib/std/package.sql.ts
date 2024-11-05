@@ -2,7 +2,6 @@
 import {
   console as c,
   orchestration as orch,
-  rssdMigration as rm,
   shell as sh,
   uniformResource as ur,
 } from "./web-ui-content/mod.ts";
@@ -13,8 +12,7 @@ export async function SQL() {
     new sh.ShellSqlPages(),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
-    new orch.OrchestrationSqlPages(),
-    new rm.RssdMigrationSqlPages(),
+    new orch.OrchestrationSqlPages()
   );
 }
 // this will be used by any callers who want to serve it as a CLI with SDTOUT

@@ -500,4 +500,102 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
          AND c.cell_name = $cell
          AND k.code_notebook_kernel_id = c.notebook_kernel_id;`;
   }
+
+  @consoleNav({
+    caption: "RSSD Lifecycle (migrations)",
+    abbreviatedCaption: "Migrations",
+    description:
+      "Explore RSSD Migrations to determine what was executed and not",
+    siblingOrder: 2,
+  })
+  "console/migrations/index.sql"() {
+    return this.SQL`
+      SELECT 'title' AS component, 'Pending Migrations' AS contents;
+      SELECT 'text' AS component, 'This table lists all cells eligible for migration but not yet executed. 
+          If migrations have been completed successfully, this list will be empty, 
+          indicating that all migratable cells have been processed and marked as executed.' as contents;
+
+      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
+      SELECT 
+          c.code_notebook_cell_id,
+          c.notebook_name,
+          c.cell_name,
+          c.is_idempotent,
+          c.version_timestamp
+      FROM 
+          code_notebook_sql_cell_migratable_not_executed AS c
+      ORDER BY 
+          c.cell_name;
+          
+      -- State of Executed Migrations
+      SELECT 'title' AS component, 'State of Executed Migrations' AS contents;
+      SELECT 'text' AS component, 'This table displays all cells that have been successfully executed as part of the migration process, 
+          showing the latest version of each migratable cell. 
+          For each cell, it provides details on its transition states, 
+          the reason and result of the migration, and the timestamp of when the migration occurred.' as contents;
+
+      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
+      SELECT 
+          c.code_notebook_cell_id,
+          c.notebook_name,
+          c.cell_name,
+          c.is_idempotent,
+          c.version_timestamp,
+          c.from_state,
+          c.to_state,
+          c.transition_reason,
+          c.transition_result,
+          c.transitioned_at
+      FROM 
+          code_notebook_sql_cell_migratable_state AS c
+      ORDER BY 
+          c.cell_name;
+
+
+      -- Executable Migrations
+      SELECT 'title' AS component, 'Executable Migrations' AS contents;
+      SELECT 'text' AS component, 'All cells that are candidates for migration (including duplicates)' as contents;
+      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
+      SELECT 
+              c.code_notebook_cell_id,
+              c.notebook_name,
+              c.cell_name,
+              '[' || c.cell_name || '](notebook-cell.sql?notebook=' || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+              c.interpretable_code_hash,
+              c.is_idempotent,
+              c.version_timestamp
+          FROM 
+              code_notebook_sql_cell_migratable_version AS c
+          ORDER BY 
+              c.cell_name;
+      
+      -- All Migrations
+      SELECT 'title' AS component, 'All Migrations' AS contents;
+      SELECT 'text' AS component, 'A detailed look at all migrations in surveilr' as contents;
+      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
+      SELECT c.notebook_name,
+             '[' || c.cell_name || '](notebook-cell.sql?notebook=' || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+             c.description,
+             k.kernel_name as kernel
+        FROM code_notebook_kernel k, code_notebook_cell c
+       WHERE k.code_notebook_kernel_id = c.notebook_kernel_id;
+      `;
+  }
+
+  // no @consoleNav since this is a "utility" page (not navigable)
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "console/migrations/notebook-cell.sql"() {
+    // deno-fmt-ignore
+    return this.SQL`
+      ${this.activeBreadcrumbsSQL({ titleExpr: `'Notebook ' || $notebook || ' Cell' || $cell` })}
+
+      SELECT 'code' as component;
+      SELECT $notebook || '.' || $cell || ' (' || k.kernel_name ||')' as title,
+             COALESCE(c.cell_governance -> '$.language', 'sql') as language,
+             c.interpretable_code as contents
+        FROM code_notebook_kernel k, code_notebook_cell c
+       WHERE c.notebook_name = $notebook
+         AND c.cell_name = $cell
+         AND k.code_notebook_kernel_id = c.notebook_kernel_id;`;
+  }
 }
