@@ -501,6 +501,123 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
          AND k.code_notebook_kernel_id = c.notebook_kernel_id;`;
   }
 
+  migrationDocumentation() {
+    return `
+This document provides an organized and comprehensive overview of \`\`surveilr\`\`''s RSSD migration process starting from \`\`v 1.0.0\`\`, breaking down each component and the steps followed to ensure smooth and efficient migrations. It covers the creation of key tables and views, the handling of migration cells, and the sequence for executing migration scripts.
+
+---
+
+## Session and State Initialization
+
+To manage temporary session data and track user state, we use the \`\`session_state_ephemeral\`\` table, which stores essential session information like the current user. This table is temporary, meaning it only persists data for the duration of the session, and it''s especially useful for identifying the user responsible for specific actions during the migration.
+
+Each time the migration process runs, we initialize session data in this table, ensuring all necessary information is available without affecting the core database tables. This initialization prepares the system for more advanced operations that rely on knowing the user executing each action.
+
+---
+
+## Assurance Schema Table
+
+The \`\`assurance_schema\`\` table is designed to store various schema-related details, including the type of schema assurance, associated codes, and related governance data. This table is central to defining the structure of assurance records, which are useful for validating data, tracking governance requirements, and recording creation timestamps. All updates to the schema are logged to track when they were last modified and by whom.
+
+---
+
+## Code Notebook Kernel, Cell, and State Tables
+
+\`\`surveilr\`\` uses a structured system of code notebooks to store and execute SQL commands. These commands, or “cells,” are grouped into notebooks, and each notebook is associated with a kernel, which provides metadata about the notebook''s language and structure. The main tables involved here are:
+
+- **\`\`code_notebook_kernel\`\`**: Stores information about different kernels, each representing a unique execution environment or language.
+- **\`\`code_notebook_cell\`\`**: Holds individual code cells within each notebook, along with their associated metadata and execution history.
+- **\`\`code_notebook_state\`\`**: Tracks each cell''s state changes, such as when it was last executed and any errors encountered.
+
+By organizing migration scripts into cells and notebooks, \`\`surveilr\`\` can maintain detailed control over execution order and track the state of each cell individually. This tracking is essential for handling updates, as it allows us to execute migrations only when necessary.
+
+---
+
+## Views for Managing Cell Versions and Migrations
+
+Several views are defined to simplify and organize the migration process by managing different versions of code cells and identifying migration candidates. These views help filter, sort, and retrieve the cells that need execution.
+
+### Key Views
+
+- **\`\`code_notebook_cell_versions\`\`**: Lists all available versions of each cell, allowing the migration tool to retrieve older versions if needed for rollback or auditing.
+- **\`\`code_notebook_cell_latest\`\`**: Shows only the latest version of each cell, simplifying the migration by focusing on the most recent updates.
+- **\`\`code_notebook_sql_cell_migratable\`\`**: Filters cells to include only those that are eligible for migration, ensuring that non-executable cells are ignored.
+
+---
+
+## Migration-Oriented Views and Dynamic Migration Scripts
+
+To streamline the migration process, several migration-oriented views organize the data by listing cells that require execution or are ready for re-execution. By grouping these cells in specific views, \`\`surveilr\`\` dynamically generates a script that executes only the necessary cells.
+
+### Key Views
+
+- **\`\`code_notebook_sql_cell_migratable_not_executed\`\`**: Lists migratable cells that haven’t yet been executed.
+- **\`\`code_notebook_sql_cell_migratable_state\`\`**: Shows the latest migratable cells, along with their current state transitions.
+
+---
+
+## How Migrations Are Executed
+
+When it''s time to apply changes to the database, this section explains the process in detail, focusing on how \`\`surveilr\`\` prepares the environment, identifies which cells to migrate, executes the appropriate SQL code, and ensures data integrity throughout.
+
+---
+
+### 1. Initialization
+
+The first step in the migration process involves setting up the essential database tables and seeding initial values. This lays the foundation for the migration process, making sure that all tables, views, and temporary values needed are in place.
+
+- **Check for Core Tables**: \`\`surveilr\`\` first verifies whether the required tables, such as \`\`code_notebook_cell\`\`, \`\`code_notebook_state\`\`, and others starting with \`\`code_notebook%\`\`, are already set up in the database. 
+- **Setup**: If these tables do not yet exist, \`\`surveilr\`\` automatically initiates the setup by running the initial SQL script, known as \`\`bootstrap.sql\`\`. This script contains SQL commands that create all the essential tables and views discussed in previous sections. 
+- **Seeding**: During the execution of \`\`bootstrap.sql\`\`, essential data, such as temporary values in the \`\`session_state_ephemeral\`\` table (e.g., information about the current user), is also added to ensure that the migration session has the data it needs to proceed smoothly.
+
+---
+
+### 2. Migration Preparation and Identification of Cells to Execute
+
+Once the environment is ready, \`\`surveilr\`\` examines which specific cells (code blocks in the migration notebook) need to be executed to bring the database up to the latest version.
+
+- **Listing Eligible Cells**: \`\`surveilr\`\` begins by consulting views such as \`\`code_notebook_sql_cell_migratable_not_executed\`\`. This view is a pre-filtered list of cells that are eligible for migration but haven’t yet been executed.
+- **Idempotent vs. Non-Idempotent Cells**: \`\`surveilr\`\` then checks whether each cell is marked as “idempotent” or “non-idempotent.” 
+   - **Idempotent Cells** can be executed multiple times without adverse effects. If they have been run before, they can safely be run again without impacting data integrity.
+   - **Non-Idempotent Cells**, identified by names containing \`\`_once_\`\`, should only be executed once. If these cells have been executed previously, they are skipped in the migration process to prevent unintentional re-runs.
+
+---
+
+### 3. Dynamic Script Generation and Execution
+
+\`\`surveilr\`\` then assembles a custom SQL script that includes only the cells identified as eligible for execution. This script is crafted carefully to ensure each cell''s SQL code is executed in the correct order and with the right contextual information.
+
+- **Script Creation**: We start by generating a dynamic script in a single transaction block. Transactions are a way of grouping a series of commands so that they are either all applied or none are, which protects data integrity.
+- **Inclusion of Cells Based on Eligibility**:
+   - For each cell, \`\`surveilr\`\` checks its eligibility status. If it''s non-idempotent and already executed, it''s marked with a comment noting that it''s excluded from the script due to previous execution.
+   - If the cell is idempotent or eligible for re-execution, its SQL code is added to the script, along with additional details such as comments about the cell''s last execution date.
+- **State Transition Records**: After each cell''s SQL code, additional commands are added to record the cell''s transition state. This step inserts information into \`\`code_notebook_state\`\`, logging details such as the cell ID, transition state (from “Pending” to “Executed”), and the reason for the transition (“Migration” or “Reapplication”). These logs are invaluable for auditing purposes.
+
+---
+
+### 4. Execution in a Transactional Block
+
+With the script prepared, \`\`surveilr\`\` then executes the entire batch of SQL commands within a transactional block.
+
+- **BEGIN TRANSACTION**: The script begins with a transaction, ensuring that all changes are applied as a single, atomic unit.
+- **Running Cell Code**: Within this transaction, each cell''s SQL code is executed in the order it appears in the script.
+- **Error Handling**: If any step in the transaction fails, all changes are rolled back. This prevents partial updates from occurring, ensuring that the database remains in a consistent state.
+- **COMMIT**: If the script executes successfully without errors, the transaction is committed, finalizing the changes. The \`\`COMMIT\`\` command signifies the end of the migration session, making all updates permanent.
+
+---
+
+### 5. Finalizing Migration and Recording Results
+
+After a successful migration session, \`\`surveilr\`\` concludes by recording details about the migration process.
+
+- **Final Updates to \`\`code_notebook_state\`\`**: Any cells marked as “Executed” are updated in \`\`code_notebook_state\`\` with the latest timestamp, indicating their successful migration.
+- **Logging Completion**: Activity logs are updated with relevant details, ensuring a clear record of the migration.
+- **Cleanup of Temporary Data**: Finally, temporary data is cleared, such as entries in \`\`session_state_ephemeral\`\`, since these values were only needed during the migration process.
+    `;
+}
+
+
+
   @consoleNav({
     caption: "RSSD Lifecycle (migrations)",
     abbreviatedCaption: "Migrations",
@@ -510,8 +627,15 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "console/migrations/index.sql"() {
     return this.SQL`
+      SELECT 
+          'foldable' as component;
+      SELECT 
+          'RSSD Lifecycle(Migration) Documentation' as title,
+          '${this.migrationDocumentation()}' as description_md;
+
+
       SELECT 'title' AS component, 'Pending Migrations' AS contents;
-      SELECT 'text' AS component, 'This table lists all cells eligible for migration but not yet executed. 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_not_executed lists all cells eligible for migration but not yet executed. 
           If migrations have been completed successfully, this list will be empty, 
           indicating that all migratable cells have been processed and marked as executed.' as contents;
 
@@ -529,7 +653,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           
       -- State of Executed Migrations
       SELECT 'title' AS component, 'State of Executed Migrations' AS contents;
-      SELECT 'text' AS component, 'This table displays all cells that have been successfully executed as part of the migration process, 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_state displays all cells that have been successfully executed as part of the migration process, 
           showing the latest version of each migratable cell. 
           For each cell, it provides details on its transition states, 
           the reason and result of the migration, and the timestamp of when the migration occurred.' as contents;
@@ -570,15 +694,10 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
               c.cell_name;
       
       -- All Migrations
-      SELECT 'title' AS component, 'All Migrations' AS contents;
-      SELECT 'text' AS component, 'A detailed look at all migrations in surveilr' as contents;
-      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT c.notebook_name,
-             '[' || c.cell_name || '](notebook-cell.sql?notebook=' || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
-             c.description,
-             k.kernel_name as kernel
-        FROM code_notebook_kernel k, code_notebook_cell c
-       WHERE k.code_notebook_kernel_id = c.notebook_kernel_id;
+      SELECT 'button' as component;
+      SELECT 
+          '/console/notebooks' as link,
+          'See all notebook entries' as title;
       `;
   }
 
