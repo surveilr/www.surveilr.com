@@ -500,34 +500,4 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
          AND c.cell_name = $cell
          AND k.code_notebook_kernel_id = c.notebook_kernel_id;`;
   }
-
-  @consoleNav({
-    caption: "RSSD Lifecycle (migrations)",
-    abbreviatedCaption: "Migrations",
-    description:
-      "Explore RSSD Migrations to determine what was executed and not",
-    siblingOrder: 2,
-  })
-  "console/migrations/index.sql"() {
-    return this.SQL`
-      SELECT 'title' AS component, 'Lifecycle Migrations' AS contents;
-      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT 
-          c.notebook_name, 
-          c.cell_name,
-          c.is_idempotent,
-          s.transitioned_at AS migration_time,
-          s.transition_reason,
-          s.transition_result
-      FROM 
-          code_notebook_sql_cell_migratable_state AS c
-      JOIN 
-          code_notebook_state AS s
-          ON c.code_notebook_cell_id = s.code_notebook_cell_id
-      WHERE 
-          s.to_state = 'EXECUTED'
-      ORDER BY 
-          c.notebook_name, c.cell_name;
-`;
-  }
 }
