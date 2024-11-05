@@ -32,7 +32,7 @@ Deno.test("web-ui server availability", async (t) => {
 });
 
 Deno.test("web-ui server using just surveilr", async (t) => {
-  const port = 9000;
+  const port = 5000;
   const surveilrProcess = $`surveilr`.spawn();
 
   try {
