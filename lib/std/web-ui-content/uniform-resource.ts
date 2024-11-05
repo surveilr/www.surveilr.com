@@ -444,7 +444,7 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
       ORDER BY uniform_resource_id
       LIMIT $limit
       OFFSET $offset;
-      ${pagination.renderSimpleMarkdown()}
+      ${pagination.renderSimpleMarkdown("folder_id")}
     `;
   }
 }
