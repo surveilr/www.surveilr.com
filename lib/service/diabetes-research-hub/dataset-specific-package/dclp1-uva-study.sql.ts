@@ -6,14 +6,14 @@ import {
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
-  detrendedViewDDL() {
+  dclp1ViewDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = createUVACombinedCGMViewSQL(dbFilePath);
     return this.SQL`
         ${sqlStatements} 
     `;
   }
-
+ 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics
@@ -50,9 +50,11 @@ export async function uvadclp1SQL() {
           ),
         );
       }
-    }(),
+      
+    }(),    
     ...(await pkg.drhNotebooks()),
     new uvadclp1SqlPages(),
+    
   );
 }
 
