@@ -511,7 +511,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
   "console/migrations/index.sql"() {
     return this.SQL`
       SELECT 'title' AS component, 'Pending Migrations' AS contents;
-      SELECT 'text' AS component, 'This table lists all cells eligible for migration but not yet executed. 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_not_executed lists all cells eligible for migration but not yet executed. 
           If migrations have been completed successfully, this list will be empty, 
           indicating that all migratable cells have been processed and marked as executed.' as contents;
 
@@ -529,7 +529,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           
       -- State of Executed Migrations
       SELECT 'title' AS component, 'State of Executed Migrations' AS contents;
-      SELECT 'text' AS component, 'This table displays all cells that have been successfully executed as part of the migration process, 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_state displays all cells that have been successfully executed as part of the migration process, 
           showing the latest version of each migratable cell. 
           For each cell, it provides details on its transition states, 
           the reason and result of the migration, and the timestamp of when the migration occurred.' as contents;
@@ -570,15 +570,10 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
               c.cell_name;
       
       -- All Migrations
-      SELECT 'title' AS component, 'All Migrations' AS contents;
-      SELECT 'text' AS component, 'A detailed look at all migrations in surveilr' as contents;
-      SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT c.notebook_name,
-             '[' || c.cell_name || '](notebook-cell.sql?notebook=' || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
-             c.description,
-             k.kernel_name as kernel
-        FROM code_notebook_kernel k, code_notebook_cell c
-       WHERE k.code_notebook_kernel_id = c.notebook_kernel_id;
+      SELECT 'button' as component;
+      SELECT 
+          '/console/notebooks' as link,
+          'See all notebook entries' as title;
       `;
   }
 
