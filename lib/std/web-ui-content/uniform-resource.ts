@@ -49,13 +49,24 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
               iaf.ingest_account_id,
               iaf.folder_name,
               ur.size_bytes,
-              ur.nature
+              ur.nature,
+              ur.content
         FROM uniform_resource ur
         LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ur.ingest_session_imap_acct_folder_message
         LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
         LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-        WHERE ur.ingest_session_imap_acct_folder_message IS NOT NULL;
-    `;
+        WHERE ur.nature = 'json' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
+
+        DROP VIEW IF EXISTS uniform_resource_imap_content;
+        CREATE  VIEW uniform_resource_imap_content AS
+        SELECT
+            uniform_resource_id,
+            json_extract(part.value, '$.body.Html') AS html_content
+        FROM
+            uniform_resource_imap,
+            json_each(content, '$.parts') AS part
+            WHERE
+          nature = 'json';`;
   }
 
   fsContentIngestSessionFilesStatsViewDDL() {
@@ -314,7 +325,8 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
 
   @urNav({
     caption: "Uniform Resources (IMAP)",
-    description: "Files ingested into the `uniform_resource` table",
+    description:
+      "Easily access and view your emails with our Uniform Resource (IMAP) system. Ingested from various mail sources, this feature organizes and displays your messages directly in the Web UI, ensuring all your communications are available in one convenient place.",
     siblingOrder: 1,
   })
   @spn.shell({})
@@ -428,8 +440,11 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE AS search,
             TRUE AS hover,
             TRUE AS striped_rows,
-            TRUE AS small;
-      SELECT subject,"from",
+            TRUE AS small,
+            'subject' AS markdown;;
+      SELECT
+      '[' || subject || '](/ur/uniform-resource-imap-mail-detail.sql?resource_id=' || uniform_resource_id || ')' AS "subject"
+      ,"from",
         CASE
           WHEN ROUND(julianday('now') - julianday(date)) = 0 THEN 'Today'
           WHEN ROUND(julianday('now') - julianday(date)) = 1 THEN '1 day ago'
@@ -445,6 +460,67 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
       LIMIT $limit
       OFFSET $offset;
       ${pagination.renderSimpleMarkdown("folder_id")}
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ur/uniform-resource-imap-mail-detail.sql"() {
+    const viewName = `uniform_resource_imap`;
+    return this.SQL`
+     SELECT
+      'breadcrumb' AS component;
+      SELECT
+          'Home' AS title,
+          '/'    AS link;
+      SELECT
+          'Uniform Resource' AS title,
+          '/ur' AS link;
+      SELECT
+          'Uniform Resources (IMAP)' AS title,
+          '/ur/uniform-resource-imap-account.sql' AS link;
+      SELECT
+       'Folder' AS title,
+       "uniform-resource-imap-folder.sql?imap_account_id="|| ur_ingest_session_imap_account_id AS link
+      FROM ${viewName}
+      WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+       SELECT
+       folder_name AS title,
+       "uniform-resource-imap-mail-list.sql?folder_id="|| ur_ingest_session_imap_acct_folder_id AS link
+      FROM ${viewName}
+      WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+      SELECT
+       subject AS title,
+       "uniform-resource-imap-mail-detail.sql?resource_id="|| uniform_resource_id AS link
+      FROM ${viewName}
+      WHERE uniform_resource_id=$resource_id::TEXT;
+
+      -- Breadcrumb ends---
+
+      ---back button---
+      select 'button' as component;
+      select
+      "<< Back"            as title,
+      "/ur/uniform-resource-imap-mail-list.sql?folder_id="|| ur_ingest_session_imap_acct_folder_id as link
+      FROM ${viewName}
+      WHERE uniform_resource_id=$resource_id::TEXT;
+
+      -- Display uniform_resource table with pagination
+      SELECT
+        'datagrid' as component;
+      SELECT
+        'From' as title,
+        "from" as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+      SELECT
+        'To' as title,
+        email as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+      SELECT
+        'Subject' as title,
+        subject as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+
+      SELECT 'html' AS component;
+      SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
     `;
   }
 }
