@@ -1,0 +1,1 @@
+Implement SQLite hashing functions with aggregation support, including MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV-1a, xxHash. [Read more](https://github.com/nyurik/sqlite-hashes).

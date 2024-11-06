@@ -1,0 +1,1 @@
+Conceals financial data, such as account numbers or transaction amounts.

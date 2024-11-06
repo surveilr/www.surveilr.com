@@ -1,0 +1,1 @@
+A SQLite extension for parsing and generating URLs and query strings. Based on libcurl's [URL API](https://curl.se/libcurl/c/libcurl-url.html). Extension usage is [here](https://github.com/asg017/sqlite-url?tab=readme-ov-file#usage).

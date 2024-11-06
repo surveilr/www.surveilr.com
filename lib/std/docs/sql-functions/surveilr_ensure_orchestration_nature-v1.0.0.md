@@ -1,0 +1,1 @@
+`surveilr_ensure_orchestration_nature(<nature_id>, <nature>)`: Checks if a `nature_id` and `nature` is present in the RSSD. If not, it creates it and returns a JSON response of both fields.

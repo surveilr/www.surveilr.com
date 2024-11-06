@@ -1,0 +1,1 @@
+Returns the `orchestration_session_entry_id` for the current session. `surveilr_get_orchestration_session_info(<session_id>)`

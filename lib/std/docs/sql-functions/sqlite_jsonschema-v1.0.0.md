@@ -1,0 +1,1 @@
+A SQLite extension for validating JSON objects with JSON Schema. Check documentation [here](https://github.com/asg017/sqlite-jsonschema/blob/main/docs.md).
