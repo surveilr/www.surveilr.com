@@ -579,8 +579,13 @@ export class SurveilrSqlNotebook<
       }
       return response.text();
     } catch (error) {
-      return onError?.(undefined, url, error) ??
-        `Error fetching ${url}: ${error.message}`;
+      if (error instanceof Error) {
+        return onError?.(undefined, url, error) ??
+          `Error fetching ${url}: ${error.message}`;
+      } else {
+        return onError?.(undefined, url, new Error('An unknown error occurred')) ??
+          `Error fetching ${url}: An unknown error occurred`;
+      }
     }
   }
 

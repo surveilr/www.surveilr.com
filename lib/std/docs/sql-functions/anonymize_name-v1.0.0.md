@@ -1,0 +1,1 @@
+Replaces any name or name-like string with a randomized pseudonym.

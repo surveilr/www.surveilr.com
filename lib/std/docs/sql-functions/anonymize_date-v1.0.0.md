@@ -1,0 +1,1 @@
+Alters a date value to a less specific representation.

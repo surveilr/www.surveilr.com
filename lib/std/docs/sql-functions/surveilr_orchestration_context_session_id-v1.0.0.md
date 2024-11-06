@@ -1,0 +1,1 @@
+The active context, if present. It returns the ID of the current session.

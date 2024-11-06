@@ -1,0 +1,1 @@
+`surveilr_assert_tabular_column(<name-of-table-or-view>, <a-list-of-column-names>)`: Checks the presence of a list of columns in a table or view, if assertion fails, the operation is inserted into `orchestration_session_issue` table.

@@ -1,0 +1,1 @@
+Modifies an age value to a broader range or category (e.g., '32' -> '30-35').

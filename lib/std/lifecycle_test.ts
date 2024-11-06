@@ -1,5 +1,5 @@
 import { assert } from "https://deno.land/std@0.224.0/assert/assert.ts";
-import * as s from "../lib/universal/spawn.ts";
+import * as s from "../universal/spawn.ts";
 import { path } from "./deps.ts";
 import { rssdNB } from "./notebook/mod.ts";
 import * as mod from "./lifecycle.sql.ts";
