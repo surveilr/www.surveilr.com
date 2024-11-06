@@ -515,6 +515,25 @@ export class SurveilrSqlNotebook<
     return await SurveilrSqlNotebook.fetchText(url, onError);
   }
 
+    /**
+   * Fetches the content of a local or remote file and returns it as a string
+   * and a escapes the string so that single quotes are replace with two single 
+   * quotes allowing the text to be inserted inside a SQL literal text argument.
+   * @param url the source to fetch text from
+   * @returns A string promise
+   * @see SurveilrSqlNotebook.fetchText
+   */
+    async fetchTextForSqlLiteral(
+      url: URL | string,
+      onError?: (
+        response?: Response,
+        url?: URL | string,
+        error?: Error,
+      ) => string,
+    ) {
+      return (await this.fetchText(url, onError)).replaceAll("'", "''");
+    }
+
   /**
    * Fetches the content of a local or remote file and returns it as a string.
    *

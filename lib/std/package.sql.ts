@@ -4,6 +4,7 @@ import {
   orchestration as orch,
   shell as sh,
   uniformResource as ur,
+  docs
 } from "./web-ui-content/mod.ts";
 import * as spn from "./notebook/sqlpage.ts";
 
@@ -12,7 +13,8 @@ export async function SQL() {
     new sh.ShellSqlPages(),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
-    new orch.OrchestrationSqlPages()
+    new orch.OrchestrationSqlPages(),
+    new docs.DocsSqlPages()
   );
 }
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
