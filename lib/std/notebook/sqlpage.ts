@@ -607,7 +607,7 @@ export class TypicalSqlPageNotebook
    * @param sources list of one or more instances of TypicalSqlPageNotebook subclasses
    * @returns an array of strings which are the SQL statements
    */
-  static async SQL(...sources: TypicalSqlPageNotebook[]) {
+  static override async SQL(...sources: TypicalSqlPageNotebook[]) {
     // commonNB emits SQL before all other SQL from any notebooks passed in
     const commonNB = new (class extends TypicalSqlPageNotebook {
       commonDDL() {

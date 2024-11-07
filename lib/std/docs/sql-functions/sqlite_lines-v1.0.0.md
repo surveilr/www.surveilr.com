@@ -1,0 +1,1 @@
+`sqlite-lines` is a SQLite extension for reading lines from a file or blob. Check documentation [here](https://github.com/asg017/sqlite-lines/blob/main/docs.md).

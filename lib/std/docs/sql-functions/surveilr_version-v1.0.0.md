@@ -1,0 +1,1 @@
+Returns the current version of `surveilr` that's being executed.

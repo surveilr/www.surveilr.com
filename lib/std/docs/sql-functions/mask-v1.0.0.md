@@ -1,0 +1,1 @@
+Obscures sensitive information by replacing characters with a specified delimiter (default is '*'). Example: 

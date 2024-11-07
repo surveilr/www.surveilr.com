@@ -1,0 +1,1 @@
+Masks parts of a phone number while retaining its basic structure. Example: '+1 (555) 123-4567' -> '+1 (555) -*'.
