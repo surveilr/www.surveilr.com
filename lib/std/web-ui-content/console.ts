@@ -614,9 +614,7 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
 - **Logging Completion**: Activity logs are updated with relevant details, ensuring a clear record of the migration.
 - **Cleanup of Temporary Data**: Finally, temporary data is cleared, such as entries in \`\`session_state_ephemeral\`\`, since these values were only needed during the migration process.
     `;
-}
-
-
+  }
 
   @consoleNav({
     caption: "RSSD Lifecycle (migrations)",

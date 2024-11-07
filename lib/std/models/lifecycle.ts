@@ -1231,6 +1231,41 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   });
 
+  const uniformResourceGraph = gm.table("uniform_resource_graph", {
+    name: gm.keys.varCharPrimaryKey(),
+    elaboration: gd.jsonTextNullable(),
+  }, { isIdempotent: true });
+
+  const uniformResourceEdge = gm.table("uniform_resource_edge", {
+    graph_name: uniformResourceGraph.belongsTo.name(),
+    nature: gd.text(),
+    node_id: gd.text(),
+    uniform_resource_id: uniformResource.belongsTo.uniform_resource_id(),
+    elaboration: gd.jsonTextNullable(),
+  }, {
+    isIdempotent: true,
+    constraints: (props, tableName) => {
+      const c = SQLa.tableConstraints(tableName, props);
+      return [
+        c.unique(
+          "graph_name",
+          "nature",
+          "node_id",
+          "uniform_resource_id",
+        ),
+      ];
+    },
+    indexes: (props, tableName) => {
+      const tif = SQLa.tableIndexesFactory(tableName, props);
+      return [
+        tif.index(
+          { isIdempotent: true },
+          "uniform_resource_id",
+        ),
+      ];
+    },
+  });
+
   const uniformResourceTransform = gm.textPkTable(
     `uniform_resource_transform`,
     {
@@ -1867,6 +1902,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       orchestrationSessionIssue,
       orchestrationSessionIssueRelation,
       orchestrationSessionLog,
+      uniformResourceGraph,
+      uniformResourceEdge,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -1909,6 +1946,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...orchestrationSessionIssue.indexes,
       ...orchestrationSessionIssueRelation.indexes,
       ...orchestrationSessionLog.indexes,
+      ...uniformResourceGraph.indexes,
+      ...uniformResourceEdge.indexes,
     ],
   };
 
@@ -1960,6 +1999,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     orchestrationSessionIssue,
     orchestrationSessionIssueRelation,
     orchestrationSessionLog,
+    uniformResourceGraph,
+    uniformResourceEdge,
   };
 }
 

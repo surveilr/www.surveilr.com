@@ -56,31 +56,34 @@ const ReleasesList: React.FC = () => {
 
   return (
     <>
-      {rateLimitExceeded ? (
-        <p className="mt-4 font-semibold text-red-600">
-          GitHub API rate limit exceeded. Please try again later.
-        </p>
-      ) : (
-        <ul>
-          {allReleases.map((release) => (
-            <li key={release.id}>
-              <h2 id={release.name.toLowerCase().replace(/\s+/g, "-")}>
-                {release.name}
-              </h2>
-              <div
-                dangerouslySetInnerHTML={{ __html: marked(release.body) }}
-              ></div>
-              <a
-                href={release.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Release
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
+      {rateLimitExceeded
+        ? (
+          <p className="mt-4 font-semibold text-red-600">
+            GitHub API rate limit exceeded. Please try again later.
+          </p>
+        )
+        : (
+          <ul>
+            {allReleases.map((release) => (
+              <li key={release.id}>
+                <h2 id={release.name.toLowerCase().replace(/\s+/g, "-")}>
+                  {release.name}
+                </h2>
+                <div
+                  dangerouslySetInnerHTML={{ __html: marked(release.body) }}
+                >
+                </div>
+                <a
+                  href={release.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Release
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
     </>
   );
 };
