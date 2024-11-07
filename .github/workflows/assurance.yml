@@ -42,6 +42,7 @@ jobs:
               echo "surveilr not found. Installing..."
               eget opsfolio/releases.opsfolio.com --asset tar.gz
               sudo mv surveilr /usr/local/bin/
+              surveilr --version
           fi
 
       - name: Run Deno Tests
