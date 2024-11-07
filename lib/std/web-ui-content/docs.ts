@@ -43,7 +43,8 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
       })
       async "docs/release-notes.sql"() {
         const sqlSnippets: string[] = []
-        const directory = path.join(Deno.cwd(), "docs/release");
+        const directory = path.fromFileUrl(import.meta.resolve(`../docs/release`));
+        
         for await (const entry of Deno.readDir(directory)) {
             if (entry.isFile && entry.name.endsWith('.md')) {
                 const title = entry.name.replace('.md', '');
@@ -70,7 +71,7 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
       })
       async "docs/sql-functions.sql"() {
         const sqlSnippets: string[] = []
-        const directory = path.join(Deno.cwd(), "docs/sql-functions");
+        const directory = path.fromFileUrl(import.meta.resolve(`../docs/sql-functions`));
         for await (const entry of Deno.readDir(directory)) {
             if (entry.isFile && entry.name.endsWith('.md')) {
                 const function_entry = entry.name.replace('.md', '').split("-");
