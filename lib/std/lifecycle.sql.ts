@@ -181,6 +181,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${this.codeNbModels.informationSchema.tableIndexes}
 
       ${this.notebookBusinessLogicViews()}
+
+      ${this.uniformResourceGraphViews()}
       `;
   }
 
@@ -190,6 +192,67 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   @docsCell()
   "Boostrap SQL"() {
     return this.bootstrapDDL();
+  }
+
+  uniformResourceGraphViews() {
+    return [
+      this.viewDefn("plm_graph")`
+        SELECT
+            ure.graph_name,
+            ure.nature,
+            ur.uniform_resource_id,
+            ur.uri,
+            ur_ingest_plm.ur_ingest_session_plm_acct_project_issue_id,
+            ur_ingest_plm.issue_id,
+            ur_ingest_plm.ur_ingest_session_plm_acct_project_id as project_id,
+            ur_ingest_plm.title,
+            ur_ingest_plm.body
+        FROM
+            uniform_resource_edge ure
+        JOIN
+            uniform_resource ur ON ure.uniform_resource_id = ur.uniform_resource_id
+        JOIN
+            ur_ingest_session_plm_acct_project_issue ur_ingest_plm ON ure.node_id = ur_ingest_plm.ur_ingest_session_plm_acct_project_issue_id
+        WHERE
+            ure.graph_name = 'plm';
+      `,
+      this.viewDefn("imap_graph")`
+        SELECT
+          ure.graph_name,
+          ur.uniform_resource_id,
+          ur.nature,
+          ur.uri,
+          ur.content,
+          ur_ingest_imap.ur_ingest_session_imap_acct_folder_message_id,
+          ur_ingest_imap.ingest_imap_acct_folder_id,
+          ur_ingest_imap.message_id
+      FROM
+          uniform_resource_edge ure
+      JOIN
+          uniform_resource ur ON ure.uniform_resource_id = ur.uniform_resource_id
+      JOIN
+          ur_ingest_session_imap_acct_folder_message ur_ingest_imap ON ure.node_id = ur_ingest_imap.ur_ingest_session_imap_acct_folder_message_id
+      WHERE
+          ure.graph_name = 'imap';
+      `,
+      this.viewDefn("filesystem_graph")`
+        SELECT
+            ure.graph_name,
+            ur.uniform_resource_id,
+            ur.nature,
+            ur.uri,
+            ur_ingest_fs_path.ur_ingest_session_fs_path_id,
+            ur_ingest_fs_path.root_path
+        FROM
+            uniform_resource_edge ure
+        JOIN
+            uniform_resource ur ON ure.uniform_resource_id = ur.uniform_resource_id
+        JOIN
+            ur_ingest_session_fs_path ur_ingest_fs_path ON ure.node_id = ur_ingest_fs_path.ur_ingest_session_fs_path_id
+        WHERE
+            ure.graph_name = 'filesystem';
+      `,
+    ];
   }
 
   notebookBusinessLogicViews() {
@@ -513,6 +576,26 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ];
     };
 
+    const uniformResourceGraphRules = () => {
+      const { uniformResourceGraph } = this.serviceModels;
+      const options = { onConflict: { SQL: () => `ON CONFLICT DO NOTHING` } };
+
+      return [
+        uniformResourceGraph.insertDML({
+          name: "filesystem",
+          elaboration: '{}',
+        }, options),
+        uniformResourceGraph.insertDML({
+          name: "imap",
+          elaboration: '{}',
+        }, options),
+        uniformResourceGraph.insertDML({
+          name: "plm",
+          elaboration: '{}',
+        }, options),
+      ];
+    };
+
     // deno-fmt-ignore
     return this.SQL`
       ${urIngestPathMatchRules()}
@@ -522,8 +605,39 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${partyTypeRules()}
 
       ${orchestrationNatureRules()}
+
+      ${uniformResourceGraphRules}
       `;
   }
+
+  // @migratableCell({
+  //   description:
+  //     "Creates a simple graph infrastructure so that uniform_resource content can be tracked as graphs in addition to relationally.",
+  // })
+  // v002_uniform_resource_graphs() {
+  //   return this.SQL`
+  //     CREATE TABLE IF NOT EXISTS uniform_resource_graph (
+  //         name TEXT PRIMARY KEY
+  //     );
+
+  //     CREATE TABLE IF NOT EXISTS uniform_resource_edge (
+  //         graph_name TEXT PRIMARY KEY,
+  //         nature TEXT,
+  //         node_id TEXT,
+  //         uniform_resource_id TEXT,
+  //         elaboration TEXT,
+  //         UNIQUE(graph_name, nature, node_id, uniform_resource_id) ON CONFLICT REPLACE,
+  //         FOREIGN KEY(graph_name) REFERENCES uniform_resource_graph(name),
+  //         FOREIGN KEY(uniform_resource_id) REFERENCES uniform_resource(uniform_resource_id)
+  //     );
+
+  //     CREATE INDEX IF NOT EXISTS target_idx ON uniform_resource_edge(uniform_resource_id);
+
+  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('filesystem');
+  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('imap');
+  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('plm');
+  //     `;
+  // }
 
   /**
    * Prepares a prompt that will allow the user to "teach" an LLM about this
