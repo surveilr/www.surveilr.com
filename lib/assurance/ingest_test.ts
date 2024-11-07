@@ -98,6 +98,14 @@ Deno.test("file ingestion", async (t) => {
 
   const db = new DB(DEFAULT_RSSD_PATH);
 
+  await t.step("uniform resource graphs", () => {
+    const result = db.query<[number]>(
+      `SELECT EXISTS ( SELECT 1 FROM uniform_resource_graph WHERE name = 'filesystem') AS filesystem_exists;`,
+    );
+    assertEquals(result.length, 1);
+    assertEquals(result[0][0], 1);
+  });
+
   await t.step("file change history", async () => {
     db.execute(`
             DROP VIEW IF EXISTS file_change_history;
