@@ -1854,6 +1854,49 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
+  const flexibleGraph = gm.table("flexible_graph_node", {
+    id: gm.keys.varCharPrimaryKey(),
+    body: gd.jsonTextNullable(),
+  }, {
+    isIdempotent: true,
+    indexes: (props, tableName) => {
+      const tif = SQLa.tableIndexesFactory(tableName, props);
+      return [
+        tif.index(
+          { isIdempotent: true },
+          "id",
+        ),
+      ];
+    },
+  });
+
+  const flexibleEdge = gm.table("flexible_graph_edge", {
+    source: flexibleGraph.belongsTo.id().optional(),
+    target: flexibleGraph.belongsTo.id().optional(),
+    properties: gd.jsonTextNullable(),
+    uniform_resource_id: uniformResource.belongsTo.uniform_resource_id(),
+  }, {
+    isIdempotent: true,
+    constraints: (props, tableName) => {
+      const c = SQLa.tableConstraints(tableName, props);
+      return [
+        c.unique(
+          "source",
+          "target",
+        ),
+      ];
+    },
+    indexes: (props, tableName) => {
+      const tif = SQLa.tableIndexesFactory(tableName, props);
+      return [
+        tif.index(
+          { isIdempotent: true },
+          "uniform_resource_id",
+        ),
+      ];
+    },
+  });
+
   const informationSchema = {
     tables: [
       partyType,
@@ -1904,6 +1947,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       orchestrationSessionLog,
       uniformResourceGraph,
       uniformResourceEdge,
+      flexibleEdge,
+      flexibleGraph,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -1948,6 +1993,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...orchestrationSessionLog.indexes,
       ...uniformResourceGraph.indexes,
       ...uniformResourceEdge.indexes,
+      ...flexibleEdge.indexes,
+      ...flexibleGraph.indexes,
     ],
   };
 
@@ -2001,6 +2048,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     orchestrationSessionLog,
     uniformResourceGraph,
     uniformResourceEdge,
+    flexibleEdge,
+    flexibleGraph,
   };
 }
 
