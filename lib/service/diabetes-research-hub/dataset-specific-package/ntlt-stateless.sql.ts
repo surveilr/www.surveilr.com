@@ -2,15 +2,13 @@
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../package.sql.ts";
 
-export class ntltSingleCGMSqlPages extends spn.TypicalSqlPageNotebook
-{    
-  
+export class ntltSingleCGMSqlPages extends spn.TypicalSqlPageNotebook {
 }
 
 export async function ntltSingleCGMSQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends pkg.DRHSqlPages {
-        async statelessNTLTSQL() {
+      async statelessNTLTSQL() {
         // stateless SQL for NTLT Single CGM UVA Dataset
         return await spn.TypicalSqlPageNotebook.fetchText(
           import.meta.resolve(
@@ -18,11 +16,9 @@ export async function ntltSingleCGMSQL() {
           ),
         );
       }
-      
-    }(),    
+    }(),
     ...(await pkg.drhNotebooks()),
     new ntltSingleCGMSqlPages(),
-    
   );
 }
 
