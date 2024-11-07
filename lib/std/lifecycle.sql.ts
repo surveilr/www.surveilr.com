@@ -583,15 +583,15 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       return [
         uniformResourceGraph.insertDML({
           name: "filesystem",
-          elaboration: '{}',
+          elaboration: "{}",
         }, options),
         uniformResourceGraph.insertDML({
           name: "imap",
-          elaboration: '{}',
+          elaboration: "{}",
         }, options),
         uniformResourceGraph.insertDML({
           name: "plm",
-          elaboration: '{}',
+          elaboration: "{}",
         }, options),
       ];
     };
