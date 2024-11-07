@@ -19,7 +19,7 @@ function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
 export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
     const shellConfig = super.defaultShell();
-    shellConfig.title = "Diabetes Research Hub EDGE";
+    shellConfig.title = "Diabetes Research Hub Edge";
     shellConfig.image =
       "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
     shellConfig.favicon =
@@ -167,14 +167,14 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   // }
 
   @spn.navigationPrimeTopLevel({
-    caption: "DRH EDGE UI Home",
-    description: "Welcome to Diabetes Research Hub EDGE UI",
+    caption: "DRH Edge UI Home",
+    description: "Welcome to Diabetes Research Hub Edge UI",
   })
   "drh/index.sql"() {
     return this.SQL`
             SELECT
                   'card'                      as component,
-                  'Welcome to the Diabetes Research Hub EDGE UI' as title,
+                  'Welcome to the Diabetes Research Hub Edge UI' as title,
                   1                           as columns;
 
             SELECT
