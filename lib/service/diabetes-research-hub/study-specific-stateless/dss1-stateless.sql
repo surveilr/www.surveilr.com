@@ -1,5 +1,6 @@
 -- DSS1 study (single cgmtracing)
 
+
 -- Perform De-identification
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
@@ -91,7 +92,7 @@ INSERT OR IGNORE INTO orchestration_session_entry (
 ) VALUES (
     'ORCHSESSENID-' || hex(randomblob(16)),  -- Generate a random hex blob for orchestration_session_entry_id
     (SELECT orchestration_session_id FROM session_info limit 1),  -- Session ID from previous insert
-    'ctr-anderson-stateless.sql',  -- Replace with actual ingest source
+    'stateless sql file',  -- Replace with actual ingest source
     '',  -- Placeholder for actual table name
     NULL  -- Elaboration (if any)
 );
@@ -184,12 +185,14 @@ UNION ALL SELECT 'uniform_resource_institution', 'institution_name', 'TEXT', 0, 
 UNION ALL SELECT 'uniform_resource_institution', 'city', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_institution', 'state', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_institution', 'country', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_institution', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_lab', 'lab_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_lab', 'lab_name', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_lab', 'lab_pi', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_lab', 'institution_id', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_lab', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_lab', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_study', 'study_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_study', 'study_name', 'TEXT', 0, 1
@@ -199,6 +202,7 @@ UNION ALL SELECT 'uniform_resource_study', 'treatment_modalities', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_study', 'funding_source', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_study', 'nct_number', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_study', 'study_description', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'tenant_id', 'TEXT', 0, 1
 
 
 UNION ALL SELECT 'uniform_resource_participant', 'participant_id', 'TEXT', 1, 1
@@ -214,11 +218,13 @@ UNION ALL SELECT 'uniform_resource_participant', 'bmi', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_participant', 'baseline_hba1c', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_participant', 'diabetes_type', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_participant', 'study_arm', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_participant', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_site', 'site_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_site', 'study_id', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_site', 'site_name', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_site', 'site_type', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_site', 'tenant_id', 'TEXT', 0, 1
 
 
 UNION ALL SELECT 'uniform_resource_investigator', 'investigator_id', 'TEXT', 1, 1
@@ -226,18 +232,21 @@ UNION ALL SELECT 'uniform_resource_investigator', 'investigator_name', 'TEXT', 0
 UNION ALL SELECT 'uniform_resource_investigator', 'email', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_investigator', 'institution_id', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_investigator', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_publication', 'publication_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_publication', 'publication_title', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_publication', 'digital_object_identifier', 'TEXT', 0, 0
 UNION ALL SELECT 'uniform_resource_publication', 'publication_site', 'TEXT', 0, 0
 UNION ALL SELECT 'uniform_resource_publication', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_publication', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_author', 'author_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_author', 'name', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_author', 'email', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_author', 'investigator_id', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_author', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_author', 'tenant_id', 'TEXT', 0, 1
 
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'metadata_id', 'TEXT', 1, 1
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'devicename', 'TEXT', 0, 1
@@ -249,7 +258,8 @@ UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'file_format', 'TEXT', 0,
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'file_upload_date', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_start_date', 'TEXT', 0, 1
 UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_end_date', 'TEXT', 0, 1
-UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'study_id', 'TEXT', 0, 1;
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'tenant_id', 'TEXT', 0, 1;
 
 CREATE TEMP VIEW IF NOT EXISTS device_info AS
 SELECT device_id, name, created_at
@@ -330,7 +340,7 @@ INSERT OR IGNORE INTO orchestration_session_entry (
 ) VALUES (
     'ORCHSESSENID-' || hex(randomblob(16)),  -- Generate a random hex blob for orchestration_session_entry_id
     (SELECT orchestration_session_id FROM session_info limit 1),  -- Session ID from previous insert
-    'ctr-anderson-stateless.sql',  -- Replace with actual ingest source
+    'dclp1-single-cgm-tracing.sql',  -- Replace with actual ingest source
     '',  -- Placeholder for actual table name
     NULL  -- Elaboration (if any)
 );
@@ -615,6 +625,19 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
         
         UNION ALL
 
+        SELECT 
+            'uniform_resource_study' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL
+
+
 
         --- uniform_resource_institution table
 
@@ -678,6 +701,17 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
         
         UNION ALL       
         
+        SELECT 
+            'uniform_resource_institution' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL
 
         -- uniform_resource_site table
 
@@ -730,7 +764,19 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
         WHERE 
             site_type IS NULL OR site_type = ''
         
-        UNION ALL        
+        UNION ALL    
+
+        SELECT 
+            'uniform_resource_site' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_site 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
 
         -- uniform_resource_lab table
 
@@ -791,6 +837,19 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
             uniform_resource_lab  
         WHERE 
             study_id IS NULL OR study_id = ''
+        
+        UNION ALL    
+
+
+        SELECT 
+            'uniform_resource_lab' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_lab 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
         
         UNION ALL    
         
@@ -935,6 +994,19 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
         
         UNION ALL
 
+
+        SELECT 
+            'uniform_resource_cgm_file_metadata' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_cgm_file_metadata 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+
         -- uniform_resource_investigator
         SELECT 
             'uniform_resource_investigator' AS table_name,
@@ -996,6 +1068,18 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
 
         UNION ALL
 
+        SELECT 
+            'uniform_resource_investigator' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+
         -- uniform_resource_publication table
 
         SELECT 
@@ -1055,10 +1139,22 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
             uniform_resource_publication 
         WHERE 
             study_id IS NULL OR study_id = ''
-        
-        -- uniform_resource_author table
 
         UNION ALL
+
+        SELECT 
+            'uniform_resource_publication' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+        
+        -- uniform_resource_author table        
 
         SELECT 
             'uniform_resource_author' AS table_name,
@@ -1117,6 +1213,175 @@ CREATE TEMP VIEW DataIntegrityEmptyCells AS
             uniform_resource_author 
         WHERE 
             study_id IS NULL OR study_id = ''
+
+        UNION ALL
+
+        SELECT 
+            'uniform_resource_author' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL
+
+            SELECT
+        'uniform_resource_participant' AS table_name,
+        'participant_id' AS column_name,
+        participant_id AS value,
+        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        participant_id IS NULL
+	        OR participant_id = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'study_id' AS column_name,
+	        study_id AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        study_id IS NULL
+	        OR study_id = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'site_id' AS column_name,
+	        site_id AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        site_id IS NULL
+	        OR site_id = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'diagnosis_icd' AS column_name,
+	        diagnosis_icd AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        diagnosis_icd IS NULL
+	        OR diagnosis_icd = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'med_rxnorm' AS column_name,
+	        med_rxnorm AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        med_rxnorm IS NULL
+	        OR med_rxnorm = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'treatment_modality' AS column_name,
+	        treatment_modality AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        treatment_modality IS NULL
+	        OR treatment_modality = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'gender' AS column_name,
+	        gender AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        gender IS NULL
+	        OR gender = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'race_ethnicity' AS column_name,
+	        race_ethnicity AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        race_ethnicity IS NULL
+	        OR race_ethnicity = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'age' AS column_name,
+	        age AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        age IS NULL
+	        OR age = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'bmi' AS column_name,
+	        bmi AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        bmi IS NULL
+	        OR bmi = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'baseline_hba1c' AS column_name,
+	        baseline_hba1c AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        baseline_hba1c IS NULL
+	        OR baseline_hba1c = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'diabetes_type' AS column_name,
+	        diabetes_type AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        diabetes_type IS NULL
+	        OR diabetes_type = ''
+	    UNION ALL
+	    SELECT
+	        'uniform_resource_participant' AS table_name,
+	        'study_arm' AS column_name,
+	        study_arm AS value,
+	        rowid
+	    FROM
+	        uniform_resource_participant
+	    WHERE
+	        study_arm IS NULL
+	        OR study_arm = ''
+	
+	        UNION ALL
+	
+	    SELECT 
+	            'uniform_resource_participant' AS table_name,
+	            'tenant_id' AS column_name,
+	            tenant_id AS value,
+	            rowid
+	        FROM 
+	            uniform_resource_participant 
+	        WHERE 
+	            tenant_id IS NULL OR tenant_id = ''
 
     )
     GROUP BY table_name, column_name ; 
@@ -1317,7 +1582,7 @@ CREATE VIEW drh_participant AS
 SELECT
     participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
-    diabetes_type, study_arm
+    diabetes_type, study_arm,tenant_id
 FROM uniform_resource_participant;
 
 -- Drop and recreate the study view
@@ -1325,7 +1590,7 @@ DROP VIEW IF EXISTS drh_study;
 CREATE VIEW drh_study AS
 SELECT
     study_id, study_name, start_date, end_date, treatment_modalities,
-    funding_source, nct_number, study_description
+    funding_source, nct_number, study_description,tenant_id
 FROM uniform_resource_study;
 
 
@@ -1335,35 +1600,35 @@ CREATE VIEW drh_cgmfilemetadata_view AS
 SELECT
     metadata_id, devicename, device_id, source_platform, patient_id,
     file_name, file_format, file_upload_date, data_start_date,
-    data_end_date, study_id
+    data_end_date, study_id,tenant_id
 FROM uniform_resource_cgm_file_metadata;
 
 -- Drop and recreate the author view
 DROP VIEW IF EXISTS drh_author;
 CREATE VIEW drh_author AS
 SELECT
-    author_id, name, email, investigator_id, study_id
+    author_id, name, email, investigator_id, study_id,tenant_id
 FROM uniform_resource_author;
 
 -- Drop and recreate the institution view
 DROP VIEW IF EXISTS drh_institution;
 CREATE VIEW drh_institution AS
 SELECT
-    institution_id, institution_name, city, state, country
+    institution_id, institution_name, city, state, country,tenant_id
 FROM uniform_resource_institution;
 
 -- Drop and recreate the investigator view
 DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW drh_investigator AS
 SELECT
-    investigator_id, investigator_name, email, institution_id, study_id
+    investigator_id, investigator_name, email, institution_id, study_id,tenant_id
 FROM uniform_resource_investigator;
 
 -- Drop and recreate the lab view
 DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW drh_lab AS
 SELECT
-    lab_id, lab_name, lab_pi, institution_id, study_id
+    lab_id, lab_name, lab_pi, institution_id, study_id,tenant_id
 FROM uniform_resource_lab;
 
 -- Drop and recreate the publication view
@@ -1371,14 +1636,14 @@ DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW drh_publication AS
 SELECT
     publication_id, publication_title, digital_object_identifier,
-    publication_site, study_id
+    publication_site, study_id,tenant_id
 FROM uniform_resource_publication;
 
 -- Drop and recreate the site view
 DROP VIEW IF EXISTS drh_site;
 CREATE VIEW drh_site AS
 SELECT
-    study_id, site_id, site_name, site_type
+    study_id, site_id, site_name, site_type,tenant_id
 FROM uniform_resource_site;
 
 
@@ -1506,7 +1771,7 @@ GROUP BY
 
 DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW drh_study_vanity_metrics_details AS
-SELECT s.study_id, 
+SELECT s.tenant_id, s.study_id, 
        s.study_name, 
        s.study_description, 
        s.start_date, 
@@ -1571,6 +1836,7 @@ ORDER BY
 DROP VIEW IF EXISTS combined_cgm_tracing;
 CREATE VIEW combined_cgm_tracing AS
 select 
+    'UVA001' as tenant_id,
     SID as participant_id, 
     strftime('%Y-%m-%d %H:%M:%S', Date_Time) as Date_Time, 
     CAST(CGM_Value as REAL) as CGM_Value 
@@ -1581,6 +1847,7 @@ DROP VIEW IF EXISTS study_combined_dashboard_participant_metrics_view;
 CREATE VIEW study_combined_dashboard_participant_metrics_view AS
 WITH combined_data AS (
     SELECT 
+        dg.tenant_id,
         CAST(SUBSTR(dg.participant_id, 1, INSTR(dg.participant_id, '-') - 1) AS TEXT) AS study_id,        
         dg.participant_id,
         dg.gender,
@@ -1602,7 +1869,7 @@ WITH combined_data AS (
         MAX(DATE(dc.Date_Time)) AS data_end_date
     FROM drh_participant dg 
     JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    GROUP BY study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c
+    GROUP BY study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c,dg.tenant_id
 )
 SELECT *,
     ROUND(
@@ -1663,13 +1930,13 @@ SELECT count(*) AS total_count FROM sqlite_master WHERE type = 'table' AND name 
 DROP TABLE IF EXISTS participant_dashboard_cached;
 
 CREATE TABLE participant_dashboard_cached AS
-SELECT study_id, participant_id, gender, age, study_arm, baseline_hba1c, tir, tar_vh, tar_h, tbr_l, tbr_vl, tar,tbr, gmi, percent_gv, gri, days_of_wear, wear_time_percentage, data_start_date, data_end_date
+SELECT tenant_id, study_id, participant_id, gender, age, study_arm, baseline_hba1c, tir, tar_vh, tar_h, tbr_l, tbr_vl, tar,tbr, gmi, percent_gv, gri, days_of_wear, wear_time_percentage, data_start_date, data_end_date
 FROM study_combined_dashboard_participant_metrics_view;
 
 DROP TABLE IF EXISTS combined_cgm_tracing_cached;
 
 CREATE TABLE combined_cgm_tracing_cached AS
-SELECT participant_id, Date_Time, CGM_Value
+SELECT tenant_id, participant_id, Date_Time, CGM_Value
 FROM combined_cgm_tracing;
 
 DROP TABLE IF EXISTS participant_cgm_date_range_cached;
@@ -1711,7 +1978,7 @@ FROM ur_ingest_session_tasks_stats_latest;
 DROP TABLE IF EXISTS study_details_cached;
 
 CREATE TABLE study_details_cached AS
-SELECT s.study_id,        
+SELECT s.tenant_id,s.study_id,        
 s.study_name,        
 s.study_description,        
 s.start_date,        
@@ -1730,6 +1997,7 @@ DROP TABLE IF EXISTS cgm_table_name_cached;
 
 CREATE TABLE cgm_table_name_cached AS 
 SELECT DISTINCT 
+    pdc.tenant_id,
     pdc.study_id, 
     sm.tbl_name AS table_name, 
     REPLACE(sm.tbl_name, 'uniform_resource_', '') || '.' || ur.nature AS file_name

@@ -75,6 +75,7 @@ export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
       participantTableNames.forEach((tableName) => {
         sqlParts.push(`
           SELECT 
+             'UVA001' as tenant_id,
             '${patient_id}' as participant_id, 
             strftime('%Y-%m-%d %H:%M:%S', date_time) as Date_Time, 
             CAST(CGM_Value as REAL) as CGM_Value 
@@ -119,6 +120,7 @@ export function generateDetrendedDSCombinedCGMViewSQL(
     // Generate SQL for each participant's CGM data
     sqlParts.push(`
       SELECT 
+        'DFA001' as tenant_id,
         TRIM('DFA-'||'${participantId}') AS participant_id, 
         strftime('%Y-%m-%d %H:%M:%S', hora ) AS Date_Time,
         CAST(glucemia AS REAL) AS CGM_Value 
