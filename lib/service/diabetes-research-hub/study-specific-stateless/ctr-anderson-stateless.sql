@@ -1,172 +1,3 @@
--- Drop the view if it exists, then create the drh_participant view
-DROP VIEW IF EXISTS drh_participant;
-
-CREATE VIEW
-    drh_participant AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID to form participant_id
-    'CTR3' AS study_id, -- Static assignment of study_id as 'CTR3'
-    '' AS site_id, -- Placeholder for site_id
-    '' AS diagnosis_icd, -- Placeholder for diagnosis ICD
-    '' AS med_rxnorm, -- Placeholder for medication RxNorm
-    '' AS treatment_modality, -- Placeholder for treatment modality
-    Gender AS gender, -- Direct mapping of Gender
-    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenate Race and Ethnicity for race_ethnicity
-    "Age at Enrollment" AS age, -- Direct mapping of Age at Enrollment
-    CASE
-        WHEN Weight IS NOT NULL
-        AND Height IS NOT NULL THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation if Weight and Height are available
-        ELSE NULL
-    END AS bmi, -- Alias for BMI calculation
-    HbA1CTest AS baseline_hba1c, -- Mapping HbA1CTest to baseline_hba1c
-    '' AS diabetes_type, -- Placeholder for diabetes type
-    '' AS study_arm -- Placeholder for study arm
-FROM
-    uniform_resource_enrollment;
-
--- Drop the view if it exists, then create the view for uniform_resource_cgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
-
-CREATE VIEW
-    drh_vw_uniform_resource_cgm AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
-    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
-    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
-FROM
-    uniform_resource_cgm;
-
--- Drop the view if it exists, then create the view for uniform_resource_cgmcal
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
-
-CREATE VIEW
-    drh_vw_uniform_resource_cgmcal AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
-    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
-    CAST(Cal AS REAL) AS CGM_value -- Cast Cal to REAL for numeric representation
-FROM
-    uniform_resource_cgmcal;
-
--- Drop the view if it exists, then create the view for uniform_resource_monitorcgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
-
-CREATE VIEW
-    drh_vw_uniform_resource_monitorcgm AS
-SELECT
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
-    strftime ('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time, -- Format LocalDtTm to Date_Time
-    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
-FROM
-    uniform_resource_monitorcgm;
-
--- Drop the view if it exists, then create the combined CGM tracing view
-DROP VIEW IF EXISTS combined_cgm_tracing;
-
-CREATE VIEW
-    combined_cgm_tracing AS
-SELECT
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_cgm
-UNION ALL
-SELECT
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_cgmcal
-UNION ALL
-SELECT
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_monitorcgm;
-
---CTR DS to DRH model (standarization with server UI)
--- View to count the number of CGM tracing files
-DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
-
-CREATE VIEW
-    drh_number_of_cgm_tracing_files_view AS
-SELECT
-    COUNT(*) AS table_count
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
-
--- View to list the names of raw CGM tables
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-
-CREATE VIEW
-    drh_raw_cgm_table_lst AS
-SELECT
-    name,
-    tbl_name as table_name
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
-
--- View to count the total number of CGM raw files
-DROP VIEW IF EXISTS drh_number_cgm_count;
-
-CREATE VIEW
-    drh_number_cgm_count AS
-SELECT
-    count(*) as number_of_cgm_raw_files
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
-
-DROP VIEW IF EXISTS study_wise_csv_file_names;
-
-CREATE VIEW
-    study_wise_csv_file_names AS
-SELECT
-    name
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name LIKE 'uniform_resource_%'
-    and name != 'uniform_resource_transform';
-
-DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
-
-CREATE VIEW
-    study_wise_number_cgm_raw_files_count AS
-SELECT
-    count(*) as number_of_cgm_raw_files
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
 
 -------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -418,355 +249,82 @@ WHERE
 -- Update the session identified in the temp view
 -----------------------------------------------------------------------------
 -- Verification and validation process
+
 -- Create a view that represents the expected schema with required columns and properties
-CREATE VIEW
-    IF NOT EXISTS expected_schema_view AS
-SELECT
-    'uniform_resource_institution' AS table_name,
-    'institution_id' AS column_name,
-    'TEXT' AS column_type,
-    1 AS is_primary_key,
-    1 AS not_null
-UNION ALL
-SELECT
-    'uniform_resource_institution',
-    'institution_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_institution',
-    'city',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_institution',
-    'state',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_institution',
-    'country',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_lab',
-    'lab_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_lab',
-    'lab_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_lab',
-    'lab_pi',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_lab',
-    'institution_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_lab',
-    'study_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'study_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'study_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'start_date',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'end_date',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'treatment_modalities',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'funding_source',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'nct_number',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_study',
-    'study_description',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_site',
-    'site_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_site',
-    'study_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_site',
-    'site_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_site',
-    'site_type',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_investigator',
-    'investigator_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_investigator',
-    'investigator_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_investigator',
-    'email',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_investigator',
-    'institution_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_investigator',
-    'study_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_publication',
-    'publication_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_publication',
-    'publication_title',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_publication',
-    'digital_object_identifier',
-    'TEXT',
-    0,
-    0
-UNION ALL
-SELECT
-    'uniform_resource_publication',
-    'publication_site',
-    'TEXT',
-    0,
-    0
-UNION ALL
-SELECT
-    'uniform_resource_publication',
-    'study_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_author',
-    'author_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_author',
-    'name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_author',
-    'email',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_author',
-    'investigator_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_author',
-    'study_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'metadata_id',
-    'TEXT',
-    1,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'devicename',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'device_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'source_platform',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'patient_id',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'file_name',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'file_format',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'file_upload_date',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'data_start_date',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'data_end_date',
-    'TEXT',
-    0,
-    1
-UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata',
-    'study_id',
-    'TEXT',
-    0,
-    1;
+CREATE VIEW IF NOT EXISTS expected_schema_view AS
+SELECT 
+'uniform_resource_institution' AS table_name, 'institution_id' AS column_name, 'TEXT' AS column_type, 1 AS is_primary_key, 1 AS not_null
+UNION ALL SELECT 'uniform_resource_institution', 'institution_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_institution', 'city', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_institution', 'state', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_institution', 'country', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_institution', 'tenant_id', 'TEXT', 0, 1
+
+UNION ALL SELECT 'uniform_resource_lab', 'lab_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_lab', 'lab_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_lab', 'lab_pi', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_lab', 'institution_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_lab', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_lab', 'tenant_id', 'TEXT', 0, 1
+
+UNION ALL SELECT 'uniform_resource_study', 'study_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_study', 'study_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'start_date', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'end_date', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'treatment_modalities', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'funding_source', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'nct_number', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'study_description', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_study', 'tenant_id', 'TEXT', 0, 1
+
+
+UNION ALL SELECT 'uniform_resource_site', 'site_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_site', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_site', 'site_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_site', 'site_type', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_site', 'tenant_id', 'TEXT', 0, 1
+
+
+UNION ALL SELECT 'uniform_resource_investigator', 'investigator_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'investigator_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'email', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'institution_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_investigator', 'tenant_id', 'TEXT', 0, 1
+
+UNION ALL SELECT 'uniform_resource_publication', 'publication_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_publication', 'publication_title', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_publication', 'digital_object_identifier', 'TEXT', 0, 0
+UNION ALL SELECT 'uniform_resource_publication', 'publication_site', 'TEXT', 0, 0
+UNION ALL SELECT 'uniform_resource_publication', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_publication', 'tenant_id', 'TEXT', 0, 1
+
+UNION ALL SELECT 'uniform_resource_author', 'author_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_author', 'name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_author', 'email', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_author', 'investigator_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_author', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_author', 'tenant_id', 'TEXT', 0, 1
+
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'metadata_id', 'TEXT', 1, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'devicename', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'device_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'source_platform', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'patient_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'file_name', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'file_format', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'file_upload_date', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_start_date', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'data_end_date', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'study_id', 'TEXT', 0, 1
+UNION ALL SELECT 'uniform_resource_cgm_file_metadata', 'tenant_id', 'TEXT', 0, 1;
 
 CREATE TEMP VIEW IF NOT EXISTS device_info AS
-SELECT
-    device_id,
-    name,
-    created_at
-FROM
-    device d;
+SELECT device_id, name, created_at
+FROM device d;
 
-INSERT
-OR IGNORE INTO orchestration_nature (
+
+INSERT OR IGNORE INTO orchestration_nature (
     orchestration_nature_id,
     nature,
     elaboration,
@@ -777,27 +335,24 @@ OR IGNORE INTO orchestration_nature (
     deleted_at,
     deleted_by,
     activity_log
-)
+) 
 SELECT
-    'V&V', -- orchestration_nature_id (unique identifier)
-    'Verification and Validation', -- nature
-    NULL, -- elaboration
-    CURRENT_TIMESTAMP, -- Timestamp of creation
-    d.device_id, -- created_by
-    NULL, -- updated_at
-    NULL, -- updated_by
-    NULL, -- deleted_at
-    NULL, -- deleted_by
-    NULL -- activity_log
-FROM
-    device_info d
-LIMIT
-    1;
+    'V&V',                                   -- orchestration_nature_id (unique identifier)
+    'Verification and Validation',           -- nature
+    NULL,                                    -- elaboration
+    CURRENT_TIMESTAMP,          -- Timestamp of creation
+    d.device_id,                               -- created_by
+    NULL,                                    -- updated_at
+    NULL,                                    -- updated_by
+    NULL,                                    -- deleted_at
+    NULL,                                    -- deleted_by
+    NULL                                     -- activity_log
+FROM device_info d
+LIMIT 1;  -- Limiting to 1 device
 
--- Limiting to 1 device
+
 -- Insert into orchestration_session only if it doesn't exist
-INSERT
-OR IGNORE INTO orchestration_session (
+INSERT OR IGNORE INTO orchestration_session (
     orchestration_session_id,
     device_id,
     orchestration_nature_id,
@@ -810,86 +365,59 @@ OR IGNORE INTO orchestration_session (
     diagnostics_md
 )
 SELECT
-    'ORCHSESSID-' || hex (randomblob (16)), -- Generate a random hex blob for orchestration_session_id
-    d.device_id, -- Pull device_id from the device_info view
-    'V&V', -- Reference to the orchestration_nature_id we just inserted
-    '', -- Version (placeholder)
-    CURRENT_TIMESTAMP, -- Start time
-    NULL, -- Finished time (to be updated later)
-    NULL, -- Elaboration (if any)
-    NULL, -- Args JSON (if any)
-    NULL, -- Diagnostics JSON (if any)
-    NULL -- Diagnostics MD (if any)
-FROM
-    device_info d
-LIMIT
-    1;
+    'ORCHSESSID-' || hex(randomblob(16)),  -- Generate a random hex blob for orchestration_session_id
+    d.device_id,                             -- Pull device_id from the device_info view
+    'V&V',                      -- Reference to the orchestration_nature_id we just inserted
+    '',                                      -- Version (placeholder)
+    CURRENT_TIMESTAMP,                       -- Start time
+    NULL,                                    -- Finished time (to be updated later)
+    NULL,                                    -- Elaboration (if any)
+    NULL,                                    -- Args JSON (if any)
+    NULL,                                    -- Diagnostics JSON (if any)
+    NULL                                     -- Diagnostics MD (if any)
+FROM device_info d
+LIMIT 1;  -- Limiting to 1 device
 
--- Limiting to 1 device
 -- Create a temporary view to retrieve orchestration session information
 CREATE TEMP VIEW IF NOT EXISTS session_info AS
 SELECT
     orchestration_session_id
-FROM
+FROM 
     orchestration_session
-WHERE
+WHERE 
     orchestration_nature_id = 'V&V'
-LIMIT
-    1;
+LIMIT 1;
 
 -- Insert into orchestration_session_entry only if it doesn't exist
-INSERT
-OR IGNORE INTO orchestration_session_entry (
+INSERT OR IGNORE INTO orchestration_session_entry (
     orchestration_session_entry_id,
     session_id,
     ingest_src,
     ingest_table_name,
     elaboration
-)
-VALUES
-    (
-        'ORCHSESSENID-' || hex (randomblob (16)), -- Generate a random hex blob for orchestration_session_entry_id
-        (
-            SELECT
-                orchestration_session_id
-            FROM
-                session_info
-            limit
-                1
-        ), -- Session ID from previous insert
-        'ctr-anderson-stateless.sql', -- Replace with actual ingest source
-        '', -- Placeholder for actual table name
-        NULL -- Elaboration (if any)
-    );
+) VALUES (
+    'ORCHSESSENID-' || hex(randomblob(16)),  -- Generate a random hex blob for orchestration_session_entry_id
+    (SELECT orchestration_session_id FROM session_info limit 1),  -- Session ID from previous insert
+    'dclp1-single-cgm-tracing.sql',  -- Replace with actual ingest source
+    '',  -- Placeholder for actual table name
+    NULL  -- Elaboration (if any)
+);
+
 
 -- Create or Replace Temp Session Info View
 DROP VIEW IF EXISTS temp_session_info;
-
 CREATE TEMP VIEW temp_session_info AS
 SELECT
     orchestration_session_id,
-    (
-        SELECT
-            orchestration_session_entry_id
-        FROM
-            orchestration_session_entry
-        WHERE
-            session_id = orchestration_session_id
-        LIMIT
-            1
-    ) AS orchestration_session_entry_id
-FROM
-    orchestration_session
-WHERE
-    orchestration_nature_id = 'V&V'
-LIMIT
-    1;
+    (SELECT orchestration_session_entry_id FROM orchestration_session_entry WHERE session_id = orchestration_session_id LIMIT 1) AS orchestration_session_entry_id
+FROM orchestration_session 
+WHERE orchestration_nature_id = 'V&V'
+LIMIT 1;
 
 -- Create or Replace Temp Schema Validation Missing Columns View
 DROP VIEW IF EXISTS temp_SchemaValidationMissingColumns;
-
 CREATE TEMP VIEW temp_SchemaValidationMissingColumns AS
-SELECT
+SELECT 
     'Schema Validation: Missing Columns' AS heading,
     e.table_name,
     e.column_name,
@@ -897,45 +425,42 @@ SELECT
     e.is_primary_key,
     'Missing column: ' || e.column_name || ' in table ' || e.table_name AS status,
     'Include the ' || e.column_name || ' in table ' || e.table_name AS remediation
-FROM
+FROM 
     expected_schema_view e
-    LEFT JOIN (
-        SELECT
-            m.name AS table_name,
-            p.name AS column_name,
-            p.type AS column_type,
-            p.pk AS is_primary_key
-        FROM
-            sqlite_master m
-            JOIN pragma_table_info (m.name) p
-        WHERE
-            m.type = 'table'
-            AND m.name NOT LIKE 'uniform_resource_cgm_tracing%'
-            AND m.name != 'uniform_resource_transform'
-            AND m.name LIKE 'uniform_resource_%'
-    ) a ON e.table_name = a.table_name
-    AND e.column_name = a.column_name
-WHERE
+LEFT JOIN (
+    SELECT 
+        m.name AS table_name,
+        p.name AS column_name,
+        p.type AS column_type,
+        p.pk AS is_primary_key
+    FROM 
+        sqlite_master m
+    JOIN 
+        pragma_table_info(m.name) p
+    WHERE 
+        m.type = 'table' AND
+        m.name NOT LIKE 'uniform_resource_cgm_tracing%' AND
+        m.name != 'uniform_resource_transform' AND 
+        m.name LIKE 'uniform_resource_%'
+) a ON e.table_name = a.table_name AND e.column_name = a.column_name
+WHERE 
     a.column_name IS NULL;
 
 --  Insert Operation into orchestration_session_issue Table
-INSERT
-OR IGNORE INTO orchestration_session_issue (
-    orchestration_session_issue_id,
-    session_id,
-    session_entry_id,
-    issue_type,
-    issue_message,
-    issue_row,
-    issue_column,
-    invalid_value,
-    remediation,
+INSERT OR IGNORE INTO orchestration_session_issue (
+    orchestration_session_issue_id, 
+    session_id, 
+    session_entry_id, 
+    issue_type, 
+    issue_message, 
+    issue_row, 
+    issue_column, 
+    invalid_value, 
+    remediation, 
     elaboration
 )
-SELECT
-    lower(
-        hex (randomblob (4)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (6))
-    ) AS orchestration_session_issue_id,
+SELECT 
+    lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
     tsi.orchestration_session_id,
     tsi.orchestration_session_entry_id,
     svc.heading AS issue_type,
@@ -945,92 +470,96 @@ SELECT
     NULL AS invalid_value,
     svc.remediation,
     NULL AS elaboration
-FROM
+FROM 
     temp_SchemaValidationMissingColumns svc
-    JOIN temp_session_info tsi ON 1 = 1;
+JOIN 
+    temp_session_info tsi ON 1=1;
+
+
+
+
 
 DROP VIEW IF EXISTS temp_DataIntegrityInvalidDates;
-
 CREATE TEMP VIEW temp_DataIntegrityInvalidDates AS
-SELECT
+SELECT 
     'Data Integrity Checks: Invalid Dates' AS heading,
     table_name,
     column_name,
     value,
     'Dates must be in YYYY-MM-DD format: ' || value AS status,
     'The date value in column: ' || column_name || ' of table ' || table_name || ' does not follow the YYYY-MM-DD format. Please ensure the dates are in this format' AS remediation
-FROM
-    (
-        SELECT
-            'uniform_resource_study' AS table_name,
-            'start_date' AS column_name,
-            start_date AS value
-        FROM
-            uniform_resource_study
-        WHERE
-            start_date IS NOT NULL
-            AND start_date != ''
-        UNION ALL
-        SELECT
-            'uniform_resource_study' AS table_name,
-            'end_date' AS column_name,
-            end_date AS value
-        FROM
-            uniform_resource_study
-        WHERE
-            end_date IS NOT NULL
-            AND end_date != ''
-        UNION ALL
-        SELECT
-            'uniform_resource_cgm_file_metadata' AS table_name,
-            'file_upload_date' AS column_name,
-            file_upload_date AS value
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            file_upload_date IS NOT NULL
-            AND file_upload_date != ''
-        UNION ALL
-        SELECT
-            'uniform_resource_cgm_file_metadata' AS table_name,
-            'data_start_date' AS column_name,
-            data_start_date AS value
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            data_start_date IS NOT NULL
-            AND data_start_date != ''
-        UNION ALL
-        SELECT
-            'uniform_resource_cgm_file_metadata' AS table_name,
-            'data_end_date' AS column_name,
-            data_end_date AS value
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            data_end_date IS NOT NULL
-            AND data_end_date != ''
-    )
-WHERE
+FROM (
+    SELECT 
+        'uniform_resource_study' AS table_name,
+        'start_date' AS column_name,
+        start_date AS value
+    FROM 
+        uniform_resource_study
+    WHERE 
+        start_date IS NOT NULL AND start_date != ''
+    
+    UNION ALL
+    
+    SELECT 
+        'uniform_resource_study' AS table_name,
+        'end_date' AS column_name,
+        end_date AS value
+    FROM 
+        uniform_resource_study
+    WHERE 
+        end_date IS NOT NULL AND end_date != ''
+    
+    UNION ALL
+    
+    SELECT 
+        'uniform_resource_cgm_file_metadata' AS table_name,
+        'file_upload_date' AS column_name,
+        file_upload_date AS value
+    FROM 
+        uniform_resource_cgm_file_metadata
+    WHERE 
+        file_upload_date IS NOT NULL AND file_upload_date != ''
+    
+    UNION ALL
+    
+    SELECT 
+        'uniform_resource_cgm_file_metadata' AS table_name,
+        'data_start_date' AS column_name,
+        data_start_date AS value
+    FROM 
+        uniform_resource_cgm_file_metadata
+    WHERE 
+        data_start_date IS NOT NULL AND data_start_date != ''
+    
+    UNION ALL
+    
+    SELECT 
+        'uniform_resource_cgm_file_metadata' AS table_name,
+        'data_end_date' AS column_name,
+        data_end_date AS value
+    FROM 
+        uniform_resource_cgm_file_metadata
+    WHERE 
+        data_end_date IS NOT NULL AND data_end_date != ''
+) 
+WHERE 
     value NOT LIKE '____-__-__';
 
-INSERT
-OR IGNORE INTO orchestration_session_issue (
-    orchestration_session_issue_id,
-    session_id,
-    session_entry_id,
-    issue_type,
-    issue_message,
-    issue_row,
-    issue_column,
-    invalid_value,
-    remediation,
+
+INSERT OR IGNORE INTO orchestration_session_issue (
+    orchestration_session_issue_id, 
+    session_id, 
+    session_entry_id, 
+    issue_type, 
+    issue_message, 
+    issue_row, 
+    issue_column, 
+    invalid_value, 
+    remediation, 
     elaboration
 )
-SELECT
-    lower(
-        hex (randomblob (4)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (6))
-    ) AS orchestration_session_issue_id,
+SELECT 
+    lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
     tsi.orchestration_session_id,
     tsi.orchestration_session_entry_id,
     diid.heading AS issue_type,
@@ -1040,579 +569,739 @@ SELECT
     diid.value AS invalid_value,
     diid.remediation,
     NULL AS elaboration
-FROM
-    temp_DataIntegrityInvalidDates diid
-    JOIN temp_session_info tsi ON 1 = 1;
+FROM temp_DataIntegrityInvalidDates diid
+JOIN 
+    temp_session_info tsi ON 1=1;
 
 -- Generate SQL for finding empty or NULL values in table
-DROP VIEW IF EXISTS DataIntegrityEmptyCells;
 
+DROP VIEW IF EXISTS DataIntegrityEmptyCells;
 CREATE TEMP VIEW DataIntegrityEmptyCells AS
-SELECT
-    'Data Integrity Checks: Empty Cells' AS heading,
-    table_name,
-    column_name,
-    'The rows empty are:' || GROUP_CONCAT (rowid) AS issue_row, -- Concatenates row IDs with empty values
-    'The following rows in column ' || column_name || ' of file ' || substr (table_name, 18) || ' are either NULL or empty.' AS status,
-    'Please provide values for the ' || column_name || ' column in file ' || substr (table_name, 18) || '.The Rows are:' || GROUP_CONCAT (rowid) AS remediation
-FROM
-    (
-        SELECT
+    SELECT 
+        'Data Integrity Checks: Empty Cells' AS heading,
+        table_name,
+        column_name,
+        'The rows empty are:'|| GROUP_CONCAT(rowid) AS issue_row,  -- Concatenates row IDs with empty values
+        'The following rows in column ' || column_name || ' of file ' || substr(table_name, 18) || ' are either NULL or empty.' AS status,
+        'Please provide values for the ' || column_name || ' column in file ' || substr(table_name, 18) ||'.The Rows are:'|| GROUP_CONCAT(rowid) AS remediation
+    FROM (
+        
+        SELECT 
             'uniform_resource_study' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
+        FROM 
+            uniform_resource_study  
+        WHERE 
+            study_id IS NULL OR study_id = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'study_name' AS column_name,
             study_name AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            study_name IS NULL
-            OR study_name = ''
+        FROM 
+            uniform_resource_study  
+        WHERE 
+            study_name IS NULL OR study_name = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'start_date' AS column_name,
             start_date AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            start_date IS NULL
-            OR start_date = ''
+        FROM 
+            uniform_resource_study  
+        WHERE 
+            start_date IS NULL OR start_date = ''
+        
         UNION ALL
-        SELECT
+        
+        
+        SELECT 
             'uniform_resource_study' AS table_name,
             'end_date' AS column_name,
             end_date AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            end_date IS NULL
-            OR end_date = ''
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            end_date IS NULL OR end_date = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'treatment_modalities' AS column_name,
             treatment_modalities AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            treatment_modalities IS NULL
-            OR treatment_modalities = ''
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            treatment_modalities IS NULL OR treatment_modalities = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'funding_source' AS column_name,
             funding_source AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            funding_source IS NULL
-            OR funding_source = ''
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            funding_source IS NULL OR funding_source = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'nct_number' AS column_name,
             nct_number AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            nct_number IS NULL
-            OR nct_number = ''
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            nct_number IS NULL OR nct_number = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_study' AS table_name,
             'study_description' AS column_name,
             study_description AS value,
             rowid
-        FROM
-            uniform_resource_study
-        WHERE
-            study_description IS NULL
-            OR study_description = ''
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            study_description IS NULL OR study_description = ''
+        
         UNION ALL
+
+        SELECT 
+            'uniform_resource_study' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_study 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL
+
+
+
         --- uniform_resource_institution table
-        SELECT
+
+        SELECT 
             'uniform_resource_institution' AS table_name,
             'institution_id' AS column_name,
             institution_id AS value,
             rowid
-        FROM
-            uniform_resource_institution
-        WHERE
-            institution_id IS NULL
-            OR institution_id = ''
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            institution_id IS NULL OR institution_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_institution' AS table_name,
             'institution_name' AS column_name,
             institution_name AS value,
             rowid
-        FROM
-            uniform_resource_institution
-        WHERE
-            institution_name IS NULL
-            OR institution_name = ''
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            institution_name IS NULL OR institution_name = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_institution' AS table_name,
             'city' AS column_name,
             city AS value,
             rowid
-        FROM
-            uniform_resource_institution
-        WHERE
-            city IS NULL
-            OR city = ''
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            city IS NULL OR city = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_institution' AS table_name,
             'state' AS column_name,
             state AS value,
             rowid
-        FROM
-            uniform_resource_institution
-        WHERE
-            state IS NULL
-            OR state = ''
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            state IS NULL OR state = ''
+        
         UNION ALL
-        SELECT
+
+         SELECT 
             'uniform_resource_institution' AS table_name,
             'country' AS column_name,
             country AS value,
             rowid
-        FROM
-            uniform_resource_institution
-        WHERE
-            country IS NULL
-            OR country = ''
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            country IS NULL OR country = ''
+        
+        UNION ALL       
+        
+        SELECT 
+            'uniform_resource_institution' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_institution 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
         UNION ALL
+
         -- uniform_resource_site table
-        SELECT
+
+        SELECT 
             'uniform_resource_site' AS table_name,
             'site_id' AS column_name,
             site_id AS value,
             rowid
-        FROM
-            uniform_resource_site
-        WHERE
-            site_id IS NULL
-            OR site_id = ''
+        FROM 
+            uniform_resource_site  
+        WHERE 
+            site_id IS NULL OR site_id = ''
+        
         UNION ALL
-        SELECT
+        
+
+        SELECT 
             'uniform_resource_site' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_site
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
+        FROM 
+            uniform_resource_site  
+        WHERE 
+            study_id IS NULL OR study_id = ''
+        
         UNION ALL
-        SELECT
+
+
+        SELECT 
             'uniform_resource_site' AS table_name,
             'site_name' AS column_name,
             site_name AS value,
             rowid
-        FROM
-            uniform_resource_site
-        WHERE
-            site_name IS NULL
-            OR site_name = ''
+        FROM 
+            uniform_resource_site  
+        WHERE 
+            site_name IS NULL OR site_name = ''
+        
         UNION ALL
-        SELECT
+
+        
+        SELECT 
             'uniform_resource_site' AS table_name,
             'site_type' AS column_name,
             site_type AS value,
             rowid
-        FROM
-            uniform_resource_site
-        WHERE
-            site_type IS NULL
-            OR site_type = ''
-        UNION ALL
+        FROM 
+            uniform_resource_site  
+        WHERE 
+            site_type IS NULL OR site_type = ''
+        
+        UNION ALL    
+
+        SELECT 
+            'uniform_resource_site' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_site 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+
         -- uniform_resource_lab table
-        SELECT
+
+        SELECT 
             'uniform_resource_lab' AS table_name,
             'lab_id' AS column_name,
             lab_id AS value,
             rowid
-        FROM
-            uniform_resource_lab
-        WHERE
-            lab_id IS NULL
-            OR lab_id = ''
-        UNION ALL
-        SELECT
+        FROM 
+            uniform_resource_lab  
+        WHERE 
+            lab_id IS NULL OR lab_id = ''
+        
+        UNION ALL       
+
+        SELECT 
             'uniform_resource_lab' AS table_name,
             'lab_name' AS column_name,
             lab_name AS value,
             rowid
-        FROM
-            uniform_resource_lab
-        WHERE
-            lab_name IS NULL
-            OR lab_name = ''
-        UNION ALL
-        SELECT
+        FROM 
+            uniform_resource_lab  
+        WHERE 
+            lab_name IS NULL OR lab_name = ''
+        
+        UNION ALL      
+
+         SELECT 
             'uniform_resource_lab' AS table_name,
             'lab_pi' AS column_name,
             lab_pi AS value,
             rowid
-        FROM
-            uniform_resource_lab
-        WHERE
-            lab_pi IS NULL
-            OR lab_pi = ''
-        UNION ALL
-        SELECT
+        FROM 
+            uniform_resource_lab  
+        WHERE 
+            lab_pi IS NULL OR lab_pi = ''
+        
+        UNION ALL    
+
+          SELECT 
             'uniform_resource_lab' AS table_name,
             'institution_id' AS column_name,
             institution_id AS value,
             rowid
-        FROM
-            uniform_resource_lab
-        WHERE
-            institution_id IS NULL
-            OR institution_id = ''
-        UNION ALL
-        SELECT
+        FROM 
+            uniform_resource_lab  
+        WHERE 
+            institution_id IS NULL OR institution_id = ''
+        
+        UNION ALL    
+
+        SELECT 
             'uniform_resource_lab' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_lab
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
-        UNION ALL
+        FROM 
+            uniform_resource_lab  
+        WHERE 
+            study_id IS NULL OR study_id = ''
+        
+        UNION ALL    
+
+
+        SELECT 
+            'uniform_resource_lab' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_lab 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+        
+
         -- uniform_resource_cgm_file_metadata 
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'metadata_id' AS column_name,
             metadata_id AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            metadata_id IS NULL
-            OR metadata_id = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            metadata_id IS NULL OR metadata_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'devicename' AS column_name,
             devicename AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            devicename IS NULL
-            OR devicename = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            devicename IS NULL OR devicename = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'device_id' AS column_name,
             device_id AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            device_id IS NULL
-            OR device_id = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            device_id IS NULL OR device_id = ''
+        
         UNION ALL
-        SELECT
+
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'source_platform' AS column_name,
             source_platform AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            source_platform IS NULL
-            OR source_platform = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            source_platform IS NULL OR source_platform = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'patient_id' AS column_name,
             patient_id AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            patient_id IS NULL
-            OR patient_id = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            patient_id IS NULL OR patient_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'file_name' AS column_name,
             file_name AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            file_name IS NULL
-            OR file_name = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            file_name IS NULL OR file_name = ''
+        
         UNION ALL
-        SELECT
+
+        
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'file_format' AS column_name,
             file_format AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            file_format IS NULL
-            OR file_format = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            file_format IS NULL OR file_format = ''
+        
         UNION ALL
-        SELECT
+
+
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'file_upload_date' AS column_name,
             file_upload_date AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            file_upload_date IS NULL
-            OR file_upload_date = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            file_upload_date IS NULL OR file_upload_date = ''
+        
         UNION ALL
-        SELECT
+        
+        
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'data_start_date' AS column_name,
             data_start_date AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            data_start_date IS NULL
-            OR data_start_date = ''
+        FROM 
+            uniform_resource_cgm_file_metadata 
+        WHERE 
+            data_start_date IS NULL OR data_start_date = ''
+        
         UNION ALL
-        SELECT
+        
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'data_end_date' AS column_name,
             data_end_date AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            data_end_date IS NULL
-            OR data_end_date = ''
+        FROM 
+            uniform_resource_cgm_file_metadata 
+        WHERE 
+            data_end_date IS NULL OR data_end_date = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_cgm_file_metadata' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_cgm_file_metadata
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
+        FROM 
+            uniform_resource_cgm_file_metadata  
+        WHERE 
+            study_id IS NULL OR study_id = ''
+        
         UNION ALL
+
+
+        SELECT 
+            'uniform_resource_cgm_file_metadata' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_cgm_file_metadata 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+
         -- uniform_resource_investigator
-        SELECT
+        SELECT 
             'uniform_resource_investigator' AS table_name,
             'investigator_id' AS column_name,
             investigator_id AS value,
             rowid
-        FROM
-            uniform_resource_investigator
-        WHERE
-            investigator_id IS NULL
-            OR investigator_id = ''
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            investigator_id IS NULL OR investigator_id = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_investigator' AS table_name,
             'investigator_name' AS column_name,
             investigator_name AS value,
             rowid
-        FROM
-            uniform_resource_investigator
-        WHERE
-            investigator_name IS NULL
-            OR investigator_name = ''
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            investigator_name IS NULL OR investigator_name = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_investigator' AS table_name,
             'email' AS column_name,
             email AS value,
             rowid
-        FROM
-            uniform_resource_investigator
-        WHERE
-            email IS NULL
-            OR email = ''
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            email IS NULL OR email = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_investigator' AS table_name,
             'institution_id' AS column_name,
             institution_id AS value,
             rowid
-        FROM
-            uniform_resource_investigator
-        WHERE
-            institution_id IS NULL
-            OR institution_id = ''
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            institution_id IS NULL OR institution_id = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_investigator' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_investigator
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            study_id IS NULL OR study_id = ''
+
         UNION ALL
+
+        SELECT 
+            'uniform_resource_investigator' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_investigator 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+
         -- uniform_resource_publication table
-        SELECT
+
+        SELECT 
             'uniform_resource_publication' AS table_name,
             'publication_id' AS column_name,
             publication_id AS value,
             rowid
-        FROM
-            uniform_resource_publication
-        WHERE
-            publication_id IS NULL
-            OR publication_id = ''
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            publication_id IS NULL OR publication_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_publication' AS table_name,
             'publication_title' AS column_name,
             publication_title AS value,
             rowid
-        FROM
-            uniform_resource_publication
-        WHERE
-            publication_title IS NULL
-            OR publication_title = ''
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            publication_title IS NULL OR publication_title = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_publication' AS table_name,
             'digital_object_identifier' AS column_name,
             digital_object_identifier AS value,
             rowid
-        FROM
-            uniform_resource_publication
-        WHERE
-            digital_object_identifier IS NULL
-            OR digital_object_identifier = ''
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            digital_object_identifier IS NULL OR digital_object_identifier = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_publication' AS table_name,
             'publication_site' AS column_name,
             publication_site AS value,
             rowid
-        FROM
-            uniform_resource_publication
-        WHERE
-            publication_site IS NULL
-            OR publication_site = ''
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            publication_site IS NULL OR publication_site = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_publication' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_publication
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
-            -- uniform_resource_author table
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            study_id IS NULL OR study_id = ''
+
         UNION ALL
-        SELECT
+
+        SELECT 
+            'uniform_resource_publication' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_publication 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+        
+        UNION ALL    
+        
+        -- uniform_resource_author table        
+
+        SELECT 
             'uniform_resource_author' AS table_name,
             'author_id' AS column_name,
             author_id AS value,
             rowid
-        FROM
-            uniform_resource_author
-        WHERE
-            author_id IS NULL
-            OR author_id = ''
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            author_id IS NULL OR author_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_author' AS table_name,
             'name' AS column_name,
             name AS value,
             rowid
-        FROM
-            uniform_resource_author
-        WHERE
-            name IS NULL
-            OR name = ''
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            name IS NULL OR name = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_author' AS table_name,
             'email' AS column_name,
             email AS value,
             rowid
-        FROM
-            uniform_resource_author
-        WHERE
-            email IS NULL
-            OR email = ''
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            email IS NULL OR email = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_author' AS table_name,
             'investigator_id' AS column_name,
             investigator_id AS value,
             rowid
-        FROM
-            uniform_resource_author
-        WHERE
-            investigator_id IS NULL
-            OR investigator_id = ''
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            investigator_id IS NULL OR investigator_id = ''
+        
         UNION ALL
-        SELECT
+
+        SELECT 
             'uniform_resource_author' AS table_name,
             'study_id' AS column_name,
             study_id AS value,
             rowid
-        FROM
-            uniform_resource_author
-        WHERE
-            study_id IS NULL
-            OR study_id = ''
-    )
-GROUP BY
-    table_name,
-    column_name;
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            study_id IS NULL OR study_id = ''
 
-INSERT
-OR IGNORE INTO orchestration_session_issue (
-    orchestration_session_issue_id,
-    session_id,
-    session_entry_id,
-    issue_type,
-    issue_message,
-    issue_row,
-    issue_column,
-    invalid_value,
-    remediation,
+        UNION ALL
+
+        SELECT 
+            'uniform_resource_author' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM 
+            uniform_resource_author 
+        WHERE 
+            tenant_id IS NULL OR tenant_id = ''
+
+    )
+    GROUP BY table_name, column_name ; 
+
+
+INSERT OR IGNORE INTO orchestration_session_issue (
+    orchestration_session_issue_id, 
+    session_id, 
+    session_entry_id, 
+    issue_type, 
+    issue_message, 
+    issue_row, 
+    issue_column, 
+    invalid_value, 
+    remediation, 
     elaboration
 )
-SELECT
-    lower(
-        hex (randomblob (4)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (6))
-    ) AS orchestration_session_issue_id,
+SELECT 
+    lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
     tsi.orchestration_session_id,
     tsi.orchestration_session_entry_id,
     d_empty.heading AS issue_type,
@@ -1622,97 +1311,74 @@ SELECT
     NULL AS invalid_value,
     d_empty.remediation AS remediation,
     NULL AS elaboration
-FROM
-    DataIntegrityEmptyCells d_empty
-    JOIN temp_session_info tsi ON 1 = 1;
+FROM DataIntegrityEmptyCells d_empty
+JOIN 
+    temp_session_info tsi ON 1=1;
+
 
 DROP VIEW IF EXISTS table_counts;
-
 CREATE TEMP VIEW table_counts AS
-SELECT
+SELECT 
     'uniform_resource_study' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_study
+FROM uniform_resource_study
 UNION ALL
-SELECT
-    'uniform_resource_cgm_file_metadata' AS table_name,
+SELECT 'uniform_resource_cgm_file_metadata' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_cgm_file_metadata
+FROM uniform_resource_cgm_file_metadata
 UNION ALL
-SELECT
-    'drh_participant' AS table_name,
+SELECT 'uniform_resource_institution' AS table_name,
     COUNT(*) AS row_count
-FROM
-    drh_participant
+FROM uniform_resource_institution
 UNION ALL
-SELECT
-    'uniform_resource_institution' AS table_name,
+SELECT 'uniform_resource_lab' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_institution
+FROM uniform_resource_lab
 UNION ALL
-SELECT
-    'uniform_resource_lab' AS table_name,
+SELECT 'uniform_resource_site' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_lab
+FROM uniform_resource_site
 UNION ALL
-SELECT
-    'uniform_resource_site' AS table_name,
+SELECT 'uniform_resource_investigator' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_site
+FROM uniform_resource_investigator
 UNION ALL
-SELECT
-    'uniform_resource_investigator' AS table_name,
+SELECT 'uniform_resource_publication' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_investigator
+FROM uniform_resource_publication
 UNION ALL
-SELECT
-    'uniform_resource_publication' AS table_name,
+SELECT 'uniform_resource_author' AS table_name,
     COUNT(*) AS row_count
-FROM
-    uniform_resource_publication
-UNION ALL
-SELECT
-    'uniform_resource_author' AS table_name,
-    COUNT(*) AS row_count
-FROM
-    uniform_resource_author;
+FROM uniform_resource_author;
+
 
 DROP VIEW IF EXISTS empty_tables;
-
 CREATE TEMP VIEW empty_tables AS
-SELECT
+SELECT 
     table_name,
     row_count,
-    'The File ' || substr (table_name, 18) || ' is empty' AS status,
-    'The file ' || substr (table_name, 18) || ' has zero records. Please check and ensure the file is populated with data.' AS remediation
-FROM
+    'The File ' || substr(table_name, 18) || ' is empty' AS status,
+    'The file ' || substr(table_name, 18) || ' has zero records. Please check and ensure the file is populated with data.' AS remediation
+FROM 
     table_counts
-WHERE
+WHERE 
     row_count = 0;
 
-INSERT
-OR IGNORE INTO orchestration_session_issue (
-    orchestration_session_issue_id,
-    session_id,
-    session_entry_id,
-    issue_type,
-    issue_message,
-    issue_row,
-    issue_column,
-    invalid_value,
-    remediation,
+
+INSERT OR IGNORE INTO orchestration_session_issue (
+    orchestration_session_issue_id, 
+    session_id, 
+    session_entry_id, 
+    issue_type, 
+    issue_message, 
+    issue_row, 
+    issue_column, 
+    invalid_value, 
+    remediation, 
     elaboration
 )
-SELECT
-    lower(
-        hex (randomblob (4)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (2)) || '-' || hex (randomblob (6))
-    ) AS orchestration_session_issue_id,
+SELECT 
+    lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
     tsi.orchestration_session_id,
     tsi.orchestration_session_entry_id,
     'Data Integrity Checks: Empty Tables' AS issue_type,
@@ -1722,172 +1388,201 @@ SELECT
     NULL AS invalid_value,
     ed.remediation,
     NULL AS elaboration
-FROM
+FROM 
     empty_tables ed
-    JOIN temp_session_info tsi ON 1 = 1;
+JOIN 
+    temp_session_info tsi ON 1=1;
 
--- CREATE TEMP VIEW EmptyCellsEnrollment AS
--- SELECT 
---     'Data Integrity Checks: Empty Cells' AS heading,
---     'Enrollment' AS table_name,
---     column_name,
---     COUNT(*) AS missing_count,  -- Count of missing values in the column
---     'The following rows in column ' || column_name || ' of file ' || substr('Enrollment', 18) || ' are either NULL or empty: ' || 
---     GROUP_CONCAT(CASE 
---         WHEN column_name = 'participant_id' THEN participant_id
---         WHEN column_name = 'study_id' THEN study_id
---         WHEN column_name = 'site_id' THEN site_id
---         WHEN column_name = 'diagnosis_icd' THEN diagnosis_icd
---         WHEN column_name = 'med_rxnorm' THEN med_rxnorm
---         WHEN column_name = 'treatment_modality' THEN treatment_modality
---         WHEN column_name = 'gender' THEN gender
---         WHEN column_name = 'race_ethnicity' THEN race_ethnicity
---         WHEN column_name = 'age' THEN age
---         WHEN column_name = 'bmi' THEN bmi
---         WHEN column_name = 'baseline_hba1c' THEN baseline_hba1c
---         WHEN column_name = 'diabetes_type' THEN diabetes_type
---         WHEN column_name = 'study_arm' THEN study_arm
---         END
---     ) AS status,
---     'Please provide values for the ' || column_name || ' column in file ' || substr('Enrollment', 18) || '.' AS remediation
--- FROM (
---     SELECT 
---         'participant_id' AS column_name,
---         participant_id
---     FROM drh_participant
---     WHERE participant_id IS NULL OR participant_id = ''
---     UNION ALL
---     SELECT 
---         'study_id' AS column_name,
---         study_id
---     FROM drh_participant
---     WHERE study_id IS NULL OR study_id = ''
---     UNION ALL
---     SELECT 
---         'site_id' AS column_name,
---         site_id
---     FROM drh_participant
---     WHERE site_id IS NULL OR site_id = ''
---     UNION ALL
---     SELECT 
---         'diagnosis_icd' AS column_name,
---         diagnosis_icd
---     FROM drh_participant
---     WHERE diagnosis_icd IS NULL OR diagnosis_icd = ''
---     UNION ALL
---     SELECT 
---         'med_rxnorm' AS column_name,
---         med_rxnorm
---     FROM drh_participant
---     WHERE med_rxnorm IS NULL OR med_rxnorm = ''
---     UNION ALL
---     SELECT 
---         'treatment_modality' AS column_name,
---         treatment_modality
---     FROM drh_participant
---     WHERE treatment_modality IS NULL OR treatment_modality = ''
---     UNION ALL
---     SELECT 
---         'gender' AS column_name,
---         gender
---     FROM drh_participant
---     WHERE gender IS NULL OR gender = ''
---     UNION ALL
---     SELECT 
---         'race_ethnicity' AS column_name,
---         race_ethnicity
---     FROM drh_participant
---     WHERE race_ethnicity IS NULL OR race_ethnicity = ''
---     UNION ALL
---     SELECT 
---         'age' AS column_name,
---         age
---     FROM drh_participant
---     WHERE age IS NULL OR age = ''
---     UNION ALL
---     SELECT 
---         'bmi' AS column_name,
---         bmi
---     FROM drh_participant
---     WHERE bmi IS NULL OR bmi = ''
---     UNION ALL
---     SELECT 
---         'baseline_hba1c' AS column_name,
---         baseline_hba1c
---     FROM drh_participant
---     WHERE baseline_hba1c IS NULL OR baseline_hba1c = ''
---     UNION ALL
---     SELECT 
---         'diabetes_type' AS column_name,
---         diabetes_type
---     FROM drh_participant
---     WHERE diabetes_type IS NULL OR diabetes_type = ''
---     UNION ALL
---     SELECT 
---         'study_arm' AS column_name,
---         study_arm
---     FROM drh_participant
---     WHERE study_arm IS NULL OR study_arm = ''
--- ) AS missing_data
--- GROUP BY column_name;
--- -- INSERT OR IGNORE INTO orchestration_session_issue (
--- --     orchestration_session_issue_id, 
--- --     session_id, 
--- --     session_entry_id, 
--- --     issue_type, 
--- --     issue_message, 
--- --     issue_row, 
--- --     issue_column, 
--- --     invalid_value, 
--- --     remediation, 
--- --     elaboration
--- -- )
--- -- SELECT 
--- --     lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
--- --     tsi.orchestration_session_id,
--- --     tsi.orchestration_session_entry_id,
--- --     d_empty.heading AS issue_type,
--- --     d_empty.status AS issue_message,
--- --     d_empty.issue_row AS issue_row,
--- --     d_empty.column_name AS issue_column,
--- --     NULL AS invalid_value,
--- --     d_empty.remediation AS remediation,
--- --     NULL AS elaboration
--- -- FROM EmptyCellsEnrollment d_empty
--- -- JOIN 
--- --     temp_session_info tsi ON 1=1;
---  SELECT 
---     lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))) AS orchestration_session_issue_id,
---     tsi.orchestration_session_id,
---     tsi.orchestration_session_entry_id,
---     d_empty.heading AS issue_type,
---     d_empty.status AS issue_message,
---     d_empty.issue_row AS issue_row,
---     d_empty.column_name AS issue_column,
---     NULL AS invalid_value,
---     d_empty.remediation AS remediation,
---     NULL AS elaboration
--- FROM EmptyCellsEnrollment d_empty;
+
 -- Update orchestration_session to set finished timestamp and diagnostics
 UPDATE orchestration_session
-SET
-    orch_finished_at = CURRENT_TIMESTAMP, -- Set the finish time
-    diagnostics_json = '{"status": "completed"}', -- Diagnostics status in JSON format
-    diagnostics_md = 'Verification Validation process completed' -- Markdown summary
+SET 
+    orch_finished_at = CURRENT_TIMESTAMP,             -- Set the finish time
+    diagnostics_json = '{"status": "completed"}',     -- Diagnostics status in JSON format
+    diagnostics_md = 'Verification Validation process completed'  -- Markdown summary
+WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_session_info LIMIT 1);  -- Update the session identified in the temp view
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+-- Drop the view if it exists, then create the drh_participant view
+DROP VIEW IF EXISTS drh_participant;
+
+CREATE VIEW
+    drh_participant AS
+SELECT
+    'CTR001' as tenant_id,
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID to form participant_id
+    'CTR3' AS study_id, -- Static assignment of study_id as 'CTR3'
+    '' AS site_id, -- Placeholder for site_id
+    '' AS diagnosis_icd, -- Placeholder for diagnosis ICD
+    '' AS med_rxnorm, -- Placeholder for medication RxNorm
+    '' AS treatment_modality, -- Placeholder for treatment modality
+    Gender AS gender, -- Direct mapping of Gender
+    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenate Race and Ethnicity for race_ethnicity
+    "Age at Enrollment" AS age, -- Direct mapping of Age at Enrollment
+    CASE
+        WHEN Weight IS NOT NULL
+        AND Height IS NOT NULL THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation if Weight and Height are available
+        ELSE NULL
+    END AS bmi, -- Alias for BMI calculation
+    HbA1CTest AS baseline_hba1c, -- Mapping HbA1CTest to baseline_hba1c
+    '' AS diabetes_type, -- Placeholder for diabetes type
+    '' AS study_arm -- Placeholder for study arm
+FROM
+    uniform_resource_enrollment;
+
+-- Drop the view if it exists, then create the view for uniform_resource_cgm
+DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
+
+CREATE VIEW
+    drh_vw_uniform_resource_cgm AS
+SELECT
+    'CTR001' as tenant_id,
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
+    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
+FROM
+    uniform_resource_cgm;
+
+-- Drop the view if it exists, then create the view for uniform_resource_cgmcal
+DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
+
+CREATE VIEW
+    drh_vw_uniform_resource_cgmcal AS
+SELECT
+    'CTR001' as tenant_id,
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
+    CAST(Cal AS REAL) AS CGM_value -- Cast Cal to REAL for numeric representation
+FROM
+    uniform_resource_cgmcal;
+
+-- Drop the view if it exists, then create the view for uniform_resource_monitorcgm
+DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
+
+CREATE VIEW
+    drh_vw_uniform_resource_monitorcgm AS
+SELECT
+    'CTR001' as tenant_id,
+    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    strftime ('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time, -- Format LocalDtTm to Date_Time
+    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
+FROM
+    uniform_resource_monitorcgm;
+
+-- Drop the view if it exists, then create the combined CGM tracing view
+DROP VIEW IF EXISTS combined_cgm_tracing;
+
+CREATE VIEW
+    combined_cgm_tracing AS
+SELECT
+    tenant_id,
+    participant_id,
+    Date_Time,
+    CGM_value
+FROM
+    drh_vw_uniform_resource_cgm
+UNION ALL
+SELECT
+    tenant_id,
+    participant_id,
+    Date_Time,
+    CGM_value
+FROM
+    drh_vw_uniform_resource_cgmcal
+UNION ALL
+SELECT
+    tenant_id,
+    participant_id,
+    Date_Time,
+    CGM_value
+FROM
+    drh_vw_uniform_resource_monitorcgm;
+
+--CTR DS to DRH model (standarization with server UI)
+-- View to count the number of CGM tracing files
+DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
+
+CREATE VIEW
+    drh_number_of_cgm_tracing_files_view AS
+SELECT
+    COUNT(*) AS table_count
+FROM
+    sqlite_master
 WHERE
-    orchestration_session_id = (
-        SELECT
-            orchestration_session_id
-        FROM
-            temp_session_info
-        LIMIT
-            1
+    type = 'table'
+    AND name IN (
+        'uniform_resource_cgm',
+        'uniform_resource_cgmcal',
+        'uniform_resource_monitorcgm'
     );
 
--- Update the session identified in the temp view
---Sqlpage display db views-----------------------------------------------
--- Drop and recreate the device view
--- This view contains the basic information about devices used in the system.
+-- View to list the names of raw CGM tables
+DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
+
+CREATE VIEW
+    drh_raw_cgm_table_lst AS
+SELECT
+    name,
+    tbl_name as table_name
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (
+        'uniform_resource_cgm',
+        'uniform_resource_cgmcal',
+        'uniform_resource_monitorcgm'
+    );
+
+-- View to count the total number of CGM raw files
+DROP VIEW IF EXISTS drh_number_cgm_count;
+
+CREATE VIEW
+    drh_number_cgm_count AS
+SELECT
+    count(*) as number_of_cgm_raw_files
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (
+        'uniform_resource_cgm',
+        'uniform_resource_cgmcal',
+        'uniform_resource_monitorcgm'
+    );
+
+DROP VIEW IF EXISTS study_wise_csv_file_names;
+
+CREATE VIEW
+    study_wise_csv_file_names AS
+SELECT
+    name
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name LIKE 'uniform_resource_%'
+    and name != 'uniform_resource_transform';
+
+DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
+
+CREATE VIEW
+    study_wise_number_cgm_raw_files_count AS
+SELECT
+    count(*) as number_of_cgm_raw_files
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (
+        'uniform_resource_cgm',
+        'uniform_resource_cgmcal',
+        'uniform_resource_monitorcgm'
+    );
+
+
 DROP VIEW IF EXISTS drh_device;
 
 CREATE VIEW
@@ -2165,6 +1860,7 @@ DROP VIEW IF EXISTS drh_study;
 CREATE VIEW
     drh_study AS
 SELECT
+    tenant_id,
     study_id,
     study_name,
     start_date,
@@ -2182,6 +1878,7 @@ DROP VIEW IF EXISTS drh_cgmfilemetadata_view;
 CREATE VIEW
     drh_cgmfilemetadata_view AS
 SELECT
+    tenant_id,
     metadata_id,
     devicename,
     device_id,
@@ -2202,6 +1899,7 @@ DROP VIEW IF EXISTS drh_author;
 CREATE VIEW
     drh_author AS
 SELECT
+    tenant_id,
     author_id,
     name,
     email,
@@ -2216,6 +1914,7 @@ DROP VIEW IF EXISTS drh_institution;
 CREATE VIEW
     drh_institution AS
 SELECT
+    tenant_id,
     institution_id,
     institution_name,
     city,
@@ -2230,6 +1929,7 @@ DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW
     drh_investigator AS
 SELECT
+    tenant_id,
     investigator_id,
     investigator_name,
     email,
@@ -2244,6 +1944,7 @@ DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW
     drh_lab AS
 SELECT
+    tenant_id,
     lab_id,
     lab_name,
     lab_pi,
@@ -2258,6 +1959,7 @@ DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW
     drh_publication AS
 SELECT
+    tenant_id,
     publication_id,
     publication_title,
     digital_object_identifier,
@@ -2272,6 +1974,7 @@ DROP VIEW IF EXISTS drh_site;
 CREATE VIEW
     drh_site AS
 SELECT
+    tenant_id,
     study_id,
     site_id,
     site_name,
@@ -2285,6 +1988,7 @@ DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW
     drh_study_vanity_metrics_details AS
 SELECT
+    s.tenant_id,
     s.study_id,
     s.study_name,
     s.study_description,
@@ -2340,6 +2044,170 @@ SELECT
     *
 FROM
     drh_raw_cgm_table_lst;
+
+
+
+DROP VIEW IF EXISTS study_combined_dashboard_participant_metrics_view;
+
+CREATE VIEW study_combined_dashboard_participant_metrics_view AS
+WITH combined_data AS (
+    SELECT         
+        dg.tenant_id,
+        CAST(SUBSTR(dg.participant_id, 1, INSTR(dg.participant_id, '-') - 1) AS TEXT) AS study_id,        
+        dg.participant_id,
+        dg.gender,
+        dg.age,
+        dg.study_arm,
+        dg.baseline_hba1c,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tir,
+        ROUND(SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_vh,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_h,
+        ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_l,
+        ROUND(SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_vl,
+        ROUND(SUM(CASE WHEN dc.CGM_Value > 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar,
+        ROUND(SUM(CASE WHEN dc.CGM_Value < 70 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr,
+        CEIL((AVG(dc.CGM_Value) * 0.155) + 95) AS gmi,
+        ROUND((SQRT(AVG(dc.CGM_Value * dc.CGM_Value) - AVG(dc.CGM_Value) * AVG(dc.CGM_Value)) / AVG(dc.CGM_Value)) * 100, 2) AS percent_gv,
+        ROUND((3.0 * ((SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.8 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))) + (1.6 * ((SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.5 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) ))), 2) AS gri,
+        COUNT(DISTINCT DATE(dc.Date_Time)) AS days_of_wear,
+        MIN(DATE(dc.Date_Time)) AS data_start_date,
+        MAX(DATE(dc.Date_Time)) AS data_end_date
+    FROM drh_participant dg 
+    JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
+    GROUP BY dg.tenant_id, study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c 
+)
+SELECT *,
+    ROUND(
+        COALESCE(
+            (days_of_wear * 1.0 / 
+            (JULIANDAY(data_end_date) - JULIANDAY(data_start_date) + 1)) * 100, 
+            0), 
+        2) AS wear_time_percentage FROM combined_data;
+
+ 
+DROP VIEW IF EXISTS participant_cgm_date_range_view;
+CREATE VIEW participant_cgm_date_range_view AS 
+SELECT 
+    participant_id,
+    CAST(strftime('%Y-%m-%d', MIN(Date_Time)) AS TEXT) AS participant_cgm_start_date,
+    CAST(strftime('%Y-%m-%d', MAX(Date_Time)) AS TEXT) AS participant_cgm_end_date,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-1 day')) AS TEXT) AS end_date_minus_1_day,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-7 day')) AS TEXT) AS end_date_minus_7_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-14 day')) AS TEXT) AS end_date_minus_14_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-30 day')) AS TEXT) AS end_date_minus_30_days,
+    CAST(strftime('%Y-%m-%d', DATE(MAX(Date_Time), '-90 day')) AS TEXT) AS end_date_minus_90_days
+FROM 
+    combined_cgm_tracing  
+GROUP BY 
+    participant_id;
+
+
+
+
+-- cached tables
+
+
+DROP TABLE IF EXISTS raw_cgm_lst_cached;
+CREATE TABLE raw_cgm_lst_cached AS 
+  SELECT * FROM drh_raw_cgm_table_lst;
+
+
+DROP TABLE IF EXISTS study_cgm_file_count_cached;
+CREATE TABLE study_cgm_file_count_cached AS 
+SELECT count(*) AS total_count FROM drh_raw_cgm_table_lst;
+
+
+
+
+DROP TABLE IF EXISTS participant_dashboard_cached;
+
+CREATE TABLE participant_dashboard_cached AS
+SELECT tenant_id, study_id, participant_id, gender, age, study_arm, baseline_hba1c, tir, tar_vh, tar_h, tbr_l, tbr_vl, tar,tbr, gmi, percent_gv, gri, days_of_wear, wear_time_percentage, data_start_date, data_end_date
+FROM study_combined_dashboard_participant_metrics_view;
+
+DROP TABLE IF EXISTS combined_cgm_tracing_cached;
+
+CREATE TABLE combined_cgm_tracing_cached AS
+SELECT tenant_id, participant_id, Date_Time, CGM_Value
+FROM combined_cgm_tracing;
+
+DROP TABLE IF EXISTS participant_cgm_date_range_cached;
+
+CREATE TABLE participant_cgm_date_range_cached AS
+SELECT participant_id, participant_cgm_start_date, participant_cgm_end_date, end_date_minus_1_day, end_date_minus_7_days, end_date_minus_14_days, end_date_minus_30_days, end_date_minus_90_days
+FROM participant_cgm_date_range_view;
+
+DROP TABLE IF EXISTS ur_ingest_session_file_issue_cached;
+
+CREATE TABLE ur_ingest_session_file_issue_cached AS
+SELECT device_id, ur_ingest_session_id, ur_ingest_session_fs_path_id, root_path, ur_ingest_session_fs_path_entry_id, file_path_abs, ur_status, ur_diagnostics
+FROM ur_ingest_session_file_issue;
+
+DROP TABLE IF EXISTS ur_ingest_session_files_stats_cached;
+
+CREATE TABLE ur_ingest_session_files_stats_cached AS
+SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, file_extension, ingest_session_fs_path_id, ingest_session_root_fs_path, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
+FROM ur_ingest_session_files_stats;
+
+DROP TABLE IF EXISTS ur_ingest_session_files_stats_latest_cached;
+
+CREATE TABLE ur_ingest_session_files_stats_latest_cached AS
+SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, file_extension, ingest_session_fs_path_id, ingest_session_root_fs_path, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
+FROM ur_ingest_session_files_stats_latest;
+
+DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_cached;
+
+CREATE TABLE ur_ingest_session_tasks_stats_cached AS
+SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, ur_status, nature, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
+FROM ur_ingest_session_tasks_stats;
+
+DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_latest_cached;
+
+CREATE TABLE ur_ingest_session_tasks_stats_latest_cached AS
+SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, ur_status, nature, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
+FROM ur_ingest_session_tasks_stats_latest;
+
+DROP TABLE IF EXISTS study_details_cached;
+
+CREATE TABLE study_details_cached AS
+SELECT s.tenant_id,s.study_id,        
+s.study_name,        
+s.study_description,        
+s.start_date,        
+s.end_date,        
+s.nct_number,        
+COUNT(DISTINCT p.participant_id) AS total_number_of_participants,        
+ROUND(AVG(p.age), 2) AS average_age,        
+FLOOR((CAST(SUM(CASE WHEN p.gender = 'F' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*)) * 100) AS percentage_of_females,        
+GROUP_CONCAT(DISTINCT i.investigator_name) AS investigators 
+FROM uniform_resource_study s 
+LEFT JOIN drh_participant p ON s.study_id = p.study_id 
+LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id 
+GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date, s.nct_number ;
+
+DROP TABLE IF EXISTS cgm_table_name_cached;
+
+CREATE TABLE cgm_table_name_cached AS 
+SELECT DISTINCT 
+    pdc.tenant_id,
+    pdc.study_id, 
+    sm.tbl_name AS table_name, 
+    REPLACE(sm.tbl_name, 'uniform_resource_', '') || '.' || ur.nature AS file_name
+FROM 
+    participant_dashboard_cached pdc
+JOIN 
+    sqlite_master sm
+    ON sm.type = 'table'
+    AND sm.name LIKE 'uniform_resource%'
+    AND sm.name != 'uniform_resource_transform'
+    AND sm.name != 'uniform_resource'
+JOIN 
+    uniform_resource ur 
+    ON ur.uri LIKE '%' || REPLACE(sm.tbl_name, 'uniform_resource_', '') || '%';
+
+
+--indexes
+
 
 ------------- Dynamically insert the SQLPage configurations for CGM raw tables --------------------------
 WITH

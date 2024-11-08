@@ -9,7 +9,6 @@ can view the results directly on your local system. The following steps will
 guide you through converting your files, performing de-identification, V&V, and
 verifying the data all within your own environment.
 
-
 # Try outside this repo
 
 ### Requirements for Previewing the Edge UI:
@@ -44,43 +43,46 @@ Installation steps may vary depending on your operating system.
 
 ### Step 4 : Execute the commands below
 
-  1. **Perform Ingestion and transformation**
+1. **Perform Ingestion and transformation**
 
-   ```bash
-   # Execute the command below if the files in the study folder are of the CSV format.
-   surveilr ingest files -r `study-files-folder-name`/ && surveilr orchestrate transform-csv
-   ```
+```bash
+# Execute the command below if the files in the study folder are of the CSV format.
+surveilr ingest files -r `study-files-folder-name`/ && surveilr orchestrate transform-csv
+```
 
-  - Replace `study-files-folder-name` with the name of your folder containing all CSV files to
+- Replace `study-files-folder-name` with the name of your folder containing all CSV files to
   be converted.
 
-  **Example:**
+**Example:**
 
-  ```bash
-  surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
-  ```
-  2. **SQL Transformation process**
+```bash
+surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
+```
 
-  Example: Considering the Dataset pattern is 'UVA DCLP1'
+2. **SQL Transformation process**
 
-  ```bash
-    surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
-  ```
-  3. **Server UI execution**
+Example: Considering the Dataset pattern is 'UVA DCLP1'
 
-  execute 
+```bash
+  surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
+```
 
-  ```bash
-    surveilr web-ui --port 9000
+3. **Server UI execution**
 
-  ```
-  - After the above command completes execution launch your browser and go to
-    [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
+execute
 
-  This method provides a streamlined approach to complete the process and see
-  the results quickly.
+```bash
+  surveilr web-ui --port 9000
 
-  Note: Based on the dataset pattern,the steps 1 and 2 will change in the foldername as well as in the .sql.ts file to be invoked.
+```
+
+- After the above command completes execution launch your browser and go to
+  [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
+
+This method provides a streamlined approach to complete the process and see
+the results quickly.
+
+Note: Based on the dataset pattern,the steps 1 and 2 will change in the foldername as well as in the .sql.ts file to be invoked.
 
 ### Step 5 : Verify the Verification Validation Results in the UI
 
@@ -107,8 +109,9 @@ The automation script currently assumes the dataset pattern is UVA DCLP1. If you
 Clear the cache by running the following command:
 
 ```bash
-deno cache --reload https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts 
+deno cache --reload https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub/drhctl.ts
 ```
+
 **Single execution process**
 
 After clearing the cache, run the single execution command:
@@ -127,7 +130,6 @@ deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib
 
 After the above command completes execution, launch your browser and go to [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
 
-
 # Try It Out in This Repo (For Development Activities)
 
 Each new dataset type requires manual review to assess study files, determine the mode of ingestion through Surveilr, and prepare a transformation SQL for DRH views. For every dataset, a new transform sql for the study, a combinedTracingView generator, and <studyName>.sql.ts must be created and maintained.
@@ -138,13 +140,13 @@ The process isn’t automated, the appropriate ingestion and transformation comm
 
 The following sample files are available in the repository:
 
-- `/service/diabetes-research-hub/study-files.zip`
-- `/service/diabetes-research-hub/ctr-study-files.zip`
-- `/service/diabetes-research-hub/de-trended-analysis-files.zip`
-- `/service/diabetes-research-hub/dclp1.zip`
-- `/service/diabetes-research-hub/dclp3.zip`
-- `/service/diabetes-research-hub/dss1.zip`
-- `/service/diabetes-research-hub/ntlt.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/study-files.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/ctr-study-files.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/de-trended-analysis-files.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/dclp1.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/dclp3.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/dss1.zip`
+- `/service/diabetes-research-hub/datasets-transformed-archive/ntlt.zip`
 
 Each of these folders contains different datasets.
 
@@ -172,54 +174,50 @@ Depending on the dataset you're working with, use the appropriate folder name in
 
 ```bash
 # Ingest and transform the CSV files in the "study-files/" directory(dclp1 study files with multiple CGM tracing), creating resource-surveillance.sqlite.db
-$ surveilr ingest files -r study-files/ --tenant-id DCLP1 --tenant-name "Randomized Controlled Trial of 
-  Mobile Closed-Loop Control" && surveilr orchestrate transform-csv  # (option 1)
+$ surveilr ingest files -r study-files/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
 $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
+
 ```bash
 # Ingest and transform the CSV files in the "ctr-study-files/" directory
-$ surveilr ingest files -r ctr-study-files/ --tenant-id CTR3 --tenant-name "CTR3 Anderson(2016)" && surveilr orchestrate transform-csv
+$ surveilr ingest files -r ctr-study-files/ --tenant-id CTR001 --tenant-name "CTR001" && surveilr orchestrate transform-csv
 $ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
 
 ```
 
 ```bash
 # Ingest and transform the CSV files in the "de-trended-analysis-files/" directory
-$ surveilr ingest files -r de-trended-analysis-files/ --tenant-id DFA --tenant-name "DFA Colas(2019)" && surveilr orchestrate transform-csv
+$ surveilr ingest files -r de-trended-analysis-files/ --tenant-id DFA001 --tenant-name "DFA001" && surveilr orchestrate transform-csv
 $ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv
 
 ```
 
 ```bash
-# Ingest and transform the CSV files in the "dclp1/" directory(dclp1 study files with single CGM tracing), creating resource-surveillance.sqlite.db
-$ surveilr ingest files -r dclp1/ --tenant-id DCLP1 --tenant-name "Randomized Controlled Trial of 
-  Mobile Closed-Loop Control" && surveilr orchestrate transform-csv  # (option 1)
-$ surveilr ingest files -r dclp1/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
+# Ingest and transform the CSV files in the "dclp1-singlecgmtracing/" directory(dclp1 study files with single CGM tracing), creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r dclp1-singlecgmtracing/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
+$ surveilr ingest files -r dclp1-singlecgmtracing/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
 ```bash
 # Ingest and transform the CSV files in the "dclp3/" directory, creating resource-surveillance.sqlite.db
-$ surveilr ingest files -r dclp3/ --tenant-id DCLP3 --tenant-name "Six-Month Randomized Multicenter Trial of Closed-Loop 
-Control in Type 1 Diabetes" && surveilr orchestrate transform-csv  # (option 1)
+$ surveilr ingest files -r dclp3/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
 $ surveilr ingest files -r dclp3/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
-
 ```bash
 
 # Ingest and transform the CSV files in the "dss1/" directory
-$ surveilr ingest files -r dss1/ --tenant-id DSS1 --tenant-name "Impact of a Novel Diabetes Support System on a Cohort of Individuals With Type 1 Diabetes Treated With Multiple Daily Injections" && surveilr orchestrate transform-csv
+$ surveilr ingest files -r dss1/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv
 $ surveilr ingest files -r dss1/ && surveilr orchestrate transform-csv
 
 ```
 
 ```bash
 # Ingest and transform the CSV files in the "ntlt/" directory, creating resource-surveillance.sqlite.db
-$ surveilr ingest files -r ntlt/ --tenant-id NTLT --tenant-name "Evening and overnight closed-loop control versus 
-24/7 continuous closed-loop control for type 1 diabetes" && surveilr orchestrate transform-csv  # (option 1)
+$ surveilr ingest files -r ntlt/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
 $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
@@ -229,40 +227,41 @@ $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option
 For each Dataset a custom <packagefilename>.sql.ts will be created that perfoms the custom file transformation SQL generation and sqlpage setup
 
 ```bash
-# For DCLP1 (multiple CGM tracing)study Dataset  
-$ surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts 
+# For DCLP1 (multiple CGM tracing)study Dataset
+$ surveilr shell ./dataset-specific-package/dclp1-uva-study.sql.ts
 ```
 
 ```bash
-# For CTR Anderson(2016) study Dataset  
-$ surveilr shell ./dataset-specific-package/anderson.sql.ts 
+# For CTR Anderson(2016) study Dataset
+$ surveilr shell ./dataset-specific-package/anderson.sql.ts
 ```
 
 ```bash
-# For Detrended Fluctuation Analysis (colas 2019) study Dataset  
+# For Detrended Fluctuation Analysis (colas 2019) study Dataset
 $ surveilr shell ./dataset-specific-package/detrended-analysis.sql.ts
 ```
 
 ```bash
-# For DCLP1 (Single CGM tracing)study Dataset  
-$ surveilr shell ./dataset-specific-package/dclp1-singlecgm-study.sql.ts 
+# For DCLP1 (Single CGM tracing)study Dataset
+$ surveilr shell ./dataset-specific-package/dclp1-singlecgm-study.sql.ts
 ```
 
 ```bash
-# For DCLP3 (Single CGM tracing)study Dataset  
-$ surveilr shell ./dataset-specific-package/dclp3-stateless.sql.ts 
+# For DCLP3 (Single CGM tracing)study Dataset
+$ surveilr shell ./dataset-specific-package/dclp3-stateless.sql.ts
 ```
 
 ```bash
-# For DSS1 (Single CGM tracing)study Dataset  
-$ surveilr shell ./dataset-specific-package/dss1-stateless.sql.ts 
+# For DSS1 (Single CGM tracing)study Dataset
+$ surveilr shell ./dataset-specific-package/dss1-stateless.sql.ts
 ```
 
 ```bash
-# For NTLT (Single CGM tracing)study Dataset  
-$ surveilr shell ./dataset-specific-package/ntlt-stateless.sql.ts 
+# For NTLT (Single CGM tracing)study Dataset
+$ surveilr shell ./dataset-specific-package/ntlt-stateless.sql.ts
 ```
-# Start the server 
+
+# Start the server
 
 ```bash
 $ surveilr web-ui --port 9000
