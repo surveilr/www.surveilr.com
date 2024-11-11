@@ -1,34 +1,4 @@
---transform uniform_resource_clinical_data to participant view
--- Drop and recreate the participant view
-DROP VIEW IF EXISTS drh_participant;
-
-CREATE VIEW
-    drh_participant AS
-SELECT
-    'DFA-' || pid AS participant_id, -- Map pid to participant_id
-    'DFA' AS study_id, -- No equivalent column, set to NULL
-    '' AS site_id, -- No equivalent column, set to NULL
-    '' AS diagnosis_icd, -- No equivalent column, set to NULL
-    '' AS med_rxnorm, -- No equivalent column, set to NULL
-    '' AS treatment_modality, -- No equivalent column, set to NULL
-    CASE
-        WHEN gender = '0' THEN 'M' -- Convert gender  '0' (male)
-        WHEN gender = '1' THEN 'F' -- Convert gender '1' (female)
-        ELSE gender -- Keep original value if any other exists
-    END AS gender,
-    NULL AS race_ethnicity, -- No equivalent column, set to NULL
-    age, -- Map age directly
-    BMI AS bmi, -- Map BMI directly
-    HbA1c AS baseline_hba1c, -- Map HbA1c to baseline_hba1c
-    CASE
-        WHEN T2DM = 'TRUE'
-        OR T2DM = '1' THEN 'Type 2 Diabetes Mellitus'
-        ELSE 'No Type 2 Diabetes'
-    END AS diabetes_type, -- Convert T2DM to true/false representation
-    NULL AS study_arm -- No equivalent column, set to NULL
-FROM
-    uniform_resource_clinical_data;
-
+--DFA-study-DS   sql
 -------------------------------------------------
 -- Perform De-identification
 -- Anonymize email addresses in the uniform_resource_investigator table
@@ -1502,12 +1472,6 @@ FROM
     uniform_resource_cgm_file_metadata
 UNION ALL
 SELECT
-    'drh_participant' AS table_name,
-    COUNT(*) AS row_count
-FROM
-    drh_participant
-UNION ALL
-SELECT
     'uniform_resource_institution' AS table_name,
     COUNT(*) AS row_count
 FROM
@@ -1604,6 +1568,45 @@ WHERE
 
 -- Update the session identified in the temp view
 -----------------------------------------------------------------------------
+--transform uniform_resource_clinical_data to participant view
+-- Drop and recreate the participant view
+DROP VIEW IF EXISTS drh_participant;
+
+CREATE VIEW
+    drh_participant AS
+SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    'DFA-' || pid AS participant_id, -- Map pid to participant_id
+    'DFA' AS study_id, -- No equivalent column, set to NULL
+    '' AS site_id, -- No equivalent column, set to NULL
+    '' AS diagnosis_icd, -- No equivalent column, set to NULL
+    '' AS med_rxnorm, -- No equivalent column, set to NULL
+    '' AS treatment_modality, -- No equivalent column, set to NULL
+    CASE
+        WHEN gender = '0' THEN 'M' -- Convert gender  '0' (male)
+        WHEN gender = '1' THEN 'F' -- Convert gender '1' (female)
+        ELSE gender -- Keep original value if any other exists
+    END AS gender,
+    NULL AS race_ethnicity, -- No equivalent column, set to NULL
+    age, -- Map age directly
+    BMI AS bmi, -- Map BMI directly
+    HbA1c AS baseline_hba1c, -- Map HbA1c to baseline_hba1c
+    CASE
+        WHEN T2DM = 'TRUE'
+        OR T2DM = '1' THEN 'Type 2 Diabetes Mellitus'
+        ELSE 'No Type 2 Diabetes'
+    END AS diabetes_type, -- Convert T2DM to true/false representation
+    NULL AS study_arm -- No equivalent column, set to NULL
+FROM
+    uniform_resource_clinical_data;
+
 --device details and converted files views----------------------------------
 --Drop and recreate the device view
 DROP VIEW IF EXISTS drh_device;
@@ -1866,6 +1869,14 @@ DROP VIEW IF EXISTS drh_study;
 CREATE VIEW
     drh_study AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     study_id,
     study_name,
     start_date,
@@ -1883,6 +1894,14 @@ DROP VIEW IF EXISTS drh_cgmfilemetadata_view;
 CREATE VIEW
     drh_cgmfilemetadata_view AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     metadata_id,
     devicename,
     device_id,
@@ -1903,6 +1922,14 @@ DROP VIEW IF EXISTS drh_author;
 CREATE VIEW
     drh_author AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     author_id,
     name,
     email,
@@ -1917,6 +1944,14 @@ DROP VIEW IF EXISTS drh_institution;
 CREATE VIEW
     drh_institution AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     institution_id,
     institution_name,
     city,
@@ -1931,6 +1966,14 @@ DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW
     drh_investigator AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     investigator_id,
     investigator_name,
     email,
@@ -1945,6 +1988,14 @@ DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW
     drh_lab AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     lab_id,
     lab_name,
     lab_pi,
@@ -1959,6 +2010,14 @@ DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW
     drh_publication AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     publication_id,
     publication_title,
     digital_object_identifier,
@@ -1973,6 +2032,14 @@ DROP VIEW IF EXISTS drh_site;
 CREATE VIEW
     drh_site AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     study_id,
     site_id,
     site_name,
@@ -1986,6 +2053,14 @@ DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW
     drh_study_vanity_metrics_details AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     s.study_id,
     s.study_name,
     s.study_description,
@@ -2060,6 +2135,22 @@ DROP VIEW IF EXISTS study_wise_csv_file_names;
 CREATE VIEW
     study_wise_csv_file_names AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     name
 FROM
     sqlite_master
@@ -2073,6 +2164,22 @@ DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
 CREATE VIEW
     study_wise_number_cgm_raw_files_count AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     count(*) as number_of_cgm_raw_files
 FROM
     sqlite_master

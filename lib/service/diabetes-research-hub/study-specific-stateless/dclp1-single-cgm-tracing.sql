@@ -1579,7 +1579,14 @@ CREATE VIEW drh_participant AS
 SELECT
     participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
-    diabetes_type, study_arm,tenant_id
+    diabetes_type, study_arm,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_participant;
 
 -- Drop and recreate the study view
@@ -1587,7 +1594,14 @@ DROP VIEW IF EXISTS drh_study;
 CREATE VIEW drh_study AS
 SELECT
     study_id, study_name, start_date, end_date, treatment_modalities,
-    funding_source, nct_number, study_description,tenant_id
+    funding_source, nct_number, study_description,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_study;
 
 
@@ -1597,35 +1611,70 @@ CREATE VIEW drh_cgmfilemetadata_view AS
 SELECT
     metadata_id, devicename, device_id, source_platform, patient_id,
     file_name, file_format, file_upload_date, data_start_date,
-    data_end_date, study_id,tenant_id
+    data_end_date, study_id,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_cgm_file_metadata;
 
 -- Drop and recreate the author view
 DROP VIEW IF EXISTS drh_author;
 CREATE VIEW drh_author AS
 SELECT
-    author_id, name, email, investigator_id, study_id,tenant_id
+    author_id, name, email, investigator_id, study_id,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_author;
 
 -- Drop and recreate the institution view
 DROP VIEW IF EXISTS drh_institution;
 CREATE VIEW drh_institution AS
 SELECT
-    institution_id, institution_name, city, state, country,tenant_id
+    institution_id, institution_name, city, state, country,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_institution;
 
 -- Drop and recreate the investigator view
 DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW drh_investigator AS
 SELECT
-    investigator_id, investigator_name, email, institution_id, study_id,tenant_id
+    investigator_id, investigator_name, email, institution_id, study_id,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_investigator;
 
 -- Drop and recreate the lab view
 DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW drh_lab AS
 SELECT
-    lab_id, lab_name, lab_pi, institution_id, study_id,tenant_id
+    lab_id, lab_name, lab_pi, institution_id, study_id,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_lab;
 
 -- Drop and recreate the publication view
@@ -1633,14 +1682,28 @@ DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW drh_publication AS
 SELECT
     publication_id, publication_title, digital_object_identifier,
-    publication_site, study_id,tenant_id
+    publication_site, study_id,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_publication;
 
 -- Drop and recreate the site view
 DROP VIEW IF EXISTS drh_site;
 CREATE VIEW drh_site AS
 SELECT
-    study_id, site_id, site_name, site_type,tenant_id
+    study_id, site_id, site_name, site_type,(
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id
 FROM uniform_resource_site;
 
 
@@ -1768,7 +1831,14 @@ GROUP BY
 
 DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 CREATE VIEW drh_study_vanity_metrics_details AS
-SELECT s.tenant_id, s.study_id, 
+SELECT (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id, s.study_id, 
        s.study_name, 
        s.study_description, 
        s.start_date, 
@@ -1833,7 +1903,22 @@ ORDER BY
 DROP VIEW IF EXISTS combined_cgm_tracing;
 CREATE VIEW combined_cgm_tracing AS
 select 
-    'UVA001' as tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+        (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     SID as participant_id, 
     strftime('%Y-%m-%d %H:%M:%S', Date_Time) as Date_Time, 
     CAST(CGM_Value as REAL) as CGM_Value 
@@ -1845,7 +1930,7 @@ CREATE VIEW study_combined_dashboard_participant_metrics_view AS
 WITH combined_data AS (
     SELECT 
         dg.tenant_id,
-        CAST(SUBSTR(dg.participant_id, 1, INSTR(dg.participant_id, '-') - 1) AS TEXT) AS study_id,        
+        dg.study_id,        
         dg.participant_id,
         dg.gender,
         dg.age,
@@ -1866,7 +1951,7 @@ WITH combined_data AS (
         MAX(DATE(dc.Date_Time)) AS data_end_date
     FROM drh_participant dg 
     JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    GROUP BY study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c,dg.tenant_id
+    GROUP BY dg.study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c,dg.tenant_id
 )
 SELECT *,
     ROUND(
@@ -1879,6 +1964,22 @@ SELECT *,
 DROP VIEW IF EXISTS participant_cgm_date_range_view;
 CREATE VIEW participant_cgm_date_range_view AS 
 SELECT 
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     participant_id,
     CAST(strftime('%Y-%m-%d', MIN(Date_Time)) AS TEXT) AS participant_cgm_start_date,
     CAST(strftime('%Y-%m-%d', MAX(Date_Time)) AS TEXT) AS participant_cgm_end_date,
@@ -1906,7 +2007,22 @@ WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
 DROP VIEW IF EXISTS study_wise_csv_file_names;
 CREATE VIEW study_wise_csv_file_names AS
-SELECT name 
+SELECT (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,name 
 FROM sqlite_master
 WHERE type = 'table' AND name LIKE 'uniform_resource_%' and name !='uniform_resource_transform';
 
@@ -1927,19 +2043,19 @@ SELECT count(*) AS total_count FROM sqlite_master WHERE type = 'table' AND name 
 DROP TABLE IF EXISTS participant_dashboard_cached;
 
 CREATE TABLE participant_dashboard_cached AS
-SELECT tenant_id, study_id, participant_id, gender, age, study_arm, baseline_hba1c, tir, tar_vh, tar_h, tbr_l, tbr_vl, tar,tbr, gmi, percent_gv, gri, days_of_wear, wear_time_percentage, data_start_date, data_end_date
+SELECT *
 FROM study_combined_dashboard_participant_metrics_view;
 
 DROP TABLE IF EXISTS combined_cgm_tracing_cached;
 
 CREATE TABLE combined_cgm_tracing_cached AS
-SELECT tenant_id, participant_id, Date_Time, CGM_Value
+SELECT *
 FROM combined_cgm_tracing;
 
 DROP TABLE IF EXISTS participant_cgm_date_range_cached;
 
 CREATE TABLE participant_cgm_date_range_cached AS
-SELECT participant_id, participant_cgm_start_date, participant_cgm_end_date, end_date_minus_1_day, end_date_minus_7_days, end_date_minus_14_days, end_date_minus_30_days, end_date_minus_90_days
+SELECT *
 FROM participant_cgm_date_range_view;
 
 DROP TABLE IF EXISTS ur_ingest_session_file_issue_cached;
@@ -1975,7 +2091,15 @@ FROM ur_ingest_session_tasks_stats_latest;
 DROP TABLE IF EXISTS study_details_cached;
 
 CREATE TABLE study_details_cached AS
-SELECT s.tenant_id,s.study_id,        
+SELECT (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    s.study_id,        
 s.study_name,        
 s.study_description,        
 s.start_date,        
