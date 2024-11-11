@@ -21,7 +21,7 @@
     "@preline/dropdown": "^2.5.0",
     "@preline/overlay": "^2.5.0",
     "@preline/tabs": "^2.5.0",
-    "@vercel/nft": "^0.27.5",
+    "@vercel/nft": "^0.27.6",
     "astro": "^4.16.10",
     "astro-breadcrumbs": "^3.2.0",
     "astro-compressor": "^0.4.1",
