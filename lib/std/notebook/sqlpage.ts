@@ -367,7 +367,7 @@ export class TypicalSqlPageNotebook
     config:
       & {
         varName?: (name: string) => string;
-        whereSQL?: string[];
+        whereSQL?: string;
       }
       & ({ readonly tableOrViewName: string; readonly countSQL?: never } | {
         readonly tableOrViewName?: never;
@@ -381,14 +381,8 @@ export class TypicalSqlPageNotebook
       init: () => {
         const countSQL = config.countSQL
           ? config.countSQL
-          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName}${
-            config.whereSQL && config.whereSQL.length > 0
-              ? ` WHERE ${
-                config.whereSQL.map((qp) => `${n(qp)} =${$(qp)}`).join(
-                  " AND ",
-                )
-              }`
-              : ``
+          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${
+            config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
           }`;
 
         return this.SQL`
