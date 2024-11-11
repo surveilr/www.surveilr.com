@@ -365,7 +365,10 @@ export class TypicalSqlPageNotebook
    */
   pagination(
     config:
-      & { varName?: (name: string) => string }
+      & {
+        varName?: (name: string) => string;
+        whereSQL?: string;
+      }
       & ({ readonly tableOrViewName: string; readonly countSQL?: never } | {
         readonly tableOrViewName?: never;
         readonly countSQL: SQLa.SqlTextSupplier<SQLa.SqlEmitContext>;
@@ -378,7 +381,10 @@ export class TypicalSqlPageNotebook
       init: () => {
         const countSQL = config.countSQL
           ? config.countSQL
-          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName}`;
+          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${
+            config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
+          }`;
+
         return this.SQL`
           SET ${n("total_rows")} = (${countSQL.SQL(this.emitCtx)});
           SET ${n("limit")} = COALESCE(${$("limit")}, 50);
