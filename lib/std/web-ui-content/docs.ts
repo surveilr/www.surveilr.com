@@ -107,4 +107,55 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
             ${sqlSnippets.join("\n")}
         `;
   }
+
+//   @docsNav({
+//     caption: "More about surveilr",
+//     description: "Current surveilr and major internal dependencies versions",
+//     siblingOrder: 99,
+//   })
+//   "docs/about.sql"() {
+//     return this.SQL`
+//         SELECT 'title' as component, 'surveilr Details' as contents;
+//         SELECT 'text' as component, 'Learn about the versions of \`\`surveilr\`\`, the major internal dependencies that power \`\`surveilr\`\`,
+//         \`\`rusqlite\`\` for powering SQL execution, \`\`sqlpage\`\` which powers this Web UI, \`\`pgwire\`\` instrumental to the UDI-PGP server.
+//         ' as contents_md;
+
+//         WITH json_data AS (
+//             SELECT
+//                 json_extract(versions, '$.sqlpage') AS sqlpage_version,
+//                 json_extract(versions, '$.pgwire') AS pgwire_version,
+//                 json_extract(versions, '$.rusqlite') AS rusqlite_version,
+//                 json_extract(versions, '$.sqlean') AS sqlean_version,
+//                 json_extract(versions, '$.surveilr') AS surveilr_version
+//             FROM (
+//                 SELECT surveilr_version() AS versions
+//             )
+//         )
+//         SELECT 
+//             'sqlpage' AS component,
+//             sqlpage_version AS contents
+//         FROM json_data
+//         UNION ALL
+//         SELECT 
+//             'pgwire' AS component,
+//             pgwire_version AS contents
+//         FROM json_data
+//         UNION ALL
+//         SELECT 
+//             'rusqlite' AS component,
+//             rusqlite_version AS contents
+//         FROM json_data
+//         UNION ALL
+//         SELECT 
+//             'sqlean' AS component,
+//             sqlean_version AS contents
+//         FROM json_data
+//         UNION ALL
+//         SELECT 
+//             'surveilr' AS component,
+//             surveilr_version AS contents
+//         FROM json_data;
+
+//         `;
+//   }
 }

@@ -1854,67 +1854,6 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
-  const flexibleGraph = gm.table("flexible_graph", {
-    flexible_graph_id: gm.keys.varCharPrimaryKey(),
-    name: gd.text(),
-    elaboration: gd.jsonTextNullable(),
-  }, {
-    isIdempotent: true,
-    indexes: (props, tableName) => {
-      const tif = SQLa.tableIndexesFactory(tableName, props);
-      return [
-        tif.index(
-          { isIdempotent: true },
-          "flexible_graph_id",
-        ),
-      ];
-    },
-  });
-
-  const flexibleGraphNode = gm.table("flexible_graph_node", {
-    id: gm.keys.varCharPrimaryKey(),
-    flexible_graph_id: flexibleGraph.belongsTo.flexible_graph_id(),
-    body: gd.jsonTextNullable(),
-  }, {
-    isIdempotent: true,
-    indexes: (props, tableName) => {
-      const tif = SQLa.tableIndexesFactory(tableName, props);
-      return [
-        tif.index(
-          { isIdempotent: true },
-          "id",
-        ),
-      ];
-    },
-  });
-
-  const flexibleEdge = gm.table("flexible_graph_edge", {
-    flexible_graph_id: flexibleGraph.belongsTo.flexible_graph_id(),
-    source: flexibleGraphNode.belongsTo.id().optional(),
-    target: flexibleGraphNode.belongsTo.id().optional(),
-    elaboration: gd.jsonTextNullable(),
-  }, {
-    isIdempotent: true,
-    constraints: (props, tableName) => {
-      const c = SQLa.tableConstraints(tableName, props);
-      return [
-        c.unique(
-          "source",
-          "target",
-        ),
-      ];
-    },
-    indexes: (props, tableName) => {
-      const tif = SQLa.tableIndexesFactory(tableName, props);
-      return [
-        tif.index(
-          { isIdempotent: true },
-          "flexible_graph_id",
-        ),
-      ];
-    },
-  });
-
   const informationSchema = {
     tables: [
       partyType,
@@ -1964,10 +1903,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       orchestrationSessionIssueRelation,
       orchestrationSessionLog,
       uniformResourceGraph,
-      uniformResourceEdge,
-      flexibleGraph,
-      flexibleGraphNode,
-      flexibleEdge,
+      uniformResourceEdge
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2012,9 +1948,6 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...orchestrationSessionLog.indexes,
       ...uniformResourceGraph.indexes,
       ...uniformResourceEdge.indexes,
-      ...flexibleGraph.indexes,
-      ...flexibleGraphNode.indexes,
-      ...flexibleEdge.indexes,
     ],
   };
 
@@ -2068,8 +2001,6 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     orchestrationSessionLog,
     uniformResourceGraph,
     uniformResourceEdge,
-    flexibleEdge,
-    flexibleGraph,
   };
 }
 

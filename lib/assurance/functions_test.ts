@@ -359,7 +359,7 @@ Deno.test("sqlite_html", async (t) => {
     assertEquals(value, 3);
   });
 });
-
+// TODO: add a test case to check if it works with a re-direct
 Deno.test("sqlite_url", async (t) => {
   await t.step("http_get", async () => {
     const result =
