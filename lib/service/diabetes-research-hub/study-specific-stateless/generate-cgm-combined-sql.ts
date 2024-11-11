@@ -113,6 +113,19 @@ export function generateDetrendedDSCombinedCGMViewSQL(
   const tables = tablesStmt.all();
   const sqlParts: string[] = [];
 
+  // Fetch the tenant_id from the party table (assuming it returns a single result)
+  const tenantStmt = db.prepare(
+    "SELECT party_id AS tenant_id FROM party LIMIT 1",
+  );
+  const tenantResult = tenantStmt.get();
+  const tenantId = tenantResult ? tenantResult.tenant_id : "DFA001"; // Default to 'DFA001' if no tenant_id found
+
+  const studyStmt = db.prepare(
+    "select study_id from uniform_resource_study limit 1",
+  );
+  const studyResult = studyStmt.get();
+  const studyId = studyResult ? studyResult.studyId : "DFA";
+
   // Loop through each table and generate the SQL for their CGM data
   for (const { table_name } of tables) {
     const participantId = table_name.split("__").pop(); // Extract participant ID from the table name
@@ -120,7 +133,8 @@ export function generateDetrendedDSCombinedCGMViewSQL(
     // Generate SQL for each participant's CGM data
     sqlParts.push(`
       SELECT 
-        'DFA001' as tenant_id,
+        '${tenantId}' as tenant_id,
+        '${studyId}' as study_id,
         TRIM('DFA-'||'${participantId}') AS participant_id, 
         strftime('%Y-%m-%d %H:%M:%S', hora ) AS Date_Time,
         CAST(glucemia AS REAL) AS CGM_Value 
