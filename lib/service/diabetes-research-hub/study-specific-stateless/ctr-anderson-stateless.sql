@@ -2006,10 +2006,6 @@ WHERE
     AND name != 'uniform_resource_transform'
     AND name != 'uniform_resource';
 
--- Drop and recreate the study files table info view
--- This view provides detailed information about study files, including 
--- their formats and relative file names. It joins multiple tables to gather
--- comprehensive details.
 DROP VIEW IF EXISTS drh_study_files_table_info;
 
 CREATE VIEW
@@ -2029,143 +2025,12 @@ SELECT
     ) AS table_name
 FROM
     uniform_resource ur
-    LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
-    LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
-WHERE
-    ur.ingest_fs_path_id IS NOT NULL;
-
--- Create a view to display the status of files transformed during the ingestion sessions
-DROP VIEW IF EXISTS drh_vw_ingest_session_entries_status;
-
-CREATE VIEW
-    drh_vw_ingest_session_entries_status AS
-SELECT
-    isession.ur_ingest_session_id,
-    isession.device_id,
-    isession.behavior_id,
-    isession.behavior_json,
-    isession.ingest_started_at,
-    isession.ingest_finished_at,
-    isession.session_agent,
-    isession.created_at AS session_created_at,
-    isession.created_by AS session_created_by,
-    isession.updated_at AS session_updated_at,
-    isession.updated_by AS session_updated_by,
-    isession.deleted_at AS session_deleted_at,
-    isession.deleted_by AS session_deleted_by,
-    isession.activity_log AS session_activity_log,
-    fspath.ur_ingest_session_fs_path_id,
-    fspath.ingest_session_id AS fspath_ingest_session_id,
-    fspath.root_path,
-    fspath.created_at AS fspath_created_at,
-    fspath.created_by AS fspath_created_by,
-    fspath.updated_at AS fspath_updated_at,
-    fspath.updated_by AS fspath_updated_by,
-    fspath.deleted_at AS fspath_deleted_at,
-    fspath.deleted_by AS fspath_deleted_by,
-    fspath.activity_log AS fspath_activity_log,
-    entry.ur_ingest_session_fs_path_entry_id,
-    entry.ingest_session_id AS entry_ingest_session_id,
-    entry.ingest_fs_path_id,
-    entry.uniform_resource_id,
-    entry.file_path_abs,
-    entry.file_path_rel_parent,
-    entry.file_path_rel,
-    entry.file_basename,
-    entry.file_extn,
-    entry.captured_executable,
-    entry.ur_status,
-    entry.ur_diagnostics,
-    entry.ur_transformations,
-    entry.created_at AS entry_created_at,
-    entry.created_by AS entry_created_by,
-    entry.updated_at AS entry_updated_at,
-    entry.updated_by AS entry_updated_by,
-    entry.deleted_at AS entry_deleted_at,
-    entry.deleted_by AS entry_deleted_by,
-    entry.activity_log AS entry_activity_log
-FROM
-    ur_ingest_session isession
-    JOIN ur_ingest_session_fs_path fspath ON isession.ur_ingest_session_id = fspath.ingest_session_id
-    JOIN ur_ingest_session_fs_path_entry entry ON fspath.ur_ingest_session_fs_path_id = entry.ingest_fs_path_id;
+    LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id
+    AND ure.nature = 'ingest_fs_path'
+    LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
+    LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
 
 -- Orchestration views-----------------------------------------------------------------------
--- Drop and recreate the orchestration session view
--- This view summarizes the orchestration session details for monitoring purposes.
-DROP VIEW IF EXISTS drh_orch_session_view;
-
-CREATE VIEW
-    drh_orch_session_view AS
-SELECT
-    orchestration_session_id,
-    device_id,
-    orchestration_nature_id,
-    version,
-    orch_started_at,
-    orch_finished_at,
-    diagnostics_json,
-    diagnostics_md
-FROM
-    orchestration_session;
-
--- Drop and recreate the deidentification orchestration session view
--- This view specifically filters orchestration sessions related to deidentification.
-DROP VIEW IF EXISTS drh_orch_session_deidentifyview;
-
-CREATE VIEW
-    drh_orch_session_deidentifyview AS
-SELECT
-    orchestration_session_id,
-    device_id,
-    orchestration_nature_id,
-    version,
-    orch_started_at,
-    orch_finished_at,
-    diagnostics_json,
-    diagnostics_md
-FROM
-    orchestration_session
-WHERE
-    orchestration_nature_id = 'deidentification';
-
--- Drop and recreate the orchestration session entry view
--- This view lists details about individual entries within orchestration sessions.
-DROP VIEW IF EXISTS drh_orchestration_session_entry_view;
-
-CREATE VIEW
-    drh_orchestration_session_entry_view AS
-SELECT
-    orchestration_session_entry_id,
-    session_id,
-    ingest_src,
-    ingest_table_name
-FROM
-    orchestration_session_entry;
-
--- Drop and recreate the orchestration session execution view
--- This view captures execution details of orchestration sessions for auditing.
-DROP VIEW IF EXISTS drh_orchestration_session_exec_view;
-
-CREATE VIEW
-    drh_orchestration_session_exec_view AS
-SELECT
-    orchestration_session_exec_id,
-    exec_nature,
-    session_id,
-    session_entry_id,
-    parent_exec_id,
-    namespace,
-    exec_identity,
-    exec_code,
-    exec_status,
-    input_text,
-    exec_error_text,
-    output_text,
-    output_nature,
-    narrative_md
-FROM
-    orchestration_session_exec;
-
 -- Drop and recreate the orchestration deidentification view
 -- This view aggregates information from orchestration session executions related to deidentification.
 DROP VIEW IF EXISTS drh_vw_orchestration_deidentify;
@@ -2223,12 +2088,20 @@ WHERE
 
 ----------------------DRH specific views------------------------------------------------------
 -- Drop and recreate the study view to consolidate study details
+-- Drop and recreate the study view
 DROP VIEW IF EXISTS drh_study;
 
 CREATE VIEW
     drh_study AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     study_id,
     study_name,
     start_date,
@@ -2240,13 +2113,20 @@ SELECT
 FROM
     uniform_resource_study;
 
--- Drop and recreate the CGM file metadata view for easier access to file-related information
+-- Drop and recreate the cgmfilemetadata_view view
 DROP VIEW IF EXISTS drh_cgmfilemetadata_view;
 
 CREATE VIEW
     drh_cgmfilemetadata_view AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     metadata_id,
     devicename,
     device_id,
@@ -2261,13 +2141,20 @@ SELECT
 FROM
     uniform_resource_cgm_file_metadata;
 
--- Drop and recreate the author view to manage author details related to studies
+-- Drop and recreate the author view
 DROP VIEW IF EXISTS drh_author;
 
 CREATE VIEW
     drh_author AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     author_id,
     name,
     email,
@@ -2276,13 +2163,20 @@ SELECT
 FROM
     uniform_resource_author;
 
--- Drop and recreate the institution view for organizing institution-related data
+-- Drop and recreate the institution view
 DROP VIEW IF EXISTS drh_institution;
 
 CREATE VIEW
     drh_institution AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     institution_id,
     institution_name,
     city,
@@ -2291,13 +2185,20 @@ SELECT
 FROM
     uniform_resource_institution;
 
--- Drop and recreate the investigator view to manage investigator details associated with studies
+-- Drop and recreate the investigator view
 DROP VIEW IF EXISTS drh_investigator;
 
 CREATE VIEW
     drh_investigator AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     investigator_id,
     investigator_name,
     email,
@@ -2306,13 +2207,20 @@ SELECT
 FROM
     uniform_resource_investigator;
 
--- Drop and recreate the lab view to consolidate laboratory information
+-- Drop and recreate the lab view
 DROP VIEW IF EXISTS drh_lab;
 
 CREATE VIEW
     drh_lab AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     lab_id,
     lab_name,
     lab_pi,
@@ -2321,13 +2229,20 @@ SELECT
 FROM
     uniform_resource_lab;
 
--- Drop and recreate the publication view for managing publication details related to studies
+-- Drop and recreate the publication view
 DROP VIEW IF EXISTS drh_publication;
 
 CREATE VIEW
     drh_publication AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     publication_id,
     publication_title,
     digital_object_identifier,
@@ -2336,13 +2251,20 @@ SELECT
 FROM
     uniform_resource_publication;
 
--- Drop and recreate the site view to maintain site-related data for studies
+-- Drop and recreate the site view
 DROP VIEW IF EXISTS drh_site;
 
 CREATE VIEW
     drh_site AS
 SELECT
-    tenant_id,
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     study_id,
     site_id,
     site_name,
@@ -2350,7 +2272,7 @@ SELECT
 FROM
     uniform_resource_site;
 
---- Create a comprehensive study-participant dashboard view
+---study-participant dashboard
 DROP VIEW IF EXISTS drh_study_vanity_metrics_details;
 
 CREATE VIEW
@@ -2444,112 +2366,6 @@ SELECT
     count(*) AS total_count
 FROM
     drh_raw_cgm_table_lst;
-
-DROP TABLE IF EXISTS ur_ingest_session_file_issue_cached;
-
-CREATE TABLE
-    ur_ingest_session_file_issue_cached AS
-SELECT
-    device_id,
-    ur_ingest_session_id,
-    ur_ingest_session_fs_path_id,
-    root_path,
-    ur_ingest_session_fs_path_entry_id,
-    file_path_abs,
-    ur_status,
-    ur_diagnostics
-FROM
-    ur_ingest_session_file_issue;
-
-DROP TABLE IF EXISTS ur_ingest_session_files_stats_cached;
-
-CREATE TABLE
-    ur_ingest_session_files_stats_cached AS
-SELECT
-    device_id,
-    ingest_session_id,
-    ingest_session_started_at,
-    ingest_session_finished_at,
-    file_extension,
-    ingest_session_fs_path_id,
-    ingest_session_root_fs_path,
-    total_file_count,
-    file_count_with_content,
-    file_count_with_frontmatter,
-    min_file_size_bytes,
-    average_file_size_bytes,
-    max_file_size_bytes,
-    oldest_file_last_modified_datetime,
-    youngest_file_last_modified_datetime
-FROM
-    ur_ingest_session_files_stats;
-
-DROP TABLE IF EXISTS ur_ingest_session_files_stats_latest_cached;
-
-CREATE TABLE
-    ur_ingest_session_files_stats_latest_cached AS
-SELECT
-    device_id,
-    ingest_session_id,
-    ingest_session_started_at,
-    ingest_session_finished_at,
-    file_extension,
-    ingest_session_fs_path_id,
-    ingest_session_root_fs_path,
-    total_file_count,
-    file_count_with_content,
-    file_count_with_frontmatter,
-    min_file_size_bytes,
-    average_file_size_bytes,
-    max_file_size_bytes,
-    oldest_file_last_modified_datetime,
-    youngest_file_last_modified_datetime
-FROM
-    ur_ingest_session_files_stats_latest;
-
-DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_cached;
-
-CREATE TABLE
-    ur_ingest_session_tasks_stats_cached AS
-SELECT
-    device_id,
-    ingest_session_id,
-    ingest_session_started_at,
-    ingest_session_finished_at,
-    ur_status,
-    nature,
-    total_file_count,
-    file_count_with_content,
-    file_count_with_frontmatter,
-    min_file_size_bytes,
-    average_file_size_bytes,
-    max_file_size_bytes,
-    oldest_file_last_modified_datetime,
-    youngest_file_last_modified_datetime
-FROM
-    ur_ingest_session_tasks_stats;
-
-DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_latest_cached;
-
-CREATE TABLE
-    ur_ingest_session_tasks_stats_latest_cached AS
-SELECT
-    device_id,
-    ingest_session_id,
-    ingest_session_started_at,
-    ingest_session_finished_at,
-    ur_status,
-    nature,
-    total_file_count,
-    file_count_with_content,
-    file_count_with_frontmatter,
-    min_file_size_bytes,
-    average_file_size_bytes,
-    max_file_size_bytes,
-    oldest_file_last_modified_datetime,
-    youngest_file_last_modified_datetime
-FROM
-    ur_ingest_session_tasks_stats_latest;
 
 DROP TABLE IF EXISTS study_details_cached;
 
