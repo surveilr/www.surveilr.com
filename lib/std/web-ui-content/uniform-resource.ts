@@ -31,9 +31,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
                pe.file_path_rel,
                ur.size_bytes
         FROM uniform_resource ur
-        LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
-        LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
-        WHERE ur.ingest_fs_path_id IS NOT NULL;
+        LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id AND ure.nature = 'ingest_fs_path'
+        LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
+        LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
 
         DROP VIEW IF EXISTS uniform_resource_imap;
         CREATE VIEW uniform_resource_imap AS
