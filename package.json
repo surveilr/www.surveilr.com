@@ -7,7 +7,9 @@
     "start": "astro dev",
     "build": "astro check && astro build && node process-html.mjs",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "prepare": "husky",
+    "lint-staged": "eslint \"src/**/*.{js,ts,tsx,jsx,astro,md,mdx}\" --quiet --fix && prettier \"src/**/*.{js,ts,astro,md,mdx,tsx,jsx}\" --write"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -39,9 +41,22 @@
     "sharp-ico": "^0.1.5",
     "tailwindcss": "^3.4.14"
   },
+  "lint-staged": {
+    "src/**/*.{js,ts,tsx,jsx,astro,md,mdx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "src/**/*.{js,ts,astro,md,mdx,tsx,jsx}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "@tailwindcss/forms": "^0.5.9",
     "astro-vtbot": "^1.10.6",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.8",
