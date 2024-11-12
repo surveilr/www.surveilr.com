@@ -182,21 +182,21 @@ $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv # 
 ```bash
 # Ingest and transform the CSV files in the "ctr-study-files/" directory
 $ surveilr ingest files -r ctr-study-files/ --tenant-id CTR001 --tenant-name "CTR001" && surveilr orchestrate transform-csv
-$ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
+$ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
 ```bash
 # Ingest and transform the CSV files in the "de-trended-analysis-files/" directory
 $ surveilr ingest files -r de-trended-analysis-files/ --tenant-id DFA001 --tenant-name "DFA001" && surveilr orchestrate transform-csv
-$ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv
+$ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
 ```bash
-# Ingest and transform the CSV files in the "dclp1-singlecgmtracing/" directory(dclp1 study files with single CGM tracing), creating resource-surveillance.sqlite.db
-$ surveilr ingest files -r dclp1-singlecgmtracing/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
-$ surveilr ingest files -r dclp1-singlecgmtracing/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
+# Ingest and transform the CSV files in the "dclp1/" directory(dclp1 study files with single CGM tracing), creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r dclp1/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
+$ surveilr ingest files -r dclp1/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
@@ -211,7 +211,7 @@ $ surveilr ingest files -r dclp3/ && surveilr orchestrate transform-csv # (optio
 
 # Ingest and transform the CSV files in the "dss1/" directory
 $ surveilr ingest files -r dss1/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv
-$ surveilr ingest files -r dss1/ && surveilr orchestrate transform-csv
+$ surveilr ingest files -r dss1/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
