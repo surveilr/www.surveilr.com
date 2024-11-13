@@ -71,7 +71,7 @@ WITH combined_data AS (
         MAX(DATE(dc.Date_Time)) AS data_end_date
     FROM drh_participant dg 
     JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    GROUP BY dg.study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c,dg.tenant_id
+    GROUP BY dg.tenant_id, dg.study_id, dg.participant_id
 )
 SELECT *,
     ROUND(
@@ -86,6 +86,22 @@ DROP VIEW IF EXISTS drh_participant_cgm_dates;
 
 CREATE VIEW drh_participant_cgm_dates As
 SELECT 
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     participant_id,
     MIN(Date_Time) AS cgm_start_date,
     MAX(Date_Time) AS cgm_end_date
@@ -101,6 +117,22 @@ DROP VIEW IF EXISTS drh_participant_metrics;
 -- Create the 
 CREATE VIEW drh_participant_metrics AS
 SELECT 
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     participant_id,
     MIN(Date_Time) AS cgm_start_date,
     MAX(Date_Time) AS cgm_end_date,
