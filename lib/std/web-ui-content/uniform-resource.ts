@@ -52,10 +52,11 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
               ur.nature,
               ur.content
         FROM uniform_resource ur
-        LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ur.ingest_session_imap_acct_folder_message
+        LEFT JOIN uniform_resource_edge ure ON ure.nature = 'ingest_imap_message'
+        LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ure.node_id
         LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
         LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-        WHERE ur.nature = 'json' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
+        WHERE ur.nature = 'json';
 
         DROP VIEW IF EXISTS uniform_resource_imap_content;
         CREATE  VIEW uniform_resource_imap_content AS
