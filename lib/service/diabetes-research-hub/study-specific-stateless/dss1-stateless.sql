@@ -1540,41 +1540,6 @@ WHERE type = 'table'
   AND name != 'uniform_resource';
 
 
--- Drop and recreate the orch_session_view view
-DROP VIEW IF EXISTS drh_orch_session_view;
-CREATE VIEW drh_orch_session_view AS
-SELECT
-    orchestration_session_id, device_id, orchestration_nature_id,
-    version, orch_started_at, orch_finished_at,
-    diagnostics_json, diagnostics_md
-FROM orchestration_session;
-
--- Drop and recreate the orch_session_deidentifyview view
-DROP VIEW IF EXISTS drh_orch_session_deidentifyview;
-CREATE VIEW drh_orch_session_deidentifyview AS
-SELECT
-    orchestration_session_id, device_id, orchestration_nature_id,
-    version, orch_started_at, orch_finished_at,
-    diagnostics_json, diagnostics_md
-FROM orchestration_session
-WHERE orchestration_nature_id = 'deidentification';
-
--- Drop and recreate the orchestration_session_entry_view view
-DROP VIEW IF EXISTS drh_orchestration_session_entry_view;
-CREATE VIEW drh_orchestration_session_entry_view AS
-SELECT
-    orchestration_session_entry_id, session_id, ingest_src, ingest_table_name
-FROM orchestration_session_entry;
-
--- Drop and recreate the orchestration_session_exec_view view
-DROP VIEW IF EXISTS drh_orchestration_session_exec_view;
-CREATE VIEW drh_orchestration_session_exec_view AS
-SELECT
-    orchestration_session_exec_id, exec_nature, session_id, session_entry_id,
-    parent_exec_id, namespace, exec_identity, exec_code, exec_status,
-    input_text, exec_error_text, output_text, output_nature, narrative_md
-FROM orchestration_session_exec;
-
 
 -- Drop and recreate the participant view
 DROP VIEW IF EXISTS drh_participant;
@@ -1742,58 +1707,6 @@ FROM
 WHERE
     os.orchestration_nature_id = 'deidentification';
 
--- Create a view to display the files transformed
-DROP VIEW IF EXISTS drh_vw_ingest_session_entries_status;
-CREATE VIEW drh_vw_ingest_session_entries_status AS
-SELECT
-    isession.ur_ingest_session_id,
-    isession.device_id,
-    isession.behavior_id,
-    isession.behavior_json,
-    isession.ingest_started_at,
-    isession.ingest_finished_at,
-    isession.session_agent,    
-    isession.created_at AS session_created_at,
-    isession.created_by AS session_created_by,
-    isession.updated_at AS session_updated_at,
-    isession.updated_by AS session_updated_by,
-    isession.deleted_at AS session_deleted_at,
-    isession.deleted_by AS session_deleted_by,
-    isession.activity_log AS session_activity_log,
-    fspath.ur_ingest_session_fs_path_id,
-    fspath.ingest_session_id AS fspath_ingest_session_id,
-    fspath.root_path,    
-    fspath.created_at AS fspath_created_at,
-    fspath.created_by AS fspath_created_by,
-    fspath.updated_at AS fspath_updated_at,
-    fspath.updated_by AS fspath_updated_by,
-    fspath.deleted_at AS fspath_deleted_at,
-    fspath.deleted_by AS fspath_deleted_by,
-    fspath.activity_log AS fspath_activity_log,
-    entry.ur_ingest_session_fs_path_entry_id,
-    entry.ingest_session_id AS entry_ingest_session_id,
-    entry.ingest_fs_path_id,
-    entry.uniform_resource_id,
-    entry.file_path_abs,
-    entry.file_path_rel_parent,
-    entry.file_path_rel,
-    entry.file_basename,
-    entry.file_extn,
-    entry.captured_executable,
-    entry.ur_status,
-    entry.ur_diagnostics,
-    entry.ur_transformations,    
-    entry.created_at AS entry_created_at,
-    entry.created_by AS entry_created_by,
-    entry.updated_at AS entry_updated_at,
-    entry.updated_by AS entry_updated_by,
-    entry.deleted_at AS entry_deleted_at,
-    entry.deleted_by AS entry_deleted_by,
-    entry.activity_log AS entry_activity_log
-FROM
-    ur_ingest_session isession
-    JOIN ur_ingest_session_fs_path fspath ON isession.ur_ingest_session_id = fspath.ingest_session_id
-    JOIN ur_ingest_session_fs_path_entry entry ON fspath.ur_ingest_session_fs_path_id = entry.ingest_fs_path_id;
 
 
 DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
@@ -1873,15 +1786,28 @@ GROUP BY s.study_id, s.study_name, s.study_description, s.start_date, s.end_date
 
 
 DROP VIEW IF EXISTS drh_study_files_table_info;
-CREATE VIEW IF NOT EXISTS drh_study_files_table_info AS
-       SELECT ur.uniform_resource_id,
-       ur.nature AS file_format,
-       SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) as file_name,
-       'uniform_resource_' || SUBSTR(pe.file_path_rel, INSTR(pe.file_path_rel, '/') + 1, INSTR(pe.file_path_rel, '.') - INSTR(pe.file_path_rel, '/') - 1) AS table_name
-FROM uniform_resource ur
-LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
-LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
-WHERE ur.ingest_fs_path_id IS NOT NULL;
+
+CREATE VIEW
+    IF NOT EXISTS drh_study_files_table_info AS
+SELECT
+    ur.uniform_resource_id,
+    ur.nature AS file_format,
+    SUBSTR (
+        pe.file_path_rel,
+        INSTR (pe.file_path_rel, '/') + 1,
+        INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
+    ) as file_name,
+    'uniform_resource_' || SUBSTR (
+        pe.file_path_rel,
+        INSTR (pe.file_path_rel, '/') + 1,
+        INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
+    ) AS table_name
+FROM
+    uniform_resource ur
+    LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id
+    AND ure.nature = 'ingest_fs_path'
+    LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
+    LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
 
 
 DROP VIEW IF EXISTS drh_vandv_orch_issues;
@@ -2087,35 +2013,6 @@ CREATE TABLE participant_cgm_date_range_cached AS
 SELECT *
 FROM participant_cgm_date_range_view;
 
-DROP TABLE IF EXISTS ur_ingest_session_file_issue_cached;
-
-CREATE TABLE ur_ingest_session_file_issue_cached AS
-SELECT device_id, ur_ingest_session_id, ur_ingest_session_fs_path_id, root_path, ur_ingest_session_fs_path_entry_id, file_path_abs, ur_status, ur_diagnostics
-FROM ur_ingest_session_file_issue;
-
-DROP TABLE IF EXISTS ur_ingest_session_files_stats_cached;
-
-CREATE TABLE ur_ingest_session_files_stats_cached AS
-SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, file_extension, ingest_session_fs_path_id, ingest_session_root_fs_path, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
-FROM ur_ingest_session_files_stats;
-
-DROP TABLE IF EXISTS ur_ingest_session_files_stats_latest_cached;
-
-CREATE TABLE ur_ingest_session_files_stats_latest_cached AS
-SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, file_extension, ingest_session_fs_path_id, ingest_session_root_fs_path, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
-FROM ur_ingest_session_files_stats_latest;
-
-DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_cached;
-
-CREATE TABLE ur_ingest_session_tasks_stats_cached AS
-SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, ur_status, nature, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
-FROM ur_ingest_session_tasks_stats;
-
-DROP TABLE IF EXISTS ur_ingest_session_tasks_stats_latest_cached;
-
-CREATE TABLE ur_ingest_session_tasks_stats_latest_cached AS
-SELECT device_id, ingest_session_id, ingest_session_started_at, ingest_session_finished_at, ur_status, nature, total_file_count, file_count_with_content, file_count_with_frontmatter, min_file_size_bytes, average_file_size_bytes, max_file_size_bytes, oldest_file_last_modified_datetime, youngest_file_last_modified_datetime
-FROM ur_ingest_session_tasks_stats_latest;
 
 DROP TABLE IF EXISTS study_details_cached;
 
@@ -2162,20 +2059,6 @@ JOIN
     uniform_resource ur 
     ON ur.uri LIKE '%' || REPLACE(sm.tbl_name, 'uniform_resource_', '') || '%';
 
-
---indexes
-
-
-
-DROP INDEX IF EXISTS idx_uniform_resource_cgm_tracing_datetime;
-DROP INDEX IF EXISTS idx_uniform_resource_cgm_tracing_sid;
-DROP INDEX IF EXISTS idx_uniform_resource_cgm_tracing_sid_datetime;
-
-CREATE INDEX IF NOT EXISTS idx_uniform_resource_cgm_tracing_datetime ON uniform_resource_cgm_tracing(Date_Time);
-
-CREATE INDEX IF NOT EXISTS idx_uniform_resource_cgm_tracing_sid ON uniform_resource_cgm_tracing(SID);
-
-CREATE INDEX IF NOT EXISTS idx_uniform_resource_cgm_tracing_sid_datetime ON uniform_resource_cgm_tracing(SID, Date_Time);
 
 
 

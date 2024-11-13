@@ -1567,7 +1567,7 @@ WHERE
     );
 
 -- Update the session identified in the temp view
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 --transform uniform_resource_clinical_data to participant view
 -- Drop and recreate the participant view
 DROP VIEW IF EXISTS drh_participant;
@@ -1659,6 +1659,30 @@ WHERE
     AND name != 'uniform_resource_transform'
     AND name != 'uniform_resource';
 
+--DROP VIEW IF EXISTS drh_study_files_table_info;
+-- CREATE VIEW
+--     IF NOT EXISTS drh_study_files_table_info AS
+-- SELECT
+--     ur.uniform_resource_id,
+--     ur.nature AS file_format,
+--     SUBSTR (
+--         pe.file_path_rel,
+--         INSTR (pe.file_path_rel, '/') + 1,
+--         INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
+--     ) as file_name,
+--     'uniform_resource_' || SUBSTR (
+--         pe.file_path_rel,
+--         INSTR (pe.file_path_rel, '/') + 1,
+--         INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
+--     ) AS table_name
+-- FROM
+--     uniform_resource ur
+--     LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
+--     LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
+-- WHERE
+--     ur.ingest_fs_path_id IS NOT NULL;
+--the view will change to the below version based on surveilr 1.1.0 and further versions
+
 DROP VIEW IF EXISTS drh_study_files_table_info;
 
 CREATE VIEW
@@ -1678,139 +1702,13 @@ SELECT
     ) AS table_name
 FROM
     uniform_resource ur
-    LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
-    LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
-WHERE
-    ur.ingest_fs_path_id IS NOT NULL;
-
--- Create a view to display the files transformed
-DROP VIEW IF EXISTS drh_vw_ingest_session_entries_status;
-
-CREATE VIEW
-    drh_vw_ingest_session_entries_status AS
-SELECT
-    isession.ur_ingest_session_id,
-    isession.device_id,
-    isession.behavior_id,
-    isession.behavior_json,
-    isession.ingest_started_at,
-    isession.ingest_finished_at,
-    isession.session_agent,
-    isession.created_at AS session_created_at,
-    isession.created_by AS session_created_by,
-    isession.updated_at AS session_updated_at,
-    isession.updated_by AS session_updated_by,
-    isession.deleted_at AS session_deleted_at,
-    isession.deleted_by AS session_deleted_by,
-    isession.activity_log AS session_activity_log,
-    fspath.ur_ingest_session_fs_path_id,
-    fspath.ingest_session_id AS fspath_ingest_session_id,
-    fspath.root_path,
-    fspath.created_at AS fspath_created_at,
-    fspath.created_by AS fspath_created_by,
-    fspath.updated_at AS fspath_updated_at,
-    fspath.updated_by AS fspath_updated_by,
-    fspath.deleted_at AS fspath_deleted_at,
-    fspath.deleted_by AS fspath_deleted_by,
-    fspath.activity_log AS fspath_activity_log,
-    entry.ur_ingest_session_fs_path_entry_id,
-    entry.ingest_session_id AS entry_ingest_session_id,
-    entry.ingest_fs_path_id,
-    entry.uniform_resource_id,
-    entry.file_path_abs,
-    entry.file_path_rel_parent,
-    entry.file_path_rel,
-    entry.file_basename,
-    entry.file_extn,
-    entry.captured_executable,
-    entry.ur_status,
-    entry.ur_diagnostics,
-    entry.ur_transformations,
-    entry.created_at AS entry_created_at,
-    entry.created_by AS entry_created_by,
-    entry.updated_at AS entry_updated_at,
-    entry.updated_by AS entry_updated_by,
-    entry.deleted_at AS entry_deleted_at,
-    entry.deleted_by AS entry_deleted_by,
-    entry.activity_log AS entry_activity_log
-FROM
-    ur_ingest_session isession
-    JOIN ur_ingest_session_fs_path fspath ON isession.ur_ingest_session_id = fspath.ingest_session_id
-    JOIN ur_ingest_session_fs_path_entry entry ON fspath.ur_ingest_session_fs_path_id = entry.ingest_fs_path_id;
+    LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id
+    AND ure.nature = 'ingest_fs_path'
+    LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
+    LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
 
 --orchestration views---------------------------------------------
 -- Drop and recreate the orch_session_view view
-DROP VIEW IF EXISTS drh_orch_session_view;
-
-CREATE VIEW
-    drh_orch_session_view AS
-SELECT
-    orchestration_session_id,
-    device_id,
-    orchestration_nature_id,
-    version,
-    orch_started_at,
-    orch_finished_at,
-    diagnostics_json,
-    diagnostics_md
-FROM
-    orchestration_session;
-
--- Drop and recreate the orch_session_deidentifyview view
-DROP VIEW IF EXISTS drh_orch_session_deidentifyview;
-
-CREATE VIEW
-    drh_orch_session_deidentifyview AS
-SELECT
-    orchestration_session_id,
-    device_id,
-    orchestration_nature_id,
-    version,
-    orch_started_at,
-    orch_finished_at,
-    diagnostics_json,
-    diagnostics_md
-FROM
-    orchestration_session
-WHERE
-    orchestration_nature_id = 'deidentification';
-
--- Drop and recreate the orchestration_session_entry_view view
-DROP VIEW IF EXISTS drh_orchestration_session_entry_view;
-
-CREATE VIEW
-    drh_orchestration_session_entry_view AS
-SELECT
-    orchestration_session_entry_id,
-    session_id,
-    ingest_src,
-    ingest_table_name
-FROM
-    orchestration_session_entry;
-
--- Drop and recreate the orchestration_session_exec_view view
-DROP VIEW IF EXISTS drh_orchestration_session_exec_view;
-
-CREATE VIEW
-    drh_orchestration_session_exec_view AS
-SELECT
-    orchestration_session_exec_id,
-    exec_nature,
-    session_id,
-    session_entry_id,
-    parent_exec_id,
-    namespace,
-    exec_identity,
-    exec_code,
-    exec_status,
-    input_text,
-    exec_error_text,
-    output_text,
-    output_nature,
-    narrative_md
-FROM
-    orchestration_session_exec;
-
 -- Drop and recreate the vw_orchestration_deidentify view
 DROP VIEW IF EXISTS drh_vw_orchestration_deidentify;
 
@@ -2201,6 +2099,7 @@ GROUP BY
 ORDER BY
     number_of_files DESC;
 
+-- cached tables----------------------------------------------------------------------------------------
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 
 CREATE TABLE
@@ -2209,6 +2108,61 @@ SELECT
     *
 FROM
     drh_raw_cgm_table_lst;
+
+DROP TABLE IF EXISTS study_cgm_file_count_cached;
+
+CREATE TABLE
+    study_cgm_file_count_cached AS
+SELECT
+    count(*) AS total_count
+FROM
+    drh_raw_cgm_table_lst;
+
+DROP TABLE IF EXISTS study_details_cached;
+
+CREATE TABLE
+    study_details_cached AS
+SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    s.study_id,
+    s.study_name,
+    s.study_description,
+    s.start_date,
+    s.end_date,
+    s.nct_number,
+    COUNT(DISTINCT p.participant_id) AS total_number_of_participants,
+    ROUND(AVG(p.age), 2) AS average_age,
+    FLOOR(
+        (
+            CAST(
+                SUM(
+                    CASE
+                        WHEN p.gender = 'F' THEN 1
+                        ELSE 0
+                    END
+                ) AS FLOAT
+            ) / COUNT(*)
+        ) * 100
+    ) AS percentage_of_females,
+    GROUP_CONCAT (DISTINCT i.investigator_name) AS investigators
+FROM
+    uniform_resource_study s
+    LEFT JOIN drh_participant p ON s.study_id = p.study_id
+    LEFT JOIN uniform_resource_investigator i ON s.study_id = i.study_id
+GROUP BY
+    s.study_id,
+    s.study_name,
+    s.study_description,
+    s.start_date,
+    s.end_date,
+    s.nct_number;
 
 -------------Dynamically insert the sqlpages for CGM raw tables--------------------------
 WITH
