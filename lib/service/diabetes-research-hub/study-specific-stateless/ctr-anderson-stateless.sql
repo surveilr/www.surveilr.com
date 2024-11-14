@@ -1727,9 +1727,22 @@ SELECT
         limit
             1
     ) as tenant_id,
-    -- 'CTR001' as tenant_id,
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID to form participant_id
-    'CTR3' AS study_id, -- Static assignment of study_id as 'CTR3'
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id, -- Fetches study_id from the uniform_resource_study table
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) || '-' || DeidentID AS participant_id,
     '' AS site_id, -- Placeholder for site_id
     '' AS diagnosis_icd, -- Placeholder for diagnosis ICD
     '' AS med_rxnorm, -- Placeholder for medication RxNorm
@@ -1762,7 +1775,22 @@ SELECT
         limit
             1
     ) as tenant_id,
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id,
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) || '-' || DeidentID AS participant_id,
     strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
     CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
 FROM
@@ -1782,7 +1810,22 @@ SELECT
         limit
             1
     ) as tenant_id,
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id,
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) || '-' || DeidentID AS participant_id,
     strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
     CAST(Cal AS REAL) AS CGM_value -- Cast Cal to REAL for numeric representation
 FROM
@@ -1802,7 +1845,22 @@ SELECT
         limit
             1
     ) as tenant_id,
-    'CTR3-' || DeidentID AS participant_id, -- Prefix 'CTR3-' to DeidentID for participant_id
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id,
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) || '-' || DeidentID AS participant_id,
     strftime ('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time, -- Format LocalDtTm to Date_Time
     CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
 FROM
@@ -1815,6 +1873,7 @@ CREATE VIEW
     combined_cgm_tracing AS
 SELECT
     tenant_id,
+    study_id,
     participant_id,
     Date_Time,
     CGM_value
@@ -1823,6 +1882,7 @@ FROM
 UNION ALL
 SELECT
     tenant_id,
+    study_id,
     participant_id,
     Date_Time,
     CGM_value
@@ -1831,6 +1891,7 @@ FROM
 UNION ALL
 SELECT
     tenant_id,
+    study_id,
     participant_id,
     Date_Time,
     CGM_value
@@ -1862,28 +1923,30 @@ CREATE VIEW
     drh_raw_cgm_table_lst AS
 SELECT
     (
-        select
+        SELECT
             party_id
-        from
+        FROM
             party
-        limit
+        LIMIT
             1
-    ) as tenant_id,
+    ) AS tenant_id,
     (
-        select
+        SELECT
             study_id
-        from
+        FROM
             uniform_resource_study
-        limit
+        LIMIT
             1
-    ) as study_id,
+    ) AS study_id,
     name,
-    tbl_name as table_name
+    tbl_name AS table_name,
+    files.file_name || '.' || files.file_format as raw_cgm_file_name
 FROM
     sqlite_master
+    LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
 WHERE
     type = 'table'
-    AND name IN (
+    AND tbl_name IN (
         'uniform_resource_cgm',
         'uniform_resource_cgmcal',
         'uniform_resource_monitorcgm'
@@ -1956,6 +2019,22 @@ DROP VIEW IF EXISTS drh_device;
 CREATE VIEW
     drh_device AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     device_id,
     name,
     created_at
@@ -2137,7 +2216,14 @@ SELECT
     file_upload_date,
     data_start_date,
     data_end_date,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_cgm_file_metadata;
 
@@ -2159,7 +2245,14 @@ SELECT
     name,
     email,
     investigator_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_author;
 
@@ -2203,7 +2296,14 @@ SELECT
     investigator_name,
     email,
     institution_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_investigator;
 
@@ -2225,7 +2325,14 @@ SELECT
     lab_name,
     lab_pi,
     institution_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_lab;
 
@@ -2247,7 +2354,14 @@ SELECT
     publication_title,
     digital_object_identifier,
     publication_site,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_publication;
 
@@ -2265,7 +2379,14 @@ SELECT
         limit
             1
     ) as tenant_id,
-    study_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     site_id,
     site_name,
     site_type

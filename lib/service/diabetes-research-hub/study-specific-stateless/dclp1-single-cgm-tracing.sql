@@ -1509,7 +1509,22 @@ WHERE orchestration_session_id = (SELECT orchestration_session_id FROM temp_sess
 -- Drop and recreate the device view
 DROP VIEW IF EXISTS drh_device;
 CREATE VIEW drh_device AS
-SELECT device_id, name, created_at
+SELECT (
+    select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
+    device_id, name, created_at
 FROM device d;
 
 -- Drop and recreate the number_of_files_converted view
@@ -1543,7 +1558,15 @@ WHERE type = 'table'
 DROP VIEW IF EXISTS drh_participant;
 CREATE VIEW drh_participant AS
 SELECT
-    participant_id, study_id, site_id, diagnosis_icd, med_rxnorm,
+    participant_id, 
+    (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
+    site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
     diabetes_type, study_arm,(
         select
@@ -1577,7 +1600,13 @@ CREATE VIEW drh_cgmfilemetadata_view AS
 SELECT
     metadata_id, devicename, device_id, source_platform, patient_id,
     file_name, file_format, file_upload_date, data_start_date,
-    data_end_date, study_id,(
+    data_end_date, (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,(
         select
             party_id
         from
@@ -1591,7 +1620,13 @@ FROM uniform_resource_cgm_file_metadata;
 DROP VIEW IF EXISTS drh_author;
 CREATE VIEW drh_author AS
 SELECT
-    author_id, name, email, investigator_id, study_id,(
+    author_id, name, email, investigator_id, (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,(
         select
             party_id
         from
@@ -1619,7 +1654,13 @@ FROM uniform_resource_institution;
 DROP VIEW IF EXISTS drh_investigator;
 CREATE VIEW drh_investigator AS
 SELECT
-    investigator_id, investigator_name, email, institution_id, study_id,(
+    investigator_id, investigator_name, email, institution_id, (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,(
         select
             party_id
         from
@@ -1633,7 +1674,13 @@ FROM uniform_resource_investigator;
 DROP VIEW IF EXISTS drh_lab;
 CREATE VIEW drh_lab AS
 SELECT
-    lab_id, lab_name, lab_pi, institution_id, study_id,(
+    lab_id, lab_name, lab_pi, institution_id, (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,(
         select
             party_id
         from
@@ -1648,7 +1695,13 @@ DROP VIEW IF EXISTS drh_publication;
 CREATE VIEW drh_publication AS
 SELECT
     publication_id, publication_title, digital_object_identifier,
-    publication_site, study_id,(
+    publication_site, (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,(
         select
             party_id
         from
@@ -1662,7 +1715,13 @@ FROM uniform_resource_publication;
 DROP VIEW IF EXISTS drh_site;
 CREATE VIEW drh_site AS
 SELECT
-    study_id, site_id, site_name, site_type,(
+    (select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id, site_id, site_name, site_type,(
         select
             party_id
         from
@@ -1708,10 +1767,33 @@ WHERE
 
 
 DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-CREATE VIEW drh_raw_cgm_table_lst AS
-SELECT name, tbl_name as table_name
-FROM sqlite_master
-WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
+CREATE VIEW
+    drh_raw_cgm_table_lst AS
+SELECT
+    (
+        SELECT
+            party_id
+        FROM
+            party
+        LIMIT
+            1
+    ) AS tenant_id,
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id,
+    name,
+    tbl_name AS table_name,
+    files.file_name || '.' || files.file_format as raw_cgm_file_name
+FROM
+    sqlite_master
+    LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
+WHERE
+    type = 'table' and  name LIKE 'uniform_resource_cgm_tracing%';
 
 DROP VIEW IF EXISTS drh_number_cgm_count;
 CREATE VIEW drh_number_cgm_count AS
@@ -1877,7 +1959,7 @@ WITH combined_data AS (
         MAX(DATE(dc.Date_Time)) AS data_end_date
     FROM drh_participant dg 
     JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    GROUP BY dg.study_id, dg.participant_id, dg.gender, dg.age, dg.study_arm, dg.baseline_hba1c,dg.tenant_id
+    GROUP BY dg.study_id, dg.participant_id, dg.tenant_id
 )
 SELECT *,
     ROUND(
@@ -1925,11 +2007,6 @@ SELECT count(*) as number_of_cgm_raw_files
 FROM sqlite_master
 WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-CREATE VIEW drh_raw_cgm_table_lst AS
-SELECT name, tbl_name as table_name
-FROM sqlite_master
-WHERE type = 'table' AND name LIKE 'uniform_resource_cgm_tracing%';
 
 DROP VIEW IF EXISTS study_wise_csv_file_names;
 CREATE VIEW study_wise_csv_file_names AS
