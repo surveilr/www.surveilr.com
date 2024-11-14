@@ -1583,8 +1583,22 @@ SELECT
         limit
             1
     ) as tenant_id,
-    'DFA-' || pid AS participant_id, -- Map pid to participant_id
-    'DFA' AS study_id, -- No equivalent column, set to NULL
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) || '-' || pid AS participant_id, -- Map pid to participant_id    
     '' AS site_id, -- No equivalent column, set to NULL
     '' AS diagnosis_icd, -- No equivalent column, set to NULL
     '' AS med_rxnorm, -- No equivalent column, set to NULL
@@ -1614,6 +1628,22 @@ DROP VIEW IF EXISTS drh_device;
 CREATE VIEW
     drh_device AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     device_id,
     name,
     created_at
@@ -1682,7 +1712,6 @@ WHERE
 -- WHERE
 --     ur.ingest_fs_path_id IS NOT NULL;
 --the view will change to the below version based on surveilr 1.1.0 and further versions
-
 DROP VIEW IF EXISTS drh_study_files_table_info;
 
 CREATE VIEW
@@ -1810,7 +1839,14 @@ SELECT
     file_upload_date,
     data_start_date,
     data_end_date,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_cgm_file_metadata;
 
@@ -1832,7 +1868,14 @@ SELECT
     name,
     email,
     investigator_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_author;
 
@@ -1876,7 +1919,14 @@ SELECT
     investigator_name,
     email,
     institution_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_investigator;
 
@@ -1898,7 +1948,14 @@ SELECT
     lab_name,
     lab_pi,
     institution_id,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_lab;
 
@@ -1920,7 +1977,14 @@ SELECT
     publication_title,
     digital_object_identifier,
     publication_site,
-    study_id
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id
 FROM
     uniform_resource_publication;
 
@@ -1938,7 +2002,14 @@ SELECT
         limit
             1
     ) as tenant_id,
-    study_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     site_id,
     site_name,
     site_type
@@ -2008,13 +2079,31 @@ DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
 CREATE VIEW
     drh_raw_cgm_table_lst AS
 SELECT
+    (
+        SELECT
+            party_id
+        FROM
+            party
+        LIMIT
+            1
+    ) AS tenant_id,
+    (
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
+    ) AS study_id,
     name,
-    tbl_name as table_name
+    tbl_name AS table_name,
+    files.file_name || '.' || files.file_format as raw_cgm_file_name
 FROM
     sqlite_master
+    LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
 WHERE
     type = 'table'
-    AND name LIKE 'uniform_resource_case_%';
+    AND tbl_name LIKE 'uniform_resource_case_%';
 
 DROP VIEW IF EXISTS drh_number_cgm_count;
 
