@@ -46,4 +46,4 @@ jobs:
           fi
 
       - name: Run Deno Tests
-        run: deno test -A ./lib/assurance/admin_test.ts && deno test -A ./lib/assurance/functions_test.ts && deno test -A ./lib/assurance/imap_test.ts && deno test -A ./lib/assurance/orchestration_test.ts
+        run: deno test -A ./lib/assurance/admin_test.ts ./lib/assurance/functions_test.ts ./lib/assurance/imap_test.ts ./lib/assurance/orchestration_test.ts ./lib/assurance/opendal_integration_test.ts
