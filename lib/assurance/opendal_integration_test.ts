@@ -4,32 +4,32 @@ import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 import { assertEquals } from "jsr:@std/assert@1";
 
 const E2E_TEST_DIR = path.fromFileUrl(
-    import.meta.resolve(`./`),
+  import.meta.resolve(`./`),
 );
 
 async function countFilesInDirectory(
-    directoryPath: string,
+  directoryPath: string,
 ): Promise<number> {
-    let fileCount = 0;
+  let fileCount = 0;
 
-    for await (const dirEntry of Deno.readDir(directoryPath)) {
-        if (dirEntry.isFile) {
-            fileCount++;
-        }
+  for await (const dirEntry of Deno.readDir(directoryPath)) {
+    if (dirEntry.isFile) {
+      fileCount++;
     }
+  }
 
-    return fileCount;
+  return fileCount;
 }
 
 Deno.test("surveilr_udi_dal_fs", async (t) => {
-    const testFixturesDir = path.join(E2E_TEST_DIR, "test-fixtures");
+  const testFixturesDir = path.join(E2E_TEST_DIR, "test-fixtures");
 
-    const rssdPath = path.join(E2E_TEST_DIR, "opendal-rssd-e2e.sqlite.db");
-    if (await Deno.stat(rssdPath).catch(() => null)) {
-        await Deno.remove(rssdPath).catch(() => false);
-    }
+  const rssdPath = path.join(E2E_TEST_DIR, "opendal-rssd-e2e.sqlite.db");
+  if (await Deno.stat(rssdPath).catch(() => null)) {
+    await Deno.remove(rssdPath).catch(() => false);
+  }
 
-    const sql = `
+  const sql = `
         INSERT INTO uniform_resource (
             uniform_resource_id,
             device_id,
@@ -60,27 +60,27 @@ Deno.test("surveilr_udi_dal_fs", async (t) => {
         FROM surveilr_udi_dal_fs('${testFixturesDir}');
     `;
 
-    await t.step("execute sql with function", async () => {
-        const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
-            .stdout("piped");
-        assertEquals(
-            result.code,
-            0,
-            "❌ Error: Failed to execute surveilr surveilr_udi_dal_fs function.",
-        );
-    });
+  await t.step("execute sql with function", async () => {
+    const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
+      .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr surveilr_udi_dal_fs function.",
+    );
+  });
 
-    await t.step("verify uniform resource", async () => {
-        const db = new DB(rssdPath);
-        const result = db.query<[number]>(
-            `SELECT COUNT(*) AS count FROM uniform_resource`,
-        );
-        assertEquals(result.length, 1);
+  await t.step("verify uniform resource", async () => {
+    const db = new DB(rssdPath);
+    const result = db.query<[number]>(
+      `SELECT COUNT(*) AS count FROM uniform_resource`,
+    );
+    assertEquals(result.length, 1);
 
-        const uniformResources = result[0][0];
-        const testFixtureEntries = await countFilesInDirectory(testFixturesDir);
-        assertEquals(uniformResources, testFixtureEntries);
+    const uniformResources = result[0][0];
+    const testFixtureEntries = await countFilesInDirectory(testFixturesDir);
+    assertEquals(uniformResources, testFixtureEntries);
 
-        db.close();
-    });
+    db.close();
+  });
 });

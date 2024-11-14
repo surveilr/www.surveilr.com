@@ -10,8 +10,14 @@ import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 
 const E2E_TEST_DIR = join(Deno.cwd(), "lib/assurance");
 const DRH_DIR = join(Deno.cwd(), "lib/service/diabetes-research-hub");
-const STUDY_FILES_ZIP = join(DRH_DIR, "datasets-transformed-archive/study-files.zip");
-const STUDY_FILES_INGEST_DIR = join(DRH_DIR, "datasets-transformed-archive/study-files");
+const STUDY_FILES_ZIP = join(
+  DRH_DIR,
+  "datasets-transformed-archive/study-files.zip",
+);
+const STUDY_FILES_INGEST_DIR = join(
+  DRH_DIR,
+  "datasets-transformed-archive/study-files",
+);
 const RSSD_PATH = join(
   E2E_TEST_DIR,
   "orchestration-e2e-test.sqlite.db",
@@ -151,7 +157,8 @@ Deno.test("orchestration and transformations", async (t) => {
   );
 
   await t.step("execute deidentification script through stdin", async () => {
-    const sciptPath = `${DRH_DIR}/archive/de-identification/drh-deidentification.sql`;
+    const sciptPath =
+      `${DRH_DIR}/archive/de-identification/drh-deidentification.sql`;
     const orchestrateResult =
       await $`cat ${sciptPath} | surveilr orchestrate -d ${RSSD_PATH} -n "dd"`;
     assertEquals(
