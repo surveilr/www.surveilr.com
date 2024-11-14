@@ -224,7 +224,7 @@ $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option
 
 ```bash
 # Ingest and transform the CSV files in the "direc-net-inPt-exercise/" directory(Tsalikian (2005 from Awesome CGM)), creating resource-surveillance.sqlite.db
-surveilr ingest files -r direc-net-inPt-exercise/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
+$ surveilr ingest files -r direc-net-inPt-exercise/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
 ```
 
 ### Running the SQL Package and Web UI
