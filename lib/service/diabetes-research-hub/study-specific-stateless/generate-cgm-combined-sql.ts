@@ -133,8 +133,8 @@ export function generateDetrendedDSCombinedCGMViewSQL(
     // Generate SQL for each participant's CGM data
     sqlParts.push(`
       SELECT 
-        '${tenantId}' as tenant_id,
-        '${studyId}' as study_id,
+        '${tenantId}' as tenant_id,        
+        'DFA' as study_id,
         TRIM('DFA-'||'${participantId}') AS participant_id, 
         strftime('%Y-%m-%d %H:%M:%S', hora ) AS Date_Time,
         CAST(glucemia AS REAL) AS CGM_Value 

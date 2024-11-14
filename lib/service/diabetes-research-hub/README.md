@@ -180,14 +180,14 @@ $ surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv # 
 ```
 
 ```bash
-# Ingest and transform the CSV files in the "ctr-study-files/" directory
+# Ingest and transform the CSV files in the "ctr-study-files/" directory(from Awesome CGM)
 $ surveilr ingest files -r ctr-study-files/ --tenant-id CTR001 --tenant-name "CTR001" && surveilr orchestrate transform-csv
 $ surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
 ```
 
 ```bash
-# Ingest and transform the CSV files in the "de-trended-analysis-files/" directory
+# Ingest and transform the CSV files in the "de-trended-analysis-files/" directory(from Awesome CGM)
 $ surveilr ingest files -r de-trended-analysis-files/ --tenant-id DFA001 --tenant-name "DFA001" && surveilr orchestrate transform-csv
 $ surveilr ingest files -r de-trended-analysis-files/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
@@ -220,6 +220,11 @@ $ surveilr ingest files -r dss1/ && surveilr orchestrate transform-csv # (option
 $ surveilr ingest files -r ntlt/ --tenant-id UVA001 --tenant-name "UVA001" && surveilr orchestrate transform-csv  # (option 1)
 $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option 2 without Tenant ID)
 
+```
+
+```bash
+# Ingest and transform the CSV files in the "direc-net-inPt-exercise/" directory(Tsalikian (2005 from Awesome CGM)), creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r direc-net-inPt-exercise/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
 ```
 
 ### Running the SQL Package and Web UI
@@ -259,6 +264,11 @@ $ surveilr shell ./dataset-specific-package/dss1-stateless.sql.ts
 ```bash
 # For NTLT (Single CGM tracing)study Dataset
 $ surveilr shell ./dataset-specific-package/ntlt-stateless.sql.ts
+```
+
+```bash
+# For (Tsalikian (2005 from Awesome CGM))
+$ surveilr shell ./dataset-specific-package/ieogc-package.sql.ts
 ```
 
 # Start the server
