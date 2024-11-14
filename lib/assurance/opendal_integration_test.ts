@@ -61,7 +61,7 @@ Deno.test("surveilr_udi_dal_fs", async (t) => {
     `;
 
     await t.step("execute sql with function", async () => {
-        const result = await $`echo ${sql} | surveilr shell`
+        const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
             .stdout("piped");
         assertEquals(
             result.code,
