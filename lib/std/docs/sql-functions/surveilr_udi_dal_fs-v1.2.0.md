@@ -34,7 +34,7 @@ The virtual table exposes the following columns:
 
 This virtual table function is typically queried like a regular table, allowing SQL operations such as `SELECT`, filtering, and joins.
 
-Example query:
+Example query, see [here](https://github.com/surveilr/www.surveilr.com/blob/main/lib/assurance/opendal_integration_test.ts) for a realistic example:
 ```sql
 SELECT name, path, size, last_modified, content_type, digest FROM surveilr_udi_dal_fs('/path/to/directory');
 ```
