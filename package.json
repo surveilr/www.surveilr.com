@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "prepare": "husky",
-    "lint-staged": "eslint \"src/**/*.{js,ts,tsx,jsx,astro,md,mdx}\" --quiet --fix && prettier \"src/**/*.{js,ts,astro,md,mdx,tsx,jsx}\" --write"
+    "lint-staged": "eslint \"src/**/*.{js,ts,tsx,jsx,astro,md,mdx}\" --quiet --fix && prettier \"src/**/*.{js,ts,astro,md,mdx,tsx,jsx}\" --write",
+    "format": "npx prettier --write \"**/*.{cjs,js,jsx,ts,tsx,astro,md,mdx}\""
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -58,6 +59,7 @@
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
+    "prettier-eslint": "^16.3.0",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "sass": "^1.80.6",
