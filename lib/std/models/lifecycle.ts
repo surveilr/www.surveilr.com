@@ -1903,7 +1903,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       orchestrationSessionIssueRelation,
       orchestrationSessionLog,
       uniformResourceGraph,
-      uniformResourceEdge
+      uniformResourceEdge,
     ],
     tableIndexes: [
       ...party.indexes,

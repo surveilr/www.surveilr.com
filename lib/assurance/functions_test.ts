@@ -139,8 +139,9 @@ Deno.test("surveilr specific functions", async (t) => {
       "❌ Error: Failed to execute surveilr version function.",
     );
     const stdout = result.stdoutJson;
-    const value = stdout[0][Object.keys(stdout[0])[0]];
-    assertEquals(value, version);
+    const value = JSON.parse(stdout[0][Object.keys(stdout[0])[0]]);
+    const surveilr_version = value["surveilr"];
+    assertEquals(surveilr_version, version);
   });
 
   await t.step("mask", async () => {
