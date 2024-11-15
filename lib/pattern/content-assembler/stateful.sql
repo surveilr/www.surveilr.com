@@ -131,7 +131,7 @@ SELECT
             CASE
                 WHEN json_extract(anchor_text, '$.attributes.alt') IS NOT NULL AND json_extract(anchor_text, '$.attributes.alt') <> '' THEN json_extract(anchor_text, '$.attributes.alt')
                 ELSE
-                'No title'
+                '[No Title]'
                 END
         WHEN json_extract(anchor_text, '$.name') = 'span' THEN
             CASE
@@ -175,19 +175,19 @@ SELECT
             CASE
                 WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
             ELSE
-                'No title'
+                '[No Title]'
             END
         WHEN json_extract(anchor_text, '$.name') = 'u' THEN
             CASE
                 WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
             ELSE
-                'No title'
+                '[No Title]'
             END
         WHEN json_extract(anchor_text, '$.name') = 'b' THEN
             CASE
                 WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
             ELSE
-                'No title'
+                '[No Title]'
             END
         WHEN json_extract(anchor_text, '$.name') = 'mark' THEN
             CASE
@@ -230,7 +230,7 @@ SELECT
                         CASE
                             WHEN json_extract(anchor_text, '$.attributes.alt') IS NOT NULL AND json_extract(anchor_text, '$.attributes.alt') <> '' THEN json_extract(anchor_text, '$.attributes.alt')
                             ELSE
-                            'No title' -- if attribute.alt not present
+                            '[No Title]' -- if attribute.alt not present
                             END
                     WHEN json_extract(anchor_text, '$.name') = 'span' THEN
                         CASE
@@ -274,19 +274,19 @@ SELECT
                         CASE
                             WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
                         ELSE
-                            'No title'
+                            '[No Title]'
                         END
                     WHEN json_extract(anchor_text, '$.name') = 'u' THEN
                         CASE
                             WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
                         ELSE
-                            'No title'
+                            '[No Title]'
                         END
                     WHEN json_extract(anchor_text, '$.name') = 'b' THEN
                         CASE
                             WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
                         ELSE
-                            'No title'
+                            '[No Title]'
                         END
                     WHEN json_extract(anchor_text, '$.name') = 'mark' THEN
                         CASE
