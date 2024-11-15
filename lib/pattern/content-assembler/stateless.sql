@@ -1,9 +1,47 @@
+DROP VIEW IF EXISTS periodicals_from_count;
+CREATE VIEW periodicals_from_count AS
+SELECT
+    COUNT(DISTINCT message_from) AS dashboard_from_count
+FROM
+    ur_periodical_chached;
+
+DROP VIEW IF EXISTS periodical_filtered_count;
+CREATE VIEW periodical_filtered_count AS
+SELECT
+    COUNT(anchor) AS dashboard_periodical_filtered_count
+FROM
+    ur_transform_html_email_anchor_cached;
+
+DROP VIEW IF EXISTS anchor_removed_count;
+CREATE VIEW anchor_removed_count AS
+SELECT
+    COUNT(anchor) AS dashboard_anchor_removed_count
+FROM
+    ur_transform_html_email_anchor_subscription_filter_chached WHERE anchor_type NOT NULL;
+
+DROP VIEW IF EXISTS anchor_total_count;
+CREATE VIEW anchor_total_count AS
+SELECT
+    COUNT(anchor) AS dashboard_anchor_total_count
+FROM
+    ur_transform_html_email_anchor_subscription_filter_chached;
+
+
+
 DROP VIEW IF EXISTS periodicals_from;
 CREATE VIEW periodicals_from AS
     SELECT
-        message_from
+        pc.message_from, COUNT(pc.message_subject) as subject_count,
+        (SELECT
+            COUNT(eac.anchor)
+        FROM
+            ur_transform_html_email_anchor_cached eac
+        INNER JOIN ur_periodical_anchor_text_cached lnktxt ON lnktxt.anchor=eac.anchor
+        INNER JOIN ur_transform_html_email_anchor_canonical_cached acc ON acc.anchor=eac.anchor WHERE eac.uniform_resource_id=pc.periodical_uniform_resource_id) as periodical_count
     FROM
-        ur_periodical_chached GROUP BY message_from;
+        ur_periodical_chached pc
+    GROUP BY pc.message_from;
+
 
 DROP VIEW IF EXISTS periodicals_subject;
 CREATE VIEW periodicals_subject AS
