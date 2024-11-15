@@ -81,6 +81,43 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         'text'              as component,
         'The Source List page provides a streamlined view of all collected content sources. This page displays only the origins of the content, such as sender information for email sources, making it easy to see where each piece of content came from. Use this list to quickly review and identify the various sources contributing to the curated content collection.' as contents;
 
+      -- Dashboard count
+      select
+          'card' as component,
+          4      as columns;
+      select
+          'Total Mail Inbox'  as title,
+          '## '||dashboard_from_count||' ##' as description_md,
+          TRUE                  as active,
+          'mail-pin'       as icon
+      FROM periodicals_from_count;
+      select
+          'Filtered periodicals'  as title,
+          '## '||dashboard_periodical_filtered_count||' ##' as description_md,
+          TRUE                  as active,
+          'filter'       as icon,
+          'green'           as color
+      FROM periodical_filtered_count;
+      select
+          'Removed Anchors'  as title,
+          '## '||dashboard_anchor_removed_count||' ##' as description_md,
+          TRUE                  as active,
+          'trash-x'       as icon,
+          'danger'           as color
+      FROM anchor_removed_count;
+      select
+          'Total Anchors'  as title,
+          '## '||dashboard_anchor_total_count||' ##' as description_md,
+          TRUE                  as active,
+          'link'       as icon,
+          'warning'           as color
+      FROM anchor_total_count;
+
+
+
+
+
+
       -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -90,7 +127,9 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             'from' AS markdown;
 
        SELECT
-        '[' || message_from || '](/cak/periodicals_subject.sql?message_from=' || message_from || ')' AS "from"
+          '[' || message_from || '](/cak/periodicals_subject.sql?message_from=' || message_from || ')' AS "from",
+          subject_count as "subject count",
+          periodical_count as "periodical count"
           FROM ${viewName}
           LIMIT $limit
         OFFSET $offset;
