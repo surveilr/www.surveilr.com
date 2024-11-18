@@ -37,36 +37,47 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
 
         DROP VIEW IF EXISTS uniform_resource_imap;
         CREATE VIEW uniform_resource_imap AS
-        SELECT ur.uniform_resource_id,
-              iac.ur_ingest_session_imap_account_id,
-              iac.email,
-              iac.host,
-              iacm.subject,
-              iacm."from",
-              iacm.message,
-              iacm.date,
-              iaf.ur_ingest_session_imap_acct_folder_id,
-              iaf.ingest_account_id,
-              iaf.folder_name,
-              ur.size_bytes,
-              ur.nature,
-              ur.content
+        SELECT
+            ur.uniform_resource_id,
+            graph.name,
+            iac.ur_ingest_session_imap_account_id,
+            iac.email,
+            iac.host,
+            iacm.subject,
+            iacm."from",
+            iacm.message,
+            iacm.date,
+            iaf.ur_ingest_session_imap_acct_folder_id,
+            iaf.ingest_account_id,
+            iaf.folder_name,
+            ur.size_bytes,
+            ur.nature,
+            ur.content
         FROM uniform_resource ur
-        LEFT JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = ur.ingest_session_imap_acct_folder_message
-        LEFT JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
+        INNER JOIN uniform_resource_edge edge ON edge.uniform_resource_id=ur.uniform_resource_id
+        INNER JOIN uniform_resource_graph graph ON graph.name=edge.graph_name
+        INNER JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = edge.node_id
+        INNER JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
         LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-        WHERE ur.nature = 'json' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
+        WHERE ur.nature = 'text' AND graph.name='imap' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
 
         DROP VIEW IF EXISTS uniform_resource_imap_content;
         CREATE  VIEW uniform_resource_imap_content AS
         SELECT
-            uniform_resource_id,
+            uri.uniform_resource_id,
+            base_ur.uniform_resource_id baseID,
+            ext_ur.uniform_resource_id extID,
+            base_ur.uri as base_uri,
+            ext_ur.uri as ext_uri,
+            base_ur.nature as base_nature,
+            ext_ur.nature as ext_nature,
             json_extract(part.value, '$.body.Html') AS html_content
         FROM
-            uniform_resource_imap,
-            json_each(content, '$.parts') AS part
-            WHERE
-          nature = 'json';`;
+            uniform_resource_imap uri
+        INNER JOIN uniform_resource base_ur ON base_ur.uniform_resource_id=uri.uniform_resource_id
+        INNER JOIN uniform_resource ext_ur ON ext_ur.uri = base_ur.uri ||'/json' AND ext_ur.nature = 'json',
+        json_each(ext_ur.content, '$.parts') AS part
+        WHERE ext_ur.nature = 'json' AND html_content NOT NULL`;
   }
 
   fsContentIngestSessionFilesStatsViewDDL() {
