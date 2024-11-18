@@ -37,7 +37,7 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
 
   @docsNav({
     caption: "Release Notes",
-    description: "Informationon surveilr releases",
+    description: "surveilr releases details",
     siblingOrder: 99,
   })
   async "docs/release-notes.sql"() {
