@@ -7,13 +7,12 @@ systems and data handling.
 - `stateless.sql` script focuses on creating views that define how to extract
   and present specific controls data from the `uniform_resource.csv` tables.
 
-- `stateful.sql` script is responsible for creating tables that
-    cache data extracted by views.
+- `stateful.sql` script is responsible for creating tables that cache data
+  extracted by views.
 
 - `package.sql.ts` script is the entry point for loading typical database
   objects and Web UI content.
 
-  
 ## Try it out on any device without this repo (if you're just using the SQL scripts)
 
 ```bash
@@ -24,7 +23,8 @@ $ cd /tmp/compliance-explorer
 
 Prepare the sample files for ingestion
 
-Place the control CSV files in the ingest folder. The directory structure of `compliance-explorer` should look like this:
+Place the control CSV files in the ingest folder. The directory structure of
+`compliance-explorer` should look like this:
 
 ```bash
 compliance-explorer
@@ -40,7 +40,7 @@ into 'compliance-explorer' directory, then ingest and query the data:
 
 ```bash
 # ingest the files in the "ingest/" directory, creating resource-surveillance.sqlite.db
-$ ./surveilr ingest files -r ingest/
+$ surveilr ingest files --csv-transform-auto -r ingest
 ```
 
 After ingestion your directory structure should look like this
