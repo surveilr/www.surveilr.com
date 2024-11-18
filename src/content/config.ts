@@ -57,6 +57,11 @@ const patternsCollection = defineCollection({
         first: image().optional(),
         second: image().optional(),
       }),
+      liveDemo: z.object({
+        btnTitle: z.string().optional(),
+        btnURL: z.string().optional(),
+      })
+        .optional(),
     }),
 });
 

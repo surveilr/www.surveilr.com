@@ -6,6 +6,7 @@ import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { SITE } from "@data/constants";
+import OutboundButton from "@/components/ui/buttons/OutboundButton.astro";
 
 // Global declaration for gsap animation library
 declare global {
@@ -129,6 +130,12 @@ const webPageSchema = {
                   title={pattern.data.longDescription.btnTitle}
                   url={pattern.data.longDescription.btnURL}
                 />
+                {pattern.data.liveDemo?.btnURL && (
+                  <OutboundButton
+                    title={pattern.data.liveDemo?.btnTitle}
+                    url={pattern.data.liveDemo?.btnURL}
+                  />
+                )}
               </p>
             </div>
 

@@ -51,4 +51,7 @@ tableData:
 blueprints:
   first: "@/images/blueprint-1.avif"
   second: "@/images/blueprint-2.avif"
+liveDemo:
+  btnTitle: "Live Demo"
+  btnURL: "https://eg.surveilr.com/lib/pattern/contentassembler/"
 ---
