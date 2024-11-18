@@ -103,8 +103,8 @@ importers:
         specifier: ^0.5.9
         version: 0.5.9(tailwindcss@3.4.14)
       astro-vtbot:
-        specifier: ^1.10.6
-        version: 1.10.6
+        specifier: ^1.10.7
+        version: 1.10.7
       husky:
         specifier: ^9.1.6
         version: 9.1.6
@@ -1152,8 +1152,8 @@ packages:
   '@vtbag/cam-shaft@1.0.1':
     resolution: {integrity: sha512-9lSaxaT4sLX6mvcf4ixGgvT3EuUQAVCF7oSZcoj0tLRBdDM0W7ABZwvjqT37zX2omWaqDWavddmVuK6hu1DZnQ==}
 
-  '@vtbag/element-crossing@1.0.3':
-    resolution: {integrity: sha512-veAN03yabaUSKaoeaHUu0mSpAqzsUAmnrxlOy75OhqZZ4y3+GHR3vBFZIUSfwSYpFfBfRDSbxyfapkPiQsKZmw==}
+  '@vtbag/element-crossing@1.0.4':
+    resolution: {integrity: sha512-/V46j1Rl41t1dzILKauxF+fifjYEtUSCq2VfZQeUO5UQ5c8ENWJ1b3XSt3c7yKk36VKl5KnFo75xfiyXFZ8weA==}
 
   '@vtbag/inspection-chamber@1.0.17':
     resolution: {integrity: sha512-MDtO+qNtd4AkxjkJpQD3N2YhMQUaEdSkdArwk7Cy/81iMbOXhZek6cRQu06jn6JnrRv4andtb1oHtl5rYuNSSQ==}
@@ -1283,8 +1283,8 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
 
-  astro-vtbot@1.10.6:
-    resolution: {integrity: sha512-kMYJEMuEw52xistawd6Y1PZKsDtxVTaLwS1ajMwtph75XmkTnqXlUHJ9/AEa4ezsNplkyRpba5kjchiN6CV6pg==}
+  astro-vtbot@1.10.7:
+    resolution: {integrity: sha512-lwCMq+ruuTbHooJ/ZYL2tA99KXDXqbmD5JNBtlnuO7EsEp7FBpwIVBOHt/lDkqUtDt+vQkWRPA5cLZ3tEny48g==}
 
   astro@4.16.13:
     resolution: {integrity: sha512-Mtd76+BC0zLWqoXpf9xc731AhdH4MNh5JFHYdLRvSH0Nqn48hA64dPGh/cWsJvh/DZFmC0NTZusM1Qq2gyNaVg==}
@@ -4988,7 +4988,7 @@ snapshots:
 
   '@vtbag/cam-shaft@1.0.1': {}
 
-  '@vtbag/element-crossing@1.0.3': {}
+  '@vtbag/element-crossing@1.0.4': {}
 
   '@vtbag/inspection-chamber@1.0.17':
     dependencies:
@@ -5100,10 +5100,10 @@ snapshots:
       astro: 4.16.13(@types/node@17.0.45)(rollup@4.25.0)(sass@1.80.6)(terser@5.36.0)(typescript@5.6.3)
       rehype-expressive-code: 0.38.3
 
-  astro-vtbot@1.10.6:
+  astro-vtbot@1.10.7:
     dependencies:
       '@vtbag/cam-shaft': 1.0.1
-      '@vtbag/element-crossing': 1.0.3
+      '@vtbag/element-crossing': 1.0.4
       '@vtbag/inspection-chamber': 1.0.17
       '@vtbag/turn-signal': 1.1.0
 
