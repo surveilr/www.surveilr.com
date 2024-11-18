@@ -68,3 +68,17 @@ CREATE VIEW periodical_anchor AS
     INNER JOIN ur_periodical_anchor_text_cached lnktxt ON lnktxt.anchor=eac.anchor
     INNER JOIN ur_transform_html_email_anchor_canonical_cached acc ON acc.anchor=eac.anchor;
 
+
+DROP VIEW IF EXISTS removed_anchor_list;
+CREATE VIEW removed_anchor_list AS
+    SELECT
+        rmlst.uniform_resource_id,
+        rmlst.anchor,
+        rmlst.anchor_type,
+        rmtxt.url_text
+    FROM
+        ur_transform_html_email_anchor_subscription_filter_chached rmlst
+        INNER JOIN ur_removed_anchor_text_cached rmtxt ON rmtxt.uniform_resource_id=rmlst.uniform_resource_id AND rmtxt.uniform_resource_transform_id=rmlst.uniform_resource_transform_id
+                AND rmlst.anchor=rmlst.anchor
+        WHERE rmlst.anchor_type NOT NULL;
+
