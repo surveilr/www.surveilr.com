@@ -113,11 +113,6 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           'warning'           as color
       FROM anchor_total_count;
 
-
-
-
-
-
       -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -177,10 +172,19 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           'Column Count' as align_right,
           TRUE as sort,
           TRUE as search,
-          'subject' AS markdown;
+          'subject' AS markdown,
+          'removrd links' AS markdown;
 
       SELECT
         '[' || message_subject || '](/cak/periodical_anchor.sql?periodical_uniform_resource_id=' || periodical_uniform_resource_id || ')' AS "subject",
+        '[ View](/cak/periodical_removed_anchor.sql?periodical_uniform_resource_id=' || periodical_uniform_resource_id || ') (' ||
+          (SELECT
+            count(anchor)
+          FROM
+            removed_anchor_list
+          WHERE
+            uniform_resource_id = periodical_uniform_resource_id) || ')'
+          as "removrd links",
         message_from as "from",
         message_to as "to",
          CASE
@@ -318,6 +322,60 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         ur_transform_html_email_anchor_meta_cached
       WHERE
         anchor = $url::TEXT AND property_name IS NOT NULL
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "cak/periodical_removed_anchor.sql"() {
+    return this.SQL`
+
+    --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        '/'    AS link;
+      SELECT
+        'Content Assembler' AS title,
+        '/cak' AS link;
+      SELECT
+        'Periodicals' AS title,
+        '/cak/periodicals.sql' AS link;
+      SELECT message_from AS title, '/cak/periodicals_subject.sql?message_from='|| message_from  AS link FROM periodicals_subject WHERE periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+
+      SELECT
+        message_subject as title,
+        '/cak/periodical_anchor.sql?periodical_uniform_resource_id='|| periodical_uniform_resource_id AS link
+      FROM
+        periodicals_subject
+      WHERE
+        periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+
+    --- Dsply Page Title
+      SELECT
+        'title' as component,
+        message_subject as contents
+      FROM
+        periodicals_subject
+      WHERE
+        periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+
+
+    select
+    'text'              as component,
+    'The Newsletter Link Details page provides a comprehensive list of URLs shared within a specific newsletter. For each entry, you’ll find the original URL as it appeared in the newsletter, the link text, and the canonical URL (standardized for consistent reference). This page also includes key metadata for each link, such as title, description, and any additional structured data, allowing for an in-depth look at the content and context of each link. This organized view makes it easy to analyze and manage all linked resources from the newsletter.' as contents;
+
+     SELECT 'table' AS component,
+          'Column Count' as align_right,
+          TRUE as sort,
+          TRUE as search;
+      SELECT
+        anchor  AS "original link url",
+        url_text as 'url text'
+      FROM
+        removed_anchor_list
+      WHERE
+        uniform_resource_id = $periodical_uniform_resource_id::TEXT
     `;
   }
 }
