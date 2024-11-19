@@ -1626,7 +1626,7 @@ SELECT
           'participant_id' as markdown,
           TRUE AS sort,
           TRUE AS search;        
-    SELECT tenant_id,format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
+    SELECT tenant_id,format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
     LIMIT $limit
     OFFSET $offset;
 
