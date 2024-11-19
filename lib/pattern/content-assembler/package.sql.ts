@@ -173,7 +173,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           TRUE as sort,
           TRUE as search,
           'subject' AS markdown,
-          'removrd links' AS markdown;
+          'removed links' AS markdown;
 
       SELECT
         '[' || message_subject || '](/cak/periodical_anchor.sql?periodical_uniform_resource_id=' || periodical_uniform_resource_id || ')' AS "subject",
@@ -184,7 +184,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             removed_anchor_list
           WHERE
             uniform_resource_id = periodical_uniform_resource_id) || ')'
-          as "removrd links",
+          as "removed links",
         message_from as "from",
         message_to as "to",
          CASE
@@ -363,7 +363,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
 
     select
     'text'              as component,
-    'The Newsletter Link Details page provides a comprehensive list of URLs shared within a specific newsletter. For each entry, you’ll find the original URL as it appeared in the newsletter, the link text, and the canonical URL (standardized for consistent reference). This page also includes key metadata for each link, such as title, description, and any additional structured data, allowing for an in-depth look at the content and context of each link. This organized view makes it easy to analyze and manage all linked resources from the newsletter.' as contents;
+    'This feature removes links from newsletters that are related to subscription management. It checks for links containing keywords such as unsubscribe, opt-out, preferences, remove, manage, subscription, subscribe, email-settings, list-unsubscribe, mailto, or #main. These links allow recipients to modify or manage their email preferences and subscriptions.' as contents;
 
      SELECT 'table' AS component,
           'Column Count' as align_right,
