@@ -37,7 +37,8 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
       rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
       package_sql=\"\${relative_path}/package.sql.ts\"; \
       cd \"\$path\" && \
-      surveilr shell ./package.sql.ts -d /rssd/\$rssd_name && \
+      mkdir -p /rssd/logs && \
+      surveilr shell ./package.sql.ts -d /rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1 && \
       # Set expose_endpoint to 1 by default
       echo -e \"1\t\${relative_path}\t\${rssd_name}\t\${port}\t\${package_sql}\" >> /rssd/index.tsv; \
       port=\$((port+1)); \
@@ -124,10 +125,12 @@ EXPOSE 80
 # Create the application startup script
 RUN echo '#!/bin/bash' > /start_application.sh && \
     echo 'tail -n +2 /rssd/index.tsv | while IFS=$'"'\\t'"' read -r expose_endpoint relative_path rssd_name port package_sql; do' >> /start_application.sh && \
+    echo 'sleep 5' >> /start_application.sh && \
     echo '  if [ "$expose_endpoint" = "1" ]; then' >> /start_application.sh && \
-    echo '    SQLPAGE_SITE_PREFIX="/${relative_path}" surveilr web-ui -d "/rssd/$rssd_name" --port "${port}" --host 0.0.0.0 &' >> /start_application.sh && \
+    echo '    SQLPAGE_SITE_PREFIX="/${relative_path}" surveilr web-ui -d "/rssd/$rssd_name" --port "${port}" --host 0.0.0.0 >> /rssd/logs/$rssd_name.log 2>&1 &' >> /start_application.sh && \
     echo '  fi' >> /start_application.sh && \
     echo 'done' >> /start_application.sh && \
+    echo 'echo "Completed starting up surveilr web-ui services, you can view logs at path=/rssd/logs/ \nStarted Nginx reverse-proxy"' >> /start_application.sh && \
     echo 'nginx -g "daemon off;"' >> /start_application.sh && \
     /bin/bash /generate_rssd_index.sh && \
     chmod +x /start_application.sh
