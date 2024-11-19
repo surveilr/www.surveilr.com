@@ -25,9 +25,9 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/surveilr/omnibus-rssd-nginx:latest -f support/deploy/omnibus-rssd-nginx.dockerfile .
+          docker build -t ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest -f support/deploy/omnibus-rssd-nginx.dockerfile .
 
       # Push the Docker image to the GitHub Container Registry
       - name: Push Docker image
         run: |
-          docker push ghcr.io/surveilr/omnibus-rssd-nginx:latest
+          docker push ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest
