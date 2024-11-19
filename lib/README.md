@@ -170,3 +170,19 @@ time-consuming to re-run the same command in the CLI manually each time a file
 changes, you can use _watch mode_ instead.
 
 See [`surveilrctl.ts`](std/surveilrctl.ts) for usage instructions.
+
+## Reverse Proxy for Local Testing
+
+This script acts as a lightweight HTTP reverse proxy, allowing you to test
+services locally with simulated base URLs. It’s useful for testing service behavior
+before setting up a full-fledged reverse proxy like NGINX.
+
+The target service (e.g., SQLPage) must already be running and accessible.
+
+```bash
+$ deno run --allow-net reverse-proxy-simulate.ts <proxyPort> <targetBaseURL>
+$ deno run --allow-net reverse-proxy-simulate.ts 8991 http://localhost:9000
+# http://localhost:9000 is the target url where the service is up
+
+```
+
