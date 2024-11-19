@@ -57,23 +57,19 @@ DROP TABLE IF EXISTS ur_periodical_chached;
 CREATE TABLE ur_periodical_chached AS
 SELECT
     ur_extended.uniform_resource_id AS periodical_uniform_resource_id,
-    ur_imap."from" AS message_from,
-    ur_imap_account.email AS message_to,
-    ur_imap."subject" AS message_subject,
-    ur_imap."date" AS message_date,
+    imap_msg."from" AS message_from,
+    imap_account.email AS message_to,
+    imap_msg."subject" AS message_subject,
+    imap_msg."date" AS message_date,
     ur_base.uniform_resource_id  AS base_uniform_resource_id,
     ur_extended.uri AS extended_uri
 FROM
-    ur_ingest_session_imap_acct_folder_message ur_imap
-LEFT JOIN ur_ingest_session_imap_acct_folder ur_imap_folder ON ur_imap_folder.ur_ingest_session_imap_acct_folder_id = ur_imap.ingest_imap_acct_folder_id
-LEFT JOIN ur_ingest_session_imap_account ur_imap_account ON ur_imap_account.ur_ingest_session_imap_account_id = ur_imap_folder.ingest_account_id
-JOIN
-    uniform_resource ur_base
-    -- the `uniform_resource` table is connected to the `ur_ingest_session_imap_acct_folder_message` table through a foreign key
-    ON ur_base.ingest_session_imap_acct_folder_message = ur_imap.ur_ingest_session_imap_acct_folder_message_id
-JOIN
-    uniform_resource ur_extended
-    ON ur_extended.uri = ur_base.uri || '/html'
+    ur_ingest_session_imap_acct_folder_message imap_msg
+    INNER JOIN ur_ingest_session_imap_acct_folder imap_folder ON imap_folder.ur_ingest_session_imap_acct_folder_id = imap_msg.ingest_imap_acct_folder_id
+    INNER JOIN ur_ingest_session_imap_account imap_account ON imap_account.ur_ingest_session_imap_account_id = imap_folder.ingest_account_id
+    INNER JOIN uniform_resource_edge edge ON edge.node_id = imap_msg.ur_ingest_session_imap_acct_folder_message_id
+    INNER JOIN uniform_resource ur_base ON ur_base.uniform_resource_id = edge.uniform_resource_id
+    INNER JOIN uniform_resource ur_extended ON ur_extended.uri = ur_base.uri || '/html'
 WHERE
     regexp_like(ur_extended.uri,'(?i)/html');
 

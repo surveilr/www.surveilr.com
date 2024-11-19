@@ -173,7 +173,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           TRUE as sort,
           TRUE as search,
           'subject' AS markdown,
-          'removrd links' AS markdown;
+          'removed links' AS markdown;
 
       SELECT
         '[' || message_subject || '](/cak/periodical_anchor.sql?periodical_uniform_resource_id=' || periodical_uniform_resource_id || ')' AS "subject",
@@ -184,7 +184,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             removed_anchor_list
           WHERE
             uniform_resource_id = periodical_uniform_resource_id) || ')'
-          as "removrd links",
+          as "removed links",
         message_from as "from",
         message_to as "to",
          CASE
