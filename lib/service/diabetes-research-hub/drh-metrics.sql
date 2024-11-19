@@ -44,42 +44,56 @@ GROUP BY
     participant_id;
 
 
-
 DROP VIEW IF EXISTS study_combined_dashboard_participant_metrics_view;
 CREATE VIEW study_combined_dashboard_participant_metrics_view AS
 WITH combined_data AS (
     SELECT 
         dg.tenant_id,
-        dg.study_id,      
+        dg.study_id,             
         dg.participant_id,
         dg.gender,
         dg.age,
         dg.study_arm,
         dg.baseline_hba1c,
+        GROUP_CONCAT(DISTINCT cfm.devicename) AS cgm_devices,  -- Combine devices into a single string
+        GROUP_CONCAT(DISTINCT cfm.file_name || '.' || cfm.file_format) AS cgm_files,    -- Combine file names into a single string
         ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tir,
         ROUND(SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_vh,
         ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_h,
         ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_l,
         ROUND(SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr_vl,
-        ROUND(SUM(CASE WHEN dc.CGM_Value > 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value)*100, 2) AS tar,
-        ROUND(SUM(CASE WHEN dc.CGM_Value < 70 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value)*100, 2) AS tbr,
+        ROUND(SUM(CASE WHEN dc.CGM_Value > 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar,
+        ROUND(SUM(CASE WHEN dc.CGM_Value < 70 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tbr,
         CEIL((AVG(dc.CGM_Value) * 0.155) + 95) AS gmi,
         ROUND((SQRT(AVG(dc.CGM_Value * dc.CGM_Value) - AVG(dc.CGM_Value) * AVG(dc.CGM_Value)) / AVG(dc.CGM_Value)) * 100, 2) AS percent_gv,
-        ROUND((3.0 * ((SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.8 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))) + (1.6 * ((SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + (0.5 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) ))), 2) AS gri,
+        ROUND((3.0 * ((SUM(CASE WHEN dc.CGM_Value < 54 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                      (0.8 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 54 AND 69 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))) + 
+              (1.6 * ((SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) + 
+                      (0.5 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))), 2) AS gri,
         COUNT(DISTINCT DATE(dc.Date_Time)) AS days_of_wear,
         MIN(DATE(dc.Date_Time)) AS data_start_date,
-        MAX(DATE(dc.Date_Time)) AS data_end_date
+        MAX(DATE(dc.Date_Time)) AS data_end_date,   
+        ROUND(
+            COALESCE(
+                (COUNT(DISTINCT DATE(dc.Date_Time)) * 1.0 / 
+                (JULIANDAY(MAX(DATE(dc.Date_Time))) - JULIANDAY(MIN(DATE(dc.Date_Time))) + 1)) * 100, 
+                0), 
+            2) AS wear_time_percentage
     FROM drh_participant dg 
     JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    GROUP BY dg.tenant_id, dg.study_id, dg.participant_id
+    LEFT JOIN uniform_resource_cgm_file_metadata cfm 
+        ON dc.participant_id = cfm.patient_id
+    GROUP BY dg.study_id, dg.tenant_id, dg.participant_id
 )
-SELECT *,
-    ROUND(
-        COALESCE(
-            (days_of_wear * 1.0 / 
-            (JULIANDAY(data_end_date) - JULIANDAY(data_start_date) + 1)) * 100, 
-            0), 
-        2) AS wear_time_percentage FROM combined_data;
+SELECT * 
+FROM combined_data
+ORDER BY     
+    CASE 
+        WHEN LENGTH(participant_id) - LENGTH(REPLACE(participant_id, '-', '')) = 1 THEN 
+            CAST(SUBSTR(participant_id, INSTR(participant_id, '-') + 1) AS INTEGER) 
+        ELSE participant_id 
+    END ASC;
+
 
 -----Metric Specific Views----------------------------------------------------------        
 DROP VIEW IF EXISTS drh_participant_cgm_dates;
