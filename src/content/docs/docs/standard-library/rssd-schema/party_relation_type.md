@@ -9,9 +9,17 @@ title: Party Relation Type
 
 ```sql
 CREATE TABLE "party_relation_type" (
-    "code" TEXT PRIMARY KEY NOT NULL,
+    "party_relation_type_id" ULID PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
 )
 ```
 
@@ -19,24 +27,33 @@ CREATE TABLE "party_relation_type" (
 
 ## Columns
 
-| Name       | Type        | Default           | Nullable | Children                                                                      | Comment |
-| ---------- | ----------- | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- |
-| code       | TEXT        |                   | false    | [party_relation](/docs/standard-library/rssd-schema/party_relation) |         |
-| value      | TEXT        |                   | false    |                                                                               |         |
-| created_at | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                                                               |         |
+| Name                   | Type        | Default           | Nullable | Children                            | Comment                                                 |
+| ---------------------- | ----------- | ----------------- | -------- | ----------------------------------- | ------------------------------------------------------- |
+| party_relation_type_id | ULID        |                   | false    | [party_relation](/docs/standard-library/rssd-schema/party_relation) | {"isSqlDomainZodDescrMeta":true,"isUlid":true}          |
+| code                   | TEXT        |                   | false    |                                     |                                                         |
+| value                  | TEXT        |                   | false    |                                     |                                                         |
+| created_at             | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                                     |                                                         |
+| created_by             | TEXT        | 'UNKNOWN'         | true     |                                     |                                                         |
+| updated_at             | TIMESTAMPTZ |                   | true     |                                     |                                                         |
+| updated_by             | TEXT        |                   | true     |                                     |                                                         |
+| deleted_at             | TIMESTAMPTZ |                   | true     |                                     |                                                         |
+| deleted_by             | TEXT        |                   | true     |                                     |                                                         |
+| activity_log           | TEXT        |                   | true     |                                     | {"isSqlDomainZodDescrMeta":true,"isJsonSqlDomain":true} |
 
 ## Constraints
 
-| Name                                   | Type        | Definition         |
-| -------------------------------------- | ----------- | ------------------ |
-| code                                   | PRIMARY KEY | PRIMARY KEY (code) |
-| sqlite_autoindex_party_relation_type_1 | PRIMARY KEY | PRIMARY KEY (code) |
+| Name                                   | Type        | Definition                           |
+| -------------------------------------- | ----------- | ------------------------------------ |
+| party_relation_type_id                 | PRIMARY KEY | PRIMARY KEY (party_relation_type_id) |
+| sqlite_autoindex_party_relation_type_2 | UNIQUE      | UNIQUE (code)                        |
+| sqlite_autoindex_party_relation_type_1 | PRIMARY KEY | PRIMARY KEY (party_relation_type_id) |
 
 ## Indexes
 
-| Name                                   | Definition         |
-| -------------------------------------- | ------------------ |
-| sqlite_autoindex_party_relation_type_1 | PRIMARY KEY (code) |
+| Name                                   | Definition                           |
+| -------------------------------------- | ------------------------------------ |
+| sqlite_autoindex_party_relation_type_2 | UNIQUE (code)                        |
+| sqlite_autoindex_party_relation_type_1 | PRIMARY KEY (party_relation_type_id) |
 
 ## Relations
 

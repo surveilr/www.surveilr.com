@@ -1,5 +1,5 @@
 ---
-title: Gender Type
+title: Person Type
 ---
 
 ## Description
@@ -8,8 +8,8 @@ title: Gender Type
 <summary><strong>Table Definition</strong></summary>
 
 ```sql
-CREATE TABLE "gender_type" (
-    "gender_type_id" ULID PRIMARY KEY NOT NULL,
+CREATE TABLE "person_type" (
+    "person_type_id" ULID PRIMARY KEY NOT NULL,
     "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
     "value" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE TABLE "gender_type" (
 
 | Name           | Type        | Default           | Nullable | Children            | Comment                                                 |
 | -------------- | ----------- | ----------------- | -------- | ------------------- | ------------------------------------------------------- |
-| gender_type_id | ULID        |                   | false    | [person](/docs/standard-library/rssd-schema/person) | {"isSqlDomainZodDescrMeta":true,"isUlid":true}          |
+| person_type_id | ULID        |                   | false    | [person](/docs/standard-library/rssd-schema/person) | {"isSqlDomainZodDescrMeta":true,"isUlid":true}          |
 | code           | TEXT        |                   | false    |                     |                                                         |
 | value          | TEXT        |                   | false    |                     |                                                         |
 | created_at     | TIMESTAMPTZ | CURRENT_TIMESTAMP | true     |                     |                                                         |
@@ -44,17 +44,17 @@ CREATE TABLE "gender_type" (
 
 | Name                           | Type        | Definition                   |
 | ------------------------------ | ----------- | ---------------------------- |
-| gender_type_id                 | PRIMARY KEY | PRIMARY KEY (gender_type_id) |
-| sqlite_autoindex_gender_type_2 | UNIQUE      | UNIQUE (code)                |
-| sqlite_autoindex_gender_type_1 | PRIMARY KEY | PRIMARY KEY (gender_type_id) |
+| person_type_id                 | PRIMARY KEY | PRIMARY KEY (person_type_id) |
+| sqlite_autoindex_person_type_2 | UNIQUE      | UNIQUE (code)                |
+| sqlite_autoindex_person_type_1 | PRIMARY KEY | PRIMARY KEY (person_type_id) |
 
 ## Indexes
 
 | Name                           | Definition                   |
 | ------------------------------ | ---------------------------- |
-| sqlite_autoindex_gender_type_2 | UNIQUE (code)                |
-| sqlite_autoindex_gender_type_1 | PRIMARY KEY (gender_type_id) |
+| sqlite_autoindex_person_type_2 | UNIQUE (code)                |
+| sqlite_autoindex_person_type_1 | PRIMARY KEY (person_type_id) |
 
 ## Relations
 
-![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/gender_type.svg)
+![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/person_type.svg)
