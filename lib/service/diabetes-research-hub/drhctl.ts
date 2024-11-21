@@ -3,7 +3,7 @@
 import * as colors from "https://deno.land/std@0.224.0/fmt/colors.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 //import * as drhux from "./package.sql.ts";
-import * as uvaUx from "./dataset-specific-package/dclp1-uva-study.sql.ts";
+import * as uvaUx from "./drhctl-package.sql.ts";
 import { existsSync } from "https://deno.land/std/fs/mod.ts";
 
 import {
@@ -21,48 +21,7 @@ const RSC_BASE_URL =
   "https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib/service/diabetes-research-hub";
 // Setting up automation script with the default study dataset pattern as "UVA DCLP1".
 //The package sql to be invoked will vary depending on different Dataset pattern
-const UVA_SQL = "./dataset-specific-package/dclp1-uva-study.sql.ts";
-
-// Helper function to fetch SQL content
-async function fetchSqlContent(url: string): Promise<string> {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch SQL content from ${url}`);
-    }
-    return response.text();
-  } catch (error) {
-    console.error(
-      colors.cyan(`Error fetching SQL content from ${url}:`),
-      error.message,
-    );
-    Deno.exit(1);
-    return "";
-  }
-}
-
-async function fetchFileContent(pathOrUrl: string): Promise<string> {
-  try {
-    if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
-      // Handle remote URL
-      const response = await fetch(pathOrUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch content from ${pathOrUrl}`);
-      }
-      return await response.text();
-    } else {
-      // Handle local file path
-      return await Deno.readTextFile(pathOrUrl);
-    }
-  } catch (error) {
-    console.error(
-      colors.cyan(`Error accessing content from ${pathOrUrl}:`),
-      error.message,
-    );
-    Deno.exit(1);
-    return "";
-  }
-}
+const UVA_SQL = "./drhctl-package.sql.ts";
 
 // Helper function to execute a command
 async function executeCommand(
@@ -119,8 +78,7 @@ async function checkAndDeleteFile(filePath: string) {
 // Function to fetch UX SQL content
 async function fetchUxSqlContent(): Promise<string> {
   try {
-    //const uxSQLContent = await drhux.drhSQL();
-    const uxSQLContent = await uvaUx.uvadclp1SQL();
+    const uxSQLContent = await uvaUx.uvadclp1SQL(dbFilePath);
     return uxSQLContent.join("\n");
   } catch (error) {
     console.error(
@@ -147,42 +105,6 @@ function executeSqlCommands(sqlCommands: string): void {
     if (db) {
       db.close(); // Close the database if it was opened
     }
-  }
-}
-
-// Function to check for table existence and create combined view
-async function checkAndCreateCombinedView(dbFilePath: string) {
-  const db = new Database(dbFilePath);
-
-  try {
-    const tableName = "uniform_resource_cgm_file_metadata";
-    // Check if the required table exists
-    const stmt = db.prepare(
-      `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-    );
-    const rows = stmt.all(tableName);
-
-    if (rows.length > 0) {
-      console.log(
-        colors.green(
-          "Required table exists. Proceeding to create the combined view.",
-        ),
-      );
-      await createCombinedCGMView(dbFilePath); // Ensure this function is defined elsewhere
-    } else {
-      console.error(
-        colors.red(
-          "The required table does not exist. Cannot create the combined view.",
-        ),
-      );
-    }
-  } catch (error) {
-    console.error(
-      colors.red("Error in checkAndCreateCombinedView:"),
-      error.message,
-    );
-  } finally {
-    db.close();
   }
 }
 
@@ -218,11 +140,12 @@ async function checkFolderContents(pathOrUrl: string): Promise<void> {
       colors.cyan(`Verifying the Contents of folder "${pathOrUrl}"....`),
     );
     let validFilesFound = false; // Flag to check for valid file types
+    console.log(colors.cyan(`Folder contents:`));
 
     for await (const entry of entries) {
       if (entry.isFile) {
         const fileExtension = entry.name.split(".").pop()?.toLowerCase();
-        //console.log(colors.green(`File: ${entry.name}`));
+        console.log(colors.green(`File: ${entry.name}`));
         //console.log(colors.dim(`Type: ${fileExtension}`));
 
         // Check if the file type is valid
@@ -269,35 +192,16 @@ const folderName = Deno.args[0];
 await checkFolderContents(folderName);
 
 // Define synchronous suppliers
-// const deidentificationSQLSupplier: FlexibleTextSupplierSync = () =>
-//   deidentificationSQL;
-// const vvSQLSupplier: FlexibleTextSupplierSync = () => vvSQL;
-// const uxSQLSupplier: FlexibleTextSupplierSync = () => uxSQL;
-const uvaSQLSupplier: FlexibleTextSupplierSync = () => uvaSQL;
 
-// let deidentificationSQL: string;
-// let vvSQL: string;
-// let uxSQL: string;
 let uvaSQL: string;
 
 try {
-  // Fetch SQL content for DeIdentification, Verification & Validation, and UX orchestration
-  // deidentificationSQL = await fetchSqlContent(
-  //   `${RSC_BASE_URL}/de-identification/drh-deidentification.sql`,
-  // );
-  // vvSQL = await fetchSqlContent(
-  //   `${RSC_BASE_URL}/verfication-validation/orchestrate-drh-vv.sql`,
-  // );
-  // uxSQL = await fetchSqlContent(
-  //   `${UX_URL}/package.sql`,
-  // );
-  //uvaSQL = await fetchFileContent(UVA_SQL);
-  uvaSQL = await fetchUxSqlContent();
+  // Fetch SQL content for  UX orchestration
   //uxSQL = await fetchUxSqlContent(); // Fetch UX SQL content
 } catch (error) {
   console.error(
     colors.cyan(
-      "Error fetching SQL contents for DeIdentification and Verification & Validation:",
+      "Error fetching SQL contents for Ux orchestration",
     ),
     error.message,
   );
@@ -330,7 +234,8 @@ try {
 
 try {
   console.log(colors.dim(`Performing UX orchestration: ${folderName}...`));
-  //await executeCommand([toolCmd, "shell"], uxSQLSupplier);
+  const uvaSQLSupplier: FlexibleTextSupplierSync = () => uvaSQL;
+  uvaSQL = await fetchUxSqlContent();
   await executeCommand([toolCmd, "shell"], uvaSQLSupplier);
   //executeSqlCommands(uvaSQL); // Execute UX SQL commands
   console.log(colors.green("UX orchestration completed successfully."));
