@@ -40,8 +40,6 @@ jobs:
             architecture: x64
           - os: kalilinux/latest
             architecture: arm64
-          - os: windows-latest
-            architecture: x64
           - os: macos-latest
             architecture: x64
     steps:
