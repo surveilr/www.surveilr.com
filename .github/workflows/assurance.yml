@@ -82,7 +82,7 @@ jobs:
           deno --version
 
       - name: Install eget
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'debian')
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'debian') || matrix.os == 'macos-latest'
         run: |
           echo "Installing eget..."
           curl -sSL https://zyedidia.github.io/eget.sh | bash
