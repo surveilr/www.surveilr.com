@@ -1,3 +1,57 @@
+# name: surveilr End-to-End Quality Assurance Patterns
+
+# on:
+#   push:
+#     branches: ["main"]
+#   pull_request:
+#     branches: ["main"]
+
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, debian-10, debian-11, debian-12, kalilinux/latest]
+#         architecture: [x64, arm64]
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Deno
+#         uses: denoland/setup-deno@v1
+#         with:
+#           deno-version: v2.0.4
+
+#       - name: Check Deno Version
+#         run: |
+#           echo "Checking Deno version..."
+#           deno --version
+
+#       - name: Install eget
+#         run: |
+#           echo "Installing eget..."
+#           curl -sSL https://zyedidia.github.io/eget.sh | bash
+#           sudo mv ./eget /usr/local/bin/
+
+#       - name: Install or Upgrade surveilr
+#         run: |
+#           if command -v surveilr &>/dev/null; then
+#               echo "surveilr is installed. Upgrading..."
+#               surveilr upgrade
+#           else
+#               echo "surveilr not found. Installing..."
+#               eget opsfolio/releases.opsfolio.com --asset tar.gz
+#               sudo mv surveilr /usr/local/bin/
+#               surveilr --version
+#           fi
+
+#       - name: Run Deno Tests
+#         run: |
+#           deno test -A ./lib/assurance/admin_test.ts \
+#                      ./lib/assurance/functions_test.ts \
+#                      ./lib/assurance/imap_test.ts \
+#                      ./lib/assurance/orchestration_test.ts \
+#                      ./lib/assurance/opendal_integration_test.ts
 name: surveilr End-to-End Quality Assurance Patterns
 
 on:
@@ -8,10 +62,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, debian-10, debian-11, debian-12, kalilinux/latest]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, debian-10, debian-11, debian-12, kalilinux/latest, windows-latest, macos-latest]
         architecture: [x64, arm64]
     steps:
       - name: Checkout code
@@ -28,12 +82,14 @@ jobs:
           deno --version
 
       - name: Install eget
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'debian')
         run: |
           echo "Installing eget..."
           curl -sSL https://zyedidia.github.io/eget.sh | bash
           sudo mv ./eget /usr/local/bin/
 
       - name: Install or Upgrade surveilr
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'debian') || matrix.os == 'macos-latest'
         run: |
           if command -v surveilr &>/dev/null; then
               echo "surveilr is installed. Upgrading..."
@@ -46,6 +102,23 @@ jobs:
           fi
 
       - name: Run Deno Tests
+        run: |
+          deno test -A ./lib/assurance/admin_test.ts \
+                     ./lib/assurance/functions_test.ts \
+                     ./lib/assurance/imap_test.ts \
+                     ./lib/assurance/orchestration_test.ts \
+                     ./lib/assurance/opendal_integration_test.ts
+
+      - name: Install surveilr for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "Installing surveilr for Windows..."
+          curl -LO https://opsfolio/releases.opsfolio.com/surveilr.exe
+          move surveilr.exe C:\\Windows\\System32\\surveilr.exe
+          surveilr --version
+
+      - name: Run Deno Tests on Windows
+        if: matrix.os == 'windows-latest'
         run: |
           deno test -A ./lib/assurance/admin_test.ts \
                      ./lib/assurance/functions_test.ts \
