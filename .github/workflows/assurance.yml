@@ -82,7 +82,8 @@ jobs:
                      ./lib/assurance/functions_test.ts \
                      ./lib/assurance/imap_test.ts \
                      ./lib/assurance/orchestration_test.ts \
-                     ./lib/assurance/opendal_integration_test.ts
+                     ./lib/assurance/opendal_integration_test.ts \
+                     ./lib/assurance/dynamic_extensions_test.ts
 
       - name: Install surveilr for Windows
         if: matrix.os == 'windows-latest'
@@ -99,4 +100,5 @@ jobs:
                      ./lib/assurance/functions_test.ts \
                      ./lib/assurance/imap_test.ts \
                      ./lib/assurance/orchestration_test.ts \
-                     ./lib/assurance/opendal_integration_test.ts
+                     ./lib/assurance/opendal_integration_test.ts \
+                     ./lib/assurance/dynamic_extensions_test.ts
