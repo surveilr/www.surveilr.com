@@ -36,7 +36,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /dms-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like '/dms%';
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path="/dms";
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -50,11 +50,12 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = '/dms'
+           WHERE namespace = 'prime' AND path=${this.constructHomePath('dms')}
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, COALESCE(url, path) as link, description
+      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link, 
+      description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = '/dms'
        ORDER BY sibling_order;`;
@@ -66,7 +67,17 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "dms/inbox.sql"() {
     return this.SQL`
-      ${this.activePageTitle()}
+      select
+    'breadcrumb' as component;
+    select
+        'Home' as title,
+        ${this.absoluteURL('/')} as link;
+    select
+        'Direct Protocol Email System' as title,
+         ${this.absoluteURL('/dms/index.sql')} as link;
+    select
+        'Inbox' as title;
+    -- select 'debug' as component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX');
 
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -76,7 +87,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT id,
       "from",
-       '[' || subject || '](/dms/email-detail.sql?id=' || id || ')' AS "subject",
+        '[' || subject || '](' || ${this.absoluteURL('email-detail.sql?id=')} || id || ')' AS "subject",
       date
       from inbox
       `;
@@ -89,13 +100,13 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
     'breadcrumb' as component;
     select
         'Home' as title,
-        '/'    as link;
+        ${this.absoluteURL('/')} as link;
     select
         'Direct Protocol Email System' as title,
-        '/dms/' as link;
+         ${this.absoluteURL('/dms/index.sql')} as link;
     select
         'inbox' as title,
-        '/dms/inbox.sql' as link;
+         ${this.absoluteURL('/dms/index.sql')} as link;
     select
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
 
@@ -120,7 +131,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           CASE
               WHEN attachment_filename LIKE '%.xml' OR attachment_mime_type = 'application/xml'
-              THEN '[' || attachment_filename || '](' || attachment_file_path || ' "download")' || ' | ' || '[View Details](/dms/patient-detail.sql?id=' || message_uid || ' "View Details")'
+              THEN '[' || attachment_filename || '](' || attachment_file_path || ' "download")' || ' | ' || '[View Details](patient-detail.sql?id=' || message_uid || ' "View Details")'
               ELSE '[' || attachment_filename || '](' || attachment_file_path || ' "download")'
           END AS "attachment"
       FROM mail_content_attachment
@@ -131,26 +142,27 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "dms/patient-detail.sql"() {
     return this.SQL`
+    
     SELECT
     'breadcrumb' as component;
     SELECT
-        'Home' as title,
-        '/'    as link;
+       'Home' as title,
+       ${this.absoluteURL('/')} as link;
     SELECT
         'Direct Protocol Email System' as title,
-        '/dms/' as link;
+        ${this.absoluteURL('/dms/index.sql')} as link;
     SELECT
         'inbox' as title,
-        '/dms/inbox.sql' as link;
+        ${this.absoluteURL('/dms/inbox.sql')} as link;
     SELECT
-        '/dms/email-detail.sql?id=' || id as link,
+         ${this.absoluteURL('/dms/email-detail.sql?id=')}  || id AS link,
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
     SELECT
         first_name as title from patient_detail where CAST(message_uid AS TEXT)=CAST($id AS TEXT) ;
 
    SELECT 'html' AS component, '
-  <link rel="stylesheet" href="/assets/style.css">
-  <h2>' || document_title || '</h2>
+  <link rel="stylesheet" href="'||${this.absoluteURL('/assets/style.css')}||'">'
+  ||'<h2>' || document_title || '</h2>
   <table class="patient-summary">
     <tr>
       <th>Patient</th>
