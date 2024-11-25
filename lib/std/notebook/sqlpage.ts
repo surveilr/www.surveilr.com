@@ -544,7 +544,7 @@ export class TypicalSqlPageNotebook
             INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
         )
         SELECT title,
-        case when link='/' THEN ${this.absoluteURL('')} 
+        case when link='/' THEN ${this.absoluteURL('/')} 
         else 
         replace(link,rtrim(link,replace(link,'/','')),'')
         END AS link
