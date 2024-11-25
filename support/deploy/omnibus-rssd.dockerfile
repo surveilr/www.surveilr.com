@@ -60,6 +60,15 @@ RUN mkdir -p /rssd && \
 # Create an index file with a header for RSSDs
 RUN echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv
 
+# Find directories containing `eg.surveilr.com-prepare.ts`, prepare RSSDs dependencies
+RUN RSSD_SRC_PATH=($(find /app/www.surveilr.com -type f -name "eg.surveilr.com-prepare.ts" -exec dirname {} \;)) && \   
+    for path in "${RSSD_SRC_PATH[@]}"; do \
+      relative_path=$(echo "$path" | sed 's#/app/www.surveilr.com/##'); \
+      package_sql="${relative_path}/package.sql.ts"; \
+      cd "$path" && \
+      deno run -A  ./eg.surveilr.com-prepare.ts && \    
+    done
+
 # Find directories containing `package.sql.ts`, build RSSDs, save in /rssd, and update index file with port number
 RUN RSSD_SRC_PATH=($(find /app/www.surveilr.com -type f -name "package.sql.ts" -exec dirname {} \;)) && \
     port=9000 && \
@@ -75,6 +84,15 @@ RUN RSSD_SRC_PATH=($(find /app/www.surveilr.com -type f -name "package.sql.ts" -
       port=$((port+1)); \
     done
 
+ # Find directories containing `eg.surveilr.com-finalize.ts`, finalize RSSDs dependencies
+RUN RSSD_SRC_PATH=($(find /app/www.surveilr.com -type f -name "eg.surveilr.com-finalize.ts" -exec dirname {} \;)) && \   
+    for path in "${RSSD_SRC_PATH[@]}"; do \
+      relative_path=$(echo "$path" | sed 's#/app/www.surveilr.com/##'); \
+      package_sql="${relative_path}/package.sql.ts"; \
+      cd "$path" && \
+      deno run -A  ./eg.surveilr.com-finalize.ts && \    
+    done
+   
 # Stage 2: Final Runtime Image
 FROM debian:latest
 
