@@ -14,7 +14,7 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fhir-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like '/fhir%';
+      DELETE FROM sqlpage_aide_navigation WHERE path like 'ur%';
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -257,11 +257,11 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = '/ur'
+           WHERE namespace = 'prime' AND path =${this.constructHomePath('ur')}
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, COALESCE(url, path) as link, description
+      SELECT caption as title, COALESCE(REPLACE(url, 'ur/', ''), REPLACE(path, 'ur/', '')) as link, description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = '/ur'
        ORDER BY sibling_order;`;
@@ -277,25 +277,25 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       SELECT 'title' AS component, 'Uniform Resource Tables and Views' as contents;
       SELECT 'table' AS component,
-            'Name' AS markdown,
-            'Column Count' as align_right,
-            TRUE as sort,
-            TRUE as search;
+      'Name' AS markdown,
+        'Column Count' as align_right,
+        TRUE as sort,
+        TRUE as search;
 
-      SELECT
-          'Table' as "Type",
-          '[' || table_name || '](/console/info-schema/table.sql?name=' || table_name || ')' AS "Name",
-          COUNT(column_name) AS "Column Count"
+    SELECT
+    'Table' as "Type",
+      '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
+        COUNT(column_name) AS "Column Count"
       FROM console_information_schema_table
       WHERE table_name = 'uniform_resource' OR table_name like 'ur_%'
       GROUP BY table_name
 
       UNION ALL
 
-      SELECT
-          'View' as "Type",
-          '[' || view_name || '](/console/info-schema/view.sql?name=' || view_name || ')' AS "Name",
-          COUNT(column_name) AS "Column Count"
+    SELECT
+    'View' as "Type",
+      '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
+        COUNT(column_name) AS "Column Count"
       FROM console_information_schema_view
       WHERE view_name like 'ur_%'
       GROUP BY view_name;
@@ -314,19 +314,19 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       ${this.activePageTitle()}
 
-      -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+    -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
       ${pagination.init()}
 
-      -- Display uniform_resource table with pagination
+    -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
-            'Uniform Resources' AS title,
-            "Size (bytes)" as align_right,
-            TRUE AS sort,
-            TRUE AS search,
+      'Uniform Resources' AS title,
+        "Size (bytes)" as align_right,
+        TRUE AS sort,
+          TRUE AS search,
             TRUE AS hover,
-            TRUE AS striped_rows,
-            TRUE AS small;
-      SELECT * FROM ${viewName} ORDER BY uniform_resource_id
+              TRUE AS striped_rows,
+                TRUE AS small;
+    SELECT * FROM ${viewName} ORDER BY uniform_resource_id
        LIMIT $limit
       OFFSET $offset;
 
@@ -346,21 +346,21 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       ${this.activePageTitle()}
 
-      select
-          'title'   as component,
-          'Mailbox' as contents;
-      -- Display uniform_resource table with pagination
+    select
+      'title'   as component,
+      'Mailbox' as contents;
+    -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
-            'Uniform Resources' AS title,
-            "Size (bytes)" as align_right,
-            TRUE AS sort,
-            TRUE AS search,
+      'Uniform Resources' AS title,
+        "Size (bytes)" as align_right,
+        TRUE AS sort,
+          TRUE AS search,
             TRUE AS hover,
-            TRUE AS striped_rows,
-            TRUE AS small,
-            'email' AS markdown;
-      SELECT
-        '[' || email || '](/ur/uniform-resource-imap-folder.sql?imap_account_id=' || ur_ingest_session_imap_account_id || ')' AS "email"
+              TRUE AS striped_rows,
+                TRUE AS small,
+                  'email' AS markdown;
+    SELECT    
+    '[' || email || '](' || ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || ur_ingest_session_imap_account_id || ')' AS "email"
           FROM ${viewName}
           GROUP BY ur_ingest_session_imap_account_id
           ORDER BY uniform_resource_id;
@@ -373,36 +373,35 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     const viewName = `uniform_resource_imap`;
     return this.SQL`
       SELECT 'breadcrumb' as component;
-      SELECT
-          'Home' as title,
-          '/'    as link;
-      SELECT
-          'Uniform Resource' as title,
-          '/ur' as link;
-      SELECT
-          'Uniform Resources (IMAP)' as title,
-          '/ur/uniform-resource-imap-account.sql' as link;
-      SELECT
-          'Folder' as title,
-          '/ur/uniform-resource-imap-folder.sql?imap_account_id=' || $imap_account_id::TEXT as link;
+    SELECT
+       'Home' as title,
+       ${this.absoluteURL('/')} as link;
+    SELECT
+      'Uniform Resource' as title,
+      ${this.absoluteURL('/ur/index.sql')} as link;
+    SELECT
+      'Uniform Resources (IMAP)' as title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} as link;
+    SELECT
+      'Folder' as title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || $imap_account_id:: TEXT as link;
+    SELECT
+      'title' as component,
+      (SELECT email FROM ${viewName} WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
 
-      SELECT
-          'title'   as component,
-          (SELECT email FROM ${viewName} WHERE ur_ingest_session_imap_account_id=$imap_account_id::TEXT) as contents;
-
-      -- Display uniform_resource table with pagination
+    --Display uniform_resource table with pagination
       SELECT 'table' AS component,
-            'Uniform Resources' AS title,
-            "Size (bytes)" as align_right,
-            TRUE AS sort,
-            TRUE AS search,
+      'Uniform Resources' AS title,
+        "Size (bytes)" as align_right,
+        TRUE AS sort,
+          TRUE AS search,
             TRUE AS hover,
-            TRUE AS striped_rows,
-            TRUE AS small,
-            'folder' AS markdown;
-      SELECT '[' || folder_name || '](/ur/uniform-resource-imap-mail-list.sql?folder_id=' || ur_ingest_session_imap_acct_folder_id || ')' AS "folder"
+              TRUE AS striped_rows,
+                TRUE AS small,
+                  'folder' AS markdown;
+      SELECT '[' || folder_name || '](' || ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id || ')' AS "folder"
         FROM ${viewName}
-        WHERE ur_ingest_session_imap_account_id=$imap_account_id::TEXT
+        WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
         GROUP BY ur_ingest_session_imap_acct_folder_id
         ORDER BY uniform_resource_id;
     `;
@@ -413,50 +412,50 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     const viewName = `uniform_resource_imap`;
     const pagination = this.pagination({ tableOrViewName: viewName });
     return this.SQL`
-      SELECT
-      'breadcrumb' AS component;
-      SELECT
-          'Home' AS title,
-          '/'    AS link;
-      SELECT
-          'Uniform Resource' AS title,
-          '/ur' AS link;
-      SELECT
-          'Uniform Resources (IMAP)' AS title,
-          '/ur/uniform-resource-imap-account.sql' AS link;
-      SELECT
-       'Folder' AS title,
-       "uniform-resource-imap-folder.sql?imap_account_id="|| ur_ingest_session_imap_account_id AS link
+    SELECT
+    'breadcrumb' AS component;
+    SELECT
+    'Home' AS title,
+      ${this.absoluteURL('/')}
+    SELECT
+      'Uniform Resource' AS title,
+      ${this.absoluteURL('/ur/index.sql')} as link;
+    SELECT
+      'Uniform Resources (IMAP)' AS title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} AS link;
+    SELECT
+      'Folder' AS title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')}|| ur_ingest_session_imap_account_id AS link
+      FROM ${viewName}
+      WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+    SELECT
+      folder_name AS title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id AS link
       FROM ${viewName}
       WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
-      SELECT
-       folder_name AS title,
-       "uniform-resource-imap-mail-list.sql?folder_id="|| ur_ingest_session_imap_acct_folder_id AS link
-      FROM ${viewName}
-      WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+    SELECT
+      'title'   as component,
+      (SELECT email || ' (' || folder_name || ')'  FROM ${viewName} WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
 
-       SELECT
-          'title'   as component,
-          (SELECT email || ' (' || folder_name || ')'  FROM ${viewName} WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
-
-      -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+    -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
       ${pagination.init()}
 
-      -- Display uniform_resource table with pagination
+    -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
-            'Uniform Resources' AS title,
-            "Size (bytes)" as align_right,
-            TRUE AS sort,
-            TRUE AS search,
+      'Uniform Resources' AS title,
+        "Size (bytes)" as align_right,
+        TRUE AS sort,
+          TRUE AS search,
             TRUE AS hover,
-            TRUE AS striped_rows,
-            TRUE AS small,
-            'subject' AS markdown;;
-      SELECT
-      '[' || subject || '](/ur/uniform-resource-imap-mail-detail.sql?resource_id=' || uniform_resource_id || ')' AS "subject"
-      ,"from",
-        CASE
+              TRUE AS striped_rows,
+                TRUE AS small,
+                  'subject' AS markdown;;
+    SELECT
+    '[' || subject || '](uniform-resource-imap-mail-detail.sql?resource_id=' || uniform_resource_id || ')' AS "subject"
+      , "from",
+      CASE
           WHEN ROUND(julianday('now') - julianday(date)) = 0 THEN 'Today'
           WHEN ROUND(julianday('now') - julianday(date)) = 1 THEN '1 day ago'
           WHEN ROUND(julianday('now') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday('now') - julianday(date)) AS INT) || ' days ago'
@@ -478,57 +477,57 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
   "ur/uniform-resource-imap-mail-detail.sql"() {
     const viewName = `uniform_resource_imap`;
     return this.SQL`
-     SELECT
-      'breadcrumb' AS component;
-      SELECT
-          'Home' AS title,
-          '/'    AS link;
-      SELECT
-          'Uniform Resource' AS title,
-          '/ur' AS link;
-      SELECT
-          'Uniform Resources (IMAP)' AS title,
-          '/ur/uniform-resource-imap-account.sql' AS link;
-      SELECT
-       'Folder' AS title,
-       "uniform-resource-imap-folder.sql?imap_account_id="|| ur_ingest_session_imap_account_id AS link
+    SELECT
+    'breadcrumb' AS component;
+    SELECT
+    'Home' AS title,
+      ${this.absoluteURL('/')}    AS link;
+    SELECT
+     'Uniform Resource' AS title,
+      ${this.absoluteURL('/ur/index.sql')} AS link;
+    SELECT
+      'Uniform Resources (IMAP)' AS title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} AS link;
+    SELECT
+    'Folder' AS title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || ur_ingest_session_imap_account_id AS link
       FROM ${viewName}
-      WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+      WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
-       SELECT
+    SELECT
        folder_name AS title,
-       "uniform-resource-imap-mail-list.sql?folder_id="|| ur_ingest_session_imap_acct_folder_id AS link
+      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id AS link
       FROM ${viewName}
       WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
-      SELECT
+    SELECT
        subject AS title,
-       "uniform-resource-imap-mail-detail.sql?resource_id="|| uniform_resource_id AS link
+      ${this.absoluteURL('/ur/uniform-resource-imap-mail-detail.sql?resource_id=')} || uniform_resource_id AS link
       FROM ${viewName}
-      WHERE uniform_resource_id=$resource_id::TEXT;
+      WHERE uniform_resource_id = $resource_id:: TEXT;
 
-      -- Breadcrumb ends---
+    --Breadcrumb ends-- -
 
-      ---back button---
-      select 'button' as component;
-      select
-      "<< Back"            as title,
-      "/ur/uniform-resource-imap-mail-list.sql?folder_id="|| ur_ingest_session_imap_acct_folder_id as link
+      --- back button-- -
+        select 'button' as component;
+    select
+    "<< Back" as title,
+      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id as link
       FROM ${viewName}
-      WHERE uniform_resource_id=$resource_id::TEXT;
+      WHERE uniform_resource_id = $resource_id:: TEXT;
 
-      -- Display uniform_resource table with pagination
+    --Display uniform_resource table with pagination
       SELECT
-        'datagrid' as component;
-      SELECT
-        'From' as title,
-        "from" as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
-      SELECT
-        'To' as title,
-        email as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
-      SELECT
-        'Subject' as title,
-        subject as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+    'datagrid' as component;
+    SELECT
+    'From' as title,
+      "from" as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+    SELECT
+    'To' as title,
+      email as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
+    SELECT
+    'Subject' as title,
+      subject as "description" FROM ${viewName} where uniform_resource_id=$resource_id::TEXT;
 
       SELECT 'html' AS component;
       SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
