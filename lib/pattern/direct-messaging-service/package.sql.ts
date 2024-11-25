@@ -87,7 +87,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT id,
       "from",
-        '[' || subject || '](' || ${this.absoluteURL('email-detail.sql?id=')} || id || ')' AS "subject",
+        '[' || subject || '](' || ${this.absoluteURL('/dms/email-detail.sql?id=')} || id || ')' AS "subject",
       date
       from inbox
       `;
