@@ -545,8 +545,8 @@ export class TypicalSqlPageNotebook
         )
         SELECT title,
         case when link='/' THEN ${this.absoluteURL('')} 
-        else       
-        ${this.absoluteURL('')} ||'/'|| replace(link,rtrim(link,replace(link,'/','')),'')
+        else 
+        replace(link,rtrim(link,replace(link,'/','')),'')
         END AS link
         FROM breadcrumbs ORDER BY level DESC;`) +
       (additional.length
