@@ -13,7 +13,7 @@ description: instructions on the installation of `surveilr`
 
 ## How to install Resource Surveillance & Integration Engine (`surveilr`) for Critical Systems
 
-Start using `surveilr` by following the quick guide below:
+Start using `surveilr` Resource Surveillance by following the quick guide below:
 
 - **macOS and Linux:**
 
