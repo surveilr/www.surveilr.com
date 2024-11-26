@@ -41,13 +41,13 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
           : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
-              'link', '${rootPath}',
+              'link', ${this.absoluteURL('')}||'${rootPath}',
               'title', ${literal(caption)},
               'submenu', (
                   SELECT json_group_array(
                       json_object(
                           'title', title,
-                          'link', link,
+                          'link', ${this.absoluteURL('/')}||link,
                           'description', description
                       )
                   )
@@ -69,7 +69,7 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
         items.map((item) => `${literal(JSON.stringify(item))} AS ${key}`),
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
-        items.push(selectNavMenuItems("/docs", "Docs"));
+        items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
         items.push(selectNavMenuItems("/ur", "Uniform Resource"));
         items.push(selectNavMenuItems("/console", "Console"));
         items.push(selectNavMenuItems("/orchestration", "Orchestration"));
