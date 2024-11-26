@@ -33,7 +33,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
     shellConfig.javascript.push(
       "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
     );
-    shellConfig.javascript.push("/js/chart-component.js");
+    // shellConfig.javascript.push("/js/chart-component.js");
     return shellConfig;
   }
 
@@ -1027,10 +1027,10 @@ SELECT
   `;
   }
 
-  @spn.shell({ eliminate: true })
+  /* @spn.shell({ eliminate: true })
   "js/chart-component.js"() {
     return Deno.readTextFileSync("./d3-aide-component.js");
-  }
+  } */
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/api/time_range_stacked_metrics/index.sql"() {
