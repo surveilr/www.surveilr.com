@@ -33,7 +33,7 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
     port=9000 && \
     for path in \"\${RSSD_SRC_PATH[@]}\"; do \
       # Convert path to a format suitable for the RSSD filename and get package_sql
-      relative_path=\$(echo \"\$path\" | sed 's#/app/www.surveilr.com/##; s/-//g'); \
+      relative_path=\$(echo \"\$path\" | sed 's#/app/www.surveilr.com/##'); \
       rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
       package_sql=\"\${relative_path}/package.sql.ts\"; \
       cd \"\$path\" && \
