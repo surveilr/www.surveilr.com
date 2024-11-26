@@ -274,7 +274,7 @@ $ surveilr shell ./dataset-specific-package/ieogc-package.sql.ts
 # Start the server
 
 ```bash
-$ surveilr web-ui --port 9000
+$ SQLPAGE_SITE_PREFIX="" surveilr web-ui --port 9000
 ```
 
 You can now browse the Surveilr Web UI:

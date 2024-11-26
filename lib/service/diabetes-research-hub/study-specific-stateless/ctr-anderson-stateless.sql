@@ -2559,7 +2559,7 @@ SELECT
             parent_path, 0 AS level,
             namespace
         FROM sqlpage_aide_navigation
-        WHERE namespace = ''prime'' AND path = ''/drh/cgm-data''
+        WHERE namespace = ''prime'' AND path = ''drh/cgm-data''
         UNION ALL
         SELECT
             COALESCE(nav.abbreviated_caption, nav.caption) AS title,
