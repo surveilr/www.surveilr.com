@@ -53,7 +53,7 @@ Deno.test("Setup", async (t) => {
 Deno.test("use sqlpkg defaults", async (t) => {
     await t.step("text_substring", async () => {
         const result =
-            await $`surveilr shell --cmd "select text_substring('hello world', 7);"`
+            await $`surveilr shell --cmd "select text_substring('hello world', 7);" --sqlpkg`
                 .stdout("piped");
         assertEquals(
             result.code,
@@ -67,7 +67,7 @@ Deno.test("use sqlpkg defaults", async (t) => {
 
     await t.step("text_substring_end", async () => {
         const result =
-            await $`surveilr shell --cmd "select text_substring('hello world', 7, 5);"`
+            await $`surveilr shell --cmd "select text_substring('hello world', 7, 5);" --sqlpkg`
                 .stdout("piped");
         assertEquals(
             result.code,
@@ -81,7 +81,7 @@ Deno.test("use sqlpkg defaults", async (t) => {
 
     await t.step("regexp_like", async () => {
         const result =
-            await $`surveilr shell --cmd "select regexp_like('the year is 2021', '[0-9]+');"`
+            await $`surveilr shell --cmd "select regexp_like('the year is 2021', '[0-9]+');" --sqlpkg`
                 .stdout("piped");
         assertEquals(
             result.code,
@@ -95,7 +95,7 @@ Deno.test("use sqlpkg defaults", async (t) => {
 
     await t.step("regexp_substr", async () => {
         const result =
-            await $`surveilr shell --cmd "select regexp_substr('the year is 2021', '[0-9]+');"`
+            await $`surveilr shell --cmd "select regexp_substr('the year is 2021', '[0-9]+');" --sqlpkg`
                 .stdout("piped");
         assertEquals(
             result.code,
@@ -119,7 +119,7 @@ Deno.test("combine with sqlite-dyn-extn", async (t) => {
     });
 
     await t.step("run surveilr", async () => {
-        const result = await $`surveilr shell --cmd "SELECT text_substring('hello world', 7, 5) AS substring_result, math_sqrt(9) AS sqrt_result, path_parts.type, path_parts.part FROM (SELECT * FROM path_parts('/usr/bin/sqlite3')) AS path_parts;" --sqlite-dyn-extn ${extensionsDir}/path0.so`.stdout("piped");
+        const result = await $`surveilr shell --cmd "SELECT text_substring('hello world', 7, 5) AS substring_result, math_sqrt(9) AS sqrt_result, path_parts.type, path_parts.part FROM (SELECT * FROM path_parts('/usr/bin/sqlite3')) AS path_parts;" --sqlpkg --sqlite-dyn-extn ${extensionsDir}/path0.so`.stdout("piped");
         
         assertEquals(
             result.code,
