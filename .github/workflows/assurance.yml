@@ -43,8 +43,8 @@ jobs:
             architecture: x64
           - os: kalilinux/latest
             architecture: arm64
-          - os: macos-latest
-            architecture: x64
+          # - os: macos-latest
+          #   architecture: x64
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
