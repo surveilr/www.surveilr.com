@@ -243,7 +243,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       WITH console_navigation_cte AS (
           SELECT title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path =${this.constructHomePath('console')}
+           WHERE namespace = 'prime' AND path =${
+      this.constructHomePath("console")
+    }
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
@@ -374,7 +376,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;     
          SELECT
-        '[🚀](' || ${this.absoluteURL('/')} || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${
+      this.absoluteURL("/")
+    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
          LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       ORDER BY path;`;
@@ -404,11 +408,17 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'text' AS component, '
         - \`*.auto.sql\` pages are auto-generated "default" content pages for each table and view defined in the database.
         - The \`*.sql\` companions may be auto-generated redirects to their \`*.auto.sql\` pair or an app/service might override the \`*.sql\` to not redirect and supply custom content for any table or view.
-        - [View regenerate-auto.sql](' || ${this.absoluteURL('/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql')} || ')
+        - [View regenerate-auto.sql](' || ${
+      this.absoluteURL(
+        "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
+      )
+    } || ')
         ' AS contents_md;
 
       SELECT 'button' AS component, 'center' AS justify;
-      SELECT ${this.absoluteURL('/console/content/action/regenerate-auto.sql')} AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
+      SELECT ${
+      this.absoluteURL("/console/content/action/regenerate-auto.sql")
+    } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
 
       SELECT 'title' AS component, 'Redirected or overriden content pages' as contents;
       SELECT 'table' AS component,
@@ -417,7 +427,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;  
             SELECT
-        '[🚀]('||${this.absoluteURL('/')} || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",   
+        '[🚀]('||${
+      this.absoluteURL("/")
+    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",   
       
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -433,7 +445,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
           SELECT
-            '[🚀](' || ${this.absoluteURL('/')} || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+            '[🚀](' || ${
+      this.absoluteURL("/")
+    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
         
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -448,7 +462,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.infoSchemaContentDML()}
 
       -- ${this.tsProvenanceComment(import.meta.url)}
-      SELECT 'redirect' AS component, ${this.absoluteURL('/console/sqlpage-files/content.sql')} as link WHERE $redirect is NULL;
+      SELECT 'redirect' AS component, ${
+      this.absoluteURL("/console/sqlpage-files/content.sql")
+    } as link WHERE $redirect is NULL;
       SELECT 'redirect' AS component, $redirect as link WHERE $redirect is NOT NULL;
     `;
   }
@@ -480,7 +496,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
       SELECT c.notebook_name,
           '[' || c.cell_name || '](' ||
-          ${this.absoluteURL('/console/notebooks/notebook-cell.sql?notebook=')} || 
+          ${
+      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+    } || 
           replace(c.notebook_name, ' ', '%20') || 
           '&cell=' || 
           replace(c.cell_name, ' ', '%20') || 
@@ -689,7 +707,9 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
               c.code_notebook_cell_id,
               c.notebook_name,
               c.cell_name,
-              '[' || c.cell_name || ']('||${this.absoluteURL('/console/notebooks/notebook-cell.sql?notebook=')} || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+              '[' || c.cell_name || ']('||${
+      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+    } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
               c.interpretable_code_hash,
               c.is_idempotent,
               c.version_timestamp
@@ -701,7 +721,7 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
       -- All Migrations
       SELECT 'button' as component;
       SELECT 
-          ${this.absoluteURL('/console/notebooks')} as link,
+          ${this.absoluteURL("/console/notebooks")} as link,
           'See all notebook entries' as title;
       `;
   }
