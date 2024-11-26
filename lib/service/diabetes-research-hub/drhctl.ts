@@ -23,6 +23,58 @@ const RSC_BASE_URL =
 //The package sql to be invoked will vary depending on different Dataset pattern
 const UVA_SQL = "./drhctl-package.sql.ts";
 
+// Helper function to execute a command with environment variables
+async function executeCommandWithEnv(
+  cmd: string[],
+  env: Record<string, string>,
+  stdinSupplier?: FlexibleTextSupplierSync,
+) {
+  try {
+    console.log(
+      colors.dim(`Executing command with environment: ${JSON.stringify(env)}`),
+    );
+    console.log(colors.dim(`Command: ${cmd.join(" ")}`));
+
+    // Use Deno.run to execute the command with the environment
+    const process = Deno.run({
+      cmd,
+      env, // Pass the environment variables
+      stdin: "piped",
+      stdout: "piped",
+      stderr: "piped",
+    });
+
+    // If a stdin supplier is provided, write to stdin
+    if (stdinSupplier) {
+      const input = textFromSupplierSync(stdinSupplier);
+      if (input) {
+        const writer = process.stdin.getWriter();
+        await writer.write(new TextEncoder().encode(input));
+        writer.releaseLock();
+        process.stdin.close();
+      }
+    }
+
+    const { code } = await process.status();
+    const stdout = new TextDecoder().decode(await process.output());
+    const stderr = new TextDecoder().decode(await process.stderrOutput());
+
+    // Handle process output
+    if (code === 0) {
+      console.log(colors.green(stdout));
+    } else {
+      console.error(colors.red(stderr));
+      throw new Error(`Command failed with status ${code}`);
+    }
+  } catch (error) {
+    console.error(
+      colors.cyan(`Error executing command ${cmd.join(" ")}:`),
+      error.message,
+    );
+    Deno.exit(1);
+  }
+}
+
 // Helper function to execute a command
 async function executeCommand(
   cmd: string[],
@@ -250,7 +302,11 @@ try {
       `Loading DRH Edge UI... at http://localhost:9000/drh/index.sql`,
     ),
   );
-  await executeCommand([toolCmd, "web-ui", "--port", "9000"]);
+  // await executeCommand([toolCmd, "web-ui", "--port", "9000"]);
+  await executeCommandWithEnv(
+    [toolCmd, "web-ui", "--port", "9000"],
+    { SQLPAGE_SITE_PREFIX: "" },
+  );
 } catch (error) {
   console.error(colors.cyan("Error starting DRH Edge UI:"), error.message);
   Deno.exit(1);

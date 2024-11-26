@@ -40,8 +40,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
   @sppn.shell({ eliminate: true })
   "shell/shell.json"() {
     return this.SQL`
-    ${JSON.stringify(this.defaultShell(), undefined, "  ")}
-  `;
+      ${JSON.stringify(this.defaultShell(), undefined, "  ")}
+    `;
   }
 
   @sppn.shell({ eliminate: true })
@@ -58,14 +58,14 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       target: string = "",
     ) =>
       `json_object(
-            'link', '${rootPath}',
+            'link', ${this.absoluteURL("")}||'${rootPath}',
             'title', ${literal(caption)},      
             'target', '${target}',      
             'submenu', (
                 SELECT json_group_array(
                     json_object(
                         'title', title,
-                        'link', link,
+                        'link', ${this.absoluteURL("/")}||link,
                         'description', description,
                         'target', target                      
                     )
@@ -89,9 +89,10 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         items.map((item) => `${literal(JSON.stringify(item))} AS ${key}`),
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
-        items.push(
-          selectNavMenuItems("/drh/study/", "Study"),
-        );
+        // items.push(
+        //   selectNavMenuItems("/drh/study/", "Study"),
+        // );
+        // items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
         items.push(selectNavMenuItems("/ur", "Uniform Resource"));
         items.push(selectNavMenuItems("/console", "Console"));
         items.push(
@@ -117,7 +118,9 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         // TODO: add "open in IDE" feature like in other Shahid apps
         literal(`Resource Surveillance Web UI (v`) +
         ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](/console/sqlpage-files/sqlpage-file.sql?path=' || substr(sqlpage.path(), 2) || ')' as footer`,
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
+          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        } || substr(sqlpage.path(), 2) || ')' as footer`,
     };
     const shell = this.defaultShell();
     const sqlSelectExpr = Object.entries(shell).flatMap(([k, v]) => {
@@ -150,7 +153,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
     -- delete all /drh-related entries and recreate them in case routes are changed
-    DELETE FROM sqlpage_aide_navigation WHERE path like '/drh%';
+    DELETE FROM sqlpage_aide_navigation WHERE parent_path="/drh";
     ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
   `;
   }
@@ -192,7 +195,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study Files Log'  as title,
-                '/drh/ingestion-log/index.sql' as link,
+                ${this.absoluteURL("/drh/ingestion-log/index.sql")} as link,
                 'This section provides an overview of the files that have been accepted and converted into database format for research purposes' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -206,7 +209,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Verification Log' AS title,
-                '/drh/verification-validation-log/index.sql' AS link,
+                ${
+      this.absoluteURL("/drh/verification-validation-log/index.sql")
+    } AS link,
                 'Use this section to review the issues identified in the file content and take appropriate corrective actions.' AS description,
                 'table' AS icon,
                 'red' AS color;
@@ -221,7 +226,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study Participant Dashboard'  as title,
-                '/drh/study-participant-dashboard/index.sql' as link,
+                ${
+      this.absoluteURL("/drh/study-participant-dashboard/index.sql")
+    } as link,
                 'The dashboard presents key study details and participant-specific metrics in a clear, organized table format' as description,
                 'table'                as icon,
                 'red'                    as color;
@@ -232,7 +239,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Researcher and Associated Information'  as title,
-                '/drh/researcher-related-data/index.sql' as link,
+                ${
+      this.absoluteURL("/drh/researcher-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the individuals , institutions and labs involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -240,7 +249,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study ResearchSite Details'  as title,
-                '/drh/study-related-data/index.sql' as link,
+                ${
+      this.absoluteURL("/drh/study-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the study , and sites involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -248,7 +259,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Participant Demographics'  as title,
-                '/drh/participant-related-data/index.sql' as link,
+                ${
+      this.absoluteURL("/drh/participant-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the the participants involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -256,7 +269,7 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Author and Publication Details'  as title,
-                '/drh/author-pub-data/index.sql' as link,
+                ${this.absoluteURL("/drh/author-pub-data/index.sql")} as link,
                 'Information about research publications and the authors involved in the studies are also collected, contributing to the broader understanding and dissemination of research findings.' as description,
                  'book' AS icon,
                 'red'                    as color;
@@ -266,7 +279,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'CGM Meta Data and Associated information'  as title,
-                '/drh/cgm-associated-data/index.sql' as link,
+                ${
+      this.absoluteURL("/drh/cgm-associated-data/index.sql")
+    } as link,
                 'This section provides detailed information about the CGM device used, the relationship between the participant''s raw CGM tracing file and related metadata, and other pertinent information.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -276,14 +291,14 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Raw CGM Data Description' AS title,
-                '/drh/cgm-data/index.sql' AS link,
+                ${this.absoluteURL("/drh/cgm-data/index.sql")} AS link,
                 'Explore detailed information about glucose levels over time, including timestamp, and glucose value.' AS description,
                 'book'                as icon,
                 'red'                    as color;                
 
             SELECT
                 'Combined CGM Tracing' AS title,
-                '/drh/cgm-combined-data/index.sql' AS link,
+                ${this.absoluteURL("/drh/cgm-combined-data/index.sql")} AS link,
                 'Explore the comprehensive CGM dataset, integrating glucose monitoring data from all participants for in-depth analysis of glycemic patterns and trends across the study.' AS description,
                 'book'                as icon,
                 'red'                    as color;         
@@ -291,7 +306,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'PHI De-Identification Results' AS title,
-                '/drh/deidentification-log/index.sql' AS link,
+                ${
+      this.absoluteURL("/drh/deidentification-log/index.sql")
+    } AS link,
                 'Explore the results of PHI de-identification and review which columns have been modified.' AS description,
                 'book'                as icon,
                 'red'                    as color;
