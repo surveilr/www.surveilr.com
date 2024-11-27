@@ -226,7 +226,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'list' AS component;
       SELECT caption as title, COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/'
+       WHERE namespace = 'prime' AND parent_path = 'index.sql'
        ORDER BY sibling_order;`;
   }
 
@@ -423,7 +423,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;  
             SELECT
-        '[🚀](' || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",   
+        '[🚀](' || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
       
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
