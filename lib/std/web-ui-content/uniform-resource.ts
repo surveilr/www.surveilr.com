@@ -257,7 +257,7 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path =${this.constructHomePath('ur')}
+           WHERE namespace = 'prime' AND path =${this.constructHomePath("ur")}
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
@@ -284,7 +284,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
     'Table' as "Type",
-      '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
+      '[' || table_name || '](' || ${
+      this.absoluteURL("/console/info-schema/table.sql?name=")
+    } || table_name || ')' AS "Name",
         COUNT(column_name) AS "Column Count"
       FROM console_information_schema_table
       WHERE table_name = 'uniform_resource' OR table_name like 'ur_%'
@@ -294,7 +296,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
     'View' as "Type",
-      '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
+      '[' || view_name || '](' || ${
+      this.absoluteURL("/console/info-schema/view.sql?name=")
+    } || view_name || ')' AS "Name",
         COUNT(column_name) AS "Column Count"
       FROM console_information_schema_view
       WHERE view_name like 'ur_%'
@@ -360,7 +364,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
                 TRUE AS small,
                   'email' AS markdown;
     SELECT    
-    '[' || email || '](' || ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || ur_ingest_session_imap_account_id || ')' AS "email"
+    '[' || email || '](' || ${
+      this.absoluteURL("/ur/uniform-resource-imap-folder.sql?imap_account_id=")
+    } || ur_ingest_session_imap_account_id || ')' AS "email"
           FROM ${viewName}
           GROUP BY ur_ingest_session_imap_account_id
           ORDER BY uniform_resource_id;
@@ -375,16 +381,18 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'breadcrumb' as component;
     SELECT
        'Home' as title,
-       ${this.absoluteURL('/')} as link;
+       ${this.absoluteURL("/")} as link;
     SELECT
       'Uniform Resource' as title,
-      ${this.absoluteURL('/ur/index.sql')} as link;
+      ${this.absoluteURL("/ur/index.sql")} as link;
     SELECT
       'Uniform Resources (IMAP)' as title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} as link;
+      ${this.absoluteURL("/ur/uniform-resource-imap-account.sql")} as link;
     SELECT
       'Folder' as title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || $imap_account_id:: TEXT as link;
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-folder.sql?imap_account_id=")
+    } || $imap_account_id:: TEXT as link;
     SELECT
       'title' as component,
       (SELECT email FROM ${viewName} WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
@@ -399,7 +407,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
               TRUE AS striped_rows,
                 TRUE AS small,
                   'folder' AS markdown;
-      SELECT '[' || folder_name || '](' || ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id || ')' AS "folder"
+      SELECT '[' || folder_name || '](' || ${
+      this.absoluteURL("/ur/uniform-resource-imap-mail-list.sql?folder_id=")
+    } || ur_ingest_session_imap_acct_folder_id || ')' AS "folder"
         FROM ${viewName}
         WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
         GROUP BY ur_ingest_session_imap_acct_folder_id
@@ -416,22 +426,26 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     'breadcrumb' AS component;
     SELECT
     'Home' AS title,
-      ${this.absoluteURL('/')}
+      ${this.absoluteURL("/")}
     SELECT
       'Uniform Resource' AS title,
-      ${this.absoluteURL('/ur/index.sql')} as link;
+      ${this.absoluteURL("/ur/index.sql")} as link;
     SELECT
       'Uniform Resources (IMAP)' AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} AS link;
+      ${this.absoluteURL("/ur/uniform-resource-imap-account.sql")} AS link;
     SELECT
       'Folder' AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')}|| ur_ingest_session_imap_account_id AS link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-folder.sql?imap_account_id=")
+    }|| ur_ingest_session_imap_account_id AS link
       FROM ${viewName}
       WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
     SELECT
       folder_name AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id AS link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-mail-list.sql?folder_id=")
+    } || ur_ingest_session_imap_acct_folder_id AS link
       FROM ${viewName}
       WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
@@ -481,28 +495,34 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
     'breadcrumb' AS component;
     SELECT
     'Home' AS title,
-      ${this.absoluteURL('/')}    AS link;
+      ${this.absoluteURL("/")}    AS link;
     SELECT
      'Uniform Resource' AS title,
-      ${this.absoluteURL('/ur/index.sql')} AS link;
+      ${this.absoluteURL("/ur/index.sql")} AS link;
     SELECT
       'Uniform Resources (IMAP)' AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-account.sql')} AS link;
+      ${this.absoluteURL("/ur/uniform-resource-imap-account.sql")} AS link;
     SELECT
     'Folder' AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-folder.sql?imap_account_id=')} || ur_ingest_session_imap_account_id AS link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-folder.sql?imap_account_id=")
+    } || ur_ingest_session_imap_account_id AS link
       FROM ${viewName}
       WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
     SELECT
        folder_name AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id AS link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-mail-list.sql?folder_id=")
+    } || ur_ingest_session_imap_acct_folder_id AS link
       FROM ${viewName}
       WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
 
     SELECT
        subject AS title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-mail-detail.sql?resource_id=')} || uniform_resource_id AS link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-mail-detail.sql?resource_id=")
+    } || uniform_resource_id AS link
       FROM ${viewName}
       WHERE uniform_resource_id = $resource_id:: TEXT;
 
@@ -512,7 +532,9 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
         select 'button' as component;
     select
     "<< Back" as title,
-      ${this.absoluteURL('/ur/uniform-resource-imap-mail-list.sql?folder_id=')} || ur_ingest_session_imap_acct_folder_id as link
+      ${
+      this.absoluteURL("/ur/uniform-resource-imap-mail-list.sql?folder_id=")
+    } || ur_ingest_session_imap_acct_folder_id as link
       FROM ${viewName}
       WHERE uniform_resource_id = $resource_id:: TEXT;
 

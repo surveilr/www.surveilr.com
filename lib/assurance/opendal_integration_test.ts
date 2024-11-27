@@ -46,18 +46,18 @@
 //             created_at
 //         )
 //         SELECT
-//             ulid(),   
-//             surveilr_device_id(),           
-//             surveilr_ingest_session_id(),   
-//             NULL, -- you can create an ingest_fs_path_id entry              
-//             path AS uri,                   
-//             hex(md5(content)),              
-//             content,                       
-//             size AS size_bytes,             
-//             last_modified AS last_modified_at, 
-//             content_type AS nature,        
-//             'system',                       
-//             CURRENT_TIMESTAMP               
+//             ulid(),
+//             surveilr_device_id(),
+//             surveilr_ingest_session_id(),
+//             NULL, -- you can create an ingest_fs_path_id entry
+//             path AS uri,
+//             hex(md5(content)),
+//             content,
+//             size AS size_bytes,
+//             last_modified AS last_modified_at,
+//             content_type AS nature,
+//             'system',
+//             CURRENT_TIMESTAMP
 //         FROM surveilr_udi_dal_fs('${testFixturesDir}');
 //     `;
 

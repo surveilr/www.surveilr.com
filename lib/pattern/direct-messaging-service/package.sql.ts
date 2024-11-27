@@ -50,7 +50,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path=${this.constructHomePath('dms')}
+           WHERE namespace = 'prime' AND path=${this.constructHomePath("dms")}
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
@@ -78,7 +78,8 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT id,
       "from",
-        '[' || subject || '](' || ${this.absoluteURL('/dms/email-detail.sql?id=')} || id || ')' AS "subject",
+        '[' || subject || '](' || ${this.absoluteURL("/dms/email-detail.sql?id=")
+      } || id || ')' AS "subject",
       date
       from inbox
       `;
@@ -91,13 +92,13 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
     'breadcrumb' as component;
     select
         'Home' as title,
-        ${this.absoluteURL('/')} as link;
+        ${this.absoluteURL("/")} as link;
     select
         'Direct Protocol Email System' as title,
-         ${this.absoluteURL('/dms/index.sql')} as link;
+         ${this.absoluteURL("/dms/index.sql")} as link;
     select
         'inbox' as title,
-         ${this.absoluteURL('/dms/index.sql')} as link;
+         ${this.absoluteURL("/dms/index.sql")} as link;
     select
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
 
@@ -138,21 +139,21 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
     'breadcrumb' as component;
     SELECT
        'Home' as title,
-       ${this.absoluteURL('/')} as link;
+       ${this.absoluteURL("/")} as link;
     SELECT
         'Direct Protocol Email System' as title,
-        ${this.absoluteURL('/dms/index.sql')} as link;
+        ${this.absoluteURL("/dms/index.sql")} as link;
     SELECT
         'inbox' as title,
-        ${this.absoluteURL('/dms/inbox.sql')} as link;
+        ${this.absoluteURL("/dms/inbox.sql")} as link;
     SELECT
-         ${this.absoluteURL('/dms/email-detail.sql?id=')}  || id AS link,
+         ${this.absoluteURL("/dms/email-detail.sql?id=")}  || id AS link,
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
     SELECT
         first_name as title from patient_detail where CAST(message_uid AS TEXT)=CAST($id AS TEXT) ;
 
    SELECT 'html' AS component, '
-  <link rel="stylesheet" href="'||${this.absoluteURL('/assets/style.css')}||'">'
+  <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">'
   ||'<h2>' || document_title || '</h2>
   <table class="patient-summary">
     <tr>
