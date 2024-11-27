@@ -57,7 +57,7 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
                           COALESCE(url, path) as link,
                           description
                       FROM sqlpage_aide_navigation
-                      WHERE namespace = 'prime' AND parent_path = '${rootPath}'
+                      WHERE namespace = 'prime' AND parent_path = '${rootPath}/index.sql'
                       ORDER BY sibling_order
                   )
               )
@@ -70,9 +70,9 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
         items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
-        items.push(selectNavMenuItems("/ur", "Uniform Resource"));
-        items.push(selectNavMenuItems("/console", "Console"));
-        items.push(selectNavMenuItems("/orchestration", "Orchestration"));
+        items.push(selectNavMenuItems("ur", "Uniform Resource"));
+        items.push(selectNavMenuItems("console", "Console"));
+        items.push(selectNavMenuItems("orchestration", "Orchestration"));
         return items;
       },
       footer: () =>
