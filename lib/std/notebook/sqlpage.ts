@@ -345,6 +345,7 @@ export class TypicalSqlPageNotebook
   absoluteURL(relativeURL: string) {
     return `sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')||'${relativeURL}'`;
   }
+
   constructHomePath(parentPath: string) {
     return `'${parentPath}'||'/index.sql'`;
   }

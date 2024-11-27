@@ -23,7 +23,7 @@ import {
 function dmsNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/dms",
+    parentPath: "dms/index.sql",
   });
 }
 
@@ -36,7 +36,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /dms-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path="/dms";
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path="dms/index.sql";
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -54,10 +54,10 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link, 
+      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link,  
       description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/dms'
+       WHERE namespace = 'prime' AND parent_path = 'dms/index.sql'
        ORDER BY sibling_order;`;
   }
   @dmsNav({
@@ -67,16 +67,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "dms/inbox.sql"() {
     return this.SQL`
-      select
-    'breadcrumb' as component;
-    select
-        'Home' as title,
-        ${this.absoluteURL('/')} as link;
-    select
-        'Direct Protocol Email System' as title,
-         ${this.absoluteURL('/dms/index.sql')} as link;
-    select
-        'Inbox' as title;
+    
     -- select 'debug' as component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX');
 
       SELECT 'table' AS component,

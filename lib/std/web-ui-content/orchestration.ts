@@ -3,7 +3,7 @@ import * as spn from "../notebook/sqlpage.ts";
 export function orchNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/orchestration",
+    parentPath: "orchestration/index.sql",
   });
 }
 
@@ -129,7 +129,7 @@ export class OrchestrationSqlPages extends spn.TypicalSqlPageNotebook {
                 FROM navigation_cte;
             SELECT caption as title, COALESCE(REPLACE(url, 'orchestration/', ''), REPLACE(path, 'orchestration/', '')) as link, description
                 FROM sqlpage_aide_navigation
-            WHERE namespace = 'prime' AND parent_path = '/orchestration'
+            WHERE namespace = 'prime' AND parent_path = 'orchestration/index.sql'
             ORDER BY sibling_order;
         `;
   }
