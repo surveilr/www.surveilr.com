@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    env: 
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EGET_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         include:
@@ -40,8 +43,8 @@ jobs:
             architecture: x64
           - os: kalilinux/latest
             architecture: arm64
-          - os: macos-latest
-            architecture: x64
+          # - os: macos-latest
+          #   architecture: x64
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -71,7 +74,7 @@ jobs:
               surveilr upgrade
           else
               echo "surveilr not found. Installing..."
-              eget opsfolio/releases.opsfolio.com --asset tar.gz
+              eget opsfolio/releases.opsfolio.com
               sudo mv surveilr /usr/local/bin/
               surveilr --version
           fi

@@ -4,7 +4,7 @@ import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 export function docsNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/docs",
+    parentPath: "docs/index.sql",
   });
 }
 
@@ -24,13 +24,15 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
                 WITH navigation_cte AS (
                 SELECT COALESCE(title, caption) as title, description
                     FROM sqlpage_aide_navigation
-                WHERE namespace = 'prime' AND path = ${this.constructHomePath('docs')}
+                WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("docs")
+    }
                 )
                 SELECT 'list' AS component, title, description
                     FROM navigation_cte;
                 SELECT caption as title, COALESCE(REPLACE(url, 'docs/', ''), REPLACE(path, 'docs/', '')) as link, description
                     FROM sqlpage_aide_navigation
-                WHERE namespace = 'prime' AND parent_path = '/docs'
+                WHERE namespace = 'prime' AND parent_path = 'docs/index.sql'
                 ORDER BY sibling_order;
             `;
   }

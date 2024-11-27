@@ -37,17 +37,17 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       typeof value === "number"
         ? value
         : value
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+        : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
-              'link', ${this.absoluteURL('')}||'${rootPath}',
+              'link', ${this.absoluteURL("")}||'${rootPath}',
               'title', ${literal(caption)},
               'submenu', (
                   SELECT json_group_array(
                       json_object(
                           'title', title,
-                          'link', ${this.absoluteURL('/')}||link,
+                          'link', ${this.absoluteURL("/")}||link,
                           'description', description
                       )
                   )
@@ -57,7 +57,7 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
                           COALESCE(url, path) as link,
                           description
                       FROM sqlpage_aide_navigation
-                      WHERE namespace = 'prime' AND parent_path = '${rootPath}'
+                      WHERE namespace = 'prime' AND parent_path = '${rootPath}/index.sql'
                       ORDER BY sibling_order
                   )
               )
@@ -70,16 +70,18 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
         items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
-        items.push(selectNavMenuItems("/ur", "Uniform Resource"));
-        items.push(selectNavMenuItems("/console", "Console"));
-        items.push(selectNavMenuItems("/orchestration", "Orchestration"));
+        items.push(selectNavMenuItems("ur", "Uniform Resource"));
+        items.push(selectNavMenuItems("console", "Console"));
+        items.push(selectNavMenuItems("orchestration", "Orchestration"));
         return items;
       },
       footer: () =>
         // TODO: add "open in IDE" feature like in other Shahid apps
         literal(`Resource Surveillance Web UI (v`) +
         ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL('/console/sqlpage-files/sqlpage-file.sql?path=')} || substr(sqlpage.path(), 2) || ')' as footer`,
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
+          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        } || substr(sqlpage.path(), 2) || ')' as footer`,
     };
     const shell = this.defaultShell();
     const sqlSelectExpr = Object.entries(shell).flatMap(([k, v]) => {
