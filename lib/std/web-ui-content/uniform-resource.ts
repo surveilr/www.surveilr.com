@@ -4,7 +4,7 @@ import * as spn from "../notebook/sqlpage.ts";
 export function urNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/ur",
+    parentPath: "ur/index.sql",
   });
 }
 
@@ -263,7 +263,7 @@ export class UniformResourceSqlPages extends spn.TypicalSqlPageNotebook {
         FROM navigation_cte;
       SELECT caption as title, COALESCE(REPLACE(url, 'ur/', ''), REPLACE(path, 'ur/', '')) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/ur'
+       WHERE namespace = 'prime' AND parent_path = 'ur/index.sql'
        ORDER BY sibling_order;`;
   }
 
