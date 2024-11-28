@@ -120,7 +120,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
           CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
       );
-      DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/console/%';
+      DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'console/%';
       DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'index.sql';
 
       -- all @navigation decorated entries are automatically added to this.navigation
@@ -250,7 +250,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
         FROM console_navigation_cte;
       SELECT caption as title, COALESCE(REPLACE(url, 'console/', ''), REPLACE(path, 'console/', '')) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = 'console/index.sql'
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")}
        ORDER BY sibling_order;`;
   }
 
