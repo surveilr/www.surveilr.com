@@ -56,7 +56,7 @@ surveilr ingest files -r `study-files-folder-name`/ && surveilr orchestrate tran
 **Example:**
 
 ```bash
-surveilr ingest files -r ctr-study-files/ && surveilr orchestrate transform-csv
+surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
 ```
 
 2. **SQL Transformation process**
@@ -129,6 +129,57 @@ deno run -A https://raw.githubusercontent.com/surveilr/www.surveilr.com/main/lib
 ```
 
 After the above command completes execution, launch your browser and go to [http://localhost:9000/drh/index.sql](http://localhost:9000/drh/index.sql).
+
+---
+
+# Package Changes for `eg.surveilr.com`
+
+The Diabetes Research Hub (DRH) handles various datasets, and compared to other patterns like **Direct Messaging Service** and **Content Assembler**, DRH requires a different `package.sql.ts` for each dataset.
+
+In the case of `eg.surveilr.com`:
+
+- The script picks up `package.sql.ts` from each pattern or service build and runs the **SQLPage UI** accordingly.
+- Unlike other patterns, for DRH in `eg.surveilr.com`, we have renamed our `package.sql.ts` to **`drh-basepackage.sql.ts`**.
+- The `package.sql.ts` now invokes the code for a specific study dataset package.
+
+### Dataset Preparation
+
+For proper execution:
+
+1. The corresponding dataset must be unzipped and utilized.
+2. We have set the **DCLP1 study with multiple CGM tracing** as the base dataset.
+
+### Required Files
+
+The folder to unzip is:
+
+```
+/service/diabetes-research-hub/datasets-transformed-archive/study-files.zip
+```
+
+### Steps to Perform
+
+1. **Unzip the Folder:**
+
+   - Extract the contents of the specified `.zip` file.
+
+2. **Ingest and Transform Files:**
+   Execute the following command to ingest and transform the CSV files in the `study-files/` directory (specific to the DCLP1 study with multiple CGM tracing):
+
+   ```bash
+   # Ingest and transform the CSV files, creating resource-surveillance.sqlite.db
+   surveilr ingest files -r study-files/ && surveilr orchestrate transform-csv
+   ```
+
+   _(Option can be used without a Tenant ID.)_
+
+3. **Execute the Shell:**
+   Run the `package.sql.ts` script for the DCLP1 dataset:
+
+   ```bash
+   # For DCLP1 (multiple CGM tracing) study dataset
+   surveilr shell ./package.sql.ts
+   ```
 
 # Try It Out in This Repo (For Development Activities)
 
