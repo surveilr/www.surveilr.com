@@ -1,5 +1,6 @@
 # Stage 1: Build and Preparation
 FROM debian:latest AS builder
+ARG GITHUB_TOKEN
 
 # Install necessary build tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -16,6 +17,11 @@ RUN curl -fsSL https://deno.land/x/install/install.sh | sh && \
 # Install surveilr using the provided script
 WORKDIR /usr/local/bin
 RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+
+# Install SQLite package registry
+RUN curl -sS https://webi.sh/sqlpkg | bash
+ENV SURVEILR_SQLPKG=/root/.sqlpkg
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
 # Clone the www.surveilr.com repository
 WORKDIR /app
