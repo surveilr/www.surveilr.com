@@ -511,9 +511,9 @@ export class TypicalSqlPageNotebook
     // assume methodName is now a proper sqlpage_files.path value
     return {
       methodName,
-      absPath: "/" + methodName,
+      absPath: methodName + '/index.sql',
       basename: path.basename(methodName),
-      path: "/" + path.dirname(methodName),
+      path: path.dirname(methodName) + '/index.sql',
       extension: path.extname(methodName),
     };
   }
@@ -526,7 +526,7 @@ export class TypicalSqlPageNotebook
       link?: string;
     })[]
   ) {
-    activePath = activePath.startsWith("/") ? activePath.slice(1) : activePath;
+
     // deno-fmt-ignore
     return ws.unindentWhitespace(`
         SELECT 'breadcrumb' as component;
@@ -537,7 +537,7 @@ export class TypicalSqlPageNotebook
                 parent_path, 0 AS level,
                 namespace
             FROM sqlpage_aide_navigation
-            WHERE namespace = 'prime' AND path like '${activePath.replaceAll("'", "''")}%'
+            WHERE namespace = 'prime' AND path='${activePath.replaceAll("'", "''")}'
             UNION ALL
             SELECT
                 COALESCE(nav.abbreviated_caption, nav.caption) AS title,
