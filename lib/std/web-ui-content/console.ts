@@ -30,11 +30,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
           col.dflt_value AS default_value,
           '/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content](/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || tbl.name || ' (table) Schema](/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || tbl.name || ' (table) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || tbl.name || ' (table) Content](/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,          
+          '[Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || tbl.name || ' (table) Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,          
           tbl.sql as sql_ddl
       FROM sqlite_master tbl
       JOIN pragma_table_info(tbl.name) col
@@ -48,11 +48,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           col.name AS column_name,
           col.type AS data_type,
           '/console/info-schema/view.sql?name=' || vw.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content](/console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || vw.name || ' (view) Schema](/console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || vw.name || ' (view) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || vw.name || ' (view) Content](/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || vw.name || ' (view) Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           vw.sql as sql_ddl
       FROM sqlite_master vw
       JOIN pragma_table_info(vw.name) col
