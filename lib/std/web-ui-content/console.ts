@@ -423,7 +423,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;  
             SELECT
-        '[🚀](' || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${this.absoluteURL("/")} || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
       
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
