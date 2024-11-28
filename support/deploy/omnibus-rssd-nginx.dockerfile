@@ -42,7 +42,7 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
       rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
       cd \"\$path\" && \
       mkdir -p /rssd/logs && \
-      deno run -A  ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1 \    
+      deno run -A  ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \    
     done"
 
 # Find directories containing `package.sql.ts`, build RSSDs, save in /rssd, and update index file with port number
