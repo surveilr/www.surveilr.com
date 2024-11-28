@@ -484,6 +484,8 @@ export class TypicalSqlPageNotebook
       return undefined;
     }
 
+
+
     // Split the stack to find the method name
     const stackLines = stack.split("\n");
     if (stackLines.length < 3) {
@@ -524,6 +526,7 @@ export class TypicalSqlPageNotebook
       link?: string;
     })[]
   ) {
+    activePath = activePath.startsWith("/") ? activePath.slice(1) : activePath;
     // deno-fmt-ignore
     return ws.unindentWhitespace(`
         SELECT 'breadcrumb' as component;
@@ -534,7 +537,7 @@ export class TypicalSqlPageNotebook
                 parent_path, 0 AS level,
                 namespace
             FROM sqlpage_aide_navigation
-            WHERE namespace = 'prime' AND path = '${activePath.replaceAll("'", "''")}'
+            WHERE namespace = 'prime' AND path like '${activePath.replaceAll("'", "''")}%'
             UNION ALL
             SELECT
                 COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -543,11 +546,8 @@ export class TypicalSqlPageNotebook
             FROM sqlpage_aide_navigation nav
             INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
         )
-        SELECT title,
-        case when link='index.sql' THEN ${this.absoluteURL('/index.sql')} 
-        else 
-        replace(link,rtrim(link,replace(link,'/','')),'')
-        END AS link
+        SELECT title ,      
+        ${this.absoluteURL("/")}||link as link        
         FROM breadcrumbs ORDER BY level DESC;`) +
       (additional.length
         ? (additional.map((crumb) => `\nSELECT ${crumb.title ? `'${crumb.title}'` : crumb.titleExpr} AS title, '${crumb.link ?? "#"}' AS link;`))
