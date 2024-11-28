@@ -884,6 +884,7 @@ ${pagination.renderSimpleMarkdown()}
     2      as columns;
 SELECT 
     'GLUCOSE STATISTICS AND TARGETS' AS title,
+    'white' As background_color,
     '/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
@@ -899,6 +900,7 @@ WHERE
          
 SELECT 
     'Goals for Type 1 and Type 2 Diabetes' as title,
+    'white' As background_color,
     '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
@@ -913,15 +915,19 @@ WHERE
 
 SELECT 
     'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
+    'white' As background_color,
     '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'DAILY GLUCOSE PROFILE' as title,
+    'white' As background_color,
     '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'Glycemia Risk Index' as title,
+    'white' As background_color,
     '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
   SELECT 
     '' as title,
+    'white' As background_color,
     '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  || 
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
@@ -1699,7 +1705,7 @@ SELECT
   'Stop the Edge UI' AS title,
   'square-rounded-x' AS icon,
   '#' AS link,
-  'Make sure to stop the UI (press CTRL+C in the terminal).' AS description;
+  'Make sure to stop the UI (press CTRL+C in the terminal).' AS description; 
 
 
 SELECT
