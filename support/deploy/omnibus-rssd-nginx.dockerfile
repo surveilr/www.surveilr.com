@@ -34,6 +34,17 @@ RUN mkdir -p /rssd && \
 
 # Create an index tsv file with a header for RSSDs
 RUN /bin/bash -c 'echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv'
+
+# Find directories containing `eg.surveilr.com-prepare.ts`, prepare RSSDs dependencies
+RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg.surveilr.com-prepare.ts' -exec dirname {} \;)) && \   
+    for path in \"\${RSSD_SRC_PATH[@]}\"; do \
+      relative_path=\$(echo \"\$path\" | sed 's#/app/www.surveilr.com/##'); \
+      rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
+      cd \"\$path\" && \
+      mkdir -p /rssd/logs && \
+      deno run -A  ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \    
+    done"
+
 # Find directories containing `package.sql.ts`, build RSSDs, save in /rssd, and update index file with port number
 RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'package.sql.ts' -exec dirname {} \;)) && \
     port=9000 && \
