@@ -1,6 +1,7 @@
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { ensureDir, exists } from "https://deno.land/std@0.201.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+
 /**
  * FileHandler class handles file operations like unzipping and directory management.
  */
@@ -106,16 +107,30 @@ class App {
 }
 
 if (import.meta.main) {
-    // Set the folder and command values
-    const basePath = "rssd"
+    // Parse command-line arguments
+    const args = Object.fromEntries(Deno.args.map((arg) => {
+        const [key, value] = arg.split("=");
+        return [key, value];
+    }));
+
+
+    // Get rssdpath from arguments, or default to "rssd/resource-surveillance.sqlite.db"
+    let rssdPath = args.rssdPath;
+
+    // Set paths and commands
+    const basePath = "rssd";
     const zipFilePath = "ingest.zip"; // Path to the ZIP file
     const outputDir = basePath; // Target directory to unzip into
+    if (Deno.args.length === 0) {
+        rssdPath = path.join(
+            basePath,
+            "resource-surveillance.sqlite.db",
+        );
+    }
     const ingestDir = path.join(basePath, "ingest");
-    const rssdPath = path.join(
-        basePath,
-        "resource-surveillance.sqlite.db",
-    );
     const ingestCommand = ["surveilr", "ingest", "files", "-d", rssdPath, "-r", ingestDir];
+
+    // Run the app
     const app = new App(zipFilePath, outputDir, rssdPath, ingestCommand);
     await app.run();
 }
