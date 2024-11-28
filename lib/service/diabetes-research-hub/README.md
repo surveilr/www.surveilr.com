@@ -72,7 +72,7 @@ Example: Considering the Dataset pattern is 'UVA DCLP1'
 execute
 
 ```bash
-  surveilr web-ui --port 9000
+  SQLPAGE_SITE_PREFIX="" surveilr web-ui --port 9000
 
 ```
 
