@@ -36,7 +36,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /dms-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path="dms/index.sql";
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("dms")};
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -57,7 +57,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link,  
       description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = 'dms/index.sql'
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("dms")}
        ORDER BY sibling_order;`;
   }
   @dmsNav({
@@ -257,7 +257,7 @@ JOIN author_detail ad ON pd.message_uid = ad.message_uid
 WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-      <link rel="stylesheet" href="/assets/style.css">
+      <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
       <table class="patient-details">
       <tr>
       <th class="no-border-bottom" style="background-color: #f2f2f2"><b>Document</b></th>
@@ -304,7 +304,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
     WHERE CAST(message_uid AS TEXT)=CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
     <style>
       .patient-details {
         width: 100%;
@@ -371,7 +371,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
 
   select 'html' as component;
-  select '<link rel="stylesheet" href="/assets/style.css">
+  select '<link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
     <details class="accordian-head">
   <summary>'||section_title||'</summary>
   <div class="patient-details">
