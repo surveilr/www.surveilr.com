@@ -54,5 +54,5 @@ blueprints:
   second: "@/images/pattern/fhir-explorer-pattern-ss-1.avif"
 liveDemo:
   btnTitle: "Live Demo"
-  btnURL: "https://eg.surveilr.com/lib/pattern/fhirexplorer/"
+  btnURL: "https://eg.surveilr.com/lib/pattern/fhir-explorer/"
 ---
