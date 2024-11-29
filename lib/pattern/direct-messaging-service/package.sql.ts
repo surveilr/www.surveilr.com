@@ -54,7 +54,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,${this.absoluteURL('/')}||COALESCE(url, path) AS link,  
+      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link,  
       description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("dms")}
