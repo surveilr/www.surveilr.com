@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
-import { sqlPageNB as spn } from "../deps.ts";
-import * as pkg from "../drh-basepackage.sql.ts";
+import { sqlPageNB as spn } from "./deps.ts";
+import * as pkg from "./drh-basepackage.sql.ts";
 import {
   createUVACombinedCGMViewSQL,
-} from "../study-specific-stateless/generate-cgm-combined-sql.ts";
+} from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
   dclp1ViewDDL() {
