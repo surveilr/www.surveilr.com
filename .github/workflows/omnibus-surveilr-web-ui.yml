@@ -31,7 +31,10 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest -f support/deploy/omnibus-rssd-nginx.dockerfile .
+          docker build \
+             --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+             -t ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest \
+             -f support/deploy/omnibus-rssd-nginx.dockerfile .
 
       # Push the Docker image to the GitHub Container Registry
       - name: Push Docker image

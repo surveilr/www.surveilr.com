@@ -7,7 +7,7 @@ export function consoleNav(
 ) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/console",
+    parentPath: "console/index.sql",
   });
 }
 
@@ -30,11 +30,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
           col.dflt_value AS default_value,
           '/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content](/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || tbl.name || ' (table) Schema](/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || tbl.name || ' (table) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || tbl.name || ' (table) Content](/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,          
+          '[Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || tbl.name || ' (table) Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,          
           tbl.sql as sql_ddl
       FROM sqlite_master tbl
       JOIN pragma_table_info(tbl.name) col
@@ -48,11 +48,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           col.name AS column_name,
           col.type AS data_type,
           '/console/info-schema/view.sql?name=' || vw.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content](/console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || vw.name || ' (view) Schema](/console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || vw.name || ' (view) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || vw.name || ' (view) Content](/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
+          '[Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || vw.name || ' (view) Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           vw.sql as sql_ddl
       FROM sqlite_master vw
       JOIN pragma_table_info(vw.name) col
@@ -120,7 +120,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
           CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
       );
-      DELETE FROM sqlpage_aide_navigation WHERE path LIKE '/console/%';
+      DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'console/%';
       DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'index.sql';
 
       -- all @navigation decorated entries are automatically added to this.navigation
@@ -226,7 +226,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'list' AS component;
       SELECT caption as title, COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/'
+       WHERE namespace = 'prime' AND parent_path = 'index.sql'
        ORDER BY sibling_order;`;
   }
 
@@ -243,15 +243,14 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       WITH console_navigation_cte AS (
           SELECT title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path =${
-      this.constructHomePath("console")
-    }
+           WHERE namespace = 'prime' AND path =${this.constructHomePath("console")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
       SELECT caption as title, COALESCE(REPLACE(url, 'console/', ''), REPLACE(path, 'console/', '')) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/console'
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")}
        ORDER BY sibling_order;`;
   }
 
@@ -376,9 +375,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;     
          SELECT
-        '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
          LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       ORDER BY path;`;
@@ -408,17 +406,15 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'text' AS component, '
         - \`*.auto.sql\` pages are auto-generated "default" content pages for each table and view defined in the database.
         - The \`*.sql\` companions may be auto-generated redirects to their \`*.auto.sql\` pair or an app/service might override the \`*.sql\` to not redirect and supply custom content for any table or view.
-        - [View regenerate-auto.sql](' || ${
-      this.absoluteURL(
-        "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
-      )
-    } || ')
+        - [View regenerate-auto.sql](' || ${this.absoluteURL(
+      "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
+    )
+      } || ')
         ' AS contents_md;
 
       SELECT 'button' AS component, 'center' AS justify;
-      SELECT ${
-      this.absoluteURL("/console/content/action/regenerate-auto.sql")
-    } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
+      SELECT ${this.absoluteURL("/console/content/action/regenerate-auto.sql")
+      } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
 
       SELECT 'title' AS component, 'Redirected or overriden content pages' as contents;
       SELECT 'table' AS component,
@@ -427,9 +423,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;  
             SELECT
-        '[🚀]('||${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",   
+        '[🚀](' || ${this.absoluteURL("/")} || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
       
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -445,9 +439,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
           SELECT
-            '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+            '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
         
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -462,9 +455,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.infoSchemaContentDML()}
 
       -- ${this.tsProvenanceComment(import.meta.url)}
-      SELECT 'redirect' AS component, ${
-      this.absoluteURL("/console/sqlpage-files/content.sql")
-    } as link WHERE $redirect is NULL;
+      SELECT 'redirect' AS component, ${this.absoluteURL("/console/sqlpage-files/content.sql")
+      } as link WHERE $redirect is NULL;
       SELECT 'redirect' AS component, $redirect as link WHERE $redirect is NOT NULL;
     `;
   }
@@ -496,9 +488,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
       SELECT c.notebook_name,
           '[' || c.cell_name || '](' ||
-          ${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } || 
+          ${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } || 
           replace(c.notebook_name, ' ', '%20') || 
           '&cell=' || 
           replace(c.cell_name, ' ', '%20') || 
@@ -707,9 +698,8 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
               c.code_notebook_cell_id,
               c.notebook_name,
               c.cell_name,
-              '[' || c.cell_name || ']('||${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+              '[' || c.cell_name || ']('||${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
               c.interpretable_code_hash,
               c.is_idempotent,
               c.version_timestamp

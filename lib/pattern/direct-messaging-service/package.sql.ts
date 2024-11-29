@@ -23,7 +23,7 @@ import {
 function dmsNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/dms",
+    parentPath: "dms/index.sql",
   });
 }
 
@@ -36,7 +36,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /dms-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path="/dms";
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("dms")};
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -54,10 +54,10 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link, 
+      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link,  
       description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/dms'
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("dms")}
        ORDER BY sibling_order;`;
   }
   @dmsNav({
@@ -67,16 +67,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "dms/inbox.sql"() {
     return this.SQL`
-      select
-    'breadcrumb' as component;
-    select
-        'Home' as title,
-        ${this.absoluteURL("/")} as link;
-    select
-        'Direct Protocol Email System' as title,
-         ${this.absoluteURL("/dms/index.sql")} as link;
-    select
-        'Inbox' as title;
+    
     -- select 'debug' as component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX');
 
       SELECT 'table' AS component,
@@ -87,9 +78,8 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT id,
       "from",
-        '[' || subject || '](' || ${
-      this.absoluteURL("/dms/email-detail.sql?id=")
-    } || id || ')' AS "subject",
+        '[' || subject || '](' || ${this.absoluteURL('/dms/email-detail.sql?id=')
+      } || id || ')' AS "subject",
       date
       from inbox
       `;
@@ -267,7 +257,7 @@ JOIN author_detail ad ON pd.message_uid = ad.message_uid
 WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-      <link rel="stylesheet" href="/assets/style.css">
+      <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
       <table class="patient-details">
       <tr>
       <th class="no-border-bottom" style="background-color: #f2f2f2"><b>Document</b></th>
@@ -314,7 +304,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
     WHERE CAST(message_uid AS TEXT)=CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
     <style>
       .patient-details {
         width: 100%;
@@ -381,7 +371,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
 
   select 'html' as component;
-  select '<link rel="stylesheet" href="/assets/style.css">
+  select '<link rel="stylesheet" href="'||${this.absoluteURL("/assets/style.css")}||'">
     <details class="accordian-head">
   <summary>'||section_title||'</summary>
   <div class="patient-details">

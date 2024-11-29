@@ -11,7 +11,7 @@ import {
 function fhirNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/fhir",
+    parentPath: "fhir/index.sql",
   });
 }
 
@@ -32,7 +32,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fhir-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like '/fhir%';
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("fhir")};
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -46,13 +46,13 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = '/fhir'
+           WHERE namespace = 'prime' AND path =${this.constructHomePath("fhir")}
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, COALESCE(url, path) as link, description
+      SELECT caption as title,COALESCE(REPLACE(url, 'fhir/', ''), REPLACE(path, 'fhir/', '')) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/fhir'
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fhir")}
        ORDER BY sibling_order;`;
   }
 
@@ -73,7 +73,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
           'Table' as "Type",
-          '[' || table_name || '](/console/info-schema/table.sql?name=' || table_name || ')' AS "Name",
+          '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
           COUNT(column_name) AS "Column Count"
       FROM console_information_schema_table
       WHERE table_name like 'fhir%'
@@ -83,7 +83,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
           'View' as "Type",
-          '[' || view_name || '](/console/info-schema/view.sql?name=' || view_name || ')' AS "Name",
+          '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
           COUNT(column_name) AS "Column Count"
       FROM console_information_schema_view
       WHERE view_name like 'fhir%'
@@ -116,13 +116,13 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary' as link;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource' as link;
+      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary')} as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
 
       SELECT 'table' as component, 1 as search, 1 as sort;
-      SELECT * from fhir_v4_bundle_resource_summary;
+    SELECT * from fhir_v4_bundle_resource_summary;
 
-      ${this.activePageSource()}`;
+      ${this.activePageSource()} `;
   }
 
   @fhirNav({
@@ -136,14 +136,14 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource_patient view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource_patient' as link;
-      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary' as link;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource' as link;
+      select 'Learn more about fhir_v4_bundle_resource_patient view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_patient')} as link;
+      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary')} as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
 
       SELECT 'table' as component, 1 as search, 1 as sort;
-      SELECT * from fhir_v4_bundle_resource_patient;
+    SELECT * from fhir_v4_bundle_resource_patient;
 
-      ${this.activePageSource()}`;
+      ${this.activePageSource()} `;
   }
 
   @fhirNav({
@@ -157,14 +157,14 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, '/console/info-schema/view.sql?name=fhir_v4_bundle_resource' as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
 
       SELECT 'table' as component;
       SELECT resource_type as "Type", resource_content AS "JSON", 'json' AS language
         FROM fhir_v4_bundle_resource
        WHERE resource_type = 'Observation' LIMIT 5;
 
-      ${this.activePageSource()}`;
+      ${this.activePageSource()} `;
   }
 }
 
@@ -183,7 +183,7 @@ if (import.meta.main) {
         // read the file from either local or remote (depending on location of this file)
         // optional, for better performance:
         // return await TypicalSqlPageNotebook.fetchText(
-        //   import.meta.resolve("./orchestrate-stateful.sql"),
+        //   import.meta.resolve("./stateful.sql"),
         // );
       }
     }(),

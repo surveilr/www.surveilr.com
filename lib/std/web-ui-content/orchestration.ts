@@ -3,7 +3,7 @@ import * as spn from "../notebook/sqlpage.ts";
 export function orchNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/orchestration",
+    parentPath: "orchestration/index.sql",
   });
 }
 
@@ -123,15 +123,13 @@ export class OrchestrationSqlPages extends spn.TypicalSqlPageNotebook {
             WITH navigation_cte AS (
             SELECT COALESCE(title, caption) as title, description
                 FROM sqlpage_aide_navigation
-            WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("orchestration")
-    }
+            WHERE namespace = 'prime' AND path = ${this.constructHomePath("orchestration")}
             )
             SELECT 'list' AS component, title, description
                 FROM navigation_cte;
             SELECT caption as title, COALESCE(REPLACE(url, 'orchestration/', ''), REPLACE(path, 'orchestration/', '')) as link, description
                 FROM sqlpage_aide_navigation
-            WHERE namespace = 'prime' AND parent_path = '/orchestration'
+            WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("orchestration")}
             ORDER BY sibling_order;
         `;
   }
@@ -152,9 +150,8 @@ export class OrchestrationSqlPages extends spn.TypicalSqlPageNotebook {
 
           SELECT
               'Table' as "Type",
-               '[' || table_name || '](' || ${
-      this.absoluteURL("/console/info-schema/table.sql?name=")
-    } || table_name || ')' AS "Name",
+               '[' || table_name || '](' || ${this.absoluteURL("/console/info-schema/table.sql?name=")
+      } || table_name || ')' AS "Name",
               COUNT(column_name) AS "Column Count"
           FROM console_information_schema_table
           WHERE table_name = 'orchestration_session' OR table_name like 'orchestration_%'
@@ -164,9 +161,8 @@ export class OrchestrationSqlPages extends spn.TypicalSqlPageNotebook {
 
           SELECT
               'View' as "Type",
-               '[' || view_name || '](' || ${
-      this.absoluteURL("/console/info-schema/view.sql?name=")
-    } || view_name || ')' AS "Name",
+               '[' || view_name || '](' || ${this.absoluteURL("/console/info-schema/view.sql?name=")
+      } || view_name || ')' AS "Name",
               COUNT(column_name) AS "Column Count"
           FROM console_information_schema_view
           WHERE view_name like 'orchestration_%'
