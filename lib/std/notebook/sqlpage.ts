@@ -342,14 +342,7 @@ export class TypicalSqlPageNotebook
   readonly formattedSQL: boolean = true;
 
   absoluteURL(relativeURL: string) {
-    const prefix = Deno.env.get('SQLPAGE_SITE_PREFIX');
-    if (prefix) {
-      // If prefix exists, return the SQL expression to use the environment variable
-      return `sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || '${relativeURL}'`;
-    } else {
-      // If prefix does not exist, return only the relative URL
-      return `'${relativeURL}'`;
-    }
+    return `sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || '${relativeURL}'`;
   }
 
   constructHomePath(parentPath: string) {
