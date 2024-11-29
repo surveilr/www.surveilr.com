@@ -32,7 +32,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fhir-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like 'fhir%';
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("fhir")};
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -183,7 +183,7 @@ if (import.meta.main) {
         // read the file from either local or remote (depending on location of this file)
         // optional, for better performance:
         // return await TypicalSqlPageNotebook.fetchText(
-        //   import.meta.resolve("./orchestrate-stateful.sql"),
+        //   import.meta.resolve("./stateful.sql"),
         // );
       }
     }(),
