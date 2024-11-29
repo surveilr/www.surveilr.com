@@ -11,7 +11,7 @@ import {
 function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/dms",
+    parentPath: "ce/index.sql",
   });
 }
 
@@ -24,7 +24,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /ip-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like '/ce%';
+      DELETE FROM sqlpage_aide_navigation WHERE path like 'ce%';
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -52,7 +52,8 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Health Insurance Portability and Accountability Act (HIPAA)**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](regime/controls.sql?regimeType=US%20HIPAA)' AS description_md
+      '[**Detail View**](' || ${this.absoluteURL("regime/controls.sql?regimeType=US%20HIPAA")
+      }|| ')' AS description_md
     FROM compliance_regime
     WHERE title = 'US HIPAA';
 
@@ -60,10 +61,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       title,
       '**Geography:** ' || geography || '  \n' ||
       '**Source:** ' || source || '  \n' ||
-      '**Health Insurance Portability and Accountability Act (HIPAA)**' || '  \n' ||
+      '**Standard 800-53 rev4**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](regime/controls.sql?regimeType=NIST)' AS description_md
+      '[**Detail View**](' || ${this.absoluteURL("regime/controls.sql?regimeType=NIST")
+      } || ')' AS description_md
     FROM compliance_regime
     WHERE title = 'NIST';`;
   }
@@ -86,7 +88,8 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       TRUE AS sort,
       TRUE AS search,
       "Control Code" AS markdown;
-      SELECT '[' || control_code || '](control/control_detail.sql?id=' || control_code || '&regimeType='|| replace($regimeType,
+      SELECT '[' || control_code || ']('|| ${this.absoluteURL("control/control_detail.sql?id=")
+      } || control_code || '&regimeType='|| replace($regimeType,
     " ", "%20")||')' AS "Control Code",
       scf_control AS "Title",
       scf_domain AS "Domain",
