@@ -11,7 +11,7 @@ import {
 function sqNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/dms",
+    parentPath: "sq/index.sql",
   });
 }
 
@@ -44,11 +44,14 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
     -- Dynamically create a card for each entry in uniform_resource_website
     SELECT
       hostname AS title,
-      'missing-meta-information.sql?hostname='||hostname||'' AS link,           -- Description from the table
-      'world' AS icon,             -- Icon for each card (use any icon you like)
-      'blue' AS color              -- Card color, adjust as desired
+      ${this.absoluteURL("missing-meta-information.sql?hostname=")
+      } || hostname AS link,
+      'world' AS icon,
+      'blue' AS color
     FROM
-      uniform_resource_website WHERE hostname not like '%www.%';`;
+      uniform_resource_website
+    WHERE
+      hostname NOT LIKE '%www.%';`;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -58,10 +61,10 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'breadcrumb' AS component;
     SELECT
       'Home' AS title,
-      '/'    AS link;
+      ${this.absoluteURL("/")} as link;
     SELECT
       'Website Resources' AS title,
-      '/sq' AS link;
+      ${this.absoluteURL("/sq")} as link;
 
     SELECT
     'title' AS component,
@@ -83,7 +86,8 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Open Graph Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](missing-meta-information/details.sql?hostname=' || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("missing-meta-information/details.sql?hostname=")
+      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -101,7 +105,8 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'HTML Meta Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](missing-meta-information/details.sql?hostname=' || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("missing-meta-information/details.sql?hostname=")
+      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -119,7 +124,8 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Twitter Card Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](missing-meta-information/details.sql?hostname=' || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("missing-meta-information/details.sql?hostname=")
+      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -148,13 +154,14 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'breadcrumb' AS component;
     SELECT
       'Home' AS title,
-      '/'    AS link;
+      ${this.absoluteURL("/")} as link;
     SELECT
       'Website Resources' AS title,
-      '/sq' AS link;
+       ${this.absoluteURL("/sq")} as link;
     SELECT
       'Social Media and SEO Metadata Analysis' AS title,
-      '/sq/missing-meta-information.sql?hostname='||$hostname::TEXT||'' AS link;
+      ${this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
+      }||$hostname::TEXT||'' AS link;
     ${pagination.init()}
 
     SELECT
@@ -204,13 +211,15 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
     -- Tab 1: Open Graph Missing URLs
     SELECT
       'Open Graph Missing URLs' AS title,
-      '/sq/missing-meta-data.sql?hostname=' || $hostname::TEXT || '&tab=open_graph' AS link,
+      ${this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
+      } || $hostname::TEXT || '&tab=open_graph' AS link,
       $tab = 'open_graph' AS active;
 
     -- Tab 2: Meta Tags Missing URLs
     SELECT
       'Meta Tags Missing URLs' AS title,
-      '/sq/missing-meta-data.sql?hostname=' || $hostname::TEXT || '&tab=html_meta_data' AS link,
+      ${this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
+      } || $hostname::TEXT || '&tab=html_meta_data' AS link,
       $tab = 'html_meta_data' AS active;
 
     -- Define component type based on active tab
