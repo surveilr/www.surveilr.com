@@ -50,7 +50,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,${this.absoluteURL('/')}||COALESCE(url, path) AS link, description
+      SELECT caption as title,COALESCE(REPLACE(url, 'fhir/', ''), REPLACE(path, 'fhir/', '')) as link, description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fhir")}
        ORDER BY sibling_order;`;
