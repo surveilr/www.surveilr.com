@@ -33,7 +33,22 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
     shellConfig.javascript.push(
       "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
     );
-    shellConfig.javascript.push("/js/chart-component.js");
+    shellConfig.javascript_module.push(
+      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js",
+    );
+    shellConfig.javascript_module.push(
+      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js",
+    );
+    shellConfig.javascript_module.push(
+      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js",
+    );
+    shellConfig.javascript_module.push(
+      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js", 
+    );
+    shellConfig.javascript.push(
+      "/js/chart-component.js", 
+    );
+    
     return shellConfig;
   }
 
@@ -87,6 +102,10 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       DEFAULT: (key: string, value: unknown) => `${literal(value)} AS ${key}`,
       menu_item: (key: string, items: Record<string, unknown>[]) =>
         items.map((item) => `${literal(JSON.stringify(item))} AS ${key}`),
+      javascript_module: (key: string, javascript_module: string[]) => {
+        const items = javascript_module.map((s) => `${literal(s)} AS ${key}`);
+        return items;
+      },
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
         items.push(
@@ -131,7 +150,9 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
             v as Record<string, unknown>[],
           );
         case "javascript":
-          return handlers.javascript(k, v as string[]);
+          return handlers.javascript(k, v as string[]); 
+        case "javascript_module":
+          return handlers.javascript_module(k, v as string[]);
         case "footer":
           return handlers.footer();
         default:
@@ -884,6 +905,7 @@ ${pagination.renderSimpleMarkdown()}
     2      as columns;
 SELECT 
     'GLUCOSE STATISTICS AND TARGETS' AS title,
+    'white' As background_color,
     '/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
@@ -899,6 +921,7 @@ WHERE
          
 SELECT 
     'Goals for Type 1 and Type 2 Diabetes' as title,
+    'white' As background_color,
     '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
@@ -913,15 +936,19 @@ WHERE
 
 SELECT 
     'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
+    'white' As background_color,
     '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'DAILY GLUCOSE PROFILE' as title,
+    'white' As background_color,
     '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
     'Glycemia Risk Index' as title,
+    'white' As background_color,
     '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
   SELECT 
     '' as title,
+    'white' As background_color,
     '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  || 
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
@@ -1083,9 +1110,7 @@ SELECT
     '
     <input type="hidden" name="start_date" class="start_date" value="'|| $start_date ||'">
     <input type="hidden" name="end_date" class="end_date" value="'|| $end_date ||'">
-    <div class="chartContainer">
-      <svg id="tir-chart" class="m-0"></svg>
-    </div>
+    <stacked-bar-chart class="p-5"></stacked-bar-chart>
     ' as html; 
     `;
   }
@@ -1160,9 +1185,7 @@ SELECT
             font-size: 11px;  
         }
     </style>  
-    <div id="agp-chart-ctr">
-        <svg id="agp-chart"></svg> 
-    </div> 
+    <agp-chart class="p-5"></agp-chart>
     ' as html;
     `;
   }
@@ -1266,12 +1289,7 @@ SELECT
         stroke-width: 1px;
     }
 </style>  
-        <div id="daily-gp1"> 
-            <svg id="dgp-wk1"></svg>
-        </div>
-        <div id="daily-gp2" class="mt-4">
-            <svg id="dgp-wk2"></svg>
-        </div>
+        <dgp-chart></dgp-chart>
         <p class="py-2 px-4 text-gray-800 font-normal text-xs hidden" id="dgp-note"><b>NOTE:</b> The Daily Glucose
             Profile
             plots the glucose levels of the last 14 days.</p>
@@ -1320,7 +1338,7 @@ SELECT
           margin: auto;
         }
       </style>
-        <svg class="gri-chart hidden"></svg>' as html; 
+        <gri-chart></gri-chart>' as html; 
       SELECT '
         <table class="w-full text-center border">
         <thead>
@@ -1523,7 +1541,13 @@ SELECT
       ) AS daily_diffs
       WHERE
           daily_diff IS NOT NULL;                          
-       
+      SELECT  
+      '<style>
+          .card-body {
+             margin-right: .5rem!important;
+            margin-left: .5rem!important
+          }
+      </style>' as html;         
   `;
   }
 
