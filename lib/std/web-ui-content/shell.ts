@@ -20,6 +20,7 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
         "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
         "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
       ],
+      javascript_module: [],
       footer: `Resource Surveillance Web UI`,
     };
   }
