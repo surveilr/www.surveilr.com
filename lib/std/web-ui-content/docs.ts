@@ -44,11 +44,30 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
     const sqlSnippets: string[] = [];
     const directory = path.fromFileUrl(import.meta.resolve(`../docs/release`));
 
+    const entries: Deno.DirEntry[] = [];
     for await (const entry of Deno.readDir(directory)) {
-      if (entry.isFile && entry.name.endsWith(".md")) {
+        if (entry.isFile && entry.name.endsWith(".md")) {
+            entries.push(entry);
+        }
+    }
+
+    const sortedEntries = entries.sort((a, b) => {
+        const versionA = a.name.replace(".md", "").split(".").map(Number);
+        const versionB = b.name.replace(".md", "").split(".").map(Number);
+
+        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+            const numA = versionA[i] || 0;             const numB = versionB[i] || 0;
+            if (numA !== numB) {
+                return numB - numA; 
+            }
+        }
+        return 0;
+    });
+
+    for (const entry of sortedEntries) {
         const title = entry.name.replace(".md", "");
         const content = await this.fetchTextForSqlLiteral(
-          import.meta.resolve(`${directory}/${entry.name}`),
+            import.meta.resolve(`${directory}/${entry.name}`),
         );
         const sqlSnippet = `
                     SELECT 'foldable' as component;
@@ -56,14 +75,13 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
                 `;
 
         sqlSnippets.push(sqlSnippet);
-      }
     }
 
     return this.SQL`
             SELECT 'title' AS component, 'Release Notes for surveilr Versions' as contents;
             ${sqlSnippets.join("\n")}
         `;
-  }
+}
 
   @docsNav({
     caption: "SQL Functions",
