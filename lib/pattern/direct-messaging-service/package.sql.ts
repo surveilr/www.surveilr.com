@@ -54,7 +54,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,COALESCE(REPLACE(url, 'dms/', ''), REPLACE(path, 'dms/', '')) AS link,  
+      SELECT caption as title,${this.absoluteURL('/')} || COALESCE(url, path) AS link,  
       description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("dms")}
@@ -147,7 +147,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
         'inbox' as title,
         ${this.absoluteURL("/dms/inbox.sql")} as link;
     SELECT
-         ${this.absoluteURL("/dms/email-detail.sql?id=")}  || id AS link,
+         ${this.absoluteURL('/dms/email-detail.sql?id=')}  || id AS link,
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
     SELECT
         first_name as title from patient_detail where CAST(message_uid AS TEXT)=CAST($id AS TEXT) ;

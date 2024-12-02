@@ -1,6 +1,8 @@
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { ensureDir, exists } from "https://deno.land/std@0.201.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import { dirname } from "https://deno.land/std@0.204.0/path/mod.ts"; // Import dirname to extract the directory path
+
 
 /**
  * FileHandler class handles file operations like downloading, unzipping, and directory management.
@@ -15,6 +17,23 @@ class FileHandler {
             console.log(`Directory exists: ${dirPath}. Removing...`);
             await Deno.remove(dirPath, { recursive: true });
             console.log(`Directory removed: ${dirPath}`);
+        }
+    }
+
+    static async createDirForPathIfNotExists(dirPath: string): Promise<void> {
+        try {
+            const directoryPath = dirname(dirPath); // Extract directory path from the provided path
+            const dirExists = await exists(directoryPath);
+            if (!dirExists) {
+                console.log(`Directory does not exist: ${directoryPath}. Creating...`);
+                await Deno.mkdir(directoryPath, { recursive: true });
+                console.log(`Directory created: ${directoryPath}`);
+            } else {
+                console.log(`Directory already exists: ${directoryPath}`);
+            }
+        } catch (error) {
+            console.error(`Error creating directory for path: ${dirPath}`, error);
+            throw error; // Rethrow error for caller to handle
         }
     }
 
@@ -61,30 +80,58 @@ class CommandExecutor {
      * Executes a shell command and streams the output.
      * @param command - Command to be executed along with its arguments.
      */
+    // static async executeCommand(command: string[]): Promise<void> {
+    //     console.log(`Executing command: ${command.join(" ")}`);
+
+    //     const process = Deno.run({
+    //         cmd: command,
+    //         stdout: "piped",
+    //         stderr: "piped",
+    //     });
+
+    //     const [status, stdout, stderr] = await Promise.all([
+    //         process.status(),
+    //         process.output(),
+    //         process.stderrOutput(),
+    //     ]);
+
+    //     console.log(new TextDecoder().decode(stdout)); // Print standard output
+    //     console.error(new TextDecoder().decode(stderr)); // Print standard error
+
+    //     process.close();
+
+    //     if (!status.success) {
+    //         throw new Error(`Command failed with status: ${status.code}`);
+    //     }
+    //     console.log(`Command executed successfully.`);
+    // }
     static async executeCommand(command: string[]): Promise<void> {
         console.log(`Executing command: ${command.join(" ")}`);
-        const process = Deno.run({
-            cmd: command,
+
+        const process = new Deno.Command(command[0], {
+            args: command.slice(1), // Extract executable and arguments
             stdout: "piped",
             stderr: "piped",
         });
 
-        const [status, stdout, stderr] = await Promise.all([
-            process.status(),
-            process.output(),
-            process.stderrOutput(),
-        ]);
+        try {
+            // Execute the command and collect outputs
+            const { code, stdout, stderr } = await process.output();
 
-        console.log(new TextDecoder().decode(stdout)); // Print standard output
-        console.error(new TextDecoder().decode(stderr)); // Print standard error
+            console.log(new TextDecoder().decode(stdout)); // Print standard output
+            console.error(new TextDecoder().decode(stderr)); // Print standard error
 
-        process.close();
+            if (code !== 0) {
+                throw new Error(`Command failed with status: ${code}`);
+            }
 
-        if (!status.success) {
-            throw new Error(`Command failed with status: ${status.code}`);
+            console.log(`Command executed successfully.`);
+        } catch (error: any) {
+            console.error(`Error executing command: ${error.message}`);
+            throw error; // Rethrow to allow caller to handle
         }
-        console.log(`Command executed successfully.`);
     }
+
 }
 
 /**
@@ -93,7 +140,7 @@ class CommandExecutor {
  */
 class App {
     private zipFilePath: string;
-    private outputDir: string;
+    private ingestDir: string;
     private rssdPath: string;
     private ingestCommand: string[];
     private zipDownloadUrl: string;
@@ -106,7 +153,7 @@ class App {
         zipDownloadUrl: string,
     ) {
         this.zipFilePath = zipFilePath;
-        this.outputDir = outputDir;
+        this.ingestDir = outputDir;
         this.ingestCommand = ingestCommand;
         this.rssdPath = rssdPath;
         this.zipDownloadUrl = zipDownloadUrl;
@@ -117,23 +164,25 @@ class App {
      */
     async run(): Promise<void> {
         try {
-            const ingestDir = path.join(this.outputDir, "ingest");
 
             // Step 1: Remove the existing ingest directory if it exists
-            await FileHandler.removeDirIfExists(ingestDir);
+            await FileHandler.removeDirIfExists(this.ingestDir);
+
+            await FileHandler.createDirForPathIfNotExists(this.ingestDir);
+            await FileHandler.createDirForPathIfNotExists(this.rssdPath);
 
             // Step 2: Download the ZIP file
             await FileHandler.downloadFile(this.zipDownloadUrl, this.zipFilePath);
 
             // Step 3: Ensure the ingest directory exists
-            await FileHandler.ensureDirectory(ingestDir);
+            await FileHandler.ensureDirectory(this.ingestDir);
 
             // Step 4: Unzip the downloaded file into the ingest directory
-            await FileHandler.unzipFile(this.zipFilePath, ingestDir);
+            await FileHandler.unzipFile(this.zipFilePath, this.ingestDir);
 
             // Step 5: Execute the ingest command
             await CommandExecutor.executeCommand(this.ingestCommand);
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Error: ${error.message}`);
             Deno.exit(1);
         }
@@ -147,23 +196,20 @@ if (import.meta.main) {
         return [key, value];
     }));
 
-    // Get rssdPath from arguments, or default to "rssd/resource-surveillance.sqlite.db"
-    let rssdPath = args.rssdPath;
+    // Get rssdpath from arguments, or default to "resource-surveillance.sqlite.db"
+    const rssdPath = (args.rssdPath) ? args.rssdPath : "resource-surveillance.sqlite.db";
 
     // Set paths and commands
     const basePath = "rssd";
     const zipFilePath = path.join(basePath, "synthea_sample_data_fhir_latest.zip");
-    const outputDir = basePath;
     const zipDownloadUrl = "https://synthetichealth.github.io/synthea-sample-data/downloads/latest/synthea_sample_data_fhir_latest.zip";
 
-    if (Deno.args.length === 0) {
-        rssdPath = path.join(basePath, "resource-surveillance.sqlite.db");
-    }
 
     const ingestDir = path.join(basePath, "ingest");
     const ingestCommand = ["surveilr", "ingest", "files", "-d", rssdPath, "-r", ingestDir];
 
     // Run the app
-    const app = new App(zipFilePath, outputDir, rssdPath, ingestCommand, zipDownloadUrl);
+    const app = new App(zipFilePath, ingestDir, rssdPath, ingestCommand, zipDownloadUrl);
     await app.run();
+    await FileHandler.removeDirIfExists(ingestDir);
 }
