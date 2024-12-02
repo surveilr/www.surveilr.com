@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
-import * as pkg from "../package.sql.ts";
+import * as pkg from "../drh-basepackage.sql.ts";
 
 export class andersonSqlPages extends spn.TypicalSqlPageNotebook {
   //metrics static views shall be generated after the combined_cgm_tracing is created.

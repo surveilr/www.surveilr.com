@@ -181,6 +181,12 @@ The folder to unzip is:
    surveilr shell ./package.sql.ts
    ```
 
+### eg.surveilr.com-prepare.ts
+
+```bash
+  deno run -A ./eg.surveilr.com-prepare.ts  rssdPath='dbfolder/resource-surveillance.sqlite.db'
+```
+
 # Try It Out in This Repo (For Development Activities)
 
 Each new dataset type requires manual review to assess study files, determine the mode of ingestion through Surveilr, and prepare a transformation SQL for DRH views. For every dataset, a new transform sql for the study, a combinedTracingView generator, and <studyName>.sql.ts must be created and maintained.
