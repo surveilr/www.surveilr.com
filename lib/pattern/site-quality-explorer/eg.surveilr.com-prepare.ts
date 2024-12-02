@@ -37,16 +37,39 @@ class CommandExecutor {
 class App {
     private resourceName: string;
     private outputDir: string;
+    private rssdPath: string;
 
-    constructor(resourceName: string, outputDir: string) {
+    constructor(resourceName: string, outputDir: string, rssdPath: string) {
         this.resourceName = resourceName;
         this.outputDir = outputDir;
+        this.rssdPath = rssdPath;
+    }
+
+    /**
+     * Installs the SQLite extension using sqlpkg.
+     */
+    async installSQLiteExtension(): Promise<void> {
+        const sqlpkgCommand = ["sqlpkg", "install", "asg017/html"];
+
+        try {
+            console.log("Installing SQLite extension...");
+            await CommandExecutor.executeCommand(sqlpkgCommand);
+        } catch (error) {
+            console.error("Failed to install SQLite extension");
+            if (error instanceof Error) {
+                console.error(`Error: ${error.message}`);
+            } else {
+                console.error("An unknown error occurred.", error);
+            }
+        }
     }
 
     /**
      * Runs the application workflow: Execute commands for each URL.
      */
     async run(): Promise<void> {
+        // Install the SQLite extension first
+        await this.installSQLiteExtension();
         // Define the command to download the website
         const wgetCommand = [
             "wget",
@@ -82,6 +105,8 @@ class App {
             "surveilr",
             "ingest",
             "files",
+            "-d",
+            this.rssdPath,
             "-r",
             "content/",
         ];
@@ -108,6 +133,7 @@ if (import.meta.main) {
     // Get the resourceName argument, or default to a predefined value
     const resourceName = args.resourceName || "www.surveilr.com";
     const outputDir = args.outputDir || "content/website-resources";
+    const rssdPath = args.rssdPath ?? "resource-surveillance.sqlite.db";
 
     if (!resourceName) {
         console.error(
@@ -116,6 +142,6 @@ if (import.meta.main) {
         Deno.exit(1);
     }
 
-    const app = new App(resourceName, outputDir);
+    const app = new App(resourceName, outputDir, rssdPath);
     await app.run();
 }
