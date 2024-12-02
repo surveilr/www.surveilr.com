@@ -53,5 +53,5 @@ blueprints:
   second: "@/images/blueprint-2.avif"
 liveDemo:
   btnTitle: "Live Demo"
-  btnURL: "https://eg.surveilr.com/lib/pattern/contentassembler/"
+  btnURL: "https://eg.surveilr.com/lib/pattern/content-assembler/"
 ---
