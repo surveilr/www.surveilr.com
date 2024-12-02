@@ -11,7 +11,7 @@ import {
 function ipNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "/opsfolio",
+    parentPath: "opsfolio/index.sql",
   });
 }
 
@@ -24,7 +24,7 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /ip-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE path like '/opsfolio/info/policy%';
+      DELETE FROM sqlpage_aide_navigation WHERE path like 'opsfolio/info/policy%';
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -38,34 +38,34 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
     select
      'card'             as component,
      3                 as columns;
-      SELECT caption as title, COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")} || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = '/opsfolio' AND sibling_order = 2
-       ORDER BY sibling_order;`;
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath('opsfolio')} AND sibling_order = 2
+       ORDER BY sibling_order; `;
   }
 
   @ipNav({
     caption: "Information Assurance Policies",
     description:
       `The Information Assurance Policies is designed to display and create views for policies
-        specific to tenants within the Opsfolio platform. These policies are ingested
-        from Markdown (.md) or Markdown with JSX (.mdx) files, originating from
-        Opsfolio, and are stored in the uniform_resource table.`,
+        specific to tenants within the Opsfolio platform.These policies are ingested
+        from Markdown(.md) or Markdown with JSX(.mdx) files, originating from
+    Opsfolio, and are stored in the uniform_resource table.`,
     siblingOrder: 2,
   })
   "opsfolio/info/policy/policy_dashboard.sql"() {
     return this.SQL`
     select
-     'card'             as component,
-     2                 as columns;
-     select
+    'card' as component,
+      2 as columns;
+    select
     "Policies" as title,
-     'arrow-big-right'       as icon,
-     '/opsfolio/info/policy/policy.sql' as link;
-      select
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/policy.sql')} as link;
+    select
     "Evidences" as title,
-     'arrow-big-right'       as icon,
-     '/opsfolio/info/policy/evidence.sql' as link;`;
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/evidence.sql')} as link; `;
   }
 
   @ipNav({
@@ -76,13 +76,13 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
   "opsfolio/info/policy/policy.sql"() {
     return this.SQL`
     select
-     'card'             as component,
-     3                 as columns;
-     select
-     UPPER(SUBSTR(title, 1, 1)) || LOWER(SUBSTR(title, 2)) as title,
-     'arrow-big-right'       as icon,
-     '/opsfolio/info/policy/policy_list.sql?segment=' || segment || '' as link
-     FROM policy_dashboard;`;
+    'card' as component,
+      3 as columns;
+    select
+    UPPER(SUBSTR(title, 1, 1)) || LOWER(SUBSTR(title, 2)) as title,
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/policy_list.sql?segment=')} || segment || '' as link
+     FROM policy_dashboard; `;
   }
 
   @ipNav({
@@ -93,18 +93,18 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
   "opsfolio/info/policy/evidence.sql"() {
     return this.SQL`
     select
-     'card'             as component,
-     3                 as columns;
-     select
-'card'             as component,
-3                 as columns;
-SELECT
-A.title as title,
-'arrow-big-right'       as icon,
-replace(b.path, 'opsfolio/info/policy/', '')as link
+    'card' as component,
+      3 as columns;
+    select
+    'card' as component,
+      3 as columns;
+    SELECT
+    A.title as title,
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/')}||replace(b.path, 'opsfolio/info/policy/', '') as link
 FROM vigetallviews A
-inner join sqlpage_files b on A.path=b.path
- where a.used_path=0;`;
+inner join sqlpage_files b on A.path = b.path
+ where a.used_path = 0; `;
   }
 
   @ipNav({
@@ -115,30 +115,30 @@ inner join sqlpage_files b on A.path=b.path
   "opsfolio/info/policy/policy_list.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
-        select
-      'card'             as component,
+    select
+    'card' as component,
       1 as columns;
     select
-        title,
-        'arrow-big-right'       as icon,
-        '/opsfolio/info/policy/policy_detail.sql?id=' || uniform_resource_id || '' as link
-        FROM policy_list WHERE parentfolder = $segment::TEXT AND segment1=""
+    title,
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/policy_detail.sql?id=')} || uniform_resource_id || '' as link
+        FROM policy_list WHERE parentfolder = $segment::TEXT AND segment1 = ""
 
         UNION ALL
 
-        SELECT
-          REPLACE(segment1, '-', ' ') as title,
-          'chevrons-down' as icon,
-          '/opsfolio/info/policy/policy_inner_list.sql?parentfolder=' || parentfolder || '&segment=' || segment1  as link
-      FROM
-          policy_list
-      WHERE
-          parentfolder = $segment::TEXT
+    SELECT
+    REPLACE(segment1, '-', ' ') as title,
+      'chevrons-down' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/policy_inner_list.sql?parentfolder=')} || parentfolder || '&segment=' || segment1 as link
+    FROM
+    policy_list
+    WHERE
+    parentfolder = $segment:: TEXT
           AND segment1 != ''
       GROUP BY
-          segment1
-        ;
-      `;
+    segment1
+      ;
+    `;
   }
 
   @ipNav({
@@ -149,15 +149,15 @@ inner join sqlpage_files b on A.path=b.path
   "opsfolio/info/policy/policy_inner_list.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
-        select
-      'card'             as component,
+    select
+    'card' as component,
       1 as columns;
     select
-        title,
-        'arrow-big-right'       as icon,
-        '/opsfolio/info/policy/policy_detail.sql?id=' || uniform_resource_id || '' as link
-        FROM policy_list WHERE parentfolder = $parentfolder::TEXT AND segment1= $segment::TEXT;
-      `;
+    title,
+      'arrow-big-right' as icon,
+      ${this.absoluteURL('/opsfolio/info/policy/policy_detail.sql?id=')} || uniform_resource_id || '' as link
+        FROM policy_list WHERE parentfolder = $parentfolder::TEXT AND segment1 = $segment:: TEXT;
+    `;
   }
 
   @ipNav({
@@ -169,10 +169,10 @@ inner join sqlpage_files b on A.path=b.path
     return this.SQL`
 
     select 'card' as component,
-    1      as columns;
+      1 as columns;
       SELECT  json_extract(content_fm_body_attrs, '$.attrs.title') AS title,
-    json_extract(content_fm_body_attrs, '$.body') AS description_md
-    FROM policy_detail WHERE uniform_resource_id = $id::TEXT;
+      json_extract(content_fm_body_attrs, '$.body') AS description_md
+    FROM policy_detail WHERE uniform_resource_id = $id:: TEXT;
 
 
     `;

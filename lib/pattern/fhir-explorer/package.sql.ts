@@ -50,10 +50,10 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,COALESCE(REPLACE(url, 'fhir/', ''), REPLACE(path, 'fhir/', '')) as link, description
+      SELECT caption as title,${this.absoluteURL('/')} || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fhir")}
-       ORDER BY sibling_order;`;
+       ORDER BY sibling_order; `;
   }
 
   @fhirNav({
@@ -66,25 +66,25 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       SELECT 'title' AS component, 'FHIR-specific Tables and Views' as contents;
       SELECT 'table' AS component,
-            'Name' AS markdown,
-            'Column Count' as align_right,
-            TRUE as sort,
-            TRUE as search;
+      'Name' AS markdown,
+        'Column Count' as align_right,
+        TRUE as sort,
+        TRUE as search;
 
-      SELECT
-          'Table' as "Type",
-          '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
-          COUNT(column_name) AS "Column Count"
+    SELECT
+    'Table' as "Type",
+      '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
+        COUNT(column_name) AS "Column Count"
       FROM console_information_schema_table
       WHERE table_name like 'fhir%'
       GROUP BY table_name
 
       UNION ALL
 
-      SELECT
-          'View' as "Type",
-          '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
-          COUNT(column_name) AS "Column Count"
+    SELECT
+    'View' as "Type",
+      '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
+        COUNT(column_name) AS "Column Count"
       FROM console_information_schema_view
       WHERE view_name like 'fhir%'
       GROUP BY view_name;
@@ -102,7 +102,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       SELECT 'table' as component;
-      SELECT * from uniform_resource_summary;`;
+    SELECT * from uniform_resource_summary; `;
   }
 
   @fhirNav({
