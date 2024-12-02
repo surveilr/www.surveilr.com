@@ -253,7 +253,7 @@ $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
-$ ../../std/surveilrctl.ts dev
+$ SQLPAGE_SITE_PREFIX=/lib/pattern/content-assembler ../../std/surveilrctl.ts dev
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
 ```
