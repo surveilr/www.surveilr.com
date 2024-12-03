@@ -1,0 +1,1 @@
+Error executing pattern/compliance-explorer/ingest/SCF_2024.2.csv: spawnSync /bin/sh ENOBUFS

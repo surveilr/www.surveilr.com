@@ -1,38 +1,4 @@
-class CommandExecutor {
-    /**
-     * executeCommand a shell command and streams the output.
-     * @param command - Command to be executed along with its arguments.
-     */
-    static async executeCommand(command: string[]): Promise<void> {
-        console.log(`Executing command: ${command.join(" ")}`);
-
-        const process = new Deno.Command(command[0], {
-            args: command.slice(1), // Extract executable and arguments
-            stdout: "piped",
-            stderr: "piped",
-        });
-
-        try {
-            // Execute the command and collect outputs
-            const { code, stdout, stderr } = await process.output();
-
-            console.log(new TextDecoder().decode(stdout)); // Print standard output
-            console.error(new TextDecoder().decode(stderr)); // Print standard error
-
-            if (code !== 0) {
-                throw new Error(`Command failed with status: ${code}`);
-            }
-
-            console.log(`Command executed successfully.`);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error(`Error: ${error.message}`);
-            } else {
-                console.error("An unknown error occurred.", error);
-            }
-        }
-    }
-}
+import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 
 class App {
     private resourceName: string;
@@ -49,18 +15,15 @@ class App {
      * Installs the SQLite extension using sqlpkg.
      */
     async installSQLiteExtension(): Promise<void> {
-        const sqlpkgCommand = ["sqlpkg", "install", "asg017/html"];
-
         try {
             console.log("Installing SQLite extension...");
-            await CommandExecutor.executeCommand(sqlpkgCommand);
+            await $`sqlpkg install asg017/html`; // Executes the sqlpkg command
+            console.log("SQLite extension installed successfully.");
         } catch (error) {
-            console.error("Failed to install SQLite extension");
-            if (error instanceof Error) {
-                console.error(`Error: ${error.message}`);
-            } else {
-                console.error("An unknown error occurred.", error);
-            }
+            console.error("Failed to install SQLite extension.");
+            console.error(
+                `Error: ${error instanceof Error ? error.message : error}`,
+            );
         }
     }
 
@@ -70,65 +33,40 @@ class App {
     async run(): Promise<void> {
         // Install the SQLite extension first
         await this.installSQLiteExtension();
-        // Define the command to download the website
-        const wgetCommand = [
-            "wget",
-            "--recursive",
-            "--page-requisites",
-            "--adjust-extension",
-            "--span-hosts",
-            "--convert-links",
-            "--restrict-file-names=windows",
-            "--domains",
-            this.resourceName,
-            "--no-parent",
-            `--directory-prefix=${this.outputDir}`,
-            this.resourceName,
-        ];
 
-        // Run the wget command
+        // Command to download the website
         try {
             console.log(`Processing resource: ${this.resourceName}`);
-            await CommandExecutor.executeCommand(wgetCommand);
+            await $`wget --recursive --page-requisites --adjust-extension --span-hosts --convert-links --restrict-file-names=windows --domains ${this.resourceName} --no-parent --directory-prefix=${this.outputDir} ${this.resourceName}`;
+            console.log("Website downloaded successfully.");
         } catch (error) {
             console.error(`Failed to process resource: ${this.resourceName}`);
-            if (error instanceof Error) {
-                console.error(`Error: ${error.message}`);
-            } else {
-                console.error("An unknown error occurred.", error);
-            }
-            // Log and continue processing other tasks if necessary
+            console.error(
+                `Error: ${error instanceof Error ? error.message : error}`,
+            );
         }
 
-        // Execute second command for ingestion (no arguments required)
-        const ingestCommand = [
-            "surveilr",
-            "ingest",
-            "files",
-            "-d",
-            this.rssdPath,
-            "-r",
-            "content/",
-        ];
+        // Command for ingestion
         try {
             console.log("Executing ingest command...");
-            await CommandExecutor.executeCommand(ingestCommand);
+            await $`surveilr ingest files -d ${this.rssdPath} -r content/`;
+            console.log("Ingestion completed successfully.");
         } catch (error) {
-            console.error("Failed to execute ingest command");
-            if (error instanceof Error) {
-                console.error(`Error: ${error.message}`);
-            } else {
-                console.error("An unknown error occurred.", error);
-            }
+            console.error("Failed to execute ingest command.");
+            console.error(
+                `Error: ${error instanceof Error ? error.message : error}`,
+            );
         }
     }
 }
 
 if (import.meta.main) {
-    const args = Object.fromEntries(Deno.args.map((arg) => {
-        const [key, value] = arg.split("=");
-        return [key, value];
-    }));
+    const args = Object.fromEntries(
+        Deno.args.map((arg) => {
+            const [key, value] = arg.split("=");
+            return [key, value];
+        }),
+    );
 
     // Get the resourceName argument, or default to a predefined value
     const resourceName = args.resourceName || "www.surveilr.com";
