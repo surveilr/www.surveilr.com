@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     git \
     bash \
     unzip \
+    wget \
     file
 
 # Install Deno
@@ -21,6 +22,7 @@ RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/ma
 # Install SQLite package registry
 RUN curl -sS https://webi.sh/sqlpkg | bash
 ENV SURVEILR_SQLPKG=/root/.sqlpkg
+RUN ln -s /root/.local/bin/sqlpkg /usr/bin/sqlpkg
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
 # Clone the www.surveilr.com repository
