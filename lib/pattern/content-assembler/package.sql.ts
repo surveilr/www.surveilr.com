@@ -31,25 +31,31 @@ function cakNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
  * These pages depend on ../../prime/ux.sql.ts being loaded into RSSD (for nav).
  */
 export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
+
   // TypicalSqlPageNotebook.SQL injects any method that ends with `DQL`, `DML`,
   // or `DDL` as general SQL before doing any upserts into sqlpage_files.
   navigationDML() {
     return this.SQL`
       -- delete all /cak-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
-      this.constructHomePath("cak")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("cak")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
 
   @spn.navigationPrimeTopLevel({
     caption: "Content Assembler",
-    description:
-      "The Content Assembler harnesses pre-curated content from influencers, curators, and authoritative sources, collecting, de-duplicating, and scoring valuable links shared across platforms like email, Twitter, and LinkedIn for reuse in B2B and community channels in Surveilr.",
+    description: `The Content Assembler 
+    harnesses pre-curated content from influencers, curators,
+     and authoritative sources, collecting, de-duplicating, and 
+     scoring valuable links shared across platforms like email,
+      Twitter, and LinkedIn for reuse in B2B and community channels in Surveilr.`,
   })
   "cak/index.sql"() {
     return this.SQL`
+    select
+        'text'              as component,
+        'The Content Assembler provides access to a centralized repository of content across various platforms, such as email and Twitter. The "Periodicals" link navigates to a section where all content subjects, including periodical updates, can be viewed and managed.' as contents;
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
@@ -57,13 +63,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("cak")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("cak")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -128,9 +132,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             'from' AS markdown;
 
        SELECT
-          '[' || message_from || ']('|| ${
-      this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
-    } || message_from || ')' AS "from",
+          '[' || message_from || ']('|| ${this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
+      } || message_from || ')' AS "from",
           subject_count as "subject count",
           periodical_count as "periodical count"
           FROM ${viewName}
@@ -160,9 +163,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'Periodicals' AS title,
         ${this.absoluteURL("/cak/periodicals.sql")} AS link;
-      SELECT $message_from AS title, ${
-      this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
-    }|| $message_from  AS link;
+      SELECT $message_from AS title, ${this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
+      }|| $message_from  AS link;
 
       --- Dsply Page Title
       SELECT
@@ -186,16 +188,14 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           'removed links' AS markdown;
 
       SELECT
-        '[' || message_subject || ']('|| ${
-      this.absoluteURL(
+        '[' || message_subject || ']('|| ${this.absoluteURL(
         "/cak/periodical_anchor.sql?periodical_uniform_resource_id=",
       )
-    }  || periodical_uniform_resource_id || ')' AS "subject",
-        '[ View]('|| ${
-      this.absoluteURL(
+      }  || periodical_uniform_resource_id || ')' AS "subject",
+        '[ View]('|| ${this.absoluteURL(
         "/cak/periodical_removed_anchor.sql?periodical_uniform_resource_id=",
       )
-    } || periodical_uniform_resource_id || ') (' ||
+      } || periodical_uniform_resource_id || ') (' ||
           (SELECT
             count(anchor)
           FROM
@@ -237,17 +237,15 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'Periodicals' AS title,
         ${this.absoluteURL("/cak/periodicals.sql")} AS link;
-      SELECT message_from AS title, ${
-      this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
-    }|| message_from  AS link FROM periodicals_subject WHERE periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+      SELECT message_from AS title, ${this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
+      }|| message_from  AS link FROM periodicals_subject WHERE periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
 
       SELECT
         message_subject as title,
-         ${
-      this.absoluteURL(
+         ${this.absoluteURL(
         "/cak/periodical_anchor.sql?periodical_uniform_resource_id=",
       )
-    }|| periodical_uniform_resource_id AS link
+      }|| periodical_uniform_resource_id AS link
       FROM
         periodicals_subject
       WHERE
@@ -277,9 +275,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         '[' || url_text || ']('|| orginal_url ||')'   AS "original link url",
         canonical_link as 'canonical link',
-        '[ Meta Data ]('|| ${
-      this.absoluteURL("/cak/periodicals_meta.sql?url=")
-    } || orginal_url || ')' AS "meta data"
+        '[ Meta Data ]('|| ${this.absoluteURL("/cak/periodicals_meta.sql?url=")
+      } || orginal_url || ')' AS "meta data"
       FROM
         periodical_anchor
       WHERE
@@ -305,9 +302,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/cak/periodicals.sql")} AS link;
       SELECT
             ps.message_from AS title,
-            ${
-      this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
-    }|| ps.message_from AS link
+            ${this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
+      }|| ps.message_from AS link
             FROM
               periodicals_subject ps
             INNER JOIN periodical_anchor pa ON pa.uniform_resource_id = ps.periodical_uniform_resource_id
@@ -316,11 +312,10 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
         ps.message_subject as title,
-        ${
-      this.absoluteURL(
+        ${this.absoluteURL(
         "/cak/periodical_anchor.sql?periodical_uniform_resource_id=",
       )
-    } || ps.periodical_uniform_resource_id AS link
+      } || ps.periodical_uniform_resource_id AS link
       FROM
         periodicals_subject ps
       INNER JOIN periodical_anchor pa ON pa.uniform_resource_id = ps.periodical_uniform_resource_id
@@ -373,17 +368,15 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'Periodicals' AS title,
         ${this.absoluteURL("/cak/periodicals.sql")} AS link;
-      SELECT message_from AS title, ${
-      this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
-    }|| message_from  AS link FROM periodicals_subject WHERE periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+      SELECT message_from AS title, ${this.absoluteURL("/cak/periodicals_subject.sql?message_from=")
+      }|| message_from  AS link FROM periodicals_subject WHERE periodical_uniform_resource_id = $periodical_uniform_resource_id::TEXT;
 
       SELECT
         message_subject as title,
-        ${
-      this.absoluteURL(
+        ${this.absoluteURL(
         "/cak/periodical_removed_anchor.sql?periodical_uniform_resource_id=",
       )
-    }|| periodical_uniform_resource_id AS link
+      }|| periodical_uniform_resource_id AS link
       FROM
         periodicals_subject
       WHERE
