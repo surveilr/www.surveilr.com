@@ -7,6 +7,10 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
+const SQE_TITLE = "Compliance Explorer";
+const SQE_LOGO = "scf-ico.png";
+const SQE_FAV_ICON = "scf-favicon.ico";
+
 // custom decorator that makes navigation for this notebook type-safe
 function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -137,7 +141,7 @@ export async function controlSQL() {
         );
       }
     }(),
-    new sh.ShellSqlPages(),
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
