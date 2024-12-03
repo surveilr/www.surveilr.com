@@ -35,7 +35,7 @@ FROM
 
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_subscription_filter_chached;
 CREATE TABLE ur_transform_html_email_anchor_subscription_filter_chached AS
-SELECT
+SELECT 
     uniform_resource_transform_id,
     uniform_resource_id,
     anchor,
@@ -130,8 +130,7 @@ SELECT
         uniform_resource_transform_id,
         uniform_resource_id,
         anchor,
-        -- http_get_body(anchor) as html_body
-        CAST("<html><head></head><body><p>test</p></body></html>" AS BLOB) as html_body
+        http_get_body(anchor) as html_body
     FROM ur_transform_html_email_anchor_cached LIMIT 20;
 
 -- This query creates the table `ur_transform_html_email_anchor_canonical_cached` to cache
@@ -146,19 +145,6 @@ SELECT
 -- The `WHERE` clause ensures only `<link>` tags with a `rel="canonical"` attribute are included.
 -- This table is useful for identifying canonical URLs associated with email links.
 
--- Just commented
--- DROP TABLE IF EXISTS ur_transform_html_email_anchor_canonical_cached;
--- CREATE TABLE ur_transform_html_email_anchor_canonical_cached AS
--- SELECT
---         eah.uniform_resource_transform_id,
---         eah.uniform_resource_id,
---         eah.anchor,
---         html_attr_get(h.html, 'link', 'rel') AS property_name,   -- Extracts the Open Graph property name
---         html_attr_get(h.html, 'link', 'href') AS canonical_link
---     FROM ur_transform_html_email_anchor_http_cached eah,
---         html_each(eah.html_body, 'link') AS h WHERE html_attr_get(h.html, 'link', 'rel')='canonical';
-
--- Need to change
 
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_canonical_cached;
 CREATE TABLE ur_transform_html_email_anchor_canonical_cached AS
@@ -166,9 +152,11 @@ SELECT
         eah.uniform_resource_transform_id,
         eah.uniform_resource_id,
         eah.anchor,
-        "test property_name" AS property_name,   -- Extracts the Open Graph property name
-         "test canonical_link" AS canonical_link
-    FROM ur_transform_html_email_anchor_http_cached eah;
+        html_attr_get(h.html, 'link', 'rel') AS property_name,   -- Extracts the Open Graph property name
+        html_attr_get(h.html, 'link', 'href') AS canonical_link
+    FROM ur_transform_html_email_anchor_http_cached eah,
+        html_each(eah.html_body, 'link') AS h WHERE html_attr_get(h.html, 'link', 'rel')='canonical';
+
 
 -- This query creates the table `ur_transform_html_email_anchor_meta_cached` to cache metadata
 -- extracted from HTML documents retrieved from email anchor links. For each record:
@@ -181,26 +169,17 @@ SELECT
 -- This table provides a structured way to analyze metadata associated with email links,
 -- such as Open Graph tags, SEO information, or other descriptive properties.
 
--- DROP TABLE IF EXISTS ur_transform_html_email_anchor_meta_cached;
--- CREATE TABLE ur_transform_html_email_anchor_meta_cached AS
--- SELECT
---         eah.uniform_resource_transform_id,
---         eah.uniform_resource_id,
---         eah.anchor,
---         html_attr_get(h.html, 'meta', 'name') AS property_name,   -- Extracts the Open Graph property name
---         html_attr_get(h.html, 'meta', 'content') AS content
---     FROM ur_transform_html_email_anchor_http_cached eah,
---         html_each(eah.html_body, 'meta') AS h;
-
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_meta_cached;
 CREATE TABLE ur_transform_html_email_anchor_meta_cached AS
 SELECT
         eah.uniform_resource_transform_id,
         eah.uniform_resource_id,
         eah.anchor,
-        'Meta name' AS property_name,   -- Extracts the Open Graph property name
-        'Meta content' AS content
-    FROM ur_transform_html_email_anchor_http_cached eah;
+        html_attr_get(h.html, 'meta', 'name') AS property_name,   -- Extracts the Open Graph property name
+        html_attr_get(h.html, 'meta', 'content') AS content
+    FROM ur_transform_html_email_anchor_http_cached eah,
+        html_each(eah.html_body, 'meta') AS h;
+
 
 -- This query creates the table `ur_transform_html_email_anchor_title_cached`, which caches
 -- the title of HTML documents retrieved from email anchor links. For each record:
@@ -212,25 +191,15 @@ SELECT
 -- This table is useful for analyzing the titles of linked HTML pages, providing insights into
 -- the content or purpose of the anchor links.
 
--- DROP TABLE IF EXISTS ur_transform_html_email_anchor_title_cached;
--- CREATE TABLE ur_transform_html_email_anchor_title_cached AS
--- SELECT
---         eah.uniform_resource_transform_id,
---         eah.uniform_resource_id,
---         eah.anchor,
---         html_text(h.html,'title') as title
---     FROM ur_transform_html_email_anchor_http_cached eah,
---         html_each(eah.html_body, 'title') AS h;
-
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_title_cached;
 CREATE TABLE ur_transform_html_email_anchor_title_cached AS
 SELECT
         eah.uniform_resource_transform_id,
         eah.uniform_resource_id,
         eah.anchor,
-        'title' as title
-    FROM ur_transform_html_email_anchor_http_cached eah;
-
+        html_text(h.html,'title') as title
+    FROM ur_transform_html_email_anchor_http_cached eah,
+        html_each(eah.html_body, 'title') AS h;
 
 -- This query creates the 'ur_periodical_anchor_text_json_filter_cached' table by extracting and processing data from the 'anchor_text' field in the 'ur_transform_html_email_anchor_cached' table.
 -- Purpose:
