@@ -8,7 +8,7 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 const SQE_TITLE = "Compliance Explorer";
-const SQE_LOGO = "scf-ico.png";
+const SQE_LOGO = "scf-icon.png";
 const SQE_FAV_ICON = "scf-favicon.ico";
 
 // custom decorator that makes navigation for this notebook type-safe

@@ -8,7 +8,7 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 const SQE_TITLE = "Site Quality Explorer";
-const SQE_LOGO = "site-quality-ico.png";
+const SQE_LOGO = "site-quality-icon.png";
 const SQE_FAV_ICON = "site-quality-favicon.ico";
 
 // custom decorator that makes navigation for this notebook type-safe
