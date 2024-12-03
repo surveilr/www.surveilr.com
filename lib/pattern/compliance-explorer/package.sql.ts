@@ -56,7 +56,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Health Insurance Portability and Accountability Act (HIPAA)**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL("ce/regime/controls.sql?regimeType=US%20HIPAA")
+      '[**Detail View**](' || ${this.absoluteURL("/ce/regime/controls.sql?regimeType=US%20HIPAA")
       }|| ')' AS description_md
     FROM compliance_regime
     WHERE title = 'US HIPAA';
@@ -68,7 +68,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Standard 800-53 rev4**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL("ce/regime/controls.sql?regimeType=NIST")
+      '[**Detail View**](' || ${this.absoluteURL("/ce/regime/controls.sql?regimeType=NIST")
       } || ')' AS description_md
     FROM compliance_regime
     WHERE title = 'NIST';`;
@@ -92,7 +92,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       TRUE AS sort,
       TRUE AS search,
       "Control Code" AS markdown;
-      SELECT '[' || control_code || ']('|| ${this.absoluteURL("ce/regime/control/control_detail.sql?id=")
+      SELECT '[' || control_code || ']('|| ${this.absoluteURL("/ce/regime/control/control_detail.sql?id=")
       } || control_code || '&regimeType='|| replace($regimeType,
     " ", "%20")||')' AS "Control Code",
       scf_control AS "Title",
