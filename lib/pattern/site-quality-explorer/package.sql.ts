@@ -7,6 +7,10 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
+const SQE_TITLE = "Site Quality Explorer";
+const SQE_LOGO = "site-quality-ico.png";
+const SQE_FAV_ICON = "site-quality-favicon.ico";
+
 // custom decorator that makes navigation for this notebook type-safe
 function sqNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -44,7 +48,7 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
     -- Dynamically create a card for each entry in uniform_resource_website
     SELECT
       hostname AS title,
-      ${this.absoluteURL("missing-meta-information.sql?hostname=")
+      ${this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
       } || hostname AS link,
       'world' AS icon,
       'blue' AS color
@@ -266,7 +270,7 @@ export async function controlSQL() {
         );
       }
     }(),
-    new sh.ShellSqlPages(),
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),

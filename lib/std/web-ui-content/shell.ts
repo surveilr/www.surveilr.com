@@ -1,13 +1,24 @@
 import * as spn from "../notebook/sqlpage.ts";
 
 export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
+  private title: string;
+  private logoImage: string;
+  private favIcon: string;
+
+  constructor(title: string = 'Resource Surveillance State Database (RSSD)', logoImage: string = 'surveilr-icon.png', favIcon: string = 'favicon.ico') {
+    super();
+    this.title = title;
+    this.logoImage = logoImage;
+    this.favIcon = favIcon;
+  }
+
   defaultShell() {
     return {
       component: "shell",
-      title: "Resource Surveillance State Database (RSSD)",
+      title: this.title,
       icon: "",
-      favicon: "https://www.surveilr.com/favicon.ico",
-      image: "https://www.surveilr.com/assets/brand/surveilr-icon.png",
+      favicon: `https://www.surveilr.com/assets/brand/${this.favIcon}`,
+      image: `https://www.surveilr.com/assets/brand/${this.logoImage}`,
       layout: "fluid",
       fixed_top_menu: true,
       link: "/",
