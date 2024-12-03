@@ -90,7 +90,7 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Open Graph Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("sq/missing-meta-information/details.sql?hostname=")
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
       } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
@@ -109,7 +109,7 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'HTML Meta Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("sq/missing-meta-information/details.sql?hostname=")
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
       } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
@@ -128,7 +128,7 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Twitter Card Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("sq/missing-meta-information/details.sql?hostname=")
+        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
       } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
