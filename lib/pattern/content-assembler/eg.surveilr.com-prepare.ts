@@ -29,6 +29,7 @@ class CommandExecutor {
             }
 
             console.log(`Command executed successfully.`);
+            // deno-lint-ignore no-explicit-any
         } catch (error: any) {
             console.error(`Error executing command: ${error.message}`);
             throw error; // Rethrow to allow caller to handle
@@ -44,16 +45,41 @@ class App {
     private ingestCommand: string[];
     private transformHtmlCommand: string[];
 
-    constructor(rssdPath: string, ingestCommand: string[], transformHtmlCommand: string[]) {
+    constructor(
+        rssdPath: string,
+        ingestCommand: string[],
+        transformHtmlCommand: string[],
+    ) {
         this.rssdPath = rssdPath;
         this.ingestCommand = ingestCommand;
         this.transformHtmlCommand = transformHtmlCommand;
     }
 
     /**
+    * Installs the SQLite extension using sqlpkg.
+    */
+    async installSQLiteExtension(): Promise<void> {
+        const sqlpkgCommand = ["sqlpkg", "install", "asg017/http"];
+
+        try {
+            console.log("Installing SQLite extension...");
+            await CommandExecutor.executeCommand(sqlpkgCommand);
+        } catch (error) {
+            console.error("Failed to install SQLite extension");
+            if (error instanceof Error) {
+                console.error(`Error: ${error.message}`);
+            } else {
+                console.error("An unknown error occurred.", error);
+            }
+        }
+    }
+
+    /**
      * Executes the command for the application workflow.
      */
     async run(): Promise<void> {
+        // Install the SQLite extension first
+        await this.installSQLiteExtension();
         try {
             await CommandExecutor.executeCommand(this.ingestCommand);
             try {
@@ -66,7 +92,6 @@ class App {
                 }
                 Deno.exit(1);
             }
-
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Error: ${error.message}`);
