@@ -13,15 +13,17 @@ export function consoleNav(
 
 export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
   infoSchemaDDL() {
+
     // deno-fmt-ignore
     return this.SQL`
       -- ${this.tsProvenanceComment(import.meta.url)}
 
       -- console_information_schema_* are convenience views
       -- to make it easier to work than pragma_table_info.
-
+      -- select 'test' into absolute_url;
       DROP VIEW IF EXISTS console_information_schema_table;
       CREATE VIEW console_information_schema_table AS
+      
       SELECT
           tbl.name AS table_name,
           col.name AS column_name,
@@ -30,11 +32,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
           col.dflt_value AS default_value,
           '/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || tbl.name || ' (table) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || tbl.name || ' (table) Schema](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || tbl.name || ' (table) Content]('||"${this.absoluteURL('/')}"||'console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,          
+          '[Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || tbl.name || ' (table) Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           tbl.sql as sql_ddl
       FROM sqlite_master tbl
       JOIN pragma_table_info(tbl.name) col
@@ -48,11 +50,11 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           col.name AS column_name,
           col.type AS data_type,
           '/console/info-schema/view.sql?name=' || vw.name || '&stats=yes' as info_schema_web_ui_path,
-          '[Content]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
-          '[' || vw.name || ' (view) Schema]('||"${this.absoluteURL('/')}"||'console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
+          '[Content](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
+          '[' || vw.name || ' (view) Schema](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-          '[' || vw.name || ' (view) Content]('||"${this.absoluteURL('/')}"||'console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
+          '[Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[' || vw.name || ' (view) Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           vw.sql as sql_ddl
       FROM sqlite_master vw
       JOIN pragma_table_info(vw.name) col
@@ -248,7 +250,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
-      SELECT caption as title, COALESCE(REPLACE(url, 'console/', ''), REPLACE(path, 'console/', '')) as link, description
+      SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")}
        ORDER BY sibling_order;`;

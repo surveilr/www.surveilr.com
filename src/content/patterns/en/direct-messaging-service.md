@@ -58,5 +58,5 @@ blueprints:
   third: "@/images/pattern/direct-message-ss-1.avif"
 liveDemo:
   btnTitle: "Live Demo"
-  btnURL: "https://www.surveilr.com/pattern/direct-messaging-service/"
+  btnURL: "https://eg.surveilr.com/lib/pattern/direct-messaging-service/"
 ---
