@@ -250,7 +250,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
-      SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, as link, description
+      SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")}
        ORDER BY sibling_order;`;
