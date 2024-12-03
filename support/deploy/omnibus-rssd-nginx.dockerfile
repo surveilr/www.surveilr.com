@@ -60,7 +60,7 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
       package_sql=\"\${relative_path}/package.sql.ts\"; \
       cd \"\$path\" && \
       mkdir -p /rssd/logs && \
-      surveilr shell ./package.sql.ts -d /rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1 && \
+      surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1 && \
       # Set expose_endpoint to 1 by default
       echo -e \"1\t\${relative_path}\t\${rssd_name}\t\${port}\t\${package_sql}\" >> /rssd/index.tsv; \
       port=\$((port+1)); \
