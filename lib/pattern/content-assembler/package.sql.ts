@@ -6,7 +6,7 @@ import {
   shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
-
+const SQE_TITLE = "Content Assembler";
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
  *
@@ -427,7 +427,7 @@ export async function SQL() {
         );
       }
     }(),
-    new sh.ShellSqlPages(),
+    new sh.ShellSqlPages(SQE_TITLE),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
