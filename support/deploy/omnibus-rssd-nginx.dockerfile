@@ -1,6 +1,10 @@
 # Stage 1: Build and Preparation
 FROM debian:latest AS builder
 ARG GITHUB_TOKEN
+ARG EG_SURVEILR_COM_IMAP_FOLDER
+ARG EG_SURVEILR_COM_IMAP_USER_NAME
+ARG EG_SURVEILR_COM_IMAP_PASS
+ARG EG_SURVEILR_COM_IMAP_HOST
 
 # Install necessary build tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -47,6 +51,9 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
       mkdir -p /rssd/logs && \
       if [ \"\$basename_path\" == \"site-quality-explorer\" ]; then \
          deno run -A ./eg.surveilr.com-prepare.ts resourceName=surveilr.com rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
+      elif [ \"\$basename_path\" == \"content-assembler\" ]; then \
+         echo \"IMAP_FOLDER=\${EG_SURVEILR_COM_IMAP_FOLDER}\\nIMAP_USER_NAME=\${EG_SURVEILR_COM_IMAP_USER_NAME}\\nIMAP_PASS=\${EG_SURVEILR_COM_IMAP_PASS}\\nIMAP_HOST=\${EG_SURVEILR_COM_IMAP_HOST}\" > .env; \
+         deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       else \
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       fi; \
