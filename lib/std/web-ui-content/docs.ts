@@ -28,7 +28,7 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
                 )
                 SELECT 'list' AS component, title, description
                     FROM navigation_cte;
-                SELECT caption as title, COALESCE(REPLACE(url, 'docs/', ''), REPLACE(path, 'docs/', '')) as link, description
+                SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, description
                     FROM sqlpage_aide_navigation
                 WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("docs")}
                 ORDER BY sibling_order;
@@ -46,42 +46,42 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
 
     const entries: Deno.DirEntry[] = [];
     for await (const entry of Deno.readDir(directory)) {
-        if (entry.isFile && entry.name.endsWith(".md")) {
-            entries.push(entry);
-        }
+      if (entry.isFile && entry.name.endsWith(".md")) {
+        entries.push(entry);
+      }
     }
 
     const sortedEntries = entries.sort((a, b) => {
-        const versionA = a.name.replace(".md", "").split(".").map(Number);
-        const versionB = b.name.replace(".md", "").split(".").map(Number);
+      const versionA = a.name.replace(".md", "").split(".").map(Number);
+      const versionB = b.name.replace(".md", "").split(".").map(Number);
 
-        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
-            const numA = versionA[i] || 0;             const numB = versionB[i] || 0;
-            if (numA !== numB) {
-                return numB - numA; 
-            }
+      for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+        const numA = versionA[i] || 0; const numB = versionB[i] || 0;
+        if (numA !== numB) {
+          return numB - numA;
         }
-        return 0;
+      }
+      return 0;
     });
 
     for (const entry of sortedEntries) {
-        const title = entry.name.replace(".md", "");
-        const content = await this.fetchTextForSqlLiteral(
-            import.meta.resolve(`${directory}/${entry.name}`),
-        );
-        const sqlSnippet = `
+      const title = entry.name.replace(".md", "");
+      const content = await this.fetchTextForSqlLiteral(
+        import.meta.resolve(`${directory}/${entry.name}`),
+      );
+      const sqlSnippet = `
                     SELECT 'foldable' as component;
                     SELECT '${title}' as title, '${content}' as description_md;
                 `;
 
-        sqlSnippets.push(sqlSnippet);
+      sqlSnippets.push(sqlSnippet);
     }
 
     return this.SQL`
             SELECT 'title' AS component, 'Release Notes for surveilr Versions' as contents;
             ${sqlSnippets.join("\n")}
         `;
-}
+  }
 
   @docsNav({
     caption: "SQL Functions",

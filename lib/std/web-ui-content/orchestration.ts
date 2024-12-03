@@ -127,7 +127,7 @@ export class OrchestrationSqlPages extends spn.TypicalSqlPageNotebook {
             )
             SELECT 'list' AS component, title, description
                 FROM navigation_cte;
-            SELECT caption as title, COALESCE(REPLACE(url, 'orchestration/', ''), REPLACE(path, 'orchestration/', '')) as link, description
+            SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, description
                 FROM sqlpage_aide_navigation
             WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("orchestration")}
             ORDER BY sibling_order;
