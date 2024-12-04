@@ -15,7 +15,7 @@ class FileHandler {
     static async removeDirIfExists(dirPath: string): Promise<void> {
         if (await exists(dirPath)) {
             console.log(`Directory exists: ${dirPath}. Removing...`);
-            await Deno.remove(dirPath, { recursive: true });
+            await $`rm -r ${dirPath}`;
             console.log(`Directory removed: ${dirPath}`);
         }
     }
@@ -26,7 +26,7 @@ class FileHandler {
             const dirExists = await exists(directoryPath);
             if (!dirExists) {
                 console.log(`Directory does not exist: ${directoryPath}. Creating...`);
-                await Deno.mkdir(directoryPath, { recursive: true });
+                await $`mkdir -p ${directoryPath}`;
                 console.log(`Directory created: ${directoryPath}`);
             } else {
                 console.log(`Directory already exists: ${directoryPath}`);
@@ -80,55 +80,16 @@ class CommandExecutor {
      * Executes a shell command and streams the output.
      * @param command - Command to be executed along with its arguments.
      */
-    // static async executeCommand(command: string[]): Promise<void> {
-    //     console.log(`Executing command: ${command.join(" ")}`);
 
-    //     const process = Deno.run({
-    //         cmd: command,
-    //         stdout: "piped",
-    //         stderr: "piped",
-    //     });
-
-    //     const [status, stdout, stderr] = await Promise.all([
-    //         process.status(),
-    //         process.output(),
-    //         process.stderrOutput(),
-    //     ]);
-
-    //     console.log(new TextDecoder().decode(stdout)); // Print standard output
-    //     console.error(new TextDecoder().decode(stderr)); // Print standard error
-
-    //     process.close();
-
-    //     if (!status.success) {
-    //         throw new Error(`Command failed with status: ${status.code}`);
-    //     }
-    //     console.log(`Command executed successfully.`);
-    // }
     static async executeCommand(command: string[]): Promise<void> {
-        console.log(`Executing command: ${command.join(" ")}`);
-
-        const process = new Deno.Command(command[0], {
-            args: command.slice(1), // Extract executable and arguments
-            stdout: "piped",
-            stderr: "piped",
-        });
-
         try {
-            // Execute the command and collect outputs
-            const { code, stdout, stderr } = await process.output();
-
-            console.log(new TextDecoder().decode(stdout)); // Print standard output
-            console.error(new TextDecoder().decode(stderr)); // Print standard error
-
-            if (code !== 0) {
-                throw new Error(`Command failed with status: ${code}`);
-            }
-
-            console.log(`Command executed successfully.`);
-        } catch (error: any) {
-            console.error(`Error executing command: ${error.message}`);
-            throw error; // Rethrow to allow caller to handle
+            console.log(`Executing ingest command: ${command.join(" ")}`);
+            await $`${command}`; // Using dax to run the command
+            console.log("Command executed successfully.");
+        } catch (error) {
+            console.error("Failed to execute the command.");
+            console.error(`Error: ${error instanceof Error ? error.message : error}`);
+            Deno.exit(1);
         }
     }
 
@@ -200,16 +161,16 @@ if (import.meta.main) {
     const rssdPath = (args.rssdPath) ? args.rssdPath : "resource-surveillance.sqlite.db";
 
     // Set paths and commands
-    const basePath = "rssd";
+    const basePath = "";
     const zipFilePath = path.join(basePath, "synthea_sample_data_fhir_latest.zip");
     const zipDownloadUrl = "https://synthetichealth.github.io/synthea-sample-data/downloads/latest/synthea_sample_data_fhir_latest.zip";
 
 
     const ingestDir = path.join(basePath, "ingest");
     const ingestCommand = ["surveilr", "ingest", "files", "-d", rssdPath, "-r", ingestDir];
-
+    await FileHandler.removeDirIfExists(ingestDir);
     // Run the app
     const app = new App(zipFilePath, ingestDir, rssdPath, ingestCommand, zipDownloadUrl);
     await app.run();
-    await FileHandler.removeDirIfExists(ingestDir);
+
 }
