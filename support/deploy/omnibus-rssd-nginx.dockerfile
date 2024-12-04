@@ -104,7 +104,7 @@ output_file="/rssd/index.html"\n\
 \n\
 # Extract the repository URL from the provenance file and add to HTML header\n\
 repo_url=$(awk -F"\t" "NR==2 {print \$2}" /rssd/provenance.tsv)\n\
-echo "<h1>RSSDs in ${repo_url}</h1><ul>" > "$output_file"\n\
+echo "<h1>RSSDs in ${repo_url}</h1><ul>" >> "$output_file"\n\
 \n\
 # Process each line in the index file, starting from the second line\n\
 tail -n +2 /rssd/index.tsv | while IFS=$'"'"'\t'"'"' read -r expose_endpoint relative_path rssd_name port package_sql; do\n\
