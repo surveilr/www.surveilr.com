@@ -8,6 +8,8 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 const WEB_UI_TITLE: string = "Direct Messaging Service";
+const WEB_UI_LOGO = "dms.png"
+const WEB_UI_FAV = "dms-favicon.ico"
 
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
@@ -67,7 +69,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   }
   @dmsNav({
     caption: "Inbox",
-    description: ``,
+    description: `Inbox provides a view of the mail inbox`,
     siblingOrder: 1,
   })
   "dms/inbox.sql"() {
@@ -76,7 +78,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
     -- select 'debug' as component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX');
     select
         'text'              as component,
-        'Inbox provides a view of the mail inbox, allowing users to securely access and manage messages received through the phiMail service.' as contents;
+        'The Inbox is a feature that provides users with a centralized, secure interface for accessing and managing messages received through the phiMail service. It is designed to support efficient and compliant handling of sensitive communications, often related to protected health information (PHI).' as contents;
 
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -396,7 +398,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
   }
   @dmsNav({
     caption: "Dispatched",
-    description: "",
+    description: "Provides a list of messages dispatched",
     siblingOrder: 2,
   })
   "dms/dispatched.sql"() {
@@ -417,7 +419,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
   @dmsNav({
     caption: "Failed",
-    description: "",
+    description: "Provides a list of messages Failed",
     siblingOrder: 2,
   })
   "dms/failed.sql"() {
@@ -447,7 +449,7 @@ export async function SQL() {
         );
       }
     }(),
-    new sh.ShellSqlPages(WEB_UI_TITLE),
+    new sh.ShellSqlPages(WEB_UI_TITLE, WEB_UI_LOGO, WEB_UI_FAV),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
