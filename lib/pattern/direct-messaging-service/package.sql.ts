@@ -137,8 +137,8 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           CASE
               WHEN attachment_filename LIKE '%.xml' OR attachment_mime_type = 'application/xml'
-              THEN '[' || attachment_filename || '](' || attachment_file_path || ' "download")' || ' | ' || '[View Details](patient-detail.sql?id=' || message_uid || ' "View Details")'
-              ELSE '[' || attachment_filename || '](' || attachment_file_path || ' "download")'
+              THEN '[' || attachment_filename || '](' || ${this.absoluteURL('')} || attachment_file_path || ' "download")' || ' | ' || '[View Details]('||${this.absoluteURL('/dms/patient-detail.sql?id=')} || message_uid || ' "View Details")'
+              ELSE '[' || attachment_filename || '](' || ${this.absoluteURL('')} || attachment_file_path || ' "download")'
           END AS "attachment"
       FROM mail_content_attachment
       WHERE CAST(message_uid AS TEXT) = CAST($id AS TEXT);
