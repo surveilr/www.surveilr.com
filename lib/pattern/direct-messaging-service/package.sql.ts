@@ -7,6 +7,8 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
+const WEB_UI_TITLE: string = "Direct Messaging Service";
+
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
  *
@@ -47,6 +49,9 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "dms/index.sql"() {
     return this.SQL`
+    select
+        'text'              as component,
+        'The Direct Secure Messaging Service facilitates the secure exchange of clinical data using the phiMail service. PhiMail is built on the DIRECT protocol, a standardized method for secure email communication in healthcare. This enables seamless and secure transmission of health information. Specifically, this page focuses on the receive module, providing a view of the mailbox within the phiMail service. ' as contents;
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
@@ -69,6 +74,9 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
     
     -- select 'debug' as component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX');
+    select
+        'text'              as component,
+        'Inbox provides a view of the mail inbox, allowing users to securely access and manage messages received through the phiMail service.' as contents;
 
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -101,6 +109,10 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
          ${this.absoluteURL("/dms/index.sql")} as link;
     select
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
+
+    select
+        'text'              as component,
+        'This page provides the details of a received message, including information about any attachments.' as contents;
 
     select
         'datagrid' as component;
@@ -390,6 +402,10 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
   "dms/dispatched.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
+      select
+        'text'              as component,
+        'This page provides a list of messages dispatched using the sender module, detailing the sent messages and their associated information.' as contents;
+      
 
       SELECT 'table' as component,
             'subject' AS markdown,
@@ -407,6 +423,10 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
   "dms/failed.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
+
+      select
+        'text'              as component,
+        'This page provides a list of messages that failed after being sent using the sender module, displaying details of each failed message.' as contents;
 
       SELECT 'table' as component,
             'subject' AS markdown,
@@ -427,7 +447,7 @@ export async function SQL() {
         );
       }
     }(),
-    new sh.ShellSqlPages(),
+    new sh.ShellSqlPages(WEB_UI_TITLE),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),

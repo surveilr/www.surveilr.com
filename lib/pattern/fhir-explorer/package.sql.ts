@@ -7,6 +7,10 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
+const FHIR_TITLE = "FHIR Explorer";
+const FHIR_LOGO = "scf-icon.png";
+const FHIR_FAV_ICON = "scf-favicon.ico";
+
 // custom decorator that makes navigation for this notebook type-safe
 function fhirNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -43,6 +47,10 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "fhir/index.sql"() {
     return this.SQL`
+      SELECT
+        'text'              as component,
+        'The FHIR Explorer Pattern for surveilr ingests healthcare FHIR JSON files and allows querying, quality metrics, and exploration of those files.' as contents;
+    
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
@@ -187,7 +195,7 @@ if (import.meta.main) {
         // );
       }
     }(),
-    new sh.ShellSqlPages(),
+    new sh.ShellSqlPages(FHIR_TITLE),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
