@@ -169,8 +169,8 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
     /bin/bash /generate_rssd_index.sh && \
     chmod +x /start_application.sh
 
-# Prepare the index.html for improved footer styling
-RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n        <p>\n            Resource Surveillance Web UI 📄\n            <a href=\"/lib/pattern/content-assembler/console/sqlpage-files/sqlpage-file.sql?path=lib/pattern/content-assembler/\">lib/pattern/content-assembler/</a>\n        </p>\n    </footer>\n</body>\n</html>" >> /rssd/index.html'
+# Update index.html for improved footer styling
+RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</html>" >> /rssd/index.html'
 
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
