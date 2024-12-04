@@ -8,8 +8,8 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 const FHIR_TITLE = "FHIR Explorer";
-const FHIR_LOGO = "scf-icon.png";
-const FHIR_FAV_ICON = "scf-favicon.ico";
+const FHIR_LOGO = "fhir-logo.png";
+const FHIR_FAV_ICON = "fhir-fav.ico";
 
 // custom decorator that makes navigation for this notebook type-safe
 function fhirNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
@@ -195,7 +195,7 @@ if (import.meta.main) {
         // );
       }
     }(),
-    new sh.ShellSqlPages(FHIR_TITLE),
+    new sh.ShellSqlPages(FHIR_TITLE, FHIR_LOGO, FHIR_FAV_ICON),
     new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
