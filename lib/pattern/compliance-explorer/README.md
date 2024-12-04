@@ -38,9 +38,24 @@ Now
 [Download `surveilr` binary](https://docs.opsfolio.com/surveilr/how-to/installation-guide/)
 into 'compliance-explorer' directory, then ingest and query the data:
 
+## Ingesting Data
+
+Once you have downloaded the binary, you can ingest data and create the `resource-surveillance.sqlite.db` database using one of the two methods:
+
+### Option 1: Using Surveilr Command
+Run the following command to ingest files from the `ingest/` directory:
+
 ```bash
-# ingest the files in the "ingest/" directory, creating resource-surveillance.sqlite.db
+# Ingest files and create resource-surveillance.sqlite.db
 $ surveilr ingest files --csv-transform-auto -r ingest
+```
+### Option 2: Using a Deno Script
+
+Alternatively, you can use the provided Deno script to perform the ingest process. The rssdPath parameter specifies the destination path and name of the database:
+
+```bash
+# Ingest files and create resource-surveillance.sqlite.db
+$ deno run -A eg.surveilr.com-prepare.ts rssdPath="resource-surveillance.sqlite.db"
 ```
 
 After ingestion your directory structure should look like this

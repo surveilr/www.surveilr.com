@@ -508,3 +508,103 @@ markup).
   of security headers. Pages missing SSL certificates or using insecure HTTP can
   be flagged for correction, as this could negatively impact both SEO and user
   security.
+
+### Integration Steps  
+
+This document outlines the setup and usage instructions for the **Site Quality Explorer** project. Follow the steps below to ensure proper integration and utilization.  
+
+---
+
+## Directory Structure  
+
+The project directory structure should resemble the following:  
+
+```bash
+site-quality-explorer
+├── content
+│   ├── site-quality-controls
+│   ├── website-resources
+├── package.sql.ts
+├── stateful.sql.ts
+└── stateless.sql
+```
+
+### File and Folder Details
+
+#### `stateless.sql`
+- Contains scripts for creating database views.
+- These views define methods for extracting and presenting controls, policies, and SEO analysis data.
+
+#### `stateful.sql`
+- Creates tables for caching data extracted by the views.
+- This improves performance by reducing the need to recompute data dynamically.
+
+#### `package.sql.ts`
+- Serves as the entry point for loading database objects and Web UI content.
+
+#### `site-quality-controls`
+- Contains editable markdown data for site quality controls.
+- Each site quality control is organized into a separate folder, which includes a `control.md` file providing detailed and editable information about that specific control.
+- Within each control folder, there is a subfolder named policies that stores the associated `policies` as markdown files.
+
+#### `website-resources`
+- Stores downloaded website resources for analysis.
+- The process for downloading these resources is outlined in the subsequent sections of this documentation.
+
+To download website resources and ingest the data into a SQLite database, run the following command:  
+
+```bash
+# Download website resources and create resource-surveillance.sqlite.db
+$ deno run -A eg.surveilr.com-prepare.ts resourceName="surveilr.com" rssdPath="resource-surveillance.sqlite.db"
+```
+
+#### Parameters  
+- **`rssdPath`**: Specifies the destination path and name of the SQLite database file.  
+- **`resourceName`**: Indicates the resource or website to be downloaded.  
+ 
+The `eg.surveilr.com-prepare.ts` script:  
+1. Installs the necessary database extensions.  
+2. Downloads website resources using the `wget --mirror` library.  
+
+#### Post-Execution  
+- Website resources are saved in the `content/website-resources` folder.  
+- A SQLite database (`resource-surveillance.sqlite.db`) is created and populated with the ingested data for further analysis.  
+
+After ingestion, your directory should look like this:
+
+```bash
+site-quality-explorer
+├── content
+│   ├── site-quality-controls
+│   ├── website-resources
+├── package.sql.ts
+├── stateful.sql.ts
+├── stateless.sql
+└── resource-surveillance.sqlite.db
+```
+
+### Post-Ingestion Notes  
+- The `surveilr` tool is no longer required after ingestion.  
+- You can rename or archive the `resource-surveillance.sqlite.db` file and use it with tools like **DBeaver**, **DataGrip**, or any SQLite-compatible application.  
+
+### Starting the Web UI  
+
+##### Load Database Objects and Utilities:  
+
+```bash
+deno run -A ./package.sql.ts | surveilr shell   # Option 1  
+surveilr shell ./package.sql.ts                 # Option 2  
+```
+
+This enables automatic reloading for `package.sql.ts`, making it easier to apply changes without restarting the application.  
+
+```bash
+../../std/surveilrctl.ts dev
+```
+
+#### Access the Application  
+
+- **Surveilr Web UI**: [http://localhost:9000/](http://localhost:9000/)  
+- Explore the user interface and interact with the ingested data.  
+
+This setup also enables developers to test and debug changes to database objects or web UI components in real-time. 
