@@ -16,41 +16,39 @@ function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   });
 }
 
+
 export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
-    const shellConfig = super.defaultShell();
-    shellConfig.title = "Diabetes Research Hub Edge";
-    shellConfig.image =
-      "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png";
-    shellConfig.favicon =
-      "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico";
-    shellConfig.icon = "";
-    shellConfig.link = "/";
-    shellConfig.javascript.push("https://cdn.jsdelivr.net/npm/d3@7");
-    shellConfig.javascript.push(
-      "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6",
-    );
-    shellConfig.javascript.push(
-      "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
-    );
-    shellConfig.javascript_module.push(
-      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js",
-    );
-    shellConfig.javascript_module.push(
-      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js",
-    );
-    shellConfig.javascript_module.push(
-      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js",
-    );
-    shellConfig.javascript_module.push(
-      "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js", 
-    );
-    shellConfig.javascript.push(
-      "/js/chart-component.js", 
-    );
-    
-    return shellConfig;
-  }
+    return {
+      component: "shell",
+      title: "Diabetes Research Hub Edge",
+      icon: "",
+      favicon: "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico",
+      image: "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png",
+      layout: "fluid",
+      fixed_top_menu: true,
+      link: "/",
+      menu_item: [
+        { link: "/", title: "Home" },
+      ],
+      javascript: [
+        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+        "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
+        "/js/chart-component.js", 
+      ],
+      javascript_module: [
+        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js",
+        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js",
+        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js",
+        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js", 
+        "https://app.devl.drh.diabetestechnology.org/js/wc/formula-component.js", 
+      ],
+      footer: `Resource Surveillance Web UI`,
+    };
+  } 
 
   @sppn.shell({ eliminate: true })
   "shell/shell.json"() {
@@ -904,7 +902,7 @@ ${pagination.renderSimpleMarkdown()}
     'card' as component,    
     2      as columns;
 SELECT 
-    'GLUCOSE STATISTICS AND TARGETS' AS title,
+    '' AS title,
     'white' As background_color,
     '/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
@@ -920,7 +918,7 @@ WHERE
 
          
 SELECT 
-    'Goals for Type 1 and Type 2 Diabetes' as title,
+    '' as title,
     'white' As background_color,
     '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
@@ -935,15 +933,15 @@ WHERE
     participant_cgm_dates.participant_id = $participant_id;  
 
 SELECT 
-    'AMBULATORY GLUCOSE PROFILE (AGP)' as title,
+    '' as title,
     'white' As background_color,
     '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
-    'DAILY GLUCOSE PROFILE' as title,
+    '' as title,
     'white' As background_color,
     '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
 SELECT 
-    'Glycemia Risk Index' as title,
+    '' as title,
     'white' As background_color,
     '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
   SELECT 
@@ -965,9 +963,15 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/glucose-statistics-and-targets/index.sql"() {
-    return this.SQL`
+    const formulaTimeCgm = "This metric calculates the percentage of time during a specific period (e.g., a day, week, or month) that the CGM device is actively collecting data. It takes into account the total duration of the monitoring period and compares it to the duration during which the device was operational and recording glucose readings.";
+    const formulaCgmWorn = "This metric represents the total number of days the CGM device was worn by the user over a monitoring period. It helps in assessing the adherence to wearing the device as prescribed.";
+    const formulaMeanGlucose = "Mean glucose reflects the average glucose level over the monitoring period, serving as an indicator of overall glucose control. It is a simple yet powerful measure in glucose management.";
+    const formulaGmi = "GMI provides an estimated A1C level based on mean glucose, which can be used as an indicator of long-term glucose control. GMI helps in setting and assessing long-term glucose goals.";
+    const formulaGlucoseVariab = "Glucose variability measures fluctuations in glucose levels over time, calculated as the coefficient of variation (%CV). A lower %CV indicates more stable glucose control.";
+    return this.SQL`    
      SELECT  
     'html' as component;
+    SELECT '<div class="fs-3 p-1 fw-bold" style="background-color: #E3E3E2; text-black;">GLUCOSE STATISTICS AND TARGETS</div><div class="px-4">' as html;
     SELECT  
       '<div class="card-content my-1">'|| strftime('%Y-%m-%d', MIN(Date_Time)) || ' - ' ||  strftime('%Y-%m-%d', MAX(Date_Time)) || ' <span style="float: right;">'|| CAST(julianday(MAX(Date_Time)) - julianday(MIN(Date_Time)) AS INTEGER) ||' days</span></div>' as html
     FROM  
@@ -977,10 +981,10 @@ SELECT
      AND Date_Time BETWEEN $start_date AND $end_date;   
 
     SELECT  
-      '<div class="card-content my-1"><b>Time CGM Active</b> <span style="float: right;"><b>' || ROUND(
+      '<div class="card-content my-1" style="display: flex; flex-direction: row; justify-content: space-between;"><b>Time CGM Active</b> <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;"><b>' || ROUND(
         (COUNT(DISTINCT DATE(Date_Time)) / 
         ROUND((julianday(MAX(Date_Time)) - julianday(MIN(Date_Time)) + 1))
-        ) * 100, 2) || '</b> %</span></div>' as html
+        ) * 100, 2) || '</b> % <formula-component content="${formulaTimeCgm}"></formula-component></div></div></div>' as html
     FROM
       combined_cgm_tracing  
     WHERE 
@@ -988,7 +992,7 @@ SELECT
     AND Date_Time BETWEEN $start_date AND $end_date;    
 
     SELECT  
-      '<div class="card-content my-1"><b>Number of Days CGM Worn</b> <span style="float: right;"><b>'|| COUNT(DISTINCT DATE(Date_Time)) ||'</b> days</span></div>' as html
+      '<div class="card-content my-1" style="display: flex; flex-direction: row; justify-content: space-between;"><b>Number of Days CGM Worn</b> <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;"><b>'|| COUNT(DISTINCT DATE(Date_Time)) ||'</b> days<formula-component content="${formulaCgmWorn}"></formula-component></div></div></div>' as html
     FROM
         combined_cgm_tracing  
     WHERE 
@@ -996,7 +1000,7 @@ SELECT
     AND Date_Time BETWEEN $start_date AND $end_date;
 
     SELECT  
-      '<div class="card-body" style="background-color: lightgray;border: 1px solid black;">
+      '<div class="card-body" style="background-color: #E3E3E2;border: 1px solid black;">
                       <div class="table-responsive">
                         <table class="table">                           
                            <tbody class="table-tbody list">
@@ -1042,7 +1046,7 @@ SELECT
                     </div>' as html; 
 
     SELECT  
-      '<div class="card-content my-1"><b>Mean Glucose</b> <span style="float: right;"><b>'|| ROUND(AVG(CGM_Value), 2) ||'</b> mg/dL</span></div>' as html
+      '<div class="card-content my-1" style="display: flex; flex-direction: row; justify-content: space-between;"><b>Mean Glucose</b> <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;"><b>'|| ROUND(AVG(CGM_Value), 2) ||'</b> mg/dL<formula-component content="${formulaMeanGlucose}"></formula-component></div></div></div>' as html
     FROM
       combined_cgm_tracing  
     WHERE 
@@ -1050,7 +1054,7 @@ SELECT
     AND Date_Time BETWEEN $start_date AND $end_date;
 
     SELECT  
-      '<div class="card-content my-1"><b>Glucose Management Indicator (GMI)</b> <span style="float: right;"><b>'|| ROUND(AVG(CGM_Value) * 0.155 + 95, 2) ||'</b> %</span></div>' as html
+      '<div class="card-content my-1" style="display: flex; flex-direction: row; justify-content: space-between;"><b>Glucose Management Indicator (GMI)</b> <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;"><b>'|| ROUND(AVG(CGM_Value) * 0.155 + 95, 2) ||'</b> %<formula-component content="${formulaGmi}"></formula-component></div></div></div>' as html
     FROM
       combined_cgm_tracing  
     WHERE 
@@ -1058,7 +1062,7 @@ SELECT
     AND Date_Time BETWEEN $start_date AND $end_date;
       
     SELECT  
-      '<div class="card-content my-1"><b>Glucose Variability</b> <span style="float: right;"><b>'|| ROUND((SQRT(AVG(CGM_Value * CGM_Value) - AVG(CGM_Value) * AVG(CGM_Value)) / AVG(CGM_Value)) * 100, 2) ||'</b> %</span></div>' as html   
+      '<div class="card-content my-1" style="display: flex; flex-direction: row; justify-content: space-between;"><b>Glucose Variability</b> <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;"><b>'|| ROUND((SQRT(AVG(CGM_Value * CGM_Value) - AVG(CGM_Value) * AVG(CGM_Value)) / AVG(CGM_Value)) * 100, 2) ||'</b> %<formula-component content="${formulaGlucoseVariab}"></formula-component></div></div></div>' as html   
     FROM
       combined_cgm_tracing  
     WHERE 
@@ -1066,7 +1070,7 @@ SELECT
     AND Date_Time BETWEEN $start_date AND $end_date;  
       
     SELECT  
-      '<div class="card-content my-1">Defined as percent coefficient of variation (%CV); target ≤36%</div>' as html;                         
+      '<div class="card-content my-1">Defined as percent coefficient of variation (%CV); target ≤36%</div></div>' as html;                         
     
   `;
   }
@@ -1105,11 +1109,12 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/goals-for-type-1-and-type-2-diabetes/index.sql"() {
+    const formula = `Goals for Type 1 and Type 2 Diabetes Chart provides a comprehensive view of a participant&#39;s glucose readings categorized into different ranges over a specified period.`;
     return this.SQL`
     SELECT 'html' as component,
-    '
-    <input type="hidden" name="start_date" class="start_date" value="'|| $start_date ||'">
+    '<input type="hidden" name="start_date" class="start_date" value="'|| $start_date ||'">
     <input type="hidden" name="end_date" class="end_date" value="'|| $end_date ||'">
+    <div class="fs-3 p-1 fw-bold" style="background-color: #E3E3E2; text-black; display: flex; flex-direction: row; justify-content: space-between;">Goals for Type 1 and Type 2 Diabetes <div style="display: flex; justify-content: flex-end; align-items: center;"><formula-component content="${formula}"></formula-component></div></div>
     <stacked-bar-chart class="p-5"></stacked-bar-chart>
     ' as html; 
     `;
@@ -1178,13 +1183,15 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/ambulatory-glucose-profile/index.sql"() {
+    const formula = "The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.";
     return this.SQL`
     SELECT 'html' as component,
     '<style>
         .text-\\[11px\\] { 
             font-size: 11px;  
         }
-    </style>  
+    </style>
+    <div class="fs-3 p-1 fw-bold" style="background-color: #E3E3E2; text-black; display: flex; flex-direction: row; justify-content: space-between;">AMBULATORY GLUCOSE PROFILE (AGP) <div style="display: flex; justify-content: flex-end; align-items: center;"><formula-component content="${formula}"></formula-component></div></div>
     <agp-chart class="p-5"></agp-chart>
     ' as html;
     `;
@@ -1216,6 +1223,7 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/daily-gluecose-profile/index.sql"() {
+    const formula = `The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.`;
     return this.SQL`
     SELECT 'html' as component,
         '<style>
@@ -1288,7 +1296,8 @@ SELECT
         stroke: rgb(223, 223, 223);
         stroke-width: 1px;
     }
-</style>  
+</style> 
+        <div class="fs-3 p-1 fw-bold" style="background-color: #E3E3E2; text-black; display: flex; flex-direction: row; justify-content: space-between;">DAILY GLUCOSE PROFILE <div style="display: flex; justify-content: flex-end; align-items: center;"><formula-component content="${formula}"></formula-component></div></div>
         <dgp-chart></dgp-chart>
         <p class="py-2 px-4 text-gray-800 font-normal text-xs hidden" id="dgp-note"><b>NOTE:</b> The Daily Glucose
             Profile
@@ -1330,6 +1339,12 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/glycemic_risk_indicator/index.sql"() {
+    const formula = `Hypoglycemia Component = VLow + (0.8 × Low)
+                    Hyperglycemia Component = VHigh + (0.5 × High)
+                    GRI = (3.0 × Hypoglycemia Component) + (1.6 × Hyperglycemia Component)
+                    Equivalently,
+                    GRI = (3.0 × VLow) + (2.4 × Low) + (1.6 × VHigh) + (0.8 × High)`;
+
     return this.SQL`
     SELECT 'html' as component,
         '<style>
@@ -1337,7 +1352,9 @@ SELECT
           display: block;
           margin: auto;
         }
-      </style>
+      </style>        
+        <div class="fs-3 p-1 fw-bold" style="background-color: #E3E3E2; text-black; display: flex; flex-direction: row; justify-content: space-between;">Glycemia Risk Index <div style="display: flex; justify-content: flex-end; align-items: center;"><formula-component content="${formula}"></formula-component></div></div>
+        <div class="px-4 pb-4">
         <gri-chart></gri-chart>' as html; 
       SELECT '
         <table class="w-full text-center border">
@@ -1364,6 +1381,7 @@ SELECT
           </tr>
         </tbody> 
       </table>
+      </div>
     ' as html; 
     `;
   }
@@ -1388,25 +1406,40 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/advanced_metrics/index.sql"() {
+    const formulaLiabIndex = `The Liability Index quantifies the risk associated with glucose variability, measured in mg/dL.`;
+    const formulaHypoEpi = `This metric counts the number of occurrences when glucose levels drop below a specified hypoglycemic threshold, indicating potentially dangerous low blood sugar events.`;
+    const formulaEuglEpi = `This metric counts the number of instances where glucose levels remain within the target range, indicating stable and healthy glucose control.`;
+    const formulaHyperEpi = `This metric counts the number of instances where glucose levels exceed a certain hyperglycemic threshold, indicating potentially harmful high blood sugar events.`;
+    const formulaMValue = `The M Value provides a measure of glucose variability, calculated from the mean of the absolute differences between consecutive CGM values over a specified period.`;
+    const formulaManAmpli = `Mean Amplitude quantifies the average degree of fluctuation in glucose levels over a given time frame, giving insight into glucose stability.`;
+    const formulaAvgDaily = `This metric assesses the average risk associated with daily glucose variations, expressed in mg/dL.`;
+    const formulaJIndex = `The J Index calculates glycemic variability using both high and low glucose readings, offering a comprehensive view of glucose fluctuations.`;
+    const formulaLBGI = `This metric quantifies the risk associated with low blood glucose levels over a specified period, measured in mg/dL.`;
+    const formulaHBGI = `This metric quantifies the risk associated with high blood glucose levels over a specified period, measured in mg/dL.`;
+    const formulaGrade = `GRADE is a metric that combines various glucose metrics to assess overall glycemic risk in individuals with diabetes, calculated using multiple input parameters.`;
+    const formulaConga = `CONGA quantifies the net glycemic effect over time by evaluating the differences between CGM values at specified intervals.`;
+    const formulaMeanDaily = `This metric calculates the average of the absolute differences between daily CGM readings, giving insight into daily glucose variability.`;
     return this.SQL`
      SELECT  
     'html' as component;
+    SELECT
+      '<div class="px-4">' as html;
     SELECT  
-      '<div class="card-content my-3 border-bottom">Liability Index <span style="float: right;">'|| ROUND(CAST((SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) + SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END)) AS REAL) / COUNT(*), 2) ||' mg/dL</span></div>
-      <div class="card-content my-3 border-bottom">Hypoglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Euglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) ||'</span></div>
-      <div class="card-content my-3 border-bottom">Hyperglycemic Episodes <span style="float: right;">'|| SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END) ||'</span></div>' as html 
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Liability Index <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| ROUND(CAST((SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) + SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END)) AS REAL) / COUNT(*), 2) ||' mg/dL<formula-component content="${formulaLiabIndex}"></formula-component></div></div></div>
+      <div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Hypoglycemic Episodes <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| SUM(CASE WHEN CGM_Value < 70 THEN 1 ELSE 0 END) ||'<formula-component content="${formulaHypoEpi}"></formula-component></div></div></div>
+      <div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Euglycemic Episodes <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| SUM(CASE WHEN CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) ||'<formula-component content="${formulaEuglEpi}"></formula-component></div></div></div>
+      <div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Hyperglycemic Episodes <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| SUM(CASE WHEN CGM_Value > 180 THEN 1 ELSE 0 END) ||'<formula-component content="${formulaHyperEpi}"></formula-component></div></div></div>' as html 
       FROM combined_cgm_tracing 
                     WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date
                     GROUP BY participant_id;
      SELECT  
-      '<div class="card-content my-3 border-bottom">M Value <span style="float: right;">'|| round((MAX(CGM_Value) - MIN(CGM_Value)) / 
-    ((strftime('%s', MAX(DATETIME(Date_Time))) - strftime('%s', MIN(DATETIME(Date_Time)))) / 60.0),3) ||' mg/dL</span></div>' as html   
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">M Value <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round((MAX(CGM_Value) - MIN(CGM_Value)) / 
+    ((strftime('%s', MAX(DATETIME(Date_Time))) - strftime('%s', MIN(DATETIME(Date_Time)))) / 60.0),3) ||' mg/dL<formula-component content="${formulaMValue}"></formula-component></div></div></div>' as html   
       FROM combined_cgm_tracing 
                     WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date
                     GROUP BY participant_id;
       SELECT  
-      '<div class="card-content my-3 border-bottom">Mean Amplitude <span style="float: right;">'|| round(AVG(amplitude),3) ||'</span></div>' as html  
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Mean Amplitude <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round(AVG(amplitude),3) ||'<formula-component content="${formulaManAmpli}"></formula-component></div></div></div>' as html  
       FROM (SELECT ABS(MAX(CGM_Value) - MIN(CGM_Value)) AS amplitude   
       FROM combined_cgm_tracing  WHERE participant_id = $participant_id AND Date(Date_Time) BETWEEN $start_date AND $end_date   
       GROUP BY DATE(Date_Time) 
@@ -1438,7 +1471,7 @@ SELECT
           participant_id;    
 
       SELECT  
-      '<div class="card-content my-3 border-bottom">Average Daily Risk Range <span style="float: right;">'|| round(average_daily_risk,3) ||' mg/dL</span></div>' as html  
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Average Daily Risk Range <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round(average_daily_risk,3) ||' mg/dL<formula-component content="${formulaAvgDaily}"></formula-component></div></div></div>' as html  
       FROM 
           AverageDailyRisk 
       WHERE 
@@ -1461,20 +1494,20 @@ SELECT
           participant_id;
 
       SELECT  
-      '<div class="card-content my-3 border-bottom">J Index <span style="float: right;">'|| ROUND(0.001 * (mean_glucose + SQRT(variance_glucose)) * (mean_glucose + SQRT(variance_glucose)), 2) ||' mg/dL</span></div>' as html  
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">J Index <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| ROUND(0.001 * (mean_glucose + SQRT(variance_glucose)) * (mean_glucose + SQRT(variance_glucose)), 2) ||' mg/dL<formula-component content="${formulaJIndex}"></formula-component></div></div></div>' as html  
       FROM
         glucose_stats;
       DROP TABLE IF EXISTS glucose_stats;
 
     SELECT  
-      '<div class="card-content my-3 border-bottom">Low Blood Glucose Index <span style="float: right;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 2.5) / 2.5 > 0 
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Low Blood Glucose Index <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 2.5) / 2.5 > 0 
                    THEN ((CGM_Value - 2.5) / 2.5) * ((CGM_Value - 2.5) / 2.5) 
                    ELSE 0 
-              END) * 5, 2) ||'</span></div>
-      <div class="card-content my-3 border-bottom">High Blood Glucose Index <span style="float: right;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 9.5) / 9.5 > 0 
+              END) * 5, 2) ||'<formula-component content="${formulaLBGI}"></formula-component></div></div></div>
+      <div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">High Blood Glucose Index <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| ROUND(SUM(CASE WHEN (CGM_Value - 9.5) / 9.5 > 0 
                    THEN ((CGM_Value - 9.5) / 9.5) * ((CGM_Value - 9.5) / 9.5) 
                    ELSE 0 
-              END) * 5, 2) ||'</span></div>' as html  
+              END) * 5, 2) ||'<formula-component content="${formulaHBGI}"></formula-component></div></div></div>' as html  
       FROM 
           combined_cgm_tracing
       WHERE 
@@ -1482,11 +1515,11 @@ SELECT
           AND DATE(Date_Time) BETWEEN $start_date AND $end_date;   
 
       SELECT  
-      '<div class="card-content my-3 border-bottom">Glycaemic Risk Assessment Diabetes Equation (GRADE) <span style="float: right;">'|| round(AVG(CASE
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Glycaemic Risk Assessment Diabetes Equation (GRADE) <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round(AVG(CASE
             WHEN CGM_Value < 90 THEN 10 * (5 - (CGM_Value / 18.0)) * (5 - (CGM_Value / 18.0))
             WHEN CGM_Value > 180 THEN 10 * ((CGM_Value / 18.0) - 10) * ((CGM_Value / 18.0) - 10)
             ELSE 0
-        END),3) ||'</span></div>' as html
+        END),3) ||'<formula-component content="${formulaGrade}"></formula-component></div></div></div>' as html
       FROM 
           combined_cgm_tracing
       WHERE 
@@ -1520,7 +1553,7 @@ SELECT
           lag_CGM_Value IS NOT NULL;    
 
       SELECT  
-      '<div class="card-content my-3 border-bottom">Continuous Overall Net Glycemic Action (CONGA) <span style="float: right;">'|| round(AVG(conga_hourly),3) ||'</span></div>' as html
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Continuous Overall Net Glycemic Action (CONGA) <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round(AVG(conga_hourly),3) ||'<formula-component content="${formulaConga}"></formula-component></div></div></div>' as html
       FROM 
         conga_hourly;
 
@@ -1528,7 +1561,7 @@ SELECT
         DROP TABLE IF EXISTS conga_hourly;
 
       SELECT  
-      '<div class="card-content my-3 border-bottom">Mean of Daily Differences <span style="float: right;">'|| round(AVG(daily_diff),3) ||'</span></div>' as html  
+      '<div class="card-content my-3 border-bottom" style="display: flex; flex-direction: row; justify-content: space-between;">Mean of Daily Differences <div style="display: flex; justify-content: flex-end; align-items: center;"><div style="display: flex;align-items: center;gap: 0.1rem;">'|| round(AVG(daily_diff),3) ||'<formula-component content="${formulaMeanDaily}"></formula-component></div></div></div>' as html  
       FROM (
           SELECT
               participant_id,
@@ -1541,13 +1574,8 @@ SELECT
       ) AS daily_diffs
       WHERE
           daily_diff IS NOT NULL;                          
-      SELECT  
-      '<style>
-          .card-body {
-             margin-right: .5rem!important;
-            margin-left: .5rem!important
-          }
-      </style>' as html;         
+      SELECT
+      '</div>' as html;         
   `;
   }
 
