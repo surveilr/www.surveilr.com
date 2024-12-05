@@ -82,28 +82,17 @@ class CommandExecutor {
      * @param command - Command to be executed along with its arguments.
      */
     static async executeCommand(command: string[]): Promise<void> {
-        console.log(`Executing command: ${command.join(" ")}`);
-        const process = Deno.run({
-            cmd: command,
-            stdout: "piped",
-            stderr: "piped",
-        });
-
-        const [status, stdout, stderr] = await Promise.all([
-            process.status(),
-            process.output(),
-            process.stderrOutput(),
-        ]);
-
-        console.log(new TextDecoder().decode(stdout)); // Print standard output
-        console.error(new TextDecoder().decode(stderr)); // Print standard error
-
-        process.close();
-
-        if (!status.success) {
-            throw new Error(`Command failed with status: ${status.code}`);
+        try {
+            console.log(`Executing ingest command: ${command.join(" ")}`);
+            await $`${command}`; // Using dax to run the command
+            console.log("Command executed successfully.");
+        } catch (error) {
+            console.error("Failed to execute the command.");
+            console.error(
+                `Error: ${error instanceof Error ? error.message : error}`,
+            );
+            Deno.exit(1);
         }
-        console.log(`Command executed successfully.`);
     }
 }
 
@@ -161,27 +150,6 @@ class App {
             const baseFolder = "rssd";
             console.log(`Changing directory to: ${baseFolder}`);
 
-            // console.log(`Checking if RSSD folder exists at: ${this.rssdPath}`);
-            // if (!(await exists(path.dirname(this.rssdPath)))) {
-            //     console.log(
-            //         `RSSD folder not found at: ${
-            //             path.dirname(this.rssdPath)
-            //         }. Creating it now.`,
-            //     );
-            //     await ensureDir(path.dirname(this.rssdPath));
-            //     console.log(
-            //         `RSSD folder created successfully: ${
-            //             path.dirname(this.rssdPath)
-            //         }`,
-            //     );
-            // } else {
-            //     console.log(
-            //         `RSSD folder already exists: ${
-            //             path.dirname(this.rssdPath)
-            //         }`,
-            //     );
-            // }
-
             Deno.chdir(baseFolder);
 
             // Step 4: Execute the ingest command
@@ -225,9 +193,9 @@ if (import.meta.main) {
 
     // Set paths and commands
     const basePath = "rssd";
-    const zipFilePath = "datasets-transformed-archive/study-files.zip"; // Path to the ZIP file
+    const zipFilePath = "dclp1.zip"; // Path to the ZIP file
     const outputDir = basePath;
-    const ingestDir = "study-files/";
+    const ingestDir = "dclp1/";
     if (Deno.args.length === 0) {
         rssdPath = path.join(
             basePath,
