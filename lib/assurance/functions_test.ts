@@ -26,13 +26,13 @@ Deno.test("surveilr specific functions", async (t) => {
     assertEquals(surveilr_version, version);
   });
 
-  await t.step("mask", async () => {
-    const result = await $`surveilr shell --cmd "SELECT mask('1234567890');"`
+  await t.step("surveilr_mask", async () => {
+    const result = await $`surveilr shell --cmd "SELECT surveilr_mask('1234567890');"`
       .stdout("piped");
     assertEquals(
       result.code,
       0,
-      "❌ Error: Failed to execute surveilr mask function.",
+      "❌ Error: Failed to execute surveilr_mask function.",
     );
     const stdout = result.stdoutJson;
     const value = stdout[0][Object.keys(stdout[0])[0]];
