@@ -21,9 +21,9 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       image: `https://www.surveilr.com/assets/brand/${this.logoImage}`,
       layout: "fluid",
       fixed_top_menu: true,
-      link: "/",
+      link: "index.sql",
       menu_item: [
-        { link: "/", title: "Home" },
+        { link: "index.sql", title: "Home" },
       ],
       javascript: [
         "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
