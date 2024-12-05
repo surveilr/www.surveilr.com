@@ -31,10 +31,10 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           CASE WHEN col.pk = 1 THEN 'Yes' ELSE 'No' END AS is_primary_key,
           CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
           col.dflt_value AS default_value,
-          '/console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
+          'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
           '[Content](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
           '[' || tbl.name || ' (table) Schema](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
-          '/console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
+          'console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
           '[Content]($SITE_PREFIX_URL/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
           '[' || tbl.name || ' (table) Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           tbl.sql as sql_ddl
@@ -167,9 +167,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             'SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
 
               SELECT ''breadcrumb'' AS component;
-              SELECT ''Home'' as title, ''/'' AS link;
-              SELECT ''Console'' as title, ''/console'' AS link;
-              SELECT ''Content'' as title, ''/console/content'' AS link;
+              SELECT ''Home'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+              SELECT ''Console'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console'' AS link;
+              SELECT ''Content'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content'' AS link;
               SELECT ''' || tabular_name  || ' ' || tabular_nature || ''' as title, ''#'' AS link;
 
               SELECT ''title'' AS component, ''' || tabular_name || ' (' || tabular_nature || ') Content'' as contents;
@@ -210,8 +210,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       INSERT OR IGNORE INTO sqlpage_files (path, contents)
         SELECT
             'console/content/' || tabular_nature || '/' || tabular_name || '.sql',
-            'SELECT ''redirect'' AS component, ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql'' AS link WHERE $stats IS NULL;\n' ||
-            'SELECT ''redirect'' AS component, ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql?stats='' || $stats AS link WHERE $stats IS NOT NULL;'
+            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql'' AS link WHERE $stats IS NULL;\n' ||
+            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql?stats='' || $stats AS link WHERE $stats IS NOT NULL;'
         FROM console_content_tabular;
 
       -- TODO: add \${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows`);
@@ -409,13 +409,13 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
         - \`*.auto.sql\` pages are auto-generated "default" content pages for each table and view defined in the database.
         - The \`*.sql\` companions may be auto-generated redirects to their \`*.auto.sql\` pair or an app/service might override the \`*.sql\` to not redirect and supply custom content for any table or view.
         - [View regenerate-auto.sql](' || ${this.absoluteURL(
-      "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
+      '/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql',
     )
       } || ')
         ' AS contents_md;
 
       SELECT 'button' AS component, 'center' AS justify;
-      SELECT ${this.absoluteURL("/console/content/action/regenerate-auto.sql")
+      SELECT ${this.absoluteURL('/console/content/action/regenerate-auto.sql')
       } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
 
       SELECT 'title' AS component, 'Redirected or overriden content pages' as contents;
@@ -457,9 +457,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.infoSchemaContentDML()}
 
       -- ${this.tsProvenanceComment(import.meta.url)}
-      SELECT 'redirect' AS component, ${this.absoluteURL("/console/sqlpage-files/content.sql")
-      } as link WHERE $redirect is NULL;
-      SELECT 'redirect' AS component, $redirect as link WHERE $redirect is NOT NULL;
+      SELECT 'redirect' AS component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || '/console/sqlpage-files/content.sql' as link WHERE $redirect is NULL;
+      SELECT 'redirect' AS component, sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || $redirect as link WHERE $redirect is NOT NULL;
     `;
   }
 
