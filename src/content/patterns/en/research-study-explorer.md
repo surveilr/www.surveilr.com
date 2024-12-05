@@ -48,12 +48,12 @@ specificationsRight:
   - title: "Enhanced Collaboration"
     subTitle: "Provides exportable results and insights for collaboration across institutions and teams."
 blueprints:
-  first: "@/images/pattern/research-study-explorer-pattern-ss-1.avif"
+  first: "@/images/pattern/research-study-explorer-pattern-ss-5.avif"
   second: "@/images/pattern/research-study-explorer-pattern-ss-2.avif"
-  third: "@/images/pattern/research-study-explorer-pattern-ss-3.avif"
+  # third: "@/images/pattern/research-study-explorer-pattern-ss-3.avif"
   # fourth: "@/images/pattern/research-study-explorer-pattern-ss-4.avif"
   # fifth: "@/images/pattern/research-study-explorer-pattern-ss-5.avif"
-# liveDemo:
-#   btnTitle: "Live Demo"
-  # btnURL: "https://eg.surveilr.com/lib/pattern/research-study-explorer/"
+liveDemo:
+  btnTitle: "Live Demo"
+  btnURL: "https://eg.surveilr.com/lib/pattern/research-study-explorer/"
 ---
