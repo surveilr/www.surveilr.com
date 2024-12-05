@@ -35,7 +35,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           '[Content](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
           '[' || tbl.name || ' (table) Schema](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[Content]($SITE_PREFIX_URL/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
           '[' || tbl.name || ' (table) Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           tbl.sql as sql_ddl
       FROM sqlite_master tbl
@@ -53,7 +53,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
           '[Content](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
           '[' || vw.name || ' (view) Schema](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
           '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
-          '[Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+          '[Content]($SITE_PREFIX_URL/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
           '[' || vw.name || ' (view) Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
           vw.sql as sql_ddl
       FROM sqlite_master vw
@@ -275,7 +275,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || table_name || '](table.sql?name=' || table_name || ')' AS "Table",
           COUNT(column_name) AS "Column Count",
-          content_web_ui_link_abbrev_md as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL('')}) as "Content"
       FROM console_information_schema_table
       GROUP BY table_name;
 
@@ -289,7 +289,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || view_name || '](view.sql?name=' || view_name || ')' AS "View",
           COUNT(column_name) AS "Column Count",
-          content_web_ui_link_abbrev_md as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL('')}) as "Content"
       FROM console_information_schema_view
       GROUP BY view_name;
 
