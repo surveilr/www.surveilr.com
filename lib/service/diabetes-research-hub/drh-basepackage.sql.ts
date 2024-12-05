@@ -823,7 +823,7 @@ ${pagination.renderSimpleMarkdown()}
     SELECT 
         'start_date' as name,
         'Start Date' as label,
-         strftime('%Y-%m-%d', MIN(Date_Time))  as value, 
+        strftime('%Y-%m-%d', COALESCE($start_date,MIN(Date_Time)))  as value, 
         'date'       as type,
         6            as width,
         'mt-1' as class
@@ -834,7 +834,7 @@ ${pagination.renderSimpleMarkdown()}
     SELECT 
         'end_date' as name,
         'End Date' as label,
-         strftime('%Y-%m-%d', MAX(Date_Time))  as value, 
+         strftime('%Y-%m-%d', COALESCE($end_date,MAX(Date_Time)))  as value, 
         'date'       as type,
          6             as width,
          'mt-1' as class
