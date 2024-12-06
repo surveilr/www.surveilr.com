@@ -37,18 +37,18 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
         "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
         "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
-        "/js/chart-component.js", 
+        "/js/chart-component.js",
       ],
       javascript_module: [
         "https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js",
         "https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js",
         "https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js",
-        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js", 
-        "https://app.devl.drh.diabetestechnology.org/js/wc/formula-component.js", 
+        "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js",
+        "https://app.devl.drh.diabetestechnology.org/js/wc/formula-component.js",
       ],
       footer: `Resource Surveillance Web UI`,
     };
-  } 
+  }
 
   @sppn.shell({ eliminate: true })
   "shell/shell.json"() {
@@ -63,8 +63,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       typeof value === "number"
         ? value
         : value
-        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-        : "NULL";
+          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+          : "NULL";
     const selectNavMenuItems = (
       rootPath: string,
       caption: string,
@@ -90,7 +90,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = 'prime' AND parent_path = '${rootPath}'
+                    WHERE namespace = 'prime' AND parent_path = '${rootPath}/index.sql'
                     ORDER BY sibling_order
                 )
             )
@@ -135,8 +135,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         // TODO: add "open in IDE" feature like in other Shahid apps
         literal(`Resource Surveillance Web UI (v`) +
         ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
-          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
         } || substr(sqlpage.path(), 2) || ')' as footer`,
     };
     const shell = this.defaultShell();
@@ -148,7 +147,7 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
             v as Record<string, unknown>[],
           );
         case "javascript":
-          return handlers.javascript(k, v as string[]); 
+          return handlers.javascript(k, v as string[]);
         case "javascript_module":
           return handlers.javascript_module(k, v as string[]);
         case "footer":
@@ -228,9 +227,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Verification Log' AS title,
-                ${
-      this.absoluteURL("/drh/verification-validation-log/index.sql")
-    } AS link,
+                ${this.absoluteURL("/drh/verification-validation-log/index.sql")
+      } AS link,
                 'Use this section to review the issues identified in the file content and take appropriate corrective actions.' AS description,
                 'table' AS icon,
                 'red' AS color;
@@ -245,9 +243,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study Participant Dashboard'  as title,
-                ${
-      this.absoluteURL("/drh/study-participant-dashboard/index.sql")
-    } as link,
+                ${this.absoluteURL("/drh/study-participant-dashboard/index.sql")
+      } as link,
                 'The dashboard presents key study details and participant-specific metrics in a clear, organized table format' as description,
                 'table'                as icon,
                 'red'                    as color;
@@ -258,9 +255,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Researcher and Associated Information'  as title,
-                ${
-      this.absoluteURL("/drh/researcher-related-data/index.sql")
-    } as link,
+                ${this.absoluteURL("/drh/researcher-related-data/index.sql")
+      } as link,
                 'This section provides detailed information about the individuals , institutions and labs involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -268,9 +264,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study ResearchSite Details'  as title,
-                ${
-      this.absoluteURL("/drh/study-related-data/index.sql")
-    } as link,
+                ${this.absoluteURL("/drh/study-related-data/index.sql")
+      } as link,
                 'This section provides detailed information about the study , and sites involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -278,9 +273,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Participant Demographics'  as title,
-                ${
-      this.absoluteURL("/drh/participant-related-data/index.sql")
-    } as link,
+                ${this.absoluteURL("/drh/participant-related-data/index.sql")
+      } as link,
                 'This section provides detailed information about the the participants involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -298,9 +292,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'CGM Meta Data and Associated information'  as title,
-                ${
-      this.absoluteURL("/drh/cgm-associated-data/index.sql")
-    } as link,
+                ${this.absoluteURL("/drh/cgm-associated-data/index.sql")
+      } as link,
                 'This section provides detailed information about the CGM device used, the relationship between the participant''s raw CGM tracing file and related metadata, and other pertinent information.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -325,9 +318,8 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'PHI De-Identification Results' AS title,
-                ${
-      this.absoluteURL("/drh/deidentification-log/index.sql")
-    } AS link,
+                ${this.absoluteURL("/drh/deidentification-log/index.sql")
+      } AS link,
                 'Explore the results of PHI de-identification and review which columns have been modified.' AS description,
                 'book'                as icon,
                 'red'                    as color;
@@ -904,7 +896,7 @@ ${pagination.renderSimpleMarkdown()}
 SELECT 
     '' AS title,
     'white' As background_color,
-    '/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
+    ${this.absoluteURL('/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=')} || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -920,7 +912,7 @@ WHERE
 SELECT 
     '' as title,
     'white' As background_color,
-    '/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=' || $participant_id ||
+    ${this.absoluteURL('/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=')} || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -935,19 +927,19 @@ WHERE
 SELECT 
     '' as title,
     'white' As background_color,
-    '/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+    ${this.absoluteURL('/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
 SELECT 
     '' as title,
     'white' As background_color,
-    '/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+    ${this.absoluteURL('/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
 SELECT 
     '' as title,
     'white' As background_color,
-    '/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=' || $participant_id as embed;  
+    ${this.absoluteURL('/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
   SELECT 
     '' as title,
     'white' As background_color,
-    '/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=' || $participant_id  || 
+    ${this.absoluteURL('/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=')} || $participant_id  || 
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
     FROM 
@@ -1697,7 +1689,7 @@ SELECT
           'participant_id' as markdown,
           TRUE AS sort,
           TRUE AS search;        
-    SELECT tenant_id,format('[%s](/drh/participant-info/index.sql?participant_id=%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
+    SELECT tenant_id,format('[%s]('||${this.absoluteURL('/drh/participant-info/index.sql?participant_id=')}||'%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
     LIMIT $limit
     OFFSET $offset;
 
