@@ -188,10 +188,10 @@ class App {
 
             // Step 6: Move the generated database to the target path
 
-            await FileHandler.moveDatabase(
-                "resource-surveillance.sqlite.db",
-                this.rssdPath,
-            );
+            // await FileHandler.moveDatabase(
+            //     "resource-surveillance.sqlite.db",
+            //     this.rssdPath,
+            // );
         } catch (error: any) {
             console.error(`Error: ${error.message}`);
             Deno.exit(1);
