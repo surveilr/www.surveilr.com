@@ -5,6 +5,7 @@ import {
     walk,
 } from "https://deno.land/std@0.201.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import { dirname } from "https://deno.land/std@0.204.0/path/mod.ts"; // Import dirname to extract the directory path
 
 /**
  * FileHandler class handles file operations like unzipping and directory management.
@@ -19,6 +20,23 @@ class FileHandler {
             console.log(`Directory exists: ${dirPath}. Removing...`);
             await Deno.remove(dirPath, { recursive: true });
             console.log(`Directory removed: ${dirPath}`);
+        }
+    }
+
+    static async createDirForPathIfNotExists(dirPath: string): Promise<void> {
+        try {
+            const directoryPath = dirname(dirPath); // Extract directory path from the provided path
+            const dirExists = await exists(directoryPath);
+            if (!dirExists) {
+                console.log(`Directory does not exist: ${directoryPath}. Creating...`);
+                await $`mkdir -p ${directoryPath}`;
+                console.log(`Directory created: ${directoryPath}`);
+            } else {
+                console.log(`Directory already exists: ${directoryPath}`);
+            }
+        } catch (error) {
+            console.error(`Error creating directory for path: ${dirPath}`, error);
+            throw error; // Rethrow error for caller to handle
         }
     }
 
@@ -104,7 +122,6 @@ class App {
     private zipFilePath: string;
     private outputDir: string;
     private rssdPath: string;
-    //private internalrssdPath: string;
     private ingestCommand: string[];
     private transformCommand: string[];
 
@@ -112,7 +129,6 @@ class App {
         zipFilePath: string,
         outputDir: string,
         rssdPath: string,
-        //internalrssdPath: string,
         ingestCommand: string[],
         transformCommand: string[],
     ) {
@@ -136,6 +152,9 @@ class App {
             // Step 1: Remove the existing directory if it exists
             await FileHandler.removeDirIfExists(ingestDir);
 
+            await FileHandler.createDirForPathIfNotExists(ingestDir);
+            await FileHandler.createDirForPathIfNotExists(this.rssdPath);
+
             // Step 2: Unzip the file
             await FileHandler.unzipFile(this.zipFilePath, ingestDir);
 
@@ -147,10 +166,10 @@ class App {
             }
 
             // Step 4: Change to the RSSD folder
-            const baseFolder = "rssd";
-            console.log(`Changing directory to: ${baseFolder}`);
+            // const baseFolder = "rssd";
+            // console.log(`Changing directory to: ${baseFolder}`);
 
-            Deno.chdir(baseFolder);
+            // Deno.chdir(baseFolder);
 
             // Step 4: Execute the ingest command
             await CommandExecutor.executeCommand(this.ingestCommand);
@@ -173,7 +192,7 @@ class App {
                 "resource-surveillance.sqlite.db",
                 this.rssdPath,
             );
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Error: ${error.message}`);
             Deno.exit(1);
         }
@@ -187,28 +206,23 @@ if (import.meta.main) {
         return [key, value];
     }));
 
-    // Get the target directory and RSSD path from arguments
-    //const rssdPath = args.rssdPath || "rssd/resource-surveillance.sqlite.db";
-    let rssdPath = args.rssdPath;
+    // Get the target directory and RSSD path from arguments   
+    // Get rssdpath from arguments, or default to "resource-surveillance.sqlite.db"
+    const rssdPath = (args.rssdPath) ? args.rssdPath : "resource-surveillance.sqlite.db";
 
     // Set paths and commands
     const basePath = "rssd";
     const zipFilePath = "dclp1.zip"; // Path to the ZIP file
     const outputDir = basePath;
-    const ingestDir = "dclp1/";
-    if (Deno.args.length === 0) {
-        rssdPath = path.join(
-            basePath,
-            "resource-surveillance.sqlite.db",
-        );
-    }
+
+    const ingestDir = basePath;
 
     const ingestCommand = [
         "surveilr",
         "ingest",
         "files",
         "-d",
-        "resource-surveillance.sqlite.db",
+        rssdPath,
         "-r",
         ingestDir,
     ];
