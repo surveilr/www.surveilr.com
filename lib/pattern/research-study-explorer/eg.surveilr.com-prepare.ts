@@ -120,21 +120,20 @@ class CommandExecutor {
  */
 class App {
     private zipFilePath: string;
-    private outputDir: string;
+    private ingestDir: string;
     private rssdPath: string;
     private ingestCommand: string[];
     private transformCommand: string[];
 
     constructor(
         zipFilePath: string,
-        outputDir: string,
+        ingestDir: string,
         rssdPath: string,
         ingestCommand: string[],
         transformCommand: string[],
     ) {
         this.zipFilePath = zipFilePath;
-        this.outputDir = outputDir;
-        //this.internalrssdPath = internalrssdPath;
+        this.ingestDir = ingestDir;
         this.rssdPath = rssdPath;
         this.ingestCommand = ingestCommand;
         this.transformCommand = transformCommand;
@@ -147,7 +146,7 @@ class App {
         try {
             // Step 0: Check and ensure the RSSD path folder exists
             // Ensure the ingest directory name matches the command
-            const ingestDir = this.outputDir;
+            const ingestDir = this.ingestDir;
 
             // Step 1: Remove the existing directory if it exists
             await FileHandler.removeDirIfExists(ingestDir);
@@ -165,33 +164,32 @@ class App {
                 Deno.exit(1);
             }
 
-            // Step 4: Change to the RSSD folder
-            // const baseFolder = "rssd";
-            // console.log(`Changing directory to: ${baseFolder}`);
-
-            // Deno.chdir(baseFolder);
-
             // Step 4: Execute the ingest command
-            await CommandExecutor.executeCommand(this.ingestCommand);
+            try {
+                await CommandExecutor.executeCommand(this.ingestCommand);
+                // try {
+                //     await CommandExecutor.executeCommand(this.transformCommand);
+                // } catch (errTr) {
+                //     if (errTr instanceof Error) {
+                //         console.error(`Error: ${errTr.message}`);
+                //     } else {
+                //         console.error("An unknown error occurred.", errTr);
+                //     }
+                //     Deno.exit(1);
+                // }
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.error(`Error: ${error.message}`);
+                } else {
+                    console.error("An unknown error occurred.", error);
+                }
+                Deno.exit(1);
+            }
 
-            // Step 5: Run the transform command
-            await CommandExecutor.executeCommand(this.transformCommand);
 
-            // Step 3: Execute the ingest and transform commands combined
-            // const combinedCommand = [
-            //     ...this.ingestCommand,
-            //     "&&",
-            //     ...this.transformCommand,
-            // ];
 
-            // await CommandExecutor.executeCommand(combinedCommand);
 
-            // Step 6: Move the generated database to the target path
 
-            // await FileHandler.moveDatabase(
-            //     "resource-surveillance.sqlite.db",
-            //     this.rssdPath,
-            // );
         } catch (error: any) {
             console.error(`Error: ${error.message}`);
             Deno.exit(1);
@@ -211,16 +209,16 @@ if (import.meta.main) {
     const rssdPath = (args.rssdPath) ? args.rssdPath : "resource-surveillance.sqlite.db";
 
     // Set paths and commands
-    const basePath = "rssd";
+    const basePath = "";
     const zipFilePath = "dclp1.zip"; // Path to the ZIP file
-    const outputDir = basePath;
 
-    const ingestDir = basePath;
+    const ingestDir = path.join(basePath, "dclp1");
 
     const ingestCommand = [
         "surveilr",
         "ingest",
         "files",
+        "--csv-transform-auto",
         "-d",
         rssdPath,
         "-r",
@@ -237,7 +235,7 @@ if (import.meta.main) {
     // Run the app
     const app = new App(
         zipFilePath,
-        outputDir,
+        ingestDir,
         rssdPath,
         ingestCommand,
         transformCommand,
