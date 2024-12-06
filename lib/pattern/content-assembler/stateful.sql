@@ -35,7 +35,7 @@ FROM
 
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_subscription_filter_chached;
 CREATE TABLE ur_transform_html_email_anchor_subscription_filter_chached AS
-SELECT 
+SELECT
     uniform_resource_transform_id,
     uniform_resource_id,
     anchor,
@@ -130,6 +130,7 @@ SELECT
         uniform_resource_transform_id,
         uniform_resource_id,
         anchor,
+        http_timeout_set(7200000),
         http_get_body(anchor) as html_body
     FROM ur_transform_html_email_anchor_cached LIMIT 20;
 
