@@ -34,6 +34,7 @@ Once unzipped, you should see the sample files in the study folder. The
 'research-study' directory structure should look like this:
 
 ```bash
+
 research-study
 ├── dclp1
     ├── study.csv
@@ -108,8 +109,8 @@ Once unzipped, you should see the sample files in the ingest folder. The
 'research-study-explorer' directory structure should look like this:
 
 ```
-.
-dclp1
+research-study-explorer
+├──dclp1
     ├── study.csv
     ├── investigator.csv
     ├── author.csv
@@ -134,6 +135,7 @@ $ surveilr ingest files -r dclp1/ --tenant-id UVA001 --tenant-name "UVA001" && s
 After ingestion and transformation , your directory structure should look like this
 
 ```
+research-study-explorer
 ├── d3-aide-component.js
 ├── drh-basepackage.sql.ts
 ├── drh-metrics.sql
@@ -146,12 +148,12 @@ After ingestion and transformation , your directory structure should look like t
 After data ingestion and transformation, we will execute package.sql against the RSSD. The package.sql.ts script will consolidate subsequent SQL files and the base package into a single SQL file for execution.
 
 ```bash
-# load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
-$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
-$ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
+
+$ surveilr shell ./package.sql.ts                 
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
 $ SQLPAGE_SITE_PREFIX=/lib/pattern/research-study-explorer ../../std/surveilrctl.ts dev
+
 ```
 
 You can now browse the Surveilr Web UI:
