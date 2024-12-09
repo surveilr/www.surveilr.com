@@ -112,7 +112,7 @@ tail -n +2 /rssd/index.tsv | while IFS=$'"'"'\t'"'"' read -r expose_endpoint rel
 \n\
   if [ "$expose_endpoint" = "1" ]; then\n\
     # Add exposed endpoint links to the HTML\n\
-    echo "<li><a href=\"${full_path}\">${package_sql}</a></li>" >> "$output_file"\n\
+    echo "<li><a href=\"${full_path}\"><b>${package_sql}</b></a> <a href=\"https://github.com/surveilr/www.surveilr.com/tree/main${full_path}\">Source Code</a></li>" >> "$output_file"\n\
   else\n\
     # Add non-exposed RSSDs to the HTML\n\
     echo "<li>${package_sql} (not exposed)</li>" >> "$output_file"\n\
