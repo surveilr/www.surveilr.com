@@ -167,16 +167,17 @@ class App {
             // Step 4: Execute the ingest command
             try {
                 await CommandExecutor.executeCommand(this.ingestCommand);
-                // try {
-                //     await CommandExecutor.executeCommand(this.transformCommand);
-                // } catch (errTr) {
-                //     if (errTr instanceof Error) {
-                //         console.error(`Error: ${errTr.message}`);
-                //     } else {
-                //         console.error("An unknown error occurred.", errTr);
-                //     }
-                //     Deno.exit(1);
-                // }
+                try {
+                    console.log(this.transformCommand)
+                    await CommandExecutor.executeCommand(this.transformCommand);
+                } catch (errTr) {
+                    if (errTr instanceof Error) {
+                        console.error(`Error: ${errTr.message}`);
+                    } else {
+                        console.error("An unknown error occurred.", errTr);
+                    }
+                    Deno.exit(1);
+                }
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(`Error: ${error.message}`);
@@ -218,7 +219,6 @@ if (import.meta.main) {
         "surveilr",
         "ingest",
         "files",
-        "--csv-transform-auto",
         "-d",
         rssdPath,
         "-r",
@@ -229,7 +229,9 @@ if (import.meta.main) {
     const transformCommand = [
         "surveilr",
         "orchestrate",
-        "transform-csv",
+        "-d",
+        rssdPath,
+        "transform-csv"
     ];
 
     // Run the app
