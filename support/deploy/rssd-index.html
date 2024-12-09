@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="SQLPage">
+    <meta property="og:title" content="Resource Surveillance & Integration Engine (surveilr) Live Examples">
+    <title>Resource Surveillance & Integration Engine (surveilr) Live Examples</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin-top: 70px;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        header .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        header .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .card-header:hover {
+            background-color: #e9ecef;
+        }
+
+        .card-header .logo {
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .card-header .title {
+            font-weight: bold;
+            color: #0056b3;
+            margin: 0;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: #555;
+            margin: 0;
+            flex: 1;
+        }
+
+        .github-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #0056b3;
+            font-weight: 500;
+        }
+
+        .github-link img {
+            height: 20px;
+            margin-right: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="https://www.surveilr.com/assets/brand/surveilr-icon.png" alt="Logo" class="logo"> Resource
+                Surveillance & Integration Engine (surveilr) Live Examples
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Card 1 Site Quality Explorer-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/site-quality-explorer/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/site-quality-icon.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/site-quality-explorer/">Site Quality
+                    Explorer</a>
+            </div>
+            <div class="card-body">
+                <p class="description">The Site Quality Explorer (SQE) is a surveilr pattern designed for conducting
+                    detailed and ongoing audits of website
+                    content quality. It helps analyze how web pages perform across several key SEO factors, providing
+                    actionable insights
+                    for improving search engine rankings. SQE integrates with surveilr, leveraging its robust ingestion
+                    framework to capture
+                    and store web content across multiple sources. It uses SQLite and Full Text Search(FTS) to perform
+                    efficient queries and
+                    generate important SEO metrics</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/site-quality-explorer"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2 Content Assembler-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/content-assembler/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/content-assembler-icon.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/content-assembler/">Content Assembler</a>
+            </div>
+            <div class="card-body">
+                <p class="description">The Content Assembler
+                    harnesses pre-curated content from influencers, curators,
+                    and authoritative sources, collecting, de-duplicating, and
+                    scoring valuable links shared across platforms like email,
+                    Twitter, and LinkedIn for reuse in B2B and community channels in Surveilr.</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/content-assembler"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3 Information assurance Explorer-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/info-assurance/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/surveilr-icon.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/info-assurance/">Information assurance
+                    Explorer</a>
+            </div>
+            <div class="card-body">
+                <p class="description">Information assurance is the practice of managing and protecting information
+                    systems to ensure data integrity, availability, confidentiality, authentication,
+                    and non-repudiation. It encompasses processes, policies, and tools aimed at
+                    safeguarding digital and physical assets against threats like unauthorized
+                    access, data breaches, and cyberattacks, ensuring that information remains
+                    secure and trustworthy throughout its lifecycle.</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/info-assurance"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 4 FHIR Explorer-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/fhir-explorer/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/fhir-logo.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/fhir-explorer/">FHIR Explorer</a>
+            </div>
+            <div class="card-body">
+                <p class="description">The FHIR Explorer Pattern for surveilr ingests healthcare FHIR JSON files and
+                    allows querying, quality metrics, and
+                    exploration of those files.</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/fhir-explorer"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+        <!-- Card 5 Compliance Explorer-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/compliance-explorer/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/scf-icon.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/compliance-explorer/">Compliance Explorer</a>
+            </div>
+            <div class="card-body">
+                <p class="description">SCF (Secure Controls Framework) controls are a set of cybersecurity and privacy
+                    requirements designed to help
+                    organizations manage and comply with various regulatory, statutory, and contractual frameworks.</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/compliance-explorer"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+        <!-- Card 6 Direct Messaging Service-->
+        <div class="card">
+            <div class="card-header"
+                onclick="window.location.href='https://eg.surveilr.com/lib/pattern/direct-messaging-service/'">
+                <img class="logo" src="https://www.surveilr.com/assets/brand/dms.png" alt="std logo">
+                <a class="title" href="https://eg.surveilr.com/lib/pattern/direct-messaging-service/">Direct Messaging
+                    Service</a>
+            </div>
+            <div class="card-body">
+                <p class="description">The Direct Secure Messaging Service facilitates the secure exchange of clinical
+                    data using the phiMail service. PhiMail
+                    is built on the DIRECT protocol, a standardized method for secure email communication in healthcare.
+                    This enables
+                    seamless and secure transmission of health information. Specifically, this page focuses on the
+                    receive module, providing
+                    a view of the mailbox within the phiMail service..</p>
+                <a class="github-link"
+                    href="https://github.com/surveilr/www.surveilr.com/tree/main/lib/pattern/direct-messaging-service"
+                    target="_blank">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+        <!-- Additional Cards follow similar structure -->
+
+    </main>
+
+    <footer>
+    </footer>
+</body>
+
+</html>
