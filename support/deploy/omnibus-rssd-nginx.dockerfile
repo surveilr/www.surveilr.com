@@ -172,7 +172,7 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
 # Update index.html for improved footer styling
 RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</html>" >> /rssd/index.html'
 
-COPY ./rssd-index.html /rssd/index.html
+COPY support/deploy/rssd-index.html /rssd/index.html
 
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
