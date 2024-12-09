@@ -66,8 +66,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       lenis:
-        specifier: ^1.1.16
-        version: 1.1.16(react@18.3.1)
+        specifier: ^1.1.18
+        version: 1.1.18(react@18.3.1)
       marked:
         specifier: ^15.0.0
         version: 15.0.0
@@ -2296,8 +2296,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  lenis@1.1.16:
-    resolution: {integrity: sha512-bGS8IxJW3x310gTwFylgYU6bGzeVnTALmgyLP8RZ9DFSYC/hN3fi+urCWspr5otljbDAGF4ND2GKCFtemAd45Q==}
+  lenis@1.1.18:
+    resolution: {integrity: sha512-hBJVN0o7ZWt6DqyLoCkYKLffgCqywX0Gf/ZWhWC8Ths1zN/lZHoAMC3faFjaTxnOEKokeV0q1Mlyu1aUr18xFQ==}
     peerDependencies:
       react: '>=17.0.0'
       vue: '>=3.0.0'
@@ -6350,7 +6350,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  lenis@1.1.16(react@18.3.1):
+  lenis@1.1.18(react@18.3.1):
     optionalDependencies:
       react: 18.3.1
 
