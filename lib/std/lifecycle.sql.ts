@@ -183,6 +183,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${this.notebookBusinessLogicViews()}
 
       ${this.uniformResourceGraphViews()}
+
+      ${this.surveilrFunctionsAndExtensionsDocs()}
       `;
   }
 
@@ -192,6 +194,23 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   @docsCell()
   "Boostrap SQL"() {
     return this.bootstrapDDL();
+  }
+
+  surveilrFunctionsAndExtensionsDocs() {
+    return this.SQL`
+    DROP TABLE IF EXISTS surveilr_function_doc;
+    CREATE TABLE IF NOT EXISTS surveilr_function_doc (
+        name TEXT PRIMARY KEY,
+        description TEXT,
+        parameters JSON,
+        return_type TEXT,
+        version TEXT
+    );
+
+    INSERT INTO surveilr_function_doc (name, description, parameters, return_type, version)
+    SELECT name, description, parameters, return_type, version
+    FROM surveilr_function_docs();
+    `
   }
 
   uniformResourceGraphViews() {
