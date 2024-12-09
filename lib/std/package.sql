@@ -586,7 +586,7 @@ INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path
 VALUES
     ('prime', 'index.sql', 1, 'docs/index.sql', 'docs/index.sql', 'Docs', NULL, NULL, 'Explore surveilr functions and release notes', NULL),
     ('prime', 'docs/index.sql', 99, 'docs/release-notes.sql', 'docs/release-notes.sql', 'Release Notes', NULL, NULL, 'surveilr releases details', NULL),
-    ('prime', 'docs/index.sql', 99, 'docs/sql-functions.sql', 'docs/sql-functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
+    ('prime', 'docs/index.sql', 99, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -2262,7 +2262,7 @@ The surveilr executable now starts the Web UI as the default command when no spe
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'docs/sql-functions.sql',
+      'docs/functions.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -2272,7 +2272,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''docs/sql-functions.sql''
+    WHERE namespace = ''prime'' AND path=''docs/functions.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -2286,252 +2286,48 @@ sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
 
-              SELECT ''title'' as component, ''surveilr SQLite Functions'' as contents;
-SELECT ''text'' as component, 
-''Below is a comprehensive list and description of all ``surveilr`` SQLite functions exposed during any execution. This document details each function, it''''s
-parameters/arguments and the return type if any. Also included is the version number of when it was introduced in ``surveilr``.
-Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the ``surveilr`` repository.
-'' as contents_md;
-SELECT ''card'' as component, 2 as columns;
+              SELECT ''text'' AS component, ''Surveilr SQLite Functions'' AS title WHERE $function IS NULL;
+SELECT ''text'' AS component, 
+      ''Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.'' 
+      AS contents_md WHERE $function IS NULL;
 
-                    SELECT 
-                        ''surveilr_udi_dal_fs''  as title,
-                        ''## Overview
-The `surveilr_udi_dal_fs` is a virtual table function that provides a structured interface to list and retrieve file system resources. It is implemented using the OpenDAL library to handle file operations and exposes a directory''''s metadata, including file paths, sizes, content, and timestamps, as tabular data.
+SELECT ''list'' AS component, ''Surveilr Functions'' AS title WHERE $function IS NULL;
+SELECT name AS title,
+      NULL AS icon,  -- Add an icon field if applicable
+      ''?function='' || name || ''#function'' AS link,
+      $function = name AS active
+FROM surveilr_function_doc
+ORDER BY name;
 
----
+SELECT ''text'' AS component, '''' || name || ''()'' AS title, ''function'' AS id
+FROM surveilr_function_doc WHERE name = $function;
 
-## Purpose
-- **Access Files and Directories**: Allows querying a directory''''s contents as rows in a virtual table.
-- **File Metadata Retrieval**: Exposes file metadata such as size, last modified timestamp, content type, and content digest.
-- **Recursive Listing**: Handles recursive traversal of directories to list all files and their details.
+SELECT ''text'' AS component, description AS contents_md
+FROM surveilr_function_doc WHERE name = $function;
 
----
+SELECT ''text'' AS component,
+      ''Introduced in version '' || version || ''.'' AS contents
+FROM surveilr_function_doc WHERE name = $function;
 
-## Inputs
-- **Path**: A single argument specifying the base directory or file path to query. This is a required argument.
+SELECT ''title'' AS component, 3 AS level, ''Parameters'' AS contents 
+WHERE $function IS NOT NULL;
 
----
+SELECT ''card'' AS component, 3 AS columns WHERE $function IS NOT NULL;
+SELECT 
+    json_each.value ->> ''$.name'' AS title,
+    json_each.value ->> ''$.description'' AS description,
+    json_each.value ->> ''$.data_type'' AS footer,
+    ''azure'' AS color
+FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+WHERE name = $function;
 
-## Outputs
-The virtual table exposes the following columns:
-
-| Column Name       | Data Type | Description                                         |
-|--------------------|-----------|-----------------------------------------------------|
-| `name`            | TEXT      | The name of the file or directory.                 |
-| `path`            | TEXT      | The full path of the file or directory.            |
-| `last_modified`   | TEXT      | The last modified timestamp of the file.           |
-| `content`         | BLOB      | The binary content of the file (optional).         |
-| `size`            | INTEGER   | The size of the file in bytes.                     |
-| `content_type`    | TEXT      | The file extension (e.g., `txt`, `jpg`, `pdf`).    |
-| `digest`          | TEXT      | The MD5 or SHA-256 hash of the file content.       |
-
----
-
-## Usage
-
-This virtual table function is typically queried like a regular table, allowing SQL operations such as `SELECT`, filtering, and joins.
-
-Example query, see [here](https://github.com/surveilr/www.surveilr.com/blob/main/lib/assurance/opendal_integration_test.ts) for a realistic example:
-```sql
-SELECT name, path, size, last_modified, content_type, digest FROM surveilr_udi_dal_fs(''''/path/to/directory'''');
-```'' as description_md,
-                        ''green''  as color,
-                        ''v1.2.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_ingest_session_id''  as title,
-                        ''## Overview
-The `surveilr_ingest_session_id` function generates or retrieves a unique session identifier (`ur_ingest_session_id`) for an ingestion session.
-
----
-
-## Purpose
-- **Retrieve Existing Sessions**: Reuse existing session IDs when a session is already associated with the specified device and session metadata.
-- **Create New Sessions**: Generate a new session ID when no matching session exists.
-
----
-
-## Inputs
-This function does not take any arguments.
-
----
-
-## Outputs
-Returns a `STRING` representing the `ur_ingest_session_id`. This ID is either:
-1. The ID of an existing session, or
-2. A newly generated ID if no existing session is found.'' as description_md,
-                        ''green''  as color,
-                        ''v1.2.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_name''  as title,
-                        ''Replaces any name or name-like string with a randomized pseudonym.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask_financial''  as title,
-                        ''Conceals financial data, such as account numbers or transaction amounts.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_email''  as title,
-                        ''Replaces the username portion of an email address while keeping the domain.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_get_orchestration_session_info''  as title,
-                        ''Returns the `orchestration_session_entry_id` for the current session. `surveilr_get_orchestration_session_info(<session_id>)`'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_url''  as title,
-                        ''A SQLite extension for parsing and generating URLs and query strings. Based on libcurl''''s [URL API](https://curl.se/libcurl/c/libcurl-url.html). Extension usage is [here](https://github.com/asg017/sqlite-url?tab=readme-ov-file#usage).
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_http''  as title,
-                        ''A SQLite [extension](https://github.com/asg017/sqlite-http) for making HTTP requests purely in SQL.
-
-- Create GET, POST, and other HTTP requests, like curl, wget, and fetch
-- Download response bodies, header, status codes, timing info
-- Set rate limits, timeouts'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_version''  as title,
-                        ''Returns the current version of `surveilr` that''''s being executed.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask''  as title,
-                        ''Obscures sensitive information by replacing characters with a specified delimiter (default is ''''*''''). Example: '' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_html''  as title,
-                        ''A SQLite extension for querying, manipulating, and creating HTML elements.
-
-- Extract HTML or text from HTML with CSS selectors, like `.querySelector()`, `.innerHTML`, and `.innerText`.
-- Generate a table of matching elements from a CSS selector, like `.querySelectorAll()`.
-- Safely create HTML elements in a query, like `.createElement()` and `.appendChild()`.
-  
-`sqlite-html` [usage](https://github.com/asg017/sqlite-html).
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_assert_tabular_column''  as title,
-                        ''`surveilr_assert_tabular_column(<name-of-table-or-view>, <a-list-of-column-names>)`: Checks the presence of a list of columns in a table or view, if assertion fails, the operation is inserted into `orchestration_session_issue` table.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_jsonschema''  as title,
-                        ''A SQLite extension for validating JSON objects with JSON Schema. Check documentation [here](https://github.com/asg017/sqlite-jsonschema/blob/main/docs.md).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask_phone''  as title,
-                        ''Masks parts of a phone number while retaining its basic structure. Example: ''''+1 (555) 123-4567'''' -> ''''+1 (555) -*''''.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_date''  as title,
-                        ''Alters a date value to a less specific representation.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_ensure_orchestration_nature''  as title,
-                        ''`surveilr_ensure_orchestration_nature(<nature_id>, <nature>)`: Checks if a `nature_id` and `nature` is present in the RSSD. If not, it creates it and returns a JSON response of both fields.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''generalize_age''  as title,
-                        ''Modifies an age value to a broader range or category (e.g., ''''32'''' -> ''''30-35'''').'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlean''  as title,
-                        ''A well-thought set of domain SQLite functions with a convenient and intuitive API. A kind of standard library for SQLite. Check [`sqlean` documentation](https://github.com/nalgeon/sqlean/tree/main).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_orchestration_context_session_id''  as title,
-                        ''The active context, if present. It returns the ID of the current session.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_hashes''  as title,
-                        ''Implement SQLite hashing functions with aggregation support, including MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV-1a, xxHash. [Read more](https://github.com/nyurik/sqlite-hashes).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_assert_tabular_object''  as title,
-                        ''Checks if a table or view exists in the RSSD. If the assertion fails, the operation is inserted into `orchestration_session_issue`.
-e.g `surveilr_assert_tabular_object(<name-of-table-or-view>)` 
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_lines''  as title,
-                        ''`sqlite-lines` is a SQLite extension for reading lines from a file or blob. Check documentation [here](https://github.com/asg017/sqlite-lines/blob/main/docs.md).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_orchestration_nature_id''  as title,
-                        ''e.g `surveilr_orchestration_nature_id(''''v&v'''')` - Returns the ID of the orchestration nature if present, else it is null.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''hash''  as title,
-                        ''Generates a one-way cryptographic hash (SHA1) of the input data. '' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
+-- Navigation Buttons
+SELECT ''button'' AS component, ''sm'' AS size, ''pill'' AS shape;
+SELECT name AS title,
+      NULL AS icon,  -- Add an icon field if needed
+      sqlpage.link(''functions.sql'', json_object(''function'', name)) AS link
+FROM surveilr_function_doc
+ORDER BY name;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

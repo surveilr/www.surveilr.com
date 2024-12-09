@@ -309,12 +309,26 @@ CREATE VIEW IF NOT EXISTS "filesystem_graph" AS
     WHERE
         ure.graph_name = 'filesystem';
           ;
+
+DROP TABLE IF EXISTS surveilr_function_doc;
+CREATE TABLE IF NOT EXISTS surveilr_function_doc (
+    name TEXT PRIMARY KEY,
+    description TEXT,
+    parameters JSON,
+    return_type TEXT,
+    version TEXT
+);
+
+INSERT INTO surveilr_function_doc (name, description, parameters, return_type, version)
+SELECT name, description, parameters, return_type, version
+FROM surveilr_function_docs();
+;
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Documentation', 'Documentation', NULL, 'text/plain', '.txt', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('SQL', 'SQLite SQL Statements', NULL, 'application/sql', '.sql', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('AI LLM Prompt', 'Generative AI Large Language Model Prompt', NULL, 'text/plain', '.llm-prompt.txt', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.puml)', 'Text Asset (.puml)', NULL, 'text/plain', '.puml', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.rs)', 'Text Asset (.rs)', NULL, 'text/plain', '.rs', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3A8FK8KDV2Z3T70JVZ', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ83M51X83HV184BXGN', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user'', ''runner'') ON CONFLICT DO UPDATE SET value = excluded.value;
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user_name'', ''UNKNOWN'') ON CONFLICT DO UPDATE SET value = excluded.value;
 
@@ -620,8 +634,22 @@ CREATE VIEW IF NOT EXISTS "filesystem_graph" AS
         ur_ingest_session_fs_path ur_ingest_fs_path ON ure.node_id = ur_ingest_fs_path.ur_ingest_session_fs_path_id
     WHERE
         ure.graph_name = ''filesystem'';
-          ;', '7b7bf902c90e1bda0a683962b43ac708d2a87aa8', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3BC28XKV14C7B46872', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+          ;
+
+DROP TABLE IF EXISTS surveilr_function_doc;
+CREATE TABLE IF NOT EXISTS surveilr_function_doc (
+    name TEXT PRIMARY KEY,
+    description TEXT,
+    parameters JSON,
+    return_type TEXT,
+    version TEXT
+);
+
+INSERT INTO surveilr_function_doc (name, description, parameters, return_type, version)
+SELECT name, description, parameters, return_type, version
+FROM surveilr_function_docs();
+;', '7f6fe29a5393206f5813f5e9f45234f0fee7120e', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ8SNPN2DD211MD77C2', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 
 CREATE TABLE IF NOT EXISTS "party_type" (
     "party_type_id" ULID PRIMARY KEY NOT NULL,
@@ -1476,11 +1504,11 @@ CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_attachment__uniform_resource_i
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_udi_pgp_sql__ingest_session_id" ON "ur_ingest_session_udi_pgp_sql"("ingest_session_id");
 CREATE INDEX IF NOT EXISTS "idx_orchestration_nature__orchestration_nature_id__nature" ON "orchestration_nature"("orchestration_nature_id", "nature");
 CREATE INDEX IF NOT EXISTS "idx_uniform_resource_edge__uniform_resource_id" ON "uniform_resource_edge"("uniform_resource_id");', '870e9e707174e538a0f44c96e12a28ebba50aa0f', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3BT9V03545G0AX5M45', 'SQL', 'ConstructionSqlNotebook', 'session_ephemeral_table', NULL, 'CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ82HVNBJ2BDX27243F', 'SQL', 'ConstructionSqlNotebook', 'session_ephemeral_table', NULL, 'CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
     "key" TEXT PRIMARY KEY NOT NULL,
     "value" TEXT NOT NULL
 );', 'b739acd000cf37091bbb365085506f975345351d', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3B00H2QNAP4QADF707', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ8WCXCE9ZEDZG6FEJT', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''typical ingestion extensions'', ''default'', ''\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7|pdf|docx|doc|pptx|ppt|xlsx|xls)$'', ''CONTENT_ACQUIRABLE'', ''?P<nature>'', NULL, ''Ingest the content for md, mdx, html, json, jsonc, puml, txt, toml, and yml extensions. Assume the nature is the same as the extension.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-[NATURE] style capturable executable'', ''default'', ''surveilr\[(?P<nature>[^\]]*)\]'', ''CAPTURABLE_EXECUTABLE'', ''?P<nature>'', NULL, ''Any entry with `surveilr-[XYZ]` in the path will be treated as a capturable executable extracting `XYZ` as the nature'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-SQL capturable executable'', ''default'', ''surveilr-SQL'', ''CAPTURABLE_EXECUTABLE | CAPTURABLE_SQL'', NULL, NULL, ''Any entry with surveilr-SQL in the path will be treated as a capturable SQL executable and allow execution of the SQL'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
@@ -1499,7 +1527,7 @@ INSERT INTO "orchestration_nature" ("orchestration_nature_id", "nature", "elabor
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''filesystem'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''imap'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''plm'', ''{}'') ON CONFLICT DO NOTHING;', '7d8f175c6d1e0dd76fb695437d35d4e49e1101b8', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3B0Q1XTCXF32QNMMMH', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ9JCZQFNYVS1CC86P3', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
 The database comprises three main tables: ''code_notebook_kernel'', ''code_notebook_cell'', and ''code_notebook_state''.
 
 1. ''code_notebook_kernel'': A Notebook is a group of Cells. A kernel is a computational engine that executes the code contained in a notebook cell.
@@ -1838,8 +1866,22 @@ CREATE VIEW IF NOT EXISTS "filesystem_graph" AS
         ur_ingest_session_fs_path ur_ingest_fs_path ON ure.node_id = ur_ingest_fs_path.ur_ingest_session_fs_path_id
     WHERE
         ure.graph_name = ''filesystem'';
-          ;', '087936899794607b903e6d2d5b5d7690b965c363', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3CNFG1B835V47AFGZV', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
+          ;
+
+DROP TABLE IF EXISTS surveilr_function_doc;
+CREATE TABLE IF NOT EXISTS surveilr_function_doc (
+    name TEXT PRIMARY KEY,
+    description TEXT,
+    parameters JSON,
+    return_type TEXT,
+    version TEXT
+);
+
+INSERT INTO surveilr_function_doc (name, description, parameters, return_type, version)
+SELECT name, description, parameters, return_type, version
+FROM surveilr_function_docs();
+;', '2a4a053ccc57cd5c9c803d664a3b2aa0e2ed1a51', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZ9DN5G43GA66M757Q8', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
 The database is designed to store devices in the ''device'' table and entities called ''resources'' stored in the immutable append-only
 ''uniform_resource'' table. Each time files are "walked" they are stored in ingestion session and link back to ''uniform_resource''. Because all
 tables are generally append only and immutable it means that the ingest_session_fs_path_entry table can be used for revision control
@@ -2724,7 +2766,7 @@ INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''filesyste
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''imap'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''plm'', ''{}'') ON CONFLICT DO NOTHING;
       ', 'a1d0c2cda6d928a92d7db70d1bd8519eebbfdc45', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3DBGKYEEP7V0D6VN1Z', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZBHSGZEJP10VCFGCAA', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -2786,7 +2828,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   code_notebook_kernel |o..o{ code_notebook_cell
   code_notebook_cell |o..o{ code_notebook_state
 @enduml', '84e0fc3aa026060b7e071785c89d02eaf87e6cbf', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3HB6HVW5S1SBAQWH8E', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZFK6P7H93FZ8SEVG93', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -3473,7 +3515,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   uniform_resource_graph |o..o{ uniform_resource_edge
   uniform_resource |o..o{ uniform_resource_edge
 @enduml', '30af406a0fdf40bddff26e002065f7b5f777a244', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JENVRH3K53XHQES8AV84M2M9', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JEPQ6TZHC3N7YSCYFPTNTWWA', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
 const PARTY_TYPE: &str = "party_type";
 const PARTY: &str = "party";
 const PARTY_RELATION_TYPE: &str = "party_relation_type";
@@ -4803,7 +4845,7 @@ INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path
 VALUES
     ('prime', 'index.sql', 1, 'docs/index.sql', 'docs/index.sql', 'Docs', NULL, NULL, 'Explore surveilr functions and release notes', NULL),
     ('prime', 'docs/index.sql', 99, 'docs/release-notes.sql', 'docs/release-notes.sql', 'Release Notes', NULL, NULL, 'surveilr releases details', NULL),
-    ('prime', 'docs/index.sql', 99, 'docs/sql-functions.sql', 'docs/sql-functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
+    ('prime', 'docs/index.sql', 99, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -6479,7 +6521,7 @@ The surveilr executable now starts the Web UI as the default command when no spe
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'docs/sql-functions.sql',
+      'docs/functions.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -6489,7 +6531,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''docs/sql-functions.sql''
+    WHERE namespace = ''prime'' AND path=''docs/functions.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -6503,252 +6545,48 @@ sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
 
-              SELECT ''title'' as component, ''surveilr SQLite Functions'' as contents;
-SELECT ''text'' as component, 
-''Below is a comprehensive list and description of all ``surveilr`` SQLite functions exposed during any execution. This document details each function, it''''s
-parameters/arguments and the return type if any. Also included is the version number of when it was introduced in ``surveilr``.
-Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the ``surveilr`` repository.
-'' as contents_md;
-SELECT ''card'' as component, 2 as columns;
+              SELECT ''text'' AS component, ''Surveilr SQLite Functions'' AS title WHERE $function IS NULL;
+SELECT ''text'' AS component, 
+      ''Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.'' 
+      AS contents_md WHERE $function IS NULL;
 
-                    SELECT 
-                        ''surveilr_udi_dal_fs''  as title,
-                        ''## Overview
-The `surveilr_udi_dal_fs` is a virtual table function that provides a structured interface to list and retrieve file system resources. It is implemented using the OpenDAL library to handle file operations and exposes a directory''''s metadata, including file paths, sizes, content, and timestamps, as tabular data.
+SELECT ''list'' AS component, ''Surveilr Functions'' AS title WHERE $function IS NULL;
+SELECT name AS title,
+      NULL AS icon,  -- Add an icon field if applicable
+      ''?function='' || name || ''#function'' AS link,
+      $function = name AS active
+FROM surveilr_function_doc
+ORDER BY name;
 
----
+SELECT ''text'' AS component, '''' || name || ''()'' AS title, ''function'' AS id
+FROM surveilr_function_doc WHERE name = $function;
 
-## Purpose
-- **Access Files and Directories**: Allows querying a directory''''s contents as rows in a virtual table.
-- **File Metadata Retrieval**: Exposes file metadata such as size, last modified timestamp, content type, and content digest.
-- **Recursive Listing**: Handles recursive traversal of directories to list all files and their details.
+SELECT ''text'' AS component, description AS contents_md
+FROM surveilr_function_doc WHERE name = $function;
 
----
+SELECT ''text'' AS component,
+      ''Introduced in version '' || version || ''.'' AS contents
+FROM surveilr_function_doc WHERE name = $function;
 
-## Inputs
-- **Path**: A single argument specifying the base directory or file path to query. This is a required argument.
+SELECT ''title'' AS component, 3 AS level, ''Parameters'' AS contents 
+WHERE $function IS NOT NULL;
 
----
+SELECT ''card'' AS component, 3 AS columns WHERE $function IS NOT NULL;
+SELECT 
+    json_each.value ->> ''$.name'' AS title,
+    json_each.value ->> ''$.description'' AS description,
+    json_each.value ->> ''$.data_type'' AS footer,
+    ''azure'' AS color
+FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+WHERE name = $function;
 
-## Outputs
-The virtual table exposes the following columns:
-
-| Column Name       | Data Type | Description                                         |
-|--------------------|-----------|-----------------------------------------------------|
-| `name`            | TEXT      | The name of the file or directory.                 |
-| `path`            | TEXT      | The full path of the file or directory.            |
-| `last_modified`   | TEXT      | The last modified timestamp of the file.           |
-| `content`         | BLOB      | The binary content of the file (optional).         |
-| `size`            | INTEGER   | The size of the file in bytes.                     |
-| `content_type`    | TEXT      | The file extension (e.g., `txt`, `jpg`, `pdf`).    |
-| `digest`          | TEXT      | The MD5 or SHA-256 hash of the file content.       |
-
----
-
-## Usage
-
-This virtual table function is typically queried like a regular table, allowing SQL operations such as `SELECT`, filtering, and joins.
-
-Example query, see [here](https://github.com/surveilr/www.surveilr.com/blob/main/lib/assurance/opendal_integration_test.ts) for a realistic example:
-```sql
-SELECT name, path, size, last_modified, content_type, digest FROM surveilr_udi_dal_fs(''''/path/to/directory'''');
-```'' as description_md,
-                        ''green''  as color,
-                        ''v1.2.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_ingest_session_id''  as title,
-                        ''## Overview
-The `surveilr_ingest_session_id` function generates or retrieves a unique session identifier (`ur_ingest_session_id`) for an ingestion session.
-
----
-
-## Purpose
-- **Retrieve Existing Sessions**: Reuse existing session IDs when a session is already associated with the specified device and session metadata.
-- **Create New Sessions**: Generate a new session ID when no matching session exists.
-
----
-
-## Inputs
-This function does not take any arguments.
-
----
-
-## Outputs
-Returns a `STRING` representing the `ur_ingest_session_id`. This ID is either:
-1. The ID of an existing session, or
-2. A newly generated ID if no existing session is found.'' as description_md,
-                        ''green''  as color,
-                        ''v1.2.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_name''  as title,
-                        ''Replaces any name or name-like string with a randomized pseudonym.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask_financial''  as title,
-                        ''Conceals financial data, such as account numbers or transaction amounts.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_email''  as title,
-                        ''Replaces the username portion of an email address while keeping the domain.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_get_orchestration_session_info''  as title,
-                        ''Returns the `orchestration_session_entry_id` for the current session. `surveilr_get_orchestration_session_info(<session_id>)`'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_url''  as title,
-                        ''A SQLite extension for parsing and generating URLs and query strings. Based on libcurl''''s [URL API](https://curl.se/libcurl/c/libcurl-url.html). Extension usage is [here](https://github.com/asg017/sqlite-url?tab=readme-ov-file#usage).
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_http''  as title,
-                        ''A SQLite [extension](https://github.com/asg017/sqlite-http) for making HTTP requests purely in SQL.
-
-- Create GET, POST, and other HTTP requests, like curl, wget, and fetch
-- Download response bodies, header, status codes, timing info
-- Set rate limits, timeouts'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_version''  as title,
-                        ''Returns the current version of `surveilr` that''''s being executed.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask''  as title,
-                        ''Obscures sensitive information by replacing characters with a specified delimiter (default is ''''*''''). Example: '' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_html''  as title,
-                        ''A SQLite extension for querying, manipulating, and creating HTML elements.
-
-- Extract HTML or text from HTML with CSS selectors, like `.querySelector()`, `.innerHTML`, and `.innerText`.
-- Generate a table of matching elements from a CSS selector, like `.querySelectorAll()`.
-- Safely create HTML elements in a query, like `.createElement()` and `.appendChild()`.
-  
-`sqlite-html` [usage](https://github.com/asg017/sqlite-html).
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_assert_tabular_column''  as title,
-                        ''`surveilr_assert_tabular_column(<name-of-table-or-view>, <a-list-of-column-names>)`: Checks the presence of a list of columns in a table or view, if assertion fails, the operation is inserted into `orchestration_session_issue` table.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_jsonschema''  as title,
-                        ''A SQLite extension for validating JSON objects with JSON Schema. Check documentation [here](https://github.com/asg017/sqlite-jsonschema/blob/main/docs.md).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''mask_phone''  as title,
-                        ''Masks parts of a phone number while retaining its basic structure. Example: ''''+1 (555) 123-4567'''' -> ''''+1 (555) -*''''.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''anonymize_date''  as title,
-                        ''Alters a date value to a less specific representation.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_ensure_orchestration_nature''  as title,
-                        ''`surveilr_ensure_orchestration_nature(<nature_id>, <nature>)`: Checks if a `nature_id` and `nature` is present in the RSSD. If not, it creates it and returns a JSON response of both fields.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''generalize_age''  as title,
-                        ''Modifies an age value to a broader range or category (e.g., ''''32'''' -> ''''30-35'''').'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlean''  as title,
-                        ''A well-thought set of domain SQLite functions with a convenient and intuitive API. A kind of standard library for SQLite. Check [`sqlean` documentation](https://github.com/nalgeon/sqlean/tree/main).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_orchestration_context_session_id''  as title,
-                        ''The active context, if present. It returns the ID of the current session.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_hashes''  as title,
-                        ''Implement SQLite hashing functions with aggregation support, including MD5, SHA1, SHA224, SHA256, SHA384, SHA512, FNV-1a, xxHash. [Read more](https://github.com/nyurik/sqlite-hashes).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_assert_tabular_object''  as title,
-                        ''Checks if a table or view exists in the RSSD. If the assertion fails, the operation is inserted into `orchestration_session_issue`.
-e.g `surveilr_assert_tabular_object(<name-of-table-or-view>)` 
-'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''sqlite_lines''  as title,
-                        ''`sqlite-lines` is a SQLite extension for reading lines from a file or blob. Check documentation [here](https://github.com/asg017/sqlite-lines/blob/main/docs.md).'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''surveilr_orchestration_nature_id''  as title,
-                        ''e.g `surveilr_orchestration_nature_id(''''v&v'''')` - Returns the ID of the orchestration nature if present, else it is null.'' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
-                
-
-                    SELECT 
-                        ''hash''  as title,
-                        ''Generates a one-way cryptographic hash (SHA1) of the input data. '' as description_md,
-                        ''green''  as color,
-                        ''v1.0.0'' as footer_md;
+-- Navigation Buttons
+SELECT ''button'' AS component, ''sm'' AS size, ''pill'' AS shape;
+SELECT name AS title,
+      NULL AS icon,  -- Add an icon field if needed
+      sqlpage.link(''functions.sql'', json_object(''function'', name)) AS link
+FROM surveilr_function_doc
+ORDER BY name;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
