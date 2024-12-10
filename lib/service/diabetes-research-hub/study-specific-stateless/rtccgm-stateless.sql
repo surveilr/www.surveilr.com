@@ -1710,9 +1710,6 @@ WHERE
             1
     );
 
--- Update the session identified in the temp view
-------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------
 -- Drop the view if it exists, then create the drh_participant view
 DROP VIEW IF EXISTS drh_participant;
 
@@ -1720,13 +1717,13 @@ CREATE VIEW
     drh_participant AS
 SELECT
     (
-        select
+        SELECT
             party_id
-        from
+        FROM
             party
-        limit
+        LIMIT
             1
-    ) as tenant_id,
+    ) AS tenant_id, -- Fetching tenant_id from the party table    
     (
         SELECT
             study_id
@@ -1742,163 +1739,21 @@ SELECT
             uniform_resource_study
         LIMIT
             1
-    ) || '-' || DeidentID AS participant_id,
+    ) || '-' || PtID AS participant_id, -- Concatenates study_id and PtID to form participant_id
     '' AS site_id, -- Placeholder for site_id
     '' AS diagnosis_icd, -- Placeholder for diagnosis ICD
     '' AS med_rxnorm, -- Placeholder for medication RxNorm
     '' AS treatment_modality, -- Placeholder for treatment modality
-    Gender AS gender, -- Direct mapping of Gender
-    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenate Race and Ethnicity for race_ethnicity
-    "Age at Enrollment" AS age, -- Direct mapping of Age at Enrollment
-    CASE
-        WHEN Weight IS NOT NULL
-        AND Height IS NOT NULL THEN (Weight / ((Height / 100.0) * (Height / 100.0))) -- BMI calculation if Weight and Height are available
-        ELSE NULL
-    END AS bmi, -- Alias for BMI calculation
-    HbA1CTest AS baseline_hba1c, -- Mapping HbA1CTest to baseline_hba1c
-    '' AS diabetes_type, -- Placeholder for diabetes type
-    '' AS study_arm -- Placeholder for study arm
+    Gender AS gender, -- Maps Gender field
+    Race || ', ' || Ethnicity AS race_ethnicity, -- Concatenates Race and Ethnicity for race_ethnicity
+    AgeAsOfRandDt AS age, -- Uses AgeAsOfRandDt as age
+    (Weight / (Height * Height)) AS bmi, -- Calculates BMI as Weight (kg) / Height (m)^2
+    '' AS baseline_hba1c, -- Placeholder for baseline HbA1c (you can map from another source if available)
+    'Type 1 Diabetes' AS diabetes_type,
+    TxGroup AS study_arm -- Maps TxGroup as study_arm
 FROM
-    uniform_resource_enrollment;
+    uniform_resource_tblaptsummary;
 
--- Drop the view if it exists, then create the view for uniform_resource_cgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgm;
-
-CREATE VIEW
-    drh_vw_uniform_resource_cgm AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) AS study_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) || '-' || DeidentID AS participant_id,
-    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
-    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
-FROM
-    uniform_resource_cgm;
-
--- Drop the view if it exists, then create the view for uniform_resource_cgmcal
-DROP VIEW IF EXISTS drh_vw_uniform_resource_cgmcal;
-
-CREATE VIEW
-    drh_vw_uniform_resource_cgmcal AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) AS study_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) || '-' || DeidentID AS participant_id,
-    strftime ('%Y-%m-%d %H:%M:%S', InternalTime) AS Date_Time, -- Format InternalTime to Date_Time
-    CAST(Cal AS REAL) AS CGM_value -- Cast Cal to REAL for numeric representation
-FROM
-    uniform_resource_cgmcal;
-
--- Drop the view if it exists, then create the view for uniform_resource_monitorcgm
-DROP VIEW IF EXISTS drh_vw_uniform_resource_monitorcgm;
-
-CREATE VIEW
-    drh_vw_uniform_resource_monitorcgm AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) AS study_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) || '-' || DeidentID AS participant_id,
-    strftime ('%Y-%m-%d %H:%M:%S', LocalDtTm) AS Date_Time, -- Format LocalDtTm to Date_Time
-    CAST(CGM AS REAL) AS CGM_value -- Cast CGM to REAL for numeric representation
-FROM
-    uniform_resource_monitorcgm;
-
--- Drop the view if it exists, then create the combined CGM tracing view
-DROP VIEW IF EXISTS combined_cgm_tracing;
-
-CREATE VIEW
-    combined_cgm_tracing AS
-SELECT
-    tenant_id,
-    study_id,
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_cgm
-UNION ALL
-SELECT
-    tenant_id,
-    study_id,
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_cgmcal
-UNION ALL
-SELECT
-    tenant_id,
-    study_id,
-    participant_id,
-    Date_Time,
-    CGM_value
-FROM
-    drh_vw_uniform_resource_monitorcgm;
-
---CTR DS to DRH model (standarization with server UI)
 -- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 
@@ -1910,15 +1765,9 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
+    AND name LIKE 'uniform_resource_tblADataRTCGM_%';
 
 -- View to list the names of raw CGM tables
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-
 CREATE VIEW
     drh_raw_cgm_table_lst AS
 SELECT
@@ -1946,11 +1795,7 @@ FROM
     LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
 WHERE
     type = 'table'
-    AND tbl_name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
+    AND tbl_name LIKE 'uniform_resource_tblADataRTCGM_%';
 
 -- View to count the total number of CGM raw files
 DROP VIEW IF EXISTS drh_number_cgm_count;
@@ -1963,11 +1808,7 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
+    AND name LIKE 'uniform_resource_tblADataRTCGM_%';
 
 DROP VIEW IF EXISTS study_wise_csv_file_names;
 
@@ -2008,11 +1849,7 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (
-        'uniform_resource_cgm',
-        'uniform_resource_cgmcal',
-        'uniform_resource_monitorcgm'
-    );
+    AND name LIKE 'uniform_resource_tblADataRTCGM_%';
 
 DROP VIEW IF EXISTS drh_device;
 
@@ -2206,6 +2043,14 @@ SELECT
         limit
             1
     ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     metadata_id,
     devicename,
     device_id,
@@ -2215,15 +2060,7 @@ SELECT
     file_format,
     file_upload_date,
     data_start_date,
-    data_end_date,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as study_id
+    data_end_date
 FROM
     uniform_resource_cgm_file_metadata;
 
@@ -2270,6 +2107,14 @@ SELECT
         limit
             1
     ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     institution_id,
     institution_name,
     city,
