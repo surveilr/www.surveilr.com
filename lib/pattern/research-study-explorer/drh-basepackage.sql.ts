@@ -16,7 +16,6 @@ function drhNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   });
 }
 
-
 export class DrhShellSqlPages extends sh.ShellSqlPages {
   defaultShell() {
     return {
@@ -24,7 +23,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       title: "Diabetes Research Hub Edge",
       icon: "",
       favicon: "https://drh.diabetestechnology.org/_astro/favicon.CcrFY5y9.ico",
-      image: "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png",
+      image:
+        "https://drh.diabetestechnology.org/images/diabetic-research-hub-logo.png",
       layout: "fluid",
       fixed_top_menu: true,
       link: "/",
@@ -63,8 +63,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       typeof value === "number"
         ? value
         : value
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+        : "NULL";
     const selectNavMenuItems = (
       rootPath: string,
       caption: string,
@@ -106,10 +106,10 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
       },
       javascript: (key: string, scripts: string[]) => {
         const items = scripts.map((s) => `${literal(s)} AS ${key}`);
-        items.push(
-          selectNavMenuItems("drh/study/", "Study"),
-        );
-        // items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
+        // items.push(
+        //   selectNavMenuItems("drh/study/", "Study"),
+        // );
+        //items.push(selectNavMenuItems("/docs/index.sql", "Docs"));
         items.push(selectNavMenuItems("ur", "Uniform Resource"));
         items.push(selectNavMenuItems("console", "Console"));
         items.push(
@@ -135,7 +135,8 @@ export class DrhShellSqlPages extends sh.ShellSqlPages {
         // TODO: add "open in IDE" feature like in other Shahid apps
         literal(`Resource Surveillance Web UI (v`) +
         ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
+          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
         } || substr(sqlpage.path(), 2) || ')' as footer`,
     };
     const shell = this.defaultShell();
@@ -227,8 +228,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Verification Log' AS title,
-                ${this.absoluteURL("/drh/verification-validation-log/index.sql")
-      } AS link,
+                ${
+      this.absoluteURL("/drh/verification-validation-log/index.sql")
+    } AS link,
                 'Use this section to review the issues identified in the file content and take appropriate corrective actions.' AS description,
                 'table' AS icon,
                 'red' AS color;
@@ -243,8 +245,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study Participant Dashboard'  as title,
-                ${this.absoluteURL("/drh/study-participant-dashboard/index.sql")
-      } as link,
+                ${
+      this.absoluteURL("/drh/study-participant-dashboard/index.sql")
+    } as link,
                 'The dashboard presents key study details and participant-specific metrics in a clear, organized table format' as description,
                 'table'                as icon,
                 'red'                    as color;
@@ -255,8 +258,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Researcher and Associated Information'  as title,
-                ${this.absoluteURL("/drh/researcher-related-data/index.sql")
-      } as link,
+                ${
+      this.absoluteURL("/drh/researcher-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the individuals , institutions and labs involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -264,8 +268,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Study ResearchSite Details'  as title,
-                ${this.absoluteURL("/drh/study-related-data/index.sql")
-      } as link,
+                ${
+      this.absoluteURL("/drh/study-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the study , and sites involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -273,8 +278,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'Participant Demographics'  as title,
-                ${this.absoluteURL("/drh/participant-related-data/index.sql")
-      } as link,
+                ${
+      this.absoluteURL("/drh/participant-related-data/index.sql")
+    } as link,
                 'This section provides detailed information about the the participants involved in the research study.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -292,8 +298,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'CGM Meta Data and Associated information'  as title,
-                ${this.absoluteURL("/drh/cgm-associated-data/index.sql")
-      } as link,
+                ${
+      this.absoluteURL("/drh/cgm-associated-data/index.sql")
+    } as link,
                 'This section provides detailed information about the CGM device used, the relationship between the participant''s raw CGM tracing file and related metadata, and other pertinent information.' as description,
                 'book'                as icon,
                 'red'                    as color;
@@ -318,8 +325,9 @@ export class DRHSqlPages extends spn.TypicalSqlPageNotebook {
 
             SELECT
                 'PHI De-Identification Results' AS title,
-                ${this.absoluteURL("/drh/deidentification-log/index.sql")
-      } AS link,
+                ${
+      this.absoluteURL("/drh/deidentification-log/index.sql")
+    } AS link,
                 'Explore the results of PHI de-identification and review which columns have been modified.' AS description,
                 'book'                as icon,
                 'red'                    as color;
@@ -896,7 +904,11 @@ ${pagination.renderSimpleMarkdown()}
 SELECT 
     '' AS title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=')} || $participant_id ||
+    ${
+      this.absoluteURL(
+        "/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -912,7 +924,11 @@ WHERE
 SELECT 
     '' as title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=')} || $participant_id ||
+    ${
+      this.absoluteURL(
+        "/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id ||
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -927,19 +943,35 @@ WHERE
 SELECT 
     '' as title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
+    ${
+      this.absoluteURL(
+        "/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id as embed;  
 SELECT 
     '' as title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
+    ${
+      this.absoluteURL(
+        "/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id as embed;  
 SELECT 
     '' as title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=')} || $participant_id as embed;  
+    ${
+      this.absoluteURL(
+        "/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id as embed;  
   SELECT 
     '' as title,
     'white' As background_color,
-    ${this.absoluteURL('/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=')} || $participant_id  || 
+    ${
+      this.absoluteURL(
+        "/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id=",
+      )
+    } || $participant_id  || 
     '&start_date=' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     '&end_date=' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
     FROM 
@@ -955,11 +987,16 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/glucose-statistics-and-targets/index.sql"() {
-    const formulaTimeCgm = "This metric calculates the percentage of time during a specific period (e.g., a day, week, or month) that the CGM device is actively collecting data. It takes into account the total duration of the monitoring period and compares it to the duration during which the device was operational and recording glucose readings.";
-    const formulaCgmWorn = "This metric represents the total number of days the CGM device was worn by the user over a monitoring period. It helps in assessing the adherence to wearing the device as prescribed.";
-    const formulaMeanGlucose = "Mean glucose reflects the average glucose level over the monitoring period, serving as an indicator of overall glucose control. It is a simple yet powerful measure in glucose management.";
-    const formulaGmi = "GMI provides an estimated A1C level based on mean glucose, which can be used as an indicator of long-term glucose control. GMI helps in setting and assessing long-term glucose goals.";
-    const formulaGlucoseVariab = "Glucose variability measures fluctuations in glucose levels over time, calculated as the coefficient of variation (%CV). A lower %CV indicates more stable glucose control.";
+    const formulaTimeCgm =
+      "This metric calculates the percentage of time during a specific period (e.g., a day, week, or month) that the CGM device is actively collecting data. It takes into account the total duration of the monitoring period and compares it to the duration during which the device was operational and recording glucose readings.";
+    const formulaCgmWorn =
+      "This metric represents the total number of days the CGM device was worn by the user over a monitoring period. It helps in assessing the adherence to wearing the device as prescribed.";
+    const formulaMeanGlucose =
+      "Mean glucose reflects the average glucose level over the monitoring period, serving as an indicator of overall glucose control. It is a simple yet powerful measure in glucose management.";
+    const formulaGmi =
+      "GMI provides an estimated A1C level based on mean glucose, which can be used as an indicator of long-term glucose control. GMI helps in setting and assessing long-term glucose goals.";
+    const formulaGlucoseVariab =
+      "Glucose variability measures fluctuations in glucose levels over time, calculated as the coefficient of variation (%CV). A lower %CV indicates more stable glucose control.";
     return this.SQL`    
      SELECT  
     'html' as component;
@@ -1101,7 +1138,8 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/goals-for-type-1-and-type-2-diabetes/index.sql"() {
-    const formula = `Goals for Type 1 and Type 2 Diabetes Chart provides a comprehensive view of a participant&#39;s glucose readings categorized into different ranges over a specified period.`;
+    const formula =
+      `Goals for Type 1 and Type 2 Diabetes Chart provides a comprehensive view of a participant&#39;s glucose readings categorized into different ranges over a specified period.`;
     return this.SQL`
     SELECT 'html' as component,
     '<input type="hidden" name="start_date" class="start_date" value="'|| $start_date ||'">
@@ -1175,7 +1213,8 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/ambulatory-glucose-profile/index.sql"() {
-    const formula = "The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.";
+    const formula =
+      "The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.";
     return this.SQL`
     SELECT 'html' as component,
     '<style>
@@ -1215,7 +1254,8 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/daily-gluecose-profile/index.sql"() {
-    const formula = `The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.`;
+    const formula =
+      `The Ambulatory Glucose Profile (AGP) summarizes glucose monitoring data over a specified period, typically 14 to 90 days. It provides a visual representation of glucose levels, helping to identify patterns and variability in glucose management.`;
     return this.SQL`
     SELECT 'html' as component,
         '<style>
@@ -1398,19 +1438,32 @@ SELECT
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "drh/advanced_metrics/index.sql"() {
-    const formulaLiabIndex = `The Liability Index quantifies the risk associated with glucose variability, measured in mg/dL.`;
-    const formulaHypoEpi = `This metric counts the number of occurrences when glucose levels drop below a specified hypoglycemic threshold, indicating potentially dangerous low blood sugar events.`;
-    const formulaEuglEpi = `This metric counts the number of instances where glucose levels remain within the target range, indicating stable and healthy glucose control.`;
-    const formulaHyperEpi = `This metric counts the number of instances where glucose levels exceed a certain hyperglycemic threshold, indicating potentially harmful high blood sugar events.`;
-    const formulaMValue = `The M Value provides a measure of glucose variability, calculated from the mean of the absolute differences between consecutive CGM values over a specified period.`;
-    const formulaManAmpli = `Mean Amplitude quantifies the average degree of fluctuation in glucose levels over a given time frame, giving insight into glucose stability.`;
-    const formulaAvgDaily = `This metric assesses the average risk associated with daily glucose variations, expressed in mg/dL.`;
-    const formulaJIndex = `The J Index calculates glycemic variability using both high and low glucose readings, offering a comprehensive view of glucose fluctuations.`;
-    const formulaLBGI = `This metric quantifies the risk associated with low blood glucose levels over a specified period, measured in mg/dL.`;
-    const formulaHBGI = `This metric quantifies the risk associated with high blood glucose levels over a specified period, measured in mg/dL.`;
-    const formulaGrade = `GRADE is a metric that combines various glucose metrics to assess overall glycemic risk in individuals with diabetes, calculated using multiple input parameters.`;
-    const formulaConga = `CONGA quantifies the net glycemic effect over time by evaluating the differences between CGM values at specified intervals.`;
-    const formulaMeanDaily = `This metric calculates the average of the absolute differences between daily CGM readings, giving insight into daily glucose variability.`;
+    const formulaLiabIndex =
+      `The Liability Index quantifies the risk associated with glucose variability, measured in mg/dL.`;
+    const formulaHypoEpi =
+      `This metric counts the number of occurrences when glucose levels drop below a specified hypoglycemic threshold, indicating potentially dangerous low blood sugar events.`;
+    const formulaEuglEpi =
+      `This metric counts the number of instances where glucose levels remain within the target range, indicating stable and healthy glucose control.`;
+    const formulaHyperEpi =
+      `This metric counts the number of instances where glucose levels exceed a certain hyperglycemic threshold, indicating potentially harmful high blood sugar events.`;
+    const formulaMValue =
+      `The M Value provides a measure of glucose variability, calculated from the mean of the absolute differences between consecutive CGM values over a specified period.`;
+    const formulaManAmpli =
+      `Mean Amplitude quantifies the average degree of fluctuation in glucose levels over a given time frame, giving insight into glucose stability.`;
+    const formulaAvgDaily =
+      `This metric assesses the average risk associated with daily glucose variations, expressed in mg/dL.`;
+    const formulaJIndex =
+      `The J Index calculates glycemic variability using both high and low glucose readings, offering a comprehensive view of glucose fluctuations.`;
+    const formulaLBGI =
+      `This metric quantifies the risk associated with low blood glucose levels over a specified period, measured in mg/dL.`;
+    const formulaHBGI =
+      `This metric quantifies the risk associated with high blood glucose levels over a specified period, measured in mg/dL.`;
+    const formulaGrade =
+      `GRADE is a metric that combines various glucose metrics to assess overall glycemic risk in individuals with diabetes, calculated using multiple input parameters.`;
+    const formulaConga =
+      `CONGA quantifies the net glycemic effect over time by evaluating the differences between CGM values at specified intervals.`;
+    const formulaMeanDaily =
+      `This metric calculates the average of the absolute differences between daily CGM readings, giving insight into daily glucose variability.`;
     return this.SQL`
      SELECT  
     'html' as component;
@@ -1689,7 +1742,9 @@ SELECT
           'participant_id' as markdown,
           TRUE AS sort,
           TRUE AS search;        
-    SELECT tenant_id,format('[%s]('||${this.absoluteURL('/drh/participant-info/index.sql?participant_id=')}||'%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
+    SELECT tenant_id,format('[%s]('||${
+      this.absoluteURL("/drh/participant-info/index.sql?participant_id=")
+    }||'%s)',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM ${viewName}
     LIMIT $limit
     OFFSET $offset;
 

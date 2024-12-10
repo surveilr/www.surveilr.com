@@ -657,31 +657,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        ''https://app.devl.drh.diabetestechnology.org/js/d3-aide.js'' AS javascript,
        ''/js/chart-component.js'' AS javascript,
        json_object(
-            ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''drh/study/'',
-            ''title'', ''Study'',      
-            ''target'', '''',      
-            ''submenu'', (
-                SELECT json_group_array(
-                    json_object(
-                        ''title'', title,
-                        ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
-                        ''description'', description,
-                        ''target'', target                      
-                    )
-                )
-                FROM (
-                    SELECT
-                        COALESCE(abbreviated_caption, caption) as title,
-                        COALESCE(url, path) as link,
-                        description,
-                        elaboration as target
-                    FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''drh/study//index.sql''
-                    ORDER BY sibling_order
-                )
-            )
-        ) as menu_item,
-       json_object(
             ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''ur'',
             ''title'', ''Uniform Resource'',      
             ''target'', '''',      
