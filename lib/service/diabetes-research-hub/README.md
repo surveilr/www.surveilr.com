@@ -282,6 +282,10 @@ $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option
 ```bash
 # Ingest and transform the CSV files in the "direc-net-inPt-exercise/" directory(Tsalikian (2005 from Awesome CGM)), creating resource-surveillance.sqlite.db
 $ surveilr ingest files -r direc-net-inPt-exercise/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
+
+```bash
+# Ingest and transform the CSV files in the "wadwa/" directory, creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r wadwa/ --tenant-id JAB001 --tenant-name "JAB001" && surveilr orchestrate transform-csv
 ```
 
 ```bash
@@ -331,6 +335,11 @@ $ surveilr shell ./dataset-specific-package/ntlt-stateless.sql.ts
 ```bash
 # For (Tsalikian (2005 from Awesome CGM))
 $ surveilr shell ./dataset-specific-package/ieogc-package.sql.ts
+```
+
+```bash
+# For (Wadwa (2021 from Awesome CGM))
+$ surveilr shell ./dataset-specific-package/wadwa-package.sql.ts
 ```
 
 ```bash
