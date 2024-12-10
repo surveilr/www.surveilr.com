@@ -94,7 +94,7 @@ COPY --from=builder /rssd /rssd
 VOLUME /rssd
 
 # Prepare the index.html for improved visuals and styling
-RUN /bin/bash -c 'echo -e "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta name=\"generator\" content=\"SQLPage\">\n    <meta property=\"og:title\" content=\"RSSD Links - GitHub Repository\">\n    <title>RSSD Links - GitHub Repository</title>\n    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\">\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            background-color: #f9f9f9;\n            color: #333;\n            margin-top: 70px;\n        }\n        header {\n            background-color: #ffffff;\n            color: #333;\n            padding: 10px 0;\n            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);\n        }\n        header .navbar-brand {\n            font-size: 1.5rem;\n            font-weight: bold;\n        }\n        header .logo {\n            height: 40px;\n            margin-right: 10px;\n        }\n        main {\n            padding: 20px;\n        }\n        h1 {\n            font-size: 1.75rem;\n            margin-bottom: 20px;\n        }\n        ul {\n            list-style-type: none;\n            padding: 0;\n        }\n        li {\n            background: white;\n            margin-bottom: 10px;\n            padding: 10px;\n            border: 1px solid #ddd;\n            border-radius: 5px;\n            transition: background-color 0.3s;\n        }\n        li a {\n            text-decoration: none;\n            color: #0056b3;\n            font-weight: 500;\n        }\n        li:hover {\n            background-color: #f0f8ff;\n        }\n        footer {\n            text-align: center;\n            margin-top: 20px;\n            font-size: 0.9rem;\n            color: #777;\n        }\n        footer a {\n            text-decoration: none;\n            color: #0056b3;\n        }\n    </style>\n</head>\n<body>\n    <header class=\"navbar fixed-top\">\n        <div class=\"container\">\n            <a class=\"navbar-brand\" href=\"/\">\n                <img src=\"https://www.surveilr.com/assets/brand/surveilr-icon.png\" alt=\"Logo\" class=\"logo\"> RSSD\n            </a>\n        </div>\n    </header>\n    <main class=\"container\">" > /rssd/index.html'
+COPY support/deploy/rssd-index.html /rssd/index.html
 
 # Create the script for generating /rssd/index.html
 RUN echo '#!/bin/bash\n\
@@ -102,17 +102,13 @@ RUN echo '#!/bin/bash\n\
 # Set output file for the generated HTML index\n\
 output_file="/rssd/index.html"\n\
 \n\
-# Extract the repository URL from the provenance file and add to HTML header\n\
-repo_url=$(awk -F"\t" "NR==2 {print \$2}" /rssd/provenance.tsv)\n\
-echo "<h1>RSSDs in ${repo_url}</h1><ul>" >> "$output_file"\n\
-\n\
 # Process each line in the index file, starting from the second line\n\
 tail -n +2 /rssd/index.tsv | while IFS=$'"'"'\t'"'"' read -r expose_endpoint relative_path rssd_name port package_sql; do\n\
   full_path="/${relative_path}"\n\
 \n\
   if [ "$expose_endpoint" = "1" ]; then\n\
     # Add exposed endpoint links to the HTML\n\
-    echo "<li><a href=\"${full_path}\">${package_sql}</a></li>" >> "$output_file"\n\
+    echo "<li><a href=\"${full_path}\"><b>${package_sql}</b></a> <a href=\"https://github.com/surveilr/www.surveilr.com/tree/main${full_path}\">Source Code</a></li>" >> "$output_file"\n\
   else\n\
     # Add non-exposed RSSDs to the HTML\n\
     echo "<li>${package_sql} (not exposed)</li>" >> "$output_file"\n\

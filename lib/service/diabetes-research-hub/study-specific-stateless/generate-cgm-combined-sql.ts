@@ -156,6 +156,64 @@ export function generateDetrendedDSCombinedCGMViewSQL(
   return combinedViewSQL; // Return the SQL string instead of executing it
 }
 
+// Function to generate the combined CGM tracing view SQL
+export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+
+  // Query to fetch all relevant tables (matching the pattern 'uniform_resource_tblADataRTCGM_%')
+  const tablesStmt = db.prepare(
+    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_tblADataRTCGM_%'",
+  );
+  const tables = tablesStmt.all();
+  const sqlParts: string[] = [];
+
+  // Fetch the tenant_id from the party table (assuming it returns a single result)
+  const tenantStmt = db.prepare(
+    "SELECT party_id AS tenant_id FROM party LIMIT 1",
+  );
+  const tenantResult = tenantStmt.get();
+  const tenantId = tenantResult ? tenantResult.tenant_id : "JAEB001"; // Default to 'JAEB001' if no tenant_id found
+
+  // Fetch the study_id from the uniform_resource_study table (assuming it returns a single result)
+  const studyStmt = db.prepare(
+    "SELECT study_id FROM uniform_resource_study LIMIT 1",
+  );
+  const studyResult = studyStmt.get();
+  const studyId = studyResult ? studyResult.study_id : "RTCCGM"; // Default to 'RTCCGM' if no study_id found
+
+  // Loop through each table and generate the SQL for their CGM data
+  for (const { table_name } of tables) {
+    // Generate SQL for each participant's CGM data
+    sqlParts.push(`
+      SELECT 
+        '${tenantId}' AS tenant_id,        
+        '${studyId}' AS study_id,
+        'RTCCGM-' || PtID AS participant_id, 
+        strftime('%Y-%m-%d %H:%M:%S', DeviceDtTm) AS Date_Time,
+        CAST(Glucose AS REAL) AS CGM_Value 
+      FROM ${table_name}
+    `);
+  }
+
+  // Combine all the individual SELECT queries using UNION ALL
+  let combinedViewSQL = "";
+  if (sqlParts.length > 0) {
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    combinedViewSQL =
+      `CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+  } else {
+    // If no tables were found, no view will be created
+    console.log(
+      "No matching tables found. The combined CGM tracing view will not be created.",
+    );
+  }
+
+  // Close the database connection
+  db.close();
+
+  return combinedViewSQL; // Return the generated SQL string
+}
+
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
@@ -174,5 +232,14 @@ if (import.meta.main) {
   if (detrendedDSCombinedCGMViewSQL) {
     console.log("Generated SQL for detrended fluctuation analysis dataset:");
     console.log(detrendedDSCombinedCGMViewSQL);
+  }
+
+  // Generate and log the SQL for the thrid  dataset
+  const CombinedRTCCGMSQL = generateCombinedRTCCGMSQL(
+    dbFilePath,
+  );
+  if (CombinedRTCCGMSQL) {
+    console.log("Generated SQL for RTCCGM dataset:");
+    console.log(CombinedRTCCGMSQL);
   }
 }
