@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 DROP TABLE IF EXISTS ur_transform_html_flattened_email_anchor_cached;
 CREATE TABLE ur_transform_html_flattened_email_anchor_cached AS
 SELECT
+    ABS(RANDOM()) AS anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     json_extract(json_each.value, '$.attributes.href') AS anchor,
@@ -42,7 +43,8 @@ FROM
 
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_subscription_filter_chached;
 CREATE TABLE ur_transform_html_email_anchor_subscription_filter_chached AS
-SELECT 
+SELECT
+    anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     anchor,
@@ -74,6 +76,7 @@ FROM
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_cached;
 CREATE TABLE ur_transform_html_email_anchor_cached AS
 SELECT
+    anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     CASE
@@ -131,14 +134,38 @@ WHERE
 -- This table can be used to analyze the content retrieved from anchor links in emails.
 
 
+-- TO DO: http_method currently done is temporary
+
+-- DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
+-- CREATE TABLE ur_transform_html_email_anchor_http_cached AS
+-- SELECT
+--         uniform_resource_transform_id,
+--         uniform_resource_id,
+--         anchor,
+--         http_timeout_set(7200000),
+--         http_get_body(anchor) as html_body
+--     FROM ur_transform_html_email_anchor_cached LIMIT 200;
+
+-- DROP TABLE IF EXISTS ur_transform_http_url_status_cached;
+CREATE TABLE IF NOT EXISTS ur_transform_http_url_status_cached (
+        uniform_resource_transform_id TEXT,
+        uniform_resource_id TEXT,
+        url TEXT,
+        html_body BLOB,
+        response_status_code INTEGER,
+        response_status TEXT,
+        message TEXT,
+        status TEXT
+    );
+
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
 CREATE TABLE ur_transform_html_email_anchor_http_cached AS
 SELECT
         uniform_resource_transform_id,
         uniform_resource_id,
-        anchor,
-        http_get_body(anchor) as html_body
-    FROM ur_transform_html_email_anchor_cached LIMIT 20;
+        url as anchor,
+        html_body
+    FROM ur_transform_http_url_status_cached WHERE status='Success';
 
 -- This query creates the table `ur_transform_html_email_anchor_canonical_cached` to cache
 -- canonical link information extracted from HTML documents retrieved from email anchor links.
@@ -224,6 +251,7 @@ SELECT
 DROP TABLE IF EXISTS ur_periodical_anchor_text_json_filter_cached;
 CREATE TABLE ur_periodical_anchor_text_json_filter_cached AS
 SELECT
+    anchor_id,
     anchor,
     anchor_text,
     json_extract(anchor_text, '$.attributes.alt') AS child,
@@ -335,6 +363,7 @@ WHERE
 DROP TABLE IF EXISTS ur_periodical_anchor_text_cached;
 CREATE TABLE ur_periodical_anchor_text_cached AS
 SELECT
+    parent.anchor_id,
     parent.anchor,
     -- Select the 'anchor_text' field from the parent table.
     parent.anchor_text,
@@ -437,24 +466,141 @@ SELECT
                 ur_transform_html_email_anchor_cached
             WHERE
                 json_valid(anchor_text) -- Only select rows with valid JSON
-                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor)
+                AND json_type(anchor_text) = 'object' AND parent.anchor_id = anchor_id)
         ELSE
             (SELECT
                 anchor_text
             FROM
                 ur_transform_html_email_anchor_cached
             WHERE
-                parent.anchor = anchor)
+                parent.anchor_id = anchor_id)
         END
         AS url_text
 FROM ur_transform_html_email_anchor_cached as parent;
 
 
-
+DROP TABLE IF EXISTS test_text;
+CREATE TABLE test_text AS
+SELECT
+    parent.anchor_id,
+    parent.anchor,
+    -- Select the 'anchor_text' field from the parent table.
+    parent.anchor_text,
+     -- 3. Check if the 'anchor_text' is a valid JSON structure and contains objects (using regexp_like).
+    CASE
+        WHEN regexp_like(anchor_text, '^\s*(\{(?:[^{}]|(?1))*\}|\[(?:[^[\]]|(?1))*\])\s*$') THEN -- check the field chaving string or json if json extract link text
+             (SELECT
+                CASE
+                 -- 4. Check if the JSON structure corresponds to an image ('img').
+                    WHEN json_extract(anchor_text, '$.name') = 'img' THEN -- if json name is img
+                        CASE
+                         -- 5. If the 'alt' attribute is not NULL or empty, use it; otherwise, use '[No Title]'.
+                            WHEN json_extract(anchor_text, '$.attributes.alt') IS NOT NULL AND json_extract(anchor_text, '$.attributes.alt') <> '' THEN json_extract(anchor_text, '$.attributes.alt')
+                            ELSE
+                            '[No Title]'  -- Default text when 'alt' attribute is not present.
+                            END
+                             -- 6. Handle other possible JSON elements like 'span', 'table', 'strong', 'u', 'b', 'mark'.
+                    WHEN json_extract(anchor_text, '$.name') = 'span' THEN
+                     -- Check for children and extract nested text.
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                            -- Recursively check for up to 9 nested levels within the 'children' array.
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                         -- Similar checks for 'table', 'strong', 'u', 'b', and 'mark' tags,
+                    -- extracting text from their respective 'children' or providing default '[No Title]'
+                    WHEN json_extract(anchor_text, '$.name') = 'table' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'strong' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'u' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'b' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'mark' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                    ELSE 'not added'
+                END AS url_text
+            FROM
+                ur_transform_html_email_anchor_cached
+            WHERE
+                json_valid(anchor_text) -- Only select rows with valid JSON
+                AND json_type(anchor_text) = 'object' AND parent.anchor_id = anchor_id)
+        ELSE
+            (SELECT
+                anchor_text
+            FROM
+                ur_transform_html_email_anchor_cached
+            WHERE
+                parent.anchor_id = anchor_id)
+        END
+        AS url_text
+FROM ur_transform_html_email_anchor_cached as parent;
 
 DROP TABLE IF EXISTS ur_removed_anchor_text_cached;
 CREATE TABLE ur_removed_anchor_text_cached AS
 SELECT
+    parent.anchor_id,
     parent.uniform_resource_transform_id,
     parent.uniform_resource_id,
     parent.anchor,
@@ -551,48 +697,44 @@ SELECT
                 ur_transform_html_email_anchor_subscription_filter_chached
             WHERE
                 json_valid(anchor_text) -- Only select rows with valid JSON
-                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor AND parent.uniform_resource_transform_id=uniform_resource_transform_id
-                AND parent.uniform_resource_transform_id=uniform_resource_transform_id)
+                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor AND parent.anchor_id=anchor_id)
         ELSE
             (SELECT
                 anchor_text
             FROM
                 ur_transform_html_email_anchor_subscription_filter_chached
             WHERE
-                parent.anchor = anchor AND parent.uniform_resource_transform_id=uniform_resource_transform_id
-                AND parent.uniform_resource_transform_id=uniform_resource_transform_id)
+                parent.anchor = anchor AND parent.anchor_id=anchor_id)
         END
         AS url_text
 FROM ur_transform_html_email_anchor_subscription_filter_chached as parent WHERE parent.anchor_type NOT NULL;
 DROP VIEW IF EXISTS periodicals_from_count;
 CREATE VIEW periodicals_from_count AS
-SELECT
-    COUNT(DISTINCT message_from) AS dashboard_from_count
-FROM
-    ur_periodical_chached;
+    SELECT
+        COUNT(DISTINCT message_from) AS dashboard_from_count
+    FROM
+        ur_periodical_chached;
 
 DROP VIEW IF EXISTS periodical_filtered_count;
 CREATE VIEW periodical_filtered_count AS
-SELECT
-    COUNT(anchor) AS dashboard_periodical_filtered_count
-FROM
-    ur_transform_html_email_anchor_cached;
+    SELECT
+        COUNT(anchor) AS dashboard_periodical_filtered_count
+    FROM
+        ur_transform_html_email_anchor_cached;
 
 DROP VIEW IF EXISTS anchor_removed_count;
 CREATE VIEW anchor_removed_count AS
-SELECT
-    COUNT(anchor) AS dashboard_anchor_removed_count
-FROM
-    ur_transform_html_email_anchor_subscription_filter_chached WHERE anchor_type NOT NULL;
+    SELECT
+        COUNT(anchor) AS dashboard_anchor_removed_count
+    FROM
+        ur_transform_html_email_anchor_subscription_filter_chached WHERE anchor_type NOT NULL;
 
 DROP VIEW IF EXISTS anchor_total_count;
 CREATE VIEW anchor_total_count AS
-SELECT
-    COUNT(anchor) AS dashboard_anchor_total_count
-FROM
-    ur_transform_html_email_anchor_subscription_filter_chached;
-
-
+    SELECT
+        COUNT(anchor) AS dashboard_anchor_total_count
+    FROM
+        ur_transform_html_email_anchor_subscription_filter_chached;
 
 DROP VIEW IF EXISTS periodicals_from;
 CREATE VIEW periodicals_from AS
@@ -612,11 +754,11 @@ CREATE VIEW periodicals_from AS
 DROP VIEW IF EXISTS periodicals_subject;
 CREATE VIEW periodicals_subject AS
     SELECT
-    periodical_uniform_resource_id,
-    message_from,
-    message_to,
-    message_subject,
-    message_date
+        periodical_uniform_resource_id,
+        message_from,
+        message_to,
+        message_subject,
+        message_date
     FROM
         ur_periodical_chached;
 
@@ -644,11 +786,35 @@ CREATE VIEW removed_anchor_list AS
         rmtxt.url_text
     FROM
         ur_transform_html_email_anchor_subscription_filter_chached rmlst
-        INNER JOIN ur_removed_anchor_text_cached rmtxt ON rmtxt.uniform_resource_id=rmlst.uniform_resource_id AND rmtxt.uniform_resource_transform_id=rmlst.uniform_resource_transform_id
-                AND rmlst.anchor=rmlst.anchor
+        INNER JOIN ur_removed_anchor_text_cached rmtxt ON rmtxt.uniform_resource_id=rmlst.uniform_resource_id
+        AND rmtxt.uniform_resource_transform_id=rmlst.uniform_resource_transform_id
+        AND rmlst.anchor=rmlst.anchor
         WHERE rmlst.anchor_type NOT NULL;
 
 
+DROP VIEW IF EXISTS error_link_count;
+CREATE VIEW error_link_count AS
+    SELECT
+        count(url) as error_count
+    FROM
+        ur_transform_http_url_status_cached WHERE status='Failed';
+
+DROP VIEW IF EXISTS error_link_list;
+CREATE VIEW error_link_list AS
+    SELECT
+        sc.url,
+        lnktxt.url_text,
+        sc.response_status_code,
+        sc.response_status,
+        sc.message,
+        pc.message_from,
+        pc.message_to,
+        pc.message_subject
+    FROM
+        ur_transform_http_url_status_cached sc
+        INNER JOIN ur_periodical_anchor_text_cached lnktxt ON lnktxt.anchor=sc.url
+        INNER JOIN ur_periodical_chached pc ON pc.periodical_uniform_resource_id=sc.uniform_resource_id
+        WHERE sc.status='Failed';
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
 
 -- console_information_schema_* are convenience views
@@ -2752,6 +2918,15 @@ select
     ''warning''           as color
 FROM anchor_total_count;
 
+select
+    ''Error Anchors''  as title,
+    ''## ''||error_count||'' ##'' as description_md,
+    TRUE                  as active,
+    ''exclamation-circle''       as icon,
+    ''danger''           as color,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/cak/error_periodicals.sql'' as link
+FROM error_link_count;
+
 -- Display uniform_resource table with pagination
 SELECT ''table'' AS component,
       ''subject'' AS markdown,
@@ -2845,9 +3020,9 @@ SET current_page = ($offset / $limit) + 1;
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&message_from='' || $message_from ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&message_from='' || $message_from ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
     AS contents_md;
             ',
       CURRENT_TIMESTAMP)
@@ -2894,7 +3069,12 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 select
 ''text''              as component,
 ''The Newsletter Link Details page provides a comprehensive list of URLs shared within a specific newsletter. For each entry, you’ll find the original URL as it appeared in the newsletter, the link text, and the canonical URL (standardized for consistent reference). This page also includes key metadata for each link, such as title, description, and any additional structured data, allowing for an in-depth look at the content and context of each link. This organized view makes it easy to analyze and manage all linked resources from the newsletter.'' as contents;
-
+ -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+  SET total_rows = (SELECT COUNT(*) FROM periodical_anchor WHERE uniform_resource_id=$periodical_uniform_resource_id);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
  SELECT ''table'' AS component,
       ''Column Count'' as align_right,
       TRUE as sort,
@@ -2909,7 +3089,14 @@ select
   FROM
     periodical_anchor
   WHERE
-    uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+    uniform_resource_id = $periodical_uniform_resource_id::TEXT
+   LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&periodical_uniform_resource_id='' || $periodical_uniform_resource_id ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&periodical_uniform_resource_id='' || $periodical_uniform_resource_id ||  '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3023,7 +3210,12 @@ select
 ''text''              as component,
 ''This feature removes links from newsletters that are related to subscription management. It checks for links containing keywords such as unsubscribe, opt-out, preferences, remove, manage, subscription, subscribe, email-settings, list-unsubscribe, mailto, or #main. These links allow recipients to modify or manage their email preferences and subscriptions.'' as contents;
 
- SELECT ''table'' AS component,
+SET total_rows = (SELECT COUNT(*) FROM removed_anchor_list WHERE uniform_resource_id=$periodical_uniform_resource_id);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+SELECT ''table'' AS component,
       ''Column Count'' as align_right,
       TRUE as sort,
       TRUE as search;
@@ -3033,7 +3225,71 @@ select
   FROM
     removed_anchor_list
   WHERE
-    uniform_resource_id = $periodical_uniform_resource_id::TEXT;
+    uniform_resource_id = $periodical_uniform_resource_id::TEXT
+  LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&periodical_uniform_resource_id='' || $periodical_uniform_resource_id ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&periodical_uniform_resource_id='' || $periodical_uniform_resource_id ||  '')'' ELSE '''' END)
+    AS contents_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'cak/error_periodicals.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              --- Display breadcrumb
+ SELECT
+    ''breadcrumb'' AS component;
+  SELECT
+    ''Home'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+  SELECT
+    ''Content Assembler'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/cak/index.sql'' AS link;
+  SELECT
+    ''Error Periodicals'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/cak/error_periodicals.sql'' AS link;
+
+  --- Dsply Page Title
+  SELECT
+      ''title''   as component,
+      ''Error Periodicals'' || $message_from as contents;
+
+   -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+
+
+  -- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+      ''Column Count'' as align_right,
+      TRUE as sort,
+      TRUE as search,
+      ''error links'' AS markdown;
+  SET total_rows = (SELECT COUNT(*) FROM error_link_list );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+  SELECT
+  ''[''|| url_text ||''](''|| url ||'')''   AS "error links",
+    response_status as "response",
+    response_status_code as "code",
+    message as "Error Message",
+    message_from as "from",
+    message_to as "to",
+    message_subject as subject
+  FROM error_link_list
+  LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
