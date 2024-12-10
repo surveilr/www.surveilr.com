@@ -284,6 +284,11 @@ $ surveilr ingest files -r ntlt/ && surveilr orchestrate transform-csv # (option
 $ surveilr ingest files -r direc-net-inPt-exercise/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
 ```
 
+```bash
+# Ingest and transform the CSV files in the "RT-CGM-Randomized-Clinical-Trial/" directory(Tamborlane from Awesome CGM), creating resource-surveillance.sqlite.db
+$ surveilr ingest  files -r RT-CGM-Randomized-Clinical-Trial/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
+```
+
 ### Running the SQL Package and Web UI
 
 For each Dataset a custom <packagefilename>.sql.ts will be created that perfoms the custom file transformation SQL generation and sqlpage setup
@@ -326,6 +331,12 @@ $ surveilr shell ./dataset-specific-package/ntlt-stateless.sql.ts
 ```bash
 # For (Tsalikian (2005 from Awesome CGM))
 $ surveilr shell ./dataset-specific-package/ieogc-package.sql.ts
+```
+
+```bash
+# Tamborlane from Awesome CGM)
+$ deno run -A ./study-specific-stateless/rtccgm-cgm-metadata-generator.ts
+$ surveilr shell ./dataset-specific-package/rtccgm-package.sql.ts
 ```
 
 # Start the server

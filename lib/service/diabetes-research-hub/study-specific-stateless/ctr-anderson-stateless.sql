@@ -4,14 +4,14 @@
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
 SET
-    email = anonymize_email (email)
+    email = surveilr_anonymize_email (email)
 WHERE
     email IS NOT NULL;
 
 -- Anonymize email addresses in the uniform_resource_author table
 UPDATE uniform_resource_author
 SET
-    email = anonymize_email (email)
+    email = surveilr_anonymize_email (email)
 WHERE
     email IS NOT NULL;
 
@@ -171,7 +171,7 @@ SELECT
     'De-identification', -- Nature of execution
     s.orchestration_session_id, -- Session ID from the temp view
     s.orchestration_session_entry_id, -- Session Entry ID from the temp view
-    'UPDATE uniform_resource_investigator SET email = anonymize_email(email) executed', -- Description of the executed code
+    'UPDATE uniform_resource_investigator SET email = surveilr_anonymize_email(email) executed', -- Description of the executed code
     'SUCCESS', -- Execution status
     'email column in uniform_resource_investigator', -- Input text reference
     'De-identification completed', -- Output text summary
@@ -213,7 +213,7 @@ SELECT
     'De-identification', -- Nature of execution
     s.orchestration_session_id, -- Session ID from the temp view
     s.orchestration_session_entry_id, -- Session Entry ID from the temp view
-    'UPDATE uniform_resource_author SET email = anonymize_email(email) executed', -- Description of the executed code
+    'UPDATE uniform_resource_author SET email = surveilr_anonymize_email(email) executed', -- Description of the executed code
     'SUCCESS', -- Execution status
     'email column in uniform_resource_author', -- Input text reference
     'De-identification completed', -- Output text summary

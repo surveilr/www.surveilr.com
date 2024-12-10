@@ -11,14 +11,14 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
 SET
-    email = anonymize_email (email)
+    email = surveilr_anonymize_email (email)
 WHERE
     email IS NOT NULL;
 
 -- Anonymize email addresses in the uniform_resource_author table
 UPDATE uniform_resource_author
 SET
-    email = anonymize_email (email)
+    email = surveilr_anonymize_email (email)
 WHERE
     email IS NOT NULL;
 
@@ -178,7 +178,7 @@ SELECT
     'De-identification', -- Nature of execution
     s.orchestration_session_id, -- Session ID from the temp view
     s.orchestration_session_entry_id, -- Session Entry ID from the temp view
-    'UPDATE uniform_resource_investigator SET email = anonymize_email(email) executed', -- Description of the executed code
+    'UPDATE uniform_resource_investigator SET email = surveilr_anonymize_email(email) executed', -- Description of the executed code
     'SUCCESS', -- Execution status
     'email column in uniform_resource_investigator', -- Input text reference
     'De-identification completed', -- Output text summary
@@ -220,7 +220,7 @@ SELECT
     'De-identification', -- Nature of execution
     s.orchestration_session_id, -- Session ID from the temp view
     s.orchestration_session_entry_id, -- Session Entry ID from the temp view
-    'UPDATE uniform_resource_author SET email = anonymize_email(email) executed', -- Description of the executed code
+    'UPDATE uniform_resource_author SET email = surveilr_anonymize_email(email) executed', -- Description of the executed code
     'SUCCESS', -- Execution status
     'email column in uniform_resource_author', -- Input text reference
     'De-identification completed', -- Output text summary
@@ -3971,31 +3971,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        ''https://app.devl.drh.diabetestechnology.org/js/d3-aide.js'' AS javascript,
        ''/js/chart-component.js'' AS javascript,
        json_object(
-            ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''drh/study/'',
-            ''title'', ''Study'',      
-            ''target'', '''',      
-            ''submenu'', (
-                SELECT json_group_array(
-                    json_object(
-                        ''title'', title,
-                        ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
-                        ''description'', description,
-                        ''target'', target                      
-                    )
-                )
-                FROM (
-                    SELECT
-                        COALESCE(abbreviated_caption, caption) as title,
-                        COALESCE(url, path) as link,
-                        description,
-                        elaboration as target
-                    FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''drh/study/''
-                    ORDER BY sibling_order
-                )
-            )
-        ) as menu_item,
-       json_object(
             ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''ur'',
             ''title'', ''Uniform Resource'',      
             ''target'', '''',      
@@ -4015,7 +3990,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''ur''
+                    WHERE namespace = ''prime'' AND parent_path = ''ur/index.sql''
                     ORDER BY sibling_order
                 )
             )
@@ -4040,7 +4015,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''console''
+                    WHERE namespace = ''prime'' AND parent_path = ''console/index.sql''
                     ORDER BY sibling_order
                 )
             )
@@ -4065,7 +4040,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''orchestration''
+                    WHERE namespace = ''prime'' AND parent_path = ''orchestration/index.sql''
                     ORDER BY sibling_order
                 )
             )
@@ -4090,7 +4065,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''https://drh.diabetestechnology.org/''
+                    WHERE namespace = ''prime'' AND parent_path = ''https://drh.diabetestechnology.org//index.sql''
                     ORDER BY sibling_order
                 )
             )
@@ -4115,7 +4090,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                         description,
                         elaboration as target
                     FROM sqlpage_aide_navigation
-                    WHERE namespace = ''prime'' AND parent_path = ''https://www.diabetestechnology.org/''
+                    WHERE namespace = ''prime'' AND parent_path = ''https://www.diabetestechnology.org//index.sql''
                     ORDER BY sibling_order
                 )
             )
@@ -6290,7 +6265,7 @@ FROM breadcrumbs ORDER BY level DESC;
     SELECT 
         ''start_date'' as name,
         ''Start Date'' as label,
-        strftime(''%Y-%m-%d'', COALESCE($start_date,MIN(Date_Time)))  as value, 
+         strftime(''%Y-%m-%d'', MIN(Date_Time))  as value, 
         ''date''       as type,
         6            as width,
         ''mt-1'' as class
@@ -6301,7 +6276,7 @@ FROM breadcrumbs ORDER BY level DESC;
     SELECT 
         ''end_date'' as name,
         ''End Date'' as label,
-         strftime(''%Y-%m-%d'', COALESCE($end_date,MAX(Date_Time)))  as value, 
+         strftime(''%Y-%m-%d'', MAX(Date_Time))  as value, 
         ''date''       as type,
          6             as width,
          ''mt-1'' as class
@@ -6371,7 +6346,7 @@ FROM breadcrumbs ORDER BY level DESC;
 SELECT 
     '''' AS title,
     ''white'' As background_color,
-    ''/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id='' || $participant_id ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/glucose-statistics-and-targets/index.sql?_sqlpage_embed&participant_id='' || $participant_id ||
     ''&start_date='' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     ''&end_date='' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -6387,7 +6362,7 @@ WHERE
 SELECT 
     '''' as title,
     ''white'' As background_color,
-    ''/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id='' || $participant_id ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/goals-for-type-1-and-type-2-diabetes/index.sql?_sqlpage_embed&participant_id='' || $participant_id ||
     ''&start_date='' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     ''&end_date='' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed
 FROM 
@@ -6402,19 +6377,19 @@ WHERE
 SELECT 
     '''' as title,
     ''white'' As background_color,
-    ''/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/ambulatory-glucose-profile/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
 SELECT 
     '''' as title,
     ''white'' As background_color,
-    ''/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/daily-gluecose-profile/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
 SELECT 
     '''' as title,
     ''white'' As background_color,
-    ''/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/glycemic_risk_indicator/index.sql?_sqlpage_embed&participant_id='' || $participant_id as embed;  
   SELECT 
     '''' as title,
     ''white'' As background_color,
-    ''/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id='' || $participant_id  || 
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/advanced_metrics/index.sql?_sqlpage_embed&participant_id='' || $participant_id  || 
     ''&start_date='' || COALESCE($start_date, participant_cgm_dates.cgm_start_date) ||
     ''&end_date='' || COALESCE($end_date, participant_cgm_dates.cgm_end_date) AS embed 
     FROM 
@@ -7386,7 +7361,7 @@ SET current_page = ($offset / $limit) + 1;
         ''participant_id'' as markdown,
         TRUE AS sort,
         TRUE AS search;        
-  SELECT tenant_id,format(''[%s](/drh/participant-info/index.sql?participant_id=%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM participant_dashboard_cached
+  SELECT tenant_id,format(''[%s](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/drh/participant-info/index.sql?participant_id=''||''%s)'',participant_id, participant_id) as participant_id,gender,age,study_arm,baseline_hba1c,cgm_devices,cgm_files,tir,tar_vh,tar_h,tbr_l,tbr_vl,tar,tbr,gmi,percent_gv,gri,days_of_wear,data_start_date,data_end_date FROM participant_dashboard_cached
   LIMIT $limit
   OFFSET $offset;
 
