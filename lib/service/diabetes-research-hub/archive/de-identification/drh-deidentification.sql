@@ -3,11 +3,11 @@
 
 -- Perform De-identification
 UPDATE uniform_resource_investigator
-SET email = anonymize_email(email)
+SET email = surveilr_anonymize_email(email)
 WHERE email IS NOT NULL;
 
 UPDATE uniform_resource_author
-SET email = anonymize_email(email)
+SET email = surveilr_anonymize_email(email)
 WHERE email IS NOT NULL;
 
 
@@ -40,7 +40,7 @@ SELECT
     'De-identification',
     s.orchestration_session_id,
     s.orchestration_session_entry_id,
-    'UPDATE uniform_resource_investigator SET email = anonymize_email(email) executed',
+    'UPDATE uniform_resource_investigator SET email = surveilr_anonymize_email(email) executed',
     'SUCCESS',
     'email column in uniform_resource_investigator',
     'De-identification completed',
@@ -69,7 +69,7 @@ SELECT
     'De-identification',
     s.orchestration_session_id,
     s.orchestration_session_entry_id,
-    'UPDATE uniform_resource_author SET email = anonymize_email(email) executed',
+    'UPDATE uniform_resource_author SET email = surveilr_anonymize_email(email) executed',
     'SUCCESS',
     'email column in uniform_resource_author',
     'De-identification completed',

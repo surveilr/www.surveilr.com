@@ -1560,6 +1560,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       total_progress: gd.integerNullable(),
       resolution_name: gd.textNullable(),
       resolution_date: gd.textNullable(),
+      elaboration: gd.jsonTextNullable(),
       ...gm.housekeeping.columns,
     },
     {

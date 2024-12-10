@@ -83,47 +83,99 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
+  // @docsNav({
+  //   caption: "SQL Functions",
+  //   description: "surveilr specific SQLite functions for extensibilty",
+  //   siblingOrder: 99,
+  // })
+  // async "docs/sql-functions.sql"() {
+  //   const sqlSnippets: string[] = [];
+  //   const directory = path.fromFileUrl(
+  //     import.meta.resolve(`../docs/sql-functions`),
+  //   );
+  //   for await (const entry of Deno.readDir(directory)) {
+  //     if (entry.isFile && entry.name.endsWith(".md")) {
+  //       const function_entry = entry.name.replace(".md", "").split("-");
+  //       const title = function_entry[0];
+  //       const version = function_entry[1];
+
+  //       const content = await this.fetchTextForSqlLiteral(
+  //         import.meta.resolve(`${directory}/${entry.name}`),
+  //       );
+  //       const sqlSnippet = `
+  //                   SELECT 
+  //                       '${title}'  as title,
+  //                       '${content}' as description_md,
+  //                       'green'  as color,
+  //                       '${version}' as footer_md;
+  //               `;
+
+  //       sqlSnippets.push(sqlSnippet);
+  //     }
+  //   }
+
+  //   return this.SQL`
+  //           SELECT 'title' as component, 'surveilr SQLite Functions' as contents;
+  //           SELECT 'text' as component, 
+  //           'Below is a comprehensive list and description of all \`\`surveilr\`\` SQLite functions exposed during any execution. This document details each function, it''s
+  //           parameters/arguments and the return type if any. Also included is the version number of when it was introduced in \`\`surveilr\`\`.
+  //           Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the \`\`surveilr\`\` repository.
+  //           ' as contents_md;
+  //           SELECT 'card' as component, 2 as columns;
+  //           ${sqlSnippets.join("\n")}
+  //       `;
+  // }
+
   @docsNav({
     caption: "SQL Functions",
     description: "surveilr specific SQLite functions for extensibilty",
     siblingOrder: 99,
   })
-  async "docs/sql-functions.sql"() {
-    const sqlSnippets: string[] = [];
-    const directory = path.fromFileUrl(
-      import.meta.resolve(`../docs/sql-functions`),
-    );
-    for await (const entry of Deno.readDir(directory)) {
-      if (entry.isFile && entry.name.endsWith(".md")) {
-        const function_entry = entry.name.replace(".md", "").split("-");
-        const title = function_entry[0];
-        const version = function_entry[1];
+  "docs/functions.sql"() {
+   return this.SQL`
+        SELECT 'text' AS component, 'Surveilr SQLite Functions' AS title WHERE $function IS NULL;
+        SELECT 'text' AS component, 
+              'Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.' 
+              AS contents_md WHERE $function IS NULL;
 
-        const content = await this.fetchTextForSqlLiteral(
-          import.meta.resolve(`${directory}/${entry.name}`),
-        );
-        const sqlSnippet = `
-                    SELECT 
-                        '${title}'  as title,
-                        '${content}' as description_md,
-                        'green'  as color,
-                        '${version}' as footer_md;
-                `;
+        SELECT 'list' AS component, 'Surveilr Functions' AS title WHERE $function IS NULL;
+        SELECT name AS title,
+              NULL AS icon,  -- Add an icon field if applicable
+              '?function=' || name || '#function' AS link,
+              $function = name AS active
+        FROM surveilr_function_doc
+        ORDER BY name;
 
-        sqlSnippets.push(sqlSnippet);
-      }
-    }
+        SELECT 'text' AS component, '' || name || '()' AS title, 'function' AS id
+        FROM surveilr_function_doc WHERE name = $function;
 
-    return this.SQL`
-            SELECT 'title' as component, 'surveilr SQLite Functions' as contents;
-            SELECT 'text' as component, 
-            'Below is a comprehensive list and description of all \`\`surveilr\`\` SQLite functions exposed during any execution. This document details each function, it''s
-            parameters/arguments and the return type if any. Also included is the version number of when it was introduced in \`\`surveilr\`\`.
-            Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the \`\`surveilr\`\` repository.
-            ' as contents_md;
-            SELECT 'card' as component, 2 as columns;
-            ${sqlSnippets.join("\n")}
-        `;
+        SELECT 'text' AS component, description AS contents_md
+        FROM surveilr_function_doc WHERE name = $function;
+
+        SELECT 'text' AS component,
+              'Introduced in version ' || version || '.' AS contents
+        FROM surveilr_function_doc WHERE name = $function;
+
+        SELECT 'title' AS component, 3 AS level, 'Parameters' AS contents 
+        WHERE $function IS NOT NULL;
+
+        SELECT 'card' AS component, 3 AS columns WHERE $function IS NOT NULL;
+        SELECT 
+            json_each.value ->> '$.name' AS title,
+            json_each.value ->> '$.description' AS description,
+            json_each.value ->> '$.data_type' AS footer,
+            'azure' AS color
+        FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+        WHERE name = $function;
+
+        -- Navigation Buttons
+        SELECT 'button' AS component, 'sm' AS size, 'pill' AS shape;
+        SELECT name AS title,
+              NULL AS icon,  -- Add an icon field if needed
+              sqlpage.link('functions.sql', json_object('function', name)) AS link
+        FROM surveilr_function_doc
+        ORDER BY name;
+   `
   }
 
   //   @docsNav({
