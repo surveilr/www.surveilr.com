@@ -11,6 +11,7 @@
 DROP TABLE IF EXISTS ur_transform_html_flattened_email_anchor_cached;
 CREATE TABLE ur_transform_html_flattened_email_anchor_cached AS
 SELECT
+    ABS(RANDOM()) AS anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     json_extract(json_each.value, '$.attributes.href') AS anchor,
@@ -36,6 +37,7 @@ FROM
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_subscription_filter_chached;
 CREATE TABLE ur_transform_html_email_anchor_subscription_filter_chached AS
 SELECT
+    anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     anchor,
@@ -67,6 +69,7 @@ FROM
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_cached;
 CREATE TABLE ur_transform_html_email_anchor_cached AS
 SELECT
+    anchor_id,
     uniform_resource_transform_id,
     uniform_resource_id,
     CASE
@@ -124,15 +127,38 @@ WHERE
 -- This table can be used to analyze the content retrieved from anchor links in emails.
 
 
+-- TO DO: http_method currently done is temporary
+
+-- DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
+-- CREATE TABLE ur_transform_html_email_anchor_http_cached AS
+-- SELECT
+--         uniform_resource_transform_id,
+--         uniform_resource_id,
+--         anchor,
+--         http_timeout_set(7200000),
+--         http_get_body(anchor) as html_body
+--     FROM ur_transform_html_email_anchor_cached LIMIT 200;
+
+-- DROP TABLE IF EXISTS ur_transform_http_url_status_cached;
+CREATE TABLE IF NOT EXISTS ur_transform_http_url_status_cached (
+        uniform_resource_transform_id TEXT,
+        uniform_resource_id TEXT,
+        url TEXT,
+        html_body BLOB,
+        response_status_code INTEGER,
+        response_status TEXT,
+        message TEXT,
+        status TEXT
+    );
+
 DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
 CREATE TABLE ur_transform_html_email_anchor_http_cached AS
 SELECT
         uniform_resource_transform_id,
         uniform_resource_id,
-        anchor,
-        http_timeout_set(7200000),
-        http_get_body(anchor) as html_body
-    FROM ur_transform_html_email_anchor_cached LIMIT 20;
+        url as anchor,
+        html_body
+    FROM ur_transform_http_url_status_cached WHERE status='Success';
 
 -- This query creates the table `ur_transform_html_email_anchor_canonical_cached` to cache
 -- canonical link information extracted from HTML documents retrieved from email anchor links.
@@ -218,6 +244,7 @@ SELECT
 DROP TABLE IF EXISTS ur_periodical_anchor_text_json_filter_cached;
 CREATE TABLE ur_periodical_anchor_text_json_filter_cached AS
 SELECT
+    anchor_id,
     anchor,
     anchor_text,
     json_extract(anchor_text, '$.attributes.alt') AS child,
@@ -329,6 +356,7 @@ WHERE
 DROP TABLE IF EXISTS ur_periodical_anchor_text_cached;
 CREATE TABLE ur_periodical_anchor_text_cached AS
 SELECT
+    parent.anchor_id,
     parent.anchor,
     -- Select the 'anchor_text' field from the parent table.
     parent.anchor_text,
@@ -431,24 +459,141 @@ SELECT
                 ur_transform_html_email_anchor_cached
             WHERE
                 json_valid(anchor_text) -- Only select rows with valid JSON
-                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor)
+                AND json_type(anchor_text) = 'object' AND parent.anchor_id = anchor_id)
         ELSE
             (SELECT
                 anchor_text
             FROM
                 ur_transform_html_email_anchor_cached
             WHERE
-                parent.anchor = anchor)
+                parent.anchor_id = anchor_id)
         END
         AS url_text
 FROM ur_transform_html_email_anchor_cached as parent;
 
 
-
+DROP TABLE IF EXISTS test_text;
+CREATE TABLE test_text AS
+SELECT
+    parent.anchor_id,
+    parent.anchor,
+    -- Select the 'anchor_text' field from the parent table.
+    parent.anchor_text,
+     -- 3. Check if the 'anchor_text' is a valid JSON structure and contains objects (using regexp_like).
+    CASE
+        WHEN regexp_like(anchor_text, '^\s*(\{(?:[^{}]|(?1))*\}|\[(?:[^[\]]|(?1))*\])\s*$') THEN -- check the field chaving string or json if json extract link text
+             (SELECT
+                CASE
+                 -- 4. Check if the JSON structure corresponds to an image ('img').
+                    WHEN json_extract(anchor_text, '$.name') = 'img' THEN -- if json name is img
+                        CASE
+                         -- 5. If the 'alt' attribute is not NULL or empty, use it; otherwise, use '[No Title]'.
+                            WHEN json_extract(anchor_text, '$.attributes.alt') IS NOT NULL AND json_extract(anchor_text, '$.attributes.alt') <> '' THEN json_extract(anchor_text, '$.attributes.alt')
+                            ELSE
+                            '[No Title]'  -- Default text when 'alt' attribute is not present.
+                            END
+                             -- 6. Handle other possible JSON elements like 'span', 'table', 'strong', 'u', 'b', 'mark'.
+                    WHEN json_extract(anchor_text, '$.name') = 'span' THEN
+                     -- Check for children and extract nested text.
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                            -- Recursively check for up to 9 nested levels within the 'children' array.
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                         -- Similar checks for 'table', 'strong', 'u', 'b', and 'mark' tags,
+                    -- extracting text from their respective 'children' or providing default '[No Title]'
+                    WHEN json_extract(anchor_text, '$.name') = 'table' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'strong' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'u' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'b' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children[0]') IS NOT NULL AND json_extract(anchor_text, '$.children[0]') <> '' THEN json_extract(anchor_text, '$.children[0]')
+                        ELSE
+                            '[No Title]'
+                        END
+                    WHEN json_extract(anchor_text, '$.name') = 'mark' THEN
+                        CASE
+                            WHEN json_extract(anchor_text, '$.children') NOT NULL THEN
+                            CASE
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 0 THEN json_extract(anchor_text, '$.children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 1 THEN json_extract(anchor_text, '$.children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 2 THEN json_extract(anchor_text, '$.children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 3 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 4 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 5 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 6 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 7 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 8 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                                WHEN text_count(json_extract(anchor_text, '$.children[0]'), 'children') = 9 THEN json_extract(anchor_text, '$.children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]')
+                            END
+                        ELSE
+                            'Not object'
+                        END
+                    ELSE 'not added'
+                END AS url_text
+            FROM
+                ur_transform_html_email_anchor_cached
+            WHERE
+                json_valid(anchor_text) -- Only select rows with valid JSON
+                AND json_type(anchor_text) = 'object' AND parent.anchor_id = anchor_id)
+        ELSE
+            (SELECT
+                anchor_text
+            FROM
+                ur_transform_html_email_anchor_cached
+            WHERE
+                parent.anchor_id = anchor_id)
+        END
+        AS url_text
+FROM ur_transform_html_email_anchor_cached as parent;
 
 DROP TABLE IF EXISTS ur_removed_anchor_text_cached;
 CREATE TABLE ur_removed_anchor_text_cached AS
 SELECT
+    parent.anchor_id,
     parent.uniform_resource_transform_id,
     parent.uniform_resource_id,
     parent.anchor,
@@ -545,16 +690,14 @@ SELECT
                 ur_transform_html_email_anchor_subscription_filter_chached
             WHERE
                 json_valid(anchor_text) -- Only select rows with valid JSON
-                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor AND parent.uniform_resource_transform_id=uniform_resource_transform_id
-                AND parent.uniform_resource_transform_id=uniform_resource_transform_id)
+                AND json_type(anchor_text) = 'object' AND parent.anchor = anchor AND parent.anchor_id=anchor_id)
         ELSE
             (SELECT
                 anchor_text
             FROM
                 ur_transform_html_email_anchor_subscription_filter_chached
             WHERE
-                parent.anchor = anchor AND parent.uniform_resource_transform_id=uniform_resource_transform_id
-                AND parent.uniform_resource_transform_id=uniform_resource_transform_id)
+                parent.anchor = anchor AND parent.anchor_id=anchor_id)
         END
         AS url_text
 FROM ur_transform_html_email_anchor_subscription_filter_chached as parent WHERE parent.anchor_type NOT NULL;
