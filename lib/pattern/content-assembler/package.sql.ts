@@ -128,6 +128,15 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           'warning'           as color
       FROM anchor_total_count;
 
+      select
+          'Error Anchors'  as title,
+          '## '||error_count||' ##' as description_md,
+          TRUE                  as active,
+          'exclamation-circle'       as icon,
+          'danger'           as color,
+          ${this.absoluteURL("/cak/error_periodicals.sql")} as link
+      FROM error_link_count;
+
       -- Display uniform_resource table with pagination
       SELECT 'table' AS component,
             'subject' AS markdown,
@@ -226,12 +235,17 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       WHERE message_from=$message_from::TEXT
       LIMIT $limit
       OFFSET $offset;
-      ${pagination.renderSimpleMarkdown("message_from")};
+      ${pagination.renderSimpleMarkdown()};
       `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "cak/periodical_anchor.sql"() {
+    const viewName = `periodical_anchor`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE uniform_resource_id=$periodical_uniform_resource_id",
+    });
     return this.SQL`
 
     --- Display breadcrumb
@@ -275,7 +289,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     select
     'text'              as component,
     'The Newsletter Link Details page provides a comprehensive list of URLs shared within a specific newsletter. For each entry, you’ll find the original URL as it appeared in the newsletter, the link text, and the canonical URL (standardized for consistent reference). This page also includes key metadata for each link, such as title, description, and any additional structured data, allowing for an in-depth look at the content and context of each link. This organized view makes it easy to analyze and manage all linked resources from the newsletter.' as contents;
-
+     -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+      ${pagination.init()}
      SELECT 'table' AS component,
           'Column Count' as align_right,
           TRUE as sort,
@@ -290,9 +305,12 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       this.absoluteURL("/cak/periodicals_meta.sql?url=")
     } || orginal_url || ')' AS "meta data"
       FROM
-        periodical_anchor
+        ${viewName}
       WHERE
         uniform_resource_id = $periodical_uniform_resource_id::TEXT
+       LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown("periodical_uniform_resource_id")};
     `;
   }
 
@@ -368,6 +386,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "cak/periodical_removed_anchor.sql"() {
+    const viewName = `removed_anchor_list`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE uniform_resource_id=$periodical_uniform_resource_id",
+    });
     return this.SQL`
 
     --- Display breadcrumb
@@ -412,7 +435,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     'text'              as component,
     'This feature removes links from newsletters that are related to subscription management. It checks for links containing keywords such as unsubscribe, opt-out, preferences, remove, manage, subscription, subscribe, email-settings, list-unsubscribe, mailto, or #main. These links allow recipients to modify or manage their email preferences and subscriptions.' as contents;
 
-     SELECT 'table' AS component,
+    ${pagination.init()}
+    SELECT 'table' AS component,
           'Column Count' as align_right,
           TRUE as sort,
           TRUE as search;
@@ -420,10 +444,64 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         anchor  AS "original link url",
         url_text as 'url text'
       FROM
-        removed_anchor_list
+        ${viewName}
       WHERE
         uniform_resource_id = $periodical_uniform_resource_id::TEXT
+      LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown("periodical_uniform_resource_id")};
     `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "cak/error_periodicals.sql"() {
+    const viewName = `error_link_list`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+    --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'Content Assembler' AS title,
+        ${this.absoluteURL("/cak/index.sql")} AS link;
+      SELECT
+        'Error Periodicals' AS title,
+        ${this.absoluteURL("/cak/error_periodicals.sql")} AS link;
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          'Error Periodicals' || $message_from as contents;
+
+       -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+
+
+      -- Display uniform_resource table with pagination
+      SELECT 'table' AS component,
+          'Column Count' as align_right,
+          TRUE as sort,
+          TRUE as search,
+          'error links' AS markdown;
+      ${pagination.init()}
+      SELECT
+      '['|| url_text ||']('|| url ||')'   AS "error links",
+        response_status as "response",
+        response_status_code as "code",
+        message as "Error Message",
+        message_from as "from",
+        message_to as "to",
+        message_subject as subject
+      FROM ${viewName}
+      LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown()};
+      `;
   }
 }
 
@@ -451,7 +529,7 @@ export async function SQL() {
   );
 }
 
-// this will be used by any callers who want to serve it as a CLI with SDTOUT
+// // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
   console.log((await SQL()).join("\n"));
 }
