@@ -3,12 +3,12 @@
 -- Perform De-identification
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
-SET email = anonymize_email(email)
+SET email = surveilr_anonymize_email(email)
 WHERE email IS NOT NULL;
 
 -- Anonymize email addresses in the uniform_resource_author table
 UPDATE uniform_resource_author
-SET email = anonymize_email(email)
+SET email = surveilr_anonymize_email(email)
 WHERE email IS NOT NULL;
 
 

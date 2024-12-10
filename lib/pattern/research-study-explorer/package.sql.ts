@@ -3,6 +3,18 @@ import { sqlPageNB as spn } from "./deps.ts";
 import * as pkg from "./drh-basepackage.sql.ts";
 
 export class dclp1SingleCGMSqlPages extends spn.TypicalSqlPageNotebook {
+  // Metrics static views will be generated after the combined_cgm_tracing is created.
+  async statelessMetricsSQL() {
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve("./drh-metrics.sql"),
+    );
+  }
+
+  async statelessMetricsExplanationSQL() {
+    return await spn.TypicalSqlPageNotebook.fetchText(
+      import.meta.resolve("./metrics-explanation-dml.sql"),
+    );
+  }
 }
 
 export async function dclp1SingleCGMSQL() {
