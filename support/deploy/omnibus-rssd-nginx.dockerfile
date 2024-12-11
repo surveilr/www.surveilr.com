@@ -153,6 +153,16 @@ RUN echo '#!/bin/bash' > /configure_nginx.sh && \
     echo '    echo "       proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo '    echo "       proxy_set_header X-Forwarded-Proto \$scheme;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo '    echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '    if [[ "$relative_path" == "lib/pattern/direct-messaging-service" ]]; then' >> /configure_nginx.sh && \
+    echo '      echo "" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "    location /lib/pattern/direct-messaging-service/assets/ {" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "       alias /rssd/assets/;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "    location /lib/pattern/direct-messaging-service/ingest/ {" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "       alias /rssd/ingest/;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '      echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo '    fi' >> /configure_nginx.sh && \
     echo '  fi' >> /configure_nginx.sh && \
     echo 'done' >> /configure_nginx.sh && \
     echo 'echo "}" >> "$nginx_conf"' >> /configure_nginx.sh && \
