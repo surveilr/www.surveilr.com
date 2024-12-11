@@ -24,13 +24,19 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
                 WITH navigation_cte AS (
                 SELECT COALESCE(title, caption) as title, description
                     FROM sqlpage_aide_navigation
-                WHERE namespace = 'prime' AND path = ${this.constructHomePath("docs")}
+                WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("docs")
+    }
                 )
                 SELECT 'list' AS component, title, description
                     FROM navigation_cte;
-                SELECT caption as title, ${this.absoluteURL('/')} || COALESCE(url, path) as link, description
+                SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
                     FROM sqlpage_aide_navigation
-                WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("docs")}
+                WHERE namespace = 'prime' AND parent_path =  ${
+      this.constructHomePath("docs")
+    }
                 ORDER BY sibling_order;
             `;
   }
@@ -56,7 +62,8 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
       const versionB = b.name.replace(".md", "").split(".").map(Number);
 
       for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
-        const numA = versionA[i] || 0; const numB = versionB[i] || 0;
+        const numA = versionA[i] || 0;
+        const numB = versionB[i] || 0;
         if (numA !== numB) {
           return numB - numA;
         }
@@ -103,7 +110,7 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
   //         import.meta.resolve(`${directory}/${entry.name}`),
   //       );
   //       const sqlSnippet = `
-  //                   SELECT 
+  //                   SELECT
   //                       '${title}'  as title,
   //                       '${content}' as description_md,
   //                       'green'  as color,
@@ -116,7 +123,7 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
 
   //   return this.SQL`
   //           SELECT 'title' as component, 'surveilr SQLite Functions' as contents;
-  //           SELECT 'text' as component, 
+  //           SELECT 'text' as component,
   //           'Below is a comprehensive list and description of all \`\`surveilr\`\` SQLite functions exposed during any execution. This document details each function, it''s
   //           parameters/arguments and the return type if any. Also included is the version number of when it was introduced in \`\`surveilr\`\`.
   //           Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the \`\`surveilr\`\` repository.
@@ -129,38 +136,59 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
   @docsNav({
     caption: "SQL Functions",
     description: "surveilr specific SQLite functions for extensibilty",
-    siblingOrder: 99,
+    siblingOrder: 2,
   })
   "docs/functions.sql"() {
-   return this.SQL`
-        SELECT 'text' AS component, 'Surveilr SQLite Functions' AS title WHERE $function IS NULL;
-        SELECT 'text' AS component, 
-              'Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.' 
-              AS contents_md WHERE $function IS NULL;
+    return this.SQL`
+        -- To display title
+        SELECT
+          'text' AS component,
+          'Surveilr SQLite Functions' AS title
+          WHERE $function IS NULL;
 
-        SELECT 'list' AS component, 'Surveilr Functions' AS title WHERE $function IS NULL;
-        SELECT name AS title,
-              NULL AS icon,  -- Add an icon field if applicable
-              '?function=' || name || '#function' AS link,
-              $function = name AS active
-        FROM surveilr_function_doc
-        ORDER BY name;
+        SELECT
+          'text' AS component,
+          'Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.'
+          AS contents_md WHERE $function IS NULL;
 
-        SELECT 'text' AS component, '' || name || '()' AS title, 'function' AS id
+        SELECT
+        'list' AS component,
+        'Surveilr Functions' AS title
+        WHERE $function IS NULL;
+
+          SELECT  name AS title,
+                NULL AS icon,  -- Add an icon field if applicable
+                'functions-inner.sql?function=' || name || '#function' AS link,
+                $function = name AS active
+          FROM surveilr_function_doc
+          ORDER BY name;
+
+        SELECT
+          'text' AS component,
+          '' || name || '()' AS title, 'function' AS id
         FROM surveilr_function_doc WHERE name = $function;
 
-        SELECT 'text' AS component, description AS contents_md
+        SELECT
+          'text' AS component,
+          description AS contents_md
         FROM surveilr_function_doc WHERE name = $function;
 
-        SELECT 'text' AS component,
-              'Introduced in version ' || version || '.' AS contents
+        SELECT
+          'text' AS component,
+          'Introduced in version ' || version || '.' AS contents
         FROM surveilr_function_doc WHERE name = $function;
 
-        SELECT 'title' AS component, 3 AS level, 'Parameters' AS contents 
+        SELECT
+          'title' AS component,
+          3 AS level,
+          'Parameters' AS contents
         WHERE $function IS NOT NULL;
 
-        SELECT 'card' AS component, 3 AS columns WHERE $function IS NOT NULL;
-        SELECT 
+        SELECT
+          'card' AS component,
+          3 AS columns
+          WHERE $function IS NOT NULL;
+        SELECT
             json_each.value ->> '$.name' AS title,
             json_each.value ->> '$.description' AS description,
             json_each.value ->> '$.data_type' AS footer,
@@ -175,7 +203,72 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
               sqlpage.link('functions.sql', json_object('function', name)) AS link
         FROM surveilr_function_doc
         ORDER BY name;
-   `
+   `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "docs/functions-inner.sql"() {
+    return this.SQL`
+
+      select
+        'breadcrumb' as component;
+      select
+        'Home' as title,
+        ${this.absoluteURL("/")} as link;
+      select
+        'Docs' as title,
+         ${this.absoluteURL("/docs/index.sql")} as link;
+      select
+        'SQL Functions' as title,
+         ${this.absoluteURL("/docs/functions.sql")} as link;
+      select
+        $function as title,
+        ${
+      this.absoluteURL("/docs/functions-inner.sql?function=")
+    }  || $function AS link;
+
+
+        SELECT
+          'text' AS component,
+          '' || name || '()' AS title, 'function' AS id
+        FROM surveilr_function_doc WHERE name = $function;
+
+        SELECT
+          'text' AS component,
+          description AS contents_md
+        FROM surveilr_function_doc WHERE name = $function;
+
+        SELECT
+          'text' AS component,
+          'Introduced in version ' || version || '.' AS contents
+        FROM surveilr_function_doc WHERE name = $function;
+
+        SELECT
+          'title' AS component,
+          3 AS level,
+          'Parameters' AS contents
+        WHERE $function IS NOT NULL;
+
+        SELECT
+          'card' AS component,
+          3 AS columns
+          WHERE $function IS NOT NULL;
+        SELECT
+            json_each.value ->> '$.name' AS title,
+            json_each.value ->> '$.description' AS description,
+            json_each.value ->> '$.data_type' AS footer,
+            'azure' AS color
+        FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+        WHERE name = $function;
+
+        -- Navigation Buttons
+        SELECT 'button' AS component, 'sm' AS size, 'pill' AS shape;
+        SELECT name AS title,
+              NULL AS icon,  -- Add an icon field if needed
+              sqlpage.link('functions.sql', json_object('function', name)) AS link
+        FROM surveilr_function_doc
+        ORDER BY name;
+   `;
   }
 
   //   @docsNav({
