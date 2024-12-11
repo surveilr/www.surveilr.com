@@ -586,7 +586,7 @@ INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path
 VALUES
     ('prime', 'index.sql', 1, 'docs/index.sql', 'docs/index.sql', 'Docs', NULL, NULL, 'Explore surveilr functions and release notes', NULL),
     ('prime', 'docs/index.sql', 99, 'docs/release-notes.sql', 'docs/release-notes.sql', 'Release Notes', NULL, NULL, 'surveilr releases details', NULL),
-    ('prime', 'docs/index.sql', 99, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
+    ('prime', 'docs/index.sql', 2, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -2362,34 +2362,55 @@ sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
 
-              SELECT ''text'' AS component, ''Surveilr SQLite Functions'' AS title WHERE $function IS NULL;
-SELECT ''text'' AS component, 
-      ''Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.'' 
-      AS contents_md WHERE $function IS NULL;
+              -- To display title
+SELECT
+  ''text'' AS component,
+  ''Surveilr SQLite Functions'' AS title
+  WHERE $function IS NULL;
 
-SELECT ''list'' AS component, ''Surveilr Functions'' AS title WHERE $function IS NULL;
-SELECT name AS title,
-      NULL AS icon,  -- Add an icon field if applicable
-      ''?function='' || name || ''#function'' AS link,
-      $function = name AS active
-FROM surveilr_function_doc
-ORDER BY name;
+SELECT
+  ''text'' AS component,
+  ''Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.''
+  AS contents_md WHERE $function IS NULL;
 
-SELECT ''text'' AS component, '''' || name || ''()'' AS title, ''function'' AS id
+SELECT
+''list'' AS component,
+''Surveilr Functions'' AS title
+WHERE $function IS NULL;
+
+  SELECT  name AS title,
+        NULL AS icon,  -- Add an icon field if applicable
+        ''functions-inner.sql?function='' || name || ''#function'' AS link,
+        $function = name AS active
+  FROM surveilr_function_doc
+  ORDER BY name;
+
+SELECT
+  ''text'' AS component,
+  '''' || name || ''()'' AS title, ''function'' AS id
 FROM surveilr_function_doc WHERE name = $function;
 
-SELECT ''text'' AS component, description AS contents_md
+SELECT
+  ''text'' AS component,
+  description AS contents_md
 FROM surveilr_function_doc WHERE name = $function;
 
-SELECT ''text'' AS component,
-      ''Introduced in version '' || version || ''.'' AS contents
+SELECT
+  ''text'' AS component,
+  ''Introduced in version '' || version || ''.'' AS contents
 FROM surveilr_function_doc WHERE name = $function;
 
-SELECT ''title'' AS component, 3 AS level, ''Parameters'' AS contents 
+SELECT
+  ''title'' AS component,
+  3 AS level,
+  ''Parameters'' AS contents
 WHERE $function IS NOT NULL;
 
-SELECT ''card'' AS component, 3 AS columns WHERE $function IS NOT NULL;
-SELECT 
+SELECT
+  ''card'' AS component,
+  3 AS columns
+  WHERE $function IS NOT NULL;
+SELECT
     json_each.value ->> ''$.name'' AS title,
     json_each.value ->> ''$.description'' AS description,
     json_each.value ->> ''$.data_type'' AS footer,
@@ -2404,6 +2425,72 @@ SELECT name AS title,
       sqlpage.link(''functions.sql'', json_object(''function'', name)) AS link
 FROM surveilr_function_doc
 ORDER BY name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/functions-inner.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              
+select
+  ''breadcrumb'' as component;
+select
+  ''Home'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+select
+  ''Docs'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/index.sql'' as link;
+select
+  ''SQL Functions'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/functions.sql'' as link;
+select
+  $function as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/functions-inner.sql?function=''  || $function AS link;
+
+
+  SELECT
+    ''text'' AS component,
+    '''' || name || ''()'' AS title, ''function'' AS id
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''text'' AS component,
+    description AS contents_md
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''text'' AS component,
+    ''Introduced in version '' || version || ''.'' AS contents
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''title'' AS component,
+    3 AS level,
+    ''Parameters'' AS contents
+  WHERE $function IS NOT NULL;
+
+  SELECT
+    ''card'' AS component,
+    3 AS columns
+    WHERE $function IS NOT NULL;
+  SELECT
+      json_each.value ->> ''$.name'' AS title,
+      json_each.value ->> ''$.description'' AS description,
+      json_each.value ->> ''$.data_type'' AS footer,
+      ''azure'' AS color
+  FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+  WHERE name = $function;
+
+  -- Navigation Buttons
+  SELECT ''button'' AS component, ''sm'' AS size, ''pill'' AS shape;
+  SELECT name AS title,
+        NULL AS icon,  -- Add an icon field if needed
+        sqlpage.link(''functions.sql'', json_object(''function'', name)) AS link
+  FROM surveilr_function_doc
+  ORDER BY name;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
