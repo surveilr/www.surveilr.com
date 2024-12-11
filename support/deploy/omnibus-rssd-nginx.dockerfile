@@ -59,6 +59,18 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
       fi; \
     done"
 
+# Find directories containing `eg.surveilr.com-final.ts`, prepare RSSDs dependencies
+RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg.surveilr.com-final.ts' -exec dirname {} \;)) && \
+for path in \"\${RSSD_SRC_PATH[@]}\"; do \
+      relative_path=\$(echo \"\$path\" | sed 's#/app/www.surveilr.com/##'); \
+      rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
+      basename_path=\$(basename \"\$relative_path\"); \
+      cd \"\$path\" && \
+      if [ \"\$basename_path\" == \"direct-messaging-service\" ]; then \
+         deno run -A ./eg.surveilr.com-final.ts destFolder=/rssd/   >   /rssd/logs/\$rssd_name_final.log 2>&1; \
+         fi; \
+    done"
+
 # Find directories containing `package.sql.ts`, build RSSDs, save in /rssd, and update index file with port number
 RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'package.sql.ts' -exec dirname {} \;)) && \
     port=9000 && \
