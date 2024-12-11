@@ -2879,7 +2879,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
         first_name as title from patient_detail where CAST(message_uid AS TEXT)=CAST($id AS TEXT) ;
 
    SELECT ''html'' AS component, ''
-  <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style.css''||''">''
+  <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style-dms.css''||''">''
   ||''<h2>'' || document_title || ''</h2>
   <table class="patient-summary">
     <tr>
@@ -2983,7 +2983,7 @@ JOIN author_detail ad ON pd.message_uid = ad.message_uid
 WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
     SELECT ''html'' AS component, ''
-      <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style.css''||''">
+      <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style-dms.css''||''">
       <table class="patient-details">
       <tr>
       <th class="no-border-bottom" style="background-color: #f2f2f2"><b>Document</b></th>
@@ -3030,7 +3030,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
     WHERE CAST(message_uid AS TEXT)=CAST($id AS TEXT);
 
     SELECT ''html'' AS component, ''
-    <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style.css''||''">
+    <link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style-dms.css''||''">
     <style>
       .patient-details {
         width: 100%;
@@ -3097,7 +3097,7 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
 
   select ''html'' as component;
-  select ''<link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style.css''||''">
+  select ''<link rel="stylesheet" href="''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/assets/style-dms.css''||''">
     <details class="accordian-head">
   <summary>''||section_title||''</summary>
   <div class="patient-details">
