@@ -38,9 +38,13 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
     select
      'card'             as component,
      3                 as columns;
-      SELECT caption as title, ${this.absoluteURL("/")} || COALESCE(url, path) as link, description
+      SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath('opsfolio')} AND sibling_order = 2
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("opsfolio")
+    } AND sibling_order = 2
        ORDER BY sibling_order; `;
   }
 
@@ -61,11 +65,11 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
     select
     "Policies" as title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/policy.sql')} as link;
+      ${this.absoluteURL("/opsfolio/info/policy/policy.sql")} as link;
     select
     "Evidences" as title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/evidence.sql')} as link; `;
+      ${this.absoluteURL("/opsfolio/info/policy/evidence.sql")} as link; `;
   }
 
   @ipNav({
@@ -81,7 +85,9 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
     select
     UPPER(SUBSTR(title, 1, 1)) || LOWER(SUBSTR(title, 2)) as title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/policy_list.sql?segment=')} || segment || '' as link
+      ${
+      this.absoluteURL("/opsfolio/info/policy/policy_list.sql?segment=")
+    } || segment || '' as link
      FROM policy_dashboard; `;
   }
 
@@ -101,7 +107,9 @@ export class InfoAssurancePolicySqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
     A.title as title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/')}||replace(b.path, 'opsfolio/info/policy/', '') as link
+      ${
+      this.absoluteURL("/")
+    }||replace(b.path, 'opsfolio/info/policy/', '') as link
 FROM vigetallviews A
 inner join sqlpage_files b on A.path = b.path
  where a.used_path = 0; `;
@@ -121,7 +129,9 @@ inner join sqlpage_files b on A.path = b.path
     select
     title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/policy_detail.sql?id=')} || uniform_resource_id || '' as link
+      ${
+      this.absoluteURL("/opsfolio/info/policy/policy_detail.sql?id=")
+    } || uniform_resource_id || '' as link
         FROM policy_list WHERE parentfolder = $segment::TEXT AND segment1 = ""
 
         UNION ALL
@@ -129,7 +139,11 @@ inner join sqlpage_files b on A.path = b.path
     SELECT
     REPLACE(segment1, '-', ' ') as title,
       'chevrons-down' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/policy_inner_list.sql?parentfolder=')} || parentfolder || '&segment=' || segment1 as link
+      ${
+      this.absoluteURL(
+        "/opsfolio/info/policy/policy_inner_list.sql?parentfolder=",
+      )
+    } || parentfolder || '&segment=' || segment1 as link
     FROM
     policy_list
     WHERE
@@ -155,7 +169,9 @@ inner join sqlpage_files b on A.path = b.path
     select
     title,
       'arrow-big-right' as icon,
-      ${this.absoluteURL('/opsfolio/info/policy/policy_detail.sql?id=')} || uniform_resource_id || '' as link
+      ${
+      this.absoluteURL("/opsfolio/info/policy/policy_detail.sql?id=")
+    } || uniform_resource_id || '' as link
         FROM policy_list WHERE parentfolder = $parentfolder::TEXT AND segment1 = $segment:: TEXT;
     `;
   }

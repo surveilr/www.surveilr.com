@@ -48,8 +48,9 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
     -- Dynamically create a card for each entry in uniform_resource_website
     SELECT
       hostname AS title,
-      ${this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
-      } || hostname AS link,
+      ${
+      this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
+    } || hostname AS link,
       'world' AS icon,
       'blue' AS color
     FROM
@@ -90,8 +91,9 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Open Graph Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
-      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${
+      this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
+    } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -109,8 +111,9 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'HTML Meta Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
-      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${
+      this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
+    } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -128,8 +131,9 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
       'Twitter Card Missing Properties Overview' AS title,
       GROUP_CONCAT(
         '**' || property_name || ' missing URLs:** ' ||
-        ' [ ' || missing_count || ' ](' || ${this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
-      } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
+        ' [ ' || missing_count || ' ](' || ${
+      this.absoluteURL("/sq/missing-meta-information/details.sql?hostname=")
+    } || $hostname || '&property=' || property_name ||') ' || '  \n\n',
         ''
       ) AS description_md,
       'tag' AS icon,
@@ -164,8 +168,9 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
        ${this.absoluteURL("/sq")} as link;
     SELECT
       'Social Media and SEO Metadata Analysis' AS title,
-      ${this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
-      }||$hostname::TEXT||'' AS link;
+      ${
+      this.absoluteURL("/sq/missing-meta-information.sql?hostname=")
+    }||$hostname::TEXT||'' AS link;
     ${pagination.init()}
 
     SELECT
@@ -215,15 +220,17 @@ export class SiteQualitySqlPages extends spn.TypicalSqlPageNotebook {
     -- Tab 1: Open Graph Missing URLs
     SELECT
       'Open Graph Missing URLs' AS title,
-      ${this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
-      } || $hostname::TEXT || '&tab=open_graph' AS link,
+      ${
+      this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
+    } || $hostname::TEXT || '&tab=open_graph' AS link,
       $tab = 'open_graph' AS active;
 
     -- Tab 2: Meta Tags Missing URLs
     SELECT
       'Meta Tags Missing URLs' AS title,
-      ${this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
-      } || $hostname::TEXT || '&tab=html_meta_data' AS link,
+      ${
+      this.absoluteURL("/sq/missing-meta-data.sql?hostname=")
+    } || $hostname::TEXT || '&tab=html_meta_data' AS link,
       $tab = 'html_meta_data' AS active;
 
     -- Define component type based on active tab

@@ -90,49 +90,6 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
-  // @docsNav({
-  //   caption: "SQL Functions",
-  //   description: "surveilr specific SQLite functions for extensibilty",
-  //   siblingOrder: 99,
-  // })
-  // async "docs/sql-functions.sql"() {
-  //   const sqlSnippets: string[] = [];
-  //   const directory = path.fromFileUrl(
-  //     import.meta.resolve(`../docs/sql-functions`),
-  //   );
-  //   for await (const entry of Deno.readDir(directory)) {
-  //     if (entry.isFile && entry.name.endsWith(".md")) {
-  //       const function_entry = entry.name.replace(".md", "").split("-");
-  //       const title = function_entry[0];
-  //       const version = function_entry[1];
-
-  //       const content = await this.fetchTextForSqlLiteral(
-  //         import.meta.resolve(`${directory}/${entry.name}`),
-  //       );
-  //       const sqlSnippet = `
-  //                   SELECT
-  //                       '${title}'  as title,
-  //                       '${content}' as description_md,
-  //                       'green'  as color,
-  //                       '${version}' as footer_md;
-  //               `;
-
-  //       sqlSnippets.push(sqlSnippet);
-  //     }
-  //   }
-
-  //   return this.SQL`
-  //           SELECT 'title' as component, 'surveilr SQLite Functions' as contents;
-  //           SELECT 'text' as component,
-  //           'Below is a comprehensive list and description of all \`\`surveilr\`\` SQLite functions exposed during any execution. This document details each function, it''s
-  //           parameters/arguments and the return type if any. Also included is the version number of when it was introduced in \`\`surveilr\`\`.
-  //           Usage examples for most of these functions can be found in the [assurance](https://github.com/surveilr/www.surveilr.com/tree/main/lib/assurance) section of the \`\`surveilr\`\` repository.
-  //           ' as contents_md;
-  //           SELECT 'card' as component, 2 as columns;
-  //           ${sqlSnippets.join("\n")}
-  //       `;
-  // }
-
   @docsNav({
     caption: "SQL Functions",
     description: "surveilr specific SQLite functions for extensibilty",

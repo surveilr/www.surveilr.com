@@ -5,7 +5,11 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
   private logoImage: string;
   private favIcon: string;
 
-  constructor(title: string = 'Resource Surveillance State Database (RSSD)', logoImage: string = 'surveilr-icon.png', favIcon: string = 'favicon.ico') {
+  constructor(
+    title: string = "Resource Surveillance State Database (RSSD)",
+    logoImage: string = "surveilr-icon.png",
+    favIcon: string = "favicon.ico",
+  ) {
     super();
     this.title = title;
     this.logoImage = logoImage;
@@ -48,8 +52,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       typeof value === "number"
         ? value
         : value
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+        : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
               'link', ${this.absoluteURL("")}||'${rootPath}',
@@ -90,7 +94,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
         // TODO: add "open in IDE" feature like in other Shahid apps
         literal(`Resource Surveillance Web UI (v`) +
         ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
+          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
         } || substr(sqlpage.path(), 2) || ')' as footer`,
     };
     const shell = this.defaultShell();
