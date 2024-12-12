@@ -586,7 +586,8 @@ INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path
 VALUES
     ('prime', 'index.sql', 1, 'docs/index.sql', 'docs/index.sql', 'Docs', NULL, NULL, 'Explore surveilr functions and release notes', NULL),
     ('prime', 'docs/index.sql', 99, 'docs/release-notes.sql', 'docs/release-notes.sql', 'Release Notes', NULL, NULL, 'surveilr releases details', NULL),
-    ('prime', 'docs/index.sql', 2, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
+    ('prime', 'docs/index.sql', 2, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL),
+    ('prime', 'docs/index.sql', 2, 'docs/diagnostics.sql', 'docs/diagnostics.sql', 'Diagnostics', NULL, NULL, 'Diagnose `surveilr` specific dependencies, capturable executables in the PATH, and `surveilr-doctor*`database views.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -2425,6 +2426,109 @@ SELECT name AS title,
       sqlpage.link(''functions.sql'', json_object(''function'', name)) AS link
 FROM surveilr_function_doc
 ORDER BY name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/diagnostics.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''docs/diagnostics.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              -- Title Component
+SELECT
+    ''text'' AS component,
+    ''Surveilr Doctor'' AS title;
+
+-- Description Component
+SELECT
+    ''text'' AS component,
+    ''A detailed diagnosis to assess your system''''s readiness for surveilr. It checks critical dependencies like Deno, Rustc, and SQLite, ensuring they are installed and meet version requirements. Additionally, it scans for and executes capturable executables in the PATH and evaluates surveilr_doctor_* database views for diagnostic insights.''
+    AS contents_md;
+
+  
+
+    SELECT 
+    ''title''   as component,
+    ''Versions'' as contents,
+    2         as level;
+  SELECT 
+      ''table'' AS component,
+      TRUE AS sort;
+  SELECT 
+      ''deno'' AS "Dependency",
+      json_extract(json_data, ''$.versions.deno'') AS "Version"
+  FROM (
+      SELECT sqlpage.exec(''surveilr'', ''doctor'', ''--json'') AS json_data
+  );
+
+  SELECT 
+      ''rust'' AS "Dependency",
+      json_extract(json_data, ''$.versions.rustc'') AS "Version"
+  FROM (
+      SELECT sqlpage.exec(''surveilr'', ''doctor'', ''--json'') AS json_data
+  );
+
+  SELECT 
+      ''SQLite3'' AS "Dependency",
+      json_extract(json_data, ''$.versions.sqlite3'') AS "Version"
+  FROM (
+      SELECT sqlpage.exec(''surveilr'', ''doctor'', ''--json'') AS json_data
+  );
+
+
+    SELECT 
+    ''title''   as component,
+    ''Extensions'' as contents,
+    2         as level;
+  SELECT 
+      ''table'' AS component,
+      TRUE AS sort;
+
+  -- Extract and display each extension
+  SELECT 
+      json_each.value AS "Extension"
+  FROM json_each(
+      json_extract(sqlpage.exec(''surveilr'', ''doctor'', ''--json''), ''$.extensions'')
+  );
+
+    SELECT 
+    ''title''   as component,
+    ''Views'' as contents,
+    2         as level;
+  SELECT 
+      ''table'' AS component,
+      TRUE AS sort;
+
+  WITH views AS (
+      SELECT name AS view_name
+      FROM sqlite_master
+      WHERE type = ''view'' AND name LIKE ''surveilr_doctor%''
+  )
+  SELECT *
+  FROM (
+      SELECT view_name, *
+      FROM views, pragma_table_info(view_name) AS table_info
+  );
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
