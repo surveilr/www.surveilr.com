@@ -2056,6 +2056,42 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.5.6'' as title, ''# `surveilr` v1.5.5 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+### **1. Enhanced Diagnostics Command**
+- **`surveilr doctor` Command Improvements**:
+  - **Dependencies Check**:
+    - Verifies versions of critical dependencies: `Deno`, `Rustc`, and `SQLite`.
+    - Ensures dependencies meet minimum version requirements for seamless functionality.
+  - **Capturable Executables Detection**:
+    - Searches for executables in the `PATH` matching `surveilr-doctor*.*`.
+    - Executes these executables, assuming their output is in JSON format, and integrates their results into the diagnostics report.
+  - **Database Views Analysis**:
+    - Queries all views starting with the prefix `surveilr_doctor_` in the specified RSSD.
+    - Displays their contents in tabular format for comprehensive insights.
+
+---
+
+### **2. JSON Mode**
+- Added a `--json` flag to the `surveilr doctor` command.
+  - Outputs the entire diagnostics report, including versions, extensions, and database views, in structured JSON format.
+
+---
+
+### **3. WebUI Page for Diagnostics**
+- Added a dedicated page in the WebUI for the `surveilr doctor` diagnostics:
+  - **Versions Table**:
+    - Displays the versions of `Deno`, `Rustc`, and `SQLite` in a table.
+  - **Extensions List**:
+    - Lists all detected extensions.
+  - **Database Views Content**:
+    - Automatically identifies and displays the contents of views starting with `surveilr_doctor_` in individual tables.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.5.5'' as title, ''# `surveilr` v1.5.5 Release Notes 🎉
 
 ---
