@@ -27,8 +27,9 @@ Deno.test("surveilr specific functions", async (t) => {
   });
 
   await t.step("surveilr_mask", async () => {
-    const result = await $`surveilr shell --cmd "SELECT surveilr_mask('1234567890');"`
-      .stdout("piped");
+    const result =
+      await $`surveilr shell --cmd "SELECT surveilr_mask('1234567890');"`
+        .stdout("piped");
     assertEquals(
       result.code,
       0,

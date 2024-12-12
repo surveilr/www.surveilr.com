@@ -8,8 +8,8 @@ import {
 } from "../../std/web-ui-content/mod.ts";
 
 const WEB_UI_TITLE: string = "Direct Messaging Service";
-const WEB_UI_LOGO = "dms.png"
-const WEB_UI_FAV = "dms-favicon.ico"
+const WEB_UI_LOGO = "dms.png";
+const WEB_UI_FAV = "dms-favicon.ico";
 
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
@@ -40,7 +40,9 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /dms-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("dms")};
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
+      this.constructHomePath("dms")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -61,10 +63,14 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,${this.absoluteURL('/')} || COALESCE(url, path) AS link,  
+      SELECT caption as title,${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) AS link,  
       description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("dms")}
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("dms")
+    }
        ORDER BY sibling_order;`;
   }
   @dmsNav({
@@ -88,8 +94,9 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT id,
       "from",
-        '[' || subject || '](' || ${this.absoluteURL('/dms/email-detail.sql?id=')
-      } || id || ')' AS "subject",
+        '[' || subject || '](' || ${
+      this.absoluteURL("/dms/email-detail.sql?id=")
+    } || id || ')' AS "subject",
       date
       from inbox
       `;
@@ -137,8 +144,14 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           CASE
               WHEN attachment_filename LIKE '%.xml' OR attachment_mime_type = 'application/xml'
-              THEN '[' || attachment_filename || '](' || ${this.absoluteURL('')} || attachment_file_path || ' "download")' || ' | ' || '[View Details]('||${this.absoluteURL('/dms/patient-detail.sql?id=')} || message_uid || ' "View Details")'
-              ELSE '[' || attachment_filename || '](' || ${this.absoluteURL('')} || attachment_file_path || ' "download")'
+              THEN '[' || attachment_filename || '](' || ${
+      this.absoluteURL("")
+    } || attachment_file_path || ' "download")' || ' | ' || '[View Details]('||${
+      this.absoluteURL("/dms/patient-detail.sql?id=")
+    } || message_uid || ' "View Details")'
+              ELSE '[' || attachment_filename || '](' || ${
+      this.absoluteURL("")
+    } || attachment_file_path || ' "download")'
           END AS "attachment"
       FROM mail_content_attachment
       WHERE CAST(message_uid AS TEXT) = CAST($id AS TEXT);
@@ -161,13 +174,15 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
         'inbox' as title,
         ${this.absoluteURL("/dms/inbox.sql")} as link;
     SELECT
-         ${this.absoluteURL('/dms/email-detail.sql?id=')}  || id AS link,
+         ${this.absoluteURL("/dms/email-detail.sql?id=")}  || id AS link,
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
     SELECT
         first_name as title from patient_detail where CAST(message_uid AS TEXT)=CAST($id AS TEXT) ;
 
    SELECT 'html' AS component, '
-  <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style-dms.css")}||'">'
+  <link rel="stylesheet" href="'||${
+      this.absoluteURL("/assets/style-dms.css")
+    }||'">'
   ||'<h2>' || document_title || '</h2>
   <table class="patient-summary">
     <tr>
@@ -271,7 +286,9 @@ JOIN author_detail ad ON pd.message_uid = ad.message_uid
 WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-      <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style-dms.css")}||'">
+      <link rel="stylesheet" href="'||${
+      this.absoluteURL("/assets/style-dms.css")
+    }||'">
       <table class="patient-details">
       <tr>
       <th class="no-border-bottom" style="background-color: #f2f2f2"><b>Document</b></th>
@@ -318,7 +335,9 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
     WHERE CAST(message_uid AS TEXT)=CAST($id AS TEXT);
 
     SELECT 'html' AS component, '
-    <link rel="stylesheet" href="'||${this.absoluteURL("/assets/style-dms.css")}||'">
+    <link rel="stylesheet" href="'||${
+      this.absoluteURL("/assets/style-dms.css")
+    }||'">
     <style>
       .patient-details {
         width: 100%;
@@ -385,7 +404,9 @@ WHERE CAST(pd.message_uid AS TEXT) = CAST($id AS TEXT);
 
 
   select 'html' as component;
-  select '<link rel="stylesheet" href="'||${this.absoluteURL("/assets/style-dms.css")}||'">
+  select '<link rel="stylesheet" href="'||${
+      this.absoluteURL("/assets/style-dms.css")
+    }||'">
     <details class="accordian-head">
   <summary>'||section_title||'</summary>
   <div class="patient-details">

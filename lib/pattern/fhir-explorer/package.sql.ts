@@ -36,7 +36,9 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fhir-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("fhir")};
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
+      this.constructHomePath("fhir")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -58,9 +60,13 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title,${this.absoluteURL('/')} || COALESCE(url, path) as link, description
+      SELECT caption as title,${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fhir")}
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("fhir")
+    }
        ORDER BY sibling_order; `;
   }
 
@@ -81,7 +87,9 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
     'Table' as "Type",
-      '[' || table_name || '](' || ${this.absoluteURL('/console/info-schema/table.sql?name=')} || table_name || ')' AS "Name",
+      '[' || table_name || '](' || ${
+      this.absoluteURL("/console/info-schema/table.sql?name=")
+    } || table_name || ')' AS "Name",
         COUNT(column_name) AS "Column Count"
       FROM console_information_schema_table
       WHERE table_name like 'fhir%'
@@ -91,7 +99,9 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
     'View' as "Type",
-      '[' || view_name || '](' || ${this.absoluteURL('/console/info-schema/view.sql?name=')} || view_name || ')' AS "Name",
+      '[' || view_name || '](' || ${
+      this.absoluteURL("/console/info-schema/view.sql?name=")
+    } || view_name || ')' AS "Name",
         COUNT(column_name) AS "Column Count"
       FROM console_information_schema_view
       WHERE view_name like 'fhir%'
@@ -124,8 +134,16 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary')} as link;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
+      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary",
+      )
+    } as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource",
+      )
+    } as link;
 
       SELECT 'table' as component, 1 as search, 1 as sort;
     SELECT * from fhir_v4_bundle_resource_summary;
@@ -144,9 +162,21 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource_patient view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_patient')} as link;
-      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary')} as link;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
+      select 'Learn more about fhir_v4_bundle_resource_patient view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource_patient",
+      )
+    } as link;
+      select 'Learn more about fhir_v4_bundle_resource_summary view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource_summary",
+      )
+    } as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource",
+      )
+    } as link;
 
       SELECT 'table' as component, 1 as search, 1 as sort;
     SELECT * from fhir_v4_bundle_resource_patient;
@@ -165,7 +195,11 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.activePageTitle()}
 
       select 'list' as component, TRUE as compact;
-      select 'Learn more about fhir_v4_bundle_resource view' as title, ${this.absoluteURL('/console/info-schema/view.sql?name=fhir_v4_bundle_resource')} as link;
+      select 'Learn more about fhir_v4_bundle_resource view' as title, ${
+      this.absoluteURL(
+        "/console/info-schema/view.sql?name=fhir_v4_bundle_resource",
+      )
+    } as link;
 
       SELECT 'table' as component;
       SELECT resource_type as "Type", resource_content AS "JSON", 'json' AS language

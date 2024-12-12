@@ -210,7 +210,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
     INSERT INTO surveilr_function_doc (name, description, parameters, return_type, version)
     SELECT name, description, parameters, return_type, version
     FROM surveilr_function_docs();
-    `
+    `;
   }
 
   uniformResourceGraphViews() {

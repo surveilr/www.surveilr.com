@@ -83,4 +83,17 @@ Deno.test("merge RSSDs", async () => {
     await Deno.stat(aggregatedRssdPath).catch(() => null),
     `❌ Error: RSSD: ${aggregatedRssdPath} was not created`,
   );
+
+  try {
+    await Deno.remove(aggregatedRssdPath);
+    console.log(
+      `🧹 Successfully cleaned up RSSD file at ${aggregatedRssdPath}`,
+    );
+  } catch (error) {
+    console.error(
+      `❌ Failed to delete RSSD file at ${aggregatedRssdPath}:`,
+      error,
+    );
+    throw error;
+  }
 });
