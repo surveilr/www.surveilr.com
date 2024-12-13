@@ -61,36 +61,42 @@ Deno.test("surveilr doctor", async (t) => {
       Deno.env.get("SURVEILR_DOCTOR_OUTPUT") || "{}",
     );
 
+    // Verify Versions
     assertExists(output.versions, "❌ Missing 'versions' in output");
     assertExists(
-      output.versions.deno,
-      "❌ Missing 'deno' version in output",
+      output.versions.sqlpage,
+      "❌ Missing 'sqlpage' version in output",
     );
     assertExists(
-      output.versions.rustc,
-      "❌ Missing 'rustc' version in output",
+      output.versions.pgwire,
+      "❌ Missing 'pgwire' version in output",
     );
     assertExists(
-      output.versions.sqlite3,
-      "❌ Missing 'sqlite3' version in output",
+      output.versions.rusqlite,
+      "❌ Missing 'rusqlite' version in output",
     );
 
-    const denoVersion = output.versions.deno.match(/deno (\d+\.\d+\.\d+)/);
-    assertExists(denoVersion, "❌ Deno version string is invalid");
-    const [_, denoVersionNumber] = denoVersion;
+    // Verify Static Extensions
+    assertExists(output.static_extensions, "❌ Missing 'static_extensions' in output");
     assertEquals(
-      denoVersionNumber >= "2.0.0",
+      Array.isArray(output.static_extensions),
       true,
-      `❌ Deno version must be at least 2.0.0, found: ${denoVersionNumber}`,
+      "❌ 'static_extensions' should be an array",
+    );
+    assertExists(
+      output.static_extensions.find((ext: { name: string }) => ext.name === "sqlite_url_extensions"),
+      "❌ Expected static extension not found",
     );
 
-    assertExists(output.extensions, "❌ Missing 'extensions' in output");
+    // Verify Dynamic Extensions
+    assertExists(output.dynamic_extensions, "❌ Missing 'dynamic_extensions' in output");
     assertEquals(
-      Array.isArray(output.extensions),
+      Array.isArray(output.dynamic_extensions),
       true,
-      "❌ 'extensions' should be an array",
+      "❌ 'dynamic_extensions' should be an array",
     );
 
+    // Verify Views
     assertExists(output.views, "❌ Missing 'views' in output");
     const testView = output.views.find((view: { view_name: string }) =>
       view.view_name === "surveilr_doctor_test_view"
@@ -111,6 +117,26 @@ Deno.test("surveilr doctor", async (t) => {
       "❌ No rows found in 'surveilr_doctor_test_view'",
     );
 
+    // Verify Environment Variables
+    assertExists(output.env_vars, "❌ Missing 'env_vars' in output");
+    assertEquals(
+      Array.isArray(output.env_vars),
+      true,
+      "❌ 'env_vars' should be an array",
+    );
+    assertExists(
+      output.env_vars.find((env: { name: string }) => env.name === "SQLPAGE_SITE_PREFIX"),
+      "❌ Expected environment variable 'SQLPAGE_SITE_PREFIX' not found",
+    );
+
+    // Verify Capturable Executables
+    assertExists(output.capturable_executables, "❌ Missing 'capturable_executables' in output");
+    assertEquals(
+      Array.isArray(output.capturable_executables),
+      true,
+      "❌ 'capturable_executables' should be an array",
+    );
+
     console.log("✅ All verifications passed");
   });
 
@@ -120,7 +146,7 @@ Deno.test("surveilr doctor", async (t) => {
       console.log(`🧹 Successfully cleaned up RSSD file at ${RSSD_PATH}`);
     } catch (error) {
       console.error(
-        `❌ Failed to delete RSSD file at ${RSSD_PATH}:`,
+        `❌ Failed to delete RSSD file at ${RSSD_PATH}`,
         error,
       );
       throw error;
