@@ -97,18 +97,16 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
         -- To display title
         SELECT
           'text' AS component,
-          'Surveilr SQLite Functions' AS title
-          WHERE $function IS NULL;
+          'Surveilr SQLite Functions' AS title;
 
         SELECT
           'text' AS component,
           'Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.'
-          AS contents_md WHERE $function IS NULL;
+          AS contents_md;
 
         SELECT
         'list' AS component,
-        'Surveilr Functions' AS title
-        WHERE $function IS NULL;
+        'Surveilr Functions' AS title;
 
           SELECT  name AS title,
                 NULL AS icon,  -- Add an icon field if applicable
@@ -116,47 +114,6 @@ export class DocsSqlPages extends spn.TypicalSqlPageNotebook {
                 $function = name AS active
           FROM surveilr_function_doc
           ORDER BY name;
-
-        SELECT
-          'text' AS component,
-          '' || name || '()' AS title, 'function' AS id
-        FROM surveilr_function_doc WHERE name = $function;
-
-        SELECT
-          'text' AS component,
-          description AS contents_md
-        FROM surveilr_function_doc WHERE name = $function;
-
-        SELECT
-          'text' AS component,
-          'Introduced in version ' || version || '.' AS contents
-        FROM surveilr_function_doc WHERE name = $function;
-
-        SELECT
-          'title' AS component,
-          3 AS level,
-          'Parameters' AS contents
-        WHERE $function IS NOT NULL;
-
-        SELECT
-          'card' AS component,
-          3 AS columns
-          WHERE $function IS NOT NULL;
-        SELECT
-            json_each.value ->> '$.name' AS title,
-            json_each.value ->> '$.description' AS description,
-            json_each.value ->> '$.data_type' AS footer,
-            'azure' AS color
-        FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
-        WHERE name = $function;
-
-        -- Navigation Buttons
-        SELECT 'button' AS component, 'sm' AS size, 'pill' AS shape;
-        SELECT name AS title,
-              NULL AS icon,  -- Add an icon field if needed
-              sqlpage.link('functions.sql', json_object('function', name)) AS link
-        FROM surveilr_function_doc
-        ORDER BY name;
    `;
   }
 
