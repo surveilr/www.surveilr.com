@@ -27,8 +27,8 @@ importers:
         specifier: ^5.1.2
         version: 5.1.2(astro@4.16.17(@types/node@17.0.45)(rollup@4.25.0)(sass@1.81.0)(terser@5.36.0)(typescript@5.6.3))(tailwindcss@3.4.15)
       '@preline/accordion':
-        specifier: ^2.5.0
-        version: 2.5.0
+        specifier: ^2.6.0
+        version: 2.6.0
       '@preline/collapse':
         specifier: ^2.5.0
         version: 2.5.0
@@ -867,8 +867,8 @@ packages:
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
-  '@preline/accordion@2.5.0':
-    resolution: {integrity: sha512-vQnRTJ0W1FNHsgwgQ/i6OXXDkRuT1oaR9WNjgTX8jeldQfnU40NYCJdjyhdPX5kCkNH2Q8AW6ihG/8XI2DNGJA==}
+  '@preline/accordion@2.6.0':
+    resolution: {integrity: sha512-MWZrV1RC0urfG9KuaKTd316gXK8yc8vIq3XtABCVbEf43hNRYUqLFbRPD3JTbdHtYiD/xT53NZkFC0CIvGj1yg==}
 
   '@preline/collapse@2.5.0':
     resolution: {integrity: sha512-FFVB+T7FXn66EUmwgR8c1OtxXDlL74pRvBXtntXwwQ+9fqCZML1xPTOXfdeRL4e46kroAtigVcp/Y28lEpkXTQ==}
@@ -4683,7 +4683,7 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@preline/accordion@2.5.0': {}
+  '@preline/accordion@2.6.0': {}
 
   '@preline/collapse@2.5.0': {}
 
