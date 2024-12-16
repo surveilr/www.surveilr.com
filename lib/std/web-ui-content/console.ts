@@ -857,6 +857,23 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
         FROM json_each(
             json_extract(sqlpage.exec('surveilr', 'doctor', '--json'), '$.capturable_executables')
         );
+
+    SELECT 'title' AS component, 'Views' as contents;
+    SELECT 'table' AS component,
+          'View' AS markdown,
+          'Column Count' as align_right,
+          'Content' as markdown,
+          TRUE as sort,
+          TRUE as search;
+
+    SELECT
+        '[' || view_name || '](/console/info-schema/view.sql?name=' || view_name || ')' AS "View",
+        COUNT(column_name) AS "Column Count",
+        REPLACE(content_web_ui_link_abbrev_md, '$SITE_PREFIX_URL', sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || '') AS "Content"
+    FROM console_information_schema_view
+    WHERE view_name LIKE 'surveilr_doctor%'
+    GROUP BY view_name;
+
     `
   }
 }
