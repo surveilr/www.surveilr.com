@@ -52,7 +52,7 @@ class HomeSelectors {
   public static RSSDdataTableFooterLink =
     "//a[contains(text(),'console/sqlpage-files/content.sql')]";
   public static RSSDDataTableFootertitle =
-    "//h1[normalize-space(text())='lib/pattern/direct-messaging-service/console/sqlpage-files/content.sql']";
+    "//nav[@aria-label='breadcrumb']/following-sibling::h1[1]";
   // RSSD SQLPage Files
   public static RSSDSQLPageFileslink =
     "//div[normalize-space(text())='Explore RSSD SQLPage Files which govern the content of the web-UI']";
@@ -73,9 +73,9 @@ class HomeSelectors {
   public static RRSSDSQLPageFilesTitleText =
     "SQLPage pages in sqlpage_files table";
   public static RSSDDataTableFootertitleTxt =
-    "lib/pattern/direct-messaging-service/console/sqlpage-files/content.sql";
+    "console/sqlpage-files/content.sql";
   public static RSSDSQLPageFilesFootertitleTxt =
-    "lib/pattern/direct-messaging-service/console/sqlpage-files/index.sql";
+    "console/sqlpage-files/index.sql";
   public static expectedUrllink = "http://localhost:9000/";
   public static loginUrl = "http://localhost:9000/index.sql";
   public static expectedUrllink_docs = "http://localhost:9000/docs/";

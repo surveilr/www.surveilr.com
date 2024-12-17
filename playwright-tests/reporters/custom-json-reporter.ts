@@ -159,7 +159,7 @@ ${testCaseDetail ? testCaseDetail.description : "UNKNOWN"}
 ${testSteps.map((step, index) => `${index + 1}. ${step.stepname}`).join("\n")}
 
 ### Expected Outcome
-•  ${testCaseDetail ? testCaseDetail.description : "UNKNOWN"}
+•  ${testCaseDetail ? testCaseDetail.result : "UNKNOWN"}
 
 
 ### Expected Results
