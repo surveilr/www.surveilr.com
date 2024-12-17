@@ -86,7 +86,7 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
       cd \"\$path\" && \
       mkdir -p /rssd/logs && \
       if [ \"\$basename_path\" == \"content-assembler\" ]; then \
-         surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1 && \
+         surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1; \
       fi; \
       surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1 && \
       # Set expose_endpoint to 1 by default
