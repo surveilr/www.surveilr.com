@@ -72,7 +72,7 @@ for path in \"\${RSSD_SRC_PATH[@]}\"; do \
       cd \"\$path\" && \
       if [ \"\$basename_path\" == \"direct-messaging-service\" ]; then \
          deno run -A ./eg.surveilr.com-final.ts destFolder=/rssd/   >   /rssd/logs/\$rssd_name_final.log 2>&1; \
-         fi; \
+      fi; \
     done"
 
 # Find directories containing `package.sql.ts`, build RSSDs, save in /rssd, and update index file with port number
@@ -85,6 +85,9 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
       package_sql=\"\${relative_path}/package.sql.ts\"; \
       cd \"\$path\" && \
       mkdir -p /rssd/logs && \
+      if [ \"\$basename_path\" == \"content-assembler\" ]; then \
+         surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1 && \
+      fi; \
       surveilr shell ./package.sql.ts -d /rssd/\$rssd_name >> /rssd/logs/\$rssd_name.log 2>&1 && \
       # Set expose_endpoint to 1 by default
       echo -e \"1\t\${relative_path}\t\${rssd_name}\t\${port}\t\${package_sql}\" >> /rssd/index.tsv; \
