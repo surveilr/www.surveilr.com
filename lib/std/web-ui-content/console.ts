@@ -22,7 +22,7 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       -- select 'test' into absolute_url;
       DROP VIEW IF EXISTS console_information_schema_table;
       CREATE VIEW console_information_schema_table AS
-      
+
       SELECT
           tbl.name AS table_name,
           col.name AS column_name,
@@ -244,19 +244,16 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       WITH console_navigation_cte AS (
           SELECT title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path =${
-      this.constructHomePath("console")
-    }
+           WHERE namespace = 'prime' AND path =${this.constructHomePath("console")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("console")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -279,9 +276,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || table_name || '](table.sql?name=' || table_name || ')' AS "Table",
           COUNT(column_name) AS "Column Count",
-          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${
-      this.absoluteURL("")
-    }) as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL("")
+      }) as "Content"
       FROM console_information_schema_table
       GROUP BY table_name;
 
@@ -295,9 +291,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || view_name || '](view.sql?name=' || view_name || ')' AS "View",
           COUNT(column_name) AS "Column Count",
-          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${
-      this.absoluteURL("")
-    }) as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL("")
+      }) as "Content"
       FROM console_information_schema_view
       GROUP BY view_name;
 
@@ -356,7 +351,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       ${this.activeBreadcrumbsSQL({ titleExpr: `$name || ' View'` })}
 
-      SELECT 'title' AS component, $name AS contents;
+      SELECT 'title' AS component,
+      $name AS contents;
       SELECT 'table' AS component;
       SELECT
           column_name AS "Column",
@@ -383,11 +379,10 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             'Path' as markdown,
             'Size' as align_right,
             TRUE as sort,
-            TRUE as search;     
+            TRUE as search;
          SELECT
-        '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
          LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       ORDER BY path;`;
@@ -417,29 +412,26 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'text' AS component, '
         - \`*.auto.sql\` pages are auto-generated "default" content pages for each table and view defined in the database.
         - The \`*.sql\` companions may be auto-generated redirects to their \`*.auto.sql\` pair or an app/service might override the \`*.sql\` to not redirect and supply custom content for any table or view.
-        - [View regenerate-auto.sql](' || ${
-      this.absoluteURL(
-        "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
-      )
-    } || ')
+        - [View regenerate-auto.sql](' || ${this.absoluteURL(
+      "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
+    )
+      } || ')
         ' AS contents_md;
 
       SELECT 'button' AS component, 'center' AS justify;
-      SELECT ${
-      this.absoluteURL("/console/content/action/regenerate-auto.sql")
-    } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
+      SELECT ${this.absoluteURL("/console/content/action/regenerate-auto.sql")
+      } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
 
       SELECT 'title' AS component, 'Redirected or overriden content pages' as contents;
       SELECT 'table' AS component,
             'Path' as markdown,
             'Size' as align_right,
             TRUE as sort,
-            TRUE as search;  
+            TRUE as search;
             SELECT
-        '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
-      
+        '[🚀](' || ${this.absoluteURL("/")
+      } || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       WHERE path like 'console/content/%'
@@ -454,10 +446,9 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
           SELECT
-            '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
-        
+            '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       WHERE path like 'console/content/%.auto.sql'
@@ -503,13 +494,12 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
       SELECT c.notebook_name,
           '[' || c.cell_name || '](' ||
-          ${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } || 
-          replace(c.notebook_name, ' ', '%20') || 
-          '&cell=' || 
-          replace(c.cell_name, ' ', '%20') || 
-          ')' AS "Cell",      
+          ${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } ||
+          replace(c.notebook_name, ' ', '%20') ||
+          '&cell=' ||
+          replace(c.cell_name, ' ', '%20') ||
+          ')' AS "Cell",
            c.description,
              k.kernel_name as kernel
         FROM code_notebook_kernel k, code_notebook_cell c
@@ -598,8 +588,8 @@ When it''s time to apply changes to the database, this section explains the proc
 
 The first step in the migration process involves setting up the essential database tables and seeding initial values. This lays the foundation for the migration process, making sure that all tables, views, and temporary values needed are in place.
 
-- **Check for Core Tables**: \`\`surveilr\`\` first verifies whether the required tables, such as \`\`code_notebook_cell\`\`, \`\`code_notebook_state\`\`, and others starting with \`\`code_notebook%\`\`, are already set up in the database. 
-- **Setup**: If these tables do not yet exist, \`\`surveilr\`\` automatically initiates the setup by running the initial SQL script, known as \`\`bootstrap.sql\`\`. This script contains SQL commands that create all the essential tables and views discussed in previous sections. 
+- **Check for Core Tables**: \`\`surveilr\`\` first verifies whether the required tables, such as \`\`code_notebook_cell\`\`, \`\`code_notebook_state\`\`, and others starting with \`\`code_notebook%\`\`, are already set up in the database.
+- **Setup**: If these tables do not yet exist, \`\`surveilr\`\` automatically initiates the setup by running the initial SQL script, known as \`\`bootstrap.sql\`\`. This script contains SQL commands that create all the essential tables and views discussed in previous sections.
 - **Seeding**: During the execution of \`\`bootstrap.sql\`\`, essential data, such as temporary values in the \`\`session_state_ephemeral\`\` table (e.g., information about the current user), is also added to ensure that the migration session has the data it needs to proceed smoothly.
 
 ---
@@ -609,7 +599,7 @@ The first step in the migration process involves setting up the essential databa
 Once the environment is ready, \`\`surveilr\`\` examines which specific cells (code blocks in the migration notebook) need to be executed to bring the database up to the latest version.
 
 - **Listing Eligible Cells**: \`\`surveilr\`\` begins by consulting views such as \`\`code_notebook_sql_cell_migratable_not_executed\`\`. This view is a pre-filtered list of cells that are eligible for migration but haven’t yet been executed.
-- **Idempotent vs. Non-Idempotent Cells**: \`\`surveilr\`\` then checks whether each cell is marked as “idempotent” or “non-idempotent.” 
+- **Idempotent vs. Non-Idempotent Cells**: \`\`surveilr\`\` then checks whether each cell is marked as “idempotent” or “non-idempotent.”
    - **Idempotent Cells** can be executed multiple times without adverse effects. If they have been run before, they can safely be run again without impacting data integrity.
    - **Non-Idempotent Cells**, identified by names containing \`\`_once_\`\`, should only be executed once. If these cells have been executed previously, they are skipped in the migration process to prevent unintentional re-runs.
 
@@ -657,39 +647,39 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
   })
   "console/migrations/index.sql"() {
     return this.SQL`
-      SELECT 
+      SELECT
           'foldable' as component;
-      SELECT 
+      SELECT
           'RSSD Lifecycle(Migration) Documentation' as title,
           '${this.migrationDocumentation()}' as description_md;
 
 
       SELECT 'title' AS component, 'Pending Migrations' AS contents;
-      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_not_executed lists all cells eligible for migration but not yet executed. 
-          If migrations have been completed successfully, this list will be empty, 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_not_executed lists all cells eligible for migration but not yet executed.
+          If migrations have been completed successfully, this list will be empty,
           indicating that all migratable cells have been processed and marked as executed.' as contents;
 
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT 
+      SELECT
           c.code_notebook_cell_id,
           c.notebook_name,
           c.cell_name,
           c.is_idempotent,
           c.version_timestamp
-      FROM 
+      FROM
           code_notebook_sql_cell_migratable_not_executed AS c
-      ORDER BY 
+      ORDER BY
           c.cell_name;
-          
+
       -- State of Executed Migrations
       SELECT 'title' AS component, 'State of Executed Migrations' AS contents;
-      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_state displays all cells that have been successfully executed as part of the migration process, 
-          showing the latest version of each migratable cell. 
-          For each cell, it provides details on its transition states, 
+      SELECT 'text' AS component, 'code_notebook_sql_cell_migratable_state displays all cells that have been successfully executed as part of the migration process,
+          showing the latest version of each migratable cell.
+          For each cell, it provides details on its transition states,
           the reason and result of the migration, and the timestamp of when the migration occurred.' as contents;
 
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT 
+      SELECT
           c.code_notebook_cell_id,
           c.notebook_name,
           c.cell_name,
@@ -700,9 +690,9 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
           c.transition_reason,
           c.transition_result,
           c.transitioned_at
-      FROM 
+      FROM
           code_notebook_sql_cell_migratable_state AS c
-      ORDER BY 
+      ORDER BY
           c.cell_name;
 
 
@@ -710,24 +700,23 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
       SELECT 'title' AS component, 'Executable Migrations' AS contents;
       SELECT 'text' AS component, 'All cells that are candidates for migration (including duplicates)' as contents;
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
-      SELECT 
+      SELECT
               c.code_notebook_cell_id,
               c.notebook_name,
               c.cell_name,
-              '[' || c.cell_name || ']('||${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+              '[' || c.cell_name || ']('||${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
               c.interpretable_code_hash,
               c.is_idempotent,
               c.version_timestamp
-          FROM 
+          FROM
               code_notebook_sql_cell_migratable_version AS c
-          ORDER BY 
+          ORDER BY
               c.cell_name;
-      
+
       -- All Migrations
       SELECT 'button' as component;
-      SELECT 
+      SELECT
           ${this.absoluteURL("/console/notebooks")} as link,
           'See all notebook entries' as title;
       `;
@@ -759,7 +748,7 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
   "console/about.sql"() {
     return this.SQL`
        -- Title Component
-        SELECT 
+        SELECT
         'text' AS component,
         ('Resource Surveillance v' || replace(sqlpage.exec('surveilr', '--version'), 'surveilr ', '')) AS title;
 
@@ -770,42 +759,42 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
               AS contents_md;
 
           -- Section: Dependencies
-          SELECT 
+          SELECT
               'title' AS component,
               'Internal Dependencies' AS contents,
               2 AS level;
-          SELECT 
+          SELECT
               'table' AS component,
               TRUE AS sort;
-          SELECT 
+          SELECT
               "Dependency",
               "Version"
           FROM (
-              SELECT 
+              SELECT
                   'SQLPage' AS "Dependency",
                   json_extract(json_data, '$.versions.sqlpage') AS "Version"
               FROM (SELECT sqlpage.exec('surveilr', 'doctor', '--json') AS json_data)
               UNION ALL
-              SELECT 
+              SELECT
                   'Pgwire',
                   json_extract(json_data, '$.versions.pgwire')
               FROM (SELECT sqlpage.exec('surveilr', 'doctor', '--json') AS json_data)
               UNION ALL
-              SELECT 
+              SELECT
                   'Rusqlite',
                   json_extract(json_data, '$.versions.rusqlite')
               FROM (SELECT sqlpage.exec('surveilr', 'doctor', '--json') AS json_data)
           );
 
           -- Section: Static Extensions
-          SELECT 
+          SELECT
               'title' AS component,
               'Statically Linked Extensions' AS contents,
               2 AS level;
-          SELECT 
+          SELECT
               'table' AS component,
               TRUE AS sort;
-          SELECT 
+          SELECT
               json_extract(value, '$.name') AS "Extension Name",
               json_extract(value, '$.url') AS "URL",
               json_extract(value, '$.version') AS "Version"
@@ -814,14 +803,14 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
           );
 
         -- Section: Dynamic Extensions
-        SELECT 
+        SELECT
             'title' AS component,
             'Dynamically Linked Extensions' AS contents,
             2 AS level;
-        SELECT 
+        SELECT
             'table' AS component,
             TRUE AS sort;
-        SELECT 
+        SELECT
             json_extract(value, '$.name') AS "Extension Name",
             json_extract(value, '$.path') AS "Path"
         FROM json_each(
@@ -829,14 +818,14 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
         );
 
         -- Section: Environment Variables
-        SELECT 
+        SELECT
             'title' AS component,
             'Environment Variables' AS contents,
             2 AS level;
-        SELECT 
+        SELECT
             'table' AS component,
             TRUE AS sort;
-        SELECT 
+        SELECT
             json_extract(value, '$.name') AS "Variable",
             json_extract(value, '$.value') AS "Value"
         FROM json_each(
@@ -844,14 +833,14 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
         );
 
         -- Section: Capturable Executables
-        SELECT 
+        SELECT
             'title' AS component,
             'Capturable Executables' AS contents,
             2 AS level;
-        SELECT 
+        SELECT
             'table' AS component,
             TRUE AS sort;
-        SELECT 
+        SELECT
             json_extract(value, '$.name') AS "Executable Name",
             json_extract(value, '$.output') AS "Output"
         FROM json_each(
@@ -874,6 +863,6 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
     WHERE view_name LIKE 'surveilr_doctor%'
     GROUP BY view_name;
 
-    `
+    `;
   }
 }
