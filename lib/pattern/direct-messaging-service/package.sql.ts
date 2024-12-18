@@ -461,8 +461,8 @@ export async function SQL() {
     }(),
     new sh.ShellSqlPages(WEB_UI_TITLE, WEB_UI_LOGO, WEB_UI_FAV),
     new ur.UniformResourceSqlPages(),
-    new c.ConsoleSqlPages(),
     new orch.OrchestrationSqlPages(),
+    new c.ConsoleSqlPages(),
     new DirectMessageSqlPages(),
   );
 }

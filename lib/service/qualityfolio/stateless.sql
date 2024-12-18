@@ -53,7 +53,7 @@ WHERE uri LIKE '%/qf-case-group.md';
 DROP VIEW IF EXISTS test_cases;
 CREATE VIEW test_cases AS
 SELECT 
-    json_extract(frontmatter, '$.FII') AS FII,
+    json_extract(frontmatter, '$.FII') AS test_case_id,
     json_extract(frontmatter, '$.groupId') AS group_id,
     json_extract(frontmatter, '$.title') AS title,
     json_extract(frontmatter, '$.created_by') AS created_by,
@@ -74,7 +74,7 @@ SELECT
     g.created_at AS group_created_at,
     g.tags AS group_tags,
     g.linked_requirements AS group_linked_requirements,
-    tc.FII AS test_case_id,
+    tc.test_case_id AS test_case_id,
     tc.title AS test_case_title,
     tc.created_by AS test_case_created_by,
     tc.created_at AS raw_test_case_created_at, -- Original date (optional)
@@ -127,7 +127,7 @@ CREATE VIEW test_case_data_body AS
         -- Extract JSON attributes
         json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
         json_extract(content_fm_body_attrs, '$.body') AS body,
-        json_extract(content_fm_body_attrs, '$.attrs.FII') AS fii,
+        json_extract(content_fm_body_attrs, '$.attrs.FII') AS test_case_id,
         json_extract(content_fm_body_attrs, '$.attrs.groupId') AS group_id,
         json_extract(content_fm_body_attrs, '$.attrs.title') AS title,
         json_extract(content_fm_body_attrs, '$.attrs.created_by') AS created_by,
@@ -168,7 +168,7 @@ parsed_body AS (
 )
 SELECT
     front_matter,
-    fii,
+    test_case_id,
     group_id,
     title,
     created_by,
@@ -204,7 +204,7 @@ SELECT
     g.id AS group_id,
     g.created_by,   
     strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at,
-    COUNT(tc.FII) AS test_case_count
+    COUNT(tc.test_case_id) AS test_case_count
 FROM groups g
 LEFT JOIN test_cases tc
     ON g.id = tc.group_id

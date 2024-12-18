@@ -67,7 +67,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       name,
       created_by as "Created By",
       strftime('%d-%m-%Y',  created_at) as "Created On"
-      FROM test_suites;
+      FROM test_suites order by id asc;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -115,7 +115,7 @@ SELECT
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
     FROM test_suites_test_case_count
-    WHERE suite_id=$id;
+    WHERE suite_id=$id order by group_id asc;
 
  
     `;
@@ -299,22 +299,22 @@ SELECT
          FROM test_cases r
          INNER JOIN groups g on g.id=r.group_id 
          INNER JOIN test_suites s on s.id=g.suite_id
-         where FII = $id
+         where test_case_id = $id
          group by title;  
     select g.name as title,
          ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")} || g.id as link
          FROM test_cases r
          INNER JOIN groups g on g.id=r.group_id 
-         where FII = $id
+         where test_case_id = $id
          group by title;
          
-    SELECT title FROM test_case_run_profile where test_case_id=$id;      
+    SELECT title FROM test_cases where test_case_id=$id;      
          
 
          
 
     SELECT 'title'AS component, 
-    title as contents FROM test_case_run_profile where test_case_id=$id; 
+    title as contents FROM test_cases where test_case_id=$id; 
 
     SELECT 'list'AS component;    
     SELECT 
@@ -327,16 +327,18 @@ SELECT
     '\n **Created At**  :  ' || bd.created_at AS description_md,
     '\n **Priority**  :  ' || bd.priority AS description_md,
     '\n' || bd.body AS description_md
-FROM test_case_run_profile rn
-INNER JOIN test_case_md_body bd ON rn.test_case_id = bd.test_case_id
-WHERE rn.test_case_id = $id;
+FROM  test_case_md_body bd 
+LEFT JOIN test_case_run_profile rn ON  bd.test_case_id=rn.test_case_id
+WHERE bd.test_case_id = $id;
 
 SELECT 'title'AS component, 
-    'Actual Result' as contents; 
+    'Actual Result' as contents 
+    FROM test_case_run_profile WHERE test_case_id = $id;
       SELECT 'table' as component,
         'Column Count' as align_right,
         TRUE as sort,
-        TRUE as search;
+        TRUE as search
+        FROM test_case_run_profile  where test_case_id=$id;
         SELECT
             step_name as 'Activity',
             step_status as 'Activity Status',
@@ -400,9 +402,9 @@ export async function SQL() {
       }
     }(),
     new QualityfolioSqlPages(),
-    new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
+    new c.ConsoleSqlPages(),
     new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON),
   );
 }
