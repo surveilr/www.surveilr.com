@@ -111,7 +111,7 @@ export class DirectMessageSqlPages extends spn.TypicalSqlPageNotebook {
          ${this.absoluteURL("/dms/index.sql")} as link;
     select
         'inbox' as title,
-         ${this.absoluteURL("/dms/index.sql")} as link;
+         ${this.absoluteURL("/dms/inbox.sql")} as link;
     select
         "subject" as title from inbox where CAST(id AS TEXT)=CAST($id AS TEXT);
 
