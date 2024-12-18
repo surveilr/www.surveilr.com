@@ -250,7 +250,8 @@ newsletters, such as subscription management or general content links.
 ```bash
 # load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
-$ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
+$ surveilr shell ./package.sql.ts    
+$ SURVEILR_SQLPKG=~/.sqlpkg surveilr shell ./package.sql.ts             # option 2 (same as option 1)
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
 $ SQLPAGE_SITE_PREFIX=/lib/pattern/content-assembler ../../std/surveilrctl.ts dev
