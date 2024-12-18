@@ -163,8 +163,8 @@ export async function auditSQL() {
       }
     }(),
     new sh.ShellSqlPages(),
-    new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
+    new c.ConsoleSqlPages(),
     new orch.OrchestrationSqlPages(),
     new InfraAuditSqlPages(),
   );

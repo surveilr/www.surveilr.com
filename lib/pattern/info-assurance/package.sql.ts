@@ -278,8 +278,8 @@ export async function infoAssuranceSQL() {
       }
     }(),
     new sh.ShellSqlPages(),
-    new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
+    new c.ConsoleSqlPages(),
     new orch.OrchestrationSqlPages(),
     new iatSqlPages(),
   );
