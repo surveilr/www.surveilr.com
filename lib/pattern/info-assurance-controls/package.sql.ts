@@ -214,8 +214,8 @@ export async function controlSQL() {
       }
     }(),
     new sh.ShellSqlPages(),
-    new c.ConsoleSqlPages(),
     new ur.UniformResourceSqlPages(),
+    new c.ConsoleSqlPages(),
     new orch.OrchestrationSqlPages(),
     new InfoAssuranceControlsSqlPages(),
   );
