@@ -199,3 +199,4 @@ RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</h
 
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
+
