@@ -1861,7 +1861,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osquery_ms_node_id: gm.keys.varCharPrimaryKey(),
       node_key: gd.text(),
       host_identifier: gd.text(),
-      tls_cert_subject: gd.text(),
+      tls_cert_subject: gd.textNullable(),
       os_version: gd.text(),
       platform: gd.text(),
       last_seen: gd.dateTime(true),
@@ -1874,9 +1874,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
         const c = SQLa.tableConstraints(tableName, props);
         return [
           c.unique(
-            "node_key",
-            "host_identifier",
-          ),
+            "node_key"          ),
         ];
       },
       indexes: (props, tableName) => {
@@ -1895,7 +1893,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     `osquery_ms_configuration`,
     {
       osquery_ms_configuration_id: gm.keys.varCharPrimaryKey(),
-      node_key: osQueryMsNode.belongsTo.osquery_ms_node_id(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
       config_json: gd.jsonText(),
       ...gm.housekeeping.columns,
     },

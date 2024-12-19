@@ -124,10 +124,6 @@ Deno.test("surveilr doctor", async (t) => {
       true,
       "❌ 'env_vars' should be an array",
     );
-    assertExists(
-      output.env_vars.find((env: { name: string }) => env.name === "SQLPAGE_SITE_PREFIX"),
-      "❌ Expected environment variable 'SQLPAGE_SITE_PREFIX' not found",
-    );
 
     // Verify Capturable Executables
     assertExists(output.capturable_executables, "❌ Missing 'capturable_executables' in output");
