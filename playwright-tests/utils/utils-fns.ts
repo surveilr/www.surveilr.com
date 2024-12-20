@@ -16,7 +16,7 @@ export async function waitForSelectorWithMinTime(
   page: Page,
   selector,
   minWaitTime = 1000,
-  timeout = 120000
+  timeout = 120000,
 ) {
   const startTime = Date.now();
   await page.waitForLoadState("load");
@@ -42,30 +42,28 @@ export async function waitForSelectorWithMinTime(
     });
 }
 export async function getTextContent(
-page: Page, selector: string, expectedText: string): Promise<string> {
-  
+  page: Page,
+  selector: string,
+  expectedText: string,
+): Promise<string> {
   try {
     const element = await this.page.waitForSelector(selector);
     const gettext = await element?.textContent();
     console.log(gettext);
-    
+
     if (gettext) {
-    const trimmedText = gettext.trim();
-    expect(trimmedText).toBe(expectedText);
-    console.log(trimmedText);
-    return trimmedText;
-    
+      const trimmedText = gettext.trim();
+      expect(trimmedText).toBe(expectedText);
+      console.log(trimmedText);
+      return trimmedText;
     } else {
-    throw new Error(`${expectedText} element not found or empty.`);
+      throw new Error(`${expectedText} element not found or empty.`);
     }
-  
   } catch (error) {
     throw error;
   }
-  
 }
 
 export function generateUUID(): string {
   return uuidv4();
-  
 }

@@ -40,13 +40,15 @@ export default class ComplianceExplorerPage {
     return await this.complianceexplorersection.NISTcontrolsSearchBarFnCheck();
   }
   public async USHIPAAcontrolsTitleSortCheck() {
-    return await this.complianceexplorersection.USHIPAAcontrolsTitleSortFnCheck();
+    return await this.complianceexplorersection
+      .USHIPAAcontrolsTitleSortFnCheck();
   }
   public async NISTcontrolsTitleSortCheck() {
     return await this.complianceexplorersection.NISTcontrolsTitleSortFnCheck();
   }
   public async USHIPAAcontrolsTitleSCheck() {
-    return await this.complianceexplorersection.USHIPAAcontrolsTitleSortFnCheck();
+    return await this.complianceexplorersection
+      .USHIPAAcontrolsTitleSortFnCheck();
   }
   public async USHIPAAcontrolcodeDetailCheck() {
     return await this.complianceexplorersection.HIPAAcontrolcodeDetailsCheck();
@@ -58,15 +60,19 @@ export default class ComplianceExplorerPage {
     return await this.complianceexplorersection.NISTcontrolsTableTitleCheck();
   }
   public async USHIPAAControlsTableTitleVisibilityCheck() {
-    return await this.complianceexplorersection.USHIPAAControlsTableTitleCheck();
+    return await this.complianceexplorersection
+      .USHIPAAControlsTableTitleCheck();
   }
   public async HIPAAcontrolcodeLinksNavigationFnCheck() {
-    return await this.complianceexplorersection.HIPAAcontrolcodeLinksNavigationCheck();
+    return await this.complianceexplorersection
+      .HIPAAcontrolcodeLinksNavigationCheck();
   }
   public async NISTcontrolcodeLinksNavigationFnCheck() {
-    return await this.complianceexplorersection.NISTcontrolcodeLinksNavigationCheck();
+    return await this.complianceexplorersection
+      .NISTcontrolcodeLinksNavigationCheck();
   }
   public async scfControlsFooterNavigationCheck() {
-    return await this.complianceexplorersection.scfControlsFooterNavigationFnCheck();
+    return await this.complianceexplorersection
+      .scfControlsFooterNavigationFnCheck();
   }
 }

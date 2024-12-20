@@ -77,19 +77,27 @@ Deno.test("surveilr doctor", async (t) => {
     );
 
     // Verify Static Extensions
-    assertExists(output.static_extensions, "❌ Missing 'static_extensions' in output");
+    assertExists(
+      output.static_extensions,
+      "❌ Missing 'static_extensions' in output",
+    );
     assertEquals(
       Array.isArray(output.static_extensions),
       true,
       "❌ 'static_extensions' should be an array",
     );
     assertExists(
-      output.static_extensions.find((ext: { name: string }) => ext.name === "sqlite_url_extensions"),
+      output.static_extensions.find((ext: { name: string }) =>
+        ext.name === "sqlite_url_extensions"
+      ),
       "❌ Expected static extension not found",
     );
 
     // Verify Dynamic Extensions
-    assertExists(output.dynamic_extensions, "❌ Missing 'dynamic_extensions' in output");
+    assertExists(
+      output.dynamic_extensions,
+      "❌ Missing 'dynamic_extensions' in output",
+    );
     assertEquals(
       Array.isArray(output.dynamic_extensions),
       true,
@@ -126,7 +134,10 @@ Deno.test("surveilr doctor", async (t) => {
     );
 
     // Verify Capturable Executables
-    assertExists(output.capturable_executables, "❌ Missing 'capturable_executables' in output");
+    assertExists(
+      output.capturable_executables,
+      "❌ Missing 'capturable_executables' in output",
+    );
     assertEquals(
       Array.isArray(output.capturable_executables),
       true,

@@ -16,7 +16,7 @@ surveilr.describe("Home Tests", () => {
       );
       if (!testCase) {
         throw new Error(
-          `Test case ID not found in testcaseDetails: ${testInfo.title}`
+          `Test case ID not found in testcaseDetails: ${testInfo.title}`,
         );
       }
     }
@@ -47,10 +47,10 @@ surveilr.describe("Home Tests", () => {
             await sp.sqeDashboardLoadingFnCheck();
             break;
           case "TC-SQE-0005":
-          await sp.sqeNavigationCheck();
-          await sp.SQEtabnavigationFn();
-          await sp.egsurveilrsiteNavCheck();
-          break;
+            await sp.sqeNavigationCheck();
+            await sp.SQEtabnavigationFn();
+            await sp.egsurveilrsiteNavCheck();
+            break;
           case "TC-SQE-0006":
             await sp.sqeNavigationCheck();
             await sp.SQEtabnavigationFn();
@@ -77,7 +77,7 @@ surveilr.describe("Home Tests", () => {
             logger.warn(`Test case ${testCase.id} not handled`);
             break;
         }
-      }
+      },
     );
   });
 

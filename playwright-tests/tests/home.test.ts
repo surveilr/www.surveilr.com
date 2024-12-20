@@ -18,7 +18,7 @@ surveilr.describe("Home Tests", () => {
       );
       if (!testCase) {
         throw new Error(
-          `Test case ID not found in testcaseDetails: ${testInfo.title}`
+          `Test case ID not found in testcaseDetails: ${testInfo.title}`,
         );
       }
     }
@@ -117,7 +117,7 @@ surveilr.describe("Home Tests", () => {
             logger.warn(`Test case ${testCase.id} not handled`);
             break;
         }
-      }
+      },
     );
   });
 

@@ -1856,9 +1856,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
   );
 
   const osQueryMsNode = gm.textPkTable(
-    `osquery_ms_node`,
+    `surveilr_osquery_ms_node`,
     {
-      osquery_ms_node_id: gm.keys.varCharPrimaryKey(),
+      surveilr_osquery_ms_node_id: gm.keys.varCharPrimaryKey(),
       node_key: gd.text(),
       host_identifier: gd.text(),
       tls_cert_subject: gd.textNullable(),
@@ -1874,7 +1874,10 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
         const c = SQLa.tableConstraints(tableName, props);
         return [
           c.unique(
-            "node_key"          ),
+            "host_identifier",
+            "os_version"
+          ),
+          c.unique("node_key")
         ];
       },
       indexes: (props, tableName) => {
@@ -1890,63 +1893,29 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
   );
 
   const osQueryMsConfiguration = gm.textPkTable(
-    `osquery_ms_configuration`,
+    `surveilr_osquery_ms_configuration`,
     {
-      osquery_ms_configuration_id: gm.keys.varCharPrimaryKey(),
+      surveilr_osquery_ms_configuration_id: gm.keys.varCharPrimaryKey(),
       node_key: osQueryMsNode.belongsTo.node_key(),
       config_json: gd.jsonText(),
       ...gm.housekeeping.columns,
     },
     {
       isIdempotent: true,
-      constraints: (props, tableName) => {
-        const c = SQLa.tableConstraints(tableName, props);
-        return [
-          c.unique(
-            "node_key",
-          ),
-        ];
-      },
-      indexes: (props, tableName) => {
-        const tif = SQLa.tableIndexesFactory(tableName, props);
-        return [
-          tif.index(
-            { isIdempotent: true },
-            "node_key",
-          ),
-        ];
-      },
     },
   );
 
   const osQueryMsLog = gm.textPkTable(
-    `osquery_ms_log`,
+    `surveilr_osquery_ms_log`,
     {
-      osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
-      node_key: osQueryMsNode.belongsTo.osquery_ms_node_id(),
+      surveilr_osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
       log_type: gd.text(),
       log_data: gd.jsonText(),
       ...gm.housekeeping.columns,
     },
     {
       isIdempotent: true,
-      constraints: (props, tableName) => {
-        const c = SQLa.tableConstraints(tableName, props);
-        return [
-          c.unique(
-            "node_key",
-          ),
-        ];
-      },
-      indexes: (props, tableName) => {
-        const tif = SQLa.tableIndexesFactory(tableName, props);
-        return [
-          tif.index(
-            { isIdempotent: true },
-            "node_key",
-          ),
-        ];
-      },
     },
   );
 
@@ -2002,7 +1971,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       uniformResourceEdge,
       osQueryMsNode,
       osQueryMsConfiguration,
-      osQueryMsLog
+      osQueryMsLog,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2049,7 +2018,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...uniformResourceEdge.indexes,
       ...osQueryMsNode.indexes,
       ...osQueryMsConfiguration.indexes,
-      ...osQueryMsLog.indexes
+      ...osQueryMsLog.indexes,
     ],
   };
 
@@ -2105,7 +2074,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     uniformResourceEdge,
     osQueryMsNode,
     osQueryMsConfiguration,
-    osQueryMsLog
+    osQueryMsLog,
   };
 }
 

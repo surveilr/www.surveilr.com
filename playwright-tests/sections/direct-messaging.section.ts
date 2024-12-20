@@ -27,10 +27,10 @@ export default class DirectMessagingSection {
         logger.info("Successfully clicked the direct meaasging sevice link.");
       } catch (error) {
         logger.error(
-          `Failed to click the direct meaasging sevice link: ${error.message}`
+          `Failed to click the direct meaasging sevice link: ${error.message}`,
         );
         throw new Error(
-          `Failed to click the compliance explorer link: ${error.message}`
+          `Failed to click the compliance explorer link: ${error.message}`,
         );
       }
     });
@@ -77,11 +77,11 @@ export default class DirectMessagingSection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -108,7 +108,7 @@ export default class DirectMessagingSection {
         await this.page.click(ds.dpesSubtitle);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the Direct Protocol Email System subtitle and waited for page to load."
+          "Clicked on the Direct Protocol Email System subtitle and waited for page to load.",
         );
       });
 
@@ -124,7 +124,7 @@ export default class DirectMessagingSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Direct Protocol Email System page navigation: ${err.message}`
+        `Error during Direct Protocol Email System page navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -134,7 +134,7 @@ export default class DirectMessagingSection {
       await test.step("Count- Direct Protocol Email System page menu items", async () => {
         const count = await this.page.locator(hs.dashboardmenu).count();
         logger.info(
-          `Direct Protocol Email System Page Dashboard menu count: ${count}`
+          `Direct Protocol Email System Page Dashboard menu count: ${count}`,
         );
         console.log(count);
       });
@@ -162,11 +162,11 @@ export default class DirectMessagingSection {
             try {
               expect(trimmedText).toContain(menuText);
               logger.info(
-                `Text for ${menuText} matches expected value: ${trimmedText}`
+                `Text for ${menuText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${menuText} does not match expected value. Expected: ${menuText}, but got: ${trimmedText}`
+                `Text for ${menuText} does not match expected value. Expected: ${menuText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -179,7 +179,7 @@ export default class DirectMessagingSection {
       }
     } catch (error) {
       logger.error(
-        `Error in  Direct Protocol Email System page menu items Check: ${error.message}`
+        `Error in  Direct Protocol Email System page menu items Check: ${error.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -188,13 +188,13 @@ export default class DirectMessagingSection {
     try {
       await test.step("Starting Direct Protocol Email System Page-inbox Navigation Check", async () => {
         logger.info(
-          "Starting Direct Protocol Email System page-inbox navigation"
+          "Starting Direct Protocol Email System page-inbox navigation",
         );
         await this.page.waitForSelector(ds.inboxlink);
         await this.page.click(ds.inboxlink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the Direct Protocol Email System inbox link and waited for page to load."
+          "Clicked on the Direct Protocol Email System inbox link and waited for page to load.",
         );
       });
 
@@ -211,7 +211,7 @@ export default class DirectMessagingSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Direct Protocol Email System inbox link navigation: ${err.message}`
+        `Error during Direct Protocol Email System inbox link navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -220,13 +220,13 @@ export default class DirectMessagingSection {
     try {
       await test.step("Starting Direct Protocol Email System Page-Dispatched Navigation Check", async () => {
         logger.info(
-          "Starting Direct Protocol Email System page-Dispatched navigation"
+          "Starting Direct Protocol Email System page-Dispatched navigation",
         );
         await this.page.waitForSelector(ds.Dispatchedlink);
         await this.page.click(ds.Dispatchedlink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the Direct Protocol Email System Dispatched link and waited for page to load."
+          "Clicked on the Direct Protocol Email System Dispatched link and waited for page to load.",
         );
       });
 
@@ -243,7 +243,7 @@ export default class DirectMessagingSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Direct Protocol Email System Dispatched link navigation: ${err.message}`
+        `Error during Direct Protocol Email System Dispatched link navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -252,13 +252,13 @@ export default class DirectMessagingSection {
     try {
       await test.step("Starting Direct Protocol Email System Page-Failed Navigation Check", async () => {
         logger.info(
-          "Starting Direct Protocol Email System page-Failed navigation"
+          "Starting Direct Protocol Email System page-Failed navigation",
         );
         await this.page.waitForSelector(ds.failedLink);
         await this.page.click(ds.failedLink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the Direct Protocol Email System Failed link and waited for page to load."
+          "Clicked on the Direct Protocol Email System Failed link and waited for page to load.",
         );
       });
 
@@ -275,7 +275,7 @@ export default class DirectMessagingSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Direct Protocol Email System Failed link navigation: ${err.message}`
+        `Error during Direct Protocol Email System Failed link navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -292,7 +292,7 @@ export default class DirectMessagingSection {
       for (let i = 1; i <= count; i++) {
         await test.step(`Check navigation for link ${i}`, async () => {
           logger.info(
-            `Starting navigation check for link ${i} in 'Subject' column.`
+            `Starting navigation check for link ${i} in 'Subject' column.`,
           );
 
           const data = await this.page.waitForSelector(ds.subjectData(i));
@@ -316,7 +316,7 @@ export default class DirectMessagingSection {
       }
     } catch (error) {
       logger.error(
-        `Error in SubjectClmdataLinkNavigationCheck: ${error.message}`
+        `Error in SubjectClmdataLinkNavigationCheck: ${error.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -340,7 +340,7 @@ export default class DirectMessagingSection {
 
         await test.step(`Ensure Link ${i} is Visible`, async () => {
           await expect(
-            this.page.locator(ds.subjectData(i)).isVisible()
+            this.page.locator(ds.subjectData(i)).isVisible(),
           ).resolves.toBeTruthy();
           logger.info(`Link ${i} is visible. Clicking it.`);
         });
@@ -362,7 +362,7 @@ export default class DirectMessagingSection {
         for (let j = 1; j <= attachmentCount; j++) {
           await test.step(`Click Attachment ${j} for Subject ${data}`, async () => {
             const attachmentFile = await this.page.waitForSelector(
-              ds.attachment(j)
+              ds.attachment(j),
             );
             logger.info(`Clicking attachment ${j} for subject ${data}.`);
             await attachmentFile.click();
@@ -385,7 +385,7 @@ export default class DirectMessagingSection {
       }
     } catch (error) {
       logger.error(
-        `Error in ValidateAttachmentFileNavigation: ${error.message}`
+        `Error in ValidateAttachmentFileNavigation: ${error.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -413,13 +413,13 @@ export default class DirectMessagingSection {
       for (const { selector, expectedUrl } of breadcrumbSelectorsAndUrls) {
         await test.step(`Check Breadcrumb Navigation for ${selector}`, async () => {
           logger.info(
-            `Starting breadcrumb navigation check for selector: ${selector}`
+            `Starting breadcrumb navigation check for selector: ${selector}`,
           );
 
           const breadcrumb = await this.page.locator(selector);
 
           logger.info(
-            `Checking visibility for breadcrumb with selector: ${selector}`
+            `Checking visibility for breadcrumb with selector: ${selector}`,
           );
           await expect(breadcrumb).toBeVisible();
 
@@ -433,7 +433,7 @@ export default class DirectMessagingSection {
           logger.info(`Navigated to URL: ${currentUrl}`);
 
           logger.info(
-            `Validating URL: Expected = ${expectedUrl}, Actual = ${currentUrl}`
+            `Validating URL: Expected = ${expectedUrl}, Actual = ${currentUrl}`,
           );
           expect(currentUrl).toBe(expectedUrl);
 
@@ -443,7 +443,7 @@ export default class DirectMessagingSection {
       }
 
       logger.info(
-        "DPESfailedpageCrumbNavigationCheck test completed successfully"
+        "DPESfailedpageCrumbNavigationCheck test completed successfully",
       );
     } catch (error) {
       const err = error as Error;
@@ -460,7 +460,7 @@ export default class DirectMessagingSection {
         await this.page.click(ds.inboxFooter);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the Inbox footerlink link and waited for page to load."
+          "Clicked on the Inbox footerlink link and waited for page to load.",
         );
       });
 

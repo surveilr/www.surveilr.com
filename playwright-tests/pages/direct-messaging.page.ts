@@ -19,7 +19,8 @@ export default class DirectMessagingPage {
     return await this.directmessagingSection.dmsDashboardLoadingFnCheck();
   }
   public async dpesPageDashboardMenuCheck() {
-    return await this.directmessagingSection.dpesPageDashboardMenuVisibilityCheck();
+    return await this.directmessagingSection
+      .dpesPageDashboardMenuVisibilityCheck();
   }
   public async ValidateDPESinboxNavigation() {
     return await this.directmessagingSection.dpesInboxNavigationCheck();
@@ -31,7 +32,8 @@ export default class DirectMessagingPage {
     return await this.directmessagingSection.dpesFailedNavigationCheck();
   }
   public async SubjectClmdataLinkNavigation() {
-    return await this.directmessagingSection.SubjectClmdataLinkNavigationCheck();
+    return await this.directmessagingSection
+      .SubjectClmdataLinkNavigationCheck();
   }
   public async attachmentFileNavigationcheck() {
     return await this.directmessagingSection.ValidateAttachmentFileNavigation();
@@ -40,6 +42,7 @@ export default class DirectMessagingPage {
     return await this.directmessagingSection.ValidateInboxFooterLink();
   }
   public async DPESfailedpageCrumbCheck() {
-    return await this.directmessagingSection.DPESfailedpageCrumbNavigationCheck();
+    return await this.directmessagingSection
+      .DPESfailedpageCrumbNavigationCheck();
   }
 }

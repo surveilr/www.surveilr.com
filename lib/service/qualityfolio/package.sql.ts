@@ -3,14 +3,13 @@ import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
   orchestration as orch,
-  uniformResource as ur,
   shell as sh,
+  uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 
-
-const WEB_UI_TITLE = "Qualityfolio"
-const WE_UI_LOGO = "qf-logo.png"
-const WE_UI_FAV_ICON = "qf-favicon.ico"
+const WEB_UI_TITLE = "Qualityfolio";
+const WE_UI_LOGO = "qf-logo.png";
+const WE_UI_FAV_ICON = "qf-favicon.ico";
 
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
@@ -41,7 +40,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath('qltyfolio')};
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
+      this.constructHomePath("qltyfolio")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -62,7 +63,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         TRUE as search,
         'id' as markdown;
       SELECT 
-      '['||id||']('||${this.absoluteURL('/qltyfolio/suite-data.sql')}||'?id='||id||')' as id,
+      '['||id||']('||${
+      this.absoluteURL("/qltyfolio/suite-data.sql")
+    }||'?id='||id||')' as id,
       
       name,
       created_by as "Created By",
@@ -109,9 +112,13 @@ SELECT 'table' as component,
       'id' as markdown,
       'Test Cases'  as markdown;
 SELECT
-      '['||group_id||']('||${this.absoluteURL('/qltyfolio/group-detail.sql?id=')}||group_id||')' as id,
+      '['||group_id||']('||${
+      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+    }||group_id||')' as id,
       group_name AS "title",
-      '['||test_case_count||']('||${this.absoluteURL('/qltyfolio/test-cases.sql?id=')}||group_id||')' AS 'Test Cases',
+      '['||test_case_count||']('||${
+      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+    }||group_id||')' AS 'Test Cases',
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
     FROM test_suites_test_case_count
@@ -133,7 +140,7 @@ SELECT
          ${this.absoluteURL("/qltyfolio/index.sql")} as link;   
     select       
         s."name" as title ,
-         ${this.absoluteURL('/qltyfolio/suite-data.sql?id=')}||suite_id as link
+         ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}||suite_id as link
          FROM test_case_data g
         inner join  test_suites s on g.suite_id = s.id
           WHERE  group_id=$id group by group_name  ;
@@ -155,7 +162,9 @@ SELECT
       'id' as markdown,
       'count'  as markdown;
      SELECT
-      '['||test_case_id||']('||${this.absoluteURL('/qltyfolio/test-detail.sql?id=')}||test_case_id||')' as id,
+      '['||test_case_id||']('||${
+      this.absoluteURL("/qltyfolio/test-detail.sql?id=")
+    }||test_case_id||')' as id,
       test_case_title AS "title",
       group_name AS "group",
       test_case_created_by as "Created By",
@@ -180,14 +189,14 @@ SELECT
     -- Tab 1: Test Suite list
     SELECT
       'Test Plan List' AS title,
-      ${this.absoluteURL('/qltyfolio/suite-group?tab=test_suites')} AS link,
+      ${this.absoluteURL("/qltyfolio/suite-group?tab=test_suites")} AS link,
       $tab = 'test_suites' AS active;
 
 
     -- Tab 2: Test case list
     SELECT
       'Test Case List' AS title,
-      ${this.absoluteURL('/qltyfolio/suite-group?tab=test_cases')} AS link,
+      ${this.absoluteURL("/qltyfolio/suite-group?tab=test_cases")} AS link,
       $tab = 'test_cases' AS active;
 
     -- Tab 3: Meta Tags Missing URLs
@@ -227,9 +236,13 @@ FROM test_suites rn WHERE id=$id;
 
         --Tab - specific content for "test_suites"
     SELECT
-      '['||group_id||']('||${this.absoluteURL('/qltyfolio/group-detail.sql?id=')}||group_id||')' as id,
+      '['||group_id||']('||${
+      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+    }||group_id||')' as id,
       group_name AS "title",
-      '['||test_case_count||']('||${this.absoluteURL('/qltyfolio/suite-group.sql?tab=test_cases&id=')}||group_id||')' AS count,
+      '['||test_case_count||']('||${
+      this.absoluteURL("/qltyfolio/suite-group.sql?tab=test_cases&id=")
+    }||group_id||')' AS count,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
     FROM test_suites_test_case_count
@@ -237,7 +250,9 @@ FROM test_suites rn WHERE id=$id;
 
     --Tab - specific content for "test_cases"
     SELECT     
-      '['||test_case_id||']('||${this.absoluteURL('/qltyfolio/test-detail.sql?id=')}||test_case_id||')' as id,
+      '['||test_case_id||']('||${
+      this.absoluteURL("/qltyfolio/test-detail.sql?id=")
+    }||test_case_id||')' as id,
       test_case_title AS "title",
       group_name AS "group",
       test_case_created_by as "Created By",
@@ -387,8 +402,6 @@ WHERE rn.id = $id;
 
    `;
   }
-
-
 }
 
 export async function SQL() {

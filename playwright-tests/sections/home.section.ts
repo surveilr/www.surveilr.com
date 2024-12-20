@@ -45,7 +45,8 @@ export default class HomeSection {
         logger.info("Page title matches the expected value.");
       } else {
         logger.error(
-          `Page title does not match. Expected: "${expectedTitle}", Found: "${await this.page.title()}"`
+          `Page title does not match. Expected: "${expectedTitle}", Found: "${await this
+            .page.title()}"`,
         );
         throw new Error("Page title mismatch");
       }
@@ -98,14 +99,14 @@ export default class HomeSection {
       await test.step("Log visibility status", async () => {
         if (text) {
           logger.info(
-            "Text - Resource Surveillance State Database (RSSD) is visible properly"
+            "Text - Resource Surveillance State Database (RSSD) is visible properly",
           );
         } else {
           logger.error(
-            "Text - Resource Surveillance State Database (RSSD) is not visible properly"
+            "Text - Resource Surveillance State Database (RSSD) is not visible properly",
           );
           errors.push(
-            "Text - Resource Surveillance State Database (RSSD) is not visible properly"
+            "Text - Resource Surveillance State Database (RSSD) is not visible properly",
           );
         }
       });
@@ -175,11 +176,11 @@ export default class HomeSection {
             try {
               expect(trimmedText).toBe(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -233,11 +234,11 @@ export default class HomeSection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -286,7 +287,7 @@ export default class HomeSection {
         } else {
           logger.error("URL did not change as expected.");
           errors.push(
-            `Expected URL: ${hs.expectedUrllink}, but got: ${finalUrl.trim()}`
+            `Expected URL: ${hs.expectedUrllink}, but got: ${finalUrl.trim()}`,
           );
           steps.push({
             step: 2,
@@ -345,7 +346,7 @@ export default class HomeSection {
 
       if (missingOptions.length > 0) {
         logger.error(
-          "Missing options in the dropdown: " + missingOptions.join(", ")
+          "Missing options in the dropdown: " + missingOptions.join(", "),
         );
         errors.push(`Missing options: ${missingOptions.join(", ")}`);
       } else {
@@ -397,7 +398,7 @@ export default class HomeSection {
 
       if (missingOptions.length > 0) {
         logger.error(
-          "Missing options in the dropdown: " + missingOptions.join(", ")
+          "Missing options in the dropdown: " + missingOptions.join(", "),
         );
         errors.push(`Missing options: ${missingOptions.join(", ")}`);
       } else {
@@ -456,7 +457,7 @@ export default class HomeSection {
 
       if (missingOptions.length > 0) {
         logger.error(
-          "Missing options in the dropdown: " + missingOptions.join(", ")
+          "Missing options in the dropdown: " + missingOptions.join(", "),
         );
         errors.push(`Missing options: ${missingOptions.join(", ")}`);
       } else {
@@ -517,10 +518,10 @@ export default class HomeSection {
         steps.push({ result: "pass" });
       } else {
         logger.error(
-          "Mailbox title is not visible after clicking the IMAP link."
+          "Mailbox title is not visible after clicking the IMAP link.",
         );
         errors.push(
-          "Mailbox title is not visible after clicking the IMAP link."
+          "Mailbox title is not visible after clicking the IMAP link.",
         );
         steps.push({ result: "fail" });
       }
@@ -608,7 +609,7 @@ export default class HomeSection {
       await test.step("Waiting for the Uniform resource tables and views Dropdown Tab to be clickable", async () => {
         await waitForSelectorWithMinTime(
           this.page,
-          hs.uniformresourcetableandview
+          hs.uniformresourcetableandview,
         );
       });
 
@@ -658,7 +659,7 @@ export default class HomeSection {
         await this.page.click(hs.RSSDSQLNavigation);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD SQ subtitle and waited for page to load."
+          "Clicked on the RSSD SQ subtitle and waited for page to load.",
         );
       });
 
@@ -684,13 +685,13 @@ export default class HomeSection {
       await this.page.waitForLoadState("networkidle");
       await test.step("Starting RSSD Data Tables Content SQLPage Files Navigation Check", async () => {
         logger.info(
-          "Starting RSSD Data Tables Content SQLPage Files navigation."
+          "Starting RSSD Data Tables Content SQLPage Files navigation.",
         );
         await this.page.waitForSelector(hs.RSSDDataTablelink);
         await this.page.click(hs.RSSDDataTablelink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD Data Tables Content SQLPage Files subtitle and waited for page to load."
+          "Clicked on the RSSD Data Tables Content SQLPage Files subtitle and waited for page to load.",
         );
       });
 
@@ -706,7 +707,7 @@ export default class HomeSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during RSSD Data Tables Content SQLPage Files navigation: ${err.message}`
+        `Error during RSSD Data Tables Content SQLPage Files navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -722,14 +723,14 @@ export default class HomeSection {
         await this.page.click(hs.RSSDSQLPageFileslink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD SQL Page Files subtitle and waited for page to load."
+          "Clicked on the RSSD SQL Page Files subtitle and waited for page to load.",
         );
       });
 
       await test.step("Capture navigated page title text", async () => {
         logger.info("Capturing navigated page title.");
         const element = await this.page.waitForSelector(
-          hs.RSSDSQLPageFilesTitle
+          hs.RSSDSQLPageFilesTitle,
         );
         const gettext = await element?.textContent();
         console.log(gettext);
@@ -741,7 +742,7 @@ export default class HomeSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during RSSD SQL Page Files navigation: ${err.message}`
+        `Error during RSSD SQL Page Files navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -757,7 +758,7 @@ export default class HomeSection {
         await this.page.click(hs.RSSDSQLNavigation);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD SQ subtitle and waited for page to load."
+          "Clicked on the RSSD SQ subtitle and waited for page to load.",
         );
       });
 
@@ -783,13 +784,13 @@ export default class HomeSection {
       await this.page.waitForLoadState("networkidle");
       await test.step("Starting RSSD Data Tables Content SQLPage Files Navigation Check", async () => {
         logger.info(
-          "Starting RSSD Data Tables Content SQLPage Files navigation."
+          "Starting RSSD Data Tables Content SQLPage Files navigation.",
         );
         await this.page.waitForSelector(hs.RSSDDataTablelink);
         await this.page.click(hs.RSSDDataTablelink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD Data Tables Content SQLPage Files and waited for page to load."
+          "Clicked on the RSSD Data Tables Content SQLPage Files and waited for page to load.",
         );
       });
       await this.page.waitForSelector(hs.RSSDdataTableFooterLink);
@@ -798,7 +799,7 @@ export default class HomeSection {
       await test.step("Capture navigated page title text", async () => {
         logger.info("Capturing navigated page title.");
         const element = await this.page.waitForSelector(
-          hs.RSSDDataTableFootertitle
+          hs.RSSDDataTableFootertitle,
         );
         const gettext = await element?.textContent();
         if (gettext) {
@@ -812,7 +813,7 @@ export default class HomeSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during RSSD Data Tables Content SQLPage Files navigation: ${err.message}`
+        `Error during RSSD Data Tables Content SQLPage Files navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -844,9 +845,7 @@ export default class HomeSection {
         } else {
           logger.error("URL did not change as expected.");
           errors.push(
-            `Expected URL: ${
-              hs.expectedUrllink_docs
-            }, but got: ${finalUrl.trim()}`
+            `Expected URL: ${hs.expectedUrllink_docs}, but got: ${finalUrl.trim()}`,
           );
         }
       });
@@ -874,7 +873,7 @@ export default class HomeSection {
         await this.page.click(hs.RSSDSQLPageFileslink);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the RSSD SQLPage Files and waited for page to load."
+          "Clicked on the RSSD SQLPage Files and waited for page to load.",
         );
       });
       await this.page.waitForSelector(hs.RSSDSQLPageFilesFooterLink);
@@ -883,7 +882,7 @@ export default class HomeSection {
       await test.step("Capture navigated page title text", async () => {
         logger.info("Capturing navigated page title.");
         const element = await this.page.waitForSelector(
-          hs.RSSDSQLPageFilesFootertitle
+          hs.RSSDSQLPageFilesFootertitle,
         );
         const gettext = await element?.textContent();
         if (gettext) {
@@ -897,7 +896,7 @@ export default class HomeSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during RSSD SQLPage Files navigation: ${err.message}`
+        `Error during RSSD SQLPage Files navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -914,7 +913,7 @@ export default class HomeSection {
       const breadcrumbItems =
         await test.step("Capture Breadcrumb Items", async () => {
           const items = await this.page.locator(
-            '//nav[@aria-label="breadcrumb"]//a | //nav[@aria-label="breadcrumb"]//span'
+            '//nav[@aria-label="breadcrumb"]//a | //nav[@aria-label="breadcrumb"]//span',
           );
           const count = await items.count();
           logger.info(`Number of breadcrumb items: ${count}`);
@@ -924,7 +923,7 @@ export default class HomeSection {
             const item = items.nth(i);
             const text = await item.textContent();
             const isClickable = await item.evaluate(
-              (el) => el.tagName.toLowerCase() === "a"
+              (el) => el.tagName.toLowerCase() === "a",
             );
             if (text) {
               breadcrumbTexts.push({
@@ -934,9 +933,11 @@ export default class HomeSection {
             }
           }
           logger.info(
-            `Breadcrumb items: ${breadcrumbTexts
-              .map((b) => b.text)
-              .join(" > ")}`
+            `Breadcrumb items: ${
+              breadcrumbTexts
+                .map((b) => b.text)
+                .join(" > ")
+            }`,
           );
           return breadcrumbTexts;
         });
@@ -947,7 +948,7 @@ export default class HomeSection {
         if (breadcrumbText === "Console" && clickable) {
           await test.step("Navigate to Console", async () => {
             const consoleBreadcrumb = await this.page.locator(
-              "//nav[@aria-label=\"breadcrumb\"]//a[text()='Console']"
+              "//nav[@aria-label=\"breadcrumb\"]//a[text()='Console']",
             );
 
             await consoleBreadcrumb.waitFor({
@@ -970,7 +971,7 @@ export default class HomeSection {
         if (breadcrumbText === "Home" && clickable) {
           await test.step("Navigate to Home", async () => {
             const homeBreadcrumb = await this.page.locator(
-              "//nav[@aria-label=\"breadcrumb\"]//a[text()='Home']"
+              "//nav[@aria-label=\"breadcrumb\"]//a[text()='Home']",
             );
 
             await homeBreadcrumb.waitFor({ state: "visible", timeout: 5000 });
@@ -984,7 +985,7 @@ export default class HomeSection {
             const currentUrl = this.page.url();
             logger.info(`Navigated to: ${currentUrl}`);
             expect(currentUrl).toContain(
-              "https://eg.surveilr.com/lib/pattern/direct-messaging-service/index.sql"
+              "https://eg.surveilr.com/lib/pattern/direct-messaging-service/index.sql",
             );
           });
           break;

@@ -1,9 +1,9 @@
 import {
-  test as baseTest,
-  expect,
-  chromium,
   BrowserContext,
+  chromium,
+  expect,
   Page,
+  test as baseTest,
 } from "@playwright/test";
 
 type AuthFixtures = {
@@ -25,4 +25,4 @@ const surveilr = baseTest.extend<AuthFixtures>({
   },
 });
 
-export { surveilr, expect };
+export { expect, surveilr };

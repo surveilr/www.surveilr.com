@@ -83,11 +83,11 @@ export default class ComplianceExplorerSection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -112,7 +112,7 @@ export default class ComplianceExplorerSection {
         await this.page.click(hs.dpesControls);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the SCF control menu subtitle and waited for page to load."
+          "Clicked on the SCF control menu subtitle and waited for page to load.",
         );
       });
 
@@ -145,10 +145,10 @@ export default class ComplianceExplorerSection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of Footer 1 link navigation."
+          "Waiting for and retrieving text of Footer 1 link navigation.",
         );
         const Element1 = await this.page.waitForSelector(
-          cs.ScfFooterlinkNavTextSel1
+          cs.ScfFooterlinkNavTextSel1,
         );
         const getHIPAAtext1 = await Element1?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext1}`);
@@ -164,10 +164,10 @@ export default class ComplianceExplorerSection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of Footer 2 link navigation."
+          "Waiting for and retrieving text of Footer 2 link navigation.",
         );
         const Element2 = await this.page.waitForSelector(
-          cs.ScfFooterlinkNavTextSel2
+          cs.ScfFooterlinkNavTextSel2,
         );
         const getHIPAAtext2 = await Element2?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext2}`);
@@ -175,7 +175,7 @@ export default class ComplianceExplorerSection {
       });
 
       logger.info(
-        "SCF controls footer navigation check completed successfully."
+        "SCF controls footer navigation check completed successfully.",
       );
     } catch (error) {
       const err = error as Error;
@@ -183,7 +183,7 @@ export default class ComplianceExplorerSection {
       throw new Error(`Test failed: ${err.message}`);
     }
   }
- // Compliance explorer SCF Controls page breadcrumb navigation check
+  // Compliance explorer SCF Controls page breadcrumb navigation check
   public async SCFControlCrumbCheck() {
     try {
       await test.step("Verify Breadcrumb Container is Visible", async () => {
@@ -211,26 +211,29 @@ export default class ComplianceExplorerSection {
 
       for (let i = 0; i < breadcrumbItems.length; i++) {
         const breadcrumbText = breadcrumbItems[i];
-        await test.step(`Check Breadcrumb Item ${
-          i + 1
-        }: ${breadcrumbText}`, async () => {
-          const breadcrumbItem = await this.page.locator(
-            `${cs.homeScfCrumb} >> nth=${i}`
-          );
-          await expect(breadcrumbItem.isVisible()).resolves.toBeTruthy();
-          logger.info(`Breadcrumb ${breadcrumbText} is visible and clickable.`);
+        await test.step(
+          `Check Breadcrumb Item ${i + 1}: ${breadcrumbText}`,
+          async () => {
+            const breadcrumbItem = await this.page.locator(
+              `${cs.homeScfCrumb} >> nth=${i}`,
+            );
+            await expect(breadcrumbItem.isVisible()).resolves.toBeTruthy();
+            logger.info(
+              `Breadcrumb ${breadcrumbText} is visible and clickable.`,
+            );
 
-          await breadcrumbItem.click();
-          await this.page.waitForLoadState("networkidle");
-          const currentUrl = this.page.url();
-          console.log(currentUrl);
-          logger.info(`Navigated to: ${currentUrl}`);
-          expect(currentUrl).not.toBe("about:blank");
-          expect(currentUrl).toContain(
-            "https://eg.surveilr.com/lib/pattern/compliance-explorer/ce/index.sql"
-          );
-          await this.page.goBack();
-        });
+            await breadcrumbItem.click();
+            await this.page.waitForLoadState("networkidle");
+            const currentUrl = this.page.url();
+            console.log(currentUrl);
+            logger.info(`Navigated to: ${currentUrl}`);
+            expect(currentUrl).not.toBe("about:blank");
+            expect(currentUrl).toContain(
+              "https://eg.surveilr.com/lib/pattern/compliance-explorer/ce/index.sql",
+            );
+            await this.page.goBack();
+          },
+        );
       }
     } catch (error) {
       logger.error(`Error during breadcrumb navigation: ${error.message}`);
@@ -265,7 +268,7 @@ export default class ComplianceExplorerSection {
       throw new Error(`Test failed: ${err.message}`);
     }
   }
-// verify NIST Section
+  // verify NIST Section
   public async verifyNISTSection() {
     try {
       logger.info("Starting NIST Section verification");
@@ -302,7 +305,7 @@ export default class ComplianceExplorerSection {
         await this.page.click(cs.detailViewHIPAA);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the US HIPAA Detail View and waited for page to load."
+          "Clicked on the US HIPAA Detail View and waited for page to load.",
         );
       });
 
@@ -318,7 +321,7 @@ export default class ComplianceExplorerSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during US HIPAA Detail View navigation: ${err.message}`
+        `Error during US HIPAA Detail View navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${error.message}`);
     }
@@ -346,7 +349,7 @@ export default class ComplianceExplorerSection {
         const searchBar = this.page.locator(cs.searchBarSelector);
         await searchBar.fill(cs.searchKeyword);
         logger.info(
-          `Filled the search bar with keyword: "${cs.searchKeyword}".`
+          `Filled the search bar with keyword: "${cs.searchKeyword}".`,
         );
 
         const searchResults = this.page.locator(cs.searchResultsSelector);
@@ -357,7 +360,7 @@ export default class ComplianceExplorerSection {
         logger.info(`Search results text: "${resultsText}".`);
         expect(resultsText).toContain(cs.searchKeyword);
         logger.info(
-          `Search results contain the keyword: "${cs.searchKeyword}".`
+          `Search results contain the keyword: "${cs.searchKeyword}".`,
         );
       });
     } catch (error) {
@@ -366,7 +369,7 @@ export default class ComplianceExplorerSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
-// HIPAA controls titles sort functionality Check
+  // HIPAA controls titles sort functionality Check
   public async USHIPAAcontrolsTitleSortFnCheck() {
     try {
       await test.step("Navigate to the US HIPAA Detail View page", async () => {
@@ -412,12 +415,12 @@ export default class ComplianceExplorerSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during US HIPAA Title Sort Functionality Test: ${err.message}`
+        `Error during US HIPAA Title Sort Functionality Test: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }
   }
-// USHIPAA Controls Table Title Check
+  // USHIPAA Controls Table Title Check
   public async USHIPAAControlsTableTitleCheck() {
     try {
       await test.step("Navigate to the US HIPAA Detail View page", async () => {
@@ -445,7 +448,7 @@ export default class ComplianceExplorerSection {
           await test.step(`Check table title: ${tabText}`, async () => {
             console.log("Selector being used:", cs.HIPAATableTitle(i));
             const element = await this.page.waitForSelector(
-              cs.HIPAATableTitle(i + 1)
+              cs.HIPAATableTitle(i + 1),
             );
             const gettext = await element?.textContent();
             console.log(gettext);
@@ -458,11 +461,11 @@ export default class ComplianceExplorerSection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -475,7 +478,7 @@ export default class ComplianceExplorerSection {
       }
     } catch (error) {
       logger.error(
-        `Error in US HIPAA Controls Table Title Check: ${error.message}`
+        `Error in US HIPAA Controls Table Title Check: ${error.message}`,
       );
       throw error;
     }
@@ -499,7 +502,7 @@ export default class ComplianceExplorerSection {
       for (let i = 1; i <= count; i++) {
         await test.step(`Validate control code #${i}`, async () => {
           const data = await this.page.waitForSelector(
-            cs.controlCodeColnDataLink(i)
+            cs.controlCodeColnDataLink(i),
           );
           logger.info(`Found control code link #${i}.`);
 
@@ -514,14 +517,14 @@ export default class ComplianceExplorerSection {
 
           await this.page.waitForLoadState("networkidle");
           const data1 = await this.page.waitForSelector(
-            cs.controlCodeColnDataDetail
+            cs.controlCodeColnDataDetail,
           );
           const linkText1 = (await data1?.textContent())?.trim();
           logger.info(`Link text captured on detail page: ${linkText1}`);
 
           await test.step(`Verify if the link texts match for control code #${i}`, async () => {
             logger.info(
-              `Verifying that text '${gettext}' matches with detail page text '${linkText1}'.`
+              `Verifying that text '${gettext}' matches with detail page text '${linkText1}'.`,
             );
             expect(gettext).toBe(linkText1);
             logger.info(`Link texts match for control code #${i}.`);
@@ -536,7 +539,7 @@ export default class ComplianceExplorerSection {
       }
     } catch (error) {
       logger.error(
-        `Error in US HIPAA Controls Table Title Check: ${error.message}`
+        `Error in US HIPAA Controls Table Title Check: ${error.message}`,
       );
       throw error;
     }
@@ -560,7 +563,7 @@ export default class ComplianceExplorerSection {
       for (let i = 1; i <= count; i++) {
         await test.step(`Validate control code #${i}`, async () => {
           const data = await this.page.waitForSelector(
-            cs.controlCodeColnDataLink(i)
+            cs.controlCodeColnDataLink(i),
           );
           logger.info(`Found control code link #${i}.`);
 
@@ -575,14 +578,14 @@ export default class ComplianceExplorerSection {
 
           await this.page.waitForLoadState("networkidle");
           const data1 = await this.page.waitForSelector(
-            cs.controlCodeColnDataDetail
+            cs.controlCodeColnDataDetail,
           );
           const linkText1 = (await data1?.textContent())?.trim();
           logger.info(`Link text captured on detail page: ${linkText1}`);
 
           await test.step(`Verify if the link texts match for control code #${i}`, async () => {
             logger.info(
-              `Verifying that text '${gettext}' matches with detail page text '${linkText1}'.`
+              `Verifying that text '${gettext}' matches with detail page text '${linkText1}'.`,
             );
             expect(gettext).toBe(linkText1);
             logger.info(`Link texts match for control code #${i}.`);
@@ -600,7 +603,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
-// HIPAA control code Details Check
+  // HIPAA control code Details Check
   public async HIPAAcontrolcodeDetailsCheck() {
     try {
       await test.step("Navigate to the US HIPAA Detail View page", async () => {
@@ -615,7 +618,7 @@ export default class ComplianceExplorerSection {
 
       const checkElementTextNotBlank = async (
         selector: string,
-        stepDescription: string
+        stepDescription: string,
       ) => {
         try {
           logger.info(`Checking the visibility of ${stepDescription} element.`);
@@ -627,7 +630,7 @@ export default class ComplianceExplorerSection {
           logger.info(`${stepDescription} has valid content.`);
         } catch (error) {
           logger.error(
-            `Error in checking ${stepDescription}: ${error.message}`
+            `Error in checking ${stepDescription}: ${error.message}`,
           );
           throw error;
         }
@@ -645,7 +648,7 @@ export default class ComplianceExplorerSection {
       await test.step("Check Control Description", async () => {
         await checkElementTextNotBlank(
           cs.controlDescription,
-          "Control Description"
+          "Control Description",
         );
       });
 
@@ -662,12 +665,12 @@ export default class ComplianceExplorerSection {
       });
     } catch (error) {
       logger.error(
-        `Error in US HIPAA Controls Table Title Check: ${error.message}`
+        `Error in US HIPAA Controls Table Title Check: ${error.message}`,
       );
       throw error;
     }
   }
-  
+
   public async NISTcontrolDetailsCheck() {
     try {
       await test.step("Navigate to the NIST Detail View page", async () => {
@@ -682,7 +685,7 @@ export default class ComplianceExplorerSection {
 
       const checkElementTextNotBlank = async (
         selector: string,
-        stepDescription: string
+        stepDescription: string,
       ) => {
         try {
           logger.info(`Checking the visibility of ${stepDescription} element.`);
@@ -694,7 +697,7 @@ export default class ComplianceExplorerSection {
           logger.info(`${stepDescription} has valid content.`);
         } catch (error) {
           logger.error(
-            `Error in checking ${stepDescription}: ${error.message}`
+            `Error in checking ${stepDescription}: ${error.message}`,
           );
           throw error;
         }
@@ -703,7 +706,7 @@ export default class ComplianceExplorerSection {
       await test.step("Check Control Code Link", async () => {
         await checkElementTextNotBlank(
           cs.controlCodelinkNIST,
-          "Control Code Link"
+          "Control Code Link",
         );
         await this.page.locator(cs.controlCodelinkNIST).click();
       });
@@ -715,7 +718,7 @@ export default class ComplianceExplorerSection {
       await test.step("Check Control Description", async () => {
         await checkElementTextNotBlank(
           cs.controlDescription,
-          "Control Description"
+          "Control Description",
         );
       });
 
@@ -732,7 +735,7 @@ export default class ComplianceExplorerSection {
       });
     } catch (error) {
       logger.error(
-        `Error in US HIPAA Controls Table Title Check: ${error.message}`
+        `Error in US HIPAA Controls Table Title Check: ${error.message}`,
       );
       throw error;
     }
@@ -746,7 +749,7 @@ export default class ComplianceExplorerSection {
         await this.page.click(cs.detailViewNIST);
         await this.page.waitForLoadState("networkidle");
         logger.info(
-          "Clicked on the NIST Detail View and waited for page to load."
+          "Clicked on the NIST Detail View and waited for page to load.",
         );
       });
 
@@ -787,7 +790,7 @@ export default class ComplianceExplorerSection {
         const searchBar = this.page.locator(cs.searchBarSelector);
         await searchBar.fill(cs.searchKeywordNIST);
         logger.info(
-          `Filled the search bar with keyword: "${cs.searchKeywordNIST}".`
+          `Filled the search bar with keyword: "${cs.searchKeywordNIST}".`,
         );
 
         const searchResults = this.page.locator(cs.searchResultsSelectorNIST);
@@ -798,7 +801,7 @@ export default class ComplianceExplorerSection {
         logger.info(`Search results text: "${resultsText}".`);
         expect(resultsText).toContain(cs.searchKeywordNIST);
         logger.info(
-          `Search results contain the keyword: "${cs.searchKeywordNIST}".`
+          `Search results contain the keyword: "${cs.searchKeywordNIST}".`,
         );
       });
     } catch (error) {
@@ -834,7 +837,7 @@ export default class ComplianceExplorerSection {
           await test.step(`Check table title: ${tabText}`, async () => {
             console.log("Selector being used:", cs.HIPAATableTitle(i));
             const element = await this.page.waitForSelector(
-              cs.HIPAATableTitle(i + 1)
+              cs.HIPAATableTitle(i + 1),
             );
             const gettext = await element?.textContent();
             console.log(gettext);
@@ -847,11 +850,11 @@ export default class ComplianceExplorerSection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -864,7 +867,7 @@ export default class ComplianceExplorerSection {
       }
     } catch (error) {
       logger.error(
-        `Error in NIST Controls Table Title Check: ${error.message}`
+        `Error in NIST Controls Table Title Check: ${error.message}`,
       );
       throw error;
     }
@@ -918,7 +921,7 @@ export default class ComplianceExplorerSection {
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during NIST Title Sort Functionality Test: ${err.message}`
+        `Error during NIST Title Sort Functionality Test: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }

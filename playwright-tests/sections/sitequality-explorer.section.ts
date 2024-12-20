@@ -29,10 +29,10 @@ export default class SQESection {
         logger.info("Successfully clicked the site quality explorer link.");
       } catch (error) {
         logger.error(
-          `Failed to click the site quality explorer link: ${error.message}`
+          `Failed to click the site quality explorer link: ${error.message}`,
         );
         throw new Error(
-          `Failed to click the site quality explorer link: ${error.message}`
+          `Failed to click the site quality explorer link: ${error.message}`,
         );
       }
     });
@@ -133,11 +133,11 @@ export default class SQESection {
             try {
               expect(trimmedText).toContain(tabText);
               logger.info(
-                `Text for ${tabText} matches expected value: ${trimmedText}`
+                `Text for ${tabText} matches expected value: ${trimmedText}`,
               );
             } catch (error) {
               logger.error(
-                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`
+                `Text for ${tabText} does not match expected value. Expected: ${tabText}, but got: ${trimmedText}`,
               );
               throw error;
             }
@@ -164,10 +164,10 @@ export default class SQESection {
         logger.info("Successfully clicked the 'Site Quality' tab.");
       } catch (error) {
         logger.error(
-          `Failed to click the 'Site Quality' tab: ${error.message}`
+          `Failed to click the 'Site Quality' tab: ${error.message}`,
         );
         throw new Error(
-          `Failed to click the 'Site Quality' tab: ${error.message}`
+          `Failed to click the 'Site Quality' tab: ${error.message}`,
         );
       }
     });
@@ -190,14 +190,14 @@ export default class SQESection {
       logger.info(`Navigated to URL: ${currentUrl}`);
 
       logger.info(
-        `Validating URL: Expected = ${ss.egsurvilerLinkUrl}, Actual = ${currentUrl}`
+        `Validating URL: Expected = ${ss.egsurvilerLinkUrl}, Actual = ${currentUrl}`,
       );
       expect(currentUrl).toBe(ss.egsurvilerLinkUrl);
       logger.info("URL validation successful.");
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during eg.surveilr.com Page navigation: ${err.message}`
+        `Error during eg.surveilr.com Page navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }
@@ -220,14 +220,14 @@ export default class SQESection {
       logger.info(`Navigated to URL: ${currentUrl}`);
 
       logger.info(
-        `Validating URL: Expected = ${ss.survilerLinkUrl}, Actual = ${currentUrl}`
+        `Validating URL: Expected = ${ss.survilerLinkUrl}, Actual = ${currentUrl}`,
       );
       expect(currentUrl).toBe(ss.survilerLinkUrl);
       logger.info("URL validation successful.");
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during eg.surveilr.com Page navigation: ${err.message}`
+        `Error during eg.surveilr.com Page navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }
@@ -245,10 +245,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of site quality explorer Footer 1 link navigation."
+          "Waiting for and retrieving text of site quality explorer Footer 1 link navigation.",
         );
         const Element1 = await this.page.waitForSelector(
-          ss.sqeFooterlinkNavTextSel1
+          ss.sqeFooterlinkNavTextSel1,
         );
         const getHIPAAtext1 = await Element1?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext1}`);
@@ -264,10 +264,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of site quality explorer Footer 2 link navigation."
+          "Waiting for and retrieving text of site quality explorer Footer 2 link navigation.",
         );
         const Element2 = await this.page.waitForSelector(
-          ss.sqeFooterlinkNavTextSel2
+          ss.sqeFooterlinkNavTextSel2,
         );
         const getHIPAAtext2 = await Element2?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext2}`);
@@ -275,7 +275,7 @@ export default class SQESection {
       });
 
       logger.info(
-        "SCF controls site quality explorer footer navigation check completed successfully."
+        "SCF controls site quality explorer footer navigation check completed successfully.",
       );
     } catch (error) {
       const err = error as Error;
@@ -300,10 +300,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of uniform resource Footer 1 link navigation."
+          "Waiting for and retrieving text of uniform resource Footer 1 link navigation.",
         );
         const Element1 = await this.page.waitForSelector(
-          ss.uniResourceFootNavTextSel1
+          ss.uniResourceFootNavTextSel1,
         );
         const getHIPAAtext1 = await Element1?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext1}`);
@@ -319,10 +319,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of uniform resource Footer 2 link navigation."
+          "Waiting for and retrieving text of uniform resource Footer 2 link navigation.",
         );
         const Element2 = await this.page.waitForSelector(
-          ss.uniResourceFootNavTextSel2
+          ss.uniResourceFootNavTextSel2,
         );
         const getHIPAAtext2 = await Element2?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext2}`);
@@ -330,12 +330,12 @@ export default class SQESection {
       });
 
       logger.info(
-        "Site quality explorer- uniform resource footer navigation check completed successfully."
+        "Site quality explorer- uniform resource footer navigation check completed successfully.",
       );
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Site quality explorer- uniform resource footer navigation: ${err.message}`
+        `Error during Site quality explorer- uniform resource footer navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }
@@ -355,10 +355,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of RSSD console Footer 1 link navigation."
+          "Waiting for and retrieving text of RSSD console Footer 1 link navigation.",
         );
         const Element1 = await this.page.waitForSelector(
-          ss.RSSDConsoleFootNavTextSel1
+          ss.RSSDConsoleFootNavTextSel1,
         );
         const getHIPAAtext1 = await Element1?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext1}`);
@@ -374,10 +374,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of RSSD console Footer 2 link navigation."
+          "Waiting for and retrieving text of RSSD console Footer 2 link navigation.",
         );
         const Element2 = await this.page.waitForSelector(
-          ss.RSSDConsoleFootNavTextSel2
+          ss.RSSDConsoleFootNavTextSel2,
         );
         const getHIPAAtext2 = await Element2?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext2}`);
@@ -385,12 +385,12 @@ export default class SQESection {
       });
 
       logger.info(
-        "Site quality explorer- RSSD console footer navigation check completed successfully."
+        "Site quality explorer- RSSD console footer navigation check completed successfully.",
       );
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Site quality explorer- RSSD console footer navigation: ${err.message}`
+        `Error during Site quality explorer- RSSD console footer navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }
@@ -410,10 +410,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of Orchestration Footer 1 link navigation."
+          "Waiting for and retrieving text of Orchestration Footer 1 link navigation.",
         );
         const Element1 = await this.page.waitForSelector(
-          ss.OrchestrationFootNavTextSel1
+          ss.OrchestrationFootNavTextSel1,
         );
         const getHIPAAtext1 = await Element1?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext1}`);
@@ -429,10 +429,10 @@ export default class SQESection {
         await this.page.waitForLoadState("networkidle");
 
         logger.info(
-          "Waiting for and retrieving text of Orchestration Footer 2 link navigation."
+          "Waiting for and retrieving text of Orchestration Footer 2 link navigation.",
         );
         const Element2 = await this.page.waitForSelector(
-          ss.OrchestrationFootNavTextSel2
+          ss.OrchestrationFootNavTextSel2,
         );
         const getHIPAAtext2 = await Element2?.textContent();
         logger.info(`Retrieved text: ${getHIPAAtext2}`);
@@ -440,12 +440,12 @@ export default class SQESection {
       });
 
       logger.info(
-        "Site quality explorer - Orchestration footer navigation check completed successfully."
+        "Site quality explorer - Orchestration footer navigation check completed successfully.",
       );
     } catch (error) {
       const err = error as Error;
       logger.error(
-        `Error during Site quality explorer - Orchestration footer navigation: ${err.message}`
+        `Error during Site quality explorer - Orchestration footer navigation: ${err.message}`,
       );
       throw new Error(`Test failed: ${err.message}`);
     }

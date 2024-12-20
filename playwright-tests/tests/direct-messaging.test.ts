@@ -18,7 +18,7 @@ surveilr.describe("direct-messaging Tests", () => {
       );
       if (!testCase) {
         throw new Error(
-          `Test case ID not found in testcaseDetails: ${testInfo.title}`
+          `Test case ID not found in testcaseDetails: ${testInfo.title}`,
         );
       }
     }
@@ -86,18 +86,18 @@ surveilr.describe("direct-messaging Tests", () => {
             await dp.validateDPESpageNavigationCheck();
             await dp.ValidateDPESfailedNavigation();
             break;
-            case "TC-DMS-0015":
-              await dp.dmsNavigationCheck();
-              await dp.validateDPESpageNavigationCheck();
-              await dp.ValidateDPESfailedNavigation();
-              await dp.DPESfailedpageCrumbCheck();
-              break;
-  
+          case "TC-DMS-0015":
+            await dp.dmsNavigationCheck();
+            await dp.validateDPESpageNavigationCheck();
+            await dp.ValidateDPESfailedNavigation();
+            await dp.DPESfailedpageCrumbCheck();
+            break;
+
           default:
             logger.warn(`Test case ${testCase.id} not handled`);
             break;
         }
-      }
+      },
     );
   });
 

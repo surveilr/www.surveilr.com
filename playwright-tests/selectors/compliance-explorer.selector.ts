@@ -1,8 +1,6 @@
 class ComplianceExplorerSelectors {
-  public static CELogo =
-  "//img[@alt='Compliance Explorer']";
-  public static CESelector =
-    "//a[@href='/lib/pattern/compliance-explorer']/b";
+  public static CELogo = "//img[@alt='Compliance Explorer']";
+  public static CESelector = "//a[@href='/lib/pattern/compliance-explorer']/b";
   public static complianceExplorer =
     "//h1[normalize-space(text())='Compliance Explorer']";
   public static homeScfCrumb = "//nav[@aria-label='breadcrumb']//ol[1]";
@@ -10,10 +8,12 @@ class ComplianceExplorerSelectors {
   public static HIPAA = "//h2[normalize-space(text())='US HIPAA']";
   public static HIPAAData =
     "(//div[@class='card-content remove-bottom-margin']//p)[1]";
-    public static ScfControlsFooter1 ="//footer[@id='sqlpage_footer']//a[1]";
-    public static ScfControlsFooter2 ="//footer[@id='sqlpage_footer']//a[1]";
-    public static ScfFooterlinkNavTextSel1 ="//main[@id='sqlpage_main_wrapper']//h1[1]";
-    public static ScfFooterlinkNavTextSel2 ="//main[@id='sqlpage_main_wrapper']//h1[1]";
+  public static ScfControlsFooter1 = "//footer[@id='sqlpage_footer']//a[1]";
+  public static ScfControlsFooter2 = "//footer[@id='sqlpage_footer']//a[1]";
+  public static ScfFooterlinkNavTextSel1 =
+    "//main[@id='sqlpage_main_wrapper']//h1[1]";
+  public static ScfFooterlinkNavTextSel2 =
+    "//main[@id='sqlpage_main_wrapper']//h1[1]";
   public static NIST = "//h2[normalize-space(text())='US HIPAA']";
   public static NISTData =
     "(//div[@class='card-content remove-bottom-margin']//p)[1]";
@@ -79,7 +79,9 @@ Detail View
   public static NISTCLText = "NIST Controls";
   public static searchKeyword = "FII-SCF-BCD-0008";
   public static searchKeywordNIST = "FII-SCF-BCD-0011.4";
-   public static ScfFooterlinkNavText1 ="lib/pattern/compliance-explorer/ce/index.sql";
-   public static ScfFooterlinkNavText2 ="lib/pattern/compliance-explorer/console/sqlpage-files/sqlpage-file.sql";
+  public static ScfFooterlinkNavText1 =
+    "lib/pattern/compliance-explorer/ce/index.sql";
+  public static ScfFooterlinkNavText2 =
+    "lib/pattern/compliance-explorer/console/sqlpage-files/sqlpage-file.sql";
 }
 export { ComplianceExplorerSelectors };

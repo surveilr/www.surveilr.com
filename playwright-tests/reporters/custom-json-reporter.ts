@@ -3,8 +3,8 @@ import {
   Reporter,
   Suite,
   TestCase,
-  TestResult,
   TestError, // Ensure TestError is imported for error handling
+  TestResult,
 } from "@playwright/test/reporter";
 import * as fs from "fs";
 import * as path from "path";
@@ -45,7 +45,7 @@ class CustomJsonReporter implements Reporter {
 
       const stepStartTime = new Date(step.startTime).toISOString(); // Step start time
       const stepEndTime = new Date(
-        new Date(step.startTime).getTime() + step.duration
+        new Date(step.startTime).getTime() + step.duration,
       ).toISOString(); // Step end time
       const stepDurationInSeconds = (step.duration / 1000).toFixed(2); // Duration in seconds
 
@@ -73,7 +73,7 @@ class CustomJsonReporter implements Reporter {
     // Test-level metadata
     const startTime = new Date(result.startTime).toISOString();
     const endTime = new Date(
-      new Date(result.startTime).getTime() + result.duration
+      new Date(result.startTime).getTime() + result.duration,
     ).toISOString();
     const durationInSeconds = (result.duration / 1000).toFixed(2);
 

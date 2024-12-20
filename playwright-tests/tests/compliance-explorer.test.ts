@@ -28,7 +28,7 @@ surveilr.describe("Compliance Explorer section Tests", () => {
       );
       if (!testCase) {
         throw new Error(
-          `Test case ID not found in testcaseDetails: ${testInfo.title}`
+          `Test case ID not found in testcaseDetails: ${testInfo.title}`,
         );
       }
     }
@@ -55,15 +55,15 @@ surveilr.describe("Compliance Explorer section Tests", () => {
             await cp.CElogoVisibilityCheck();
             break;
 
-            case "TC-CEP-0003":
-              await cp.scfControlsMenuNavigationCheck();
-              break;
+          case "TC-CEP-0003":
+            await cp.scfControlsMenuNavigationCheck();
+            break;
           case "TC-CEP-0002":
             await cp.ceDashboardLoadingCheck();
             break;
-            case "TC-CEP-0003":
-              await cp.scfControlsMenuNavigationCheck();
-              break;
+          case "TC-CEP-0003":
+            await cp.scfControlsMenuNavigationCheck();
+            break;
           case "TC-CEP-0004":
             await cp.scfControlsMenuNavigationCheck();
             await cp.SCFControlpageCrumbCheck();
@@ -132,7 +132,7 @@ surveilr.describe("Compliance Explorer section Tests", () => {
             logger.warn(`Test case ${testCase.id} not handled`);
             break;
         }
-      }
+      },
     );
   });
 

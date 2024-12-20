@@ -1,10 +1,10 @@
 // fixtures.ts
 import {
-  test as baseTest,
-  expect,
-  chromium,
   BrowserContext,
+  chromium,
+  expect,
   Page,
+  test as baseTest,
 } from "@playwright/test";
 
 type AuthFixtures = {
@@ -26,4 +26,4 @@ const testWithAuth = baseTest.extend<AuthFixtures>({
   },
 });
 
-export { testWithAuth, expect };
+export { expect, testWithAuth };
