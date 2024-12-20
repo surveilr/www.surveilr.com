@@ -38,15 +38,17 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /lie-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("lie")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
+      this.constructHomePath("lie")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
 
   @spn.navigationPrimeTopLevel({
     caption: "LinkedIn explorer",
-    description: `LinkedIn Explorer, will enable LinkedIn data integration into Surveilr. It includes manual data export, automated CSV ingestion, SQL Views for querying, and a Web UI for data analysis.`,
+    description:
+      `LinkedIn Explorer, will enable LinkedIn data integration into Surveilr. It includes manual data export, automated CSV ingestion, SQL Views for querying, and a Web UI for data analysis.`,
   })
   "lie/index.sql"() {
     return this.SQL`
@@ -60,11 +62,13 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${this.absoluteURL("/")
-      } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("lie")
-      }
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("lie")
+    }
        ORDER BY sibling_order;`;
   }
 
@@ -233,7 +237,6 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           ${pagination.renderSimpleMarkdown()}
         `;
   }
-
 }
 
 export async function SQL() {

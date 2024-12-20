@@ -180,6 +180,12 @@ if (import.meta.main) {
   ];
   await FileHandler.removeDirIfExists(ingestDir);
   // Run the app
-  const app = new App(zipFilePath, basePath, rssdPath, ingestCommand, transformCommand);
+  const app = new App(
+    zipFilePath,
+    basePath,
+    rssdPath,
+    ingestCommand,
+    transformCommand,
+  );
   await app.run();
 }
