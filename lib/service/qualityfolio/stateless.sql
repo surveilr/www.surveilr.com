@@ -57,6 +57,7 @@ SELECT
     json_extract(frontmatter, '$.groupId') AS group_id,
     json_extract(frontmatter, '$.title') AS title,
     json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.test_type') AS test_type,    
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.priority') AS priority
