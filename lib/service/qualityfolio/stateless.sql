@@ -93,6 +93,7 @@ ON
 DROP VIEW IF EXISTS test_case_run_profile;
 CREATE VIEW test_case_run_profile AS
 SELECT 
+    content,
     json_extract(content, '$.test_case_fii') AS test_case_id,
      json_extract(content, '$.group_id') AS group_id,
     json_extract(content, '$.run_id') AS run_id,

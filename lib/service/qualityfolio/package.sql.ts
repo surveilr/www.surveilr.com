@@ -76,6 +76,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "qltyfolio/index.sql"() {
     return this.SQL`
+
+    SELECT 'text' as component,
+    'The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.' as contents;
     select 
     'card' as component,
    4      as columns;
@@ -326,7 +329,7 @@ SELECT 'table' as component,
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${this.absoluteURL('/qltyfolio/test-detail.sql?id=')}|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL('/qltyfolio/test-detail.sql?tab=actual-result&id=')}|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -408,7 +411,7 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_cases"
     SELECT     
-      '[' || test_case_id || '](' || ${this.absoluteURL('/qltyfolio/test-detail.sql?id=')}|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL('/qltyfolio/test-detail.sql?tab=actual-result&id=')}|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -502,21 +505,63 @@ FROM  test_case_md_body bd
 LEFT JOIN test_case_run_profile rn ON  bd.test_case_id = rn.test_case_id
 WHERE bd.test_case_id = $id;
 
-SELECT 'title'AS component,
-      'Actual Result' as contents 
+
+--Define tabs
+    SELECT
+    'tab' AS component,
+      TRUE AS center;
+
+    --Tab 1: Test Suite list
+    SELECT
+    'Actual Result' AS title,
+      ${this.absoluteURL('/qltyfolio/test-detail.sql?tab=actual-result&id=')}||$id AS link,
+        $tab = 'actual-result' AS active;
+
+
+    --Tab 2: Test case list
+    SELECT
+    'Souce Code' AS title,
+      ${this.absoluteURL('/qltyfolio/test-detail.sql?tab=source-code&id=')}||$id AS link,
+        $tab = 'source-code' AS active;
+
+
+
+    SELECT
+    CASE
+        WHEN $tab = 'actual-result' THEN 'title'
+    END AS component,  
+     'Actual Result' as contents   
     FROM test_case_run_profile WHERE test_case_id = $id;
-      SELECT 'table' as component,
-      'Column Count' as align_right,
+
+     SELECT
+    CASE
+        WHEN $tab = 'actual-result' THEN 'table'
+        WHEN $tab = 'source-code' THEN 'code'
+      END AS component,
+        'Column Count' as align_right,
       TRUE as sort,
       TRUE as search
         FROM test_case_run_profile  where test_case_id = $id;
+
+
+   --Tab - specific content for "actual-result"  
+
+      
     SELECT
     step_name as 'Activity',
       step_status as 'Activity Status',
       step_start_time as 'Start Time',
       step_end_time as 'End Time'
           FROM test_case_run_profile_details
-          WHERE test_case_id = $id; `;
+          WHERE $tab = 'actual-result' and  test_case_id = $id; 
+    
+
+    --Tab - specific content for "source-code"
+    select 'code' AS component;
+    select content as contents FROM test_case_run_profile where $tab = 'source-code' and  test_case_id = $id; 
+
+    
+`;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/group-detail.sql"() {
@@ -558,7 +603,13 @@ WHERE rn.id = $id;
 
     `;
   }
-
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qltyfolio/jsonviewer.sql"() {
+    return this.SQL`
+    select 'code' AS component;
+select content as contents from uniform_resource where uniform_resource_id='01JFHAZ7RV7BZ1PQEWAYEWVWM0' ;
+    `;
+  }
 
 }
 
