@@ -6,8 +6,8 @@ import {
   shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
-const SQE_TITLE = "linkedin explorer";
-const SQE_LOGO = "content-assembler-icon.png";
+const SQE_TITLE = "LinkedIn explorer";
+const SQE_LOGO = "linkedin-explorer-icon.png";
 const SQE_FAV_ICON = "linkedin-explorer-favicon.ico";
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
@@ -45,7 +45,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "Linkedin-explorer",
+    caption: "LinkedIn explorer",
     description: `LinkedIn Explorer, will enable LinkedIn data integration into Surveilr. It includes manual data export, automated CSV ingestion, SQL Views for querying, and a Web UI for data analysis.`,
   })
   "lie/index.sql"() {
@@ -151,7 +151,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'Linkedin-explorer' AS title,
+        'LinkedIn explorer' AS title,
         ${this.absoluteURL("/lie/index.sql")} AS link;
       SELECT
         'Skills' AS title,
@@ -200,7 +200,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'Linkedin-explorer' AS title,
+        'Linkedin Explorer' AS title,
         ${this.absoluteURL("/lie/index.sql")} AS link;
       SELECT
         'Skills' AS title,
@@ -209,7 +209,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Dsply Page Title
       SELECT
           'title'   as component,
-          'Linkedin Employment Timeline'  as contents;
+          'LinkedIn Employment Timeline'  as contents;
 
      -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
         ${pagination.init()}
