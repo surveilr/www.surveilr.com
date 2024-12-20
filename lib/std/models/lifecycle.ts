@@ -1875,9 +1875,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
         return [
           c.unique(
             "host_identifier",
-            "os_version"
+            "os_version",
           ),
-          c.unique("node_key")
+          c.unique("node_key"),
         ];
       },
       indexes: (props, tableName) => {
