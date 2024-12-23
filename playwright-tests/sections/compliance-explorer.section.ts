@@ -7,7 +7,7 @@ import { waitForSelectorWithMinTime } from "../utils/utils-fns";
 dotenv.config({ path: ".env" });
 
 const logger = new Logger();
-const store: any = process.env.store;
+
 
 const errors: string[] = [];
 export default class ComplianceExplorerSection {
@@ -670,7 +670,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
-
+// NIST control Details Check
   public async NISTcontrolDetailsCheck() {
     try {
       await test.step("Navigate to the NIST Detail View page", async () => {
@@ -740,7 +740,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
-
+// NIST DetailView functionality Check
   public async NISTDetailViewCheck() {
     try {
       await test.step("Starting NIST Detail View Navigation Check", async () => {
@@ -768,6 +768,7 @@ export default class ComplianceExplorerSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
+  // NIST controls SearchBar Functionality Check
   public async NISTcontrolsSearchBarFnCheck() {
     try {
       await test.step("Starting NIST Detail View Navigation Check", async () => {
@@ -810,6 +811,7 @@ export default class ComplianceExplorerSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
+  // NIST controls Tables Title Check
   public async NISTcontrolsTableTitleCheck() {
     try {
       await test.step("Navigate to the US HIPAA Detail View page", async () => {
@@ -872,6 +874,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
+  // NISTcontrols Titles Sorting functionality Check
   public async NISTcontrolsTitleSortFnCheck() {
     try {
       await test.step("Navigate to the NIST Detail View page", async () => {

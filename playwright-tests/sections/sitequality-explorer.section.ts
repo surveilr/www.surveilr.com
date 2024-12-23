@@ -7,7 +7,7 @@ import { getTextContent, waitForSelectorWithMinTime } from "../utils/utils-fns";
 dotenv.config({ path: ".env" });
 
 const logger = new Logger();
-const store: any = process.env.store;
+
 
 const errors: string[] = [];
 export default class SQESection {
