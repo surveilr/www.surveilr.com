@@ -40,7 +40,7 @@
     "rimraf": "^6.0.1",
     "sharp": "^0.33.5",
     "sharp-ico": "^0.1.5",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.17"
   },
   "lint-staged": {
     "src/**/*.{js,ts,tsx,jsx,astro,md,mdx}": [
