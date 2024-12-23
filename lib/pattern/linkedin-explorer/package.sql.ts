@@ -38,9 +38,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /lie-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
-      this.constructHomePath("lie")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("lie")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -62,37 +61,43 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("lie")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("lie")
+      }
        ORDER BY sibling_order;`;
   }
 
   @lieNav({
-    caption: "Connection",
+    caption: "Profile",
     description:
       `The Source List page provides a streamlined view of all collected content sources. This page displays only the origins of the content, such as sender information for email sources, making it easy to see where each piece of content came from. Use this list to quickly review and identify the various sources contributing to the curated content collection.`,
     siblingOrder: 1,
   })
-  "lie/connection.sql"() {
-    const viewName = `linkedin_connection_overview`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
-    });
+  "lie/profile.sql"() {
+
     return this.SQL`
         ${this.activePageTitle()}
-      
-        -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-        ${pagination.init()}
-  
-         select
+        select
           'text'              as component,
           'The Source List page provides a streamlined view of all collected content sources. This page displays only the origins of the content, such as sender information for email sources, making it easy to see where each piece of content came from. Use this list to quickly review and identify the various sources contributing to the curated content collection.' as contents;
 
+        select 
+          'datagrid' as component;
+        select 
+            'Name' as title,
+            full_name as description
+         FROM linkedin_profile;
+        select
+            'Address' as title,
+            address as description
+        FROM linkedin_profile;
+        select
+            'Birth Date' as title,
+            birth_date as description
+        FROM linkedin_profile;
+        
         -- Dashboard count
         select
           'card' as component,
@@ -117,9 +122,26 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             'Employment Timeline'  as title,
             '## '||time_line_count||' ##' as description_md,
             TRUE                  as active,
-            'bulb'       as icon,
+            'baseline-density-small'       as icon,
             ${this.absoluteURL("/lie/time_line.sql")} as link
         FROM linkedin_employment_timeline_count;
+        `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "lie/connection.sql"() {
+    const viewName = `linkedin_connection_overview`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+    });
+    return this.SQL`
+
+   -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+        ${pagination.init()}
+  
+         select
+          'text'              as component,
+          'The Source List page provides a streamlined view of all collected content sources. This page displays only the origins of the content, such as sender information for email sources, making it easy to see where each piece of content came from. Use this list to quickly review and identify the various sources contributing to the curated content collection.' as contents;
 
         -- Display uniform_resource table with pagination
         SELECT 'table' AS component,
