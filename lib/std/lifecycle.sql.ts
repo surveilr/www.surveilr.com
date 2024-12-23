@@ -612,6 +612,10 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           name: "plm",
           elaboration: "{}",
         }, options),
+        uniformResourceGraph.insertDML({
+          name: "osquery-ms",
+          elaboration: "{}",
+        }, options),
       ];
     };
 
