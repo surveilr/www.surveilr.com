@@ -45,7 +45,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "LinkedIn explorer",
+    caption: "LinkedIn Explorer",
     description:
       `LinkedIn Explorer, will enable LinkedIn data integration into Surveilr. It includes manual data export, automated CSV ingestion, SQL Views for querying, and a Web UI for data analysis.`,
   })
@@ -125,7 +125,20 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             'baseline-density-small'       as icon,
             ${this.absoluteURL("/lie/time_line.sql")} as link
         FROM linkedin_employment_timeline_count;
+
+        select 
+        'title'   as component,
+        'Education' as contents;
+
+        SELECT 'table' AS component;
+
+         select
+         *
+            FROM linkedin_profile_education;
+            
         `;
+
+
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -135,7 +148,21 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: viewName,
     });
     return this.SQL`
-
+      --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'LinkedIn Explorer' AS title,
+        ${this.absoluteURL("/lie/index.sql")} AS link;
+      SELECT
+        'Profile' AS title,
+        ${this.absoluteURL("/lie/profile.sql")} AS link;
+      SELECT
+        'Connection' AS title,
+        ${this.absoluteURL("/lie/connection.sql")} AS link;
    -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
         ${pagination.init()}
   
@@ -148,8 +175,7 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
               'subject' AS markdown,
               'Column Count' as align_right,
               TRUE as sort,
-              TRUE as search,
-              'from' AS markdown;
+              TRUE as search;
   
          SELECT
             first_name,
@@ -177,8 +203,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'LinkedIn explorer' AS title,
+        'LinkedIn Explorer' AS title,
         ${this.absoluteURL("/lie/index.sql")} AS link;
+      SELECT
+        'Profile' AS title,
+        ${this.absoluteURL("/lie/profile.sql")} AS link;
       SELECT
         'Skills' AS title,
         ${this.absoluteURL("/lie/skills.sql")} AS link;
@@ -229,8 +258,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         'Linkedin Explorer' AS title,
         ${this.absoluteURL("/lie/index.sql")} AS link;
       SELECT
-        'Skills' AS title,
-        ${this.absoluteURL("/lie/skills.sql")} AS link;
+        'Profile' AS title,
+        ${this.absoluteURL("/lie/profile.sql")} AS link;
+      SELECT
+        'LinkedIn Employment Timeline' AS title,
+        ${this.absoluteURL("/lie/time_line.sql")} AS link;
       
     --- Dsply Page Title
       SELECT
