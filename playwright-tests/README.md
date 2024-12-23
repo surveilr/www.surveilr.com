@@ -1,8 +1,8 @@
-# FOPC Automation Testing
+# Surveilr Automation Testing
 
 ## Overview
 
-This repository contains an automated testing solution for FOPC. The framework is implemented in Node.js,Playwright and Typescript facilitating efficient testing based on specified criteria.
+This repository contains an automated testing solution for Surveilr. The framework is implemented in Node.js,Playwright and Typescript facilitating efficient testing based on specified criteria.
 
 # Folder Structure
 
@@ -11,18 +11,22 @@ This repository contains an automated testing solution for FOPC. The framework i
 │ └── _.ts # Contains fixture definitions for test setup and teardown
 ├── pages
 │ └── _.page.ts # Page Object Model (POM) classes for interacting with web pages
+├── reporters
+│ └── _-utils.ts # Miscellaneous utility functions and classes used across the framework
 ├── sections
 │ └── _.section.ts # Classes representing sections or components within pages
 ├── selectors
 │ └── _.selectors.ts # CSS and XPath selectors for elements within the web application
-├── sites
-│ ├── role-handle.ts # Utility functions for switching user roles based on environment variables
-│ ├── url-handle.ts # Utility functions for managing different site URLs
-│ └── url.ts # Definitions of URLs for different sites
-├── utils
-│ └── _-utils.ts # Miscellaneous utility functions and classes used across the framework
+├── test-results
+│ ├── _-.last-run file is used to store the timestamp or metadata of the most recent run
+├── testcase-details
+│ └── _- testcaseDetails file serves to define and store metadata for individual test cases
+├── testcases
+│ └── _-test case on a site is to verify that a specific feature or functionality works as expected
 ├── tests
 │ └── _.test.ts # Actual test scripts written using Playwright for automation testing
+├── utils
+│ └── _-utils.ts # Miscellaneous utility functions and classes used across the framework
 
 ## Prerequisites
 

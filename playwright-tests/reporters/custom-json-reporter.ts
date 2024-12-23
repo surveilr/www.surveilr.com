@@ -109,72 +109,72 @@ class CustomJsonReporter implements Reporter {
       console.error("Failed to write JSON report for test case:", error);
     }
 
-    // Create the summary file in Markdown format
-    // Create the run summary file in Markdown format
-    const summaryContent = `
----
-FII: "${testResult.run_id}"
-test_case_fii: "${testCaseDetail.id}"
-run_date: "${new Date().toISOString().split("T")[0]}"
-environment: "Production"
----
-### Run Summary
--  Status: ${
-      testResult.status.charAt(0).toUpperCase() + testResult.status.slice(1)
-    }
+//     // Create the summary file in Markdown format
+//     // Create the run summary file in Markdown format
+//     const summaryContent = `
+// ---
+// FII: "${testResult.run_id}"
+// test_case_fii: "${testCaseDetail.id}"
+// run_date: "${new Date().toISOString().split("T")[0]}"
+// environment: "Production"
+// ---
+// ### Run Summary
+// -  Status: ${
+//       testResult.status.charAt(0).toUpperCase() + testResult.status.slice(1)
+//     }
 
--  Notes: ${
-      hasFailedStep
-        ? `Errors encountered:\n${overallError.trim()}`
-        : "All steps executed successfully."
-    }
+// -  Notes: ${
+//       hasFailedStep
+//         ? `Errors encountered:\n${overallError.trim()}`
+//         : "All steps executed successfully."
+//     }
 
-`;
+// `;
 
-    const summaryFileName = `${testCaseDetail.id}.run.md`;
-    const summaryFilePath = path.join(this.outputDir, summaryFileName);
+//     const summaryFileName = `${testCaseDetail.id}.run.md`;
+//     const summaryFilePath = path.join(this.outputDir, summaryFileName);
 
-    try {
-      fs.writeFileSync(summaryFilePath, summaryContent.trim());
-      console.log(`Summary file created: ${summaryFilePath}`);
-    } catch (error) {
-      console.error("Failed to write summary file:", error);
-    }
+//     try {
+//       fs.writeFileSync(summaryFilePath, summaryContent.trim());
+//       console.log(`Summary file created: ${summaryFilePath}`);
+//     } catch (error) {
+//       console.error("Failed to write summary file:", error);
+//     }
 
-    // Create the testcase file in Markdown format
-    const testcaseContent = `
----
-FII: "${testCaseDetail ? testCaseDetail.id : "UNKNOWN"}"
-title: "${testCaseDetail ? testCaseDetail.title : "UNKNOWN"}"
-created_by: "arun-ramanan@netspective.in"
-created_at: "${new Date().toISOString().split("T")[0]}"
-tags: ["${testCaseDetail ? testCaseDetail.tags : "UNKNOWN"}"]
-priority: "${testCaseDetail ? testCaseDetail.test_type : "UNKNOWN"}"
----
+//     // Create the testcase file in Markdown format
+//     const testcaseContent = `
+// ---
+// FII: "${testCaseDetail ? testCaseDetail.id : "UNKNOWN"}"
+// title: "${testCaseDetail ? testCaseDetail.title : "UNKNOWN"}"
+// created_by: "arun-ramanan@netspective.in"
+// created_at: "${new Date().toISOString().split("T")[0]}"
+// tags: ["${testCaseDetail ? testCaseDetail.tags : "UNKNOWN"}"]
+// priority: "${testCaseDetail ? testCaseDetail.test_type : "UNKNOWN"}"
+// ---
 
-### Description
-${testCaseDetail ? testCaseDetail.description : "UNKNOWN"}
+// ### Description
+// ${testCaseDetail ? testCaseDetail.description : "UNKNOWN"}
 
-### Steps
-${testSteps.map((step, index) => `${index + 1}. ${step.stepname}`).join("\n")}
+// ### Steps
+// ${testSteps.map((step, index) => `${index + 1}. ${step.stepname}`).join("\n")}
 
-### Expected Outcome
-•  ${testCaseDetail ? testCaseDetail.result : "UNKNOWN"}
+// ### Expected Outcome
+// •  ${testCaseDetail ? testCaseDetail.result : "UNKNOWN"}
 
 
-### Expected Results
-<query-result>select x from y</query-result>
-`;
+// ### Expected Results
+// <query-result>select x from y</query-result>
+// `;
 
-    const testcaseFileName = `${testCaseDetail.id}.case.md`;
-    const testcaseFilePath = path.join(this.outputDir, testcaseFileName);
+//     const testcaseFileName = `${testCaseDetail.id}.case.md`;
+//     const testcaseFilePath = path.join(this.outputDir, testcaseFileName);
 
-    try {
-      fs.writeFileSync(testcaseFilePath, testcaseContent.trim());
-      console.log(`Test case file created: ${testcaseFilePath}`);
-    } catch (error) {
-      console.error("Failed to write test case file:", error);
-    }
+//     try {
+//       fs.writeFileSync(testcaseFilePath, testcaseContent.trim());
+//       console.log(`Test case file created: ${testcaseFilePath}`);
+//     } catch (error) {
+//       console.error("Failed to write test case file:", error);
+//     }
   }
 }
 
