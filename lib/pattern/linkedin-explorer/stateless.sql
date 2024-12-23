@@ -8,6 +8,17 @@ SELECT
    p.'Birth Date' as birth_date
 FROM uniform_resource_profile p;
 
+DROP VIEW IF EXISTS linkedin_profile_education;
+CREATE VIEW linkedin_profile_education AS
+SELECT 
+   "School Name",
+   "Start Date",
+   "End Date",
+   "Notes",
+   "Degree Name",
+   "Activities"
+FROM uniform_resource_education;
+
 DROP VIEW IF EXISTS linkedin_connection_overview;
 CREATE VIEW linkedin_connection_overview AS
 SELECT 
