@@ -1,8 +1,28 @@
-# `surveilr` Information Controls Explorer Pattern
+# `surveilr` LinkedIn Explorer Pattern
 
-Information Controls, refer to specific security, compliance, or operational
-measures that organizations put in place to manage risks related to information
-systems and data handling.
+The LinkedIn Explorer pattern is a Web UI integration in Surveilr that enables seamless ingestion, organization, and analysis of LinkedIn data. This pattern allows users to manually export LinkedIn data from their profiles, automatically ingest it into Surveilr, and utilize SQL views and Web UI components for efficient querying and interpretation of LinkedIn datasets.
+
+## Workflow Steps
+
+### Step 1: Export LinkedIn Data
+
+1. Log into your LinkedIn account.
+2. Navigate to Settings & Privacy > Data Privacy > Get a copy of your data.
+3. Select All Data or specific data types like Connections, Skills, or Positions.
+4. Click Request archive and download the ZIP file once available.
+
+### Step 2: Prepare Data
+
+1. Move all CSV files from the LinkedIn archive to a folder named linkedin-export.
+2. Compress the linkedin-export folder into a ZIP file.
+
+### Step 3: Create resource-surveillance.sqlite.db
+
+Run the following command in the terminal to process the data:
+
+```bash
+deno run -A ./eg.surveilr.com-prepare.ts
+```
 
 - `stateless.sql` script focuses on creating views that define how to extract
   and present specific controls data from the `uniform_resource.csv` tables.
@@ -14,8 +34,7 @@ systems and data handling.
 
   The directory should look like this now:
 
-```
-├── orchestrate-stateful.sql
+```bash
 ├── stateless.sql 
 └── resource-surveillance.sqlite.db            # SQLite database
 ```
