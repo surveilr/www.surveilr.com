@@ -8,7 +8,6 @@ dotenv.config({ path: ".env" });
 
 const logger = new Logger();
 
-
 const errors: string[] = [];
 export default class ComplianceExplorerSection {
   page: Page;
@@ -670,7 +669,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
-// NIST control Details Check
+  // NIST control Details Check
   public async NISTcontrolDetailsCheck() {
     try {
       await test.step("Navigate to the NIST Detail View page", async () => {
@@ -740,7 +739,7 @@ export default class ComplianceExplorerSection {
       throw error;
     }
   }
-// NIST DetailView functionality Check
+  // NIST DetailView functionality Check
   public async NISTDetailViewCheck() {
     try {
       await test.step("Starting NIST Detail View Navigation Check", async () => {

@@ -7,7 +7,6 @@ dotenv.config({ path: ".env" });
 
 const logger = new Logger();
 
-
 const errors: string[] = [];
 export default class HomeSection {
   page: Page;

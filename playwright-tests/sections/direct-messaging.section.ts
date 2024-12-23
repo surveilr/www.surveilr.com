@@ -186,7 +186,7 @@ export default class DirectMessagingSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
-   //  Direct Protocol Email System inbox navigation check
+  //  Direct Protocol Email System inbox navigation check
   public async dpesInboxNavigationCheck() {
     try {
       await test.step("Starting Direct Protocol Email System Page-inbox Navigation Check", async () => {
@@ -233,7 +233,7 @@ export default class DirectMessagingSection {
           "Clicked on the Direct Protocol Email System Dispatched link and waited for page to load.",
         );
       });
- //  Direct Protocol Email System Dispatched link navigation check
+      //  Direct Protocol Email System Dispatched link navigation check
       await test.step("Capture navigated page title text", async () => {
         logger.info("Capturing navigated page title.");
         const element = await this.page.waitForSelector(ds.Dispatchedtext);
@@ -285,7 +285,7 @@ export default class DirectMessagingSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
-// Subject Coulmn metadata Link Navigation Check
+  // Subject Coulmn metadata Link Navigation Check
   public async SubjectClmdataLinkNavigationCheck() {
     try {
       const count = await test.step("Count Subject Column Links", async () => {
@@ -326,7 +326,7 @@ export default class DirectMessagingSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
-// Attachment File Navigation check
+  // Attachment File Navigation check
   public async ValidateAttachmentFileNavigation() {
     try {
       const count = await test.step("Count Subject Column Links", async () => {
@@ -395,7 +395,7 @@ export default class DirectMessagingSection {
       throw new Error(`Test failed: ${error.message}`);
     }
   }
- // Direct Protocol Email System failed page breadcrumb navigation check
+  // Direct Protocol Email System failed page breadcrumb navigation check
   public async DPESfailedpageCrumbNavigationCheck() {
     try {
       logger.info("Starting DPESfailedpageCrumbNavigationCheck test");
@@ -456,7 +456,7 @@ export default class DirectMessagingSection {
       throw new Error(`Test failed: ${err.message}`);
     }
   }
-// Inbox footer link navigation check
+  // Inbox footer link navigation check
   public async ValidateInboxFooterLink() {
     try {
       await test.step("Inbox footerlink Navigation Check", async () => {

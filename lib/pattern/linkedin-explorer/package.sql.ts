@@ -38,8 +38,9 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /lie-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("lie")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
+      this.constructHomePath("lie")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -61,11 +62,13 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${this.absoluteURL("/")
-      } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("lie")
-      }
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("lie")
+    }
        ORDER BY sibling_order;`;
   }
 
@@ -76,7 +79,6 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     siblingOrder: 1,
   })
   "lie/profile.sql"() {
-
     return this.SQL`
         ${this.activePageTitle()}
         select
@@ -137,8 +139,6 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
             FROM linkedin_profile_education;
             
         `;
-
-
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
