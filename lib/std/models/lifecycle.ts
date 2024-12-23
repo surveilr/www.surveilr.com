@@ -1866,6 +1866,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       platform: gd.text(),
       last_seen: gd.dateTime(true),
       status: gd.text().default("active"),
+      device_id: device.belongsTo.device_id(),
+      behavior_id: behavior.belongsTo.behavior_id().optional(),
       ...gm.housekeeping.columns,
     },
     {
@@ -1892,23 +1894,10 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
-  const osQueryMsConfiguration = gm.textPkTable(
-    `surveilr_osquery_ms_configuration`,
+  const urIngestOsQueryMsLog = gm.textPkTable(
+    `ur_ingest_session_surveilr_osquery_ms_log`,
     {
-      surveilr_osquery_ms_configuration_id: gm.keys.varCharPrimaryKey(),
-      node_key: osQueryMsNode.belongsTo.node_key(),
-      config_json: gd.jsonText(),
-      ...gm.housekeeping.columns,
-    },
-    {
-      isIdempotent: true,
-    },
-  );
-
-  const osQueryMsLog = gm.textPkTable(
-    `surveilr_osquery_ms_log`,
-    {
-      surveilr_osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
+      ur_ingest_session_surveilr_osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
       node_key: osQueryMsNode.belongsTo.node_key(),
       log_type: gd.text(),
       log_data: gd.jsonText(),
@@ -1970,8 +1959,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       uniformResourceGraph,
       uniformResourceEdge,
       osQueryMsNode,
-      osQueryMsConfiguration,
-      osQueryMsLog,
+      urIngestOsQueryMsLog,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2017,8 +2005,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...uniformResourceGraph.indexes,
       ...uniformResourceEdge.indexes,
       ...osQueryMsNode.indexes,
-      ...osQueryMsConfiguration.indexes,
-      ...osQueryMsLog.indexes,
+      ...urIngestOsQueryMsLog.indexes,
     ],
   };
 
@@ -2073,8 +2060,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     uniformResourceGraph,
     uniformResourceEdge,
     osQueryMsNode,
-    osQueryMsConfiguration,
-    osQueryMsLog,
+    urIngestOsQueryMsLog,
   };
 }
 
