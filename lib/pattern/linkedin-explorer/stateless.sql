@@ -1,3 +1,13 @@
+DROP VIEW IF EXISTS linkedin_profile;
+CREATE VIEW linkedin_profile AS
+SELECT 
+   p.'First Name' as f_name,
+   p.'Last Name' as l_name,
+   p.'First Name' || ' ' || p.'Last Name' as full_name,
+   p.Address as address,
+   p.'Birth Date' as birth_date
+FROM uniform_resource_profile p;
+
 DROP VIEW IF EXISTS linkedin_connection_overview;
 CREATE VIEW linkedin_connection_overview AS
 SELECT 
