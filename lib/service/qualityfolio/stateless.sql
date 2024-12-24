@@ -60,7 +60,9 @@ SELECT
     json_extract(frontmatter, '$.test_type') AS test_type,    
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
-    json_extract(frontmatter, '$.priority') AS priority
+    json_extract(frontmatter, '$.priority') AS priority,
+    json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
+    json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.case.md';
 
