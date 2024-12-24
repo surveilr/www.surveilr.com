@@ -40,9 +40,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -61,9 +60,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         TRUE as search,
         'id' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||id||')' as id,
+      '['||id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||id||')' as id,
       
       name,
       created_by as "Created By",
@@ -168,9 +166,8 @@ select
         TRUE as search,
         'id' as markdown;
       SELECT
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||id||')' as id,
+      '['||id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||id||')' as id,
       
       name,
       created_by as "Created By",
@@ -288,13 +285,11 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
           created_by as "Created By",
           formatted_test_case_created_at as "Created On"
     FROM test_suites_test_case_count
@@ -330,7 +325,6 @@ SELECT 'table' as component,
     'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
     ' as description;
     SELECT 'table' as component,
-<<<<<<< HEAD
  TRUE AS sort, 
       -- TRUE AS search, 
       'URL' AS align_left, 
@@ -338,10 +332,9 @@ SELECT 'table' as component,
       'group' as markdown,
       'id' as markdown,
       'count'  as markdown;
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
->>>>>>> 97fa4fab4fa8f3cd285191d1f3d03049a304c084
+    SELECT
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -412,9 +405,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -504,7 +496,7 @@ FROM test_suites rn WHERE id = $id;
                 '\n **Created At**  :  ' || bd.created_at AS description_md,
                   '\n **Priority**  :  ' || bd.priority AS description_md,
                     '\n' || bd.body AS description_md
-FROM  test_case_md_body bd 
+FROM  test_cases bd 
 LEFT JOIN test_case_run_profile rn ON  bd.test_case_id = rn.test_case_id
 WHERE bd.test_case_id = $id;
 
@@ -512,24 +504,25 @@ WHERE bd.test_case_id = $id;
 --Define tabs
     SELECT
     'tab' AS component,
-      TRUE AS center;
+     TRUE AS center
+     FROM test_case_run_profile where test_case_id = $id; ;
 
     --Tab 1: Test Suite list
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }||$id AS link,
-        $tab = 'actual-result' AS active;
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }||$id AS link,
+        $tab = 'actual-result' AS active
+        FROM test_case_run_profile where test_case_id = $id;
 
 
     --Tab 2: Test case list
     SELECT
     'Souce Code' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=source-code&id=")
-    }||$id AS link,
-        $tab = 'source-code' AS active;
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=source-code&id=")
+      }||$id AS link,
+        $tab = 'source-code' AS active
+         FROM test_case_run_profile where test_case_id = $id;
 
 
 
