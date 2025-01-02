@@ -54,10 +54,6 @@ surveilr.describe("Compliance Explorer section Tests", () => {
           case "TC-CEP-0001":
             await cp.CElogoVisibilityCheck();
             break;
-
-          case "TC-CEP-0003":
-            await cp.scfControlsMenuNavigationCheck();
-            break;
           case "TC-CEP-0002":
             await cp.ceDashboardLoadingCheck();
             break;

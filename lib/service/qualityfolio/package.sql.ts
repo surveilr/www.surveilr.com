@@ -40,15 +40,26 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/test-suites.sql"() {
     return this.SQL`
+
+     select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+    select
+    'Test Suites' as title;
+
  
     SELECT 'title'AS component, 
      'Test Suite' as contents; 
@@ -61,14 +72,51 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         TRUE as search,
         'id' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||id||')' as id,
+      '['||id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||id||')' as id,
       
       name,
       created_by as "Created By",
       strftime('%d-%m-%Y',  created_at) as "Created On"
       FROM test_suites order by id asc;
+    `;
+  }
+
+  "qltyfolio/test-plan.sql"() {
+    return this.SQL`
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+    select
+    'Test Plans' as title;
+
+
+
+    SELECT 'title'AS component, 
+     'Test Plans' as contents; 
+        SELECT 'text' as component,
+        'A test plan is a high-level document that outlines the overall approach to testing a software application. It serves as a blueprint for the testing process.' as contents;
+
+     SELECT 'table' as component,
+        'Column Count' as align_right,
+        TRUE as sort,
+        TRUE as search,
+        'id' as markdown,
+        'test case count' as markdown;
+      SELECT 
+      '['||id||']('||${this.absoluteURL("/qltyfolio/plan-overview.sql")
+      }||'?id='||id||')' as id,      
+      name,
+      '['||test_case_count||']('||${this.absoluteURL("/qltyfolio/test-cases-list.sql")
+      }||'?id='||id||')' as "test case count",   
+      created_by as "Created By",
+      created_at as "Created On"
+      FROM test_plan_list  order by id asc;
     `;
   }
 
@@ -83,7 +131,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     'The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.' as contents;
     select 
     'card' as component,
-   4      as columns;
+   3      as columns;
 
 select
     '## Total Test Cases Count' as description_md,
@@ -125,9 +173,24 @@ select
     'white' as background_color,
     '## '||count(id) as description_md,
     '12' as width,
-    'sum'       as icon
-    FROM test_suites ;  
+    'sum'       as icon,
+    ${this.absoluteURL('/qltyfolio/test-suites.sql')} as link
+    FROM test_suites ; 
+
+  select
+    '## Total Test Plans Count' as description_md,
+ 
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'pink' as color,
+    'tool'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL('/qltyfolio/test-plan.sql')} as link
+    FROM test_plan ; 
    
+
+  
 --    SELECT
 --     '## Total Automated Test Case Coverage' AS description_md,
 --     'white' AS background_color,
@@ -141,13 +204,7 @@ select
 -- FROM
 --     test_cases;
     
--- select 
---     'card' as component,
---     2      as columns;
--- select 
---     '/qltyfolio/chart1.sql?_sqlpage_embed' as embed;
--- select 
---     '/qltyfolio/chart2.sql?_sqlpage_embed' as embed;
+
 
 
 select 
@@ -168,14 +225,14 @@ select
         TRUE as search,
         'id' as markdown;
       SELECT
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||id||')' as id,
+      '['||id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||id||')' as id,
       
       name,
       created_by as "Created By",
+      (select sum(test_case_count) from suite_group_test_case_count where suite_id= st.id ) as "test case count",
       strftime('%d-%m-%Y',  created_at) as "Created On"
-      FROM test_suites order by id asc;    
+      FROM test_suites st order by id asc;    
 
     `;
   }
@@ -288,16 +345,14 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
           created_by as "Created By",
           formatted_test_case_created_at as "Created On"
-    FROM test_suites_test_case_count
+    FROM suite_group_test_case_count
     WHERE suite_id = $id order by group_id asc;
 
 
@@ -330,7 +385,6 @@ SELECT 'table' as component,
     'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
     ' as description;
     SELECT 'table' as component,
-<<<<<<< HEAD
  TRUE AS sort, 
       -- TRUE AS search, 
       'URL' AS align_left, 
@@ -338,10 +392,9 @@ SELECT 'table' as component,
       'group' as markdown,
       'id' as markdown,
       'count'  as markdown;
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
->>>>>>> 97fa4fab4fa8f3cd285191d1f3d03049a304c084
+    SELECT
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -412,9 +465,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_case_created_by as "Created By",
@@ -504,7 +556,7 @@ FROM test_suites rn WHERE id = $id;
                 '\n **Created At**  :  ' || bd.created_at AS description_md,
                   '\n **Priority**  :  ' || bd.priority AS description_md,
                     '\n' || bd.body AS description_md
-FROM  test_case_md_body bd 
+FROM  test_cases bd 
 LEFT JOIN test_case_run_profile rn ON  bd.test_case_id = rn.test_case_id
 WHERE bd.test_case_id = $id;
 
@@ -512,24 +564,25 @@ WHERE bd.test_case_id = $id;
 --Define tabs
     SELECT
     'tab' AS component,
-      TRUE AS center;
+     TRUE AS center
+     FROM test_case_run_profile where test_case_id = $id group by group_id;
 
     --Tab 1: Test Suite list
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }||$id AS link,
-        $tab = 'actual-result' AS active;
-
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }||$id || '#actual-result-content'  AS link,
+        $tab = 'actual-result' AS active
+        FROM test_case_run_profile where test_case_id = $id group by group_id;
+  
 
     --Tab 2: Test case list
     SELECT
-    'Souce Code' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=source-code&id=")
-    }||$id AS link,
-        $tab = 'source-code' AS active;
+    'Test Run' AS title,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
+      }||$id|| '#test-run-content'  AS link,
+        $tab = 'test-run' AS active
+         FROM test_case_run_profile where test_case_id = $id group by group_id;
 
 
 
@@ -538,17 +591,17 @@ WHERE bd.test_case_id = $id;
         WHEN $tab = 'actual-result' THEN 'title'
     END AS component,  
      'Actual Result' as contents   
-    FROM test_case_run_profile WHERE test_case_id = $id;
+    FROM test_case_run_profile WHERE test_case_id = $id group by group_id;
 
      SELECT
     CASE
         WHEN $tab = 'actual-result' THEN 'table'
-        WHEN $tab = 'source-code' THEN 'code'
+        WHEN $tab = 'test-run' THEN 'list'
       END AS component,
         'Column Count' as align_right,
       TRUE as sort,
       TRUE as search
-        FROM test_case_run_profile  where test_case_id = $id;
+        FROM test_case_run_profile  where test_case_id = $id group by group_id;
 
 
    --Tab - specific content for "actual-result"  
@@ -560,12 +613,29 @@ WHERE bd.test_case_id = $id;
       step_start_time as 'Start Time',
       step_end_time as 'End Time'
           FROM test_case_run_profile_details
-          WHERE $tab = 'actual-result' and  test_case_id = $id; 
+          WHERE $tab = 'actual-result' and  test_case_id = $id order by step_start_time desc;
+    SELECT
+    CASE
+        WHEN $tab = 'actual-result' THEN 'html'
+    END AS component,
+     '<div id="actual-result-content"></div>' as html;
+    
     
 
-    --Tab - specific content for "source-code"
-    select 'code' AS component;
-    select content as contents FROM test_case_run_profile where $tab = 'source-code' and  test_case_id = $id; 
+    --Tab - specific content for "test-run"
+    SELECT
+    '\n **Run Date**  :  ' || run_date AS description_md,
+    '\n **Environment**  :  ' || environment AS description_md,      
+    '\n' ||body AS description_md
+    FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
+
+    SELECT
+    CASE
+        WHEN $tab = 'test-run' THEN 'html'
+    END AS component,
+     '<div id="test-run-content"></div>' as html;
+    -- select 'code' AS component;
+    -- select content as contents FROM test_case_run_profile where $tab = 'test-run' and  test_case_id = $id; 
 
     
 `;
@@ -610,11 +680,90 @@ WHERE rn.id = $id;
 
     `;
   }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qltyfolio/plan-overview.sql"() {
+    return this.SQL`
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+    select
+    'Plan List' as title,
+      ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link;
+
+    select
+    "name" as title from test_plan where id = $id;
+              
+
+          SELECT 'title'AS component,
+      name as contents FROM groups where id = $id; 
+
+          SELECT 'list'AS component;
+    SELECT
+    ' **Id**  :  ' ||id AS description_md,
+      '\n **name**  :  ' ||"name" AS description_md,
+        '\n **Description**  :  ' ||"description" AS description_md,
+          '\n **Created By**  :  ' ||"created_by" AS description_md,
+            '\n **Created On**  :  ' || strftime('%d-%m-%Y',"created_at") AS description_md,
+              '\n' ||body AS description_md
+      FROM test_plan 
+      WHERE id = $id;
+    `;
+  }
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qltyfolio/test-cases-list.sql"() {
+    return this.SQL`
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+    select
+    'Plan List' as title,
+      ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link;
+    select
+    "name" as title from test_plan where id = $id;
+    SELECT 'list'  AS component,
+      name as title FROM test_plan
+    WHERE  id = $id ;
+    SELECT
+    'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
+    ' as description;
+    SELECT 'table' as component,
+ TRUE AS sort, 
+      -- TRUE AS search, 
+      'URL' AS align_left, 
+      'title' AS align_left,
+      'group' as markdown,
+      'id' as markdown,
+      'count'  as markdown;
+    SELECT
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
+     title,
+          t.created_by as "Created By",
+          strftime('%d-%m-%Y',  t.created_at) as "Created On",
+          t.priority
+    FROM test_cases t
+    inner join groups g on t.group_id= g.id
+    WHERE  g.plan_id like '%'|| $id ||'%'
+
+    `;
+  }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/jsonviewer.sql"() {
     return this.SQL`
     select 'code' AS component;
-select content as contents from uniform_resource where uniform_resource_id='01JFHAZ7RV7BZ1PQEWAYEWVWM0' ;
+select content as contents from uniform_resource where uniform_resource_id = '01JFHAZ7RV7BZ1PQEWAYEWVWM0';
     `;
   }
 }

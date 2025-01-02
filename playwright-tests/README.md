@@ -39,7 +39,7 @@ Before using the automation solution, ensure the following prerequisites are met
 1. **Navigate to Repository:**
 
    ```bash
-   cd fopc_automation
+   cd www.surveilr.com/playwright-tests
    ```
 
 2. **Install Dependencies:**
@@ -53,7 +53,7 @@ Before using the automation solution, ensure the following prerequisites are met
    Navigate to the root folder and Execute the following command to run an individual test script:
 
    ```cmd
-   Tenant=<Tenant> role=<role> store=<store> npx playwright test <test_script_name>
+    npx playwright test <test_script_name>
    ```
 
 2. **Parallel Execution:**
@@ -76,12 +76,6 @@ Before using the automation solution, ensure the following prerequisites are met
 
    ```cmd
    npx playwright test --grep "smoke-low"
-   ```
-
-   Run Regression Tests:
-
-   ```cmd
-   npx playwright test --grep "regression"
    ```
 
 ## Additional Notes

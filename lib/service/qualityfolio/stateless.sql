@@ -38,12 +38,12 @@ CREATE view groups AS
 SELECT 
  json_extract(frontmatter, '$.id') AS id,
     json_extract(frontmatter, '$.SuiteId') AS suite_id,
+    json_extract(frontmatter, '$.planId') AS plan_id,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
     json_extract(frontmatter, '$.created_by') AS created_by,
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
-    json_extract(frontmatter, '$.linked_requirements') AS linked_requirements,
     json_extract(content_fm_body_attrs, '$.body') AS body
  
 FROM uniform_resource
@@ -55,12 +55,15 @@ CREATE VIEW test_cases AS
 SELECT 
     json_extract(frontmatter, '$.FII') AS test_case_id,
     json_extract(frontmatter, '$.groupId') AS group_id,
+    json_extract(frontmatter, '$.planId') AS plan_id,    
     json_extract(frontmatter, '$.title') AS title,
     json_extract(frontmatter, '$.created_by') AS created_by,
     json_extract(frontmatter, '$.test_type') AS test_type,    
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
-    json_extract(frontmatter, '$.priority') AS priority
+    json_extract(frontmatter, '$.priority') AS priority,
+    json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
+    json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.case.md';
 
@@ -74,7 +77,6 @@ SELECT
     g.created_by AS group_created_by,
     g.created_at AS group_created_at,
     g.tags AS group_tags,
-    g.linked_requirements AS group_linked_requirements,
     tc.test_case_id AS test_case_id,
     tc.title AS test_case_title,
     tc.created_by AS test_case_created_by,
@@ -198,8 +200,8 @@ SELECT
 FROM uniform_resource
 WHERE uri LIKE '%.case.md';
 
-DROP VIEW IF EXISTS test_suites_test_case_count;
-CREATE VIEW test_suites_test_case_count AS
+DROP VIEW IF EXISTS suite_group_test_case_count;
+CREATE VIEW suite_group_test_case_count AS
 SELECT 
     g.name AS group_name,
     g.suite_id,
@@ -212,18 +214,61 @@ LEFT JOIN test_cases tc
     ON g.id = tc.group_id
 GROUP BY g.name, g.id;
 
--- CREATE VIEW test_suites_test_case_count AS
--- SELECT 
--- count(*) as test_case_count,
--- gp.name AS group_name,
--- gp.suite_id,
--- gp.created_by,
--- gp.id AS group_id,
--- strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at
--- FROM test_cases tc
--- INNER JOIN groups gp on gp.id=tc.group_id
--- INNER JOIN test_suites st on gp.suite_id=st.id;
+DROP VIEW IF EXISTS test_plan;
+CREATE VIEW test_plan AS
+SELECT 
+uniform_resource_id,
+  JSON_EXTRACT(frontmatter, '$.id') AS id,  
+  JSON_EXTRACT(frontmatter, '$.name') AS name,
+  JSON_EXTRACT(frontmatter, '$.description') AS description,
+  JSON_EXTRACT(frontmatter, '$.created_by') AS created_by,
+  JSON_EXTRACT(frontmatter, '$.created_at') AS created_at,
+  JSON_EXTRACT(frontmatter, '$.tags') AS tags,
+  JSON_EXTRACT(frontmatter, '$.related_requirements') AS related_requirements,
+  json_extract(content_fm_body_attrs, '$.body') AS body
+FROM 
+  uniform_resource
+WHERE uri LIKE '%qf-plan.md';
+
+DROP VIEW IF EXISTS test_plan_list;
+CREATE VIEW test_plan_list AS 
+ SELECT 
+    id,
+    name,
+    ( SELECT
+count(test_case_id) from test_cases
+where group_id in (
+SELECT
+    id
+FROM
+    groups g
+WHERE
+    plan_id like '%'||t.id||'%')) as test_case_count,
+    created_by,
+    strftime('%d-%m-%Y',  created_at) as created_at
+FROM test_plan t order by id asc;
+
+DROP VIEW IF EXISTS suite_test_case_count;
+CREATE VIEW suite_test_case_count AS 
+SELECT 
+st.id,
+st.name,
+st.created_by,
+st.created_at,
+sum(tc.test_case_count)
+FROM
+suite_group_test_case_count tc
+INNER JOIN test_suites st on st.id=tc.suite_id;
+-- test_cases_by_suite
 
 
-
-
+DROP VIEW IF EXISTS test_run;
+CREATE VIEW test_run AS 
+SELECT 
+uniform_resource_id,
+json_extract(frontmatter, '$.test_case_fii') AS test_case_id,
+json_extract(frontmatter, '$.run_date') AS run_date,
+json_extract(frontmatter, '$.environment') AS environment,
+json_extract(content_fm_body_attrs, '$.body') AS body
+FROM uniform_resource
+WHERE uri LIKE '%.run.md';
