@@ -1,4 +1,4 @@
-Error executing service/qualityfolio/package.sql: Command failed: lib/service/qualityfolio/package.sql.ts
+Error executing service/qualityfolio/package.sql: Command failed: deno run -A lib/service/qualityfolio/package.sql.ts
 [0m[1m[31merror[0m: Uncaught (in promise) NotFound: Failed to spawn 'surveilr': entity not found
 const { stdout } = await command.output();
 [0m[31m                                 ^[0m
