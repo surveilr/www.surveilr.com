@@ -1,0 +1,53 @@
+{
+  "test_case_fii": "TC-CEP-0003",
+  "run_id": "TR-CEP-0003",
+  "title": "SCF Controls Menu Navigation Check",
+  "status": "passed",
+  "start_time": "2025-01-01T06:08:39.240Z",
+  "end_time": "2025-01-01T06:08:50.931Z",
+  "total_duration": "11.69 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://eg.surveilr.com/)",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:39.242Z",
+      "end_time": "2025-01-01T06:08:48.835Z"
+    },
+    {
+      "step": 2,
+      "stepname": "Navigate to compliance explorer link",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:50.942Z",
+      "end_time": "2025-01-01T06:08:50.942Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:50.942Z",
+      "end_time": "2025-01-01T06:08:50.942Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:48.838Z",
+      "end_time": "2025-01-01T06:08:50.362Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:50.365Z",
+      "end_time": "2025-01-01T06:08:50.445Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:50.445Z",
+      "end_time": "2025-01-01T06:08:50.943Z"
+    }
+  ]
+}
