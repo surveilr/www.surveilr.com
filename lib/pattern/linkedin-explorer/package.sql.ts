@@ -38,9 +38,8 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /lie-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${
-      this.constructHomePath("lie")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path=${this.constructHomePath("lie")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -62,13 +61,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("lie")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("lie")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -129,15 +126,22 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
         FROM linkedin_employment_timeline_count;
 
         select 
+          'card' as component,
+          2      as columns;
+        select 
+          'Learnings' as description_md,
+          TRUE                  as active,
+          'book'       as icon,
+          ${this.absoluteURL("/lie/learning.sql")} as link;
+
+        select 
         'title'   as component,
         'Education' as contents;
 
         SELECT 'table' AS component;
-
-         select
+        SELECT
          *
-            FROM linkedin_profile_education;
-            
+        FROM linkedin_profile_education;
         `;
   }
 
@@ -274,6 +278,58 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     select
     'text'              as component,
     'Ingest and organize employment data from LinkedIn positions to visualize career timelines and analyze professional history seamlessly.' as contents;
+
+     -- Display uniform_resource table with pagination
+        SELECT 'table' AS component,
+              'subject' AS markdown,
+              'Column Count' as align_right,
+              TRUE as sort,
+              TRUE as search,
+              'from' AS markdown;
+
+         SELECT
+            * 
+            FROM ${viewName}
+            LIMIT $limit
+          OFFSET $offset;
+          ${pagination.renderSimpleMarkdown()}
+        `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "lie/learning.sql"() {
+    const viewName = `linkedin_learning`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+    });
+    return this.SQL`
+
+    --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'Linkedin Explorer' AS title,
+        ${this.absoluteURL("/lie/index.sql")} AS link;
+      SELECT
+        'Profile' AS title,
+        ${this.absoluteURL("/lie/profile.sql")} AS link;
+      SELECT
+        'Learning' AS title,
+        ${this.absoluteURL("/lie/learning.sql")} AS link;
+      
+    --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          'Learning'  as contents;
+
+     -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+        ${pagination.init()}
+    select
+    'text'              as component,
+    'Enhance your professional profile by seamlessly listing your learnings and courses directly from LinkedIn.' as contents;
 
      -- Display uniform_resource table with pagination
         SELECT 'table' AS component,
