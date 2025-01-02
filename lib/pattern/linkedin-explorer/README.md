@@ -45,11 +45,14 @@ ignored, only `sqlite3` is required because all content is in the
 other dependencies.
 
 ```bash
+# load the "Console" and other menu/routing with sql package utilities plus ic Web UI (both are same, just run one)
+$ SURVEILR_SQLPKG=~/.sqlpkg surveilr shell ./package.sql.ts
 # load the "Console" and other menu/routing utilities plus ic Web UI (both are same, just run one)
 $ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
 $ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ SQLPAGE_SITE_PREFIX=/lib/pattern/lie ../../std/surveilrctl.ts dev
 $ ../../std/surveilrctl.ts dev
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/info-assurance-controls/info-schema.sql to see ic-specific views and tables
