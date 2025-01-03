@@ -133,6 +133,11 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
           TRUE                  as active,
           'book'       as icon,
           ${this.absoluteURL("/lie/learning.sql")} as link;
+        select
+          'Company Follows' as description_md,
+          TRUE                  as active,
+          'building'       as icon,
+          ${this.absoluteURL("/lie/company_follows.sql")} as link;
 
         select 
         'title'   as component,
@@ -330,6 +335,62 @@ export class ContentAssemblerSqlPages extends spn.TypicalSqlPageNotebook {
     select
     'text'              as component,
     'Enhance your professional profile by seamlessly listing your learnings and courses directly from LinkedIn.' as contents;
+
+     -- Display uniform_resource table with pagination
+        SELECT 'table' AS component,
+              'subject' AS markdown,
+              'Column Count' as align_right,
+              TRUE as sort,
+              TRUE as search,
+              'from' AS markdown;
+
+         SELECT
+            * 
+            FROM ${viewName}
+            LIMIT $limit
+          OFFSET $offset;
+          ${pagination.renderSimpleMarkdown()}
+        `;
+  }
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "lie/company_follows.sql"() {
+    const viewName = `linkedin_company_follows`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+    });
+    return this.SQL`
+
+    --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'Linkedin Explorer' AS title,
+        ${this.absoluteURL("/lie/index.sql")} AS link;
+      SELECT
+        'Profile' AS title,
+        ${this.absoluteURL("/lie/profile.sql")} AS link;
+      SELECT
+        'Company Follows' AS title,
+        ${this.absoluteURL("/lie/company_follows.sql")} AS link;
+      
+    --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          'Company Follows'  as contents;
+
+     -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+        ${pagination.init()}
+   SELECT
+    'text' AS component,
+    'This feature allows users to view a curated list of companies they follow on LinkedIn. 
+    It provides insights into the user''s professional interests and industry preferences, 
+    showcasing the organizations they engage with and stay updated on. 
+    With a clear and interactive interface, this feature enhances the user''s profile by 
+    highlighting their network and areas of interest.' AS contents;
+
 
      -- Display uniform_resource table with pagination
         SELECT 'table' AS component,

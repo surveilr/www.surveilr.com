@@ -73,3 +73,11 @@ SELECT
     "Content Type" AS type
 FROM uniform_resource_learning 
 ORDER BY 'Content Last Watched Date (if viewed)' DESC;
+
+
+DROP VIEW IF EXISTS linkedin_company_follows;
+CREATE VIEW linkedin_company_follows AS
+SELECT 
+   Organization
+FROM uniform_resource_company_follows 
+ORDER BY 'Followed On' DESC;
