@@ -67,30 +67,6 @@ SELECT
 FROM uniform_resource
 WHERE uri LIKE '%.case.md';
 
-DROP VIEW IF EXISTS test_case_data;
-CREATE VIEW test_case_data AS
-SELECT 
-    g.id AS group_id,
-    g.name AS group_name,
-    g.suite_id,
-    g.description AS group_description,
-    g.created_by AS group_created_by,
-    g.created_at AS group_created_at,
-    g.tags AS group_tags,
-    tc.test_case_id AS test_case_id,
-    tc.title AS test_case_title,
-    tc.created_by AS test_case_created_by,
-    tc.created_at AS raw_test_case_created_at, -- Original date (optional)
-    strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
-    tc.tags AS test_case_tags,
-    tc.priority AS test_case_priority
-FROM 
-    groups g
-JOIN 
-    test_cases tc
-ON 
-    g.id = tc.group_id;
-
 
 DROP VIEW IF EXISTS test_case_run_profile;
 CREATE VIEW test_case_run_profile AS
@@ -107,6 +83,34 @@ SELECT
     json_extract(content, '$.steps') AS steps -- Extracts the full array of steps
 FROM uniform_resource
 WHERE uri LIKE '%.result.json';
+
+DROP VIEW IF EXISTS test_case_data;
+CREATE VIEW test_case_data AS
+SELECT 
+    g.id AS group_id,
+    g.name AS group_name,
+    g.suite_id,
+    g.description AS group_description,
+    g.created_by AS group_created_by,
+    g.created_at AS group_created_at,
+    g.tags AS group_tags,
+    tc.test_case_id AS test_case_id,
+    tc.title AS test_case_title,
+    tc.created_by AS test_case_created_by,
+    tc.created_at AS raw_test_case_created_at, -- Original date (optional)
+    strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
+    tc.tags AS test_case_tags,
+    tc.priority AS test_case_priority,
+    (SELECT status from test_case_run_profile where test_case_id=tc.test_case_id) as test_status
+FROM 
+    groups g
+JOIN 
+    test_cases tc
+ON 
+    g.id = tc.group_id;
+
+
+
 
 DROP VIEW IF EXISTS test_case_run_profile_details;
 CREATE VIEW test_case_run_profile_details AS
@@ -208,10 +212,12 @@ SELECT
     g.id AS group_id,
     g.created_by,   
     strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at,
-    COUNT(tc.test_case_id) AS test_case_count
+    COUNT(tc.test_case_id) AS test_case_count,
+    COUNT(p.test_case_id) AS success_status_count
 FROM groups g
 LEFT JOIN test_cases tc
     ON g.id = tc.group_id
+LEFT JOIN test_case_run_profile p on p.test_case_id=tc.test_case_id and status='passed'
 GROUP BY g.name, g.id;
 
 DROP VIEW IF EXISTS test_plan;
@@ -272,3 +278,20 @@ json_extract(frontmatter, '$.environment') AS environment,
 json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.run.md';
+
+DROP VIEW IF EXISTS test_suite_success_and_failed_rate;
+CREATE view test_suite_success_and_failed_rate AS
+SELECT 
+    t.uniform_resource_id,
+    t.name AS suite_name,
+    t.created_by,
+    t.created_at,
+    t.id as suite_id,
+    sum(c.test_case_count) AS total_test_case,
+    sum(c.success_status_count) AS success_count,
+    (sum(c.test_case_count) - sum(c.success_status_count)) AS failed_count
+FROM 
+    suite_group_test_case_count c
+INNER JOIN 
+    test_suites t ON t.id = c.suite_id
+GROUP BY suite_id;
