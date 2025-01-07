@@ -1,0 +1,123 @@
+{
+  "test_case_fii": "TC-CEP-0016",
+  "run_id": "TR-CEP-0016",
+  "title": "NIST Controls Tables-Title title check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:21:31.770Z",
+  "end_time": "2025-01-02T06:21:45.574Z",
+  "total_duration": "13.80 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://eg.surveilr.com/)",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:31.773Z",
+      "end_time": "2025-01-02T06:21:41.773Z"
+    },
+    {
+      "step": 2,
+      "stepname": "Navigate to compliance explorer link",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:41.774Z",
+      "end_time": "2025-01-02T06:21:41.776Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:41.777Z",
+      "end_time": "2025-01-02T06:21:43.007Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:43.009Z",
+      "end_time": "2025-01-02T06:21:43.095Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Navigate to the US HIPAA Detail View page",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:43.096Z",
+      "end_time": "2025-01-02T06:21:44.973Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Check table title: Control Code",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:44.976Z",
+      "end_time": "2025-01-02T06:21:45.029Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Trim and compare text for - Control Code",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.030Z",
+      "end_time": "2025-01-02T06:21:45.032Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Check table title: Title",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.032Z",
+      "end_time": "2025-01-02T06:21:45.053Z"
+    },
+    {
+      "step": 9,
+      "stepname": "Trim and compare text for - Title",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.054Z",
+      "end_time": "2025-01-02T06:21:45.057Z"
+    },
+    {
+      "step": 10,
+      "stepname": "Check table title: Domain",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.058Z",
+      "end_time": "2025-01-02T06:21:45.082Z"
+    },
+    {
+      "step": 11,
+      "stepname": "Trim and compare text for - Domain",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.082Z",
+      "end_time": "2025-01-02T06:21:45.084Z"
+    },
+    {
+      "step": 12,
+      "stepname": "Check table title: Control Description",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.084Z",
+      "end_time": "2025-01-02T06:21:45.104Z"
+    },
+    {
+      "step": 13,
+      "stepname": "Trim and compare text for - Control Description",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.105Z",
+      "end_time": "2025-01-02T06:21:45.109Z"
+    },
+    {
+      "step": 14,
+      "stepname": "Check table title: Requirements",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.109Z",
+      "end_time": "2025-01-02T06:21:45.128Z"
+    },
+    {
+      "step": 15,
+      "stepname": "Trim and compare text for - Requirements",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.129Z",
+      "end_time": "2025-01-02T06:21:45.131Z"
+    },
+    {
+      "step": 16,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.131Z",
+      "end_time": "2025-01-02T06:21:45.584Z"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "test_case_fii": "TC-CEP-0002",
+  "run_id": "TR-CEP-0002",
+  "title": "Compliance Explorer Dashboard Controls Validation",
+  "status": "passed",
+  "start_time": "2025-01-01T06:08:28.698Z",
+  "end_time": "2025-01-01T06:08:39.226Z",
+  "total_duration": "10.53 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://eg.surveilr.com/)",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:28.701Z",
+      "end_time": "2025-01-01T06:08:38.507Z"
+    },
+    {
+      "step": 2,
+      "stepname": "Navigate to compliance explorer link",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:39.238Z",
+      "end_time": "2025-01-01T06:08:39.238Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:39.238Z",
+      "end_time": "2025-01-01T06:08:39.238Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Count dashboard menu items",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.511Z",
+      "end_time": "2025-01-01T06:08:38.554Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Check subtitle: SCF Controls",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.555Z",
+      "end_time": "2025-01-01T06:08:38.597Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Trim and compare text for - SCF Controls",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.598Z",
+      "end_time": "2025-01-01T06:08:38.602Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Check subtitle: Orchestration",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.603Z",
+      "end_time": "2025-01-01T06:08:38.635Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Trim and compare text for - Orchestration",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.636Z",
+      "end_time": "2025-01-01T06:08:38.639Z"
+    },
+    {
+      "step": 9,
+      "stepname": "Check subtitle: Uniform Resource",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.640Z",
+      "end_time": "2025-01-01T06:08:38.661Z"
+    },
+    {
+      "step": 10,
+      "stepname": "Trim and compare text for - Uniform Resource",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.663Z",
+      "end_time": "2025-01-01T06:08:38.667Z"
+    },
+    {
+      "step": 11,
+      "stepname": "Check subtitle: Console",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.668Z",
+      "end_time": "2025-01-01T06:08:38.690Z"
+    },
+    {
+      "step": 12,
+      "stepname": "Trim and compare text for - Console",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.691Z",
+      "end_time": "2025-01-01T06:08:38.695Z"
+    },
+    {
+      "step": 13,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:38.696Z",
+      "end_time": "2025-01-01T06:08:39.240Z"
+    }
+  ]
+}
