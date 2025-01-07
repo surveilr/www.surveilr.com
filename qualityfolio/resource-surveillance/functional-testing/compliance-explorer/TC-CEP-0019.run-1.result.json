@@ -1,0 +1,95 @@
+{
+  "test_case_fii": "TC-CEP-0019",
+  "run_id": "TR-CEP-0019",
+  "title": "NIST control code Detail Check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:28:45.356Z",
+  "end_time": "2025-01-02T06:29:00.257Z",
+  "total_duration": "14.90 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://eg.surveilr.com/)",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:45.357Z",
+      "end_time": "2025-01-02T06:28:55.940Z"
+    },
+    {
+      "step": 2,
+      "stepname": "Navigate to compliance explorer link",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:55.943Z",
+      "end_time": "2025-01-02T06:28:55.949Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF control menu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:55.951Z",
+      "end_time": "2025-01-02T06:28:57.099Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:57.102Z",
+      "end_time": "2025-01-02T06:28:57.172Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Navigate to the NIST Detail View page",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:57.173Z",
+      "end_time": "2025-01-02T06:28:59.034Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Check Control Code Link",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.038Z",
+      "end_time": "2025-01-02T06:28:59.654Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Check Control Question",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.654Z",
+      "end_time": "2025-01-02T06:28:59.716Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Check Control Description",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.717Z",
+      "end_time": "2025-01-02T06:28:59.744Z"
+    },
+    {
+      "step": 9,
+      "stepname": "Check Control ID",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.745Z",
+      "end_time": "2025-01-02T06:28:59.765Z"
+    },
+    {
+      "step": 10,
+      "stepname": "Check Control Domain",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.765Z",
+      "end_time": "2025-01-02T06:28:59.784Z"
+    },
+    {
+      "step": 11,
+      "stepname": "Check Control SCF",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.784Z",
+      "end_time": "2025-01-02T06:28:59.805Z"
+    },
+    {
+      "step": 12,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:28:59.805Z",
+      "end_time": "2025-01-02T06:29:00.267Z"
+    }
+  ]
+}
