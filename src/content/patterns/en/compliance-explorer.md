@@ -2,7 +2,7 @@
 title: "Compliance Explorer"
 description: "Web-based user interface that lists and displays SCF controls Aggregator and Explorer"
 main:
-  id: 1
+  id: 8
   content: |
     The Compliance Explorer Pattern for surveilr ingests SCF controls and create a web-based user interface that lists and displays SCF controls Aggregator and Explorer.
   imgCard: "@/images/pattern/compliance-explorer-pattern-ss-1.avif"
