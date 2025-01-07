@@ -21,7 +21,7 @@ tabs:
 longDescription:
   title: "Unified Test and Quality Management System"
   subTitle: |
-    Qualityfolio is a unified test and quality management system designed to optimize the test lifecycle through a code-first approach. Built on "Test Management as Code" (TMaC) principles, it enables the secure storage, execution, and analysis of test artifacts using surveilr. With features like centralized test management, seamless CI/CD integration, real-time dashboards, and full traceability via FII codes, Qualityfolio streamlines workflows, ensures compliance, and enhances collaboration for industries such as healthcare, technology, and manufacturing.
+    Qualityfolio is an all-in-one test and quality management system designed to streamline the test lifecycle with a code-first approach. Built on "Test Management as Code" (TMaC) principles, it enables secure storage, execution, and analysis of test artifacts through Surveilr. Featuring centralized test management, seamless CI/CD integration, real-time dashboards, and full traceability with FII codes, Qualityfolio simplifies workflows, ensures compliance, and fosters collaboration across industries.
   btnTitle: "Use the SQL"
   btnURL: "/lib/service/qualityfolio/package.sql"
 descriptionList:
@@ -41,8 +41,8 @@ specificationsLeft:
     subTitle: "Handles complex projects and test artifacts with ease, ensuring scalability for growing teams."
   - title: "Comprehensive Traceability"
     subTitle: "Track test case histories, results, and associated defects with unique identifiers."
-  - title: "Built-in Compliance Tracking"
-    subTitle: "Ensure compliance with ISO 9001, FDA, GMP, and other industry standards."
+  - title: "Structured Content Storage"
+    subTitle: "Store test artifacts in surveilr's Resource Surveillance State Database (RSSD) for efficient querying, analytics, and auditing."
 
 specificationsRight:
   - title: "Markdown-Driven Content"
