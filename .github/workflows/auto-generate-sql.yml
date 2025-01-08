@@ -1,0 +1,36 @@
+name: Run Deno and Push Generated SQL
+
+on:
+  push:
+    paths:
+      - 'lib/service/qualityfolio/*.sql.ts'
+
+jobs:
+  run-deno:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Deno
+      uses: denoland/setup-deno@v1
+      with:
+        deno-version: v2.x
+
+    - name: Find and run Deno for SQL files
+      run: |
+        for file in lib/service/qualityfolio/*.sql.ts; do
+          output_file="${file%.sql.ts}.auto.sql"
+          deno run -A "$file" > "$output_file"
+        done
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add lib/service/qualityfolio/*.auto.sql
+        git commit -m "ci: generate .auto.sql from .sql.ts files"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
