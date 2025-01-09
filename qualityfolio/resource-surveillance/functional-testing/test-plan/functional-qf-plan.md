@@ -15,7 +15,7 @@ The testing will cover the following key activities:
 
 ### Functional Testing
 
-- Validate the logo, title and contents in each navigated page.
+- Verify the accuracy of each API endpoint against defined test cases.
 - Verify the accuracy of each hyperlink navigation from dashboard.
 - Ensure the proper navigation of breadcrumbs and footer links.
 - Ensure the datas in the table is correct.

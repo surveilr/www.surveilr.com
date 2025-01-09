@@ -10,16 +10,18 @@ priority: "High"
 ---
 
 ### Description
+
 Verify that Compliance explorer logo is visible on the left top of Compliance Explorer page
 
 ### Steps
-1. Check whether the URL get loaded (https://eg.surveilr.com/).
-2. Navigate to compliance explorer link.
-3. Wait for page load.
-4. Waiting for the compliance explorer logo to load.
-5. Verify compliance explorer logo visibility.
-6. Checking for error occurrence.
-7. Close-browser.
+
+1. Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.
+2. Wait for page load.
+3. Waiting for the compliance explorer logo to load.
+4. Verify compliance explorer logo visibility.
+5. Checking for error occurrence.
+6. Close-browser.
 
 ### Expected Outcome
-•  The logo should be visible on the top left of the Compliance Explorer page.
+
+- The logo should be visible on the top left of the Compliance Explorer page.

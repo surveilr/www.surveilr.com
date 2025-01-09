@@ -9,14 +9,14 @@
   "steps": [
     {
       "step": 1,
-      "stepname": "Check whether the URL get loaded (https://eg.surveilr.com/)",
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
       "status": "passed",
       "start_time": "2025-01-02T06:21:31.773Z",
       "end_time": "2025-01-02T06:21:41.773Z"
     },
     {
       "step": 2,
-      "stepname": "Navigate to compliance explorer link",
+      "step_name": "Wait for page load",
       "status": "passed",
       "start_time": "2025-01-02T06:21:41.774Z",
       "end_time": "2025-01-02T06:21:41.776Z"
