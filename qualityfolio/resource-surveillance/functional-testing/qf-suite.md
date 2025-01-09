@@ -10,14 +10,12 @@ tags: ["functional testing"]
 
 ## Scope of Work
 
-The testing will cover the following key activities across the **surveilr** project:  
-
+The testing will cover the following key activities across APIs:
 
 ### Functional Testing
 
-- Verify the breadcrumb and footer link navigation is proper
-- Verify the accuracy of each hyperlink navigation from dashboard.
-- Validate the logo, title and contents in each navigated page.
-- Ensure the proper navigation of breadcrumbs and footer links.
-- ensure the datas in the table is correct
-- Verify the content data in each navigated page.
+- Verify the accuracy of each API endpoint against defined test cases and the provided API documentation.
+- Validate input and response parameters, including headers and status codes.
+- Conduct boundary value analysis and test edge cases, such as handling empty requests, invalid inputs, and other unexpected scenarios.
+- Confirm the correctness and completeness of the data retrieved by APIs.
+- Ensure APIs effectively handle edge cases like invalid serial numbers or missing data.

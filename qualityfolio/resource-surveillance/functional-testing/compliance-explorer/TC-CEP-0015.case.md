@@ -1,26 +1,29 @@
 ---
-  FII: "TC-CEP-0015"
-  groupId: GRP-001
-  title: "NIST Controls SearchBar check"
-  created_by: "arun-ramanan@netspective.in"
-  created_at:  "2024-12-31"
-  test_type: "Automation"
-  tags: ["Compliance Explorer"] 
-  priority: "High"
-  ---
+FII: "TC-CEP-0015"
+groupId: GRP-001
+title: "NIST Controls SearchBar check"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2024-12-31"
+test_type: "Automation"
+tags: ["Compliance Explorer"]
+priority: "High"
+---
 
-  ### Description
-  Ensure that search bar working properly on NIST Controls page
+### Description
 
-  ### Steps
-  1. Check whether the URL get loaded (https://eg.surveilr.com/).
-  2. Navigate to compliance explorer link.
-  3. Starting SCF controlmenu Navigation Check.
-  4. Capture navigated page title text.
-  5. Starting NIST Detail View Navigation Check.
-  6. Validating Search Bar Visibility.
-  7. Filling the Search Bar and Checking Results.
-  8. Close-browser.
+Ensure that the search bar works properly on the NIST Controls page.
 
-  ### Expected Outcome
-  -   The search bar should function correctly, allowing users to search for specific controls.
+### Steps
+
+1. Check whether the URL gets loaded (https://www.surveilr.com/pattern/) and click on the "Live demo" button.
+2. Wait for page load.
+3. Start SCF control menu navigation check.
+4. Capture the navigated page title text.
+5. Start NIST detail view navigation check.
+6. Validate search bar visibility.
+7. Fill the search bar and check results.
+8. Close the browser.
+
+### Expected Outcome
+
+- The search bar should function correctly, allowing users to search for specific controls.
