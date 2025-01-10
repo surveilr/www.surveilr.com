@@ -257,7 +257,7 @@ select
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_profile r
+    test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -274,7 +274,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_profile r
+    test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -360,7 +360,7 @@ SELECT
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_profile r
+    test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -370,7 +370,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_profile r
+    test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -380,7 +380,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_profile r
+    test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
     `;
@@ -495,7 +495,7 @@ SELECT 'table' as component,
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
-    FROM suite_group_test_case_count
+    FROM test_cases_run_status
     WHERE suite_id = $id order by group_id asc;
 
 
@@ -504,25 +504,31 @@ SELECT 'table' as component,
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/test-cases.sql"() {
     return this.SQL`
-    select
+    SELECT
     'breadcrumb' as component;
-    select
+    SELECT
     'Home' as title,
       ${this.absoluteURL("/")} as link;
-    select
+    SELECT
     'Test Management System' as title,
       ${this.absoluteURL("/qltyfolio/index.sql")} as link;
-    select
-    s."name" as title,
-      ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
-         FROM test_case_data g
-        inner join  test_suites s on g.suite_id = s.id
-          WHERE  group_id = $id group by group_name;
-    select
-    group_name as title FROM test_case_data
-    WHERE  group_id = $id group by group_name;
+
+    SELECT name as title,
+    ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| id as link
+    FROM test_suites where id=(select suite_id from test_cases where group_id = $id) ;
+
+    SELECT group_name as title,
+    ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
+    FROM test_cases WHERE  group_id = $id group by group_name;
+    -- select
+    -- s."name" as title,
+    --   ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
+    --      FROM test_cases WHERE  group_id = $id group by group_name;
+    -- SELECT
+    -- group_name as title FROM test_cases
+    -- WHERE  group_id = $id group by group_name;
     SELECT 'list'  AS component,
-      group_name as title FROM test_case_data
+      group_name as title FROM test_cases
     WHERE  group_id = $id group by group_name;
     SELECT
     'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
@@ -565,10 +571,10 @@ SELECT 'table' as component,
         group_name AS "group",
           test_status,
       'rowClass-'||test_status as _sqlpage_css_class,
-      test_case_created_by as "Created By",
+      created_by as "Created By",
       formatted_test_case_created_at as "Created On",
-      test_case_priority as "Priority"
-    FROM test_case_data t
+      priority as "Priority"
+    FROM test_cases t
     WHERE  group_id = $id
 
       `;
@@ -586,10 +592,10 @@ SELECT 'table' as component,
       test_case_title AS "title",
       group_name AS "group",
       test_status,
-      test_case_created_by as "Created By",
+      created_by as "Created By",
       formatted_test_case_created_at as "Created On",
-      test_case_priority as "Priority"
-    FROM test_case_data t
+      priority as "Priority"
+    FROM test_cases t
     WHERE  group_id = $group_id;
 
     `;
@@ -607,10 +613,10 @@ SELECT 'table' as component,
       test_case_title AS "title",
       group_name AS "group",
       test_status,
-      test_case_created_by as "Created By",
+      created_by as "Created By",
       formatted_test_case_created_at as "Created On",
-      test_case_priority as "Priority"
-    FROM test_case_data t
+      priority as "Priority"
+    FROM test_cases t
 
     `;
   }
@@ -680,10 +686,10 @@ FROM test_suites rn WHERE id = $id;
       }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
-          test_case_created_by as "Created By",
+          created_by as "Created By",
           formatted_test_case_created_at as "Created On",
-          test_case_priority as "Priority"
-    FROM test_case_data
+          priority as "Priority"
+    FROM test_cases
     WHERE $tab = 'test_cases' and group_id = $id 
     order by test_case_id;
 
@@ -768,7 +774,7 @@ FROM test_suites rn WHERE id = $id;
                   '\n **Priority**  :  ' || bd.priority AS description_md,
                     '\n' || bd.body AS description_md
 FROM  test_cases bd 
-LEFT JOIN test_case_run_profile rn ON  bd.test_case_id = rn.test_case_id
+LEFT JOIN test_case_run_results rn ON  bd.test_case_id = rn.test_case_id
 WHERE bd.test_case_id = $id;
 
 
@@ -786,14 +792,14 @@ WHERE bd.test_case_id = $id;
     }
     </style>
     
-    ' as html FROM test_case_run_profile where test_case_id = $id group by group_id;
+    ' as html FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
     --Define tabs
     SELECT
     'tab' AS component,
       TRUE AS center
-     FROM test_case_run_profile where test_case_id = $id group by group_id;
+     FROM test_case_run_results where test_case_id = $id group by group_id;
 
     --Tab 1: Test Suite list
     SELECT
@@ -801,7 +807,7 @@ WHERE bd.test_case_id = $id;
       ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
       }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
-        FROM test_case_run_profile where test_case_id = $id group by group_id;
+        FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
     --Tab 2: Test case list
@@ -810,7 +816,7 @@ WHERE bd.test_case_id = $id;
       ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
       }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
-         FROM test_case_run_profile where test_case_id = $id group by group_id;
+         FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
 
@@ -819,7 +825,7 @@ WHERE bd.test_case_id = $id;
         WHEN $tab = 'actual-result' THEN 'title'
     END AS component,
       'Actual Result' as contents   
-    FROM test_case_run_profile WHERE test_case_id = $id group by group_id;
+    FROM test_case_run_results WHERE test_case_id = $id group by group_id;
 
     SELECT
     CASE
@@ -829,7 +835,7 @@ WHERE bd.test_case_id = $id;
       'Column Count' as align_right,
       TRUE as sort,
       TRUE as search
-        FROM test_case_run_profile  where test_case_id = $id group by group_id;
+        FROM test_case_run_results  where test_case_id = $id group by group_id;
 
 
     --Tab - specific content for "actual-result"  
@@ -841,7 +847,7 @@ WHERE bd.test_case_id = $id;
       'actualClass-'||step_status as _sqlpage_css_class,
       step_start_time as 'Start Time',
       step_end_time as 'End Time'
-          FROM test_case_run_profile_details
+          FROM test_execution_log
           WHERE $tab = 'actual-result' and  test_case_id = $id order by step_start_time desc;
     SELECT
     CASE
@@ -969,11 +975,14 @@ WHERE rn.id = $id;
 
  SELECT 'html' as component,
     '<style>
+     tr td.test_status {
+            color: blue !important; /* Default to blue */
+        }
         tr.rowClass-passed td.test_status {
-            color: green !important; /* Default to red */
+            color: green !important; /* Default to blue */
         }
          tr.rowClass-failed td.test_status {
-            color: red !important; /* Default to red */
+            color: red !important; /* Default to blue */
         }
         .btn-list {
         display: flex;
@@ -995,14 +1004,15 @@ WHERE rn.id = $id;
     '[' || t.test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
       }|| t.test_case_id || ')' as id,
       t.title,
-      p.status as test_status,
+       case when p.status is not null then p.status
+        else 'TODO' END AS "test_status",
       t.created_by as "Created By",
       strftime('%d-%m-%Y', t.created_at) as "Created On",
       t.priority,
       'rowClass-'||p.status as _sqlpage_css_class
     FROM test_cases t
     inner join groups g on t.group_id = g.id
-    left join test_case_run_profile p on p.test_case_id=t.test_case_id
+    left join test_case_run_results p on p.test_case_id=t.test_case_id
     WHERE  g.plan_id like '%' || $id || '%'
 
       `;
@@ -1070,10 +1080,10 @@ WHERE rn.id = $id;
         case when test_status is not null then test_status
         else 'TODO' END AS "Status",
       'rowClass-'||test_status as _sqlpage_css_class,
-      test_case_created_by as "Created By",
+      created_by as "Created By",
       formatted_test_case_created_at as "Created On",
-      test_case_priority as "Priority"
-    FROM test_case_data t
+      priority as "Priority"
+    FROM test_cases t
     
 
       `;
