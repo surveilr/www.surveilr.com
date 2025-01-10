@@ -1042,7 +1042,7 @@ WHERE rn.id = $id;
    SELECT 'html' as component,
     '<style>
        tr td.Status {
-            color: blue !important; /* Default to red */
+            color: blue !important; /* Default to blue */
         }
         tr.rowClass-passed td.Status {
             color: green !important; /* Default to red */
