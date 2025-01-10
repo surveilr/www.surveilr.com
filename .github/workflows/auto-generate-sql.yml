@@ -18,6 +18,14 @@ jobs:
       with:
         deno-version: v2.x
 
+    - name: Install surveilr
+      run: |
+        curl -sSL https://zyedidia.github.io/eget.sh | bash
+        sudo mv ./eget /usr/local/bin/
+        eget opsfolio/releases.opsfolio.com
+        sudo mv surveilr /usr/local/bin/
+        surveilr --version
+        
     - name: Find and run Deno for SQL files
       run: |
         for file in lib/service/qualityfolio/*.sql.ts; do
