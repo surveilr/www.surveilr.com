@@ -37,21 +37,24 @@ DROP VIEW IF EXISTS groups;
 CREATE view groups AS
 SELECT 
  json_extract(frontmatter, '$.id') AS id,
-    json_extract(frontmatter, '$.SuiteId') AS suite_id,
+    COALESCE(
+        json_extract(frontmatter, '$.SuiteId'),
+        json_extract(frontmatter, '$.suiteId')
+    ) AS suite_id,
     json_extract(frontmatter, '$.planId') AS plan_id,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
     json_extract(frontmatter, '$.created_by') AS created_by,
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
-    json_extract(content_fm_body_attrs, '$.body') AS body
- 
+    json_extract(content_fm_body_attrs, '$.body') AS body 
 FROM uniform_resource
 WHERE uri LIKE '%/qf-case-group.md';
 
 
 DROP VIEW IF EXISTS test_cases;
 CREATE VIEW test_cases AS
+with test_case_parsed as(
 SELECT 
     json_extract(frontmatter, '$.FII') AS test_case_id,
     json_extract(frontmatter, '$.groupId') AS group_id,
@@ -65,11 +68,39 @@ SELECT
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
-WHERE uri LIKE '%.case.md';
+WHERE uri LIKE '%.case.md')
+SELECT 
+    tc.test_case_id,
+    tc.group_id,
+    tc.plan_id,
+    tc.title,
+    tc.title AS test_case_title,
+    tc.created_by,
+    strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
+    tc.test_type,
+    tc.created_at,
+    tc.tags,
+    tc.priority,
+    tc.front_matter,
+    tc.body,
+    g.name AS group_name,
+    g.suite_id,
+    g.description AS group_description,
+    g.created_by AS group_created_by,
+    g.created_at AS group_created_at,
+    g.tags AS group_tags,    
+    r.status as test_status
+FROM 
+    test_case_parsed tc 
+LEFT JOIN 
+    groups g ON g.id = tc.group_id
+LEFT JOIN 
+    test_case_run_results r on r.test_case_id=tc.test_case_id;
 
 
-DROP VIEW IF EXISTS test_case_run_profile;
-CREATE VIEW test_case_run_profile AS
+
+DROP VIEW IF EXISTS test_case_run_results;
+CREATE VIEW test_case_run_results AS
 SELECT 
     content,
     json_extract(content, '$.test_case_fii') AS test_case_id,
@@ -84,36 +115,9 @@ SELECT
 FROM uniform_resource
 WHERE uri LIKE '%.result.json';
 
-DROP VIEW IF EXISTS test_case_data;
-CREATE VIEW test_case_data AS
-SELECT 
-    g.id AS group_id,
-    g.name AS group_name,
-    g.suite_id,
-    g.description AS group_description,
-    g.created_by AS group_created_by,
-    g.created_at AS group_created_at,
-    g.tags AS group_tags,
-    tc.test_case_id AS test_case_id,
-    tc.title AS test_case_title,
-    tc.created_by AS test_case_created_by,
-    tc.created_at AS raw_test_case_created_at, -- Original date (optional)
-    strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
-    tc.tags AS test_case_tags,
-    tc.priority AS test_case_priority,
-    (SELECT status from test_case_run_profile where test_case_id=tc.test_case_id) as test_status
-FROM 
-    groups g
-JOIN 
-    test_cases tc
-ON 
-    g.id = tc.group_id;
 
-
-
-
-DROP VIEW IF EXISTS test_case_run_profile_details;
-CREATE VIEW test_case_run_profile_details AS
+DROP VIEW IF EXISTS test_execution_log;
+CREATE VIEW test_execution_log AS
 SELECT 
     json_extract(content, '$.test_case_fii') AS test_case_id,
     json_extract(value, '$.step') AS step_number,
@@ -125,87 +129,10 @@ FROM
     uniform_resource,
     json_each(json_extract(content, '$.steps')) -- Expands the steps array into rows
 WHERE 
-    uri LIKE '%.result.json';
+    uri LIKE '%.result.json';   
 
-
-DROP VIEW IF EXISTS test_case_data_body;
-CREATE VIEW test_case_data_body AS
- WITH parsed_data AS (
-    SELECT
-        -- Extract JSON attributes
-        json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
-        json_extract(content_fm_body_attrs, '$.body') AS body,
-        json_extract(content_fm_body_attrs, '$.attrs.FII') AS test_case_id,
-        json_extract(content_fm_body_attrs, '$.attrs.groupId') AS group_id,
-        json_extract(content_fm_body_attrs, '$.attrs.title') AS title,
-        json_extract(content_fm_body_attrs, '$.attrs.created_by') AS created_by,
-        json_extract(content_fm_body_attrs, '$.attrs.created_at') AS created_at,
-        json_extract(content_fm_body_attrs, '$.attrs.tags') AS tags,
-        json_extract(content_fm_body_attrs, '$.attrs.priority') AS priority
-    FROM uniform_resource 
-    WHERE uri LIKE '%.case.md'
-),
-parsed_body AS (
-    SELECT
-        *,
-        -- Extract the 'Description' section
-        TRIM(SUBSTR(
-            body,
-            INSTR(body, '### Description') + LENGTH('### Description'),
-            INSTR(body, '### Steps') - INSTR(body, '### Description') - LENGTH('### Description')
-        )) AS description,
-        -- Extract the 'Steps' section
-        TRIM(SUBSTR(
-            body,
-            INSTR(body, '### Steps') + LENGTH('### Steps'),
-            INSTR(body, '### Expected Outcome') - INSTR(body, '### Steps') - LENGTH('### Steps')
-        )) AS steps,
-        -- Extract the 'Expected Outcome' section
-        TRIM(SUBSTR(
-            body,
-            INSTR(body, '### Expected Outcome') + LENGTH('### Expected Outcome'),
-            INSTR(body, '### Expected Results') - INSTR(body, '### Expected Outcome') - LENGTH('### Expected Outcome')
-        )) AS expected_outcome,
-        -- Extract the 'Expected Results' section
-        TRIM(SUBSTR(
-            body,
-            INSTR(body, '### Expected Results') + LENGTH('### Expected Results'),
-            LENGTH(body) - INSTR(body, '### Expected Results') - LENGTH('### Expected Results')
-        )) AS expected_results
-    FROM parsed_data
-)
-SELECT
-    front_matter,
-    test_case_id,
-    group_id,
-    title,
-    created_by,
-    created_at,
-    tags,
-    priority,
-    description,
-    steps,
-    expected_outcome,
-    expected_results
-FROM parsed_body;
-   
-DROP VIEW IF EXISTS test_case_md_body;
-CREATE VIEW test_case_md_body AS
-SELECT
-    json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
-    json_extract(content_fm_body_attrs, '$.body') AS body,
-    json_extract(content_fm_body_attrs, '$.attrs.FII') AS test_case_id,
-    json_extract(content_fm_body_attrs, '$.attrs.groupId') AS group_id,
-    json_extract(content_fm_body_attrs, '$.attrs.title') AS title,
-    json_extract(content_fm_body_attrs, '$.attrs.created_by') AS created_by,
-    json_extract(content_fm_body_attrs, '$.attrs.created_at') AS created_at,
-    json_extract(content_fm_body_attrs, '$.attrs.tags') AS tags,
-    json_extract(content_fm_body_attrs, '$.attrs.priority') AS priority
-FROM uniform_resource
-WHERE uri LIKE '%.case.md';
-
-DROP VIEW IF EXISTS suite_group_test_case_count;
-CREATE VIEW suite_group_test_case_count AS
+DROP VIEW IF EXISTS test_cases_run_status;
+CREATE VIEW test_cases_run_status AS 
 SELECT 
     g.name AS group_name,
     g.suite_id,
@@ -213,11 +140,12 @@ SELECT
     g.created_by,   
     strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at,
     COUNT(tc.test_case_id) AS test_case_count,
-    COUNT(p.test_case_id) AS success_status_count
+    COUNT(p.test_case_id) AS success_status_count,
+    (COUNT(tc.test_case_id)-COUNT(p.test_case_id)) AS failed_status_count
 FROM groups g
 LEFT JOIN test_cases tc
     ON g.id = tc.group_id
-LEFT JOIN test_case_run_profile p on p.test_case_id=tc.test_case_id and status='passed'
+LEFT JOIN test_case_run_results p on p.test_case_id=tc.test_case_id and status='passed'
 GROUP BY g.name, g.id;
 
 DROP VIEW IF EXISTS test_plan;
@@ -263,7 +191,7 @@ st.created_by,
 st.created_at,
 sum(tc.test_case_count)
 FROM
-suite_group_test_case_count tc
+test_cases_run_status tc
 INNER JOIN test_suites st on st.id=tc.suite_id;
 -- test_cases_by_suite
 
@@ -291,7 +219,7 @@ SELECT
     sum(c.success_status_count) AS success_count,
     (sum(c.test_case_count) - sum(c.success_status_count)) AS failed_count
 FROM 
-    suite_group_test_case_count c
-INNER JOIN 
-    test_suites t ON t.id = c.suite_id
+    test_suites t 
+LEFT JOIN 
+    test_cases_run_status c ON t.id = c.suite_id
 GROUP BY suite_id;
