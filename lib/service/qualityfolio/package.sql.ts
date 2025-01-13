@@ -294,8 +294,10 @@ as html;
 select 
     'card' as component,
     2      as columns;
-select "chart1.sql?_sqlpage_embed" as embed;
-select "chart2.sql?_sqlpage_embed" as embed;
+select 
+    ${this.absoluteURL("/qltyfolio/chart1.sql?_sqlpage_embed")} as embed;
+select 
+    ${this.absoluteURL("/qltyfolio/chart2.sql?_sqlpage_embed")} as embed;
     
  SELECT 'title'AS component, 
      'Test Suite List' as contents; 
