@@ -1,19 +1,4 @@
 ------------------------------------------------------------------------------------------------------
-/*.load ./vsv
-
-create virtual table people using vsv(
-    data="11|Diane|London
-22|Grace|Berlin
-33|Alice|Paris",
-    schema="create table people(id integer, name text, city text)",
-    columns=3,
-    affinity=integer,
-    fsep='|'
-);*/
-
--- SELECT vsv('apple|orange|banana', '|') AS fruit;
-
-
 CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
     investigator_id TEXT,
     investigator_name TEXT,

@@ -48,7 +48,7 @@ export async function uvadclp1SQL(dbFilePath: string) {
     new class extends pkg.DRHSqlPages {
       async statelessDCLP1SQL() {
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./study-specific-stateless/dclp1-stateless.sql"),
+          import.meta.resolve("./study-specific-stateless/illinois-stateless.sql"),
         );
       }
     }(),
