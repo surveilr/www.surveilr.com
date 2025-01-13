@@ -2,7 +2,7 @@
 import { sqlPageNB as spn } from "./deps.ts";
 import * as pkg from "./drh-basepackage.sql.ts";
 import {
-  createUVACombinedCGMViewSQL,
+  createCommonCombinedCGMViewSQL,
 } from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 // Class to manage SQL page with dbFilePath as a constructor parameter
@@ -20,7 +20,7 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
     console.error(`The database path is  "${this.dbFilePath}"`);
 
     // Use the dbFilePath in the SQL function
-    const sqlStatements = createUVACombinedCGMViewSQL(this.dbFilePath);
+    const sqlStatements = createCommonCombinedCGMViewSQL(this.dbFilePath);
 
     // Return the SQL with the dynamic content
     return this.SQL`

@@ -1,8 +1,16 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
+import { createCommonCombinedCGMViewSQL } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class illinoisSqlPages extends spn.TypicalSqlPageNotebook {
+  commonViewDDL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const sqlStatements = createCommonCombinedCGMViewSQL(dbFilePath);
+    return this.SQL`
+          ${sqlStatements} 
+      `;
+  }
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics
@@ -35,7 +43,7 @@ export async function illinoisSQL() {
       }
     }(),
     ...(await pkg.drhNotebooks()),
-    // new illinoisSqlPages(),
+    new illinoisSqlPages(),
   );
 }
 
