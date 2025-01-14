@@ -1129,41 +1129,7 @@ SELECT
 FROM
     uniform_resource_participant;
 
-    -- Drop the view if it exists, then create the combined CGM tracing view
-DROP VIEW IF EXISTS combined_cgm_tracing;
-
-CREATE VIEW
-    combined_cgm_tracing AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as study_id,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as participant_id,
-    datetime(deviceTime_year || '-' || printf('%02d',deviceTime_month) || '-' || printf('%02d',deviceTime_day)) as Date_Time,
-    CAST(cbg_new as REAL) as CGM_Value     
-FROM
-    uniform_resource_cgm_tracing_00001;
-
+   
 -- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 
@@ -1175,42 +1141,42 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (        
-        'uniform_resource_cgm_tracing_00001'
-        
-    );
+    AND name IN ( 
+        select file_name from uniform_resource_cgm_file_metadata
+    ); 
 
 -- View to list the names of raw CGM tables
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-
-
-CREATE VIEW drh_raw_cgm_table_lst AS
+ DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
+CREATE VIEW
+    drh_raw_cgm_table_lst AS
 SELECT
     (
-        SELECT party_id
-        FROM party
-        LIMIT 1
+        SELECT
+            party_id
+        FROM
+            party
+        LIMIT
+            1
     ) AS tenant_id,
     (
-        SELECT study_id
-        FROM uniform_resource_study
-        LIMIT 1
+        SELECT
+            study_id
+        FROM
+            uniform_resource_study
+        LIMIT
+            1
     ) AS study_id,
     name,
     tbl_name AS table_name,
-    files.file_name||'.'||files.file_format as raw_cgm_file_name
+    files.file_name || '.' || files.file_format as raw_cgm_file_name
 FROM
     sqlite_master
-LEFT JOIN
-    drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
+    LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
 WHERE
-    type = 'table'
-    AND tbl_name IN (        
-        'uniform_resource_cgm_tracing_00001'
-    );
+    type = 'table' and  name LIKE 'uniform_resource_cgm_tracing%';
 
 
-
+ 
 -- View to count the total number of CGM raw files
 DROP VIEW IF EXISTS drh_number_cgm_count;
 
@@ -1222,9 +1188,7 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (        
-        'uniform_resource_cgm_tracing_00001'
-    );
+    AND name LIKE 'uniform_resource_cgm_tracing%';
 
 DROP VIEW IF EXISTS study_wise_csv_file_names;
 
@@ -1265,10 +1229,7 @@ FROM
     sqlite_master
 WHERE
     type = 'table'
-    AND name IN (        
-        'uniform_resource_cgm_tracing_00001'
-    );
-
+    AND name LIKE 'uniform_resource_cgm_tracing%';
 
 
 DROP VIEW IF EXISTS drh_device;
@@ -1741,7 +1702,7 @@ CREATE TABLE
 SELECT
     *
 FROM
-    drh_raw_cgm_table_lst;
+    drh_raw_cgm_table_lst; 
 
 DROP TABLE IF EXISTS study_cgm_file_count_cached;
 

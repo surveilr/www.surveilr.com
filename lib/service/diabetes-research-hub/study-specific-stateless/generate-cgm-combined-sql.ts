@@ -71,19 +71,14 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
     const mapFieldOfCGMDate = file_names_row?.map_field_of_cgm_date;
     const mapFieldOfCGMValue = file_names_row?.map_field_of_cgm_value;
 
-    const isValidDate = (dateStr: string): boolean => !isNaN(Date.parse(dateStr));
-
-    const checkDate = (dateStr: string): boolean => {
-        return isValidDate(dateStr);
-    };
-    
+     
     let cgmDate = '';
-    let isDate = checkDate(mapFieldOfCGMDate);
-    if (isDate) {
-      cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`;
-    } else {
+
+    if(mapFieldOfCGMDate.includes('-')) {
       let arrDates = mapFieldOfCGMDate.split("-");     
       cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${arrDates[1]}) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
+    } else {
+        cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
     }
 
     if (file_names) {
