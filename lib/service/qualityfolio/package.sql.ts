@@ -503,6 +503,14 @@ SELECT 'table' as component,
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/test-cases.sql"() {
+    const viewName = `test_cases`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE group_id=$id",
+
+    });
+    // check pagination
+
     return this.SQL`
     SELECT
     'breadcrumb' as component;
@@ -520,13 +528,7 @@ SELECT 'table' as component,
     SELECT group_name as title,
     ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
     FROM test_cases WHERE  group_id = $id group by group_name;
-    -- select
-    -- s."name" as title,
-    --   ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
-    --      FROM test_cases WHERE  group_id = $id group by group_name;
-    -- SELECT
-    -- group_name as title FROM test_cases
-    -- WHERE  group_id = $id group by group_name;
+    
     SELECT 'list'  AS component,
       group_name as title FROM test_cases
     WHERE  group_id = $id group by group_name;
@@ -554,6 +556,8 @@ SELECT 'table' as component,
   select 
     'Generate Report'           as title,
     'download-test-case.sql?group_id='||$id as link;
+
+   ${pagination.init()}
   
     SELECT 'table' as component,
       TRUE AS sort,
@@ -574,8 +578,11 @@ SELECT 'table' as component,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
       priority as "Priority"
-    FROM test_cases t
+    FROM ${viewName} t
     WHERE  group_id = $id
+    LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown('id')};
 
       `;
   }
@@ -1026,6 +1033,11 @@ WHERE rn.id = $id;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/test-cases-full-list.sql"() {
+    const viewName = `test_cases`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+
+    });
     return this.SQL`
     select
     'breadcrumb' as component;
@@ -1062,7 +1074,7 @@ WHERE rn.id = $id;
   select 
     'Generate Report'           as title,
     'download-full_list.sql' as link;
-  
+   ${pagination.init()}
     SELECT 'table' as component,
       TRUE AS sort,
         --TRUE AS search,
@@ -1083,8 +1095,10 @@ WHERE rn.id = $id;
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
       priority as "Priority"
-    FROM test_cases t
-    
+    FROM ${viewName} t
+     LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown()};
 
       `;
   }
