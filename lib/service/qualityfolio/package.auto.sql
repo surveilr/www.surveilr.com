@@ -1350,13 +1350,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT group_name as title,
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id=''|| suite_id as link
   FROM test_cases WHERE  group_id = $id group by group_name;
-  -- select
-  -- s."name" as title,
-  --   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id=''|| suite_id as link
-  --      FROM test_cases WHERE  group_id = $id group by group_name;
-  -- SELECT
-  -- group_name as title FROM test_cases
-  -- WHERE  group_id = $id group by group_name;
+  
   SELECT ''list''  AS component,
     group_name as title FROM test_cases
   WHERE  group_id = $id group by group_name;
@@ -1385,6 +1379,12 @@ select
   ''Generate Report''           as title,
   ''download-test-case.sql?group_id=''||$id as link;
 
+ SET total_rows = (SELECT COUNT(*) FROM test_cases WHERE group_id=$id);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
   SELECT ''table'' as component,
     TRUE AS sort,
       --TRUE AS search,
@@ -1404,7 +1404,14 @@ select
     formatted_test_case_created_at as "Created On",
     priority as "Priority"
   FROM test_cases t
-  WHERE  group_id = $id;
+  WHERE  group_id = $id
+  LIMIT $limit
+    OFFSET $offset;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&id='' || $id ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&id='' || $id ||  '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1959,7 +1966,11 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 select 
   ''Generate Report''           as title,
   ''download-full_list.sql'' as link;
-
+ SET total_rows = (SELECT COUNT(*) FROM test_cases );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' as component,
     TRUE AS sort,
       --TRUE AS search,
@@ -1979,7 +1990,14 @@ select
     created_by as "Created By",
     formatted_test_case_created_at as "Created On",
     priority as "Priority"
-  FROM test_cases t;
+  FROM test_cases t
+   LIMIT $limit
+    OFFSET $offset;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3523,6 +3541,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                   )
               )
           ) as menu_item,
-       ''Surveilr (1.5.12)  Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(),LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer;',
+       ''Surveilr ''|| (SELECT json_extract(session_agent, ''$.version'') AS version FROM ur_ingest_session LIMIT 1) || '' Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer;',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
