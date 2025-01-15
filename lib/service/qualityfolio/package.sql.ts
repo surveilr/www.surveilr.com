@@ -1107,6 +1107,12 @@ WHERE rn.id = $id;
 export async function SQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
+      async statefulqltyfolioSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateful.sql"),
+        );
+      }
       async statelessqltyfolioSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
