@@ -1,13 +1,4 @@
 import * as spn from "../notebook/sqlpage.ts";
-
-const command = new Deno.Command("surveilr", {
-  args: ["--version"],
-});
-const { stdout } = await command.output();
-const rawOutput = new TextDecoder().decode(stdout).toString().trim();
-const versionMatch = rawOutput.match(/^surveilr\s+([\d.]+)$/i);
-const surveilrVersion = `Surveilr (${versionMatch ? versionMatch[1] : ""})`;
-
 export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
   private title: string;
   private logoImage: string;
