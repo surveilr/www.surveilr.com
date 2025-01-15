@@ -2200,6 +2200,17 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.6.0'' as title, ''# `surveilr` v1.6.0 Release Notes
+
+---
+
+## 🚀 What''''s New
+
+### **1. SQLPage**
+- Updated SQLPage to the latest version, ensuring compatibility and access to the newest features and bug fixes.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.5.10'' as title, ''# `surveilr` v1.5.9 Release Notes
 
 ---
