@@ -60,8 +60,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       typeof value === "number"
         ? value
         : value
-        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-        : "NULL";
+          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+          : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
               'link', ${this.absoluteURL("")}||'${rootPath}',
@@ -99,12 +99,10 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
         return items;
       },
       footer: () =>
-        // TODO: add "open in IDE" feature like in other Shahid apps
-        literal(`${surveilrVersion}  Resource Surveillance Web UI (v`) +
-        ` || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
-          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
-        } || substr(sqlpage.path(),LENGTH(sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')) + 2 ) || ')' as footer`,
+        // Dynamic SQL query to fetch the version directly in the footer
+        `'Surveilr '|| (SELECT json_extract(session_agent, '$.version') AS version FROM ur_ingest_session LIMIT 1) || ' Resource Surveillance Web UI (v' || sqlpage.version() || ') ' || ` +
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        } || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')) + 2 ) || ')' as footer`,
     };
     const shell = this.defaultShell();
     const sqlSelectExpr = Object.entries(shell).flatMap(([k, v]) => {
