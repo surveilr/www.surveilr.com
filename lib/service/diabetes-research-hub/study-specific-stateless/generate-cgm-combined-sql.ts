@@ -15,6 +15,108 @@ function logError(db: Database, errorMessage: string): void {
 }
 
 // Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
+export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+
+  // Check if the required table exists
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the combined view.`,
+    );
+    db.close();
+    return "";
+  }
+
+  try {
+    // Execute the initial view
+    db.exec(`DROP VIEW IF EXISTS drh_participant_file_names;`);
+    db.exec(`
+      CREATE VIEW drh_participant_file_names AS
+      SELECT patient_id, GROUP_CONCAT(file_name, ', ') AS file_names,map_field_of_cgm_date,map_field_of_cgm_value
+      FROM uniform_resource_cgm_file_metadata
+      GROUP BY patient_id;
+    `);
+    //console.log("View 'drh_participant_file_names' created successfully.");
+  } catch (error) {
+    //console.error("Error creating view 'drh_participant_file_names':", error);
+    logError(db, error.message);
+    db.close();
+    return "";
+  }
+
+  const participantsStmt = db.prepare(
+    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
+  );
+  const participants = participantsStmt.all();
+
+  const sqlParts: string[] = [];
+  for (const { patient_id } of participants) {
+    const fileNamesStmt = db.prepare(
+      "SELECT file_names, map_field_of_cgm_date, map_field_of_cgm_value FROM drh_participant_file_names WHERE patient_id = ?;",
+    );
+    const file_names_row = fileNamesStmt.get(patient_id);
+
+    if (!file_names_row) {
+      //console.log(`No file names found for participant ${patient_id}.`);
+      continue;
+    }
+
+    const file_names = file_names_row.file_names;
+    const mapFieldOfCGMDate = file_names_row?.map_field_of_cgm_date;
+    const mapFieldOfCGMValue = file_names_row?.map_field_of_cgm_value;
+
+     
+    let cgmDate = '';
+
+    if(mapFieldOfCGMDate.includes('-')) {
+      let arrDates = mapFieldOfCGMDate.split("-");     
+      cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${arrDates[1]}) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
+    } else {
+        cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
+    }
+
+    if (file_names) {
+      const participantTableNames = file_names.split(", ").map((fileName) =>
+        `uniform_resource_${fileName}`
+      );
+      participantTableNames.forEach((tableName) => {
+        const arrTableName = tableName.split(".");
+        sqlParts.push(`
+          SELECT 
+             'IL0001' as tenant_id,
+            '${patient_id}' as participant_id, 
+            ${cgmDate}, 
+            CAST(${mapFieldOfCGMValue} as REAL) as CGM_Value 
+          FROM ${arrTableName[0]}
+        `);
+      });
+    }
+    fileNamesStmt.finalize();
+  }
+
+  let combinedViewSQL = "";
+  if (sqlParts.length > 0) {
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    combinedViewSQL =
+      `DROP VIEW IF EXISTS combined_cgm_tracing;
+      CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+  } else {
+    //console.log("No participant tables found, so the combined view will not be created.");
+  }
+
+  participantsStmt.finalize();
+  db.close();  
+
+  return combinedViewSQL; // Return the SQL string instead of executing it
+}
+
+// Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
 export function createUVACombinedCGMViewSQL(dbFilePath: string): string {
   const db = new Database(dbFilePath);
 
