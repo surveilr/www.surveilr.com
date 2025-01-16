@@ -1,3 +1,29 @@
+
+/*  create virtual table participant_vsv using vsv(
+    data="PAT1|SID1|SITE1|a|a|a|a|a|a|a|a|a|a
+PAT2|SID1|SITE1|a|a|a|a|a|a|a|a|a|a",
+    schema="CREATE TABLE participant_vsv (
+                  participant_id TEXT,
+                  study_id TEXT,
+                  site_id TEXT,
+                  diagnosis_icd TEXT,
+                  meds_rxnorm TEXT,
+                  treatment_modality TEXT,
+                  gender TEXT,
+                  race_ethnicity TEXT,
+                  age INTEGER,
+                  bmi REAL,
+                  baseline_hba1c REAL,
+                  diabetes_type TEXT,
+                  study_arm TEXT
+              )",
+    columns=13,
+    affinity=integer,
+    fsep='|'
+);
+
+create table participant_check as select * from participant_vsv;  */
+
 ------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
     investigator_id TEXT,
@@ -1117,7 +1143,7 @@ SELECT
     participant_id,  -- Concatenates study_id and DeidentID to form participant_id
     site_id,  -- Placeholder for site_id
     diagnosis_icd,  -- Placeholder for diagnosis ICD
-    meds_rxnorm,  -- Placeholder for medication RxNorm
+    med_rxnorm,  -- Placeholder for medication RxNorm
     treatment_modality,  -- Placeholder for treatment modality
     gender,  -- Maps Gender to 'M' or 'F'
     race_ethnicity,  -- Concatenates Race and Ethnicity for race_ethnicity
