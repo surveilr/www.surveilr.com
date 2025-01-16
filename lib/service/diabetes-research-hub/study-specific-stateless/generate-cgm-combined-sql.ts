@@ -39,6 +39,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
 
     let allConcatenatedValues = "";
     if (separator == ";" || separator == "|" || separator == ":") {
+      const columnCount = firstColumnNames[0].split(separator).length;
       const firstColumnName = firstColumnNames[0].split(separator).join(" TEXT,");
 
       for (const row of rows) {
@@ -51,7 +52,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
             schema="CREATE TABLE ${tableName}_vsv (
               ${firstColumnName} TEXT
               )",
-            columns=40,
+            columns=${columnCount},
             affinity=integer,
             fsep='${separator}'
         );
