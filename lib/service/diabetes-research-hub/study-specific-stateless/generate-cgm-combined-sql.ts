@@ -35,10 +35,10 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
   if (rows.length > 0) {
     const firstColumnNames = Object.keys(rows[0]);
-    const separator = firstColumnNames[0].includes(";") ? ";" : firstColumnNames[0].includes("|") ? "|" : ",";
+    const separator = firstColumnNames[0].includes(";") ? ";" : firstColumnNames[0].includes("|") ? "|" : firstColumnNames[0].includes(":") ? ":" : ",";
 
     let allConcatenatedValues = "";
-    if (separator == ";" || separator == "|") {
+    if (separator == ";" || separator == "|" || separator == ":") {
       const firstColumnName = firstColumnNames[0].split(separator).join(" TEXT,");
 
       for (const row of rows) {
