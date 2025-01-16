@@ -14,6 +14,94 @@ function logError(db: Database, errorMessage: string): void {
   db.prepare("INSERT INTO error_log (error_message) VALUES (?);").run(params);
 }
 
+export function createVsvSQL(dbFilePath: string, tableName: string): string {
+  const db = new Database(dbFilePath);
+
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the vsv table.`,
+    );
+    db.close();
+    return "";
+  }
+
+
+  let vsvSQL = ``;
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+  if (rows.length > 0) {
+    const firstColumnNames = Object.keys(rows[0]);
+    const separator = firstColumnNames[0].includes(";") ? ";" : firstColumnNames[0].includes("|") ? "|" : ",";
+
+    let allConcatenatedValues = "";
+    if (separator == ";" || separator == "|") {
+      const firstColumnName = firstColumnNames[0].split(separator).join(" TEXT,");
+
+      for (const row of rows) {
+        const concatenatedValues = Object.values(row).join(", ");
+        allConcatenatedValues += concatenatedValues + "\n";
+      }
+
+      vsvSQL = `create virtual table ${tableName}_vsv using vsv(
+            data="${allConcatenatedValues}",
+            schema="CREATE TABLE ${tableName}_vsv (
+              ${firstColumnName} TEXT
+              )",
+            columns=40,
+            affinity=integer,
+            fsep='${separator}'
+        );
+        drop table ${tableName};
+        create table ${tableName} as select * from ${tableName}_vsv;   
+            `;
+    }
+  }
+
+  db.close();
+  return vsvSQL;
+}
+
+export function checkAndConvertToVsp(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let vsvSQL = ``;
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the vsv table.`,
+    );
+
+    db.close();
+    return "";
+  }
+
+  const participantsStmt = db.prepare(
+    `SELECT DISTINCT file_name FROM ${tableName};`,
+  );
+  const fileNames = participantsStmt.all();
+  
+  for (const { file_name } of fileNames) {
+    const arrFileName = file_name.split(".");
+    const tableNameCgm = `uniform_resource_${arrFileName[0]}`;
+    const vsvSQLCgm = createVsvSQL(dbFilePath, tableNameCgm);
+    
+    if (vsvSQLCgm) {
+      vsvSQL += vsvSQLCgm;
+    }
+  }
+
+  db.close();
+  return vsvSQL;
+}
+
 // Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
 export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
   const db = new Database(dbFilePath);
@@ -71,14 +159,14 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
     const mapFieldOfCGMDate = file_names_row?.map_field_of_cgm_date;
     const mapFieldOfCGMValue = file_names_row?.map_field_of_cgm_value;
 
-     
+
     let cgmDate = '';
 
-    if(mapFieldOfCGMDate.includes('-')) {
-      let arrDates = mapFieldOfCGMDate.split("-");     
+    if (mapFieldOfCGMDate.includes('-')) {
+      let arrDates = mapFieldOfCGMDate.split("-");
       cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${arrDates[1]}) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
     } else {
-        cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
+      cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
     }
 
     if (file_names) {
@@ -111,7 +199,7 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
   }
 
   participantsStmt.finalize();
-  db.close();  
+  db.close();
 
   return combinedViewSQL; // Return the SQL string instead of executing it
 }
