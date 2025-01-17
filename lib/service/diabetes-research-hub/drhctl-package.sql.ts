@@ -2,7 +2,7 @@
 import { sqlPageNB as spn } from "./deps.ts";
 import * as pkg from "./drh-basepackage.sql.ts";
 import {
-checkAndConvertToVsp,
+  checkAndConvertToVsp,
   createCommonCombinedCGMViewSQL,
 } from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
@@ -17,9 +17,9 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   async statelessvsvSQL() {
-      console.error(`The database path is  "${this.dbFilePath}"`);       
-      const sqlStatements = checkAndConvertToVsp(this.dbFilePath);    
-      return await sqlStatements;    
+    console.error(`The database path is  "${this.dbFilePath}"`);
+    const sqlStatements = checkAndConvertToVsp(this.dbFilePath);
+    return await sqlStatements;
   }
 
   // Method to generate DDL view using the dbFilePath
@@ -55,7 +55,9 @@ export async function uvadclp1SQL(dbFilePath: string) {
     new class extends pkg.DRHSqlPages {
       async statelessDCLP1SQL() {
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./study-specific-stateless/illinois-stateless.sql"),
+          import.meta.resolve(
+            "./study-specific-stateless/illinois-stateless.sql",
+          ),
         );
       }
     }(),

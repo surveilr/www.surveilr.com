@@ -30,17 +30,24 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
     return "";
   }
 
-
   let vsvSQL = ``;
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
   if (rows.length > 0) {
     const firstColumnNames = Object.keys(rows[0]);
-    const separator = firstColumnNames[0].includes(";") ? ";" : firstColumnNames[0].includes("|") ? "|" : firstColumnNames[0].includes(":") ? ":" : ",";
+    const separator = firstColumnNames[0].includes(";")
+      ? ";"
+      : firstColumnNames[0].includes("|")
+      ? "|"
+      : firstColumnNames[0].includes(":")
+      ? ":"
+      : ",";
 
     let allConcatenatedValues = "";
     if (separator == ";" || separator == "|" || separator == ":") {
       const columnCount = firstColumnNames[0].split(separator).length;
-      const firstColumnName = firstColumnNames[0].split(separator).join(" TEXT,");
+      const firstColumnName = firstColumnNames[0].split(separator).join(
+        " TEXT,",
+      );
 
       for (const row of rows) {
         const concatenatedValues = Object.values(row).join(", ");
@@ -88,12 +95,12 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
     `SELECT DISTINCT file_name FROM ${tableName};`,
   );
   const fileNames = participantsStmt.all();
-  
+
   for (const { file_name } of fileNames) {
     const arrFileName = file_name.split(".");
     const tableNameCgm = `uniform_resource_${arrFileName[0]}`;
     const vsvSQLCgm = createVsvSQL(dbFilePath, tableNameCgm);
-    
+
     if (vsvSQLCgm) {
       vsvSQL += vsvSQLCgm;
     }
@@ -131,7 +138,8 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
       ELSE 0
   END AS map_field_of_cgm_date_exists;`);
   const cgm_date_row = cgmDateStmt.get();
-  const map_field_of_cgm_date_exists = cgm_date_row?.map_field_of_cgm_date_exists;
+  const map_field_of_cgm_date_exists = cgm_date_row
+    ?.map_field_of_cgm_date_exists;
 
   const cgmValueStmt = db.prepare(`SELECT CASE 
       WHEN EXISTS (
@@ -142,15 +150,17 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
       ELSE 0 
   END AS map_field_of_cgm_value_exists;`);
   const cgm_value_row = cgmValueStmt.get();
-  const map_field_of_cgm_value_exists = cgm_value_row?.map_field_of_cgm_value_exists;
+  const map_field_of_cgm_value_exists = cgm_value_row
+    ?.map_field_of_cgm_value_exists;
 
-  try {    
-
+  try {
     // Execute the initial view
     db.exec(`DROP VIEW IF EXISTS drh_participant_file_names;`);
     db.exec(`
       CREATE VIEW drh_participant_file_names AS
-      SELECT patient_id, GROUP_CONCAT(file_name, ', ') AS file_names ${map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""} ${map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""}  
+      SELECT patient_id, GROUP_CONCAT(file_name, ', ') AS file_names ${
+      map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+    } ${map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""}  
       FROM uniform_resource_cgm_file_metadata
       GROUP BY patient_id;
     `);
@@ -171,7 +181,11 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
   const sqlParts: string[] = [];
   for (const { patient_id } of participants) {
     const fileNamesStmt = db.prepare(
-      `SELECT file_names ${map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""} ${map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""}  FROM drh_participant_file_names WHERE patient_id = ?;`
+      `SELECT file_names ${
+        map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+      } ${
+        map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""
+      }  FROM drh_participant_file_names WHERE patient_id = ?;`,
     );
     const file_names_row = fileNamesStmt.get(patient_id);
 
@@ -181,17 +195,23 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
     }
 
     const file_names = file_names_row.file_names;
-    const mapFieldOfCGMDate = map_field_of_cgm_date_exists ? file_names_row?.map_field_of_cgm_date : "date_time";
-    const mapFieldOfCGMValue = map_field_of_cgm_value_exists ? file_names_row?.map_field_of_cgm_value : "cgm_value";
+    const mapFieldOfCGMDate = map_field_of_cgm_date_exists
+      ? file_names_row?.map_field_of_cgm_date
+      : "date_time";
+    const mapFieldOfCGMValue = map_field_of_cgm_value_exists
+      ? file_names_row?.map_field_of_cgm_value
+      : "cgm_value";
 
+    let cgmDate = "";
 
-    let cgmDate = '';
-
-    if (mapFieldOfCGMDate.includes('/')) {
+    if (mapFieldOfCGMDate.includes("/")) {
       let arrDates = mapFieldOfCGMDate.split("/");
-      cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${arrDates[1]}) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
+      cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${
+        arrDates[1]
+      }) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
     } else {
-      cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
+      cgmDate =
+        `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`;
     }
 
     if (file_names) {
@@ -216,8 +236,7 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
   let combinedViewSQL = "";
   if (sqlParts.length > 0) {
     const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
-    combinedViewSQL =
-      `DROP VIEW IF EXISTS combined_cgm_tracing;
+    combinedViewSQL = `DROP VIEW IF EXISTS combined_cgm_tracing;
       CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
   } else {
     //console.log("No participant tables found, so the combined view will not be created.");
