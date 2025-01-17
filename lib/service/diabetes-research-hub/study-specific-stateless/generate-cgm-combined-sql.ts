@@ -187,8 +187,8 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
 
     let cgmDate = '';
 
-    if (mapFieldOfCGMDate.includes('-')) {
-      let arrDates = mapFieldOfCGMDate.split("-");
+    if (mapFieldOfCGMDate.includes('/')) {
+      let arrDates = mapFieldOfCGMDate.split("/");
       cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${arrDates[1]}) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
     } else {
       cgmDate = `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`
