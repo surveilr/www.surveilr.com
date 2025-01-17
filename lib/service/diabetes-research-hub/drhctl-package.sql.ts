@@ -2,6 +2,7 @@
 import { sqlPageNB as spn } from "./deps.ts";
 import * as pkg from "./drh-basepackage.sql.ts";
 import {
+checkAndConvertToVsp,
   createCommonCombinedCGMViewSQL,
 } from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
@@ -13,6 +14,12 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
   constructor(dbFilePath: string) {
     super(); // Call the parent class constructor
     this.dbFilePath = dbFilePath; // Store dbFilePath as a class member
+  }
+
+  async statelessvsvSQL() {
+      console.error(`The database path is  "${this.dbFilePath}"`);       
+      const sqlStatements = checkAndConvertToVsp(this.dbFilePath);    
+      return await sqlStatements;    
   }
 
   // Method to generate DDL view using the dbFilePath
