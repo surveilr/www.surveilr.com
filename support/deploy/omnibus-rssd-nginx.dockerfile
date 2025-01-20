@@ -22,9 +22,9 @@ RUN curl -fsSL https://deno.land/x/install/install.sh | sh && \
 
 # Install surveilr using the provided script
 WORKDIR /usr/local/bin
-RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
-#RUN wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/1.5.10/resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
-#RUN tar -xvf resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
+#RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+RUN wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/1.5.10/resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
+RUN tar -xvf resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
 
 
 # Install SQLite package registry
