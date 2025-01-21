@@ -59,3 +59,4 @@ export async function illinoisSQL() {
 if (import.meta.main) {
   console.log((await illinoisSQL()).join("\n"));
 }
+
