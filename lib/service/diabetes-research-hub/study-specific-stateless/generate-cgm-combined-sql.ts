@@ -43,11 +43,8 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
       : ",";
 
     let allConcatenatedValues = "";
-    if (separator == ";" || separator == "|" || separator == ":") {
-      const columnCount = firstColumnNames[0].split(separator).length;
-      const firstColumnName = firstColumnNames[0].split(separator).join(
-        " ANY,",
-      );
+    if (separator == ";" || separator == "|" || separator == ":") {      
+      const firstColumnName = firstColumnNames[0];
 
       for (const row of rows) {
         const concatenatedValues = Object.values(row).join(", ");
@@ -55,11 +52,8 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
       }
 
       vsvSQL = `create virtual table ${tableName}_vsv using vsv(
-            data="${allConcatenatedValues}",
-            schema="CREATE TABLE ${tableName}_vsv (
-              ${firstColumnName} ANY
-              )",
-            columns=${columnCount},
+            data="${firstColumnName}\n${allConcatenatedValues}",            
+            header=yes,
             affinity=integer,
             fsep='${separator}'
         );
@@ -105,7 +99,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
       vsvSQL += vsvSQLCgm;
     }
   }
-
+  
   db.close();
   return vsvSQL;
 }
