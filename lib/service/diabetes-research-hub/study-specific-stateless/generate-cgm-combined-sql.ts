@@ -98,7 +98,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
 
   for (const { file_name } of fileNames) {
     const arrFileName = file_name.split(".");
-    const tableNameCgm = `uniform_resource_${arrFileName[0]}`;
+    const tableNameCgm = `uniform_resource_${arrFileName[0].toLowerCase()}`;
     const vsvSQLCgm = createVsvSQL(dbFilePath, tableNameCgm);
 
     if (vsvSQLCgm) {

@@ -17,7 +17,7 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   async statelessvsvSQL() {
-    console.error(`The database path is  "${this.dbFilePath}"`);
+    // console.error(`The database path is  "${this.dbFilePath}"`);
     const sqlStatements = checkAndConvertToVsp(this.dbFilePath);
     return await sqlStatements;
   }
