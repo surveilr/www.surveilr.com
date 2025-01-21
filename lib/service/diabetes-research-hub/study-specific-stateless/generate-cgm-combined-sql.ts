@@ -46,7 +46,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
     if (separator == ";" || separator == "|" || separator == ":") {
       const columnCount = firstColumnNames[0].split(separator).length;
       const firstColumnName = firstColumnNames[0].split(separator).join(
-        " TEXT,",
+        " ANY,",
       );
 
       for (const row of rows) {
@@ -57,7 +57,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
       vsvSQL = `create virtual table ${tableName}_vsv using vsv(
             data="${allConcatenatedValues}",
             schema="CREATE TABLE ${tableName}_vsv (
-              ${firstColumnName} TEXT
+              ${firstColumnName} ANY
               )",
             columns=${columnCount},
             affinity=integer,
