@@ -11,8 +11,8 @@ import * as spn from "./notebook/sqlpage.ts";
 export async function SQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new sh.ShellSqlPages(),
-    new ur.UniformResourceSqlPages(),
     new c.ConsoleSqlPages(),
+    new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
     new docs.DocsSqlPages(),
   );
