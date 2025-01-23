@@ -5,7 +5,9 @@ import {
   orchestration as orch,
   shell as sh,
   uniformResource as ur,
+  docs as d
 } from "../../std/web-ui-content/mod.ts";
+//import * as sh from "./custom_shell.ts";
 
 const WEB_UI_TITLE = "Qualityfolio";
 const WE_UI_LOGO = "qf-logo.png";
@@ -40,8 +42,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
+      this.constructHomePath("qltyfolio")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -84,8 +87,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
-      }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${
+      this.absoluteURL("/qltyfolio/suite-data.sql")
+    }||'?id='||suite_id||')' as id,
       
       suite_name,
       created_by as "Created By",
@@ -160,11 +164,13 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${this.absoluteURL("/qltyfolio/plan-overview.sql")
-      }||'?id='||id||')' as id,      
+      '['||id||']('||${
+      this.absoluteURL("/qltyfolio/plan-overview.sql")
+    }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${this.absoluteURL("/qltyfolio/test-cases-list.sql")
-      }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${
+      this.absoluteURL("/qltyfolio/test-cases-list.sql")
+    }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -173,10 +179,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.navigationPrimeTopLevel({
     caption: "Test Management System",
     description: "Test management system",
+
   })
   "qltyfolio/index.sql"() {
     return this.SQL`
-
+    
     SELECT 'text' as component,
     'The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.' as contents;
     select 
@@ -220,7 +227,7 @@ select
     '12' as width,
      'red' as color,
     'brand-speedtest'       as icon,
-     ${this.absoluteURL('/qltyfolio/test-cases-full-list.sql')} as link
+     ${this.absoluteURL("/qltyfolio/test-cases-full-list.sql")} as link
     
     FROM test_cases ;
 
@@ -230,7 +237,7 @@ select
     '## '||count(id) as description_md,
     '12' as width,
     'sum'       as icon,
-    ${this.absoluteURL('/qltyfolio/test-suites.sql')} as link
+    ${this.absoluteURL("/qltyfolio/test-suites.sql")} as link
     FROM test_suites ; 
 
   select
@@ -242,7 +249,7 @@ select
      'pink' as color,
     'timeline-event'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL('/qltyfolio/test-plan.sql')} as link
+    ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link
     FROM test_plan ; 
 
     select
@@ -487,11 +494,13 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-      }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${
+      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+    }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-      }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${
+      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+    }|| group_id || ')' AS 'Test Cases',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -507,7 +516,6 @@ SELECT 'table' as component,
     const pagination = this.pagination({
       tableOrViewName: viewName,
       whereSQL: "WHERE group_id=$id",
-
     });
     // check pagination
 
@@ -538,10 +546,10 @@ SELECT 'table' as component,
 
    SELECT 'html' as component,
     '<style>
-        tr.rowClass-passed td.test_status {
+        tr.rowClass-passed td.test_statusalign-middle {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.test_status {
+         tr.rowClass-failed td.test_statusalign-middle {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -561,7 +569,7 @@ SELECT 'table' as component,
   
     SELECT 'table' as component,
       TRUE AS sort,
-        --TRUE AS search,
+        TRUE AS search,
           'URL' AS align_left,
             'title' AS align_left,
               'group' as markdown,
@@ -569,8 +577,9 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+    }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_status,
@@ -582,7 +591,7 @@ SELECT 'table' as component,
     WHERE  group_id = $id
     LIMIT $limit
       OFFSET $offset;
-      ${pagination.renderSimpleMarkdown('id')};
+      ${pagination.renderSimpleMarkdown("id")};
 
       `;
   }
@@ -627,8 +636,6 @@ SELECT 'table' as component,
 
     `;
   }
-
-
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/suite-group.sql"() {
@@ -689,8 +696,9 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+    }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -808,22 +816,32 @@ WHERE bd.test_case_id = $id;
       TRUE AS center
      FROM test_case_run_results where test_case_id = $id group by group_id;
 
-    --Tab 1: Test Suite list
+    --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-      }|| $id || '#actual-result-content'  AS link,
+      ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+    }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
-    --Tab 2: Test case list
+    --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
-      }|| $id || '#test-run-content'  AS link,
+      ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
+    }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
+
+--Tab 3: Bug Report
+    SELECT
+    'Bug Report' AS title,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
+      }|| $id || '#bug-report-content'  AS link,
+      $tab = 'bug-report' AS active
+         FROM bug_report  where test_case_id = $id group by test_case_id;
 
 
 
@@ -838,6 +856,7 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'actual-result' THEN 'table'
         WHEN $tab = 'test-run' THEN 'list'
+         WHEN $tab = 'bug-report' THEN 'list'
       END AS component,
       'Column Count' as align_right,
       TRUE as sort,
@@ -876,8 +895,28 @@ WHERE bd.test_case_id = $id;
         WHEN $tab = 'test-run' THEN 'html'
     END AS component,
       '<div id="test-run-content"></div>' as html;
-    --select 'code' AS component;
-    --select content as contents FROM test_case_run_profile where $tab = 'test-run' and  test_case_id = $id;
+   
+
+    --Tab - specific content for "bug-report"
+    SELECT
+    '\n **id**  :  ' || b.id AS description_md,
+    '\n **Title**  :  ' || b.title AS description_md,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b 
+    WHERE $tab = 'bug-report' and b.test_case_id = $id;
+
+    SELECT
+    CASE
+        WHEN $tab = 'bug-report' THEN 'html'
+    END AS component,
+      '<div id="bug-report-content"></div>' as html
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed';
 
 
     `;
@@ -1008,8 +1047,9 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-      }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+    }|| t.test_case_id || ')' as id,
       t.title,
        case when p.status is not null then p.status
         else 'TODO' END AS "test_status",
@@ -1025,7 +1065,7 @@ WHERE rn.id = $id;
       `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include", })
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "qltyfolio/jsonviewer.sql"() {
     return this.SQL`
    select "dynamic" as component,sqlpage.run_sql('qltyfolio/progress-bar.sql') as properties;
@@ -1036,7 +1076,6 @@ WHERE rn.id = $id;
     const viewName = `test_cases`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
-
     });
     return this.SQL`
     select
@@ -1053,13 +1092,13 @@ WHERE rn.id = $id;
 
    SELECT 'html' as component,
     '<style>
-       tr td.Status {
+       tr td.Statusalign-middle {
             color: blue !important; /* Default to blue */
         }
-        tr.rowClass-passed td.Status {
+        tr.rowClass-passed td.Statusalign-middle {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.Status {
+         tr.rowClass-failed td.Statusalign-middle {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -1077,7 +1116,7 @@ WHERE rn.id = $id;
    ${pagination.init()}
     SELECT 'table' as component,
       TRUE AS sort,
-        --TRUE AS search,
+        TRUE AS search,
           'URL' AS align_left,
             'title' AS align_left,
               'group' as markdown,
@@ -1085,8 +1124,9 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${
+      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+    }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
@@ -1102,11 +1142,177 @@ WHERE rn.id = $id;
 
       `;
   }
+  @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include", pageTitleFromNavStmts: "no" })
+  "sqlpage/templates/shell-custom.handlebars"() {
+    return this.SQL`<!DOCTYPE html>
+<html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
+<head>
+    <meta charset="utf-8" />
+    <title>{{default title "SQLPage"}}</title>
+    <link rel="icon" href="{{#if favicon}}{{favicon}}{{else}}{{static_path 'favicon.svg'}}{{/if}}">
+    {{#if manifest}}
+        <link rel="manifest" href="{{manifest}}">
+    {{/if}}
+    <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
+    {{#each (to_array css)}}
+        {{#if this}}
+            <link rel="stylesheet" href="{{this}}">
+        {{/if}}
+    {{/each}}
+
+    {{#if font}}
+        {{#if (starts_with font "/")}}
+            <style>
+                @font-face {
+                    font-family: 'LocalFont';
+                    src: url('{{font}}') format('woff2');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                :root {
+                    --tblr-font-sans-serif: 'LocalFont', Arial, sans-serif;
+                }
+            </style>
+        {{else}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+        <style>
+            :root {
+                --tblr-font-sans-serif: '{{font}}',
+                Arial,
+                sans-serif;
+            }
+        </style>
+        {{/if}}
+    {{/if}}
+
+    <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
+    {{#each (to_array javascript)}}
+        {{#if this}}
+            <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+    {{#each (to_array javascript_module)}}
+        {{#if this}}
+            <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {{#if title}}
+        <meta property="og:title" content="{{title}}" />
+    {{/if}}
+    {{#if description}}
+        <meta name="description" content="{{description}}" />
+        <meta property="og:description" content="{{description}}" />
+    {{/if}}
+    {{#if preview_image}}
+        <meta property="og:image" content="{{preview_image}}" />
+        <meta name="twitter:image" content="{{preview_image}}" />
+    {{/if}}
+
+    {{#if norobot}}
+        <meta name="robots" content="noindex,nofollow">
+    {{/if}}
+
+    {{#if refresh}}
+        <meta http-equiv="refresh" content="{{refresh}}">
+    {{/if}}
+    {{#if rss}}
+        <link rel="alternate" type="application/rss+xml" title="{{title}}" href="{{rss}}">
+    {{/if}}
+    <meta name="generator" content="SQLPage" />
+    {{#if social_image}}
+        <meta property="og:image" content="{{social_image}}" />
+    {{/if}}
+</head>
+
+{{!-- Partial for menu_items to not duplicate logic --}}
+{{#*inline "menu-items"}}
+   
+    {{#if search_target}}
+        <form class="d-flex" role="search" action="{{search_target}}">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" value="{{search_value}}">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    {{/if}}
+{{/inline}}
+
+<body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
+    <div class="page">
+        {{#if (or (or title (or icon image)) (or menu_item search_target))}}
+        <header id="sqlpage_header">
+        {{#if sidebar}}
+        <aside class="navbar navbar-vertical navbar-expand-lg" {{#if sidebar_theme}}data-bs-theme="{{sidebar_theme}}" {{/if}}>
+            <div class="container-fluid">
+                <button class="navbar-toggler collapsed" type="button" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" data-bs-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <span class="navbar-brand navbar-brand-autodark d-inline ps-2 text-truncate">
+                    <a class="text-decoration-none text-body" href="{{#if link}}{{link}}{{else}}/{{/if}}">
+                        {{#if image}}
+                            <img src="{{image}}" alt="{{title}}" height="32" class="navbar-brand-image">
+                        {{/if}}
+                        {{#if icon}}
+                            {{~icon_img icon~}}
+                        {{/if}}
+                        <span class="pe-2 pe-lg-0 align-middle">{{title}}</span>
+                    </a>
+                </span>
+                <div class="navbar-collapse collapse" id="sidebar-menu">
+                    {{> menu-items menu_item=menu_item}}
+                </div>
+            </div>
+        </aside>
+        {{else}}
+        <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
+            <div class="container-fluid gap-2 justify-content-start" style="min-width:0">
+                <a class="navbar-brand" href="{{#if link}}{{link}}{{else}}/{{/if}}">
+                    {{#if image}}
+                        <img src="{{image}}" alt="{{title}}" width="32" height="32" class="navbar-brand-image">
+                    {{/if}}
+                    {{#if icon}}
+                        {{~icon_img icon~}}
+                    {{/if}}
+                </a>
+                <span class="mb-0 fs-2 text-truncate flex-grow-1" style="flex-basis:0">
+                    <a class="text-decoration-none text-body" href="{{#if link}}{{link}}{{else}}/{{/if}}">{{default navbar_title title}}</a>
+                </span>
+                {{#if (or menu_item search_target)}}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse flex-grow-0" id="navbar-menu">
+                    {{> menu-items menu_item=menu_item}}
+                </div>
+                {{/if}}
+            </div>
+        </nav>
+        </header>
+    {{/if}}
+{{/if}}
+        <div class="page-wrapper">
+            <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout 'boxed')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+                {{~#each_row~}}{{~/each_row~}}
+            </main>
+
+        </div>
+    </div>
+</body>
+</html>`;
+  }
 }
 
 export async function SQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new class extends spn.TypicalSqlPageNotebook {
+      async statefulqltyfolioSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateful.sql"),
+        );
+      }
       async statelessqltyfolioSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
@@ -1115,10 +1321,13 @@ export async function SQL() {
       }
     }(),
     new QualityfolioSqlPages(),
+    new c.ConsoleSqlPages(),
+    new d.DocsSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
-    new c.ConsoleSqlPages(),
+
     new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON),
+    // new sh.ShellSqlPages(),
   );
 }
 
