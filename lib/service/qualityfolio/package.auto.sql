@@ -1505,10 +1505,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT ''html'' as component,
   ''<style>
-      tr.rowClass-passed td.test_statusalign-middle {
+      tr.rowClass-passed td.test_status {
           color: green !important; /* Default to red */
       }
-       tr.rowClass-failed td.test_statusalign-middle {
+       tr.rowClass-failed td.test_status {
           color: red !important; /* Default to red */
       }
       .btn-list {
@@ -1809,7 +1809,10 @@ WHERE bd.test_case_id = $id;
         .btn-list {
         display: flex;
         justify-content: flex-end;
-    }
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
     </style>
     
     '' as html FROM test_case_run_results where test_case_id = $id group by group_id;
@@ -1856,7 +1859,7 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''actual-result'' THEN ''table''
         WHEN $tab = ''test-run'' THEN ''list''
-         WHEN $tab = ''bug-report'' THEN ''list''
+         WHEN $tab = ''bug-report'' THEN ''foldable''
       END AS component,
       ''Column Count'' as align_right,
       TRUE as sort,
@@ -1879,14 +1882,16 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''actual-result'' THEN ''html''
     END AS component,
-      ''<div id="actual-result-content"></div>'' as html;
+      ''<div id="actual-result-content"></div>'' as html
+       FROM test_execution_log
+          WHERE $tab = ''actual-result'' and  test_case_id = $id;
 
 
 
     --Tab - specific content for "test-run"
     SELECT
     ''
- **Run Date**  :  '' || run_date AS description_md,
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'',run_date) AS description_md,
       ''
  **Environment**  :  '' || environment AS description_md,
         ''
@@ -1897,11 +1902,12 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''test-run'' THEN ''html''
     END AS component,
-      ''<div id="test-run-content"></div>'' as html;
+      ''<div id="test-run-content"></div>'' as html
+      FROM  test_run WHERE $tab = ''test-run'' and test_case_id = $id;
    
 
     --Tab - specific content for "bug-report"
-    SELECT
+    /*SELECT
     ''
  **id**  :  '' || b.id AS description_md,
     ''
@@ -1921,6 +1927,39 @@ WHERE bd.test_case_id = $id;
     ''
 '' || b.body AS description_md
     FROM  bug_report b 
+    WHERE $tab = ''bug-report'' and b.test_case_id = $id;*/
+
+    -- SELECT
+    -- b.id AS "Id",
+    -- b.title AS "Title",
+    -- b.created_by AS "Created By",
+    -- strftime(''%d-%m-%Y'', b.created_at) AS "Run Date",
+    -- b.type AS "Type",
+    -- b.priority AS "Priority",
+    -- b.assigned AS "Assigned To",
+    -- b.status AS "Status"    
+    -- FROM  bug_report b
+    -- WHERE $tab = ''bug-report'' and b.test_case_id = $id
+    -- order by b.created_at desc ;
+    
+     SELECT
+     b.id||'' - ''||b.title as title,
+     ''head-title'' as class,
+    ''
+ **Created By**  :  '' || b.created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+    ''
+ **Type**  :  '' || b.type AS description_md,
+    ''
+ **Priority**  :  '' || b.priority AS description_md,
+    ''
+ **Assigned**  :  '' || b.assigned AS description_md,
+    ''
+ **Status**  :  '' || b.status AS description_md,
+    ''
+'' || b.body AS description_md
+    FROM  bug_report b
     WHERE $tab = ''bug-report'' and b.test_case_id = $id;
 
     SELECT
@@ -1928,7 +1967,7 @@ WHERE bd.test_case_id = $id;
         WHEN $tab = ''bug-report'' THEN ''html''
     END AS component,
       ''<div id="bug-report-content"></div>'' as html
-    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'';
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'' and $tab = ''bug-report'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2127,13 +2166,13 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT ''html'' as component,
   ''<style>
-     tr td.Statusalign-middle {
+     tr td.Status {
           color: blue !important; /* Default to blue */
       }
-      tr.rowClass-passed td.Statusalign-middle {
+      tr.rowClass-passed td.Status {
           color: green !important; /* Default to red */
       }
-       tr.rowClass-failed td.Statusalign-middle {
+       tr.rowClass-failed td.Status {
           color: red !important; /* Default to red */
       }
       .btn-list {
