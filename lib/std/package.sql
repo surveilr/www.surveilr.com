@@ -5,224 +5,6 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
   "contents" TEXT NOT NULL,
   "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
--- delete all /fhir-related entries and recreate them in case routes are changed
-DELETE FROM sqlpage_aide_navigation WHERE path like 'ur%';
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
-VALUES
-    ('prime', 'index.sql', 1, 'ur/index.sql', 'ur/index.sql', 'Uniform Resource', NULL, NULL, 'Explore ingested resources', NULL),
-    ('prime', 'ur/index.sql', 99, 'ur/info-schema.sql', 'ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects', NULL),
-    ('prime', 'ur/index.sql', 1, 'ur/uniform-resource-files.sql', 'ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table', NULL),
-    ('prime', 'ur/index.sql', 1, 'ur/uniform-resource-imap-account.sql', 'ur/uniform-resource-imap-account.sql', 'Uniform Resources (IMAP)', NULL, NULL, 'Easily access and view your emails with our Uniform Resource (IMAP) system. Ingested from various mail sources, this feature organizes and displays your messages directly in the Web UI, ensuring all your communications are available in one convenient place.', NULL)
-ON CONFLICT (namespace, parent_path, path)
-DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
-DROP VIEW IF EXISTS uniform_resource_file;
-CREATE VIEW uniform_resource_file AS
-  SELECT ur.uniform_resource_id,
-         ur.nature,
-         p.root_path AS source_path,
-         pe.file_path_rel,
-         ur.size_bytes
-  FROM uniform_resource ur
-  LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id AND ure.nature = 'ingest_fs_path'
-  LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
-  LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
-
-  DROP VIEW IF EXISTS uniform_resource_imap;
-  CREATE VIEW uniform_resource_imap AS
-  SELECT
-      ur.uniform_resource_id,
-      graph.name,
-      iac.ur_ingest_session_imap_account_id,
-      iac.email,
-      iac.host,
-      iacm.subject,
-      iacm."from",
-      iacm.message,
-      iacm.date,
-      iaf.ur_ingest_session_imap_acct_folder_id,
-      iaf.ingest_account_id,
-      iaf.folder_name,
-      ur.size_bytes,
-      ur.nature,
-      ur.content
-  FROM uniform_resource ur
-  INNER JOIN uniform_resource_edge edge ON edge.uniform_resource_id=ur.uniform_resource_id
-  INNER JOIN uniform_resource_graph graph ON graph.name=edge.graph_name
-  INNER JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = edge.node_id
-  INNER JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
-  LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
-  WHERE ur.nature = 'text' AND graph.name='imap' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
-
-  DROP VIEW IF EXISTS uniform_resource_imap_content;
-  CREATE  VIEW uniform_resource_imap_content AS
-  SELECT
-      uri.uniform_resource_id,
-      base_ur.uniform_resource_id baseID,
-      ext_ur.uniform_resource_id extID,
-      base_ur.uri as base_uri,
-      ext_ur.uri as ext_uri,
-      base_ur.nature as base_nature,
-      ext_ur.nature as ext_nature,
-      json_extract(part.value, '$.body.Html') AS html_content
-  FROM
-      uniform_resource_imap uri
-  INNER JOIN uniform_resource base_ur ON base_ur.uniform_resource_id=uri.uniform_resource_id
-  INNER JOIN uniform_resource ext_ur ON ext_ur.uri = base_ur.uri ||'/json' AND ext_ur.nature = 'json',
-  json_each(ext_ur.content, '$.parts') AS part
-  WHERE ext_ur.nature = 'json' AND html_content NOT NULL;
-DROP VIEW IF EXISTS "ur_ingest_session_files_stats";
-CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats" AS
-    WITH Summary AS (
-        SELECT
-            device.device_id AS device_id,
-            ur_ingest_session.ur_ingest_session_id AS ingest_session_id,
-            ur_ingest_session.ingest_started_at AS ingest_session_started_at,
-            ur_ingest_session.ingest_finished_at AS ingest_session_finished_at,
-            COALESCE(ur_ingest_session_fs_path_entry.file_extn, '') AS file_extension,
-            ur_ingest_session_fs_path.ur_ingest_session_fs_path_id as ingest_session_fs_path_id,
-            ur_ingest_session_fs_path.root_path AS ingest_session_root_fs_path,
-            COUNT(ur_ingest_session_fs_path_entry.uniform_resource_id) AS total_file_count,
-            SUM(CASE WHEN uniform_resource.content IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_content,
-            SUM(CASE WHEN uniform_resource.frontmatter IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_frontmatter,
-            MIN(uniform_resource.size_bytes) AS min_file_size_bytes,
-            AVG(uniform_resource.size_bytes) AS average_file_size_bytes,
-            MAX(uniform_resource.size_bytes) AS max_file_size_bytes,
-            MIN(uniform_resource.last_modified_at) AS oldest_file_last_modified_datetime,
-            MAX(uniform_resource.last_modified_at) AS youngest_file_last_modified_datetime
-        FROM
-            ur_ingest_session
-        JOIN
-            device ON ur_ingest_session.device_id = device.device_id
-        LEFT JOIN
-            ur_ingest_session_fs_path ON ur_ingest_session.ur_ingest_session_id = ur_ingest_session_fs_path.ingest_session_id
-        LEFT JOIN
-            ur_ingest_session_fs_path_entry ON ur_ingest_session_fs_path.ur_ingest_session_fs_path_id = ur_ingest_session_fs_path_entry.ingest_fs_path_id
-        LEFT JOIN
-            uniform_resource ON ur_ingest_session_fs_path_entry.uniform_resource_id = uniform_resource.uniform_resource_id
-        GROUP BY
-            device.device_id,
-            ur_ingest_session.ur_ingest_session_id,
-            ur_ingest_session.ingest_started_at,
-            ur_ingest_session.ingest_finished_at,
-            ur_ingest_session_fs_path_entry.file_extn,
-            ur_ingest_session_fs_path.root_path
-    )
-    SELECT
-        device_id,
-        ingest_session_id,
-        ingest_session_started_at,
-        ingest_session_finished_at,
-        file_extension,
-        ingest_session_fs_path_id,
-        ingest_session_root_fs_path,
-        total_file_count,
-        file_count_with_content,
-        file_count_with_frontmatter,
-        min_file_size_bytes,
-        CAST(ROUND(average_file_size_bytes) AS INTEGER) AS average_file_size_bytes,
-        max_file_size_bytes,
-        oldest_file_last_modified_datetime,
-        youngest_file_last_modified_datetime
-    FROM
-        Summary
-    ORDER BY
-        device_id,
-        ingest_session_finished_at,
-        file_extension;
-DROP VIEW IF EXISTS "ur_ingest_session_files_stats_latest";
-CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats_latest" AS
-    SELECT iss.*
-      FROM ur_ingest_session_files_stats AS iss
-      JOIN (  SELECT ur_ingest_session.ur_ingest_session_id AS latest_session_id
-                FROM ur_ingest_session
-            ORDER BY ur_ingest_session.ingest_finished_at DESC
-               LIMIT 1) AS latest
-        ON iss.ingest_session_id = latest.latest_session_id;
-DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats";
-CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats" AS
-      WITH Summary AS (
-          SELECT
-            device.device_id AS device_id,
-            ur_ingest_session.ur_ingest_session_id AS ingest_session_id,
-            ur_ingest_session.ingest_started_at AS ingest_session_started_at,
-            ur_ingest_session.ingest_finished_at AS ingest_session_finished_at,
-            COALESCE(ur_ingest_session_task.ur_status, 'Ok') AS ur_status,
-            COALESCE(uniform_resource.nature, 'UNKNOWN') AS nature,
-            COUNT(ur_ingest_session_task.uniform_resource_id) AS total_file_count,
-            SUM(CASE WHEN uniform_resource.content IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_content,
-            SUM(CASE WHEN uniform_resource.frontmatter IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_frontmatter,
-            MIN(uniform_resource.size_bytes) AS min_file_size_bytes,
-            AVG(uniform_resource.size_bytes) AS average_file_size_bytes,
-            MAX(uniform_resource.size_bytes) AS max_file_size_bytes,
-            MIN(uniform_resource.last_modified_at) AS oldest_file_last_modified_datetime,
-            MAX(uniform_resource.last_modified_at) AS youngest_file_last_modified_datetime
-        FROM
-            ur_ingest_session
-        JOIN
-            device ON ur_ingest_session.device_id = device.device_id
-        LEFT JOIN
-            ur_ingest_session_task ON ur_ingest_session.ur_ingest_session_id = ur_ingest_session_task.ingest_session_id
-        LEFT JOIN
-            uniform_resource ON ur_ingest_session_task.uniform_resource_id = uniform_resource.uniform_resource_id
-        GROUP BY
-            device.device_id,
-            ur_ingest_session.ur_ingest_session_id,
-            ur_ingest_session.ingest_started_at,
-            ur_ingest_session.ingest_finished_at,
-            ur_ingest_session_task.captured_executable
-    )
-    SELECT
-        device_id,
-        ingest_session_id,
-        ingest_session_started_at,
-        ingest_session_finished_at,
-        ur_status,
-        nature,
-        total_file_count,
-        file_count_with_content,
-        file_count_with_frontmatter,
-        min_file_size_bytes,
-        CAST(ROUND(average_file_size_bytes) AS INTEGER) AS average_file_size_bytes,
-        max_file_size_bytes,
-        oldest_file_last_modified_datetime,
-        youngest_file_last_modified_datetime
-    FROM
-        Summary
-    ORDER BY
-        device_id,
-        ingest_session_finished_at,
-        ur_status;
-DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats_latest";
-CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats_latest" AS
-    SELECT iss.*
-      FROM ur_ingest_session_tasks_stats AS iss
-      JOIN (  SELECT ur_ingest_session.ur_ingest_session_id AS latest_session_id
-                FROM ur_ingest_session
-            ORDER BY ur_ingest_session.ingest_finished_at DESC
-               LIMIT 1) AS latest
-        ON iss.ingest_session_id = latest.latest_session_id;
-DROP VIEW IF EXISTS "ur_ingest_session_file_issue";
-CREATE VIEW IF NOT EXISTS "ur_ingest_session_file_issue" AS
-      SELECT us.device_id,
-             us.ur_ingest_session_id,
-             usp.ur_ingest_session_fs_path_id,
-             usp.root_path,
-             ufs.ur_ingest_session_fs_path_entry_id,
-             ufs.file_path_abs,
-             ufs.ur_status,
-             ufs.ur_diagnostics
-        FROM ur_ingest_session_fs_path_entry ufs
-        JOIN ur_ingest_session_fs_path usp ON ufs.ingest_fs_path_id = usp.ur_ingest_session_fs_path_id
-        JOIN ur_ingest_session us ON usp.ingest_session_id = us.ur_ingest_session_id
-       WHERE ufs.ur_status IS NOT NULL
-    GROUP BY us.device_id,
-             us.ur_ingest_session_id,
-             usp.ur_ingest_session_fs_path_id,
-             usp.root_path,
-             ufs.ur_ingest_session_fs_path_entry_id,
-             ufs.file_path_abs,
-             ufs.ur_status,
-             ufs.ur_diagnostics;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
 
 -- console_information_schema_* are convenience views
@@ -483,6 +265,224 @@ INSERT OR REPLACE INTO code_notebook_cell (notebook_kernel_id, code_notebook_cel
         FROM console_content_tabular;
 
       -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows
+-- delete all /fhir-related entries and recreate them in case routes are changed
+DELETE FROM sqlpage_aide_navigation WHERE path like 'ur%';
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
+VALUES
+    ('prime', 'index.sql', 1, 'ur/index.sql', 'ur/index.sql', 'Uniform Resource', NULL, NULL, 'Explore ingested resources', NULL),
+    ('prime', 'ur/index.sql', 99, 'ur/info-schema.sql', 'ur/info-schema.sql', 'Uniform Resource Tables and Views', NULL, NULL, 'Information Schema documentation for ingested Uniform Resource database objects', NULL),
+    ('prime', 'ur/index.sql', 1, 'ur/uniform-resource-files.sql', 'ur/uniform-resource-files.sql', 'Uniform Resources (Files)', NULL, NULL, 'Files ingested into the `uniform_resource` table', NULL),
+    ('prime', 'ur/index.sql', 1, 'ur/uniform-resource-imap-account.sql', 'ur/uniform-resource-imap-account.sql', 'Uniform Resources (IMAP)', NULL, NULL, 'Easily access and view your emails with our Uniform Resource (IMAP) system. Ingested from various mail sources, this feature organizes and displays your messages directly in the Web UI, ensuring all your communications are available in one convenient place.', NULL)
+ON CONFLICT (namespace, parent_path, path)
+DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
+DROP VIEW IF EXISTS uniform_resource_file;
+CREATE VIEW uniform_resource_file AS
+  SELECT ur.uniform_resource_id,
+         ur.nature,
+         p.root_path AS source_path,
+         pe.file_path_rel,
+         ur.size_bytes
+  FROM uniform_resource ur
+  LEFT JOIN uniform_resource_edge ure ON ur.uniform_resource_id = ure.uniform_resource_id AND ure.nature = 'ingest_fs_path'
+  LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
+  LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
+
+  DROP VIEW IF EXISTS uniform_resource_imap;
+  CREATE VIEW uniform_resource_imap AS
+  SELECT
+      ur.uniform_resource_id,
+      graph.name,
+      iac.ur_ingest_session_imap_account_id,
+      iac.email,
+      iac.host,
+      iacm.subject,
+      iacm."from",
+      iacm.message,
+      iacm.date,
+      iaf.ur_ingest_session_imap_acct_folder_id,
+      iaf.ingest_account_id,
+      iaf.folder_name,
+      ur.size_bytes,
+      ur.nature,
+      ur.content
+  FROM uniform_resource ur
+  INNER JOIN uniform_resource_edge edge ON edge.uniform_resource_id=ur.uniform_resource_id
+  INNER JOIN uniform_resource_graph graph ON graph.name=edge.graph_name
+  INNER JOIN ur_ingest_session_imap_acct_folder_message iacm ON iacm.ur_ingest_session_imap_acct_folder_message_id = edge.node_id
+  INNER JOIN ur_ingest_session_imap_acct_folder iaf ON iacm.ingest_imap_acct_folder_id = iaf.ur_ingest_session_imap_acct_folder_id
+  LEFT JOIN ur_ingest_session_imap_account iac ON iac.ur_ingest_session_imap_account_id = iaf.ingest_account_id
+  WHERE ur.nature = 'text' AND graph.name='imap' AND ur.ingest_session_imap_acct_folder_message IS NOT NULL;
+
+  DROP VIEW IF EXISTS uniform_resource_imap_content;
+  CREATE  VIEW uniform_resource_imap_content AS
+  SELECT
+      uri.uniform_resource_id,
+      base_ur.uniform_resource_id baseID,
+      ext_ur.uniform_resource_id extID,
+      base_ur.uri as base_uri,
+      ext_ur.uri as ext_uri,
+      base_ur.nature as base_nature,
+      ext_ur.nature as ext_nature,
+      json_extract(part.value, '$.body.Html') AS html_content
+  FROM
+      uniform_resource_imap uri
+  INNER JOIN uniform_resource base_ur ON base_ur.uniform_resource_id=uri.uniform_resource_id
+  INNER JOIN uniform_resource ext_ur ON ext_ur.uri = base_ur.uri ||'/json' AND ext_ur.nature = 'json',
+  json_each(ext_ur.content, '$.parts') AS part
+  WHERE ext_ur.nature = 'json' AND html_content NOT NULL;
+DROP VIEW IF EXISTS "ur_ingest_session_files_stats";
+CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats" AS
+    WITH Summary AS (
+        SELECT
+            device.device_id AS device_id,
+            ur_ingest_session.ur_ingest_session_id AS ingest_session_id,
+            ur_ingest_session.ingest_started_at AS ingest_session_started_at,
+            ur_ingest_session.ingest_finished_at AS ingest_session_finished_at,
+            COALESCE(ur_ingest_session_fs_path_entry.file_extn, '') AS file_extension,
+            ur_ingest_session_fs_path.ur_ingest_session_fs_path_id as ingest_session_fs_path_id,
+            ur_ingest_session_fs_path.root_path AS ingest_session_root_fs_path,
+            COUNT(ur_ingest_session_fs_path_entry.uniform_resource_id) AS total_file_count,
+            SUM(CASE WHEN uniform_resource.content IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_content,
+            SUM(CASE WHEN uniform_resource.frontmatter IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_frontmatter,
+            MIN(uniform_resource.size_bytes) AS min_file_size_bytes,
+            AVG(uniform_resource.size_bytes) AS average_file_size_bytes,
+            MAX(uniform_resource.size_bytes) AS max_file_size_bytes,
+            MIN(uniform_resource.last_modified_at) AS oldest_file_last_modified_datetime,
+            MAX(uniform_resource.last_modified_at) AS youngest_file_last_modified_datetime
+        FROM
+            ur_ingest_session
+        JOIN
+            device ON ur_ingest_session.device_id = device.device_id
+        LEFT JOIN
+            ur_ingest_session_fs_path ON ur_ingest_session.ur_ingest_session_id = ur_ingest_session_fs_path.ingest_session_id
+        LEFT JOIN
+            ur_ingest_session_fs_path_entry ON ur_ingest_session_fs_path.ur_ingest_session_fs_path_id = ur_ingest_session_fs_path_entry.ingest_fs_path_id
+        LEFT JOIN
+            uniform_resource ON ur_ingest_session_fs_path_entry.uniform_resource_id = uniform_resource.uniform_resource_id
+        GROUP BY
+            device.device_id,
+            ur_ingest_session.ur_ingest_session_id,
+            ur_ingest_session.ingest_started_at,
+            ur_ingest_session.ingest_finished_at,
+            ur_ingest_session_fs_path_entry.file_extn,
+            ur_ingest_session_fs_path.root_path
+    )
+    SELECT
+        device_id,
+        ingest_session_id,
+        ingest_session_started_at,
+        ingest_session_finished_at,
+        file_extension,
+        ingest_session_fs_path_id,
+        ingest_session_root_fs_path,
+        total_file_count,
+        file_count_with_content,
+        file_count_with_frontmatter,
+        min_file_size_bytes,
+        CAST(ROUND(average_file_size_bytes) AS INTEGER) AS average_file_size_bytes,
+        max_file_size_bytes,
+        oldest_file_last_modified_datetime,
+        youngest_file_last_modified_datetime
+    FROM
+        Summary
+    ORDER BY
+        device_id,
+        ingest_session_finished_at,
+        file_extension;
+DROP VIEW IF EXISTS "ur_ingest_session_files_stats_latest";
+CREATE VIEW IF NOT EXISTS "ur_ingest_session_files_stats_latest" AS
+    SELECT iss.*
+      FROM ur_ingest_session_files_stats AS iss
+      JOIN (  SELECT ur_ingest_session.ur_ingest_session_id AS latest_session_id
+                FROM ur_ingest_session
+            ORDER BY ur_ingest_session.ingest_finished_at DESC
+               LIMIT 1) AS latest
+        ON iss.ingest_session_id = latest.latest_session_id;
+DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats";
+CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats" AS
+      WITH Summary AS (
+          SELECT
+            device.device_id AS device_id,
+            ur_ingest_session.ur_ingest_session_id AS ingest_session_id,
+            ur_ingest_session.ingest_started_at AS ingest_session_started_at,
+            ur_ingest_session.ingest_finished_at AS ingest_session_finished_at,
+            COALESCE(ur_ingest_session_task.ur_status, 'Ok') AS ur_status,
+            COALESCE(uniform_resource.nature, 'UNKNOWN') AS nature,
+            COUNT(ur_ingest_session_task.uniform_resource_id) AS total_file_count,
+            SUM(CASE WHEN uniform_resource.content IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_content,
+            SUM(CASE WHEN uniform_resource.frontmatter IS NOT NULL THEN 1 ELSE 0 END) AS file_count_with_frontmatter,
+            MIN(uniform_resource.size_bytes) AS min_file_size_bytes,
+            AVG(uniform_resource.size_bytes) AS average_file_size_bytes,
+            MAX(uniform_resource.size_bytes) AS max_file_size_bytes,
+            MIN(uniform_resource.last_modified_at) AS oldest_file_last_modified_datetime,
+            MAX(uniform_resource.last_modified_at) AS youngest_file_last_modified_datetime
+        FROM
+            ur_ingest_session
+        JOIN
+            device ON ur_ingest_session.device_id = device.device_id
+        LEFT JOIN
+            ur_ingest_session_task ON ur_ingest_session.ur_ingest_session_id = ur_ingest_session_task.ingest_session_id
+        LEFT JOIN
+            uniform_resource ON ur_ingest_session_task.uniform_resource_id = uniform_resource.uniform_resource_id
+        GROUP BY
+            device.device_id,
+            ur_ingest_session.ur_ingest_session_id,
+            ur_ingest_session.ingest_started_at,
+            ur_ingest_session.ingest_finished_at,
+            ur_ingest_session_task.captured_executable
+    )
+    SELECT
+        device_id,
+        ingest_session_id,
+        ingest_session_started_at,
+        ingest_session_finished_at,
+        ur_status,
+        nature,
+        total_file_count,
+        file_count_with_content,
+        file_count_with_frontmatter,
+        min_file_size_bytes,
+        CAST(ROUND(average_file_size_bytes) AS INTEGER) AS average_file_size_bytes,
+        max_file_size_bytes,
+        oldest_file_last_modified_datetime,
+        youngest_file_last_modified_datetime
+    FROM
+        Summary
+    ORDER BY
+        device_id,
+        ingest_session_finished_at,
+        ur_status;
+DROP VIEW IF EXISTS "ur_ingest_session_tasks_stats_latest";
+CREATE VIEW IF NOT EXISTS "ur_ingest_session_tasks_stats_latest" AS
+    SELECT iss.*
+      FROM ur_ingest_session_tasks_stats AS iss
+      JOIN (  SELECT ur_ingest_session.ur_ingest_session_id AS latest_session_id
+                FROM ur_ingest_session
+            ORDER BY ur_ingest_session.ingest_finished_at DESC
+               LIMIT 1) AS latest
+        ON iss.ingest_session_id = latest.latest_session_id;
+DROP VIEW IF EXISTS "ur_ingest_session_file_issue";
+CREATE VIEW IF NOT EXISTS "ur_ingest_session_file_issue" AS
+      SELECT us.device_id,
+             us.ur_ingest_session_id,
+             usp.ur_ingest_session_fs_path_id,
+             usp.root_path,
+             ufs.ur_ingest_session_fs_path_entry_id,
+             ufs.file_path_abs,
+             ufs.ur_status,
+             ufs.ur_diagnostics
+        FROM ur_ingest_session_fs_path_entry ufs
+        JOIN ur_ingest_session_fs_path usp ON ufs.ingest_fs_path_id = usp.ur_ingest_session_fs_path_id
+        JOIN ur_ingest_session us ON usp.ingest_session_id = us.ur_ingest_session_id
+       WHERE ufs.ur_status IS NOT NULL
+    GROUP BY us.device_id,
+             us.ur_ingest_session_id,
+             usp.ur_ingest_session_fs_path_id,
+             usp.root_path,
+             ufs.ur_ingest_session_fs_path_entry_id,
+             ufs.file_path_abs,
+             ufs.ur_status,
+             ufs.ur_diagnostics;
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', 'index.sql', 1, 'orchestration/index.sql', 'orchestration/index.sql', 'Orchestration', NULL, NULL, 'Explore details about all orchestration', NULL),
@@ -721,385 +721,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               )
           ) as menu_item,
        ''Surveilr ''|| (SELECT json_extract(session_agent, ''$.version'') AS version FROM ur_ingest_session LIMIT 1) || '' Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer;',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/index.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/index.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-              WITH navigation_cte AS (
-    SELECT COALESCE(title, caption) as title, description
-      FROM sqlpage_aide_navigation
-     WHERE namespace = ''prime'' AND path =''ur''||''/index.sql''
-)
-SELECT ''list'' AS component, title, description
-  FROM navigation_cte;
-SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
-  FROM sqlpage_aide_navigation
- WHERE namespace = ''prime'' AND parent_path = ''ur''||''/index.sql''
- ORDER BY sibling_order;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/info-schema.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/info-schema.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''title'' AS component, ''Uniform Resource Tables and Views'' as contents;
-  SELECT ''table'' AS component,
-  ''Name'' AS markdown,
-    ''Column Count'' as align_right,
-    TRUE as sort,
-    TRUE as search;
-
-SELECT
-''Table'' as "Type",
-  ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-  FROM console_information_schema_table
-  WHERE table_name = ''uniform_resource'' OR table_name like ''ur_%''
-  GROUP BY table_name
-
-  UNION ALL
-
-SELECT
-''View'' as "Type",
-  ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-  FROM console_information_schema_view
-  WHERE view_name like ''ur_%''
-  GROUP BY view_name;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-files.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-files.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-files.sql/index.sql'') as contents;
-    ;
-
--- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_file );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small;
-SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
-   LIMIT $limit
-  OFFSET $offset;
-
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-account.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-imap-account.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-imap-account.sql/index.sql'') as contents;
-    ;
-
-select
-  ''title''   as component,
-  ''Mailbox'' as contents;
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''email'' AS markdown;
-SELECT    
-''['' || email || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id || '')'' AS "email"
-      FROM uniform_resource_imap
-      GROUP BY ur_ingest_session_imap_account_id
-      ORDER BY uniform_resource_id;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-folder.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''breadcrumb'' as component;
-SELECT
-   ''Home'' as title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
-SELECT
-  ''Uniform Resource'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
-SELECT
-  ''Uniform Resources (IMAP)'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' as link;
-SELECT
-  ''Folder'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || $imap_account_id:: TEXT as link;
-SELECT
-  ''title'' as component,
-  (SELECT email FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
-
---Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''folder'' AS markdown;
-  SELECT ''['' || folder_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id || '')'' AS "folder"
-    FROM uniform_resource_imap
-    WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
-    GROUP BY ur_ingest_session_imap_acct_folder_id
-    ORDER BY uniform_resource_id;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-mail-list.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-              SELECT
-''breadcrumb'' AS component;
-SELECT
-''Home'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''
-SELECT
-  ''Uniform Resource'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
-SELECT
-  ''Uniform Resources (IMAP)'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
-SELECT
-  ''Folder'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id=''|| ur_ingest_session_imap_account_id AS link
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-  folder_name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-  ''title''   as component,
-  (SELECT email || '' ('' || folder_name || '')''  FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
-
--- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_imap );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''subject'' AS markdown;;
-SELECT
-''['' || subject || ''](uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id || '')'' AS "subject"
-  , "from",
-  CASE
-      WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
-      WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
-      ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
-  END AS "Relative Time",
-  strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
-  ORDER BY uniform_resource_id
-  LIMIT $limit
-  OFFSET $offset;
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-mail-detail.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-              SELECT
-''breadcrumb'' AS component;
-SELECT
-''Home'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-SELECT
- ''Uniform Resource'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' AS link;
-SELECT
-  ''Uniform Resources (IMAP)'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
-SELECT
-''Folder'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-   folder_name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-   subject AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id:: TEXT;
-
---Breadcrumb ends-- -
-
-  --- back button-- -
-    select ''button'' as component;
-select
-"<< Back" as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id as link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id:: TEXT;
-
---Display uniform_resource table with pagination
-  SELECT
-''datagrid'' as component;
-SELECT
-''From'' as title,
-  "from" as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-SELECT
-''To'' as title,
-  email as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-SELECT
-''Subject'' as title,
-  subject as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-
-  SELECT ''html'' AS component;
-  SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
-            ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -2039,6 +1660,385 @@ SELECT
 FROM console_information_schema_view
 WHERE view_name LIKE ''surveilr_doctor%''
 GROUP BY view_name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              WITH navigation_cte AS (
+    SELECT COALESCE(title, caption) as title, description
+      FROM sqlpage_aide_navigation
+     WHERE namespace = ''prime'' AND path =''ur''||''/index.sql''
+)
+SELECT ''list'' AS component, title, description
+  FROM navigation_cte;
+SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
+  FROM sqlpage_aide_navigation
+ WHERE namespace = ''prime'' AND parent_path = ''ur''||''/index.sql''
+ ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/info-schema.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/info-schema.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, ''Uniform Resource Tables and Views'' as contents;
+  SELECT ''table'' AS component,
+  ''Name'' AS markdown,
+    ''Column Count'' as align_right,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT
+''Table'' as "Type",
+  ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+  FROM console_information_schema_table
+  WHERE table_name = ''uniform_resource'' OR table_name like ''ur_%''
+  GROUP BY table_name
+
+  UNION ALL
+
+SELECT
+''View'' as "Type",
+  ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+  FROM console_information_schema_view
+  WHERE view_name like ''ur_%''
+  GROUP BY view_name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-files.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-files.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-files.sql/index.sql'') as contents;
+    ;
+
+-- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_file );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small;
+SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
+   LIMIT $limit
+  OFFSET $offset;
+
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-account.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-imap-account.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-imap-account.sql/index.sql'') as contents;
+    ;
+
+select
+  ''title''   as component,
+  ''Mailbox'' as contents;
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''email'' AS markdown;
+SELECT    
+''['' || email || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id || '')'' AS "email"
+      FROM uniform_resource_imap
+      GROUP BY ur_ingest_session_imap_account_id
+      ORDER BY uniform_resource_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-folder.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''breadcrumb'' as component;
+SELECT
+   ''Home'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+SELECT
+  ''Uniform Resource'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
+SELECT
+  ''Uniform Resources (IMAP)'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' as link;
+SELECT
+  ''Folder'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || $imap_account_id:: TEXT as link;
+SELECT
+  ''title'' as component,
+  (SELECT email FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
+
+--Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''folder'' AS markdown;
+  SELECT ''['' || folder_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id || '')'' AS "folder"
+    FROM uniform_resource_imap
+    WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
+    GROUP BY ur_ingest_session_imap_acct_folder_id
+    ORDER BY uniform_resource_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-mail-list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT
+''breadcrumb'' AS component;
+SELECT
+''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''
+SELECT
+  ''Uniform Resource'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
+SELECT
+  ''Uniform Resources (IMAP)'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
+SELECT
+  ''Folder'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id=''|| ur_ingest_session_imap_account_id AS link
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+  folder_name AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+  ''title''   as component,
+  (SELECT email || '' ('' || folder_name || '')''  FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
+
+-- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_imap );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''subject'' AS markdown;;
+SELECT
+''['' || subject || ''](uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id || '')'' AS "subject"
+  , "from",
+  CASE
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
+      ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
+  END AS "Relative Time",
+  strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
+  ORDER BY uniform_resource_id
+  LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
+    AS contents_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-mail-detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT
+''breadcrumb'' AS component;
+SELECT
+''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+SELECT
+ ''Uniform Resource'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' AS link;
+SELECT
+  ''Uniform Resources (IMAP)'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
+SELECT
+''Folder'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+   folder_name AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+   subject AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id:: TEXT;
+
+--Breadcrumb ends-- -
+
+  --- back button-- -
+    select ''button'' as component;
+select
+"<< Back" as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id as link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id:: TEXT;
+
+--Display uniform_resource table with pagination
+  SELECT
+''datagrid'' as component;
+SELECT
+''From'' as title,
+  "from" as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+SELECT
+''To'' as title,
+  email as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+SELECT
+''Subject'' as title,
+  subject as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+
+  SELECT ''html'' AS component;
+  SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
