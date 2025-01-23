@@ -1,9 +1,17 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
-import { createCommonCombinedCGMViewSQL } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
+import {
+  checkAndConvertToVsp,
+  createCommonCombinedCGMViewSQL,
+} from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class illinoisSqlPages extends spn.TypicalSqlPageNotebook {
+  async statelessvsvSQL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const sqlStatements = checkAndConvertToVsp(dbFilePath);
+    return await sqlStatements;
+  }
   commonViewDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = createCommonCombinedCGMViewSQL(dbFilePath);
@@ -51,3 +59,4 @@ export async function illinoisSQL() {
 if (import.meta.main) {
   console.log((await illinoisSQL()).join("\n"));
 }
+

@@ -1,5 +1,6 @@
 import { assertEquals } from "jsr:@std/assert@1";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
+import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 
 Deno.test("surveilr specific functions", async (t) => {
   await t.step("surveilr --version", async () => {
@@ -55,8 +56,6 @@ Deno.test("ast functions", async (t) => {
     );
   });
 });
-
-// TODO: uncomment when 1.5.0 is released
 
 Deno.test("eval function: execute arbitrary SQL and returns the result as string", async (t) => {
   await t.step(
@@ -411,4 +410,55 @@ Deno.test("sqlite_lines", async (t) => {
   });
 
   await Deno.remove(filePath);
+});
+
+Deno.test("vsv functions", async (t) => {
+  const testFixturesDir = path.fromFileUrl(
+    import.meta.resolve(`./test-fixtures`),
+  );
+  const psvFile = path.join(testFixturesDir, "pipe-separated-values.psv");
+
+  await t.step("create psv tsble", async () => {
+    await $`surveilr shell --cmd "DROP TABLE IF EXISTS pipe_separated_value_table;"`;
+    const result =
+      await $`surveilr shell --cmd "CREATE VIRTUAL TABLE pipe_separated_value_table USING vsv(
+         filename = ${psvFile},
+         affinity = INTEGER, 
+         header = true, 
+         fsep = '|'
+     );"`
+        .stdout("piped");
+
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to create a virtual table using pipe separated values.",
+    );
+  });
+
+  await t.step("get data from psv table", async () => {
+    const result =
+      await $`surveilr shell --cmd "select * from pipe_separated_value_table;"`
+        .stdout("piped");
+
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr lines_read function.",
+    );
+
+    const stdout = result.stdoutJson;
+    const response = stdout;
+
+    const fileContent = await Deno.readTextFile(psvFile);
+    const lines = fileContent.split("\n");
+    // remove 2 because of the header and the last line
+    const expectedLines = lines.length - 2;
+
+    assertEquals(
+      response.length,
+      expectedLines,
+      "❌ Error: data from psv table and file don't match",
+    );
+  });
 });
