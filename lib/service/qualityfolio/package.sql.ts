@@ -42,9 +42,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -87,9 +86,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||suite_id||')' as id,
       
       suite_name,
       created_by as "Created By",
@@ -164,13 +162,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/plan-overview.sql")
-    }||'?id='||id||')' as id,      
+      '['||id||']('||${this.absoluteURL("/qltyfolio/plan-overview.sql")
+      }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${
-      this.absoluteURL("/qltyfolio/test-cases-list.sql")
-    }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${this.absoluteURL("/qltyfolio/test-cases-list.sql")
+      }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -494,13 +490,11 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -546,10 +540,10 @@ SELECT 'table' as component,
 
    SELECT 'html' as component,
     '<style>
-        tr.rowClass-passed td.test_statusalign-middle {
+        tr.rowClass-passed td.test_status {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.test_statusalign-middle {
+         tr.rowClass-failed td.test_status {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -577,9 +571,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_status,
@@ -696,9 +689,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -804,7 +796,10 @@ WHERE bd.test_case_id = $id;
         .btn-list {
         display: flex;
         justify-content: flex-end;
-    }
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
     </style>
     
     ' as html FROM test_case_run_results where test_case_id = $id group by group_id;
@@ -819,9 +814,8 @@ WHERE bd.test_case_id = $id;
     --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| $id || '#actual-result-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -829,9 +823,8 @@ WHERE bd.test_case_id = $id;
     --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
-    }|| $id || '#test-run-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
+      }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -856,7 +849,7 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'actual-result' THEN 'table'
         WHEN $tab = 'test-run' THEN 'list'
-         WHEN $tab = 'bug-report' THEN 'list'
+         WHEN $tab = 'bug-report' THEN 'foldable'
       END AS component,
       'Column Count' as align_right,
       TRUE as sort,
@@ -879,13 +872,15 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'actual-result' THEN 'html'
     END AS component,
-      '<div id="actual-result-content"></div>' as html;
+      '<div id="actual-result-content"></div>' as html
+       FROM test_execution_log
+          WHERE $tab = 'actual-result' and  test_case_id = $id;
 
 
 
     --Tab - specific content for "test-run"
     SELECT
-    '\n **Run Date**  :  ' || run_date AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y',run_date) AS description_md,
       '\n **Environment**  :  ' || environment AS description_md,
         '\n' || body AS description_md
     FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
@@ -894,11 +889,12 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'test-run' THEN 'html'
     END AS component,
-      '<div id="test-run-content"></div>' as html;
+      '<div id="test-run-content"></div>' as html
+      FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
    
 
     --Tab - specific content for "bug-report"
-    SELECT
+    /*SELECT
     '\n **id**  :  ' || b.id AS description_md,
     '\n **Title**  :  ' || b.title AS description_md,
     '\n **Created By**  :  ' || b.created_by AS description_md,
@@ -909,6 +905,32 @@ WHERE bd.test_case_id = $id;
     '\n **Status**  :  ' || b.status AS description_md,
     '\n' || b.body AS description_md
     FROM  bug_report b 
+    WHERE $tab = 'bug-report' and b.test_case_id = $id;*/
+
+    -- SELECT
+    -- b.id AS "Id",
+    -- b.title AS "Title",
+    -- b.created_by AS "Created By",
+    -- strftime('%d-%m-%Y', b.created_at) AS "Run Date",
+    -- b.type AS "Type",
+    -- b.priority AS "Priority",
+    -- b.assigned AS "Assigned To",
+    -- b.status AS "Status"    
+    -- FROM  bug_report b
+    -- WHERE $tab = 'bug-report' and b.test_case_id = $id
+    -- order by b.created_at desc ;
+    
+     SELECT
+     b.id||' - '||b.title as title,
+     'head-title' as class,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b
     WHERE $tab = 'bug-report' and b.test_case_id = $id;
 
     SELECT
@@ -916,7 +938,7 @@ WHERE bd.test_case_id = $id;
         WHEN $tab = 'bug-report' THEN 'html'
     END AS component,
       '<div id="bug-report-content"></div>' as html
-    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed';
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed' and $tab = 'bug-report';
 
 
     `;
@@ -1047,9 +1069,8 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| t.test_case_id || ')' as id,
       t.title,
        case when p.status is not null then p.status
         else 'TODO' END AS "test_status",
@@ -1092,13 +1113,13 @@ WHERE rn.id = $id;
 
    SELECT 'html' as component,
     '<style>
-       tr td.Statusalign-middle {
+       tr td.Status {
             color: blue !important; /* Default to blue */
         }
-        tr.rowClass-passed td.Statusalign-middle {
+        tr.rowClass-passed td.Status {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.Statusalign-middle {
+         tr.rowClass-failed td.Status {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -1124,9 +1145,8 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
