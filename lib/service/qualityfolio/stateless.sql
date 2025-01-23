@@ -207,6 +207,25 @@ json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.run.md';
 
+
+DROP VIEW IF EXISTS bug_report;
+CREATE VIEW bug_report AS 
+SELECT 
+uniform_resource_id,
+json_extract(frontmatter, '$.issue_id') AS id,
+json_extract(frontmatter, '$.test_case_fii') AS test_case_id,
+json_extract(frontmatter, '$.titleName') AS title,
+json_extract(frontmatter, '$.created_by') AS created_by,
+json_extract(frontmatter, '$.created_at') AS created_at,
+json_extract(frontmatter, '$.test_type') AS type,
+json_extract(frontmatter, '$.priority') AS priority,
+json_extract(frontmatter, '$.assigned') AS assigned,
+json_extract(frontmatter, '$.status') AS status,
+json_extract(frontmatter, '$.endpoint') AS endpoint,
+json_extract(content_fm_body_attrs, '$.body') AS body
+FROM uniform_resource
+WHERE uri LIKE '%.bug.md';
+
 DROP VIEW IF EXISTS test_suite_success_and_failed_rate;
 CREATE view test_suite_success_and_failed_rate AS
 SELECT 
