@@ -1113,13 +1113,13 @@ WHERE rn.id = $id;
 
    SELECT 'html' as component,
     '<style>
-       tr td.Statusalign-middle {
+       tr td.Status {
             color: blue !important; /* Default to blue */
         }
-        tr.rowClass-passed td.Statusalign-middle {
+        tr.rowClass-passed td.Status {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.Statusalign-middle {
+         tr.rowClass-failed td.Status {
             color: red !important; /* Default to red */
         }
         .btn-list {
