@@ -1,4 +1,4 @@
-name: Run Deno and Push Generated SQL
+name: Qualityfolio Workflow-Trigger
 
 on:
   push:
@@ -13,32 +13,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Deno
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v2.x
-
-    - name: Install surveilr
+    - name: Trigger qualityfolio workflow
       run: |
-        curl -sSL https://zyedidia.github.io/eget.sh | bash
-        sudo mv ./eget /usr/local/bin/
-        eget opsfolio/releases.opsfolio.com
-        sudo mv surveilr /usr/local/bin/
-        surveilr --version
-        
-    - name: Find and run Deno for SQL files
-      run: |
-        for file in lib/service/qualityfolio/*.sql.ts; do
-          output_file="${file%.sql.ts}.auto.sql"
-          deno run -A "$file" > "$output_file"
-        done
-
-    - name: Commit and push changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add lib/service/qualityfolio/*.auto.sql
-        git commit -m "ci: generate .auto.sql from .sql.ts files"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        gh api \
+        --method POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+         /repos/var.OWNER/var.REPO/actions/workflows/var.WORKFLOW_ID/dispatches \
+        -d '{"ref":"main"}'
