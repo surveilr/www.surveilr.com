@@ -1335,7 +1335,7 @@ LEFT JOIN
 
     SELECT
     ''Todo'' AS label,
-      ROUND(100.0 * (COUNT(t.test_case_id) - COUNT(r.test_case_id)) / COUNT(t.test_case_id), 2) AS value
+      ROUND(100.0 * SUM(CASE WHEN r.status IS NULL THEN 1 ELSE 0 END) / COUNT(t.test_case_id), 2) AS value
     FROM 
     test_cases t
 LEFT JOIN 
@@ -2224,19 +2224,16 @@ SET current_page = ($offset / $limit) + 1;
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'sqlpage/templates/shell-custom.handlebars',
-      '              -- not including shell
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
+      '        -- not including shell
+        -- not including breadcrumbs from sqlpage_aide_navigation
+        -- not including page title from sqlpage_aide_navigation
 
-              <!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
 <head>
     <meta charset="utf-8" />
-    <title>{{default title "SQLPage"}}</title>
-    <link rel="icon" href="{{#if favicon}}{{favicon}}{{else}}{{static_path ''favicon.svg''}}{{/if}}">
-    {{#if manifest}}
-        <link rel="manifest" href="{{manifest}}">
-    {{/if}}
+
+    <!-- Base CSS -->
     <link rel="stylesheet" href="{{static_path ''sqlpage.css''}}">
     {{#each (to_array css)}}
         {{#if this}}
@@ -2244,6 +2241,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
         {{/if}}
     {{/each}}
 
+    <!-- Font Setup -->
     {{#if font}}
         {{#if (starts_with font "/")}}
             <style>
@@ -2258,19 +2256,18 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                 }
             </style>
         {{else}}
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
-        <style>
-            :root {
-                --tblr-font-sans-serif: ''{{font}}'',
-                Arial,
-                sans-serif;
-            }
-        </style>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+            <style>
+                :root {
+                    --tblr-font-sans-serif: ''{{font}}'', Arial, sans-serif;
+                }
+            </style>
         {{/if}}
     {{/if}}
 
+    <!-- JavaScript -->
     <script src="{{static_path ''sqlpage.js''}}" defer nonce="{{@csp_nonce}}"></script>
     {{#each (to_array javascript)}}
         {{#if this}}
@@ -2282,110 +2279,33 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
             <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
         {{/if}}
     {{/each}}
-
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {{#if title}}
-        <meta property="og:title" content="{{title}}" />
-    {{/if}}
-    {{#if description}}
-        <meta name="description" content="{{description}}" />
-        <meta property="og:description" content="{{description}}" />
-    {{/if}}
-    {{#if preview_image}}
-        <meta property="og:image" content="{{preview_image}}" />
-        <meta name="twitter:image" content="{{preview_image}}" />
-    {{/if}}
-
-    {{#if norobot}}
-        <meta name="robots" content="noindex,nofollow">
-    {{/if}}
-
-    {{#if refresh}}
-        <meta http-equiv="refresh" content="{{refresh}}">
-    {{/if}}
-    {{#if rss}}
-        <link rel="alternate" type="application/rss+xml" title="{{title}}" href="{{rss}}">
-    {{/if}}
-    <meta name="generator" content="SQLPage" />
-    {{#if social_image}}
-        <meta property="og:image" content="{{social_image}}" />
-    {{/if}}
 </head>
-
-{{!-- Partial for menu_items to not duplicate logic --}}
-{{#*inline "menu-items"}}
-   
-    {{#if search_target}}
-        <form class="d-flex" role="search" action="{{search_target}}">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" value="{{search_value}}">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-    {{/if}}
-{{/inline}}
 
 <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
     <div class="page">
+        <!-- Header -->
         {{#if (or (or title (or icon image)) (or menu_item search_target))}}
         <header id="sqlpage_header">
-        {{#if sidebar}}
-        <aside class="navbar navbar-vertical navbar-expand-lg" {{#if sidebar_theme}}data-bs-theme="{{sidebar_theme}}" {{/if}}>
-            <div class="container-fluid">
-                <button class="navbar-toggler collapsed" type="button" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" data-bs-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <span class="navbar-brand navbar-brand-autodark d-inline ps-2 text-truncate">
-                    <a class="text-decoration-none text-body" href="{{#if link}}{{link}}{{else}}/{{/if}}">
-                        {{#if image}}
-                            <img src="{{image}}" alt="{{title}}" height="32" class="navbar-brand-image">
-                        {{/if}}
-                        {{#if icon}}
-                            {{~icon_img icon~}}
-                        {{/if}}
-                        <span class="pe-2 pe-lg-0 align-middle">{{title}}</span>
-                    </a>
-                </span>
-                <div class="navbar-collapse collapse" id="sidebar-menu">
-                    {{> menu-items menu_item=menu_item}}
-                </div>
-            </div>
-        </aside>
-        {{else}}
-        <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
-            <div class="container-fluid gap-2 justify-content-start" style="min-width:0">
-                <a class="navbar-brand" href="{{#if link}}{{link}}{{else}}/{{/if}}">
-                    {{#if image}}
-                        <img src="{{image}}" alt="{{title}}" width="32" height="32" class="navbar-brand-image">
-                    {{/if}}
-                    {{#if icon}}
-                        {{~icon_img icon~}}
-                    {{/if}}
-                </a>
-                <span class="mb-0 fs-2 text-truncate flex-grow-1" style="flex-basis:0">
-                    <a class="text-decoration-none text-body" href="{{#if link}}{{link}}{{else}}/{{/if}}">{{default navbar_title title}}</a>
-                </span>
-                {{#if (or menu_item search_target)}}
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse flex-grow-0" id="navbar-menu">
-                    {{> menu-items menu_item=menu_item}}
-                </div>
-                {{/if}}
-            </div>
-        </nav>
+            {{#if sidebar}}
+                <!-- Sidebar logic here -->
+            {{else}}
+                <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
+                    <!-- Navbar content here -->
+                </nav>
+            {{/if}}
         </header>
-    {{/if}}
-{{/if}}
+        {{/if}}
+
+        <!-- Page Wrapper -->
         <div class="page-wrapper">
             <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout ''boxed'')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
                 {{~#each_row~}}{{~/each_row~}}
             </main>
-
         </div>
     </div>
 </body>
 </html>;
-            ',
+      ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -4343,7 +4263,7 @@ GROUP BY view_name;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
-  "component": "shell",
+  "component": "case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END",
   "title": "Qualityfolio",
   "icon": "",
   "favicon": "https://www.surveilr.com/assets/brand/qf-favicon.ico",
@@ -4369,7 +4289,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
-      'SELECT ''shell'' AS component,
+      'SELECT case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END AS component,
        ''Qualityfolio'' AS title,
        NULL AS icon,
        ''https://www.surveilr.com/assets/brand/qf-favicon.ico'' AS favicon,
