@@ -33,7 +33,7 @@ SELECT
     json_extract(frontmatter, '$.projectId') AS project_id,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
-    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_by') AS created_by_user,
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.linked_requirements') AS linked_requirements,
@@ -313,7 +313,7 @@ CREATE VIEW suite_test_case_count AS
 SELECT 
 st.id,
 st.name,
-st.created_by,
+st.created_by_user,
 st.created_at,
 sum(tc.test_case_count)
 FROM
@@ -357,7 +357,7 @@ CREATE view test_suite_success_and_failed_rate AS
 SELECT 
     t.uniform_resource_id,
     t.name AS suite_name,
-    t.created_by,
+    t.created_by_user,
     t.created_at,
     t.id as suite_id,
     sum(c.test_case_count) AS total_test_case,
@@ -1003,7 +1003,7 @@ SELECT ''table'' as component,
      ''[''||suite_id||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql''||''?id=''||suite_id||'')'' as id,
      
      suite_name,
-     created_by as "Created By",
+     created_by_user as "Created By",
      total_test_case as "test case count",
       CASE
        WHEN total_test_case > 0
@@ -1435,17 +1435,17 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT ''title''AS component,
       name as contents FROM test_suites  WHERE id = $id; 
-     SELECT ''list''  AS component;
+    SELECT ''list''  AS component;
     SELECT
     ''
  **Description**  :  '' || rn."description" AS description_md,
-      ''
- **Created By**  :  '' || rn.created_by AS description_md,
-        ''
+    ''
+ **Created By**  :  '' || rn.created_by_user AS description_md,
+    ''
  **Created At**  :  '' || rn.created_at AS description_md,
-          ''
+    ''
  **Priority**  :  '' || rn.linked_requirements AS description_md,
-            ''
+    ''
 '' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
 
@@ -1640,7 +1640,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       ''
  **Description**  :  '' || rn."description" AS description_md,
         ''
- **Created By**  :  '' || rn.created_by AS description_md,
+ **Created By**  :  '' || rn.created_by_user AS description_md,
           ''
  **Created At**  :  '' || rn.created_at AS description_md,
             ''
