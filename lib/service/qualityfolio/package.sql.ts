@@ -3,11 +3,11 @@ import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
   orchestration as orch,
-  //shell as sh,
+  shell as sh,
   uniformResource as ur,
   docs as d
 } from "../../std/web-ui-content/mod.ts";
-import * as sh from "./custom_shell.ts";
+//import * as sh from "./custom_shell.ts";
 
 const WEB_UI_TITLE = "Qualityfolio";
 const WE_UI_LOGO = "qf-logo.png";
@@ -1231,6 +1231,7 @@ WHERE rn.id = $id;
                       <!-- Sidebar logic here -->
                   {{else}}
                       <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
+                       <h1 class="mb-0 w-0 fs-2">{{title}}</h1>
                           <!-- Navbar content here -->
                       </nav>
                   {{/if}}
