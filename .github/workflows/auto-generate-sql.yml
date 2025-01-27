@@ -1,4 +1,4 @@
-name: Run Deno and Push Generated SQL
+name: Qualityfolio Workflow-Trigger
 
 on:
   push:
