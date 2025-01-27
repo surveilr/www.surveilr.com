@@ -264,6 +264,8 @@ LEFT JOIN
     ON
     t.test_case_id = r.test_case_id;
 
+    
+
 
     select
     '## Failed Rate' as description_md,
@@ -790,10 +792,10 @@ WHERE bd.test_case_id = $id;
 
   SELECT 'html' as component,
     '<style>
-        tr.actualClass-passed td.Status {
+        tr.actualClass-passed td.State {
             color: green !important; /* Default to red */
         }
-         tr.actualClass-failed td.Status {
+         tr.actualClass-failed td.State {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -865,7 +867,7 @@ WHERE bd.test_case_id = $id;
       
     SELECT
     step_name as 'Activity',
-      step_status as 'Activity Status',
+      step_status as 'State',
       'actualClass-'||step_status as _sqlpage_css_class,
       step_start_time as 'Start Time',
       step_end_time as 'End Time'
@@ -1116,13 +1118,13 @@ WHERE rn.id = $id;
 
    SELECT 'html' as component,
     '<style>
-       tr td.Status {
+       tr td.State {
             color: blue !important; /* Default to blue */
         }
-        tr.rowClass-passed td.Status {
+        tr.rowClass-passed td.State {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.Status {
+         tr.rowClass-failed td.State {
             color: red !important; /* Default to red */
         }
         .btn-list {
@@ -1153,7 +1155,7 @@ WHERE rn.id = $id;
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
-        else 'TODO' END AS "Status",
+        else 'TODO' END AS "State",
       'rowClass-'||test_status as _sqlpage_css_class,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
