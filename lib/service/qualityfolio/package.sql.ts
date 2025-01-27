@@ -90,7 +90,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       }||'?id='||suite_id||')' as id,
       
       suite_name,
-      created_by as "Created By",
+      created_by_user as "Created By",
       total_test_case as "test case count",
        CASE
         WHEN total_test_case > 0
@@ -471,13 +471,13 @@ SELECT
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT 'title'AS component,
       name as contents FROM test_suites  WHERE id = $id; 
-     SELECT 'list'  AS component;
+    SELECT 'list'  AS component;
     SELECT
     '\n **Description**  :  ' || rn."description" AS description_md,
-      '\n **Created By**  :  ' || rn.created_by AS description_md,
-        '\n **Created At**  :  ' || rn.created_at AS description_md,
-          '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
-            '\n' || rn.body AS description_md
+    '\n **Created By**  :  ' || rn.created_by_user AS description_md,
+    '\n **Created At**  :  ' || rn.created_at AS description_md,
+    '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
+    '\n' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
 
 SELECT 'title'  AS component,
@@ -668,7 +668,7 @@ SELECT 'table' as component,
     SELECT
     ' **Name**  :  ' || rn.name AS description_md,
       '\n **Description**  :  ' || rn."description" AS description_md,
-        '\n **Created By**  :  ' || rn.created_by AS description_md,
+        '\n **Created By**  :  ' || rn.created_by_user AS description_md,
           '\n **Created At**  :  ' || rn.created_at AS description_md,
             '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
               '\n' || rn.body AS description_md
