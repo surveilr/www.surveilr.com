@@ -43,7 +43,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
       : ",";
 
     let allConcatenatedValues = "";
-    if (separator == ";" || separator == "|" || separator == ":") {      
+    if (separator == ";" || separator == "|" || separator == ":") {
       const firstColumnName = firstColumnNames[0];
 
       for (const row of rows) {
@@ -99,7 +99,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
       vsvSQL += vsvSQLCgm;
     }
   }
-  
+
   db.close();
   return vsvSQL;
 }
