@@ -187,7 +187,7 @@ CREATE VIEW suite_test_case_count AS
 SELECT 
 st.id,
 st.name,
-st.created_by,
+st.created_by_user,
 st.created_at,
 sum(tc.test_case_count)
 FROM
@@ -231,7 +231,7 @@ CREATE view test_suite_success_and_failed_rate AS
 SELECT 
     t.uniform_resource_id,
     t.name AS suite_name,
-    t.created_by,
+    t.created_by_user,
     t.created_at,
     t.id as suite_id,
     sum(c.test_case_count) AS total_test_case,

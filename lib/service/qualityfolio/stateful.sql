@@ -26,7 +26,7 @@ SELECT
     json_extract(frontmatter, '$.projectId') AS project_id,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
-    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_by') AS created_by_user,
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.linked_requirements') AS linked_requirements,
