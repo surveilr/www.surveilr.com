@@ -456,7 +456,7 @@ SELECT
     test_cases;
     `;
   }
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  @spn.shell({ breadcrumbsFromNavStmts: "no", pageTitleFromNavStmts: "no" })
   "qltyfolio/suite-data.sql"() {
     return this.SQL`
     select
@@ -471,11 +471,13 @@ SELECT
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT 'title'AS component,
       name as contents FROM test_suites  WHERE id = $id; 
-    SELECT 'list'  AS component;
+    SELECT 'card'  AS component,
+    1                          as columns;
+    
     SELECT
     '\n **Description**  :  ' || rn."description" AS description_md,
     '\n **Created By**  :  ' || rn.created_by_user AS description_md,
-    '\n **Created At**  :  ' || rn.created_at AS description_md,
+    '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at)  AS description_md,
     '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
     '\n' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
@@ -545,12 +547,28 @@ SELECT 'table' as component,
 
    SELECT 'html' as component,
     '<style>
+       tr td.test_status {
+            color: blue !important; /* Default to blue */
+        }
         tr.rowClass-passed td.test_status {
             color: green !important; /* Default to red */
         }
          tr.rowClass-failed td.test_status {
             color: red !important; /* Default to red */
         }
+
+         tr td.test_statusalign-middle {
+            color: blue !important; /* Default to blue */
+        }
+
+         tr.rowClass-passed td.test_statusalign-middle {
+            color: green !important; /* Default to red */
+        }
+         tr.rowClass-failed td.test_statusalign-middle {
+            color: red !important; /* Default to red */
+        }
+
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
@@ -663,13 +681,16 @@ SELECT 'table' as component,
       $tab = 'test_run' AS active;
 
     SELECT 
-      case when $tab = 'test_suites' THEN 'list'
-      END AS component;
+      case when $tab = 'test_suites' THEN 'card'
+      END AS component,
+       1                          as columns;
+
+   
     SELECT
     ' **Name**  :  ' || rn.name AS description_md,
       '\n **Description**  :  ' || rn."description" AS description_md,
         '\n **Created By**  :  ' || rn.created_by_user AS description_md,
-          '\n **Created At**  :  ' || rn.created_at AS description_md,
+          '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at) AS description_md,
             '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
               '\n' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
@@ -782,7 +803,7 @@ FROM test_suites rn WHERE id = $id;
           '\n **Duration**  :  ' || rn."total_duration" AS description_md,
             '\n **Title**  :  ' || bd.title AS description_md,
               '\n **Created By**  :  ' || bd.created_by AS description_md,
-                '\n **Created At**  :  ' || bd.created_at AS description_md,
+                '\n **Created At**  :  ' || strftime('%d-%m-%Y',  bd.created_at) AS description_md,
                   '\n **Priority**  :  ' || bd.priority AS description_md,
                     '\n' || bd.body AS description_md
 FROM  test_cases bd 
@@ -798,6 +819,13 @@ WHERE bd.test_case_id = $id;
          tr.actualClass-failed td.State {
             color: red !important; /* Default to red */
         }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
@@ -974,7 +1002,8 @@ WHERE bd.test_case_id = $id;
     SELECT 'title'AS component,
       name as contents FROM groups where id = $id; 
 
-    SELECT 'list'AS component;
+    SELECT 'card'  AS component,
+    1                          as columns;
     SELECT
     ' **Id**  :  ' || rn.id AS description_md,
       '\n **name**  :  ' || rn."name" AS description_md,
@@ -1011,7 +1040,8 @@ WHERE rn.id = $id;
           SELECT 'title'AS component,
       name as contents FROM groups where id = $id; 
 
-          SELECT 'list'AS component;
+          SELECT 'card'  AS component,
+    1                          as columns;
     SELECT
     ' **Id**  :  ' || id AS description_md,
       '\n **name**  :  ' || "name" AS description_md,
@@ -1127,6 +1157,18 @@ WHERE rn.id = $id;
          tr.rowClass-failed td.State {
             color: red !important; /* Default to red */
         }
+
+        tr td.Statealign-middle {
+            color: blue !important; /* Default to blue */
+        }
+        tr.rowClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+         tr.rowClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
