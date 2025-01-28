@@ -1435,14 +1435,16 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT ''title''AS component,
       name as contents FROM test_suites  WHERE id = $id; 
-    SELECT ''list''  AS component;
+    SELECT ''card''  AS component,
+    1                          as columns;
+    
     SELECT
     ''
  **Description**  :  '' || rn."description" AS description_md,
     ''
  **Created By**  :  '' || rn.created_by_user AS description_md,
     ''
- **Created At**  :  '' || rn.created_at AS description_md,
+ **Created At**  :  '' || strftime(''%d-%m-%Y'', rn.created_at)  AS description_md,
     ''
  **Priority**  :  '' || rn.linked_requirements AS description_md,
     ''
@@ -1507,12 +1509,28 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT ''html'' as component,
   ''<style>
+     tr td.test_status {
+          color: blue !important; /* Default to blue */
+      }
       tr.rowClass-passed td.test_status {
           color: green !important; /* Default to red */
       }
        tr.rowClass-failed td.test_status {
           color: red !important; /* Default to red */
       }
+
+       tr td.test_statusalign-middle {
+          color: blue !important; /* Default to blue */
+      }
+
+       tr.rowClass-passed td.test_statusalign-middle {
+          color: green !important; /* Default to red */
+      }
+       tr.rowClass-failed td.test_statusalign-middle {
+          color: red !important; /* Default to red */
+      }
+
+      
       .btn-list {
       display: flex;
       justify-content: flex-end;
@@ -1633,8 +1651,11 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       $tab = ''test_run'' AS active;
 
     SELECT 
-      case when $tab = ''test_suites'' THEN ''list''
-      END AS component;
+      case when $tab = ''test_suites'' THEN ''card''
+      END AS component,
+       1                          as columns;
+
+   
     SELECT
     '' **Name**  :  '' || rn.name AS description_md,
       ''
@@ -1642,7 +1663,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
         ''
  **Created By**  :  '' || rn.created_by_user AS description_md,
           ''
- **Created At**  :  '' || rn.created_at AS description_md,
+ **Created At**  :  '' || strftime(''%d-%m-%Y'', rn.created_at) AS description_md,
             ''
  **Priority**  :  '' || rn.linked_requirements AS description_md,
               ''
@@ -1790,7 +1811,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               ''
  **Created By**  :  '' || bd.created_by AS description_md,
                 ''
- **Created At**  :  '' || bd.created_at AS description_md,
+ **Created At**  :  '' || strftime(''%d-%m-%Y'',  bd.created_at) AS description_md,
                   ''
  **Priority**  :  '' || bd.priority AS description_md,
                     ''
@@ -1808,6 +1829,13 @@ WHERE bd.test_case_id = $id;
          tr.actualClass-failed td.State {
             color: red !important; /* Default to red */
         }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
@@ -2006,7 +2034,8 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     SELECT ''title''AS component,
       name as contents FROM groups where id = $id; 
 
-    SELECT ''list''AS component;
+    SELECT ''card''  AS component,
+    1                          as columns;
     SELECT
     '' **Id**  :  '' || rn.id AS description_md,
       ''
@@ -2051,7 +2080,8 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
           SELECT ''title''AS component,
       name as contents FROM groups where id = $id; 
 
-          SELECT ''list''AS component;
+          SELECT ''card''  AS component,
+    1                          as columns;
     SELECT
     '' **Id**  :  '' || id AS description_md,
       ''
@@ -2177,6 +2207,18 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        tr.rowClass-failed td.State {
           color: red !important; /* Default to red */
       }
+
+      tr td.Statealign-middle {
+          color: blue !important; /* Default to blue */
+      }
+      tr.rowClass-passed td.Statealign-middle {
+          color: green !important; /* Default to red */
+      }
+       tr.rowClass-failed td.Statealign-middle {
+          color: red !important; /* Default to red */
+      }
+
+      
       .btn-list {
       display: flex;
       justify-content: flex-end;
