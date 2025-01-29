@@ -7,7 +7,7 @@ on:
   workflow_dispatch:    
 
 jobs:
-  run-deno:
+  Trigger:
     runs-on: ubuntu-latest
 
     steps:
