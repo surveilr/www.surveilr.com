@@ -2200,6 +2200,20 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.0'' as title, ''# `surveilr` v1.7.0 Release Notes
+
+---
+
+## 🚀 What''''s New
+
+### **1. `surveilr` OSQuery Management Server**
+Introducing Osquery Management Server using `surveilr`, enabling secure and centralized monitoring of your infrastructure. The setup ensures secure node enrollment through TLS authentication and secret keys, allowing only authorized devices to connect. Users can easily configure and manage node behaviors dynamically via `surveilr`’s behavior tables.
+
+### **2. OpenDAL Dropbox Integration**
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.6.0'' as title, ''# `surveilr` v1.6.0 Release Notes
 
 ---
