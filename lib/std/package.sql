@@ -2225,6 +2225,43 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.1'' as title, ''# `surveilr` v1.7.1 Release Notes
+
+---
+
+## 🚀 What''''s New
+
+### 1. Enhancing `surveilr`''''s osQuery Management Server
+- Introduced a new flag--behavior` or `-b` to specify behavior name to queries to run automatically enrolled nodes.
+- a new SQLite function called `surveilr_osquery_ms_create_behaviour` to facilitate the creation of behaviors, making process smooth and easy.
+
+### Example
+When starting the `surveilr osquery-ms` server without passing a behavior, a default behavior with the following query configuration is created:
+```json
+{
+  "surveilr-cli": {
+    ...
+    "osquery_ms": {
+      "tls_proc": {
+ "query": "select * from processes",
+        "interval": 60
+      }
+    }
+  }
+}
+```
+To use a behavior with the `surveilr` osQuery management server first create a behavior using the new function: 
+```bash
+surveilr shell --cmd "select surveil_osquery_ms_create_behaviour(''''-behaviour'''', ''''{\"tls_proc\": {\"query\": \"select * from processes\", \"interval\": 60}, \"routes\": {\"query\": \"SELECT * FROM routes WHERE destination = ''''''''::1''''''''\", \"interval\": 60}}'''');"
+```
+Then, pass that behavior to the server by:
+
+```bash
+surveilr osquery-ms --cert ./cert.pem --key ./key.pem --enroll-secret "<secret>" -b "initial-behaviour"
+```'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.7.0'' as title, ''# `surveilr` v1.7.0 Release Notes
 
 ---
