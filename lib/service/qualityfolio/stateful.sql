@@ -112,7 +112,10 @@ FROM
 LEFT JOIN 
     groups g ON g.id = tc.group_id
 LEFT JOIN 
-    test_case_run_results r on r.test_case_id=tc.test_case_id;
+    (select 
+test_case_id,status
+from test_case_run_results
+group by test_case_id order by start_time desc) r on r.test_case_id=tc.test_case_id;
 
 
 
