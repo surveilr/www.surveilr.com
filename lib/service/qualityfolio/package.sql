@@ -119,10 +119,9 @@ FROM
 LEFT JOIN 
     groups g ON g.id = tc.group_id
 LEFT JOIN 
-    (select 
-test_case_id,status
-from test_case_run_results
-group by test_case_id order by start_time desc) r on r.test_case_id=tc.test_case_id;
+    (SELECT test_case_id test_case_id, status, max(start_time)
+FROM test_case_run_results
+group BY test_case_id) r on r.test_case_id=tc.test_case_id;
 
 
 
@@ -971,6 +970,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
                  
      SELECT ''html'' as component,
@@ -1031,6 +1031,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
  select
@@ -1078,6 +1079,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               select
 ''breadcrumb'' as component;
@@ -1137,6 +1139,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               
     
@@ -1335,6 +1338,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               select ''csv'' as component, ''test_suites.csv'' as filename;
 SELECT * FROM test_suites;
@@ -1346,6 +1350,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
     --First Chart: Test Case Status Distribution
@@ -1397,6 +1402,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               select
 ''chart'' as component,
@@ -1435,6 +1441,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
     SELECT
@@ -1466,6 +1473,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
     select
@@ -1527,6 +1535,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT
   ''breadcrumb'' as component;
@@ -1630,6 +1639,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               select ''csv'' as component, ''test_suites_''||$group_id||''.csv'' as filename;
  SELECT
@@ -1650,6 +1660,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               select ''csv'' as component, ''test_cases.csv'' as filename;
  SELECT
@@ -1669,6 +1680,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''html'' as component,
 ''<style>
@@ -1727,6 +1739,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
 
@@ -1838,6 +1851,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
@@ -1862,6 +1876,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
@@ -2067,6 +2082,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
@@ -2148,6 +2164,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
@@ -2201,6 +2218,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
     select
@@ -2246,6 +2264,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
                  select
    ''breadcrumb'' as component;
@@ -2316,6 +2335,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 -- not including breadcrumbs from sqlpage_aide_navigation
 -- not including page title from sqlpage_aide_navigation
 
+
 select "dynamic" as component,sqlpage.run_sql(''qltyfolio/progress-bar.sql'') as properties;
             ',
       CURRENT_TIMESTAMP)
@@ -2325,6 +2345,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
                 select
   ''breadcrumb'' as component;
@@ -2410,9 +2431,10 @@ SET current_page = ($offset / $limit) + 1;
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'sqlpage/templates/shell-custom.handlebars',
-      '        -- not including shell
-        -- not including breadcrumbs from sqlpage_aide_navigation
-        -- not including page title from sqlpage_aide_navigation
+      '        
+        
+        
+        
 
         <!DOCTYPE html>
 <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
@@ -2470,18 +2492,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
     <div class="page">
         <!-- Header -->
-        {{#if (or (or title (or icon image)) (or menu_item search_target))}}
-        <header id="sqlpage_header">
-            {{#if sidebar}}
-                <!-- Sidebar logic here -->
-            {{else}}
-                <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
-                 <h1 class="mb-0 w-0 fs-2">{{title}}</h1>
-                    <!-- Navbar content here -->
-                </nav>
-            {{/if}}
-        </header>
-        {{/if}}
+        
 
         <!-- Page Wrapper -->
         <div class="page-wrapper">
@@ -2500,6 +2511,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''list'' AS component;
 SELECT caption as title, COALESCE(url, path) as link, description
@@ -2533,6 +2545,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               WITH console_navigation_cte AS (
     SELECT title, description
@@ -2572,6 +2585,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''Tables'' as contents;
 SELECT ''table'' AS component,
@@ -2618,6 +2632,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -2679,6 +2694,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -2741,6 +2757,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''SQLPage pages in sqlpage_files table'' AS contents;
 SELECT ''table'' AS component,
@@ -2761,6 +2778,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
       SELECT ''breadcrumb'' as component;
@@ -2817,6 +2835,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''SQLPage pages generated from tables and views'' AS contents;
 SELECT ''text'' AS component, ''
@@ -2956,6 +2975,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''SQLPage navigation in sqlpage_aide_navigation table'' AS contents;
 SELECT ''table'' AS component, TRUE as sort, TRUE as search;
@@ -2987,6 +3007,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''Code Notebooks'' AS contents;
 SELECT ''table'' as component, ''Cell'' as markdown, 1 as search, 1 as sort;
@@ -3009,6 +3030,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -3067,6 +3089,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT
     ''foldable'' as component;
@@ -3258,6 +3281,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -3316,6 +3340,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
                  -- Title Component
     SELECT
@@ -3459,6 +3484,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               WITH navigation_cte AS (
 SELECT COALESCE(title, caption) as title, description
@@ -3498,6 +3524,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
@@ -3901,6 +3928,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               -- To display title
 SELECT
@@ -3930,6 +3958,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               
 select
@@ -4015,6 +4044,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               WITH navigation_cte AS (
     SELECT COALESCE(title, caption) as title, description
@@ -4054,6 +4084,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT ''title'' AS component, ''Uniform Resource Tables and Views'' as contents;
   SELECT ''table'' AS component,
@@ -4106,6 +4137,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
@@ -4164,6 +4196,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
@@ -4196,6 +4229,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
                 SELECT ''breadcrumb'' as component;
 SELECT
@@ -4237,6 +4271,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT
 ''breadcrumb'' AS component;
@@ -4312,6 +4347,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT
 ''breadcrumb'' AS component;
@@ -4394,6 +4430,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               WITH navigation_cte AS (
 SELECT COALESCE(title, caption) as title, description
@@ -4433,6 +4470,7 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
+              
 
               SELECT ''title'' AS component, ''Orchestration Tables and Views'' as contents;
 SELECT ''table'' AS component,
@@ -4464,7 +4502,7 @@ GROUP BY view_name;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
-  "component": "shell",
+  "component": "case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END",
   "title": "Qualityfolio",
   "icon": "",
   "favicon": "https://www.surveilr.com/assets/brand/qf-favicon.ico",
@@ -4490,7 +4528,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
-      'SELECT ''shell'' AS component,
+      'SELECT case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END AS component,
        ''Qualityfolio'' AS title,
        NULL AS icon,
        ''https://www.surveilr.com/assets/brand/qf-favicon.ico'' AS favicon,
