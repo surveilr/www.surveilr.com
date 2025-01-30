@@ -112,7 +112,9 @@ FROM
 LEFT JOIN 
     groups g ON g.id = tc.group_id
 LEFT JOIN 
-    test_case_run_results r on r.test_case_id=tc.test_case_id;
+    (SELECT test_case_id test_case_id, status, max(start_time)
+FROM test_case_run_results
+group BY test_case_id) r on r.test_case_id=tc.test_case_id;
 
 
 
