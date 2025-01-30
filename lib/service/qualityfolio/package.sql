@@ -119,7 +119,10 @@ FROM
 LEFT JOIN 
     groups g ON g.id = tc.group_id
 LEFT JOIN 
-    test_case_run_results r on r.test_case_id=tc.test_case_id;
+    (select 
+test_case_id,status
+from test_case_run_results
+group by test_case_id order by start_time desc) r on r.test_case_id=tc.test_case_id;
 
 
 
@@ -246,6 +249,8 @@ DROP VIEW IF EXISTS test_execution_log;
 CREATE VIEW test_execution_log AS
 SELECT 
     json_extract(content, '$.test_case_fii') AS test_case_id,
+    json_extract(content, '$.title') AS title,
+    json_extract(content, '$.status') AS status,
     json_extract(value, '$.step') AS step_number,
     json_extract(value, '$.stepname') AS step_name,
     json_extract(value, '$.status') AS step_status,
@@ -1174,7 +1179,7 @@ select
     ''## Total Test Cases Count'' as description_md,
  
     ''white'' as background_color,
-    ''## ''||count(test_case_id) as description_md,
+    ''## ''||count(DISTINCT test_case_id) as description_md,
     ''12'' as width,
      ''red'' as color,
     ''brand-speedtest''       as icon,
@@ -1237,6 +1242,46 @@ LEFT JOIN
     test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
+
+
+ select
+    ''## Total Defects'' as description_md,
+
+    ''white'' as background_color,
+    ''## ''||count(id) as description_md,
+    ''12'' as width,
+     ''red'' as color,
+    ''details-off''       as icon,
+    ''background-color: #FFFFFF'' as style,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link
+    FROM 
+    bug_report t ;
+    select
+    ''## Open Defects'' as description_md,
+
+    ''white'' as background_color,
+    ''## ''||count(id) as description_md,
+    ''12'' as width,
+     ''orange'' as color,
+    ''details-off''       as icon,
+    ''background-color: #FFFFFF'' as style,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=open'' as link
+    FROM 
+    bug_report t  where status=''open'';
+
+
+    select
+    ''## Closed Defects'' as description_md,
+
+    ''white'' as background_color,
+    ''## ''||count(id) as description_md,
+    ''12'' as width,
+     ''purple'' as color,
+    ''details-off''       as icon,
+    ''background-color: #FFFFFF'' as style,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=closed'' as link
+    FROM 
+    bug_report t where status=''closed'';
 
 
 SELECT ''html'' as component,
@@ -1620,6 +1665,64 @@ FROM test_cases t;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qltyfolio/bug-list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT ''html'' as component,
+''<style>
+
+    tr.rowClass-closed td.state {
+        color: green !important; /* Default to blue */
+    }
+     tr.rowClass-open td.state {
+        color: red !important; /* Default to blue */
+    }
+     tr.rowClass-closed td.Statealign-middle {
+        color: green !important; /* Default to blue */
+    }
+     tr.rowClass-open td.Statealign-middle {
+        color: red !important; /* Default to blue */
+    }
+
+}
+</style>'' as html;
+ select
+''breadcrumb'' as component;
+select
+''Home'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+select
+''Test Management System'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link; 
+select ''bug list'' as title;  
+
+ SELECT ''table'' as component,
+  TRUE AS sort,
+    TRUE AS search,
+      ''URL'' AS align_left,
+        ''title'' AS align_left,
+          ''group'' as markdown,
+          ''id'' as markdown,
+          "status_new" as markdown,
+          ''count'' as markdown;
+SELECT
+''['' || id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-detail.sql?id=''|| id || '')'' as id,
+  title,
+  created_by,
+  created_at,
+  type,
+  priority,
+  assigned,
+  status as "State",
+  ''rowClass-''||status as _sqlpage_css_class,
+  endpoint
+FROM bug_report t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'qltyfolio/suite-group.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
@@ -1788,37 +1891,29 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
          where test_case_id = $id
          group by title;
          
-    SELECT title FROM test_cases where test_case_id = $id;      
+    SELECT title FROM test_cases where test_case_id = $id order by created_at desc limit 1;      
          
 
          
 
     SELECT ''title''AS component,
-      title as contents FROM test_cases where test_case_id = $id; 
+      title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
     SELECT ''list''AS component;
     SELECT
     ''
- **Status**  :  '' || rn."status" AS description_md,
-      ''
- **Start Time**  :  '' || rn."start_time" AS description_md,
-        ''
- **End Time**  :  '' || rn."end_time" AS description_md,
-          ''
- **Duration**  :  '' || rn."total_duration" AS description_md,
-            ''
  **Title**  :  '' || bd.title AS description_md,
-              ''
+    ''
+ **Group**  :  '' || bd.group_name AS description_md,
+    ''
  **Created By**  :  '' || bd.created_by AS description_md,
-                ''
+    ''
  **Created At**  :  '' || strftime(''%d-%m-%Y'',  bd.created_at) AS description_md,
-                  ''
+    ''
  **Priority**  :  '' || bd.priority AS description_md,
-                    ''
+    ''
 '' || bd.body AS description_md
-FROM  test_cases bd 
-LEFT JOIN test_case_run_results rn ON  bd.test_case_id = rn.test_case_id
-WHERE bd.test_case_id = $id;
+FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
 
 
   SELECT ''html'' as component,
@@ -1936,41 +2031,7 @@ WHERE bd.test_case_id = $id;
       FROM  test_run WHERE $tab = ''test-run'' and test_case_id = $id;
    
 
-    --Tab - specific content for "bug-report"
-    /*SELECT
-    ''
- **id**  :  '' || b.id AS description_md,
-    ''
- **Title**  :  '' || b.title AS description_md,
-    ''
- **Created By**  :  '' || b.created_by AS description_md,
-    ''
- **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
-    ''
- **Type**  :  '' || b.type AS description_md,
-    ''
- **Priority**  :  '' || b.priority AS description_md,
-    ''
- **Assigned**  :  '' || b.assigned AS description_md,
-    ''
- **Status**  :  '' || b.status AS description_md,
-    ''
-'' || b.body AS description_md
-    FROM  bug_report b 
-    WHERE $tab = ''bug-report'' and b.test_case_id = $id;*/
-
-    -- SELECT
-    -- b.id AS "Id",
-    -- b.title AS "Title",
-    -- b.created_by AS "Created By",
-    -- strftime(''%d-%m-%Y'', b.created_at) AS "Run Date",
-    -- b.type AS "Type",
-    -- b.priority AS "Priority",
-    -- b.assigned AS "Assigned To",
-    -- b.status AS "Status"    
-    -- FROM  bug_report b
-    -- WHERE $tab = ''bug-report'' and b.test_case_id = $id
-    -- order by b.created_at desc ;
+    --Tab - specific content for "bug-report"   
     
      SELECT
      b.id||'' - ''||b.title as title,
@@ -1998,6 +2059,87 @@ WHERE bd.test_case_id = $id;
     END AS component,
       ''<div id="bug-report-content"></div>'' as html
     FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'' and $tab = ''bug-report'';
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qltyfolio/bug-detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              
+      SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''qltyfolio/bug-detail.sql/index.sql'') as contents;
+    ;
+
+    select
+    ''breadcrumb'' as component;
+    select
+    ''Home'' as title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+    select
+    ''Test Management System'' as title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link; 
+    select ''bug list'' as title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link;  
+      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;      
+         
+
+         
+
+    /*SELECT ''title''AS component,
+      title as contents FROM bug_report where id = $id order by created_at desc;*/
+
+    select 
+    ''datagrid''      as component,
+    title         as title,
+    ''bulb''          as icon,
+     ''
+ 
+
+**id**  :  '' || id AS description_md,    
+    ''
+ **Created By**  :  '' || created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', created_at) AS description_md,
+    ''
+ **Type**  :  '' || type AS description_md,
+    ''
+ **Priority**  :  '' || priority AS description_md,
+    ''
+ **Assigned**  :  '' || assigned AS description_md,
+    ''
+ **Status**  :  '' || status AS description_md,
+    ''
+'' || body AS description_md 
+      FROM  bug_report  WHERE id = $id;
+     
+    /*SELECT ''datagrid''AS component;
+     SELECT
+    ''
+ **id**  :  '' || id AS description_md
+    
+    ''
+ **Title**  :  '' || title AS description_md,
+    ''
+ **Created By**  :  '' || b.created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+    ''
+ **Type**  :  '' || b.type AS description_md,
+    ''
+ **Priority**  :  '' || b.priority AS description_md,
+    ''
+ **Assigned**  :  '' || b.assigned AS description_md,
+    ''
+ **Status**  :  '' || b.status AS description_md,
+    ''
+'' || b.body AS description_md
+    FROM  bug_report b 
+    WHERE b.id = $id;*/;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2155,7 +2297,7 @@ SELECT ''html'' as component,
    SELECT
    ''['' || t.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| t.test_case_id || '')'' as id,
      t.title,
-      case when p.status is not null then p.status
+      case when t.test_status is not null then t.test_status
        else ''TODO'' END AS "test_status",
      t.created_by as "Created By",
      strftime(''%d-%m-%Y'', t.created_at) as "Created On",

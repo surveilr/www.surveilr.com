@@ -222,7 +222,7 @@ select
     '## Total Test Cases Count' as description_md,
  
     'white' as background_color,
-    '## '||count(test_case_id) as description_md,
+    '## '||count(DISTINCT test_case_id) as description_md,
     '12' as width,
      'red' as color,
     'brand-speedtest'       as icon,
@@ -285,6 +285,46 @@ LEFT JOIN
     test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
+
+
+ select
+    '## Total Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'red' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link
+    FROM 
+    bug_report t ;
+    select
+    '## Open Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'orange' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
+    FROM 
+    bug_report t  where status='open';
+
+
+    select
+    '## Closed Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'purple' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
+    FROM 
+    bug_report t where status='closed';
 
 
 SELECT 'html' as component,
@@ -659,6 +699,65 @@ SELECT 'table' as component,
     `;
   }
 
+  @spn.shell({
+    breadcrumbsFromNavStmts: "no",
+  })
+  "qltyfolio/bug-list.sql"() {
+    return this.SQL`
+    SELECT 'html' as component,
+    '<style>
+    
+        tr.rowClass-closed td.state {
+            color: green !important; /* Default to blue */
+        }
+         tr.rowClass-open td.state {
+            color: red !important; /* Default to blue */
+        }
+         tr.rowClass-closed td.Statealign-middle {
+            color: green !important; /* Default to blue */
+        }
+         tr.rowClass-open td.Statealign-middle {
+            color: red !important; /* Default to blue */
+        }
+    
+    }
+    </style>' as html;
+     select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+    select 'bug list' as title;  
+    
+     SELECT 'table' as component,
+      TRUE AS sort,
+        TRUE AS search,
+          'URL' AS align_left,
+            'title' AS align_left,
+              'group' as markdown,
+              'id' as markdown,
+              "status_new" as markdown,
+              'count' as markdown;
+    SELECT
+    '[' || id || '](' || ${this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
+      }|| id || ')' as id,
+      title,
+      created_by,
+      created_at,
+      type,
+      priority,
+      assigned,
+      status as "State",
+      'rowClass-'||status as _sqlpage_css_class,
+      endpoint
+    FROM bug_report t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+
+    `;
+  }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/suite-group.sql"() {
     return this.SQL`
@@ -794,28 +893,23 @@ FROM test_suites rn WHERE id = $id;
          where test_case_id = $id
          group by title;
          
-    SELECT title FROM test_cases where test_case_id = $id;      
+    SELECT title FROM test_cases where test_case_id = $id order by created_at desc limit 1;      
          
 
          
 
     SELECT 'title'AS component,
-      title as contents FROM test_cases where test_case_id = $id; 
+      title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
     SELECT 'list'AS component;
     SELECT
-    '\n **Status**  :  ' || rn."status" AS description_md,
-      '\n **Start Time**  :  ' || rn."start_time" AS description_md,
-        '\n **End Time**  :  ' || rn."end_time" AS description_md,
-          '\n **Duration**  :  ' || rn."total_duration" AS description_md,
-            '\n **Title**  :  ' || bd.title AS description_md,
-              '\n **Created By**  :  ' || bd.created_by AS description_md,
-                '\n **Created At**  :  ' || strftime('%d-%m-%Y',  bd.created_at) AS description_md,
-                  '\n **Priority**  :  ' || bd.priority AS description_md,
-                    '\n' || bd.body AS description_md
-FROM  test_cases bd 
-LEFT JOIN test_case_run_results rn ON  bd.test_case_id = rn.test_case_id
-WHERE bd.test_case_id = $id;
+    '\n **Title**  :  ' || bd.title AS description_md,
+    '\n **Group**  :  ' || bd.group_name AS description_md,
+    '\n **Created By**  :  ' || bd.created_by AS description_md,
+    '\n **Created At**  :  ' || strftime('%d-%m-%Y',  bd.created_at) AS description_md,
+    '\n **Priority**  :  ' || bd.priority AS description_md,
+    '\n' || bd.body AS description_md
+FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
 
 
   SELECT 'html' as component,
@@ -936,32 +1030,7 @@ WHERE bd.test_case_id = $id;
       FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
    
 
-    --Tab - specific content for "bug-report"
-    /*SELECT
-    '\n **id**  :  ' || b.id AS description_md,
-    '\n **Title**  :  ' || b.title AS description_md,
-    '\n **Created By**  :  ' || b.created_by AS description_md,
-    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
-    '\n **Type**  :  ' || b.type AS description_md,
-    '\n **Priority**  :  ' || b.priority AS description_md,
-    '\n **Assigned**  :  ' || b.assigned AS description_md,
-    '\n **Status**  :  ' || b.status AS description_md,
-    '\n' || b.body AS description_md
-    FROM  bug_report b 
-    WHERE $tab = 'bug-report' and b.test_case_id = $id;*/
-
-    -- SELECT
-    -- b.id AS "Id",
-    -- b.title AS "Title",
-    -- b.created_by AS "Created By",
-    -- strftime('%d-%m-%Y', b.created_at) AS "Run Date",
-    -- b.type AS "Type",
-    -- b.priority AS "Priority",
-    -- b.assigned AS "Assigned To",
-    -- b.status AS "Status"    
-    -- FROM  bug_report b
-    -- WHERE $tab = 'bug-report' and b.test_case_id = $id
-    -- order by b.created_at desc ;
+    --Tab - specific content for "bug-report"   
     
      SELECT
      b.id||' - '||b.title as title,
@@ -982,6 +1051,62 @@ WHERE bd.test_case_id = $id;
     END AS component,
       '<div id="bug-report-content"></div>' as html
     FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed' and $tab = 'bug-report';
+
+
+    `;
+  }
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qltyfolio/bug-detail.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+    select 'bug list' as title,
+      ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link;  
+      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;      
+         
+
+         
+
+    /*SELECT 'title'AS component,
+      title as contents FROM bug_report where id = $id order by created_at desc;*/
+
+    select 
+    'datagrid'      as component,
+    title         as title,
+    'bulb'          as icon,
+     '\n \n\n**id**  :  ' || id AS description_md,    
+    '\n **Created By**  :  ' || created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created_at) AS description_md,
+    '\n **Type**  :  ' || type AS description_md,
+    '\n **Priority**  :  ' || priority AS description_md,
+    '\n **Assigned**  :  ' || assigned AS description_md,
+    '\n **Status**  :  ' || status AS description_md,
+    '\n' || body AS description_md 
+      FROM  bug_report  WHERE id = $id;
+     
+    /*SELECT 'datagrid'AS component;
+     SELECT
+    '\n **id**  :  ' || id AS description_md
+    
+    '\n **Title**  :  ' || title AS description_md,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b 
+    WHERE b.id = $id;*/
 
 
     `;
@@ -1118,7 +1243,7 @@ WHERE rn.id = $id;
       this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
     }|| t.test_case_id || ')' as id,
       t.title,
-       case when p.status is not null then p.status
+       case when t.test_status is not null then t.test_status
         else 'TODO' END AS "test_status",
       t.created_by as "Created By",
       strftime('%d-%m-%Y', t.created_at) as "Created On",
