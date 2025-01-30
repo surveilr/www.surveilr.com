@@ -120,6 +120,8 @@ DROP VIEW IF EXISTS test_execution_log;
 CREATE VIEW test_execution_log AS
 SELECT 
     json_extract(content, '$.test_case_fii') AS test_case_id,
+    json_extract(content, '$.title') AS title,
+    json_extract(content, '$.status') AS status,
     json_extract(value, '$.step') AS step_number,
     json_extract(value, '$.stepname') AS step_name,
     json_extract(value, '$.status') AS step_status,
