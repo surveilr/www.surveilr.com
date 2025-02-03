@@ -61,7 +61,7 @@
     "prettier": "^3.4.1",
     "prettier-eslint": "^16.3.0",
     "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.6.8",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "sass": "^1.83.4",
     "typescript": "^5.7.3"
   }
