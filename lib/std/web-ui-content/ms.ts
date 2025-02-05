@@ -147,45 +147,26 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "ms/index.sql"() {
     return this.SQL`
-            SELECT 'title' AS component, 'All Registered Nodes' as contents;
-             SELECT 'table' AS component,
-                'osQuery Node Key' as markdown,
-                TRUE as sort,
-                TRUE as search;
+        SELECT 'title' AS component, 'All Registered Nodes' as contents;
+        SELECT 'table' AS component,
+            'osQuery Node Key' as markdown,
+            TRUE as sort,
+            TRUE as search;
 
-                SELECT 
-                '[' || node_key || '](node.sql?key=' || node_key || '&host_id=' || host_identifier || ')' as "osQuery Node Key",
-                host_identifier as "Host Identifier",
-                platform as "OS",
-                os_version as "OS Version",
-                last_seen as 'Last Seen',
-                status as status
-                FROM surveilr_osquery_ms_node;
+        SELECT 
+            '[' || node_key || '](node.sql?key=' || node_key || '&host_id=' || host_identifier || ')' as "osQuery Node Key",
+            host_identifier as "Host Identifier",
+            platform as "OS",
+            os_version as "OS Version",
+            last_seen as 'Last Seen',
+            status as status
+        FROM surveilr_osquery_ms_node;
         `;
-    // return this.SQL`
-    //           WITH navigation_cte AS (
-    //           SELECT COALESCE(title, caption) as title, description
-    //               FROM sqlpage_aide_navigation
-    //           WHERE namespace = 'prime' AND path = ${
-    //   this.constructHomePath("ms")
-    // }
-    //           )
-    //           SELECT 'list' AS component, title, description
-    //               FROM navigation_cte;
-    //           SELECT caption as title, ${
-    //   this.absoluteURL("/")
-    // } || COALESCE(url, path) as link, description
-    //               FROM sqlpage_aide_navigation
-    //           WHERE namespace = 'prime' AND parent_path =  ${
-    //   this.constructHomePath("ms")
-    // }
-    //           ORDER BY sibling_order;
-    //       `;
   }
 
-    @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "ms/node.sql"() {
-        return this.SQL`
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ms/node.sql"() {
+    return this.SQL`
             ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Node'` })}
             SELECT 'list' as component, 'Browse details about ' || $host_id as title;
 
@@ -208,8 +189,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
                 'Open Sockets' as title, 
                 'Verify network connections on ' || $host_id as description,
                 'open-socket.sql?key=' || $key || '&host_id=' || $host_id as link;
-        `
-    }
+        `;
+  }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/process.sql"() {
@@ -240,7 +221,11 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/system-info.sql"() {
     return this.SQL`
-        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' System Information'` })}
+        ${
+      this.activeBreadcrumbsSQL({
+        titleExpr: `$host_id || ' System Information'`,
+      })
+    }
         SELECT 'title' AS component, 'Detailed Sytem Information for ' || $host_id as contents;
         SELECT 'table' AS component,
             TRUE as sort,
@@ -254,11 +239,14 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
-  
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/network.sql"() {
     return this.SQL`
-        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Network Interface'` })}
+        ${
+      this.activeBreadcrumbsSQL({
+        titleExpr: `$host_id || ' Network Interface'`,
+      })
+    }
         SELECT 'title' AS component, 'Network Interfaces' as contents;
         SELECT 'table' AS component,
             TRUE as sort,
@@ -276,7 +264,9 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/open-socket.sql"() {
     return this.SQL`
-        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Open Sockets'` })}
+        ${
+      this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Open Sockets'` })
+    }
         SELECT 'title' AS component, 'Open Sockets on ' || $host_id as contents;
         SELECT 'table' AS component,
             TRUE as sort,
@@ -294,5 +284,4 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         FROM surveilr_osquery_ms_node_open_socket WHERE node_key = $key;
         `;
   }
-
 }
