@@ -16,8 +16,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
 
   supportDDL() {
     return this.SQL`
-            DROP VIEW IF EXISTS surveilr_osquery_ms_processes;
-            CREATE VIEW surveilr_osquery_ms_processes AS
+            DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
+            CREATE VIEW surveilr_osquery_ms_node_process AS
             SELECT
                 l.node_key,
                 json_extract(j.value, '$.hostIdentifier') AS host_identifier,
@@ -55,8 +55,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
                 AND json_extract(j.value, '$.name') = 'tls_proc';
 
 
-        DROP VIEW IF EXISTS surveilr_osquery_ms_interface_details;
-        CREATE VIEW surveilr_osquery_ms_interface_details AS
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
+        CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
         SELECT
             l.node_key,
             json_extract(j.value, '$.hostIdentifier') AS host_identifier,
@@ -84,8 +84,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE l.log_type = 'result'
         AND json_extract(j.value, '$.name') = 'interface_details';
 
-        DROP VIEW IF EXISTS surveilr_osquery_ms_open_sockets;
-        CREATE VIEW surveilr_osquery_ms_open_sockets AS
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_open_socket;
+        CREATE VIEW surveilr_osquery_ms_node_open_socket AS
         SELECT
             l.node_key,
             json_extract(j.value, '$.hostIdentifier') AS host_identifier,
@@ -107,8 +107,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE l.log_type = 'result'
         AND json_extract(j.value, '$.name') = 'process_open_sockets';
 
-        DROP VIEW IF EXISTS surveilr_osquery_ms_system_info;
-        CREATE VIEW surveilr_osquery_ms_system_info AS
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
+        CREATE VIEW surveilr_osquery_ms_node_system_info AS
         SELECT
             l.node_key,
             json_extract(j.value, '$.hostIdentifier') AS host_identifier,
@@ -142,239 +142,157 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "Osquery Management Server Details",
+    caption: "osQuery Management Server",
     description: "Explore details about all nodes",
   })
   "ms/index.sql"() {
     return this.SQL`
-              WITH navigation_cte AS (
-              SELECT COALESCE(title, caption) as title, description
-                  FROM sqlpage_aide_navigation
-              WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("ms")
-    }
-              )
-              SELECT 'list' AS component, title, description
-                  FROM navigation_cte;
-              SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
-                  FROM sqlpage_aide_navigation
-              WHERE namespace = 'prime' AND parent_path =  ${
-      this.constructHomePath("ms")
-    }
-              ORDER BY sibling_order;
-          `;
-  }
-
-  @msNav({
-    caption: "Nodes",
-    description: "All Connected Machines",
-    siblingOrder: 99,
-  })
-  "ms/nodes.sql"() {
-    return this.SQL`
-            SELECT 'title' AS component, 'Brief Details About Nodes' as contents;
+            SELECT 'title' AS component, 'All Registered Nodes' as contents;
              SELECT 'table' AS component,
+                'osQuery Node Key' as markdown,
                 TRUE as sort,
                 TRUE as search;
 
                 SELECT 
-                node_key as "Node Key",
-                host_identifier as "Identifier",
+                '[' || node_key || '](node.sql?key=' || node_key || '&host_id=' || host_identifier || ')' as "osQuery Node Key",
+                host_identifier as "Host Identifier",
                 platform as "OS",
                 os_version as "OS Version",
                 last_seen as 'Last Seen',
                 status as status
                 FROM surveilr_osquery_ms_node;
         `;
+    // return this.SQL`
+    //           WITH navigation_cte AS (
+    //           SELECT COALESCE(title, caption) as title, description
+    //               FROM sqlpage_aide_navigation
+    //           WHERE namespace = 'prime' AND path = ${
+    //   this.constructHomePath("ms")
+    // }
+    //           )
+    //           SELECT 'list' AS component, title, description
+    //               FROM navigation_cte;
+    //           SELECT caption as title, ${
+    //   this.absoluteURL("/")
+    // } || COALESCE(url, path) as link, description
+    //               FROM sqlpage_aide_navigation
+    //           WHERE namespace = 'prime' AND parent_path =  ${
+    //   this.constructHomePath("ms")
+    // }
+    //           ORDER BY sibling_order;
+    //       `;
   }
 
-  @msNav({
-    caption: "Processes",
-    description:
-      "Identify what processes are running (helpful to see if unauthorized processes are active).",
-    siblingOrder: 99,
-  })
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "ms/node.sql"() {
+        return this.SQL`
+            ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Node'` })}
+            SELECT 'list' as component, 'Browse details about ' || $host_id as title;
+
+            SELECT 
+                'Processes' as title, 
+                'Identify what processes are running (helpful to see if unauthorized processes are active).' as description,
+                'process.sql?key=' || $key || '&host_id=' || $host_id as link;
+
+            SELECT 
+                'System Information' as title, 
+                'Full Insight Into ' || $host_id as description,
+                'system-info.sql?key=' || $key || '&host_id=' || $host_id as link;
+
+            SELECT 
+                'Network Interface Details' as title, 
+                'An audit of interfaces, IP addresses, and network masks for ' || $host_id as description,
+                'network.sql?key=' || $key || '&host_id=' || $host_id as link;
+
+             SELECT 
+                'Open Sockets' as title, 
+                'Verify network connections on ' || $host_id as description,
+                'open-socket.sql?key=' || $key || '&host_id=' || $host_id as link;
+        `
+    }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/process.sql"() {
     return this.SQL`
-            SELECT 'title' AS component, 'Running Processes' as contents;
-             SELECT 'table' AS component,
-                TRUE as sort,
-                TRUE as search;
+        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Processes'` })}
+        SELECT 'title' AS component, 'All Running Processes on ' || $host_id as contents;
+        SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
 
-                SELECT 
-                node_key as "Node Key",
-                host_identifier as "Identifier",
-                calendar_time as "Report Time",
-                cgroup_path, cmdline, cwd,
-                disk_bytes_read, disk_bytes_written, 
-                egid, euid,
-                gid, process_name, nice, on_disk,
-                parent, process_name, pgroup, pid, 
-                resident_size, root, 
-                sgid, start_time, state, suid, system_time,
-                threads, total_size,
-                uid, user_time, wired_size
-                FROM surveilr_osquery_ms_processes;
+        SELECT 
+            node_key as "osQuery Node Key",
+            host_identifier as "Host Identifier",
+            calendar_time as "Report Time",
+            cgroup_path, cmdline, cwd,
+            disk_bytes_read, disk_bytes_written, 
+            egid, euid,
+            gid, process_name, nice, on_disk,
+            parent, process_name, pgroup, pid, 
+            resident_size, root, 
+            sgid, start_time, state, suid, system_time,
+            threads, total_size,
+            uid, user_time, wired_size
+        FROM surveilr_osquery_ms_node_process WHERE node_key = $key;
         `;
   }
 
-  @msNav({
-    caption: "Node Information",
-    description: "Detailed System information",
-    siblingOrder: 99,
-  })
-  "ms/info.sql"() {
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ms/system-info.sql"() {
     return this.SQL`
-            SELECT 'title' AS component, 'Detailed Sytem Information' as contents;
-             SELECT 'table' AS component,
-                TRUE as sort,
-                TRUE as search;
+        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' System Information'` })}
+        SELECT 'title' AS component, 'Detailed Sytem Information for ' || $host_id as contents;
+        SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
 
-                SELECT 
-                host_identifier as "Identifier",
-                calendar_time,
-                *
-                FROM surveilr_osquery_ms_system_info;
+        SELECT 
+            host_identifier as "Host Identifier",
+            calendar_time,
+            *
+        FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
         `;
   }
 
-  //   @msNav({
-  //     caption: "Node Operating Sytem",
-  //     description: "Operating System version and details",
-  //     siblingOrder: 99,
-  //   })
-  //   "ms/os.sql"() {
-  //     return this.SQL`
-  //         SELECT 'title' AS component, 'Bri' as contents;
-  //          SELECT 'table' AS component,
-  //             TRUE as sort,
-  //             TRUE as search;
-
-  //             SELECT
-  //             node_key as "Node Key",
-  //             host_identifier as "Identifier",
-  //             platform as "OS",
-  //             os_version as "OS Version",
-  //             last_seen as 'Last Seen',
-  //             status as status
-  //             FROM surveilr_osquery_ms_node;
-  //     `
-  //   }
-
-  //   @msNav({
-  //     caption: "User Accounts",
-  //     description: "Verify which user accounts exist and check for unexpected accounts.",
-  //     siblingOrder: 99,
-  //   })
-  //   "ms/users.sql"() {
-  //     return this.SQL`
-  //         SELECT 'title' AS component, 'Brief Details About Nodes' as contents;
-  //          SELECT 'table' AS component,
-  //             TRUE as sort,
-  //             TRUE as search;
-
-  //             SELECT
-  //             node_key as "Node Key",
-  //             host_identifier as "Identifier",
-  //             platform as "OS",
-  //             os_version as "OS Version",
-  //             last_seen as 'Last Seen',
-  //             status as status
-  //             FROM surveilr_osquery_ms_node;
-  //     `
-  //   }
-
-  @msNav({
-    caption: "Network Interface Details",
-    description: "An audit of interfaces, IP addresses, and network masks.",
-    siblingOrder: 99,
-  })
+  
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/network.sql"() {
     return this.SQL`
-            SELECT 'title' AS component, 'Network Interfaces' as contents;
-             SELECT 'table' AS component,
-                TRUE as sort,
-                TRUE as search;
+        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Network Interface'` })}
+        SELECT 'title' AS component, 'Network Interfaces' as contents;
+        SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
 
-                SELECT 
-                node_key as "Node Key",
-                host_identifier as "Identifier",
-                calendar_time as "Report Time", flags,
-                collisions, interface, link_speed, type, metric, pci_slot, mac
-                FROM surveilr_osquery_ms_interface_details;
+        SELECT 
+            node_key as "Node Key",
+            host_identifier as "Identifier",
+            calendar_time as "Report Time", flags,
+            collisions, interface, link_speed, type, metric, pci_slot, mac
+        FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
         `;
   }
 
-  //   @msNav({
-  //     caption: "IP Configuration",
-  //     description: "An audit of interfaces, IP addresses, and network masks.",
-  //     siblingOrder: 99,
-  //   })
-  //   "ms/ip_config.sql"() {
-  //     return this.SQL`
-  //         SELECT 'title' AS component, 'Brief Details About Nodes' as contents;
-  //          SELECT 'table' AS component,
-  //             TRUE as sort,
-  //             TRUE as search;
-
-  //             SELECT
-  //             node_key as "Node Key",
-  //             host_identifier as "Identifier",
-  //             platform as "OS",
-  //             os_version as "OS Version",
-  //             last_seen as 'Last Seen',
-  //             status as status
-  //             FROM surveilr_osquery_ms_node;
-  //     `
-  //   }
-
-  @msNav({
-    caption: "Process Open Sockets",
-    description: "Verify network connections.",
-    siblingOrder: 99,
-  })
-  "ms/open_socket.sql"() {
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ms/open-socket.sql"() {
     return this.SQL`
-            SELECT 'title' AS component, 'Sockets' as contents;
-             SELECT 'table' AS component,
-                TRUE as sort,
-                TRUE as search;
+        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Open Sockets'` })}
+        SELECT 'title' AS component, 'Open Sockets on ' || $host_id as contents;
+        SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
 
-                SELECT 
-                node_key as "Node Key",
-                host_identifier as "Identifier",
-                calendar_time as "Report Time",
-                family, fd, 
-                local_address, local_port,
-                net_namespace, path, pid, protocol,
-                remote_address, remote_port,
-                socket, state
-                FROM surveilr_osquery_ms_open_sockets;
+        SELECT 
+            node_key as "osQuery Node Key",
+            host_identifier as "Host Identifier",
+            calendar_time as "Report Time",
+            family, fd, 
+            local_address, local_port,
+            net_namespace, path, pid, protocol,
+            remote_address, remote_port,
+            socket, state
+        FROM surveilr_osquery_ms_node_open_socket WHERE node_key = $key;
         `;
   }
 
-  //   @msNav({
-  //     caption: "Process Open File Descriptors",
-  //     description: "View and verify open ports running.",
-  //     siblingOrder: 99,
-  //   })
-  //   "ms/ports.sql"() {
-  //     return this.SQL`
-  //         SELECT 'title' AS component, 'Brief Details About Nodes' as contents;
-  //          SELECT 'table' AS component,
-  //             TRUE as sort,
-  //             TRUE as search;
-
-  //             SELECT
-  //             node_key as "Node Key",
-  //             host_identifier as "Identifier",
-  //             platform as "OS",
-  //             os_version as "OS Version",
-  //             last_seen as 'Last Seen',
-  //             status as status
-  //             FROM surveilr_osquery_ms_node;
-  //     `
-  //   }
 }
