@@ -4,12 +4,18 @@ import * as pkg from "../drh-basepackage.sql.ts";
 import {
   checkAndConvertToVsp,
   createCommonCombinedCGMViewSQL,
+  saveJsonCgm,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class illinoisSqlPages extends spn.TypicalSqlPageNotebook {
   async statelessvsvSQL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = checkAndConvertToVsp(dbFilePath);
+    return await sqlStatements;
+  }
+  async savecgmSQL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const sqlStatements = saveJsonCgm(dbFilePath);
     return await sqlStatements;
   }
   commonViewDDL() {

@@ -25,6 +25,16 @@ PAT2|SID1|SITE1|a|a|a|a|a|a|a|a|a|a",
 create table participant_check as select * from participant_vsv;  */
 
 ------------------------------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
+    investigator_id TEXT,
+    investigator_name TEXT,
+    email TEXT,
+    institution_id TEXT,
+    study_id TEXT,
+    tenant_id TEXT
+);
+
 CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
     investigator_id TEXT,
     investigator_name TEXT,
@@ -1156,6 +1166,10 @@ FROM
     uniform_resource_participant;
 
    
+CREATE TABLE IF NOT EXISTS participant AS
+    SELECT *
+    FROM drh_participant;
+
 -- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 

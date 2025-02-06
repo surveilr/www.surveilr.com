@@ -4,6 +4,7 @@ import * as pkg from "./drh-basepackage.sql.ts";
 import {
   checkAndConvertToVsp,
   createCommonCombinedCGMViewSQL,
+  saveJsonCgm,
 } from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 // Class to manage SQL page with dbFilePath as a constructor parameter
@@ -21,7 +22,10 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
     const sqlStatements = checkAndConvertToVsp(this.dbFilePath);
     return await sqlStatements;
   }
-
+  async savecgmSQL() {      
+      const sqlStatements = saveJsonCgm(this.dbFilePath);
+      return await sqlStatements;
+    }
   // Method to generate DDL view using the dbFilePath
   dclp1ViewDDL() {
     console.error(`The database path is  "${this.dbFilePath}"`);
