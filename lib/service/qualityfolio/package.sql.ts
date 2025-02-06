@@ -2,10 +2,12 @@
 import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
+  docs as d,
   orchestration as orch,
-  shell as sh,
+  //shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
+import * as sh from "./custom_shell.ts";
 
 const WEB_UI_TITLE = "Qualityfolio";
 const WE_UI_LOGO = "qf-logo.png";
@@ -40,9 +42,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -85,12 +86,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||suite_id||')' as id,
       
       suite_name,
-      created_by as "Created By",
+      created_by_user as "Created By",
       total_test_case as "test case count",
        CASE
         WHEN total_test_case > 0
@@ -162,13 +162,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/plan-overview.sql")
-    }||'?id='||id||')' as id,      
+      '['||id||']('||${this.absoluteURL("/qltyfolio/plan-overview.sql")
+      }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${
-      this.absoluteURL("/qltyfolio/test-cases-list.sql")
-    }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${this.absoluteURL("/qltyfolio/test-cases-list.sql")
+      }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -180,7 +178,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "qltyfolio/index.sql"() {
     return this.SQL`
-
+    
     SELECT 'text' as component,
     'The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.' as contents;
     select 
@@ -220,7 +218,7 @@ select
     '## Total Test Cases Count' as description_md,
  
     'white' as background_color,
-    '## '||count(test_case_id) as description_md,
+    '## '||count(DISTINCT test_case_id) as description_md,
     '12' as width,
      'red' as color,
     'brand-speedtest'       as icon,
@@ -265,6 +263,8 @@ LEFT JOIN
     ON
     t.test_case_id = r.test_case_id;
 
+    
+
 
     select
     '## Failed Rate' as description_md,
@@ -281,6 +281,46 @@ LEFT JOIN
     test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
+
+
+ select
+    '## Total Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'red' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link
+    FROM 
+    bug_report t ;
+    select
+    '## Open Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'orange' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
+    FROM 
+    bug_report t  where status='open';
+
+
+    select
+    '## Closed Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(id) as description_md,
+    '12' as width,
+     'purple' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
+    FROM 
+    bug_report t where status='closed';
 
 
 SELECT 'html' as component,
@@ -380,13 +420,16 @@ LEFT JOIN
 
     SELECT
     'Todo' AS label,
-      ROUND(100.0 * (COUNT(t.test_case_id) - COUNT(r.test_case_id)) / COUNT(t.test_case_id), 2) AS value
+      ROUND(100.0 * SUM(CASE WHEN r.status IS NULL THEN 1 ELSE 0 END) / COUNT(t.test_case_id), 2) AS value
     FROM 
     test_cases t
 LEFT JOIN 
     test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
+
+
+
     `;
   }
   @spn.shell({
@@ -452,7 +495,7 @@ SELECT
     test_cases;
     `;
   }
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  @spn.shell({ breadcrumbsFromNavStmts: "no", pageTitleFromNavStmts: "no" })
   "qltyfolio/suite-data.sql"() {
     return this.SQL`
     select
@@ -467,13 +510,15 @@ SELECT
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT 'title'AS component,
       name as contents FROM test_suites  WHERE id = $id; 
-     SELECT 'list'  AS component;
+    SELECT 'card'  AS component,
+    1                          as columns;
+    
     SELECT
     '\n **Description**  :  ' || rn."description" AS description_md,
-      '\n **Created By**  :  ' || rn.created_by AS description_md,
-        '\n **Created At**  :  ' || rn.created_at AS description_md,
-          '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
-            '\n' || rn.body AS description_md
+    '\n **Created By**  :  ' || rn.created_by_user AS description_md,
+    '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at)  AS description_md,
+    '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
+    '\n' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
 
 SELECT 'title'  AS component,
@@ -491,13 +536,11 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -543,12 +586,28 @@ SELECT 'table' as component,
 
    SELECT 'html' as component,
     '<style>
+       tr td.test_status {
+            color: blue !important; /* Default to blue */
+        }
         tr.rowClass-passed td.test_status {
             color: green !important; /* Default to red */
         }
          tr.rowClass-failed td.test_status {
             color: red !important; /* Default to red */
         }
+
+         tr td.test_statusalign-middle {
+            color: blue !important; /* Default to blue */
+        }
+
+         tr.rowClass-passed td.test_statusalign-middle {
+            color: green !important; /* Default to red */
+        }
+         tr.rowClass-failed td.test_statusalign-middle {
+            color: red !important; /* Default to red */
+        }
+
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
@@ -566,7 +625,7 @@ SELECT 'table' as component,
   
     SELECT 'table' as component,
       TRUE AS sort,
-        --TRUE AS search,
+        TRUE AS search,
           'URL' AS align_left,
             'title' AS align_left,
               'group' as markdown,
@@ -574,9 +633,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           test_status,
@@ -634,6 +692,65 @@ SELECT 'table' as component,
     `;
   }
 
+  @spn.shell({
+    breadcrumbsFromNavStmts: "no",
+  })
+  "qltyfolio/bug-list.sql"() {
+    return this.SQL`
+    SELECT 'html' as component,
+    '<style>
+    
+        tr.rowClass-closed td.state {
+            color: green !important; /* Default to blue */
+        }
+         tr.rowClass-open td.state {
+            color: red !important; /* Default to blue */
+        }
+         tr.rowClass-closed td.Statealign-middle {
+            color: green !important; /* Default to blue */
+        }
+         tr.rowClass-open td.Statealign-middle {
+            color: red !important; /* Default to blue */
+        }
+    
+    }
+    </style>' as html;
+     select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+    select 'bug list' as title;  
+    
+     SELECT 'table' as component,
+      TRUE AS sort,
+        TRUE AS search,
+          'URL' AS align_left,
+            'title' AS align_left,
+              'group' as markdown,
+              'id' as markdown,
+              "status_new" as markdown,
+              'count' as markdown;
+    SELECT
+    '[' || id || '](' || ${this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
+      }|| id || ')' as id,
+      title,
+      created_by,
+      created_at,
+      type,
+      priority,
+      assigned,
+      status as "State",
+      'rowClass-'||status as _sqlpage_css_class,
+      endpoint
+    FROM bug_report t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+
+    `;
+  }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qltyfolio/suite-group.sql"() {
     return this.SQL`
@@ -662,13 +779,16 @@ SELECT 'table' as component,
       $tab = 'test_run' AS active;
 
     SELECT 
-      case when $tab = 'test_suites' THEN 'list'
-      END AS component;
+      case when $tab = 'test_suites' THEN 'card'
+      END AS component,
+       1                          as columns;
+
+   
     SELECT
     ' **Name**  :  ' || rn.name AS description_md,
       '\n **Description**  :  ' || rn."description" AS description_md,
-        '\n **Created By**  :  ' || rn.created_by AS description_md,
-          '\n **Created At**  :  ' || rn.created_at AS description_md,
+        '\n **Created By**  :  ' || rn.created_by_user AS description_md,
+          '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at) AS description_md,
             '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
               '\n' || rn.body AS description_md
 FROM test_suites rn WHERE id = $id;
@@ -693,9 +813,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -766,42 +885,47 @@ FROM test_suites rn WHERE id = $id;
          where test_case_id = $id
          group by title;
          
-    SELECT title FROM test_cases where test_case_id = $id;      
+    SELECT title FROM test_cases where test_case_id = $id order by created_at desc limit 1;      
          
 
          
 
     SELECT 'title'AS component,
-      title as contents FROM test_cases where test_case_id = $id; 
+      title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
     SELECT 'list'AS component;
     SELECT
-    '\n **Status**  :  ' || rn."status" AS description_md,
-      '\n **Start Time**  :  ' || rn."start_time" AS description_md,
-        '\n **End Time**  :  ' || rn."end_time" AS description_md,
-          '\n **Duration**  :  ' || rn."total_duration" AS description_md,
-            '\n **Title**  :  ' || bd.title AS description_md,
-              '\n **Created By**  :  ' || bd.created_by AS description_md,
-                '\n **Created At**  :  ' || bd.created_at AS description_md,
-                  '\n **Priority**  :  ' || bd.priority AS description_md,
-                    '\n' || bd.body AS description_md
-FROM  test_cases bd 
-LEFT JOIN test_case_run_results rn ON  bd.test_case_id = rn.test_case_id
-WHERE bd.test_case_id = $id;
+    '\n **Title**  :  ' || bd.title AS description_md,
+    '\n **Group**  :  ' || bd.group_name AS description_md,
+    '\n **Created By**  :  ' || bd.created_by AS description_md,
+    '\n **Created At**  :  ' || strftime('%d-%m-%Y',  bd.created_at) AS description_md,
+    '\n **Priority**  :  ' || bd.priority AS description_md,
+    '\n' || bd.body AS description_md
+FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
 
 
   SELECT 'html' as component,
     '<style>
-        tr.actualClass-passed td.Status {
+        tr.actualClass-passed td.State {
             color: green !important; /* Default to red */
         }
-         tr.actualClass-failed td.Status {
+         tr.actualClass-failed td.State {
             color: red !important; /* Default to red */
         }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
-    }
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
     </style>
     
     ' as html FROM test_case_run_results where test_case_id = $id group by group_id;
@@ -813,24 +937,30 @@ WHERE bd.test_case_id = $id;
       TRUE AS center
      FROM test_case_run_results where test_case_id = $id group by group_id;
 
-    --Tab 1: Test Suite list
+    --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| $id || '#actual-result-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
-    --Tab 2: Test case list
+    --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
-    }|| $id || '#test-run-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
+      }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
+
+--Tab 3: Bug Report
+    SELECT
+    'Bug Report' AS title,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
+      }|| $id || '#bug-report-content'  AS link,
+      $tab = 'bug-report' AS active
+         FROM bug_report  where test_case_id = $id group by test_case_id;
 
 
 
@@ -845,6 +975,7 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'actual-result' THEN 'table'
         WHEN $tab = 'test-run' THEN 'list'
+         WHEN $tab = 'bug-report' THEN 'foldable'
       END AS component,
       'Column Count' as align_right,
       TRUE as sort,
@@ -857,7 +988,7 @@ WHERE bd.test_case_id = $id;
       
     SELECT
     step_name as 'Activity',
-      step_status as 'Activity Status',
+      step_status as 'State',
       'actualClass-'||step_status as _sqlpage_css_class,
       step_start_time as 'Start Time',
       step_end_time as 'End Time'
@@ -867,13 +998,15 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'actual-result' THEN 'html'
     END AS component,
-      '<div id="actual-result-content"></div>' as html;
+      '<div id="actual-result-content"></div>' as html
+       FROM test_execution_log
+          WHERE $tab = 'actual-result' and  test_case_id = $id;
 
 
 
     --Tab - specific content for "test-run"
     SELECT
-    '\n **Run Date**  :  ' || run_date AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y',run_date) AS description_md,
       '\n **Environment**  :  ' || environment AS description_md,
         '\n' || body AS description_md
     FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
@@ -882,9 +1015,87 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = 'test-run' THEN 'html'
     END AS component,
-      '<div id="test-run-content"></div>' as html;
-    --select 'code' AS component;
-    --select content as contents FROM test_case_run_profile where $tab = 'test-run' and  test_case_id = $id;
+      '<div id="test-run-content"></div>' as html
+      FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
+   
+
+    --Tab - specific content for "bug-report"   
+    
+     SELECT
+     b.id||' - '||b.title as title,
+     'head-title' as class,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b
+    WHERE $tab = 'bug-report' and b.test_case_id = $id;
+
+    SELECT
+    CASE
+        WHEN $tab = 'bug-report' THEN 'html'
+    END AS component,
+      '<div id="bug-report-content"></div>' as html
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed' and $tab = 'bug-report';
+
+
+    `;
+  }
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qltyfolio/bug-detail.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+    select 'bug list' as title,
+      ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link;  
+      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;      
+         
+
+         
+
+    /*SELECT 'title'AS component,
+      title as contents FROM bug_report where id = $id order by created_at desc;*/
+
+    select 
+    'datagrid'      as component,
+    title         as title,
+    'bulb'          as icon,
+     '\n \n\n**id**  :  ' || id AS description_md,    
+    '\n **Created By**  :  ' || created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created_at) AS description_md,
+    '\n **Type**  :  ' || type AS description_md,
+    '\n **Priority**  :  ' || priority AS description_md,
+    '\n **Assigned**  :  ' || assigned AS description_md,
+    '\n **Status**  :  ' || status AS description_md,
+    '\n' || body AS description_md 
+      FROM  bug_report  WHERE id = $id;
+     
+    /*SELECT 'datagrid'AS component;
+     SELECT
+    '\n **id**  :  ' || id AS description_md
+    
+    '\n **Title**  :  ' || title AS description_md,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b 
+    WHERE b.id = $id;*/
 
 
     `;
@@ -915,7 +1126,8 @@ WHERE bd.test_case_id = $id;
     SELECT 'title'AS component,
       name as contents FROM groups where id = $id; 
 
-    SELECT 'list'AS component;
+    SELECT 'card'  AS component,
+    1                          as columns;
     SELECT
     ' **Id**  :  ' || rn.id AS description_md,
       '\n **name**  :  ' || rn."name" AS description_md,
@@ -952,7 +1164,8 @@ WHERE rn.id = $id;
           SELECT 'title'AS component,
       name as contents FROM groups where id = $id; 
 
-          SELECT 'list'AS component;
+          SELECT 'card'  AS component,
+    1                          as columns;
     SELECT
     ' **Id**  :  ' || id AS description_md,
       '\n **name**  :  ' || "name" AS description_md,
@@ -1015,11 +1228,10 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| t.test_case_id || ')' as id,
       t.title,
-       case when p.status is not null then p.status
+       case when t.test_status is not null then t.test_status
         else 'TODO' END AS "test_status",
       t.created_by as "Created By",
       strftime('%d-%m-%Y', t.created_at) as "Created On",
@@ -1060,15 +1272,27 @@ WHERE rn.id = $id;
 
    SELECT 'html' as component,
     '<style>
-       tr td.Status {
+       tr td.State {
             color: blue !important; /* Default to blue */
         }
-        tr.rowClass-passed td.Status {
+        tr.rowClass-passed td.State {
             color: green !important; /* Default to red */
         }
-         tr.rowClass-failed td.Status {
+         tr.rowClass-failed td.State {
             color: red !important; /* Default to red */
         }
+
+        tr td.Statealign-middle {
+            color: blue !important; /* Default to blue */
+        }
+        tr.rowClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+         tr.rowClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+
+        
         .btn-list {
         display: flex;
         justify-content: flex-end;
@@ -1084,7 +1308,7 @@ WHERE rn.id = $id;
    ${pagination.init()}
     SELECT 'table' as component,
       TRUE AS sort,
-        --TRUE AS search,
+        TRUE AS search,
           'URL' AS align_left,
             'title' AS align_left,
               'group' as markdown,
@@ -1092,13 +1316,12 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
-        else 'TODO' END AS "Status",
+        else 'TODO' END AS "State",
       'rowClass-'||test_status as _sqlpage_css_class,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
@@ -1109,6 +1332,81 @@ WHERE rn.id = $id;
       ${pagination.renderSimpleMarkdown()};
 
       `;
+  }
+  @spn.shell({
+    breadcrumbsFromNavStmts: "no",
+    shellStmts: "do-not-include",
+    pageTitleFromNavStmts: "no",
+  })
+  "sqlpage/templates/shell-custom.handlebars"() {
+    return this.SQL`<!DOCTYPE html>
+      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
+      <head>
+          <meta charset="utf-8" />
+
+          <!-- Base CSS -->
+          <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
+          {{#each (to_array css)}}
+              {{#if this}}
+                  <link rel="stylesheet" href="{{this}}">
+              {{/if}}
+          {{/each}}
+
+          <!-- Font Setup -->
+          {{#if font}}
+              {{#if (starts_with font "/")}}
+                  <style>
+                      @font-face {
+                          font-family: 'LocalFont';
+                          src: url('{{font}}') format('woff2');
+                          font-weight: normal;
+                          font-style: normal;
+                      }
+                      :root {
+                          --tblr-font-sans-serif: 'LocalFont', Arial, sans-serif;
+                      }
+                  </style>
+              {{else}}
+                  <link rel="preconnect" href="https://fonts.googleapis.com">
+                  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+                  <style>
+                      :root {
+                          --tblr-font-sans-serif: '{{font}}', Arial, sans-serif;
+                      }
+                  </style>
+              {{/if}}
+          {{/if}}
+
+          <!-- JavaScript -->
+          <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
+          {{#each (to_array javascript)}}
+              {{#if this}}
+                  <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+              {{/if}}
+          {{/each}}
+          {{#each (to_array javascript_module)}}
+              {{#if this}}
+                  <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+              {{/if}}
+          {{/each}}
+      </head>
+
+      <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
+          <div class="page">
+              <!-- Header -->
+              
+
+              <!-- Page Wrapper -->
+              <div class="page-wrapper">
+                  <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout 'boxed')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+                      {{~#each_row~}}{{~/each_row~}}
+                  </main>
+              </div>
+          </div>
+      </body>
+      </html>
+`;
   }
 }
 
@@ -1129,9 +1427,10 @@ export async function SQL() {
       }
     }(),
     new QualityfolioSqlPages(),
+    new c.ConsoleSqlPages(),
+    new d.DocsSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
-    new c.ConsoleSqlPages(),
     new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON),
   );
 }

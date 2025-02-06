@@ -120,6 +120,8 @@ DROP VIEW IF EXISTS test_execution_log;
 CREATE VIEW test_execution_log AS
 SELECT 
     json_extract(content, '$.test_case_fii') AS test_case_id,
+    json_extract(content, '$.title') AS title,
+    json_extract(content, '$.status') AS status,
     json_extract(value, '$.step') AS step_number,
     json_extract(value, '$.stepname') AS step_name,
     json_extract(value, '$.status') AS step_status,
@@ -187,7 +189,7 @@ CREATE VIEW suite_test_case_count AS
 SELECT 
 st.id,
 st.name,
-st.created_by,
+st.created_by_user,
 st.created_at,
 sum(tc.test_case_count)
 FROM
@@ -207,12 +209,31 @@ json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.run.md';
 
+
+DROP VIEW IF EXISTS bug_report;
+CREATE VIEW bug_report AS 
+SELECT 
+uniform_resource_id,
+json_extract(frontmatter, '$.issue_id') AS id,
+json_extract(frontmatter, '$.test_case_fii') AS test_case_id,
+json_extract(frontmatter, '$.titleName') AS title,
+json_extract(frontmatter, '$.created_by') AS created_by,
+json_extract(frontmatter, '$.created_at') AS created_at,
+json_extract(frontmatter, '$.test_type') AS type,
+json_extract(frontmatter, '$.priority') AS priority,
+json_extract(frontmatter, '$.assigned') AS assigned,
+json_extract(frontmatter, '$.status') AS status,
+json_extract(frontmatter, '$.endpoint') AS endpoint,
+json_extract(content_fm_body_attrs, '$.body') AS body
+FROM uniform_resource
+WHERE uri LIKE '%.bug.md';
+
 DROP VIEW IF EXISTS test_suite_success_and_failed_rate;
 CREATE view test_suite_success_and_failed_rate AS
 SELECT 
     t.uniform_resource_id,
     t.name AS suite_name,
-    t.created_by,
+    t.created_by_user,
     t.created_at,
     t.id as suite_id,
     sum(c.test_case_count) AS total_test_case,

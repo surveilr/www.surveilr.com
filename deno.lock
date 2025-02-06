@@ -13,13 +13,11 @@
     "jsr:@std/path@0.221": "0.221.0",
     "npm:@astrojs/sitemap@^3.2.1": "3.2.1",
     "npm:@preline/collapse@^2.5.0": "2.5.0",
-    "npm:@preline/tabs@^2.5.0": "2.5.0",
     "npm:@types/node@*": "18.16.19",
     "npm:@types/papaparse@*": "5.3.15",
     "npm:clipboard@^2.0.11": "2.0.11",
     "npm:fast-xml-parser@*": "4.5.0",
     "npm:globby@^14.0.2": "14.0.2",
-    "npm:gsap@^3.12.5": "3.12.5",
     "npm:html-minifier-terser@^7.2.0": "7.2.0",
     "npm:papaparse@*": "5.4.1",
     "npm:prettier-plugin-astro@~0.14.1": "0.14.1",
@@ -249,9 +247,6 @@
     },
     "@preline/collapse@2.5.0": {
       "integrity": "sha512-FFVB+T7FXn66EUmwgR8c1OtxXDlL74pRvBXtntXwwQ+9fqCZML1xPTOXfdeRL4e46kroAtigVcp/Y28lEpkXTQ=="
-    },
-    "@preline/tabs@2.5.0": {
-      "integrity": "sha512-JdMwRCtbJ0G9goqU+6214/ncfJX8zthEeLl1i9YYyeFLqTJvXPTIW5MWKyXpR4Gi1RUjr2NnT86Abtjp97bESg=="
     },
     "@sindresorhus/merge-streams@2.3.0": {
       "integrity": "sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg=="
@@ -513,9 +508,6 @@
       "dependencies": [
         "delegate"
       ]
-    },
-    "gsap@3.12.5": {
-      "integrity": "sha512-srBfnk4n+Oe/ZnMIOXt3gT605BX9x5+rh/prT2F1SsNJsU1XuMiP0E2aptW481OnonOGACZWBqseH5Z7csHxhQ=="
     },
     "html-minifier-terser@7.2.0": {
       "integrity": "sha512-tXgn3QfqPIpGl9o+K5tpcj3/MN4SfLtsx2GWwBC3SSd0tXQGyF3gsSqad8loJgKZGM3ZxbYDd5yhiBIdWpmvLA==",
@@ -1677,23 +1669,23 @@
         "npm:@astrojs/sitemap@^3.2.1",
         "npm:@astrojs/starlight-tailwind@^2.0.3",
         "npm:@astrojs/starlight@~0.29.3",
-        "npm:@astrojs/tailwind@^5.1.2",
+        "npm:@astrojs/tailwind@^5.1.5",
         "npm:@commitlint/cli@^19.6.1",
         "npm:@commitlint/config-conventional@^19.6.0",
         "npm:@preline/accordion@^2.6.0",
         "npm:@preline/collapse@^2.5.0",
         "npm:@preline/dropdown@^2.6.0",
         "npm:@preline/overlay@^2.6.0",
-        "npm:@preline/tabs@^2.5.0",
+        "npm:@preline/tabs@^2.5.2",
         "npm:@tailwindcss/forms@~0.5.9",
-        "npm:@vercel/nft@~0.27.7",
+        "npm:@vercel/nft@0.29",
         "npm:astro-breadcrumbs@^3.3.1",
         "npm:astro-compressor@1",
         "npm:astro-vtbot@^1.10.7",
         "npm:astro@^4.16.18",
         "npm:clipboard@^2.0.11",
         "npm:globby@^14.0.2",
-        "npm:gsap@^3.12.5",
+        "npm:gsap@^3.12.7",
         "npm:html-minifier-terser@^7.2.0",
         "npm:husky@^9.1.7",
         "npm:lenis@^1.1.18",
@@ -1704,8 +1696,8 @@
         "npm:prettier-plugin-astro@~0.14.1",
         "npm:prettier-plugin-tailwindcss@~0.6.8",
         "npm:prettier@^3.4.1",
-        "npm:react-dom@^18.3.1",
-        "npm:react@^18.3.1",
+        "npm:react-dom@19",
+        "npm:react@19",
         "npm:rimraf@^6.0.1",
         "npm:sass@^1.83.4",
         "npm:sharp-ico@~0.1.5",

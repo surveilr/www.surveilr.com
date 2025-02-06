@@ -26,7 +26,7 @@ SELECT
     json_extract(frontmatter, '$.projectId') AS project_id,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
-    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_by') AS created_by_user,
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.linked_requirements') AS linked_requirements,
@@ -112,7 +112,9 @@ FROM
 LEFT JOIN 
     groups g ON g.id = tc.group_id
 LEFT JOIN 
-    test_case_run_results r on r.test_case_id=tc.test_case_id;
+    (SELECT test_case_id test_case_id, status, max(start_time)
+FROM test_case_run_results
+group BY test_case_id) r on r.test_case_id=tc.test_case_id;
 
 
 

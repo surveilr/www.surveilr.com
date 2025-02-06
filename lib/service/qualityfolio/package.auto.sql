@@ -333,6 +333,25 @@ json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
 WHERE uri LIKE '%.run.md';
 
+
+DROP VIEW IF EXISTS bug_report;
+CREATE VIEW bug_report AS 
+SELECT 
+uniform_resource_id,
+json_extract(frontmatter, '$.issue_id') AS id,
+json_extract(frontmatter, '$.test_case_fii') AS test_case_id,
+json_extract(frontmatter, '$.titleName') AS title,
+json_extract(frontmatter, '$.created_by') AS created_by,
+json_extract(frontmatter, '$.created_at') AS created_at,
+json_extract(frontmatter, '$.test_type') AS type,
+json_extract(frontmatter, '$.priority') AS priority,
+json_extract(frontmatter, '$.assigned') AS assigned,
+json_extract(frontmatter, '$.status') AS status,
+json_extract(frontmatter, '$.endpoint') AS endpoint,
+json_extract(content_fm_body_attrs, '$.body') AS body
+FROM uniform_resource
+WHERE uri LIKE '%.bug.md';
+
 DROP VIEW IF EXISTS test_suite_success_and_failed_rate;
 CREATE view test_suite_success_and_failed_rate AS
 SELECT 
@@ -355,6 +374,273 @@ INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path
 VALUES
     ('prime', 'index.sql', 1, 'qltyfolio/index.sql', 'qltyfolio/index.sql', 'Test Management System', NULL, NULL, 'Test management system', NULL),
     ('prime', 'qltyfolio/index.sql', 1, 'qltyfolio/test-management.sql', 'qltyfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL)
+ON CONFLICT (namespace, parent_path, path)
+DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
+-- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
+
+-- console_information_schema_* are convenience views
+-- to make it easier to work than pragma_table_info.
+-- select 'test' into absolute_url;
+DROP VIEW IF EXISTS console_information_schema_table;
+CREATE VIEW console_information_schema_table AS
+
+SELECT
+    tbl.name AS table_name,
+    col.name AS column_name,
+    col.type AS data_type,
+    CASE WHEN col.pk = 1 THEN 'Yes' ELSE 'No' END AS is_primary_key,
+    CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
+    col.dflt_value AS default_value,
+    'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
+    '[Content](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
+    '[' || tbl.name || ' (table) Schema](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
+    'console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
+    '[Content]($SITE_PREFIX_URL/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+    '[' || tbl.name || ' (table) Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
+    tbl.sql as sql_ddl
+FROM sqlite_master tbl
+JOIN pragma_table_info(tbl.name) col
+WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
+
+-- Populate the table with view-specific information
+DROP VIEW IF EXISTS console_information_schema_view;
+CREATE VIEW console_information_schema_view AS
+SELECT
+    vw.name AS view_name,
+    col.name AS column_name,
+    col.type AS data_type,
+    '/console/info-schema/view.sql?name=' || vw.name || '&stats=yes' as info_schema_web_ui_path,
+    '[Content](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
+    '[' || vw.name || ' (view) Schema](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
+    '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
+    '[Content]($SITE_PREFIX_URL/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
+    '[' || vw.name || ' (view) Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
+    vw.sql as sql_ddl
+FROM sqlite_master vw
+JOIN pragma_table_info(vw.name) col
+WHERE vw.type = 'view' AND vw.name NOT LIKE 'sqlite_%';
+
+DROP VIEW IF EXISTS console_content_tabular;
+CREATE VIEW console_content_tabular AS
+  SELECT 'table' as tabular_nature,
+         table_name as tabular_name,
+         info_schema_web_ui_path,
+         info_schema_link_abbrev_md,
+         info_schema_link_full_md,
+         content_web_ui_path,
+         content_web_ui_link_abbrev_md,
+         content_web_ui_link_full_md
+    FROM console_information_schema_table
+  UNION ALL
+  SELECT 'view' as tabular_nature,
+         view_name as tabular_name,
+         info_schema_web_ui_path,
+         info_schema_link_abbrev_md,
+         info_schema_link_full_md,
+         content_web_ui_path,
+         content_web_ui_link_abbrev_md,
+         content_web_ui_link_full_md
+    FROM console_information_schema_view;
+
+-- Populate the table with table column foreign keys
+DROP VIEW IF EXISTS console_information_schema_table_col_fkey;
+CREATE VIEW console_information_schema_table_col_fkey AS
+SELECT
+    tbl.name AS table_name,
+    f."from" AS column_name,
+    f."from" || ' references ' || f."table" || '.' || f."to" AS foreign_key
+FROM sqlite_master tbl
+JOIN pragma_foreign_key_list(tbl.name) f
+WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
+
+-- Populate the table with table column indexes
+DROP VIEW IF EXISTS console_information_schema_table_col_index;
+CREATE VIEW console_information_schema_table_col_index AS
+SELECT
+    tbl.name AS table_name,
+    pi.name AS column_name,
+    idx.name AS index_name
+FROM sqlite_master tbl
+JOIN pragma_index_list(tbl.name) idx
+JOIN pragma_index_info(idx.name) pi
+WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
+
+-- Drop and create the table for storing navigation entries
+-- for testing only: DROP TABLE IF EXISTS sqlpage_aide_navigation;
+CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
+    path TEXT NOT NULL, -- the "primary key" within namespace
+    caption TEXT NOT NULL, -- for human-friendly general-purpose name
+    namespace TEXT NOT NULL, -- if more than one navigation tree is required
+    parent_path TEXT, -- for defining hierarchy
+    sibling_order INTEGER, -- orders children within their parent(s)
+    url TEXT, -- for supplying links, if different from path
+    title TEXT, -- for full titles when elaboration is required, default to caption if NULL
+    abbreviated_caption TEXT, -- for breadcrumbs and other "short" form, default to caption if NULL
+    description TEXT, -- for elaboration or explanation
+    elaboration TEXT, -- optional attributes for e.g. { "target": "__blank" }
+    -- TODO: figure out why Rusqlite does not allow this but sqlite3 does
+    -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
+    CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
+);
+DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'console/%';
+DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'index.sql';
+
+-- all @navigation decorated entries are automatically added to this.navigation
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
+VALUES
+    ('prime', NULL, 1, 'index.sql', 'index.sql', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)', NULL),
+    ('prime', 'index.sql', 999, 'console/index.sql', 'console/index.sql', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files', NULL),
+    ('prime', 'console/index.sql', 1, 'console/info-schema/index.sql', 'console/info-schema/index.sql', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL),
+    ('prime', 'console/index.sql', 3, 'console/sqlpage-files/index.sql', 'console/sqlpage-files/index.sql', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI', NULL),
+    ('prime', 'console/index.sql', 3, 'console/sqlpage-files/content.sql', 'console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables', NULL),
+    ('prime', 'console/index.sql', 3, 'console/sqlpage-nav/index.sql', 'console/sqlpage-nav/index.sql', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table', NULL),
+    ('prime', 'console/index.sql', 2, 'console/notebooks/index.sql', 'console/notebooks/index.sql', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL),
+    ('prime', 'console/index.sql', 2, 'console/migrations/index.sql', 'console/migrations/index.sql', 'RSSD Lifecycle (migrations)', 'Migrations', NULL, 'Explore RSSD Migrations to determine what was executed and not', NULL),
+    ('prime', 'console/index.sql', 2, 'console/about.sql', 'console/about.sql', 'Resource Surveillance Details', 'About', NULL, 'Detailed information about the underlying surveilr binary', NULL)
+ON CONFLICT (namespace, parent_path, path)
+DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
+
+INSERT OR REPLACE INTO code_notebook_cell (notebook_kernel_id, code_notebook_cell_id, notebook_name, cell_name, interpretable_code, interpretable_code_hash, description) VALUES (
+  'SQL',
+  'web-ui.auto_generate_console_content_tabular_sqlpage_files',
+  'Web UI',
+  'auto_generate_console_content_tabular_sqlpage_files',
+  '      -- code provenance: `ConsoleSqlPages.infoSchemaContentDML` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
+
+      -- the "auto-generated" tables will be in ''*.auto.sql'' with redirects
+      DELETE FROM sqlpage_files WHERE path like ''console/content/table/%.auto.sql'';
+      DELETE FROM sqlpage_files WHERE path like ''console/content/view/%.auto.sql'';
+      INSERT OR REPLACE INTO sqlpage_files (path, contents)
+        SELECT
+            ''console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql'',
+            ''SELECT ''''dynamic'''' AS component, sqlpage.run_sql(''''shell/shell.sql'''') AS properties;
+
+              SELECT ''''breadcrumb'''' AS component;
+              SELECT ''''Home'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/'''' AS link;
+              SELECT ''''Console'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console'''' AS link;
+              SELECT ''''Content'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content'''' AS link;
+              SELECT '''''' || tabular_name  || '' '' || tabular_nature || '''''' as title, ''''#'''' AS link;
+
+              SELECT ''''title'''' AS component, '''''' || tabular_name || '' ('' || tabular_nature || '') Content'''' as contents;
+
+              SET total_rows = (SELECT COUNT(*) FROM '' || tabular_name || '');
+              SET limit = COALESCE($limit, 50);
+              SET offset = COALESCE($offset, 0);
+              SET total_pages = ($total_rows + $limit - 1) / $limit;
+              SET current_page = ($offset / $limit) + 1;
+
+              SELECT ''''text'''' AS component, '''''' || info_schema_link_full_md || '''''' AS contents_md
+              SELECT ''''text'''' AS component,
+                ''''- Start Row: '''' || $offset || ''''
+'''' ||
+                ''''- Rows per Page: '''' || $limit || ''''
+'''' ||
+                ''''- Total Rows: '''' || $total_rows || ''''
+'''' ||
+                ''''- Current Page: '''' || $current_page || ''''
+'''' ||
+                ''''- Total Pages: '''' || $total_pages as contents_md
+              WHERE $stats IS NOT NULL;
+
+              -- Display uniform_resource table with pagination
+              SELECT ''''table'''' AS component,
+                    TRUE AS sort,
+                    TRUE AS search,
+                    TRUE AS hover,
+                    TRUE AS striped_rows,
+                    TRUE AS small;
+            SELECT * FROM '' || tabular_name || ''
+            LIMIT $limit
+            OFFSET $offset;
+
+            SELECT ''''text'''' AS component,
+                (SELECT CASE WHEN $current_page > 1 THEN ''''[Previous](?limit='''' || $limit || ''''&offset='''' || ($offset - $limit) || '''')'''' ELSE '''''''' END) || '''' '''' ||
+                ''''(Page '''' || $current_page || '''' of '''' || $total_pages || '''') '''' ||
+                (SELECT CASE WHEN $current_page < $total_pages THEN ''''[Next](?limit='''' || $limit || ''''&offset='''' || ($offset + $limit) || '''')'''' ELSE '''''''' END)
+                AS contents_md;''
+        FROM console_content_tabular;
+
+      INSERT OR IGNORE INTO sqlpage_files (path, contents)
+        SELECT
+            ''console/content/'' || tabular_nature || ''/'' || tabular_name || ''.sql'',
+            ''SELECT ''''redirect'''' AS component,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql'''' AS link WHERE $stats IS NULL;
+'' ||
+            ''SELECT ''''redirect'''' AS component,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql?stats='''' || $stats AS link WHERE $stats IS NOT NULL;''
+        FROM console_content_tabular;
+
+      -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows',
+  'TODO',
+  'A series of idempotent INSERT statements which will auto-generate "default" content for all tables and views'
+);
+      -- code provenance: `ConsoleSqlPages.infoSchemaContentDML` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
+
+      -- the "auto-generated" tables will be in '*.auto.sql' with redirects
+      DELETE FROM sqlpage_files WHERE path like 'console/content/table/%.auto.sql';
+      DELETE FROM sqlpage_files WHERE path like 'console/content/view/%.auto.sql';
+      INSERT OR REPLACE INTO sqlpage_files (path, contents)
+        SELECT
+            'console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql',
+            'SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+
+              SELECT ''breadcrumb'' AS component;
+              SELECT ''Home'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+              SELECT ''Console'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console'' AS link;
+              SELECT ''Content'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content'' AS link;
+              SELECT ''' || tabular_name  || ' ' || tabular_nature || ''' as title, ''#'' AS link;
+
+              SELECT ''title'' AS component, ''' || tabular_name || ' (' || tabular_nature || ') Content'' as contents;
+
+              SET total_rows = (SELECT COUNT(*) FROM ' || tabular_name || ');
+              SET limit = COALESCE($limit, 50);
+              SET offset = COALESCE($offset, 0);
+              SET total_pages = ($total_rows + $limit - 1) / $limit;
+              SET current_page = ($offset / $limit) + 1;
+
+              SELECT ''text'' AS component, ''' || info_schema_link_full_md || ''' AS contents_md
+              SELECT ''text'' AS component,
+                ''- Start Row: '' || $offset || ''
+'' ||
+                ''- Rows per Page: '' || $limit || ''
+'' ||
+                ''- Total Rows: '' || $total_rows || ''
+'' ||
+                ''- Current Page: '' || $current_page || ''
+'' ||
+                ''- Total Pages: '' || $total_pages as contents_md
+              WHERE $stats IS NOT NULL;
+
+              -- Display uniform_resource table with pagination
+              SELECT ''table'' AS component,
+                    TRUE AS sort,
+                    TRUE AS search,
+                    TRUE AS hover,
+                    TRUE AS striped_rows,
+                    TRUE AS small;
+            SELECT * FROM ' || tabular_name || '
+            LIMIT $limit
+            OFFSET $offset;
+
+            SELECT ''text'' AS component,
+                (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END) || '' '' ||
+                ''(Page '' || $current_page || '' of '' || $total_pages || '') '' ||
+                (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+                AS contents_md;'
+        FROM console_content_tabular;
+
+      INSERT OR IGNORE INTO sqlpage_files (path, contents)
+        SELECT
+            'console/content/' || tabular_nature || '/' || tabular_name || '.sql',
+            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql'' AS link WHERE $stats IS NULL;
+' ||
+            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql?stats='' || $stats AS link WHERE $stats IS NOT NULL;'
+        FROM console_content_tabular;
+
+      -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
+VALUES
+    ('prime', 'index.sql', 1, 'docs/index.sql', 'docs/index.sql', 'Docs', NULL, NULL, 'Explore surveilr functions and release notes', NULL),
+    ('prime', 'docs/index.sql', 99, 'docs/release-notes.sql', 'docs/release-notes.sql', 'Release Notes', NULL, NULL, 'surveilr releases details', NULL),
+    ('prime', 'docs/index.sql', 2, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- delete all /fhir-related entries and recreate them in case routes are changed
@@ -675,266 +961,6 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
  JOIN orchestration_session_exec ose ON os.orchestration_session_id = ose.session_id
  JOIN orchestration_session_log osl ON ose.orchestration_session_exec_id = osl.parent_exec_id
  GROUP BY os.orchestration_session_id, onature.nature, osl.category;
--- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
-
--- console_information_schema_* are convenience views
--- to make it easier to work than pragma_table_info.
--- select 'test' into absolute_url;
-DROP VIEW IF EXISTS console_information_schema_table;
-CREATE VIEW console_information_schema_table AS
-
-SELECT
-    tbl.name AS table_name,
-    col.name AS column_name,
-    col.type AS data_type,
-    CASE WHEN col.pk = 1 THEN 'Yes' ELSE 'No' END AS is_primary_key,
-    CASE WHEN col."notnull" = 1 THEN 'Yes' ELSE 'No' END AS is_not_null,
-    col.dflt_value AS default_value,
-    'console/info-schema/table.sql?name=' || tbl.name || '&stats=yes' as info_schema_web_ui_path,
-    '[Content](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_abbrev_md,
-    '[' || tbl.name || ' (table) Schema](console/info-schema/table.sql?name=' || tbl.name || '&stats=yes)' as info_schema_link_full_md,
-    'console/content/table/' || tbl.name || '.sql?stats=yes' as content_web_ui_path,
-    '[Content]($SITE_PREFIX_URL/console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-    '[' || tbl.name || ' (table) Content](console/content/table/' || tbl.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
-    tbl.sql as sql_ddl
-FROM sqlite_master tbl
-JOIN pragma_table_info(tbl.name) col
-WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
-
--- Populate the table with view-specific information
-DROP VIEW IF EXISTS console_information_schema_view;
-CREATE VIEW console_information_schema_view AS
-SELECT
-    vw.name AS view_name,
-    col.name AS column_name,
-    col.type AS data_type,
-    '/console/info-schema/view.sql?name=' || vw.name || '&stats=yes' as info_schema_web_ui_path,
-    '[Content](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_abbrev_md,
-    '[' || vw.name || ' (view) Schema](console/info-schema/view.sql?name=' || vw.name || '&stats=yes)' as info_schema_link_full_md,
-    '/console/content/view/' || vw.name || '.sql?stats=yes' as content_web_ui_path,
-    '[Content]($SITE_PREFIX_URL/console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_abbrev_md,
-    '[' || vw.name || ' (view) Content](console/content/view/' || vw.name || '.sql?stats=yes)' as content_web_ui_link_full_md,
-    vw.sql as sql_ddl
-FROM sqlite_master vw
-JOIN pragma_table_info(vw.name) col
-WHERE vw.type = 'view' AND vw.name NOT LIKE 'sqlite_%';
-
-DROP VIEW IF EXISTS console_content_tabular;
-CREATE VIEW console_content_tabular AS
-  SELECT 'table' as tabular_nature,
-         table_name as tabular_name,
-         info_schema_web_ui_path,
-         info_schema_link_abbrev_md,
-         info_schema_link_full_md,
-         content_web_ui_path,
-         content_web_ui_link_abbrev_md,
-         content_web_ui_link_full_md
-    FROM console_information_schema_table
-  UNION ALL
-  SELECT 'view' as tabular_nature,
-         view_name as tabular_name,
-         info_schema_web_ui_path,
-         info_schema_link_abbrev_md,
-         info_schema_link_full_md,
-         content_web_ui_path,
-         content_web_ui_link_abbrev_md,
-         content_web_ui_link_full_md
-    FROM console_information_schema_view;
-
--- Populate the table with table column foreign keys
-DROP VIEW IF EXISTS console_information_schema_table_col_fkey;
-CREATE VIEW console_information_schema_table_col_fkey AS
-SELECT
-    tbl.name AS table_name,
-    f."from" AS column_name,
-    f."from" || ' references ' || f."table" || '.' || f."to" AS foreign_key
-FROM sqlite_master tbl
-JOIN pragma_foreign_key_list(tbl.name) f
-WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
-
--- Populate the table with table column indexes
-DROP VIEW IF EXISTS console_information_schema_table_col_index;
-CREATE VIEW console_information_schema_table_col_index AS
-SELECT
-    tbl.name AS table_name,
-    pi.name AS column_name,
-    idx.name AS index_name
-FROM sqlite_master tbl
-JOIN pragma_index_list(tbl.name) idx
-JOIN pragma_index_info(idx.name) pi
-WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
-
--- Drop and create the table for storing navigation entries
--- for testing only: DROP TABLE IF EXISTS sqlpage_aide_navigation;
-CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
-    path TEXT NOT NULL, -- the "primary key" within namespace
-    caption TEXT NOT NULL, -- for human-friendly general-purpose name
-    namespace TEXT NOT NULL, -- if more than one navigation tree is required
-    parent_path TEXT, -- for defining hierarchy
-    sibling_order INTEGER, -- orders children within their parent(s)
-    url TEXT, -- for supplying links, if different from path
-    title TEXT, -- for full titles when elaboration is required, default to caption if NULL
-    abbreviated_caption TEXT, -- for breadcrumbs and other "short" form, default to caption if NULL
-    description TEXT, -- for elaboration or explanation
-    elaboration TEXT, -- optional attributes for e.g. { "target": "__blank" }
-    -- TODO: figure out why Rusqlite does not allow this but sqlite3 does
-    -- CONSTRAINT fk_parent_path FOREIGN KEY (namespace, parent_path) REFERENCES sqlpage_aide_navigation(namespace, path),
-    CONSTRAINT unq_ns_path UNIQUE (namespace, parent_path, path)
-);
-DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'console/%';
-DELETE FROM sqlpage_aide_navigation WHERE path LIKE 'index.sql';
-
--- all @navigation decorated entries are automatically added to this.navigation
-INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
-VALUES
-    ('prime', NULL, 1, 'index.sql', 'index.sql', 'Home', NULL, 'Resource Surveillance State Database (RSSD)', 'Welcome to Resource Surveillance State Database (RSSD)', NULL),
-    ('prime', 'index.sql', 999, 'console/index.sql', 'console/index.sql', 'RSSD Console', 'Console', 'Resource Surveillance State Database (RSSD) Console', 'Explore RSSD information schema, code notebooks, and SQLPage files', NULL),
-    ('prime', 'console/index.sql', 1, 'console/info-schema/index.sql', 'console/info-schema/index.sql', 'RSSD Information Schema', 'Info Schema', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL),
-    ('prime', 'console/index.sql', 3, 'console/sqlpage-files/index.sql', 'console/sqlpage-files/index.sql', 'RSSD SQLPage Files', 'SQLPage Files', NULL, 'Explore RSSD SQLPage Files which govern the content of the web-UI', NULL),
-    ('prime', 'console/index.sql', 3, 'console/sqlpage-files/content.sql', 'console/sqlpage-files/content.sql', 'RSSD Data Tables Content SQLPage Files', 'Content SQLPage Files', NULL, 'Explore auto-generated RSSD SQLPage Files which display content within tables', NULL),
-    ('prime', 'console/index.sql', 3, 'console/sqlpage-nav/index.sql', 'console/sqlpage-nav/index.sql', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table', NULL),
-    ('prime', 'console/index.sql', 2, 'console/notebooks/index.sql', 'console/notebooks/index.sql', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL),
-    ('prime', 'console/index.sql', 2, 'console/migrations/index.sql', 'console/migrations/index.sql', 'RSSD Lifecycle (migrations)', 'Migrations', NULL, 'Explore RSSD Migrations to determine what was executed and not', NULL),
-    ('prime', 'console/index.sql', 2, 'console/about.sql', 'console/about.sql', 'Resource Surveillance Details', 'About', NULL, 'Detailed information about the underlying surveilr binary', NULL)
-ON CONFLICT (namespace, parent_path, path)
-DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
-
-INSERT OR REPLACE INTO code_notebook_cell (notebook_kernel_id, code_notebook_cell_id, notebook_name, cell_name, interpretable_code, interpretable_code_hash, description) VALUES (
-  'SQL',
-  'web-ui.auto_generate_console_content_tabular_sqlpage_files',
-  'Web UI',
-  'auto_generate_console_content_tabular_sqlpage_files',
-  '      -- code provenance: `ConsoleSqlPages.infoSchemaContentDML` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
-
-      -- the "auto-generated" tables will be in ''*.auto.sql'' with redirects
-      DELETE FROM sqlpage_files WHERE path like ''console/content/table/%.auto.sql'';
-      DELETE FROM sqlpage_files WHERE path like ''console/content/view/%.auto.sql'';
-      INSERT OR REPLACE INTO sqlpage_files (path, contents)
-        SELECT
-            ''console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql'',
-            ''SELECT ''''dynamic'''' AS component, sqlpage.run_sql(''''shell/shell.sql'''') AS properties;
-
-              SELECT ''''breadcrumb'''' AS component;
-              SELECT ''''Home'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/'''' AS link;
-              SELECT ''''Console'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console'''' AS link;
-              SELECT ''''Content'''' as title,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content'''' AS link;
-              SELECT '''''' || tabular_name  || '' '' || tabular_nature || '''''' as title, ''''#'''' AS link;
-
-              SELECT ''''title'''' AS component, '''''' || tabular_name || '' ('' || tabular_nature || '') Content'''' as contents;
-
-              SET total_rows = (SELECT COUNT(*) FROM '' || tabular_name || '');
-              SET limit = COALESCE($limit, 50);
-              SET offset = COALESCE($offset, 0);
-              SET total_pages = ($total_rows + $limit - 1) / $limit;
-              SET current_page = ($offset / $limit) + 1;
-
-              SELECT ''''text'''' AS component, '''''' || info_schema_link_full_md || '''''' AS contents_md
-              SELECT ''''text'''' AS component,
-                ''''- Start Row: '''' || $offset || ''''
-'''' ||
-                ''''- Rows per Page: '''' || $limit || ''''
-'''' ||
-                ''''- Total Rows: '''' || $total_rows || ''''
-'''' ||
-                ''''- Current Page: '''' || $current_page || ''''
-'''' ||
-                ''''- Total Pages: '''' || $total_pages as contents_md
-              WHERE $stats IS NOT NULL;
-
-              -- Display uniform_resource table with pagination
-              SELECT ''''table'''' AS component,
-                    TRUE AS sort,
-                    TRUE AS search,
-                    TRUE AS hover,
-                    TRUE AS striped_rows,
-                    TRUE AS small;
-            SELECT * FROM '' || tabular_name || ''
-            LIMIT $limit
-            OFFSET $offset;
-
-            SELECT ''''text'''' AS component,
-                (SELECT CASE WHEN $current_page > 1 THEN ''''[Previous](?limit='''' || $limit || ''''&offset='''' || ($offset - $limit) || '''')'''' ELSE '''''''' END) || '''' '''' ||
-                ''''(Page '''' || $current_page || '''' of '''' || $total_pages || '''') '''' ||
-                (SELECT CASE WHEN $current_page < $total_pages THEN ''''[Next](?limit='''' || $limit || ''''&offset='''' || ($offset + $limit) || '''')'''' ELSE '''''''' END)
-                AS contents_md;''
-        FROM console_content_tabular;
-
-      INSERT OR IGNORE INTO sqlpage_files (path, contents)
-        SELECT
-            ''console/content/'' || tabular_nature || ''/'' || tabular_name || ''.sql'',
-            ''SELECT ''''redirect'''' AS component,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql'''' AS link WHERE $stats IS NULL;
-'' ||
-            ''SELECT ''''redirect'''' AS component,sqlpage.environment_variable(''''SQLPAGE_SITE_PREFIX'''') || ''''/console/content/'' || tabular_nature || ''/'' || tabular_name || ''.auto.sql?stats='''' || $stats AS link WHERE $stats IS NOT NULL;''
-        FROM console_content_tabular;
-
-      -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows',
-  'TODO',
-  'A series of idempotent INSERT statements which will auto-generate "default" content for all tables and views'
-);
-      -- code provenance: `ConsoleSqlPages.infoSchemaContentDML` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
-
-      -- the "auto-generated" tables will be in '*.auto.sql' with redirects
-      DELETE FROM sqlpage_files WHERE path like 'console/content/table/%.auto.sql';
-      DELETE FROM sqlpage_files WHERE path like 'console/content/view/%.auto.sql';
-      INSERT OR REPLACE INTO sqlpage_files (path, contents)
-        SELECT
-            'console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql',
-            'SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-
-              SELECT ''breadcrumb'' AS component;
-              SELECT ''Home'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
-              SELECT ''Console'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console'' AS link;
-              SELECT ''Content'' as title,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content'' AS link;
-              SELECT ''' || tabular_name  || ' ' || tabular_nature || ''' as title, ''#'' AS link;
-
-              SELECT ''title'' AS component, ''' || tabular_name || ' (' || tabular_nature || ') Content'' as contents;
-
-              SET total_rows = (SELECT COUNT(*) FROM ' || tabular_name || ');
-              SET limit = COALESCE($limit, 50);
-              SET offset = COALESCE($offset, 0);
-              SET total_pages = ($total_rows + $limit - 1) / $limit;
-              SET current_page = ($offset / $limit) + 1;
-
-              SELECT ''text'' AS component, ''' || info_schema_link_full_md || ''' AS contents_md
-              SELECT ''text'' AS component,
-                ''- Start Row: '' || $offset || ''
-'' ||
-                ''- Rows per Page: '' || $limit || ''
-'' ||
-                ''- Total Rows: '' || $total_rows || ''
-'' ||
-                ''- Current Page: '' || $current_page || ''
-'' ||
-                ''- Total Pages: '' || $total_pages as contents_md
-              WHERE $stats IS NOT NULL;
-
-              -- Display uniform_resource table with pagination
-              SELECT ''table'' AS component,
-                    TRUE AS sort,
-                    TRUE AS search,
-                    TRUE AS hover,
-                    TRUE AS striped_rows,
-                    TRUE AS small;
-            SELECT * FROM ' || tabular_name || '
-            LIMIT $limit
-            OFFSET $offset;
-
-            SELECT ''text'' AS component,
-                (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END) || '' '' ||
-                ''(Page '' || $current_page || '' of '' || $total_pages || '') '' ||
-                (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
-                AS contents_md;'
-        FROM console_content_tabular;
-
-      INSERT OR IGNORE INTO sqlpage_files (path, contents)
-        SELECT
-            'console/content/' || tabular_nature || '/' || tabular_name || '.sql',
-            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql'' AS link WHERE $stats IS NULL;
-' ||
-            'SELECT ''redirect'' AS component,sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/content/' || tabular_nature || '/' || tabular_name || '.auto.sql?stats='' || $stats AS link WHERE $stats IS NOT NULL;'
-        FROM console_content_tabular;
-
-      -- TODO: add ${this.upsertNavSQL(...)} if we want each of the above to be navigable through DB rows
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'qltyfolio/test-suites-common.sql',
       '              -- not including shell
@@ -1108,7 +1134,7 @@ FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
 
               
-
+    
     SELECT ''text'' as component,
     ''The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.'' as contents;
     select 
@@ -1192,6 +1218,8 @@ LEFT JOIN
     test_case_run_results r
     ON
     t.test_case_id = r.test_case_id;
+
+    
 
 
     select
@@ -1309,7 +1337,7 @@ LEFT JOIN
 
     SELECT
     ''Todo'' AS label,
-      ROUND(100.0 * (COUNT(t.test_case_id) - COUNT(r.test_case_id)) / COUNT(t.test_case_id), 2) AS value
+      ROUND(100.0 * SUM(CASE WHEN r.status IS NULL THEN 1 ELSE 0 END) / COUNT(t.test_case_id), 2) AS value
     FROM 
     test_cases t
 LEFT JOIN 
@@ -1506,7 +1534,7 @@ SET current_page = ($offset / $limit) + 1;
 
   SELECT ''table'' as component,
     TRUE AS sort,
-      --TRUE AS search,
+      TRUE AS search,
         ''URL'' AS align_left,
           ''title'' AS align_left,
             ''group'' as markdown,
@@ -1774,16 +1802,19 @@ WHERE bd.test_case_id = $id;
 
   SELECT ''html'' as component,
     ''<style>
-        tr.actualClass-passed td.Status {
+        tr.actualClass-passed td.State {
             color: green !important; /* Default to red */
         }
-         tr.actualClass-failed td.Status {
+         tr.actualClass-failed td.State {
             color: red !important; /* Default to red */
         }
         .btn-list {
         display: flex;
         justify-content: flex-end;
-    }
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
     </style>
     
     '' as html FROM test_case_run_results where test_case_id = $id group by group_id;
@@ -1795,7 +1826,7 @@ WHERE bd.test_case_id = $id;
       TRUE AS center
      FROM test_case_run_results where test_case_id = $id group by group_id;
 
-    --Tab 1: Test Suite list
+    --Tab 1: Actual Result
     SELECT
     ''Actual Result'' AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| $id || ''#actual-result-content''  AS link,
@@ -1803,12 +1834,19 @@ WHERE bd.test_case_id = $id;
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
-    --Tab 2: Test case list
+    --Tab 2: Test Run
     SELECT
     ''Test Run'' AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=test-run&id=''|| $id || ''#test-run-content''  AS link,
       $tab = ''test-run'' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
+
+--Tab 3: Bug Report
+    SELECT
+    ''Bug Report'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=bug-report&id=''|| $id || ''#bug-report-content''  AS link,
+      $tab = ''bug-report'' AS active
+         FROM bug_report  where test_case_id = $id group by test_case_id;
 
 
 
@@ -1823,6 +1861,7 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''actual-result'' THEN ''table''
         WHEN $tab = ''test-run'' THEN ''list''
+         WHEN $tab = ''bug-report'' THEN ''foldable''
       END AS component,
       ''Column Count'' as align_right,
       TRUE as sort,
@@ -1835,7 +1874,7 @@ WHERE bd.test_case_id = $id;
       
     SELECT
     step_name as ''Activity'',
-      step_status as ''Activity Status'',
+      step_status as ''State'',
       ''actualClass-''||step_status as _sqlpage_css_class,
       step_start_time as ''Start Time'',
       step_end_time as ''End Time''
@@ -1845,14 +1884,16 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''actual-result'' THEN ''html''
     END AS component,
-      ''<div id="actual-result-content"></div>'' as html;
+      ''<div id="actual-result-content"></div>'' as html
+       FROM test_execution_log
+          WHERE $tab = ''actual-result'' and  test_case_id = $id;
 
 
 
     --Tab - specific content for "test-run"
     SELECT
     ''
- **Run Date**  :  '' || run_date AS description_md,
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'',run_date) AS description_md,
       ''
  **Environment**  :  '' || environment AS description_md,
         ''
@@ -1863,9 +1904,72 @@ WHERE bd.test_case_id = $id;
     CASE
         WHEN $tab = ''test-run'' THEN ''html''
     END AS component,
-      ''<div id="test-run-content"></div>'' as html;
-    --select ''code'' AS component;
-    --select content as contents FROM test_case_run_profile where $tab = ''test-run'' and  test_case_id = $id;
+      ''<div id="test-run-content"></div>'' as html
+      FROM  test_run WHERE $tab = ''test-run'' and test_case_id = $id;
+   
+
+    --Tab - specific content for "bug-report"
+    /*SELECT
+    ''
+ **id**  :  '' || b.id AS description_md,
+    ''
+ **Title**  :  '' || b.title AS description_md,
+    ''
+ **Created By**  :  '' || b.created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+    ''
+ **Type**  :  '' || b.type AS description_md,
+    ''
+ **Priority**  :  '' || b.priority AS description_md,
+    ''
+ **Assigned**  :  '' || b.assigned AS description_md,
+    ''
+ **Status**  :  '' || b.status AS description_md,
+    ''
+'' || b.body AS description_md
+    FROM  bug_report b 
+    WHERE $tab = ''bug-report'' and b.test_case_id = $id;*/
+
+    -- SELECT
+    -- b.id AS "Id",
+    -- b.title AS "Title",
+    -- b.created_by AS "Created By",
+    -- strftime(''%d-%m-%Y'', b.created_at) AS "Run Date",
+    -- b.type AS "Type",
+    -- b.priority AS "Priority",
+    -- b.assigned AS "Assigned To",
+    -- b.status AS "Status"    
+    -- FROM  bug_report b
+    -- WHERE $tab = ''bug-report'' and b.test_case_id = $id
+    -- order by b.created_at desc ;
+    
+     SELECT
+     b.id||'' - ''||b.title as title,
+     ''head-title'' as class,
+    ''
+ **Created By**  :  '' || b.created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+    ''
+ **Type**  :  '' || b.type AS description_md,
+    ''
+ **Priority**  :  '' || b.priority AS description_md,
+    ''
+ **Assigned**  :  '' || b.assigned AS description_md,
+    ''
+ **Status**  :  '' || b.status AS description_md,
+    ''
+'' || b.body AS description_md
+    FROM  bug_report b
+    WHERE $tab = ''bug-report'' and b.test_case_id = $id;
+
+    SELECT
+    CASE
+        WHEN $tab = ''bug-report'' THEN ''html''
+    END AS component,
+      ''<div id="bug-report-content"></div>'' as html
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'' and $tab = ''bug-report'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2064,13 +2168,13 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT ''html'' as component,
   ''<style>
-     tr td.Status {
+     tr td.State {
           color: blue !important; /* Default to blue */
       }
-      tr.rowClass-passed td.Status {
+      tr.rowClass-passed td.State {
           color: green !important; /* Default to red */
       }
-       tr.rowClass-failed td.Status {
+       tr.rowClass-failed td.State {
           color: red !important; /* Default to red */
       }
       .btn-list {
@@ -2092,7 +2196,7 @@ SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' as component,
     TRUE AS sort,
-      --TRUE AS search,
+      TRUE AS search,
         ''URL'' AS align_left,
           ''title'' AS align_left,
             ''group'' as markdown,
@@ -2104,7 +2208,7 @@ SET current_page = ($offset / $limit) + 1;
     test_case_title AS "title",
       group_name AS "group",
       case when test_status is not null then test_status
-      else ''TODO'' END AS "Status",
+      else ''TODO'' END AS "State",
     ''rowClass-''||test_status as _sqlpage_css_class,
     created_by as "Created By",
     formatted_test_case_created_at as "Created On",
@@ -2121,473 +2225,90 @@ SET current_page = ($offset / $limit) + 1;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/index.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/index.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
+      'sqlpage/templates/shell-custom.handlebars',
+      '        -- not including shell
+        -- not including breadcrumbs from sqlpage_aide_navigation
+        -- not including page title from sqlpage_aide_navigation
 
-              WITH navigation_cte AS (
-    SELECT COALESCE(title, caption) as title, description
-      FROM sqlpage_aide_navigation
-     WHERE namespace = ''prime'' AND path =''ur''||''/index.sql''
-)
-SELECT ''list'' AS component, title, description
-  FROM navigation_cte;
-SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
-  FROM sqlpage_aide_navigation
- WHERE namespace = ''prime'' AND parent_path = ''ur''||''/index.sql''
- ORDER BY sibling_order;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/info-schema.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/info-schema.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
+        <!DOCTYPE html>
+<html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
+<head>
+    <meta charset="utf-8" />
 
-                SELECT ''title'' AS component, ''Uniform Resource Tables and Views'' as contents;
-  SELECT ''table'' AS component,
-  ''Name'' AS markdown,
-    ''Column Count'' as align_right,
-    TRUE as sort,
-    TRUE as search;
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{{static_path ''sqlpage.css''}}">
+    {{#each (to_array css)}}
+        {{#if this}}
+            <link rel="stylesheet" href="{{this}}">
+        {{/if}}
+    {{/each}}
 
-SELECT
-''Table'' as "Type",
-  ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-  FROM console_information_schema_table
-  WHERE table_name = ''uniform_resource'' OR table_name like ''ur_%''
-  GROUP BY table_name
+    <!-- Font Setup -->
+    {{#if font}}
+        {{#if (starts_with font "/")}}
+            <style>
+                @font-face {
+                    font-family: ''LocalFont'';
+                    src: url(''{{font}}'') format(''woff2'');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                :root {
+                    --tblr-font-sans-serif: ''LocalFont'', Arial, sans-serif;
+                }
+            </style>
+        {{else}}
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+            <style>
+                :root {
+                    --tblr-font-sans-serif: ''{{font}}'', Arial, sans-serif;
+                }
+            </style>
+        {{/if}}
+    {{/if}}
 
-  UNION ALL
+    <!-- JavaScript -->
+    <script src="{{static_path ''sqlpage.js''}}" defer nonce="{{@csp_nonce}}"></script>
+    {{#each (to_array javascript)}}
+        {{#if this}}
+            <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+    {{#each (to_array javascript_module)}}
+        {{#if this}}
+            <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+</head>
 
-SELECT
-''View'' as "Type",
-  ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-  FROM console_information_schema_view
-  WHERE view_name like ''ur_%''
-  GROUP BY view_name;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-files.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-files.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
+<body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
+    <div class="page">
+        <!-- Header -->
+        {{#if (or (or title (or icon image)) (or menu_item search_target))}}
+        <header id="sqlpage_header">
+            {{#if sidebar}}
+                <!-- Sidebar logic here -->
+            {{else}}
+                <nav class="navbar navbar-expand-md navbar-light{{#if fixed_top_menu}} fixed-top{{/if}}">
+                 <h1 class="mb-0 w-0 fs-2">{{title}}</h1>
+                    <!-- Navbar content here -->
+                </nav>
+            {{/if}}
+        </header>
+        {{/if}}
 
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-files.sql/index.sql'') as contents;
-    ;
-
--- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_file );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small;
-SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
-   LIMIT $limit
-  OFFSET $offset;
-
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-account.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-imap-account.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-imap-account.sql/index.sql'') as contents;
-    ;
-
-select
-  ''title''   as component,
-  ''Mailbox'' as contents;
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''email'' AS markdown;
-SELECT    
-''['' || email || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id || '')'' AS "email"
-      FROM uniform_resource_imap
-      GROUP BY ur_ingest_session_imap_account_id
-      ORDER BY uniform_resource_id;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-folder.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-                SELECT ''breadcrumb'' as component;
-SELECT
-   ''Home'' as title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
-SELECT
-  ''Uniform Resource'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
-SELECT
-  ''Uniform Resources (IMAP)'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' as link;
-SELECT
-  ''Folder'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || $imap_account_id:: TEXT as link;
-SELECT
-  ''title'' as component,
-  (SELECT email FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
-
---Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''folder'' AS markdown;
-  SELECT ''['' || folder_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id || '')'' AS "folder"
-    FROM uniform_resource_imap
-    WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
-    GROUP BY ur_ingest_session_imap_acct_folder_id
-    ORDER BY uniform_resource_id;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-mail-list.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-              SELECT
-''breadcrumb'' AS component;
-SELECT
-''Home'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''
-SELECT
-  ''Uniform Resource'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
-SELECT
-  ''Uniform Resources (IMAP)'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
-SELECT
-  ''Folder'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id=''|| ur_ingest_session_imap_account_id AS link
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-  folder_name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-  ''title''   as component,
-  (SELECT email || '' ('' || folder_name || '')''  FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
-
--- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_imap );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-
--- Display uniform_resource table with pagination
-  SELECT ''table'' AS component,
-  ''Uniform Resources'' AS title,
-    "Size (bytes)" as align_right,
-    TRUE AS sort,
-      TRUE AS search,
-        TRUE AS hover,
-          TRUE AS striped_rows,
-            TRUE AS small,
-              ''subject'' AS markdown;;
-SELECT
-''['' || subject || ''](uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id || '')'' AS "subject"
-  , "from",
-  CASE
-      WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
-      WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
-      WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
-      ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
-  END AS "Relative Time",
-  strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
-  FROM uniform_resource_imap
-  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
-  ORDER BY uniform_resource_id
-  LIMIT $limit
-  OFFSET $offset;
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ur/uniform-resource-imap-mail-detail.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-
-              SELECT
-''breadcrumb'' AS component;
-SELECT
-''Home'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-SELECT
- ''Uniform Resource'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' AS link;
-SELECT
-  ''Uniform Resources (IMAP)'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
-SELECT
-''Folder'' AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-   folder_name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
-
-SELECT
-   subject AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id AS link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id:: TEXT;
-
---Breadcrumb ends-- -
-
-  --- back button-- -
-    select ''button'' as component;
-select
-"<< Back" as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id as link
-  FROM uniform_resource_imap
-  WHERE uniform_resource_id = $resource_id:: TEXT;
-
---Display uniform_resource table with pagination
-  SELECT
-''datagrid'' as component;
-SELECT
-''From'' as title,
-  "from" as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-SELECT
-''To'' as title,
-  email as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-SELECT
-''Subject'' as title,
-  subject as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
-
-  SELECT ''html'' AS component;
-  SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'orchestration/index.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''orchestration/index.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-              WITH navigation_cte AS (
-SELECT COALESCE(title, caption) as title, description
-    FROM sqlpage_aide_navigation
-WHERE namespace = ''prime'' AND path = ''orchestration''||''/index.sql''
-)
-SELECT ''list'' AS component, title, description
-    FROM navigation_cte;
-SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
-    FROM sqlpage_aide_navigation
-WHERE namespace = ''prime'' AND parent_path =  ''orchestration''||''/index.sql''
-ORDER BY sibling_order;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'orchestration/info-schema.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''orchestration/info-schema.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-              -- not including page title from sqlpage_aide_navigation
-
-              SELECT ''title'' AS component, ''Orchestration Tables and Views'' as contents;
-SELECT ''table'' AS component,
-      ''Name'' AS markdown,
-      ''Column Count'' as align_right,
-      TRUE as sort,
-      TRUE as search;
-
-SELECT
-    ''Table'' as "Type",
-     ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-FROM console_information_schema_table
-WHERE table_name = ''orchestration_session'' OR table_name like ''orchestration_%''
-GROUP BY table_name
-
-UNION ALL
-
-SELECT
-    ''View'' as "Type",
-     ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
-    COUNT(column_name) AS "Column Count"
-FROM console_information_schema_view
-WHERE view_name like ''orchestration_%''
-GROUP BY view_name;
-            ',
+        <!-- Page Wrapper -->
+        <div class="page-wrapper">
+            <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout ''boxed'')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+                {{~#each_row~}}{{~/each_row~}}
+            </main>
+        </div>
+    </div>
+</body>
+</html>;
+      ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -3526,6 +3247,1018 @@ SELECT
     REPLACE(content_web_ui_link_abbrev_md, ''$SITE_PREFIX_URL'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || '''') AS "Content"
 FROM console_information_schema_view
 WHERE view_name LIKE ''surveilr_doctor%''
+GROUP BY view_name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''docs/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              WITH navigation_cte AS (
+SELECT COALESCE(title, caption) as title, description
+    FROM sqlpage_aide_navigation
+WHERE namespace = ''prime'' AND path = ''docs''||''/index.sql''
+)
+SELECT ''list'' AS component, title, description
+    FROM navigation_cte;
+SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
+    FROM sqlpage_aide_navigation
+WHERE namespace = ''prime'' AND parent_path =  ''docs''||''/index.sql''
+ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/release-notes.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''docs/release-notes.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.6.0'' as title, ''# `surveilr` v1.6.0 Release Notes
+
+---
+
+## 🚀 What''''s New
+
+### **1. SQLPage**
+- Updated SQLPage to the latest version, ensuring compatibility and access to the newest features and bug fixes.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.10'' as title, ''# `surveilr` v1.5.9 Release Notes
+
+---
+
+## 🚀 Bug Fixes
+
+### **1. WebUI Page for About**
+- A dedicated About page has been added in the WebUI to visualize the response of `surveilr doctor`:
+  - **Dependencies Table**:
+    - The display of versions and their generation process has been fixed.
+  - **Diagnostic Views**:
+    - A new section has been added to display the contents and details of all views prefixed with `surveilr_doctor*`, facilitating the of details and logs for diagnostics.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.8'' as title, ''# `surveilr` v1.5.8 Release Notes 🎉
+
+---
+
+### **1. WebUI Page for About**
+- Added a dedicated About page in the WebUI visiualizing the response of `surveilr doctor`:
+  - **Dependencies Table**:
+    - Displays the versions of `sqlpage`, `rusqlite`, and `pgwire` in a table.
+  - **Extensions List**:
+    - Lists all synamic and static extensions .
+  - **Capturable executables**:
+    - Lists all capturable executables that were found in the `PATH`.
+  - **Env variables**
+    - Captures all environment variables starting with `SURVEILR_` and `SQLPAGE_`.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.6'' as title, ''# `surveilr` v1.5.6 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+### **1. Enhanced Diagnostics Command**
+- **`surveilr doctor` Command Improvements**:
+  - **Dependencies Check**:
+    - Verifies versions of critical dependencies: `Deno`, `Rustc`, and `SQLite`.
+    - Ensures dependencies meet minimum version requirements for seamless functionality.
+  - **Capturable Executables Detection**:
+    - Searches for executables in the `PATH` matching `surveilr-doctor*.*`.
+    - Executes these executables, assuming their output is in JSON format, and integrates their results into the diagnostics report.
+  - **Database Views Analysis**:
+    - Queries all views starting with the prefix `surveilr_doctor_` in the specified RSSD.
+    - Displays their contents in tabular format for comprehensive insights.
+
+---
+
+### **2. JSON Mode**
+- Added a `--json` flag to the `surveilr doctor` command.
+  - Outputs the entire diagnostics report, including versions, extensions, and database views, in structured JSON format.
+
+---
+
+### **3. WebUI Page for Diagnostics**
+- Added a dedicated page in the WebUI for the `surveilr doctor` diagnostics:
+  - **Versions Table**:
+    - Displays the versions of `Deno`, `Rustc`, and `SQLite` in a table.
+  - **Extensions List**:
+    - Lists all detected extensions.
+  - **Database Views Content**:
+    - Automatically identifies and displays the contents of views starting with `surveilr_doctor_` in individual tables.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.5'' as title, ''# `surveilr` v1.5.5 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+
+### Virtual Table: `surveilr_function_docs`
+
+**Description**  
+The `surveilr_function_docs` virtual table offers a structured method to query metadata about `surveilr` SQLite functions registered in the system.
+
+**Columns**  
+- `name` (`TEXT`): The function''''s name.
+- `description` (`TEXT`): A concise description of the function''''s purpose.
+- `parameters` (`JSON`): A JSON object detailing the function''''s parameters, including:
+  - `name`: The name of the parameter.
+  - `data_type`: The parameter''''s expected data type.
+  - `description`: An explanation of the parameter''''s role.
+- `return_type` (`TEXT`): The function''''s return type.
+- `introduced_in_version` (`TEXT`): The version in which the function was first introduced.
+
+**Use Cases**  
+- Utilized in the Web UI for generating documentation on the functions.
+
+---
+
+### Virtual Table: `surveilr_udi_dal_fs`
+
+**Description**  
+The `surveilr_udi_dal_fs` virtual table acts as an abstraction layer for interacting with the file system. It enables users to list and examine file metadata in a structured, SQL-friendly manner. This table can list files and their metadata recursively from a specified path.
+
+**Columns**  
+- `name` (`TEXT`): The file''''s name.
+- `path` (`TEXT`): The complete file path.
+- `last_modified` (`TEXT`): The file''''s last modified timestamp, when available.
+- `content` (`BLOB`): The content of the file (optional).
+- `size` (`INTEGER`): The size of the file in bytes.
+- `content_type` (`TEXT`): The MIME type of the file or an inferred content type (e.g., based on the extension).
+- `digest` (`TEXT`): The MD5 digest of the file, if available.
+- `arg_path` (`TEXT`, hidden): The base path for querying files, specified in the `filter` method.
+
+**Key Features**  
+- Lists files recursively from a specified directory.
+- Facilitates metadata extraction, such as file size, last modified timestamp, and MDhash).
+
+---
+
+### Virtual Table: `surveilr_udi_dal_s3`
+
+**Description**  
+The `surveilr_udi_dal_s3` virtual table is an abstraction layer that interacts with the S3 bucket in a given region. It allows listing and inspecting file metadata in a structured, SQL-accessible way.
+
+**Columns**  
+- `name` (`TEXT`): The name of the file.
+- `path` (`TEXT`): The full path to the file.
+- `last_modified` (`TEXT`): The last modified timestamp of the file, if available.
+- `content` (`BLOB`): The file''''s content (optional).
+- `size` (`INTEGER`): The file size in bytes.
+- `content_type` (`TEXT`): The file''''s MIME type or inferred content type (e.g., based on the extension).
+- `digest` (`TEXT`): The file''''s MD5 digest, if available.
+- `arg_path` (`TEXT`, hidden): The base path to query files from, specified in the `filter` method.
+
+**Key Features**  
+- Supports metadata extraction (e.g., file size, last modified timestamp, MD5 hash).
+
+---
+
+## Example Queries
+
+### Querying Function Documentation
+```sql
+SELECT * FROM surveilr_function_docs WHERE introduced_in_version = ''''1.0.0'''';
+```'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.3'' as title, ''# `surveilr` v1.5.3 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+
+### 1. **Open Project Data Extension**
+`surveilr` now includes additional data from Open Project PLM ingestion. Details such as a work package''''s versions and relations are now encapsulated in JSON format in a new `elaboration` column within the `ur_ingest_session_plm_acct_project_issue` table. The JSON structure is as follows, with the possibility for extension:
+```json
+elaboration: {"issue_id": 78829, "relations": [...], "version": {...}}
+```
+
+### 2. **Functions for Extension Verification**
+Two new functions have been introduced to verify and ensure the presence of certain intended functions and extensions before their use:
+- The `select surveilr_ensure_function(''''func'''', ''''if not found msg'''', ''''func2'''', ''''if func2 not found msg'''')` function can be used to declaratively specify the required function(s), and will produce an error with guidance on how to obtain the function if it is not found.
+
+- The `select surveilr_ensure_extension(''''extn.so'''', ''''../bin/extn2.so'''')` function allows for the declarative indication of necessary extensions, and will dynamically load them if they are not already available.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.5.2'' as title, ''# `surveilr` v1.5.2 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+
+### 1. **`surveilr` SQLite Extensions**
+`surveilr` extensions are now statically linked, resolving all extensions and function usage issues. The following extensions are included by default in `surveilr`, with additional ones planned for future releases:
+- [`sqlean`](https://github.com/nalgeon/sqlean)
+- [`sqlite-url`](https://github.com/asg017/sqlite-url)
+- [`sqlite-hashes`](https://github.com/nyurik/sqlite-hashes)
+- [`sqlite-lines`](https://github.com/asg017/sqlite-lines)'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.4.3'' as title, ''# `surveilr` v1.4.2 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+
+### 1. Utilizing Custom Extensions with `surveilr`
+In the previous release, we introduced the feature of automatically loading extensions from the default `sqlpkg` location. However, this posed a security risk, and we have since disabled that feature. To use extensions installed by `sqlpkg`, simply pass `--sqlpkg`, and the default location will be utilized. If you wish to change the directory from which extensions are loaded, use `--sqlpkg /path/to/extensions`, or specify the directory with the new `SURVEILR_SQLPKG` environment variable.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.4.2'' as title, ''# `surveilr` v1.4.2 Release Notes 🎉
+
+---
+
+## 🚀 What''''s New
+
+### 1. Utilizing Custom Extensions with **`surveilr`**
+Loading extensions is now straightforward with the `--sqlite-dyn-extn` flag. As long as your extensions are installed via [`sqlpkg`](https://sqlpkg.org/), `surveilr` will automatically detect the default location of `sqlpkg` and all installed extensions. Simply install the extension using `sqlpkg`. To specify a custom path for `sqlpkg`, use the `--sql-pkg-home` argument with a directory containing the extensions, regardless of depth, and `surveilr` will locate them. Additionally, the `SURVEILR_SQLITE_DYN_EXTNS` environment variable has been introduced to designate an extension path instead of using `--sqlite-dyn-extn`.
+**Note**: Using `--sqlite-dyn-extn` won''''t prevent `surveilr` from loading extensions from `sqlpkg`''''s default directory. To disable loading from `sqlpkg`, use the `--no-sqlpkg` flag.
+
+Here''''s a detailed example of using `surveilr shell` and `surveilr orchestrate` with dynamic extensions.
+**Using `sqlpkg` defaults**
+- Download the [`sqlpkg` CLI](https://github.com/nalgeon/sqlpkg-cli?tab=readme-ov-file#download-and-install-preferred-method).
+- Download the [text extension](https://sqlpkg.org/?q=text), which offers various text manipulation functions: `sqlpkg install nalgeon/sqlean`
+- Run the following command:
+  ```bash
+  surveilr shell --cmd "select text_substring(''''hello world'''', 7, 5) AS result" # surveilr loads all extensions from the .sqlpkg default directory
+  ```
+
+**Including an additional extension with `sqlpkg`**
+Combine `--sqlite-dyn-extn` with `surveilr`''''s ability to load extensions from `sqlpkg`
+- Add the `path` extension to `sqlpkg`''''s installed extensions: `sqlpkg install asg017/path`
+- Execute:
+  ```bash
+  surveilr shell --cmd "SELECT
+        text_substring(''''hello world'''', 7, 5) AS substring_result,
+        math_sqrt(9) AS sqrt_result,
+        path_parts.type,
+        path_parts.part 
+    FROM 
+        (SELECT * FROM path_parts(''''/usr/bin/sqlite3'''')) AS path_parts;
+    " --sqlite-dyn-extn .extensions/math.so
+  ```
+
+**Specify a Custom Directory to Load Extensions From**
+A `--sqlpkg-home` flag has been introduced to specify a custom path for extensions. They do not need to be installed by `sqlpkg` to be used. `surveilr` will navigate the specified folder and load all compatible extensions for the operating system—`.so` for Linux, `.dll` for Windows, and `.dylib` for macOS. (If you installed with `sqlpkg`, you don''''t need to know the file type).
+```bash
+surveilr shell --cmd "SELECT text_substring(''''hello world'''', 7, 5) AS substring_result, math_sqrt(9) AS sqrt_result" --sqlpkg-home ./src/resource_serde/src/functions/extensions/
+```
+
+### 2. Upgraded SQLPage
+SQLPage has been updated to version 0.31.0, aligning with the latest releases.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.4.1'' as title, ''# `surveilr` v1.4.1 Release Notes 🎉
+
+---
+
+## 🚀 Bug Fixes
+
+### 1. **`surveilr` SQLite Extensions**
+To temporarily mitigate the issue with `surveilr` intermittently working due to the dynamic loading of extensions, `surveilr` no longer supports dynamic loading by default. It is now supported only upon request by using the `--sqlite-dyn-extn` flag. This flag is a multiple option that specifies the path to an extension to be loaded into `surveilr`. To obtain the dynamic versions (`.dll`, `.so`, or `.dylib`), you can use [`sqlpkg`](https://sqlpkg.org/) to install the necessary extension.
+
+For instance, to utilize the `text` functions:
+- Install the extension with [`sqlpkg`](https://sqlpkg.org/?q=text): `sqlpkg install nalgeon/text`
+- Then execute it:
+  ```bash
+  surveilr shell --cmd "select text_substring(''''hello world'''', 7, 5);" --sqlite-dyn-extn ./text.so
+  ```'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.3.1'' as title, ''# `surveilr` v1.3.1 Release Notes 🎉
+
+---
+
+## 🚀 Bug Fixes
+
+### 1. **`surveilr` SQLite Extensions**
+This release fixes the `glibc` compatibility error that occured with `surveilr` while registering function extensions.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.3.0'' as title, ''# `surveilr` Release Announcement: Now Fully Compatible Across All Distros 🎉
+
+We are thrilled to announce that `surveilr` is now fully compatible with all major Linux distributions, resolving the longstanding issue related to OpenSSL compatibility! 🚀
+
+## What''''s New?
+- **Universal Compatibility**: `surveilr` now works seamlessly on **Ubuntu**, **Debian**, **Kali Linux**, and other Linux distributions, across various versions and architectures. Whether you''''re using Ubuntu 18.04, Debian 10, or the latest Kali Linux, `surveilr` is ready to perform without any hiccups.
+- **Resolved OpenSSL Bug**: We’ve fixed the recurring OpenSSL-related issue that caused headaches for users on older and varied systems. With this update, you no longer need to worry about OpenSSL version mismatches or missing libraries.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.2.0'' as title, ''# `surveilr` v1.2.0 Release Notes 🎉
+
+## What''''s New?
+This update introduces two major additions that streamline file system integration and ingestion session management.
+
+---
+
+### New Features
+
+#### 1. `surveilr_ingest_session_id` Scalar Function
+The `surveilr_ingest_session_id` function is now available, offering robust management of ingestion sessions. This function ensures efficient session handling by:
+- Reusing existing session IDs for devices with active sessions.
+- Creating new ingestion sessions when none exist.
+- Associating sessions with metadata for improved traceability.
+
+
+#### 2. `surveilr_udi_dal_fs` Virtual Table Function
+The `surveilr_udi_dal_fs` virtual table function provides seamless access to file system resources directly within your SQL queries. With this feature, you can:
+- Query file metadata, such as names, paths, sizes, and timestamps.
+- Retrieve file content and calculate digests for integrity checks.
+- Traverse directories recursively to handle large and nested file systems effortlessly.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
+
+## 🚀 New Features
+
+### 1. **Integrated Documentation in Web UI**
+
+This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
+
+### 2. **`uniform_resource` Graph Infrastructure**
+
+The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
+
+- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
+- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
+- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
+
+This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.0.0'' as title, ''# `surveilr` v1.0.0 Release Notes 🎉
+
+We’re thrilled to announce the release of `surveilr` v1.0, a significant milestone in our journey to deliver powerful tools for continuous security, quality and compliance evidence workflows. This release introduces a streamlined migration system and a seamless, user-friendly experience for accessing the `surveilr` Web UI.
+
+---
+
+## 🚀 New Features
+
+### 1. **Database Migration System**
+
+This release introduces a comprehensive database migration feature that allows smooth and controlled updates to the RSSD structure. Our migration system includes:
+
+- **Structured Notebooks and Cells**: A structured system organizes SQL migration scripts into modular code notebooks, making migration scripts easy to track, audit, and execute as needed.
+- **Idempotent vs. Non-Idempotent Handling**: Ensures each migration runs in an optimal and secure manner by tracking cell execution history, allowing for re-execution where safe.
+- **Automated State Tracking**: All state changes are logged for complete auditing, showing timestamps, transition details, and the results of each migration step.
+- **Transactional Execution**: All migrations run within a single transaction block for seamless rollbacks and data consistency.
+- **Dynamic Migration Scripts**: Cells marked for migration are dynamically added to the migration script, reducing manual effort and risk of errors.
+
+This system ensures safe, controlled migration of database changes, enhancing reliability and traceability for every update.
+
+### 2. **Enhanced Default Command and Web UI Launch**
+
+The surveilr executable now starts the Web UI as the default command when no specific CLI commands are passed. This feature aims to enhance accessibility and ease of use for new users and teams. Here’s what happens by default:
+
+- **Automatic Web UI Startup**: By default, running surveilr without additional commands launches the surveilr Web UI.
+- **Auto-Browser Launch**: Opens the default browser on the workstation, pointing to the Web UI’s URL and port, providing a user-friendly experience right from the first run.'' as description_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/functions.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''docs/functions.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              -- To display title
+SELECT
+  ''text'' AS component,
+  ''Surveilr SQLite Functions'' AS title;
+
+SELECT
+  ''text'' AS component,
+  ''Below is a comprehensive list and description of all Surveilr SQLite functions. Each function includes details about its parameters, return type, and version introduced.''
+  AS contents_md;
+
+SELECT
+''list'' AS component,
+''Surveilr Functions'' AS title;
+
+  SELECT  name AS title,
+        NULL AS icon,  -- Add an icon field if applicable
+        ''functions-inner.sql?function='' || name || ''#function'' AS link,
+        $function = name AS active
+  FROM surveilr_function_doc
+  ORDER BY name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'docs/functions-inner.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              
+select
+  ''breadcrumb'' as component;
+select
+  ''Home'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+select
+  ''Docs'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/index.sql'' as link;
+select
+  ''SQL Functions'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/functions.sql'' as link;
+select
+  $function as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/docs/functions-inner.sql?function=''  || $function AS link;
+
+
+  SELECT
+    ''text'' AS component,
+    '''' || name || ''()'' AS title, ''function'' AS id
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''text'' AS component,
+    description AS contents_md
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''text'' AS component,
+    ''Introduced in version '' || version || ''.'' AS contents
+  FROM surveilr_function_doc WHERE name = $function;
+
+  SELECT
+    ''title'' AS component,
+    3 AS level,
+    ''Parameters'' AS contents
+  WHERE $function IS NOT NULL;
+
+  SELECT
+    ''card'' AS component,
+    3 AS columns
+    WHERE $function IS NOT NULL;
+  SELECT
+      json_each.value ->> ''$.name'' AS title,
+      json_each.value ->> ''$.description'' AS description,
+      json_each.value ->> ''$.data_type'' AS footer,
+      ''azure'' AS color
+  FROM surveilr_function_doc, json_each(surveilr_function_doc.parameters)
+  WHERE name = $function;
+
+  -- Navigation Buttons
+  SELECT ''button'' AS component, ''sm'' AS size, ''pill'' AS shape;
+  SELECT name AS title,
+        NULL AS icon,  -- Add an icon field if needed
+        sqlpage.link(''functions-inner.sql'', json_object(''function'', name)) AS link
+  FROM surveilr_function_doc
+  ORDER BY name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              WITH navigation_cte AS (
+    SELECT COALESCE(title, caption) as title, description
+      FROM sqlpage_aide_navigation
+     WHERE namespace = ''prime'' AND path =''ur''||''/index.sql''
+)
+SELECT ''list'' AS component, title, description
+  FROM navigation_cte;
+SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
+  FROM sqlpage_aide_navigation
+ WHERE namespace = ''prime'' AND parent_path = ''ur''||''/index.sql''
+ ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/info-schema.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/info-schema.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, ''Uniform Resource Tables and Views'' as contents;
+  SELECT ''table'' AS component,
+  ''Name'' AS markdown,
+    ''Column Count'' as align_right,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT
+''Table'' as "Type",
+  ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+  FROM console_information_schema_table
+  WHERE table_name = ''uniform_resource'' OR table_name like ''ur_%''
+  GROUP BY table_name
+
+  UNION ALL
+
+SELECT
+''View'' as "Type",
+  ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+  FROM console_information_schema_view
+  WHERE view_name like ''ur_%''
+  GROUP BY view_name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-files.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-files.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-files.sql/index.sql'') as contents;
+    ;
+
+-- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_file );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small;
+SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
+   LIMIT $limit
+  OFFSET $offset;
+
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-account.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ur/uniform-resource-imap-account.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ur/uniform-resource-imap-account.sql/index.sql'') as contents;
+    ;
+
+select
+  ''title''   as component,
+  ''Mailbox'' as contents;
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''email'' AS markdown;
+SELECT    
+''['' || email || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id || '')'' AS "email"
+      FROM uniform_resource_imap
+      GROUP BY ur_ingest_session_imap_account_id
+      ORDER BY uniform_resource_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-folder.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+                SELECT ''breadcrumb'' as component;
+SELECT
+   ''Home'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+SELECT
+  ''Uniform Resource'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
+SELECT
+  ''Uniform Resources (IMAP)'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' as link;
+SELECT
+  ''Folder'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || $imap_account_id:: TEXT as link;
+SELECT
+  ''title'' as component,
+  (SELECT email FROM uniform_resource_imap WHERE ur_ingest_session_imap_account_id = $imap_account_id::TEXT) as contents;
+
+--Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''folder'' AS markdown;
+  SELECT ''['' || folder_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id || '')'' AS "folder"
+    FROM uniform_resource_imap
+    WHERE ur_ingest_session_imap_account_id = $imap_account_id:: TEXT
+    GROUP BY ur_ingest_session_imap_acct_folder_id
+    ORDER BY uniform_resource_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-mail-list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT
+''breadcrumb'' AS component;
+SELECT
+''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''
+SELECT
+  ''Uniform Resource'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' as link;
+SELECT
+  ''Uniform Resources (IMAP)'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
+SELECT
+  ''Folder'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id=''|| ur_ingest_session_imap_account_id AS link
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id = $folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+  folder_name AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+  ''title''   as component,
+  (SELECT email || '' ('' || folder_name || '')''  FROM uniform_resource_imap WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT) as contents;
+
+-- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+  SET total_rows = (SELECT COUNT(*) FROM uniform_resource_imap );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Display uniform_resource table with pagination
+  SELECT ''table'' AS component,
+  ''Uniform Resources'' AS title,
+    "Size (bytes)" as align_right,
+    TRUE AS sort,
+      TRUE AS search,
+        TRUE AS hover,
+          TRUE AS striped_rows,
+            TRUE AS small,
+              ''subject'' AS markdown;;
+SELECT
+''['' || subject || ''](uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id || '')'' AS "subject"
+  , "from",
+  CASE
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 0 THEN ''Today''
+      WHEN ROUND(julianday(''now'') - julianday(date)) = 1 THEN ''1 day ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) BETWEEN 2 AND 6 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 30 THEN CAST(ROUND(julianday(''now'') - julianday(date)) AS INT) || '' days ago''
+      WHEN ROUND(julianday(''now'') - julianday(date)) < 365 THEN CAST(ROUND((julianday(''now'') - julianday(date)) / 30) AS INT) || '' months ago''
+      ELSE CAST(ROUND((julianday(''now'') - julianday(date)) / 365) AS INT) || '' years ago''
+  END AS "Relative Time",
+  strftime(''%Y-%m-%d'', substr(date, 1, 19)) as date
+  FROM uniform_resource_imap
+  WHERE ur_ingest_session_imap_acct_folder_id=$folder_id::TEXT
+  ORDER BY uniform_resource_id
+  LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
+    AS contents_md;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ur/uniform-resource-imap-mail-detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT
+''breadcrumb'' AS component;
+SELECT
+''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+SELECT
+ ''Uniform Resource'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/index.sql'' AS link;
+SELECT
+  ''Uniform Resources (IMAP)'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-account.sql'' AS link;
+SELECT
+''Folder'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-folder.sql?imap_account_id='' || ur_ingest_session_imap_account_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+   folder_name AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id=$resource_id::TEXT GROUP BY ur_ingest_session_imap_acct_folder_id;
+
+SELECT
+   subject AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-detail.sql?resource_id='' || uniform_resource_id AS link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id:: TEXT;
+
+--Breadcrumb ends-- -
+
+  --- back button-- -
+    select ''button'' as component;
+select
+"<< Back" as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ur/uniform-resource-imap-mail-list.sql?folder_id='' || ur_ingest_session_imap_acct_folder_id as link
+  FROM uniform_resource_imap
+  WHERE uniform_resource_id = $resource_id:: TEXT;
+
+--Display uniform_resource table with pagination
+  SELECT
+''datagrid'' as component;
+SELECT
+''From'' as title,
+  "from" as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+SELECT
+''To'' as title,
+  email as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+SELECT
+''Subject'' as title,
+  subject as "description" FROM uniform_resource_imap where uniform_resource_id=$resource_id::TEXT;
+
+  SELECT ''html'' AS component;
+  SELECT html_content AS html FROM uniform_resource_imap_content WHERE uniform_resource_id=$resource_id::TEXT ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'orchestration/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''orchestration/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              WITH navigation_cte AS (
+SELECT COALESCE(title, caption) as title, description
+    FROM sqlpage_aide_navigation
+WHERE namespace = ''prime'' AND path = ''orchestration''||''/index.sql''
+)
+SELECT ''list'' AS component, title, description
+    FROM navigation_cte;
+SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
+    FROM sqlpage_aide_navigation
+WHERE namespace = ''prime'' AND parent_path =  ''orchestration''||''/index.sql''
+ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'orchestration/info-schema.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''orchestration/info-schema.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+
+              SELECT ''title'' AS component, ''Orchestration Tables and Views'' as contents;
+SELECT ''table'' AS component,
+      ''Name'' AS markdown,
+      ''Column Count'' as align_right,
+      TRUE as sort,
+      TRUE as search;
+
+SELECT
+    ''Table'' as "Type",
+     ''['' || table_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/table.sql?name='' || table_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+FROM console_information_schema_table
+WHERE table_name = ''orchestration_session'' OR table_name like ''orchestration_%''
+GROUP BY table_name
+
+UNION ALL
+
+SELECT
+    ''View'' as "Type",
+     ''['' || view_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/info-schema/view.sql?name='' || view_name || '')'' AS "Name",
+    COUNT(column_name) AS "Column Count"
+FROM console_information_schema_view
+WHERE view_name like ''orchestration_%''
 GROUP BY view_name;
             ',
       CURRENT_TIMESTAMP)
