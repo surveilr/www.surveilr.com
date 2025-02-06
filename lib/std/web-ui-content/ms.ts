@@ -138,6 +138,49 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE l.log_type = 'result'
         AND json_extract(j.value, '$.name') = 'system_info';
 
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
+        CREATE VIEW surveilr_osquery_ms_node_interface_address AS
+        SELECT
+            l.node_key,
+            json_extract(j.value, '$.hostIdentifier') AS host_identifier,
+            json_extract(j.value, '$.calendarTime') AS calendar_time,
+            json_extract(j.value, '$.columns.address') AS address,
+            json_extract(j.value, '$.columns.broadcast') AS broadcast,
+            json_extract(j.value, '$.columns.interface') AS interface,
+            json_extract(j.value, '$.columns.mask') AS mask,
+            json_extract(j.value, '$.columns.point_to_point') AS point_to_point,
+            json_extract(j.value, '$.columns.type') AS type
+        FROM ur_ingest_session_surveilr_osquery_ms_log AS l,
+            json_each(l.log_data) AS j
+        WHERE l.log_type = 'result'
+        AND json_extract(j.value, '$.name') = 'interface_addresses';
+
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
+        CREATE VIEW surveilr_osquery_ms_node_detail AS
+        SELECT
+            n.surveilr_osquery_ms_node_id,
+            n.node_key,
+            n.host_identifier,
+            n.tls_cert_subject,
+            n.os_version,
+            n.platform,
+            n.last_seen,
+            n.status,
+            n.device_id,
+            n.behavior_id,
+            i.calendar_time,
+            i.address AS ip_address,
+            i.broadcast,
+            i.mask,
+            i.point_to_point,
+            i.type
+        FROM surveilr_osquery_ms_node n
+        LEFT JOIN surveilr_osquery_ms_node_interface_address i
+        ON n.node_key = i.node_key
+            AND i.interface = 'eth0'
+            -- this only selects the IPv4 addresses for now
+            AND i.address LIKE '%.%';
+
         `;
   }
 
@@ -159,8 +202,9 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
             platform as "OS",
             os_version as "OS Version",
             last_seen as 'Last Seen',
-            status as status
-        FROM surveilr_osquery_ms_node;
+            status as status,
+            ip_address, mask
+        FROM surveilr_osquery_ms_node_detail;
         `;
   }
 
