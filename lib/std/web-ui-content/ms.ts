@@ -168,17 +168,19 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
   "ms/node.sql"() {
     return this.SQL`
             ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Node'` })}
-            SELECT 'list' as component, 'Browse details about ' || $host_id as title;
+            
+            SELECT 'datagrid' as component;
+            SELECT 'Computer Name' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
+            SELECT 'Cpu Brand' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
+            SELECT 'cpu_type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
+            SELECT 'cpu_logical_cores' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
+            SELECT 'physical_memory' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || ' GB' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
 
+            SELECT 'list' as component;
             SELECT 
                 'Processes' as title, 
                 'Identify what processes are running (helpful to see if unauthorized processes are active).' as description,
                 'process.sql?key=' || $key || '&host_id=' || $host_id as link;
-
-            SELECT 
-                'System Information' as title, 
-                'Full Insight Into ' || $host_id as description,
-                'system-info.sql?key=' || $key || '&host_id=' || $host_id as link;
 
             SELECT 
                 'Network Interface Details' as title, 
@@ -218,26 +220,6 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/system-info.sql"() {
-    return this.SQL`
-        ${
-      this.activeBreadcrumbsSQL({
-        titleExpr: `$host_id || ' System Information'`,
-      })
-    }
-        SELECT 'title' AS component, 'Detailed Sytem Information for ' || $host_id as contents;
-        SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
-
-        SELECT 
-            host_identifier as "Host Identifier",
-            calendar_time,
-            *
-        FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
-        `;
-  }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/network.sql"() {
