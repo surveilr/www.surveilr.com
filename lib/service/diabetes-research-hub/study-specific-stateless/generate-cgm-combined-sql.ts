@@ -1,6 +1,7 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net --allowffi
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
+import { ulid } from "https://deno.land/x/ulid/mod.ts";
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -59,6 +60,7 @@ export function createVsvSQL(dbFilePath: string, tableName: string): string {
         );
         drop table ${tableName};
         create table ${tableName} as select * from ${tableName}_vsv;   
+        drop table ${tableName}_vsv;
             `;
     }
   }
@@ -101,6 +103,83 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
   }
 
   db.close();
+  return vsvSQL;
+}
+
+export function saveJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let vsvSQL = ``;
+    
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. `,
+    );
+
+    db.close();
+    return "";
+  } 
+
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS cgm_raw_db (
+    db_file_id TEXT NOT NULL,
+    db_file_metadata TEXT
+  ); CREATE TABLE IF NOT EXISTS raw_cgm_extract_data (
+    cgm_raw_data_id TEXT NOT NULL,
+    participant_sid text NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT NULL
+  );`);
+
+  
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+    };
+        
+    const jsonStringMeta = JSON.stringify(jsonObject);    
+
+    db.prepare("INSERT INTO cgm_raw_db(db_file_id, db_file_metadata) VALUES (?, ?);").run( ulid(), jsonStringMeta);
+    
+    const file_name = row.file_name.replace(`.${row.file_format}`, "");
+    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`).all();
+    const jsonStringObs = [];
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        jsonObjectObs = { ...row_obs }; 
+      } else {
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }           
+      jsonStringObs.push(jsonObjectObs);
+      
+    }
+    const jsonStringCgm = JSON.stringify(jsonStringObs);
+    db.prepare(`INSERT INTO raw_cgm_extract_data(cgm_raw_data_id, participant_sid, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run( ulid(),row.patient_id, jsonStringCgm, jsonStringMeta);
+  }
+  
+
+  db.close();  
   return vsvSQL;
 }
 
