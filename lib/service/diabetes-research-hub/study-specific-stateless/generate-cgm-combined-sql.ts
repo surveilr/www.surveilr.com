@@ -106,7 +106,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
   return vsvSQL;
 }
 
-export function saveJsonCgm(dbFilePath: string): string {
+export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string ='',map_field_of_cgm_value:string=''): string {
   const db = new Database(dbFilePath);
   let vsvSQL = ``;
     
@@ -126,11 +126,8 @@ export function saveJsonCgm(dbFilePath: string): string {
 
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
-  db.exec(`CREATE TABLE IF NOT EXISTS cgm_raw_db (
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
     db_file_id TEXT NOT NULL,
-    db_file_metadata TEXT
-  ); CREATE TABLE IF NOT EXISTS raw_cgm_extract_data (
-    cgm_raw_data_id TEXT NOT NULL,
     participant_sid text NOT NULL,
     file_meta_data TEXT NULL,
     cgm_data TEXT NULL
@@ -145,13 +142,12 @@ export function saveJsonCgm(dbFilePath: string): string {
       file_format: row.file_format,
       source_platform: row.source_platform,
       file_upload_date: row.file_upload_date,
-      map_field_of_cgm_date: row.map_field_of_cgm_date,
-      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_cgm_date: row.map_field_of_cgm_date ?? map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value ?? map_field_of_cgm_value,
     };
         
-    const jsonStringMeta = JSON.stringify(jsonObject);    
-
-    db.prepare("INSERT INTO cgm_raw_db(db_file_id, db_file_metadata) VALUES (?, ?);").run( ulid(), jsonStringMeta);
+    const jsonStringMeta = JSON.stringify(jsonObject); 
+    
     
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
     const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`).all();
@@ -175,7 +171,8 @@ export function saveJsonCgm(dbFilePath: string): string {
       
     }
     const jsonStringCgm = JSON.stringify(jsonStringObs);
-    db.prepare(`INSERT INTO raw_cgm_extract_data(cgm_raw_data_id, participant_sid, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run( ulid(),row.patient_id, jsonStringCgm, jsonStringMeta);
+    const db_file_id = ulid();
+    db.prepare(`INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run(db_file_id ,row.patient_id, jsonStringCgm, jsonStringMeta);
   }
   
 

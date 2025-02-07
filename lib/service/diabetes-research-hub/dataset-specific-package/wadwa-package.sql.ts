@@ -1,8 +1,14 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
+import { saveJsonCgm } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class wadaSqlPages extends spn.TypicalSqlPageNotebook {
+  async savecgmSQL() {
+      const dbFilePath = "./resource-surveillance.sqlite.db";
+      const sqlStatements = saveJsonCgm(dbFilePath,'DeviceDtTm','Value');
+      return await sqlStatements;
+    }
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics
