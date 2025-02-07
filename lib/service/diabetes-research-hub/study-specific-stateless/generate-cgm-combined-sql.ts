@@ -106,7 +106,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
   return vsvSQL;
 }
 
-export function saveJsonCgm(dbFilePath: string): string {
+export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string ='',map_field_of_cgm_value:string=''): string {
   const db = new Database(dbFilePath);
   let vsvSQL = ``;
     
@@ -142,8 +142,8 @@ export function saveJsonCgm(dbFilePath: string): string {
       file_format: row.file_format,
       source_platform: row.source_platform,
       file_upload_date: row.file_upload_date,
-      map_field_of_cgm_date: row.map_field_of_cgm_date,
-      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_cgm_date: row.map_field_of_cgm_date ?? map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value ?? map_field_of_cgm_value,
     };
         
     const jsonStringMeta = JSON.stringify(jsonObject); 
