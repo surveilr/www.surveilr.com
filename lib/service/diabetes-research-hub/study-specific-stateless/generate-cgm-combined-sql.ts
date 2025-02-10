@@ -2,6 +2,7 @@
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
+import { Buffer } from "node:buffer"; // Needed for Node.js environments
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -525,6 +526,127 @@ export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
   return combinedViewSQL; // Return the generated SQL string
 }
 
+
+
+function fetchCgmData(
+  db: Database,
+  file_name: string,
+  map_field_of_patient_id: string,
+  patient_id: string,
+): string {
+  try {
+    const rows_obs = db
+      .prepare(
+        `SELECT * FROM uniform_resource_${file_name} WHERE ${map_field_of_patient_id} = ?`,
+      )
+      .all(patient_id);
+
+    const jsonStringObs = [];
+    let isNonCommaseparated = false;
+
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        jsonObjectObs = { ...row_obs };
+      } else {
+        isNonCommaseparated = true;
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }
+      jsonStringObs.push(jsonObjectObs);
+    }
+
+    return isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
+  } catch (error) {
+    console.error(`Error fetching CGM data: ${error.message}`);
+    return "[]"; // Return empty JSON array if an error occurs
+  }
+}
+
+export function saveCTRJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let ctrSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    db_file_id TEXT NOT NULL,
+    participant_sid TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+
+    // Trim the "CTR3-" prefix from patient_id safely
+    const deidentID = typeof row.patient_id === "string"
+      ? row.patient_id.replace(/^CTR3-/, "")
+      : row.patient_id;
+
+    // console.log(
+    //   `Processing participant: ${row.patient_id} -> Deidentified ID: ${deidentID}`,
+    // );
+
+    const file_name = row.file_name
+      .replace(`.${row.file_format}`, "")
+      .replace(/[^a-zA-Z0-9_]/g, "");
+
+    if (!file_name) {
+      console.warn(`Skipping row due to invalid file name: ${row.file_name}`);
+      continue;
+    }
+
+    const jsonStringCgm = fetchCgmData(
+      db,
+      file_name,
+      row.map_field_of_patient_id,
+      deidentID,
+    );
+
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
+    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
+  }
+
+  db.close();
+  return ctrSQL;
+}
+
+
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
@@ -552,5 +674,13 @@ if (import.meta.main) {
   if (CombinedRTCCGMSQL) {
     console.log("Generated SQL for RTCCGM dataset:");
     console.log(CombinedRTCCGMSQL);
+  }
+
+  // Generate cgm json for ctr
+  const ctrJson = saveCTRJsonCgm(
+    dbFilePath,
+  );
+  if (ctrJson) {
+    console.log(ctrJson);
   }
 }
