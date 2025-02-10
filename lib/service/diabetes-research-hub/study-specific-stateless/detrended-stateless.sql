@@ -2189,6 +2189,19 @@ ORDER BY
     number_of_files DESC;
 
 -- cached tables----------------------------------------------------------------------------------------
+
+
+DROP TABLE IF EXISTS participant;
+
+CREATE TABLE
+    IF NOT EXISTS participant AS
+SELECT
+    *
+FROM
+    drh_participant;
+
+
+
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 
 CREATE TABLE

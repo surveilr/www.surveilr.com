@@ -646,6 +646,81 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
   return ctrSQL;
 }
 
+export function saveDFAJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let dfaSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    db_file_id TEXT NOT NULL,
+    participant_sid TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+    
+    const file_name = row.file_name.replace(`.${row.file_format}`, "");
+
+    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`).all();
+    const jsonStringObs = [];
+    let isNonCommaseparated = false;
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        jsonObjectObs = { ...row_obs }; 
+      } else {
+        isNonCommaseparated = true;
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }           
+      jsonStringObs.push(jsonObjectObs);
+    }
+    
+    const jsonStringCgm = isNonCommaseparated ? JSON.stringify(jsonStringObs) : JSON.stringify(rows_obs);
+
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
+    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
+  }
+
+  db.close();
+  return dfaSQL;
+}
+
 
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
