@@ -124,6 +124,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
     return "";
   } 
 
+  const db_file_id = ulid();
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
@@ -178,7 +179,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringCgm = isNonCommaseparated ? JSON.stringify(jsonStringObs) : JSON.stringify(rows_obs);;
 
 
-    const db_file_id = ulid();
+    
     db.prepare(`INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run(db_file_id ,row.patient_id, jsonStringCgm, jsonStringMeta);
   }
   
