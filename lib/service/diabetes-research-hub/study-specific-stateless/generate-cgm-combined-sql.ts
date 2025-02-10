@@ -106,7 +106,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
   return vsvSQL;
 }
 
-export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string ='',map_field_of_cgm_value:string=''): string {
+export async function saveJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
   let vsvSQL = ``;
     
@@ -130,7 +130,7 @@ export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string =''
     db_file_id TEXT NOT NULL,
     participant_sid text NOT NULL,
     file_meta_data TEXT NULL,
-    cgm_data TEXT NULL
+    cgm_data TEXT
   );`);
 
   
@@ -142,21 +142,25 @@ export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string =''
       file_format: row.file_format,
       source_platform: row.source_platform,
       file_upload_date: row.file_upload_date,
-      map_field_of_cgm_date: row.map_field_of_cgm_date ?? map_field_of_cgm_date,
-      map_field_of_cgm_value: row.map_field_of_cgm_value ?? map_field_of_cgm_value,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
     };
         
     const jsonStringMeta = JSON.stringify(jsonObject); 
     
     
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
-    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`).all();
+
+    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name} ${row.map_field_of_patient_id ? `WHERE ${row.map_field_of_patient_id} = '${row.patient_id}'` : ''}`).all();
     const jsonStringObs = [];
+    let isNonCommaseparated = false;
     for (const row_obs of rows_obs) {
       let jsonObjectObs;
       if (Object.keys(row_obs).length > 1) {
-        jsonObjectObs = { ...row_obs }; 
+        // jsonObjectObs = { ...row_obs }; 
       } else {
+        isNonCommaseparated = true;
         const firstKey = Object.keys(row_obs)[0];
         const firstVal = row_obs[firstKey];
         const splitKey = firstKey.split(/[\|;]/);
@@ -170,7 +174,10 @@ export function saveJsonCgm(dbFilePath: string,map_field_of_cgm_date: string =''
       jsonStringObs.push(jsonObjectObs);
       
     }
-    const jsonStringCgm = JSON.stringify(jsonStringObs);
+    
+    const jsonStringCgm = isNonCommaseparated ? JSON.stringify(jsonStringObs) : JSON.stringify(rows_obs);;
+
+
     const db_file_id = ulid();
     db.prepare(`INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run(db_file_id ,row.patient_id, jsonStringCgm, jsonStringMeta);
   }
