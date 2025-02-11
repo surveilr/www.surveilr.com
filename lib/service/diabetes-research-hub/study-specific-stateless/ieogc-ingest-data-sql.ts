@@ -68,7 +68,7 @@ export function processIEOGCgm(dbFilePath: string): string {
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
     db_file_id TEXT NOT NULL,
-    participant_sid TEXT NOT NULL,
+    participant_display_id TEXT NOT NULL,
     file_meta_data TEXT NULL,
     cgm_data TEXT
   );`);
@@ -101,7 +101,7 @@ export function processIEOGCgm(dbFilePath: string): string {
     const jsonStringCgm = fetchCgmData(db, viewName, row.patient_id);
 
     db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_sid, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`
+      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`
     ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
