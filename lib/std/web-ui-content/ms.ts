@@ -210,10 +210,10 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
             
             SELECT 'datagrid' as component;
             SELECT 'Computer Name' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info;
-            SELECT 'Cpu Brand' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
-            SELECT 'cpu_type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
-            SELECT 'cpu_logical_cores' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
-            SELECT 'physical_memory' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || ' GB' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key LIMIT 1;
+            SELECT 'Cpu Brand' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+            SELECT 'cpu_type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+            SELECT 'cpu_logical_cores' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+            SELECT 'physical_memory' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || ' GB' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
 
             SELECT 'list' as component;
             SELECT 
