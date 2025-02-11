@@ -1584,6 +1584,12 @@ CREATE TABLE IF NOT EXISTS participant AS
     SELECT *
     FROM drh_participant;
 
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
+
 -- Drop and recreate the study view
 DROP VIEW IF EXISTS drh_study;
 CREATE VIEW drh_study AS
