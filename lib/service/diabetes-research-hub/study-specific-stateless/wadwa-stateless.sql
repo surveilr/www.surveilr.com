@@ -1745,6 +1745,12 @@ CREATE TABLE IF NOT EXISTS participant AS
     SELECT *
     FROM drh_participant;
 
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
+
 -- Drop the view if it exists, then create the combined CGM tracing view
 DROP VIEW IF EXISTS combined_cgm_tracing;
 

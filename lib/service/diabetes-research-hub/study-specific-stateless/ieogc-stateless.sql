@@ -1740,44 +1740,44 @@ FROM
 
 
 
--- Drop the view if it already exists to ensure idempotency
-DROP VIEW IF EXISTS drh_tbldatafreestyleview;
+-- -- Drop the view if it already exists to ensure idempotency
+-- DROP VIEW IF EXISTS drh_tbldatafreestyleview;
 
--- Create the view
-CREATE VIEW drh_tbldatafreestyleview AS
-SELECT 
-    (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetch tenant_id from the party table
-    (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetch study_id from the uniform_resource_study table
-    (SELECT study_id FROM uniform_resource_study LIMIT 1) || '-' || PtID AS participant_id,  -- Concatenate study_id and PtID to form participant_id
-    strftime('%Y-%m-%d %H:%M:%S', ReadingDtTm) AS Date_Time,  -- Format ReadingDtTm to 'YYYY-MM-DD HH:MM:SS'
-    CAST(ReadingValue AS REAL) AS CGM_value  -- Cast ReadingValue to REAL for CGM value
-FROM 
-    uniform_resource_tblddatafreestyle;
+-- -- Create the view
+-- CREATE VIEW drh_tbldatafreestyleview AS
+-- SELECT 
+--     (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetch tenant_id from the party table
+--     (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetch study_id from the uniform_resource_study table
+--     (SELECT study_id FROM uniform_resource_study LIMIT 1) || '-' || PtID AS participant_id,  -- Concatenate study_id and PtID to form participant_id
+--     strftime('%Y-%m-%d %H:%M:%S', ReadingDtTm) AS Date_Time,  -- Format ReadingDtTm to 'YYYY-MM-DD HH:MM:SS'
+--     CAST(ReadingValue AS REAL) AS CGM_value  -- Cast ReadingValue to REAL for CGM value
+-- FROM 
+--     uniform_resource_tblddatafreestyle;
 
 
 
--- Drop the view 
-DROP VIEW IF EXISTS drh_tblddatacgmsview;
+-- -- Drop the view 
+-- DROP VIEW IF EXISTS drh_tblddatacgmsview;
 
--- Create the view
-CREATE VIEW drh_tblddatacgmsview AS
-SELECT 
-    (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetch tenant_id from the party table
-    (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetch study_id from the uniform_resource_study table
-    (SELECT study_id FROM uniform_resource_study LIMIT 1) || '-' || PtID AS participant_id,  -- Concatenate study_id and PtID to form participant_id
-    strftime('%Y-%m-%d', ReadingDt) || ' ' ||  -- Format the date as YYYY-MM-DD
-    CASE 
-        WHEN substr(ReadingTm, -2) = 'PM' AND substr(ReadingTm, 1, 2) != '12' THEN 
-            printf('%02d:%s:00', CAST(substr(ReadingTm, 1, instr(ReadingTm, ':') - 1) AS INTEGER) + 12, substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))
-        WHEN substr(ReadingTm, -2) = 'AM' AND substr(ReadingTm, 1, 2) = '12' THEN 
-            printf('00:%s:00', substr(ReadingTm, instr(ReadingTm, ':') + 1, 2)) 
-        WHEN substr(ReadingTm, -2) = 'PM' AND substr(ReadingTm, 1, 2) = '12' THEN 
-            printf('12:%s:00', substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))  
-        ELSE 
-            printf('%02d:%s:00', CAST(substr(ReadingTm, 1, instr(ReadingTm, ':') - 1) AS INTEGER), substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))
-    END AS Date_Time,  -- Format ReadingTm as 'HH:MM' without AM/PM
-    CAST(SensorGLU AS REAL) AS CGM_value  -- Cast SensorGLU to REAL as the CGM value
-FROM uniform_resource_tblddatacgms;
+-- -- Create the view
+-- CREATE VIEW drh_tblddatacgmsview AS
+-- SELECT 
+--     (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetch tenant_id from the party table
+--     (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetch study_id from the uniform_resource_study table
+--     (SELECT study_id FROM uniform_resource_study LIMIT 1) || '-' || PtID AS participant_id,  -- Concatenate study_id and PtID to form participant_id
+--     strftime('%Y-%m-%d', ReadingDt) || ' ' ||  -- Format the date as YYYY-MM-DD
+--     CASE 
+--         WHEN substr(ReadingTm, -2) = 'PM' AND substr(ReadingTm, 1, 2) != '12' THEN 
+--             printf('%02d:%s:00', CAST(substr(ReadingTm, 1, instr(ReadingTm, ':') - 1) AS INTEGER) + 12, substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))
+--         WHEN substr(ReadingTm, -2) = 'AM' AND substr(ReadingTm, 1, 2) = '12' THEN 
+--             printf('00:%s:00', substr(ReadingTm, instr(ReadingTm, ':') + 1, 2)) 
+--         WHEN substr(ReadingTm, -2) = 'PM' AND substr(ReadingTm, 1, 2) = '12' THEN 
+--             printf('12:%s:00', substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))  
+--         ELSE 
+--             printf('%02d:%s:00', CAST(substr(ReadingTm, 1, instr(ReadingTm, ':') - 1) AS INTEGER), substr(ReadingTm, instr(ReadingTm, ':') + 1, 2))
+--     END AS Date_Time,  -- Format ReadingTm as 'HH:MM' without AM/PM
+--     CAST(SensorGLU AS REAL) AS CGM_value  -- Cast SensorGLU to REAL as the CGM value
+-- FROM uniform_resource_tblddatacgms;
 
 -- Drop the view if it exists, then create the combined CGM tracing view
 DROP VIEW IF EXISTS combined_cgm_tracing;
@@ -2409,6 +2409,28 @@ ORDER BY
     number_of_files DESC;
 
 -- cached tables----------------------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS participant;
+
+CREATE TABLE IF NOT EXISTS participant AS
+SELECT 
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
+    study_id AS study_display_id,  
+    participant_id AS participant_display_id,  
+    site_id,  
+    diagnosis_icd,  
+    med_rxnorm,  
+    treatment_modality,  
+    gender,  
+    race_ethnicity,  
+    age,  
+    bmi,  
+    baseline_hba1c,  
+    diabetes_type,  
+    study_arm
+FROM drh_participant;
+
+
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 
 CREATE TABLE

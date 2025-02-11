@@ -1558,6 +1558,7 @@ WHERE type = 'table'
 DROP VIEW IF EXISTS drh_participant;
 CREATE VIEW drh_participant AS
 SELECT
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
     participant_id, 
     (select
             study_id
@@ -1577,6 +1578,16 @@ SELECT
             1
     ) as tenant_id
 FROM uniform_resource_participant;
+
+CREATE TABLE IF NOT EXISTS participant AS
+    SELECT *
+    FROM drh_participant;
+
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
 
 -- Drop and recreate the study view
 DROP VIEW IF EXISTS drh_study;

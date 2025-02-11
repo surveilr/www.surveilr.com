@@ -1171,6 +1171,12 @@ CREATE TABLE IF NOT EXISTS participant AS
     SELECT *
     FROM drh_participant;
 
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
+
 -- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 
