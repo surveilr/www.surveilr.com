@@ -31,7 +31,9 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build \
+          #docker build \
+          docker buildx create --use  # Set up the buildx builder
+          docker buildx build \
              --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
              --build-arg EG_SURVEILR_COM_IMAP_FOLDER=${{ secrets.EG_SURVEILR_COM_IMAP_FOLDER }} \
              --build-arg EG_SURVEILR_COM_IMAP_USER_NAME=${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }} \
