@@ -4,7 +4,6 @@ import * as pkg from "../drh-basepackage.sql.ts";
 import { saveCTRJsonCgm } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class andersonSqlPages extends spn.TypicalSqlPageNotebook {
-
   savecgmDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const jsonstmts = saveCTRJsonCgm(dbFilePath);

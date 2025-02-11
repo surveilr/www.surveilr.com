@@ -259,7 +259,6 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
-
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ms/network.sql"() {
     return this.SQL`

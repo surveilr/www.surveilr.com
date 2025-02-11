@@ -5,10 +5,10 @@ import { saveJsonCgm } from "../study-specific-stateless/generate-cgm-combined-s
 
 export class dss1SingleCGMSqlPages extends spn.TypicalSqlPageNotebook {
   async savecgmSQL() {
-          const dbFilePath = "./resource-surveillance.sqlite.db";
-          const sqlStatements = saveJsonCgm(dbFilePath);
-          return await sqlStatements;
-        }
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const sqlStatements = saveJsonCgm(dbFilePath);
+    return await sqlStatements;
+  }
 }
 
 export async function dss1SingleCGMSQL() {
