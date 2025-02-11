@@ -2473,13 +2473,23 @@ ORDER BY
 
 DROP TABLE IF EXISTS participant;
 
-CREATE TABLE
-    IF NOT EXISTS participant AS
-SELECT
-(SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
-    *
-FROM
-    drh_participant;
+CREATE TABLE IF NOT EXISTS participant AS
+SELECT 
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
+    study_id AS study_display_id,  
+    participant_id AS participant_display_id,  
+    site_id,  
+    diagnosis_icd,  
+    med_rxnorm,  
+    treatment_modality,  
+    gender,  
+    race_ethnicity,  
+    age,  
+    bmi,  
+    baseline_hba1c,  
+    diabetes_type,  
+    study_arm
+FROM drh_participant;
 
     
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
