@@ -31,7 +31,6 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          # Set up the Docker Buildx builder
             docker buildx create --use # Ensure that buildx is initialized
             docker buildx build \
               --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
