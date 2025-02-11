@@ -33,8 +33,7 @@ jobs:
         run: |
           # Set up the Docker Buildx builder
           #docker buildx create --use 
-           docker  build \
-            --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+           docker  build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
             --build-arg EG_SURVEILR_COM_IMAP_FOLDER=${{ secrets.EG_SURVEILR_COM_IMAP_FOLDER }} \
             --build-arg EG_SURVEILR_COM_IMAP_USER_NAME=${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }} \
             --build-arg EG_SURVEILR_COM_IMAP_PASS=${{ secrets.EG_SURVEILR_COM_IMAP_PASS }} \
