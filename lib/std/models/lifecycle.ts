@@ -1905,6 +1905,16 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
     {
       isIdempotent: true,
+      constraints: (props, tableName) => {
+        const c = SQLa.tableConstraints(tableName, props);
+        return [
+          c.unique(
+            "node_key",
+            "log_type",
+            "log_data",
+          ),
+        ];
+      },
     },
   );
 

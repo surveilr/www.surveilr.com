@@ -38,9 +38,15 @@ function createViews(db: Database) {
   `);
 }
 
-function fetchCgmData(db: Database, viewName: string, patientId: string): string {
+function fetchCgmData(
+  db: Database,
+  viewName: string,
+  patientId: string,
+): string {
   try {
-    const rows = db.prepare(`SELECT  Date_Time,CGM_value FROM ${viewName} WHERE participant_id = ?`).all(patientId);
+    const rows = db.prepare(
+      `SELECT  Date_Time,CGM_value FROM ${viewName} WHERE participant_id = ?`,
+    ).all(patientId);
     return JSON.stringify(rows);
   } catch (error) {
     console.error(`Error fetching CGM data: ${error.message}`);
@@ -54,7 +60,7 @@ export function processIEOGCgm(dbFilePath: string): string {
 
   const tableName = "uniform_resource_cgm_file_metadata";
   const checkTableStmt = db.prepare(
-    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
   );
   const tableExists = checkTableStmt.get(tableName);
   if (!tableExists) {
@@ -81,8 +87,8 @@ export function processIEOGCgm(dbFilePath: string): string {
       file_format: row.file_format,
       source_platform: row.source_platform,
       file_upload_date: row.file_upload_date,
-      map_field_of_cgm_date: 'Date_Time',
-      map_field_of_cgm_value: 'CGM_value',
+      map_field_of_cgm_date: "Date_Time",
+      map_field_of_cgm_value: "CGM_value",
       map_field_of_patient_id: row.map_field_of_patient_id,
     };
 
@@ -101,7 +107,7 @@ export function processIEOGCgm(dbFilePath: string): string {
     const jsonStringCgm = fetchCgmData(db, viewName, row.patient_id);
 
     db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`
+      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
     ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 

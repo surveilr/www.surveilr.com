@@ -856,6 +856,46 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       await schemaNB.polygenContent(),
     );
   }
+
+  @cnb.textAssetCell(".json", "Text Asset (.json)")
+  "surveilr osquery-ms config queries"() {
+    return `
+{
+  "tls_proc": {
+    "query": "select * from processes",
+    "interval": 60
+  },
+  "system_info": {
+    "query": "SELECT * FROM system_info",
+    "interval": 60
+  },
+  "os_version": {
+    "query": "SELECT * FROM os_version",
+    "interval": 60
+  },
+  "users": {
+    "query": "SELECT * FROM users",
+    "interval": 60
+  },
+  "interface_addresses": {
+    "query": "SELECT * FROM interface_addresses",
+    "interval": 60
+  },
+  "interface_details": {
+    "query": "SELECT * FROM interface_details",
+    "interval": 60
+  },
+  "listening_ports": {
+    "query": "SELECT * FROM listening_ports",
+    "interval": 60
+  },
+  "process_open_sockets": {
+    "query": "SELECT * FROM process_open_sockets",
+    "interval": 60
+  }
+}
+`;
+  }
 }
 
 export async function SQL() {

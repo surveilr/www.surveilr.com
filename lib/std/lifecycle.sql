@@ -328,7 +328,8 @@ INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "d
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('AI LLM Prompt', 'Generative AI Large Language Model Prompt', NULL, 'text/plain', '.llm-prompt.txt', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.puml)', 'Text Asset (.puml)', NULL, 'text/plain', '.puml', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.rs)', 'Text Asset (.rs)', NULL, 'text/plain', '.rs', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKG3Y5BE26801CYPH2T', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('Text Asset (.json)', 'Text Asset (.json)', NULL, 'text/plain', '.json', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4K24470250WBEA14M7', 'Documentation', 'rssd-init', 'Boostrap SQL', NULL, '-- code provenance: `RssdInitSqlNotebook.bootstrapDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user'', ''runner'') ON CONFLICT DO UPDATE SET value = excluded.value;
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES (''current_user_name'', ''UNKNOWN'') ON CONFLICT DO UPDATE SET value = excluded.value;
 
@@ -649,7 +650,7 @@ INSERT INTO surveilr_function_doc (name, description, parameters, return_type, v
 SELECT name, description, parameters, return_type, version
 FROM surveilr_function_docs();
 ;', '7f6fe29a5393206f5813f5e9f45234f0fee7120e', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKGS2KS59SH3A3YZ5VX', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4KKPMA208P47VQJC2M', 'SQL', 'ConstructionSqlNotebook', 'v001_once_initialDDL', NULL, '-- code provenance: `RssdInitSqlNotebook.v001_once_initialDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/lifecycle.sql.ts)
 
 CREATE TABLE IF NOT EXISTS "party_type" (
     "party_type_id" ULID PRIMARY KEY NOT NULL,
@@ -1510,7 +1511,8 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_surveilr_osquery_ms_log" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("node_key") REFERENCES "surveilr_osquery_ms_node"("node_key")
+    FOREIGN KEY("node_key") REFERENCES "surveilr_osquery_ms_node"("node_key"),
+    UNIQUE("node_key", "log_type", "log_data")
 );
 
 CREATE INDEX IF NOT EXISTS "idx_party__party_type_id__party_name" ON "party"("party_type_id", "party_name");
@@ -1541,12 +1543,12 @@ CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_attachment__uniform_resource_i
 CREATE INDEX IF NOT EXISTS "idx_ur_ingest_session_udi_pgp_sql__ingest_session_id" ON "ur_ingest_session_udi_pgp_sql"("ingest_session_id");
 CREATE INDEX IF NOT EXISTS "idx_orchestration_nature__orchestration_nature_id__nature" ON "orchestration_nature"("orchestration_nature_id", "nature");
 CREATE INDEX IF NOT EXISTS "idx_uniform_resource_edge__uniform_resource_id" ON "uniform_resource_edge"("uniform_resource_id");
-CREATE INDEX IF NOT EXISTS "idx_surveilr_osquery_ms_node__node_key" ON "surveilr_osquery_ms_node"("node_key");', '65431a167025211607baf7e072d25f85f485e0cf', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKHHDJFQ5962SFPA9Q8', 'SQL', 'ConstructionSqlNotebook', 'session_ephemeral_table', NULL, 'CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
+CREATE INDEX IF NOT EXISTS "idx_surveilr_osquery_ms_node__node_key" ON "surveilr_osquery_ms_node"("node_key");', '1febd95cc2e308f7a401c74d211899c4687b196b', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4KDMQTDK0N4PS1F5VZ', 'SQL', 'ConstructionSqlNotebook', 'session_ephemeral_table', NULL, 'CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
     "key" TEXT PRIMARY KEY NOT NULL,
     "value" TEXT NOT NULL
 );', 'b739acd000cf37091bbb365085506f975345351d', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKHT4QVFH3TT77C4DDX', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4M3GZHF6C6RB5M7DWG', 'SQL', 'ConstructionSqlNotebook', 'v001_seedDML', NULL, 'INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''ignore .git and node_modules paths'', ''default'', ''/(\.git|node_modules)/'', ''IGNORE_RESOURCE'', NULL, NULL, ''Ignore any entry with `/.git/` or `/node_modules/` in the path.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''typical ingestion extensions'', ''default'', ''\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7|pdf|docx|doc|pptx|ppt|xlsx|xls)$'', ''CONTENT_ACQUIRABLE'', ''?P<nature>'', NULL, ''Ingest the content for md, mdx, html, json, jsonc, puml, txt, toml, and yml extensions. Assume the nature is the same as the extension.'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-[NATURE] style capturable executable'', ''default'', ''surveilr\[(?P<nature>[^\]]*)\]'', ''CAPTURABLE_EXECUTABLE'', ''?P<nature>'', NULL, ''Any entry with `surveilr-[XYZ]` in the path will be treated as a capturable executable extracting `XYZ` as the nature'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
 INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES (''surveilr-SQL capturable executable'', ''default'', ''surveilr-SQL'', ''CAPTURABLE_EXECUTABLE | CAPTURABLE_SQL'', NULL, NULL, ''Any entry with surveilr-SQL in the path will be treated as a capturable SQL executable and allow execution of the SQL'', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = ''current_user'');
@@ -1566,7 +1568,7 @@ INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''filesyste
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''imap'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''plm'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''osquery-ms'', ''{}'') ON CONFLICT DO NOTHING;', 'b1c811a0977a2fffe5a5929398e724aaebb4ff71', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKH9H0RZXW8EZXB3Q10', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4M05WNJP31MPFVJHC4', 'AI LLM Prompt', 'rssd-init', 'understand notebooks schema', NULL, 'Understand the following structure of an SQLite database designed to store code notebooks and execution kernels.
 The database comprises three main tables: ''code_notebook_kernel'', ''code_notebook_cell'', and ''code_notebook_state''.
 
 1. ''code_notebook_kernel'': A Notebook is a group of Cells. A kernel is a computational engine that executes the code contained in a notebook cell.
@@ -1920,7 +1922,7 @@ INSERT INTO surveilr_function_doc (name, description, parameters, return_type, v
 SELECT name, description, parameters, return_type, version
 FROM surveilr_function_docs();
 ;', '2a4a053ccc57cd5c9c803d664a3b2aa0e2ed1a51', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKJCX302VYE8TGF5PCM', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4N7CBE8VDQ4RWD1Z38', 'AI LLM Prompt', 'rssd-init', 'understand service schema', NULL, 'Understand the following structure of an SQLite database designed to store cybersecurity and compliance data for files in a file system.
 The database is designed to store devices in the ''device'' table and entities called ''resources'' stored in the immutable append-only
 ''uniform_resource'' table. Each time files are "walked" they are stored in ingestion session and link back to ''uniform_resource''. Because all
 tables are generally append only and immutable it means that the ingest_session_fs_path_entry table can be used for revision control
@@ -2789,7 +2791,8 @@ CREATE TABLE IF NOT EXISTS "ur_ingest_session_surveilr_osquery_ms_log" (
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
     "activity_log" TEXT,
-    FOREIGN KEY("node_key") REFERENCES "surveilr_osquery_ms_node"("node_key")
+    FOREIGN KEY("node_key") REFERENCES "surveilr_osquery_ms_node"("node_key"),
+    UNIQUE("node_key", "log_type", "log_data")
 );
 
 CREATE INDEX IF NOT EXISTS "idx_party__party_type_id__party_name" ON "party"("party_type_id", "party_name");
@@ -2843,8 +2846,8 @@ INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''filesyste
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''imap'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''plm'', ''{}'') ON CONFLICT DO NOTHING;
 INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES (''osquery-ms'', ''{}'') ON CONFLICT DO NOTHING;
-      ', 'c0819d9622e30d088547ab56a32f27458bd387c0', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKKCB3EV07N3GJM6923', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
+      ', 'a00a47336f80d303d013b1dee968d8396fbb57cf', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4PQ73QPDJCGQ4MMAZB', 'Text Asset (.puml)', 'rssd-init', 'surveilr-code-notebooks-erd.auto.puml', NULL, '@startuml surveilr-code-notebooks
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -2906,7 +2909,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   code_notebook_kernel |o..o{ code_notebook_cell
   code_notebook_cell |o..o{ code_notebook_state
 @enduml', '84e0fc3aa026060b7e071785c89d02eaf87e6cbf', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKQBP7PQE2R19P0H0YY', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4XBC30784N0H4309R1', 'Text Asset (.puml)', 'rssd-init', 'surveilr-service-erd.auto.puml', NULL, '@startuml surveilr-state
   hide circle
   skinparam linetype ortho
   skinparam roundcorner 20
@@ -3622,7 +3625,7 @@ INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id",
   behavior |o..o{ surveilr_osquery_ms_node
   surveilr_osquery_ms_node |o..o{ ur_ingest_session_surveilr_osquery_ms_log
 @enduml', '59b6d44c7afbce5555bc83dda0c0b6b1d025e263', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
-INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTHBRKS40XCJHZ4KY3PDDT0', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4ZVT9V6RE4CHQ2QRG1', 'Text Asset (.rs)', 'rssd-init', 'models_polygenix.rs', NULL, '/*
 const PARTY_TYPE: &str = "party_type";
 const PARTY: &str = "party";
 const PARTY_RELATION_TYPE: &str = "party_relation_type";
@@ -4393,6 +4396,42 @@ pub struct CodeNotebookState {
     elaboration: Option<String>, // uknown type ''string::json'', mapping to String by default
 }
 ', '107fc53366a1b2ca2a8e98e47cd2b13842863f7e', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01JKTSEG4M737EMBAXAXHPWJ11', 'Text Asset (.json)', 'rssd-init', 'surveilr osquery-ms config queries', NULL, '
+{
+  "tls_proc": {
+    "query": "select * from processes",
+    "interval": 60
+  },
+  "system_info": {
+    "query": "SELECT * FROM system_info",
+    "interval": 60
+  },
+  "os_version": {
+    "query": "SELECT * FROM os_version",
+    "interval": 60
+  },
+  "users": {
+    "query": "SELECT * FROM users",
+    "interval": 60
+  },
+  "interface_addresses": {
+    "query": "SELECT * FROM interface_addresses",
+    "interval": 60
+  },
+  "interface_details": {
+    "query": "SELECT * FROM interface_details",
+    "interval": 60
+  },
+  "listening_ports": {
+    "query": "SELECT * FROM listening_ports",
+    "interval": 60
+  },
+  "process_open_sockets": {
+    "query": "SELECT * FROM process_open_sockets",
+    "interval": 60
+  }
+}
+', 'b106435185021fdbef31bc6c4bea25a2c969bca8', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
 -- code provenance: `TypicalSqlPageNotebook.commonDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/notebook/sqlpage.ts)
 -- idempotently create location where SQLPage looks for its content
 CREATE TABLE IF NOT EXISTS "sqlpage_files" (
@@ -4985,6 +5024,170 @@ VALUES
     ('prime', 'docs/index.sql', 2, 'docs/functions.sql', 'docs/functions.sql', 'SQL Functions', NULL, NULL, 'surveilr specific SQLite functions for extensibilty', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
+INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
+VALUES
+    ('prime', 'index.sql', 1, 'ms/index.sql', 'ms/index.sql', 'osQuery Management Server', NULL, NULL, 'Explore details about all nodes', NULL)
+ON CONFLICT (namespace, parent_path, path)
+DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
+    DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
+    CREATE VIEW surveilr_osquery_ms_node_process AS
+    SELECT
+        l.node_key,
+        json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+        json_extract(l.log_data, '$.calendarTime') AS calendar_time,
+        json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
+        json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
+        json_extract(l.log_data, '$.columns.cwd') AS cwd,
+        json_extract(l.log_data, '$.columns.disk_bytes_read') AS disk_bytes_read,
+        json_extract(l.log_data, '$.columns.disk_bytes_written') AS disk_bytes_written,
+        json_extract(l.log_data, '$.columns.egid') AS egid,
+        json_extract(l.log_data, '$.columns.euid') AS euid,
+        json_extract(l.log_data, '$.columns.gid') AS gid,
+        json_extract(l.log_data, '$.columns.name') AS process_name,
+        json_extract(l.log_data, '$.columns.nice') AS nice,
+        json_extract(l.log_data, '$.columns.on_disk') AS on_disk,
+        json_extract(l.log_data, '$.columns.parent') AS parent,
+        json_extract(l.log_data, '$.columns.path') AS process_name,
+        json_extract(l.log_data, '$.columns.pgroup') AS pgroup,
+        json_extract(l.log_data, '$.columns.pid') AS pid,
+        json_extract(l.log_data, '$.columns.resident_size') AS resident_size,
+        json_extract(l.log_data, '$.columns.root') AS root,
+        json_extract(l.log_data, '$.columns.sgid') AS sgid,
+        json_extract(l.log_data, '$.columns.start_time') AS start_time,
+        json_extract(l.log_data, '$.columns.state') AS state,
+        json_extract(l.log_data, '$.columns.suid') AS suid,
+        json_extract(l.log_data, '$.columns.system_time') AS system_time,
+        json_extract(l.log_data, '$.columns.threads') AS threads,
+        json_extract(l.log_data, '$.columns.total_size') AS total_size,
+        json_extract(l.log_data, '$.columns.uid') AS uid,
+        json_extract(l.log_data, '$.columns.user_time') AS user_time,
+        json_extract(l.log_data, '$.columns.wired_size') AS wired_size
+    FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+    WHERE l.log_type = 'result'
+        AND json_extract(l.log_data, '$.name') = 'tls_proc';
+
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
+CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
+SELECT
+    l.node_key,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
+    json_extract(l.log_data, '$.columns.collisions') AS collisions,
+    json_extract(l.log_data, '$.columns.flags') AS flags,
+    json_extract(l.log_data, '$.columns.ibytes') AS ibytes,
+    json_extract(l.log_data, '$.columns.idrops') AS idrops,
+    json_extract(l.log_data, '$.columns.ierrors') AS ierrors,
+    json_extract(l.log_data, '$.columns.interface') AS interface,
+    json_extract(l.log_data, '$.columns.ipackets') AS ipackets,
+    json_extract(l.log_data, '$.columns.last_change') AS last_change,
+    json_extract(l.log_data, '$.columns.link_speed') AS link_speed,
+    json_extract(l.log_data, '$.columns.mac') AS mac,
+    json_extract(l.log_data, '$.columns.metric') AS metric,
+    json_extract(l.log_data, '$.columns.mtu') AS mtu,
+    json_extract(l.log_data, '$.columns.obytes') AS obytes,
+    json_extract(l.log_data, '$.columns.odrops') AS odrops,
+    json_extract(l.log_data, '$.columns.oerrors') AS oerrors,
+    json_extract(l.log_data, '$.columns.opackets') AS opackets,
+    json_extract(l.log_data, '$.columns.pci_slot') AS pci_slot,
+    json_extract(l.log_data, '$.columns.type') AS type
+FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'interface_details';
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_open_socket;
+CREATE VIEW surveilr_osquery_ms_node_open_socket AS
+SELECT
+    l.node_key,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
+    json_extract(l.log_data, '$.columns.family') AS family,
+    json_extract(l.log_data, '$.columns.fd') AS fd,
+    json_extract(l.log_data, '$.columns.local_address') AS local_address,
+    json_extract(l.log_data, '$.columns.local_port') AS local_port,
+    json_extract(l.log_data, '$.columns.net_namespace') AS net_namespace,
+    json_extract(l.log_data, '$.columns.path') AS path,
+    json_extract(l.log_data, '$.columns.pid') AS pid,
+    json_extract(l.log_data, '$.columns.protocol') AS protocol,
+    json_extract(l.log_data, '$.columns.remote_address') AS remote_address,
+    json_extract(l.log_data, '$.columns.remote_port') AS remote_port,
+    json_extract(l.log_data, '$.columns.socket') AS socket,
+    json_extract(l.log_data, '$.columns.state') AS state
+FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'process_open_sockets';
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
+CREATE VIEW surveilr_osquery_ms_node_system_info AS
+SELECT
+    l.node_key,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
+    json_extract(l.log_data, '$.columns.board_model') AS board_model,
+    json_extract(l.log_data, '$.columns.board_serial') AS board_serial,
+    json_extract(l.log_data, '$.columns.board_vendor') AS board_vendor,
+    json_extract(l.log_data, '$.columns.board_version') AS board_version,
+    json_extract(l.log_data, '$.columns.computer_name') AS computer_name,
+    json_extract(l.log_data, '$.columns.cpu_brand') AS cpu_brand,
+    json_extract(l.log_data, '$.columns.cpu_logical_cores') AS cpu_logical_cores,
+    json_extract(l.log_data, '$.columns.cpu_microcode') AS cpu_microcode,
+    json_extract(l.log_data, '$.columns.cpu_physical_cores') AS cpu_physical_cores,
+    json_extract(l.log_data, '$.columns.cpu_sockets') AS cpu_sockets,
+    json_extract(l.log_data, '$.columns.cpu_subtype') AS cpu_subtype,
+    json_extract(l.log_data, '$.columns.cpu_type') AS cpu_type,
+    json_extract(l.log_data, '$.columns.hardware_model') AS hardware_model,
+    json_extract(l.log_data, '$.columns.hardware_serial') AS hardware_serial,
+    json_extract(l.log_data, '$.columns.hardware_vendor') AS hardware_vendor,
+    json_extract(l.log_data, '$.columns.hardware_version') AS hardware_version,
+    json_extract(l.log_data, '$.columns.hostname') AS hostname,
+    json_extract(l.log_data, '$.columns.local_hostname') AS local_hostname,
+    json_extract(l.log_data, '$.columns.physical_memory') AS physical_memory,
+    json_extract(l.log_data, '$.columns.uuid') AS uuid
+FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'system_info';
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
+CREATE VIEW surveilr_osquery_ms_node_interface_address AS
+SELECT
+    l.node_key,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
+    json_extract(l.log_data, '$.columns.address') AS address,
+    json_extract(l.log_data, '$.columns.broadcast') AS broadcast,
+    json_extract(l.log_data, '$.columns.interface') AS interface,
+    json_extract(l.log_data, '$.columns.mask') AS mask,
+    json_extract(l.log_data, '$.columns.point_to_point') AS point_to_point,
+    json_extract(l.log_data, '$.columns.type') AS type
+FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'interface_addresses';
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
+CREATE VIEW surveilr_osquery_ms_node_detail AS
+SELECT
+    n.surveilr_osquery_ms_node_id,
+    n.node_key,
+    n.host_identifier,
+    n.tls_cert_subject,
+    n.os_version,
+    n.platform,
+    n.last_seen,
+    n.status,
+    n.device_id,
+    n.behavior_id,
+    i.calendar_time,
+    i.address AS ip_address,
+    i.broadcast,
+    i.mask,
+    i.point_to_point,
+    i.type
+FROM surveilr_osquery_ms_node n
+LEFT JOIN surveilr_osquery_ms_node_interface_address i
+ON n.node_key = i.node_key
+    AND i.interface = 'eth0'
+    -- this only selects the IPv4 addresses for now
+    AND i.address LIKE '%.%';
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
@@ -7145,6 +7348,242 @@ select
         sqlpage.link(''functions-inner.sql'', json_object(''function'', name)) AS link
   FROM surveilr_function_doc
   ORDER BY name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ms/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, ''All Registered Nodes'' as contents;
+SELECT ''table'' AS component,
+    ''osQuery Node Key'' as markdown,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT 
+    ''['' || node_key || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' as "osQuery Node Key",
+    host_identifier as "Host Identifier",
+    platform as "OS",
+    os_version as "OS Version",
+    last_seen as ''Last Seen'',
+    status as status,
+    ip_address, mask
+FROM surveilr_osquery_ms_node_detail;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ms/node.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+SELECT $host_id || '' Node'' AS title, ''#'' AS link;
+
+SELECT ''datagrid'' as component;
+SELECT ''Computer Name'' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info;
+SELECT ''Cpu Brand'' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''cpu_type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''cpu_logical_cores'' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''physical_memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+
+SELECT ''list'' as component;
+SELECT 
+    ''Processes'' as title, 
+    ''Identify what processes are running (helpful to see if unauthorized processes are active).'' as description,
+    ''process.sql?key='' || $key || ''&host_id='' || $host_id as link;
+
+SELECT 
+    ''Network Interface Details'' as title, 
+    ''An audit of interfaces, IP addresses, and network masks for '' || $host_id as description,
+    ''network.sql?key='' || $key || ''&host_id='' || $host_id as link;
+
+ SELECT 
+    ''Open Sockets'' as title, 
+    ''Verify network connections on '' || $host_id as description,
+    ''open-socket.sql?key='' || $key || ''&host_id='' || $host_id as link;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ms/process.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+SELECT $host_id || '' Processes'' AS title, ''#'' AS link;
+SELECT ''title'' AS component, ''All Running Processes on '' || $host_id as contents;
+SELECT ''table'' AS component,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT 
+    node_key as "osQuery Node Key",
+    host_identifier as "Host Identifier",
+    calendar_time as "Report Time",
+    cgroup_path, cmdline, cwd,
+    disk_bytes_read, disk_bytes_written, 
+    egid, euid,
+    gid, process_name, nice, on_disk,
+    parent, process_name, pgroup, pid, 
+    resident_size, root, 
+    sgid, start_time, state, suid, system_time,
+    threads, total_size,
+    uid, user_time, wired_size
+FROM surveilr_osquery_ms_node_process WHERE node_key = $key;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ms/network.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+SELECT $host_id || '' Network Interface'' AS title, ''#'' AS link;
+SELECT ''title'' AS component, ''Network Interfaces'' as contents;
+SELECT ''table'' AS component,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT 
+    node_key as "Node Key",
+    host_identifier as "Identifier",
+    calendar_time as "Report Time", flags,
+    collisions, interface, link_speed, type, metric, pci_slot, mac
+FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ms/open-socket.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+SELECT $host_id || '' Open Sockets'' AS title, ''#'' AS link;
+SELECT ''title'' AS component, ''Open Sockets on '' || $host_id as contents;
+SELECT ''table'' AS component,
+    TRUE as sort,
+    TRUE as search;
+
+SELECT 
+    node_key as "osQuery Node Key",
+    host_identifier as "Host Identifier",
+    calendar_time as "Report Time",
+    family, fd, 
+    local_address, local_port,
+    net_namespace, path, pid, protocol,
+    remote_address, remote_port,
+    socket, state
+FROM surveilr_osquery_ms_node_open_socket WHERE node_key = $key;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

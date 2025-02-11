@@ -2,17 +2,17 @@
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import {
-  generateDetrendedDSCombinedCGMViewSQL,saveDFAJsonCgm
+  generateDetrendedDSCombinedCGMViewSQL,
+  saveDFAJsonCgm,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class detrendedSqlPages extends spn.TypicalSqlPageNotebook {
-
   savecgmDDL() {
-      const dbFilePath = "./resource-surveillance.sqlite.db";
-      const jsonstmts = saveDFAJsonCgm(dbFilePath);
-      return jsonstmts;
-    }
-  
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const jsonstmts = saveDFAJsonCgm(dbFilePath);
+    return jsonstmts;
+  }
+
   detrendedViewDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);

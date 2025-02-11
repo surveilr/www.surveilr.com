@@ -22,10 +22,10 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
     const sqlStatements = checkAndConvertToVsp(this.dbFilePath);
     return await sqlStatements;
   }
-  async savecgmSQL() {      
-      const sqlStatements = saveJsonCgm(this.dbFilePath);
-      return await sqlStatements;
-    }
+  async savecgmSQL() {
+    const sqlStatements = saveJsonCgm(this.dbFilePath);
+    return await sqlStatements;
+  }
   // Method to generate DDL view using the dbFilePath
   dclp1ViewDDL() {
     console.error(`The database path is  "${this.dbFilePath}"`);
