@@ -2859,7 +2859,7 @@ GROUP BY
 
 DROP VIEW IF EXISTS study_combined_dashboard_participant_metrics_view;
 CREATE VIEW study_combined_dashboard_participant_metrics_view AS
-WITH combined_data AS (
+WITH participant_data AS (
     SELECT 
         dg.tenant_id,
         dg.study_id,             
@@ -2868,8 +2868,16 @@ WITH combined_data AS (
         dg.age,
         dg.study_arm,
         dg.baseline_hba1c,
-        GROUP_CONCAT(DISTINCT cfm.devicename) AS cgm_devices,  -- Combine devices into a single string
-        GROUP_CONCAT(DISTINCT cfm.file_name || '.' || cfm.file_format) AS cgm_files,    -- Combine file names into a single string
+        GROUP_CONCAT(DISTINCT cfm.devicename) AS cgm_devices,
+        GROUP_CONCAT(DISTINCT cfm.file_name || '.' || cfm.file_format) AS cgm_files
+    FROM drh_participant dg 
+    LEFT JOIN uniform_resource_cgm_file_metadata cfm 
+        ON dg.participant_id = cfm.patient_id
+    GROUP BY dg.study_id, dg.tenant_id, dg.participant_id
+),
+cgm_metrics AS (
+    SELECT
+        dc.participant_id,
         ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 70 AND 180 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tir,
         ROUND(SUM(CASE WHEN dc.CGM_Value > 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_vh,
         ROUND(SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 1.0 / COUNT(dc.CGM_Value) * 100, 2) AS tar_h,
@@ -2885,26 +2893,47 @@ WITH combined_data AS (
                       (0.5 * (SUM(CASE WHEN dc.CGM_Value BETWEEN 181 AND 250 THEN 1 ELSE 0 END) * 100.0 / COUNT(*))))), 2) AS gri,
         COUNT(DISTINCT DATE(dc.Date_Time)) AS days_of_wear,
         MIN(DATE(dc.Date_Time)) AS data_start_date,
-        MAX(DATE(dc.Date_Time)) AS data_end_date,   
+        MAX(DATE(dc.Date_Time)) AS data_end_date,
         ROUND(
             COALESCE(
                 (COUNT(DISTINCT DATE(dc.Date_Time)) * 1.0 / 
                 (JULIANDAY(MAX(DATE(dc.Date_Time))) - JULIANDAY(MIN(DATE(dc.Date_Time))) + 1)) * 100, 
                 0), 
             2) AS wear_time_percentage
-    FROM drh_participant dg 
-    JOIN combined_cgm_tracing dc ON dg.participant_id = dc.participant_id
-    LEFT JOIN uniform_resource_cgm_file_metadata cfm 
-        ON dc.participant_id = cfm.patient_id
-    GROUP BY dg.study_id, dg.tenant_id, dg.participant_id
+    FROM combined_cgm_tracing dc
+    GROUP BY dc.participant_id
 )
-SELECT * 
-FROM combined_data
+SELECT 
+    pd.tenant_id,
+    pd.study_id,
+    pd.participant_id,
+    pd.gender,
+    pd.age,
+    pd.study_arm,
+    pd.baseline_hba1c,
+    pd.cgm_devices,
+    pd.cgm_files,
+    cm.tir,
+    cm.tar_vh,
+    cm.tar_h,
+    cm.tbr_l,
+    cm.tbr_vl,
+    cm.tar,
+    cm.tbr,
+    cm.gmi,
+    cm.percent_gv,
+    cm.gri,
+    cm.days_of_wear,
+    cm.data_start_date,
+    cm.data_end_date,
+    cm.wear_time_percentage
+FROM participant_data pd
+JOIN cgm_metrics cm ON pd.participant_id = cm.participant_id
 ORDER BY     
     CASE 
-        WHEN LENGTH(participant_id) - LENGTH(REPLACE(participant_id, '-', '')) = 1 THEN 
-            CAST(SUBSTR(participant_id, INSTR(participant_id, '-') + 1) AS INTEGER) 
-        ELSE participant_id 
+        WHEN LENGTH(pd.participant_id) - LENGTH(REPLACE(pd.participant_id, '-', '')) = 1 THEN 
+            CAST(SUBSTR(pd.participant_id, INSTR(pd.participant_id, '-') + 1) AS INTEGER) 
+        ELSE pd.participant_id 
     END ASC;
 
 
