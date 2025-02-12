@@ -1895,9 +1895,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
   );
 
   const urIngestOsQueryMsLog = gm.textPkTable(
-    `ur_ingest_session_surveilr_osquery_ms_log`,
+    `ur_ingest_session_osquery_ms_log`,
     {
-      ur_ingest_session_surveilr_osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
+      ur_ingest_session_osquery_ms_log_id: gm.keys.varCharPrimaryKey(),
       node_key: osQueryMsNode.belongsTo.node_key(),
       log_type: gd.text(),
       log_data: gd.jsonText(),

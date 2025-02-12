@@ -166,6 +166,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   readonly migratableCells: Map<string, cnb.DecoratedCell<"SQL">> = new Map();
   readonly codeNbModels = lcm.codeNotebooksModels();
   readonly serviceModels = lcm.serviceModels();
+  readonly osQueryMsCellGovernance = `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .count)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}`;
 
   constructor() {
     super("rssd-init");
@@ -179,6 +180,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${this.codeNbModels.informationSchema.tables}
 
       ${this.codeNbModels.informationSchema.tableIndexes}
+
+      ${this.osQueryMsNotebooks()}
 
       ${this.notebookBusinessLogicViews()}
 
@@ -633,35 +636,6 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       `;
   }
 
-  // @migratableCell({
-  //   description:
-  //     "Creates a simple graph infrastructure so that uniform_resource content can be tracked as graphs in addition to relationally.",
-  // })
-  // v002_uniform_resource_graphs() {
-  //   return this.SQL`
-  //     CREATE TABLE IF NOT EXISTS uniform_resource_graph (
-  //         name TEXT PRIMARY KEY
-  //     );
-
-  //     CREATE TABLE IF NOT EXISTS uniform_resource_edge (
-  //         graph_name TEXT PRIMARY KEY,
-  //         nature TEXT,
-  //         node_id TEXT,
-  //         uniform_resource_id TEXT,
-  //         elaboration TEXT,
-  //         UNIQUE(graph_name, nature, node_id, uniform_resource_id) ON CONFLICT REPLACE,
-  //         FOREIGN KEY(graph_name) REFERENCES uniform_resource_graph(name),
-  //         FOREIGN KEY(uniform_resource_id) REFERENCES uniform_resource(uniform_resource_id)
-  //     );
-
-  //     CREATE INDEX IF NOT EXISTS target_idx ON uniform_resource_edge(uniform_resource_id);
-
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('filesystem');
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('imap');
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('plm');
-  //     `;
-  // }
-
   /**
    * Prepares a prompt that will allow the user to "teach" an LLM about this
    * project's "code notebooks" schema and how to interact with it.
@@ -857,44 +831,188 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
     );
   }
 
-  @cnb.textAssetCell(".json", "Text Asset (.json)")
-  "surveilr osquery-ms config queries"() {
-    return `
-{
-  "tls_proc": {
-    "query": "select * from processes",
-    "interval": 60
-  },
-  "system_info": {
-    "query": "SELECT * FROM system_info",
-    "interval": 60
-  },
-  "os_version": {
-    "query": "SELECT * FROM os_version",
-    "interval": 60
-  },
-  "users": {
-    "query": "SELECT * FROM users",
-    "interval": 60
-  },
-  "interface_addresses": {
-    "query": "SELECT * FROM interface_addresses",
-    "interval": 60
-  },
-  "interface_details": {
-    "query": "SELECT * FROM interface_details",
-    "interval": 60
-  },
-  "listening_ports": {
-    "query": "SELECT * FROM listening_ports",
-    "interval": 60
-  },
-  "process_open_sockets": {
-    "query": "SELECT * FROM process_open_sockets",
-    "interval": 60
-  }
-}
-`;
+  osQueryMsNotebooks() {
+    return this.SQL`
+    INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server Default Filters (Prime)',
+        'osQuery Result Filters',
+        '-',
+        '-',
+        'Default filters for post-processing the results from osQuery',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+    INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'All Processes',
+        'select * from process',
+        'select * from process',
+        'All running processes on the host system.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+    INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'System Information',
+        'SELECT * FROM system_info',
+        'SELECT * FROM system_info',
+        'System information for identification.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+        INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'System Information',
+        'SELECT * FROM system_info',
+        'SELECT * FROM system_info',
+        'System information for identification.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+        INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'OS Version',
+        'SELECT * FROM os_version',
+        'SELECT * FROM os_version',
+        'A single row containing the operating system name and version.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+        INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'Users',
+        'SELECT * FROM users',
+        'SELECT * FROM users',
+        'Local user accounts (including domain accounts that have logged on locally (Windows)).',
+        '${this.osQueryMsCellGovernance}'
+    );
+  
+        INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'Interface Addresses',
+        'SELECT * FROM interface_addresses',
+        'SELECT * FROM interface_addresses',
+        'Network interfaces and relevant metadata.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+         INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'Interface Details',
+        'SELECT * FROM interface_details',
+        'SELECT * FROM interface_details',
+        'Detailed information and stats of network interfaces.',
+        '${this.osQueryMsCellGovernance}'
+    );
+
+         INSERT OR REPLACE INTO code_notebook_cell (
+        notebook_kernel_id, 
+        code_notebook_cell_id, 
+        notebook_name, 
+        cell_name, 
+        interpretable_code, 
+        interpretable_code_hash, 
+        description, 
+        cell_governance
+    ) VALUES (
+        'SQL',
+        ulid(),
+        'osQuery Management Server (Prime)',
+        'Listening Ports',
+        'SELECT * FROM listening_ports',
+        'SELECT * FROM listening_ports',
+        'Processes with listening (bound) network sockets/ports.',
+        '${this.osQueryMsCellGovernance}'
+    );
+    `;
   }
 }
 
