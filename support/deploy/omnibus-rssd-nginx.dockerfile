@@ -198,4 +198,3 @@ RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</h
 CMD ["/start_application.sh"]
 
 #Trigger
-
