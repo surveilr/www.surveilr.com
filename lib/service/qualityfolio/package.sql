@@ -89,6 +89,7 @@ SELECT
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.priority') AS priority,
+    json_extract(frontmatter, '$.bugId') AS bug_list,
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
@@ -107,6 +108,7 @@ SELECT
     tc.priority,
     tc.front_matter,
     tc.body,
+    tc.bug_list,
     g.name AS group_name,
     g.suite_id,
     g.description AS group_description,
@@ -124,6 +126,21 @@ FROM test_case_run_results
 group BY test_case_id) r on r.test_case_id=tc.test_case_id;
 
 
+DROP TABLE IF EXISTS jira_issues;
+CREATE TABLE jira_issues AS
+SELECT 
+json_extract(content, '$.key') AS bug_id, 
+json_extract(content, '$.fields.summary') AS title, 
+json_extract(content, '$.fields.assignee.displayName') AS assignee, 
+json_extract(content, '$.fields.description') AS description, 
+json_extract(content, '$.fields.reporter.displayName') AS reporter, 
+json_extract(content, '$.fields.status.name') AS status, 
+json_extract(content, '$.fields.created') AS created, 
+json_extract(content, '$.fields.updated') AS updated,
+json_extract(content, '$.fields.issuetype.name') AS type
+FROM 
+uniform_resource where uri like 'https://civco.atlassian.net/rest/api/%' and nature='json'
+and json_extract(content, '$.fields.issuetype.name')='Bug';
 
 
 -- DROP VIEW IF EXISTS projects;
@@ -372,6 +389,35 @@ FROM
 LEFT JOIN 
     test_cases_run_status c ON t.id = c.suite_id
 GROUP BY suite_id;
+
+DROP VIEW IF EXISTS test_case_bug_list;
+CREATE view test_case_bug_list AS
+WITH bug_data AS (
+    SELECT test_case_id, json_group_array(json_each.value) AS bug_list_array
+    FROM test_cases, json_each(test_cases.bug_list)
+    GROUP BY test_case_id
+)
+SELECT test_case_id, 
+       bug_list_array, 
+       json_array_length(json(bug_list_array)) AS bug_count
+FROM bug_data;
+
+DROP VIEW IF EXISTS test_case_bug_count;
+CREATE view test_case_bug_count AS
+select 
+tc.test_case_id,
+case when bug_count is null then 0
+else bug_count
+end as test_bug_count
+FROM  test_cases tc
+LEFT JOIN
+test_case_bug_list tbg on tc.test_case_id=tbg.test_case_id;
+
+DROP VIEW  IF EXISTS bug_list;
+CREATE view bug_list AS
+ SELECT test_case_id, 
+ value as bug_id
+    FROM test_cases, json_each(test_cases.bug_list);
 -- delete all /qltyfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qltyfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1251,40 +1297,54 @@ LEFT JOIN
     ''## Total Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(id) as description_md,
+    ''## ''||count(bug_id) as description_md,
     ''12'' as width,
      ''red'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link
     FROM 
-    bug_report t ;
+    jira_issues t ;
     select
     ''## Open Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(id) as description_md,
+    ''## ''||count(bug_id) as description_md,
     ''12'' as width,
      ''orange'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=open'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=To Do'' as link
     FROM 
-    bug_report t  where status=''open'';
+    jira_issues t  where status=''To Do'';
 
 
     select
     ''## Closed Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(id) as description_md,
+    ''## ''||count(bug_id) as description_md,
     ''12'' as width,
      ''purple'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=closed'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=Completed'' as link
     FROM 
-    bug_report t where status=''closed'';
+    jira_issues t where status=''Completed'';
+
+
+    select
+    ''## Rejected Defects'' as description_md,
+
+    ''white'' as background_color,
+    ''## ''||count(bug_id) as description_md,
+    ''12'' as width,
+     ''cyan'' as color,
+    ''details-off''       as icon,
+    ''background-color: #FFFFFF'' as style,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=Rejected'' as link
+    FROM 
+    jira_issues t where status=''Rejected'';
 
 
 SELECT ''html'' as component,
@@ -1684,17 +1744,20 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
               SELECT ''html'' as component,
 ''<style>
-
-    tr.rowClass-closed td.state {
+    
+    tr td.Statealign-middle {
+        color: blue !important; /* Default to blue */
+    }
+    tr.rowClass-Completed td.state {
         color: green !important; /* Default to blue */
     }
-     tr.rowClass-open td.state {
+     tr.rowClass-Rejected td.state {
         color: red !important; /* Default to blue */
     }
-     tr.rowClass-closed td.Statealign-middle {
+     tr.rowClass-Completed td.Statealign-middle {
         color: green !important; /* Default to blue */
     }
-     tr.rowClass-open td.Statealign-middle {
+     tr.rowClass-Rejected td.Statealign-middle {
         color: red !important; /* Default to blue */
     }
 
@@ -1720,17 +1783,17 @@ select ''bug list'' as title;
           "status_new" as markdown,
           ''count'' as markdown;
 SELECT
-''['' || id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-detail.sql?id=''|| id || '')'' as id,
+''['' || bug_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-detail.sql?id=''|| bug_id || '')'' as id,
   title,
-  created_by,
-  created_at,
-  type,
-  priority,
-  assigned,
+  reporter as ''Reporter'',
+  strftime(''%d-%m-%Y'', created) as "Created At",
+  assignee,
   status as "State",
-  ''rowClass-''||status as _sqlpage_css_class,
-  endpoint
-FROM bug_report t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+  ''rowClass-''||status as _sqlpage_css_class
+FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+--  FROM jira_issues t
+--  LIMIT $limit
+--   OFFSET $offset;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1914,7 +1977,8 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     SELECT ''title''AS component,
       title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
-    SELECT ''list''AS component;
+     SELECT ''card''  AS component,
+    1                          as columns;
     SELECT
     ''
  **Title**  :  '' || bd.title AS description_md,
@@ -1984,7 +2048,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     ''Bug Report'' AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=bug-report&id=''|| $id || ''#bug-report-content''  AS link,
       $tab = ''bug-report'' AS active
-         FROM bug_report  where test_case_id = $id group by test_case_id;
+         FROM bug_list  where test_case_id = $id;
 
 
 
@@ -2046,34 +2110,42 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       FROM  test_run WHERE $tab = ''test-run'' and test_case_id = $id;
    
 
-    --Tab - specific content for "bug-report"   
+    --Tab - specific content for "bug-report"
     
-     SELECT
-     b.id||'' - ''||b.title as title,
-     ''head-title'' as class,
+     
+    select
+    title         as title,
+     ''
+ 
+
+**id**  :  '' || l.bug_id AS description_md,
     ''
- **Created By**  :  '' || b.created_by AS description_md,
+ **Created By**  :  '' || reporter AS description_md,
     ''
- **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', created) AS description_md,
     ''
- **Type**  :  '' || b.type AS description_md,
+ **Type**  :  '' || type AS description_md,
     ''
- **Priority**  :  '' || b.priority AS description_md,
+ **Assigned**  :  '' || assignee AS description_md,
     ''
- **Assigned**  :  '' || b.assigned AS description_md,
+ **Status**  :  '' || status AS description_md,
     ''
- **Status**  :  '' || b.status AS description_md,
-    ''
-'' || b.body AS description_md
-    FROM  bug_report b
-    WHERE $tab = ''bug-report'' and b.test_case_id = $id;
+'' || description AS description_md
+    FROM
+    bug_list l
+    inner join
+    jira_issues j on l.bug_id=j.bug_id
+    where l.test_case_id=$id;
 
     SELECT
     CASE
         WHEN $tab = ''bug-report'' THEN ''html''
     END AS component,
       ''<div id="bug-report-content"></div>'' as html
-    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'' and $tab = ''bug-report'';
+    FROM  bug_list l
+    inner join
+    jira_issues j on l.bug_id=j.bug_id
+    where l.test_case_id=$id;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2101,13 +2173,13 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     select ''bug list'' as title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link;  
       
-    SELECT title FROM bug_report where id = $id order by created_at desc ;      
+    SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
          
 
          
 
     /*SELECT ''title''AS component,
-      title as contents FROM bug_report where id = $id order by created_at desc;*/
+      title as contents FROM jira_issues where id = $id order by created_at desc;*/
 
     select 
     ''datagrid''      as component,
@@ -2116,22 +2188,20 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
      ''
  
 
-**id**  :  '' || id AS description_md,    
+**id**  :  '' || bug_id AS description_md,    
     ''
- **Created By**  :  '' || created_by AS description_md,
+ **Created By**  :  '' || reporter AS description_md,
     ''
- **Run Date**  :  '' || strftime(''%d-%m-%Y'', created_at) AS description_md,
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', created) AS description_md,
     ''
  **Type**  :  '' || type AS description_md,
     ''
- **Priority**  :  '' || priority AS description_md,
-    ''
- **Assigned**  :  '' || assigned AS description_md,
+ **Assigned**  :  '' || assignee AS description_md,
     ''
  **Status**  :  '' || status AS description_md,
     ''
-'' || body AS description_md 
-      FROM  bug_report  WHERE id = $id;
+'' || description AS description_md 
+      FROM  jira_issues  WHERE bug_id = $id;
      
     /*SELECT ''datagrid''AS component;
      SELECT
