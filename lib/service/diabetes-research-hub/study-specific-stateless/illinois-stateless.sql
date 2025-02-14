@@ -25,6 +25,16 @@ PAT2|SID1|SITE1|a|a|a|a|a|a|a|a|a|a",
 create table participant_check as select * from participant_vsv;  */
 
 ------------------------------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
+    investigator_id TEXT,
+    investigator_name TEXT,
+    email TEXT,
+    institution_id TEXT,
+    study_id TEXT,
+    tenant_id TEXT
+);
+
 CREATE TABLE IF NOT EXISTS uniform_resource_investigator(
     investigator_id TEXT,
     investigator_name TEXT,
@@ -1138,6 +1148,7 @@ DROP VIEW IF EXISTS drh_participant;
 
 CREATE VIEW drh_participant AS
 SELECT
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
     (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetching tenant_id from the party table    
     (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetches study_id from the uniform_resource_study table
     participant_id,  -- Concatenates study_id and DeidentID to form participant_id
@@ -1156,6 +1167,16 @@ FROM
     uniform_resource_participant;
 
    
+CREATE TABLE IF NOT EXISTS participant AS
+    SELECT *
+    FROM drh_participant;
+
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
+
 -- View to count the number of CGM tracing files
 DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
 

@@ -1717,6 +1717,7 @@ DROP VIEW IF EXISTS drh_participant;
 
 CREATE VIEW drh_participant AS
 SELECT
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
     (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetching tenant_id from the party table    
     (SELECT study_id FROM uniform_resource_study LIMIT 1) AS study_id,  -- Fetches study_id from the uniform_resource_study table
     (SELECT study_id FROM uniform_resource_study LIMIT 1) || '-' || DeidentID AS participant_id,  -- Concatenates study_id and DeidentID to form participant_id
@@ -1739,6 +1740,16 @@ FROM
 WHERE    
     Age > 0 AND PtEligible = 'Yes';
 
+
+CREATE TABLE IF NOT EXISTS participant AS
+    SELECT *
+    FROM drh_participant;
+
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
 
 -- Drop the view if it exists, then create the combined CGM tracing view
 DROP VIEW IF EXISTS combined_cgm_tracing;
