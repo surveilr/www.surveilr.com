@@ -287,40 +287,54 @@ LEFT JOIN
     '## Total Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(id) as description_md,
+    '## '||count(bug_id) as description_md,
     '12' as width,
      'red' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
     ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link
     FROM 
-    bug_report t ;
+    jira_issues t ;
     select
     '## Open Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(id) as description_md,
+    '## '||count(bug_id) as description_md,
     '12' as width,
      'orange' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=To Do")} as link
     FROM 
-    bug_report t  where status='open';
+    jira_issues t  where status='To Do';
 
 
     select
     '## Closed Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(id) as description_md,
+    '## '||count(bug_id) as description_md,
     '12' as width,
      'purple' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=Completed")} as link
     FROM 
-    bug_report t where status='closed';
+    jira_issues t where status='Completed';
+
+
+    select
+    '## Rejected Defects' as description_md,
+
+    'white' as background_color,
+    '## '||count(bug_id) as description_md,
+    '12' as width,
+     'cyan' as color,
+    'details-off'       as icon,
+    'background-color: #FFFFFF' as style,
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=Rejected")} as link
+    FROM 
+    jira_issues t where status='Rejected';
 
 
 SELECT 'html' as component,
@@ -696,20 +710,28 @@ SELECT 'table' as component,
     breadcrumbsFromNavStmts: "no",
   })
   "qltyfolio/bug-list.sql"() {
+    const viewName = `jira_issues`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL",
+    });
     return this.SQL`
     SELECT 'html' as component,
     '<style>
-    
-        tr.rowClass-closed td.state {
+        
+        tr td.Statealign-middle {
+            color: blue !important; /* Default to blue */
+        }
+        tr.rowClass-Completed td.state {
             color: green !important; /* Default to blue */
         }
-         tr.rowClass-open td.state {
+         tr.rowClass-Rejected td.state {
             color: red !important; /* Default to blue */
         }
-         tr.rowClass-closed td.Statealign-middle {
+         tr.rowClass-Completed td.Statealign-middle {
             color: green !important; /* Default to blue */
         }
-         tr.rowClass-open td.Statealign-middle {
+         tr.rowClass-Rejected td.Statealign-middle {
             color: red !important; /* Default to blue */
         }
     
@@ -735,18 +757,18 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || id || '](' || ${this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
-      }|| id || ')' as id,
+    '[' || bug_id || '](' || ${this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
+      }|| bug_id || ')' as id,
       title,
-      created_by,
-      created_at,
-      type,
-      priority,
-      assigned,
+      reporter as 'Reporter',
+      strftime('%d-%m-%Y', created) as "Created At",
+      assignee,
       status as "State",
-      'rowClass-'||status as _sqlpage_css_class,
-      endpoint
-    FROM bug_report t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+      'rowClass-'||status as _sqlpage_css_class
+    FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
+    --  FROM ${viewName} t
+    --  LIMIT $limit
+    --   OFFSET $offset;
 
     `;
   }
@@ -893,7 +915,8 @@ FROM test_suites rn WHERE id = $id;
     SELECT 'title'AS component,
       title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
-    SELECT 'list'AS component;
+     SELECT 'card'  AS component,
+    1                          as columns;
     SELECT
     '\n **Title**  :  ' || bd.title AS description_md,
     '\n **Group**  :  ' || bd.group_name AS description_md,
@@ -960,7 +983,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
       }|| $id || '#bug-report-content'  AS link,
       $tab = 'bug-report' AS active
-         FROM bug_report  where test_case_id = $id group by test_case_id;
+         FROM bug_list  where test_case_id = $id;
 
 
 
@@ -1019,28 +1042,33 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
    
 
-    --Tab - specific content for "bug-report"   
+    --Tab - specific content for "bug-report"
     
-     SELECT
-     b.id||' - '||b.title as title,
-     'head-title' as class,
-    '\n **Created By**  :  ' || b.created_by AS description_md,
-    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
-    '\n **Type**  :  ' || b.type AS description_md,
-    '\n **Priority**  :  ' || b.priority AS description_md,
-    '\n **Assigned**  :  ' || b.assigned AS description_md,
-    '\n **Status**  :  ' || b.status AS description_md,
-    '\n' || b.body AS description_md
-    FROM  bug_report b
-    WHERE $tab = 'bug-report' and b.test_case_id = $id;
+     
+    select
+    title         as title,
+     '\n \n\n**id**  :  ' || l.bug_id AS description_md,
+    '\n **Created By**  :  ' || reporter AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created) AS description_md,
+    '\n **Type**  :  ' || type AS description_md,
+    '\n **Assigned**  :  ' || assignee AS description_md,
+    '\n **Status**  :  ' || status AS description_md,
+    '\n' || description AS description_md
+    FROM
+    bug_list l
+    inner join
+    jira_issues j on l.bug_id=j.bug_id
+    where l.test_case_id=$id;
 
     SELECT
     CASE
         WHEN $tab = 'bug-report' THEN 'html'
     END AS component,
       '<div id="bug-report-content"></div>' as html
-    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed' and $tab = 'bug-report';
-
+    FROM  bug_list l
+    inner join
+    jira_issues j on l.bug_id=j.bug_id
+    where l.test_case_id=$id;
 
     `;
   }
@@ -1060,27 +1088,26 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     select 'bug list' as title,
       ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link;  
       
-    SELECT title FROM bug_report where id = $id order by created_at desc ;      
+    SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
          
 
          
 
     /*SELECT 'title'AS component,
-      title as contents FROM bug_report where id = $id order by created_at desc;*/
+      title as contents FROM jira_issues where id = $id order by created_at desc;*/
 
     select 
     'datagrid'      as component,
     title         as title,
     'bulb'          as icon,
-     '\n \n\n**id**  :  ' || id AS description_md,    
-    '\n **Created By**  :  ' || created_by AS description_md,
-    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created_at) AS description_md,
+     '\n \n\n**id**  :  ' || bug_id AS description_md,    
+    '\n **Created By**  :  ' || reporter AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created) AS description_md,
     '\n **Type**  :  ' || type AS description_md,
-    '\n **Priority**  :  ' || priority AS description_md,
-    '\n **Assigned**  :  ' || assigned AS description_md,
+    '\n **Assigned**  :  ' || assignee AS description_md,
     '\n **Status**  :  ' || status AS description_md,
-    '\n' || body AS description_md 
-      FROM  bug_report  WHERE id = $id;
+    '\n' || description AS description_md 
+      FROM  jira_issues  WHERE bug_id = $id;
      
     /*SELECT 'datagrid'AS component;
      SELECT
