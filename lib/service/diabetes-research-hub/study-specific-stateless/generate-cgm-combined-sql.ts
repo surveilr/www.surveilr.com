@@ -129,6 +129,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
     db_file_id TEXT NOT NULL,
     participant_display_id text NOT NULL,
     file_meta_data TEXT NULL,
@@ -183,10 +184,11 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringCgm = isNonCommaseparated
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
+    
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
 
-    db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`,
-    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
@@ -594,6 +596,7 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
     db_file_id TEXT NOT NULL,
     participant_display_id TEXT NOT NULL,
     file_meta_data TEXT NULL,
@@ -640,12 +643,14 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
       deidentID,
     );
 
+    const file_meta_id = ulid();
+
     db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
-    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
+      `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+    ).run(file_meta_id, db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
-  db.close();
+  db.close(); 
   return ctrSQL;
 }
 
@@ -668,6 +673,7 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
     db_file_id TEXT NOT NULL,
     participant_display_id TEXT NOT NULL,
     file_meta_data TEXT NULL,
@@ -718,9 +724,9 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
 
-    db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
-    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
