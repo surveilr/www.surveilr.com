@@ -599,8 +599,8 @@ DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated
     CREATE VIEW surveilr_osquery_ms_node_process AS
     SELECT
         l.node_key,
+        l.updated_at,
         json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-        json_extract(l.log_data, '$.calendarTime') AS calendar_time,
         json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
         json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
         json_extract(l.log_data, '$.columns.cwd') AS cwd,
@@ -628,17 +628,17 @@ DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated
         json_extract(l.log_data, '$.columns.uid') AS uid,
         json_extract(l.log_data, '$.columns.user_time') AS user_time,
         json_extract(l.log_data, '$.columns.wired_size') AS wired_size
-    FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+    FROM ur_ingest_session_osquery_ms_log AS l
     WHERE l.log_type = 'result'
-        AND json_extract(l.log_data, '$.name') = 'tls_proc';
+        AND json_extract(l.log_data, '$.name') = 'All Processes';
 
 
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
 CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
 SELECT
     l.node_key,
+    l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
     json_extract(l.log_data, '$.columns.collisions') AS collisions,
     json_extract(l.log_data, '$.columns.flags') AS flags,
     json_extract(l.log_data, '$.columns.ibytes') AS ibytes,
@@ -657,38 +657,35 @@ SELECT
     json_extract(l.log_data, '$.columns.opackets') AS opackets,
     json_extract(l.log_data, '$.columns.pci_slot') AS pci_slot,
     json_extract(l.log_data, '$.columns.type') AS type
-FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'interface_details';
+AND json_extract(l.log_data, '$.name') = 'Interface Details';
 
-DROP VIEW IF EXISTS surveilr_osquery_ms_node_open_socket;
-CREATE VIEW surveilr_osquery_ms_node_open_socket AS
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_listening_port;
+CREATE VIEW surveilr_osquery_ms_node_listening_port AS
 SELECT
     l.node_key,
+    l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
     json_extract(l.log_data, '$.columns.family') AS family,
     json_extract(l.log_data, '$.columns.fd') AS fd,
-    json_extract(l.log_data, '$.columns.local_address') AS local_address,
-    json_extract(l.log_data, '$.columns.local_port') AS local_port,
+    json_extract(l.log_data, '$.columns.address') AS address,
+    json_extract(l.log_data, '$.columns.port') AS port,
     json_extract(l.log_data, '$.columns.net_namespace') AS net_namespace,
     json_extract(l.log_data, '$.columns.path') AS path,
     json_extract(l.log_data, '$.columns.pid') AS pid,
     json_extract(l.log_data, '$.columns.protocol') AS protocol,
-    json_extract(l.log_data, '$.columns.remote_address') AS remote_address,
-    json_extract(l.log_data, '$.columns.remote_port') AS remote_port,
-    json_extract(l.log_data, '$.columns.socket') AS socket,
-    json_extract(l.log_data, '$.columns.state') AS state
-FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+    json_extract(l.log_data, '$.columns.socket') AS socket
+FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'process_open_sockets';
+AND json_extract(l.log_data, '$.name') = 'Listening Ports';
 
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
 CREATE VIEW surveilr_osquery_ms_node_system_info AS
 SELECT
     l.node_key,
+    l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
     json_extract(l.log_data, '$.columns.board_model') AS board_model,
     json_extract(l.log_data, '$.columns.board_serial') AS board_serial,
     json_extract(l.log_data, '$.columns.board_vendor') AS board_vendor,
@@ -709,25 +706,25 @@ SELECT
     json_extract(l.log_data, '$.columns.local_hostname') AS local_hostname,
     json_extract(l.log_data, '$.columns.physical_memory') AS physical_memory,
     json_extract(l.log_data, '$.columns.uuid') AS uuid
-FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'system_info';
+AND json_extract(l.log_data, '$.name') = 'System Information' LIMIT 1;
 
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
 SELECT
     l.node_key,
+    l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.calendarTime') AS calendar_time,
     json_extract(l.log_data, '$.columns.address') AS address,
     json_extract(l.log_data, '$.columns.broadcast') AS broadcast,
     json_extract(l.log_data, '$.columns.interface') AS interface,
     json_extract(l.log_data, '$.columns.mask') AS mask,
     json_extract(l.log_data, '$.columns.point_to_point') AS point_to_point,
     json_extract(l.log_data, '$.columns.type') AS type
-FROM ur_ingest_session_surveilr_osquery_ms_log AS l
+FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'interface_addresses';
+AND json_extract(l.log_data, '$.name') = 'Interface Addresses';
 
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
 CREATE VIEW surveilr_osquery_ms_node_detail AS
@@ -742,7 +739,7 @@ SELECT
     n.status,
     n.device_id,
     n.behavior_id,
-    i.calendar_time,
+    i.updated_at,
     i.address AS ip_address,
     i.broadcast,
     i.mask,
@@ -3004,13 +3001,13 @@ SELECT
     ''process.sql?key='' || $key || ''&host_id='' || $host_id as link;
 
 SELECT 
-    ''Network Interface Details'' as title, 
-    ''An audit of interfaces, IP addresses, and network masks for '' || $host_id as description,
+    ''Interface Details'' as title, 
+    ''Detailed information and stats of network interfaces for '' || $host_id as description,
     ''network.sql?key='' || $key || ''&host_id='' || $host_id as link;
 
  SELECT 
-    ''Open Sockets'' as title, 
-    ''Verify network connections on '' || $host_id as description,
+    ''Listening Ports'' as title, 
+    ''Processes with listening (bound) network sockets/ports on '' || $host_id as description,
     ''open-socket.sql?key='' || $key || ''&host_id='' || $host_id as link;
             ',
       CURRENT_TIMESTAMP)
@@ -3051,7 +3048,7 @@ SELECT ''table'' AS component,
 SELECT 
     node_key as "osQuery Node Key",
     host_identifier as "Host Identifier",
-    calendar_time as "Report Time",
+    updated_at as "Report Time",
     cgroup_path, cmdline, cwd,
     disk_bytes_read, disk_bytes_written, 
     egid, euid,
@@ -3092,17 +3089,17 @@ WITH RECURSIVE breadcrumbs AS (
 SELECT title ,      
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
-SELECT $host_id || '' Network Interface'' AS title, ''#'' AS link;
-SELECT ''title'' AS component, ''Network Interfaces'' as contents;
+SELECT $host_id || '' Interface Details'' AS title, ''#'' AS link;
+SELECT ''title'' AS component, ''Interface Details'' as contents;
 SELECT ''table'' AS component,
     TRUE as sort,
     TRUE as search;
 
 SELECT 
-    node_key as "Node Key",
-    host_identifier as "Identifier",
-    calendar_time as "Report Time", flags,
-    collisions, interface, link_speed, type, metric, pci_slot, mac
+    updated_at as "Report Time", 
+    collisions, flags, type, ibytes, idrops, ierrors, ipackets, last_change
+    collisions, interface, link_speed, type, metric, pci_slot, mac, mtu,
+    obytes, odrops, oerrors, opackets
 FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
             ',
       CURRENT_TIMESTAMP)
@@ -3134,8 +3131,8 @@ WITH RECURSIVE breadcrumbs AS (
 SELECT title ,      
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
-SELECT $host_id || '' Open Sockets'' AS title, ''#'' AS link;
-SELECT ''title'' AS component, ''Open Sockets on '' || $host_id as contents;
+SELECT $host_id || '' Listening Ports'' AS title, ''#'' AS link;
+SELECT ''title'' AS component, ''Listening Ports on '' || $host_id as contents;
 SELECT ''table'' AS component,
     TRUE as sort,
     TRUE as search;
@@ -3143,13 +3140,11 @@ SELECT ''table'' AS component,
 SELECT 
     node_key as "osQuery Node Key",
     host_identifier as "Host Identifier",
-    calendar_time as "Report Time",
+    updated_at as "Report Time",
     family, fd, 
-    local_address, local_port,
-    net_namespace, path, pid, protocol,
-    remote_address, remote_port,
-    socket, state
-FROM surveilr_osquery_ms_node_open_socket WHERE node_key = $key;
+    address, port,
+    net_namespace, path, pid, protocol, socket
+FROM surveilr_osquery_ms_node_listening_port WHERE node_key = $key;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

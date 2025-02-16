@@ -166,7 +166,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   readonly migratableCells: Map<string, cnb.DecoratedCell<"SQL">> = new Map();
   readonly codeNbModels = lcm.codeNotebooksModels();
   readonly serviceModels = lcm.serviceModels();
-  readonly osQueryMsCellGovernance = `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .count)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}`;
+  readonly osQueryMsCellGovernance = `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .counter)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}`;
 
   constructor() {
     super("rssd-init");
@@ -867,8 +867,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
         ulid(),
         'osQuery Management Server (Prime)',
         'All Processes',
-        'select * from process',
-        'select * from process',
+        'select * from processes',
+        'select * from processes',
         'All running processes on the host system.',
         '${this.osQueryMsCellGovernance}'
     );
