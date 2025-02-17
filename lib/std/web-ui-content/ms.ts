@@ -206,7 +206,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Node'` })}
             
             SELECT 'datagrid' as component;
-            SELECT 'Computer Name' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info;
+            SELECT 'Computer Name' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
             SELECT 'Cpu Brand' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
             SELECT 'cpu_type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
             SELECT 'cpu_logical_cores' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
