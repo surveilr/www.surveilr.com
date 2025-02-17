@@ -708,7 +708,7 @@ SELECT
     json_extract(l.log_data, '$.columns.uuid') AS uuid
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'System Information' LIMIT 1;
+AND json_extract(l.log_data, '$.name') = 'System Information';
 
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
