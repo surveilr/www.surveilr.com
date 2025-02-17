@@ -2317,6 +2317,8 @@ ORDER BY
 -- cached tables----------------------------------------------------------------------------------------
 
 
+DROP TABLE IF EXISTS participant;
+
 CREATE TABLE IF NOT EXISTS participant AS
 SELECT 
     (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
@@ -2327,7 +2329,7 @@ SELECT
             party
         limit
             1
-    ) as tenant_id,
+    ) as tenant_id, 
     study_id AS study_display_id,  
     participant_id AS participant_display_id,  
     site_id,  

@@ -2483,7 +2483,7 @@ SELECT
             party
         limit
             1
-    ) as tenant_id,
+    ) as tenant_id, 
     study_id AS study_display_id,  
     participant_id AS participant_display_id,  
     site_id,  

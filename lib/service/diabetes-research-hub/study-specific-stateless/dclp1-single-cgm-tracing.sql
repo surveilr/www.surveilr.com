@@ -1558,8 +1558,15 @@ WHERE type = 'table'
 DROP VIEW IF EXISTS drh_participant;
 CREATE VIEW drh_participant AS
 SELECT
-    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
-    participant_id, 
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id, 
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
     (select
             study_id
         from
@@ -1567,16 +1574,10 @@ SELECT
         limit
             1
     ) as study_id,
+    participant_id, 
     site_id, diagnosis_icd, med_rxnorm,
     treatment_modality, gender, race_ethnicity, age, bmi, baseline_hba1c,
-    diabetes_type, study_arm,(
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id
+    diabetes_type, study_arm
 FROM uniform_resource_participant;
 
 CREATE TABLE IF NOT EXISTS participant AS

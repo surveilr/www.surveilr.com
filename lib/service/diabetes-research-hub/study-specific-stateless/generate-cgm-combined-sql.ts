@@ -110,7 +110,7 @@ export function checkAndConvertToVsp(dbFilePath: string): string {
 export async function saveJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
   let vsvSQL = ``;
-    
+
   const tableName = "uniform_resource_cgm_file_metadata";
   const checkTableStmt = db.prepare(
     `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
@@ -123,19 +123,19 @@ export async function saveJsonCgm(dbFilePath: string): string {
 
     db.close();
     return "";
-  } 
+  }
 
   const db_file_id = ulid();
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
     db_file_id TEXT NOT NULL,
     participant_display_id text NOT NULL,
     file_meta_data TEXT NULL,
     cgm_data TEXT
   );`);
 
-  
   for (const row of rows) {
     const jsonObject = {
       device_id: row.device_id,
@@ -148,19 +148,24 @@ export async function saveJsonCgm(dbFilePath: string): string {
       map_field_of_cgm_value: row.map_field_of_cgm_value,
       map_field_of_patient_id: row.map_field_of_patient_id,
     };
-        
-    const jsonStringMeta = JSON.stringify(jsonObject); 
-    
-    
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
 
-    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name} ${row.map_field_of_patient_id ? `WHERE ${row.map_field_of_patient_id} = '${row.patient_id}'` : ''}`).all();
+    const rows_obs = db.prepare(
+      `SELECT * FROM uniform_resource_${file_name} ${
+        row.map_field_of_patient_id
+          ? `WHERE ${row.map_field_of_patient_id} = '${row.patient_id}'`
+          : ""
+      }`,
+    ).all();
     const jsonStringObs = [];
     let isNonCommaseparated = false;
     for (const row_obs of rows_obs) {
       let jsonObjectObs;
       if (Object.keys(row_obs).length > 1) {
-        // jsonObjectObs = { ...row_obs }; 
+        // jsonObjectObs = { ...row_obs };
       } else {
         isNonCommaseparated = true;
         const firstKey = Object.keys(row_obs)[0];
@@ -172,20 +177,21 @@ export async function saveJsonCgm(dbFilePath: string): string {
         splitKey.forEach((key, index) => {
           jsonObjectObs[key] = splitValues[index];
         });
-      }           
+      }
       jsonStringObs.push(jsonObjectObs);
-      
     }
-    
-    const jsonStringCgm = isNonCommaseparated ? JSON.stringify(jsonStringObs) : JSON.stringify(rows_obs);;
 
-
+    const jsonStringCgm = isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
     
-    db.prepare(`INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data,file_meta_data) VALUES (?, ?, ?, ?);`).run(db_file_id ,row.patient_id, jsonStringCgm, jsonStringMeta);
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+
   }
-  
 
-  db.close();  
+  db.close();
   return vsvSQL;
 }
 
@@ -527,8 +533,6 @@ export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
   return combinedViewSQL; // Return the generated SQL string
 }
 
-
-
 function fetchCgmData(
   db: Database,
   file_name: string,
@@ -669,6 +673,7 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
   const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
 
   db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
     db_file_id TEXT NOT NULL,
     participant_display_id TEXT NOT NULL,
     file_meta_data TEXT NULL,
@@ -689,16 +694,17 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
     };
 
     const jsonStringMeta = JSON.stringify(jsonObject);
-    
+
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
 
-    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`).all();
+    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`)
+      .all();
     const jsonStringObs = [];
     let isNonCommaseparated = false;
     for (const row_obs of rows_obs) {
       let jsonObjectObs;
       if (Object.keys(row_obs).length > 1) {
-        jsonObjectObs = { ...row_obs }; 
+        jsonObjectObs = { ...row_obs };
       } else {
         isNonCommaseparated = true;
         const firstKey = Object.keys(row_obs)[0];
@@ -710,21 +716,22 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
         splitKey.forEach((key, index) => {
           jsonObjectObs[key] = splitValues[index];
         });
-      }           
+      }
       jsonStringObs.push(jsonObjectObs);
     }
-    
-    const jsonStringCgm = isNonCommaseparated ? JSON.stringify(jsonStringObs) : JSON.stringify(rows_obs);
 
-    db.prepare(
-      `INSERT INTO file_meta_ingest_data(db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?);`,
-    ).run(db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
+    const jsonStringCgm = isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
+
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
   return dfaSQL;
 }
-
 
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
