@@ -1575,6 +1575,7 @@ DROP VIEW IF EXISTS drh_participant;
 CREATE VIEW
     drh_participant AS
 SELECT
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id, 
     (
         select
             party_id
