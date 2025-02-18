@@ -1,13 +1,4 @@
 import * as spn from "../notebook/sqlpage.ts";
-
-const command = new Deno.Command("surveilr", {
-  args: ["--version"],
-});
-const { stdout } = await command.output();
-const rawOutput = new TextDecoder().decode(stdout).toString().trim();
-const versionMatch = rawOutput.match(/^surveilr\s+([\d.]+)$/i);
-const surveilrVersion = `Surveilr (${versionMatch ? versionMatch[1] : ""})`;
-
 export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
   private title: string;
   private logoImage: string;
@@ -99,12 +90,11 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
         return items;
       },
       footer: () =>
-        // TODO: add "open in IDE" feature like in other Shahid apps
-        literal(`${surveilrVersion}  Resource Surveillance Web UI (v`) +
-        ` || sqlpage.version() || ') ' || ` +
+        // Dynamic SQL query to fetch the version directly in the footer
+        `'Surveilr '|| (SELECT json_extract(session_agent, '$.version') AS version FROM ur_ingest_session LIMIT 1) || ' Resource Surveillance Web UI (v' || sqlpage.version() || ') ' || ` +
         `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
           this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
-        } || substr(sqlpage.path(),LENGTH(sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')) + 2 ) || ')' as footer`,
+        } || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')) + 2 ) || ')' as footer`,
     };
     const shell = this.defaultShell();
     const sqlSelectExpr = Object.entries(shell).flatMap(([k, v]) => {

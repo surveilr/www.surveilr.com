@@ -64,3 +64,20 @@ SELECT
     p."Finished On" AS end_date
 FROM uniform_resource_positions p
 ORDER BY start_date DESC;
+
+DROP VIEW IF EXISTS linkedin_learning;
+CREATE VIEW linkedin_learning AS
+SELECT 
+   "Content Title" AS title,
+    "Content Description" AS description,
+    "Content Type" AS type
+FROM uniform_resource_learning 
+ORDER BY 'Content Last Watched Date (if viewed)' DESC;
+
+
+DROP VIEW IF EXISTS linkedin_company_follows;
+CREATE VIEW linkedin_company_follows AS
+SELECT 
+   Organization
+FROM uniform_resource_company_follows 
+ORDER BY 'Followed On' DESC;

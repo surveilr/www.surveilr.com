@@ -23,8 +23,8 @@ RUN curl -fsSL https://deno.land/x/install/install.sh | sh && \
 # Install surveilr using the provided script
 WORKDIR /usr/local/bin
 RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
-#RUN wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/1.5.6/resource-surveillance_1.5.6_x86_64-unknown-linux-gnu.tar.gz
-#RUN tar -xvf resource-surveillance_1.5.6_x86_64-unknown-linux-gnu.tar.gz
+#RUN wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/1.5.10/resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
+#RUN tar -xvf resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
 
 
 # Install SQLite package registry
@@ -183,7 +183,7 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
     echo 'tail -n +2 /rssd/index.tsv | while IFS=$'"'\\t'"' read -r expose_endpoint relative_path rssd_name port package_sql; do' >> /start_application.sh && \
     echo 'sleep 5' >> /start_application.sh && \
     echo '  if [ "$expose_endpoint" = "1" ]; then' >> /start_application.sh && \
-    echo '    SQLPAGE_SITE_PREFIX="/${relative_path}" surveilr web-ui -d "/rssd/$rssd_name" --port "${port}" --host 0.0.0.0 >> /rssd/logs/$rssd_name.log 2>&1 &' >> /start_application.sh && \
+    echo '    EOH_INSTANCE=0 SQLPAGE_SITE_PREFIX="/${relative_path}" surveilr web-ui -d "/rssd/$rssd_name" --port "${port}" --host 0.0.0.0 >> /rssd/logs/$rssd_name.log 2>&1 &' >> /start_application.sh && \
     echo '  fi' >> /start_application.sh && \
     echo 'done' >> /start_application.sh && \
     echo 'echo "Completed starting up surveilr web-ui services, you can view logs at path=/rssd/logs/ \nStarted Nginx reverse-proxy"' >> /start_application.sh && \
@@ -197,3 +197,4 @@ RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</h
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
 
+#Trigger

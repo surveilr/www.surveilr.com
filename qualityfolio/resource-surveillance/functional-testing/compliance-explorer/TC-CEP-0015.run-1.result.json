@@ -1,0 +1,67 @@
+{
+  "test_case_fii": "TC-CEP-0015",
+  "run_id": "TR-CEP-0015",
+  "title": "NIST Controls SearchBar check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:21:20.667Z",
+  "end_time": "2025-01-02T06:21:31.760Z",
+  "total_duration": "11.09 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:20.668Z",
+      "end_time": "2025-01-02T06:21:28.333Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:28.335Z",
+      "end_time": "2025-01-02T06:21:28.338Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:28.339Z",
+      "end_time": "2025-01-02T06:21:29.405Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:29.408Z",
+      "end_time": "2025-01-02T06:21:29.478Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Starting NIST Detail View Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:29.479Z",
+      "end_time": "2025-01-02T06:21:31.252Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Validating Search Bar Visibility",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:31.254Z",
+      "end_time": "2025-01-02T06:21:31.319Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Filling the Search Bar and Checking Results",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:31.320Z",
+      "end_time": "2025-01-02T06:21:31.380Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:31.381Z",
+      "end_time": "2025-01-02T06:21:31.770Z"
+    }
+  ]
+}

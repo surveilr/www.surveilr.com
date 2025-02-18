@@ -2,7 +2,9 @@
 import { sqlPageNB as spn } from "./deps.ts";
 import * as pkg from "./drh-basepackage.sql.ts";
 import {
-  createUVACombinedCGMViewSQL,
+  checkAndConvertToVsp,
+  createCommonCombinedCGMViewSQL,
+  saveJsonCgm,
 } from "./study-specific-stateless/generate-cgm-combined-sql.ts";
 
 // Class to manage SQL page with dbFilePath as a constructor parameter
@@ -15,12 +17,21 @@ export class uvadclp1SqlPages extends spn.TypicalSqlPageNotebook {
     this.dbFilePath = dbFilePath; // Store dbFilePath as a class member
   }
 
+  async statelessvsvSQL() {
+    // console.error(`The database path is  "${this.dbFilePath}"`);
+    const sqlStatements = checkAndConvertToVsp(this.dbFilePath);
+    return await sqlStatements;
+  }
+  async savecgmSQL() {
+    const sqlStatements = saveJsonCgm(this.dbFilePath);
+    return await sqlStatements;
+  }
   // Method to generate DDL view using the dbFilePath
   dclp1ViewDDL() {
     console.error(`The database path is  "${this.dbFilePath}"`);
 
     // Use the dbFilePath in the SQL function
-    const sqlStatements = createUVACombinedCGMViewSQL(this.dbFilePath);
+    const sqlStatements = createCommonCombinedCGMViewSQL(this.dbFilePath);
 
     // Return the SQL with the dynamic content
     return this.SQL`
@@ -48,7 +59,9 @@ export async function uvadclp1SQL(dbFilePath: string) {
     new class extends pkg.DRHSqlPages {
       async statelessDCLP1SQL() {
         return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./study-specific-stateless/dclp1-stateless.sql"),
+          import.meta.resolve(
+            "./study-specific-stateless/illinois-stateless.sql",
+          ),
         );
       }
     }(),

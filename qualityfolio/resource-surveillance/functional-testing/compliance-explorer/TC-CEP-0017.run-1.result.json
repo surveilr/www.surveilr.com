@@ -1,0 +1,67 @@
+{
+  "test_case_fii": "TC-CEP-0017",
+  "run_id": "TR-CEP-0017",
+  "title": "NIST Controls Tables-Title sorting check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:21:45.585Z",
+  "end_time": "2025-01-02T06:21:58.466Z",
+  "total_duration": "12.88 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:45.586Z",
+      "end_time": "2025-01-02T06:21:54.419Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:54.423Z",
+      "end_time": "2025-01-02T06:21:54.439Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:54.441Z",
+      "end_time": "2025-01-02T06:21:55.671Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:55.673Z",
+      "end_time": "2025-01-02T06:21:55.756Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Navigate to the NIST Detail View page",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:55.758Z",
+      "end_time": "2025-01-02T06:21:57.706Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Sort the Title column in ascending order",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:57.707Z",
+      "end_time": "2025-01-02T06:21:57.994Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Sort the Title column in descending order",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:57.995Z",
+      "end_time": "2025-01-02T06:21:58.152Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:58.152Z",
+      "end_time": "2025-01-02T06:21:58.477Z"
+    }
+  ]
+}

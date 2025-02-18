@@ -1,0 +1,95 @@
+{
+  "test_case_fii": "TC-CEP-0013",
+  "run_id": "TR-CEP-0013",
+  "title": "US HIPAA control code Detail Check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:20:55.577Z",
+  "end_time": "2025-01-02T06:21:08.283Z",
+  "total_duration": "12.71 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-02T06:20:55.579Z",
+      "end_time": "2025-01-02T06:21:04.760Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:04.761Z",
+      "end_time": "2025-01-02T06:21:04.763Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:04.763Z",
+      "end_time": "2025-01-02T06:21:05.874Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:05.877Z",
+      "end_time": "2025-01-02T06:21:05.952Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Navigate to the US HIPAA Detail View page",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:05.953Z",
+      "end_time": "2025-01-02T06:21:07.235Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Check Control Code Link",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.236Z",
+      "end_time": "2025-01-02T06:21:07.828Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Check Control Question",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.829Z",
+      "end_time": "2025-01-02T06:21:07.889Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Check Control Description",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.891Z",
+      "end_time": "2025-01-02T06:21:07.914Z"
+    },
+    {
+      "step": 9,
+      "stepname": "Check Control ID",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.915Z",
+      "end_time": "2025-01-02T06:21:07.939Z"
+    },
+    {
+      "step": 10,
+      "stepname": "Check Control Domain",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.940Z",
+      "end_time": "2025-01-02T06:21:07.960Z"
+    },
+    {
+      "step": 11,
+      "stepname": "Check Control SCF",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.961Z",
+      "end_time": "2025-01-02T06:21:07.980Z"
+    },
+    {
+      "step": 12,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:07.981Z",
+      "end_time": "2025-01-02T06:21:08.292Z"
+    }
+  ]
+}

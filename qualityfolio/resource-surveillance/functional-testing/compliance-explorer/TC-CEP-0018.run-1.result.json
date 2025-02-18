@@ -1,0 +1,1544 @@
+{
+  "test_case_fii": "TC-CEP-0018",
+  "run_id": "TR-CEP-0018",
+  "title": "NIST Control code links navigation check",
+  "status": "passed",
+  "start_time": "2025-01-03T09:35:26.239Z",
+  "end_time": "2025-01-03T09:42:44.427Z",
+  "total_duration": "438.19 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:26.259Z",
+      "end_time": "2025-01-03T09:35:38.297Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:38.343Z",
+      "end_time": "2025-01-03T09:35:38.349Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF control menu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:38.350Z",
+      "end_time": "2025-01-03T09:35:40.056Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:40.059Z",
+      "end_time": "2025-01-03T09:35:40.161Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Navigate to the NIST Detail View page",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:40.162Z",
+      "end_time": "2025-01-03T09:35:42.116Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Checking the count of control codes",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:42.118Z",
+      "end_time": "2025-01-03T09:35:42.170Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Validate control code #1",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:42.172Z",
+      "end_time": "2025-01-03T09:35:44.156Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Validate control code #2",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:44.158Z",
+      "end_time": "2025-01-03T09:35:46.134Z"
+    },
+    {
+      "step": 9,
+      "stepname": "Validate control code #3",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:46.135Z",
+      "end_time": "2025-01-03T09:35:48.070Z"
+    },
+    {
+      "step": 10,
+      "stepname": "Validate control code #4",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:48.071Z",
+      "end_time": "2025-01-03T09:35:50.044Z"
+    },
+    {
+      "step": 11,
+      "stepname": "Validate control code #5",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:50.044Z",
+      "end_time": "2025-01-03T09:35:51.885Z"
+    },
+    {
+      "step": 12,
+      "stepname": "Validate control code #6",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:51.886Z",
+      "end_time": "2025-01-03T09:35:53.822Z"
+    },
+    {
+      "step": 13,
+      "stepname": "Validate control code #7",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:53.823Z",
+      "end_time": "2025-01-03T09:35:55.748Z"
+    },
+    {
+      "step": 14,
+      "stepname": "Validate control code #8",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:55.750Z",
+      "end_time": "2025-01-03T09:35:57.646Z"
+    },
+    {
+      "step": 15,
+      "stepname": "Validate control code #9",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:57.648Z",
+      "end_time": "2025-01-03T09:35:59.606Z"
+    },
+    {
+      "step": 16,
+      "stepname": "Validate control code #10",
+      "status": "passed",
+      "start_time": "2025-01-03T09:35:59.608Z",
+      "end_time": "2025-01-03T09:36:01.521Z"
+    },
+    {
+      "step": 17,
+      "stepname": "Validate control code #11",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:01.523Z",
+      "end_time": "2025-01-03T09:36:03.450Z"
+    },
+    {
+      "step": 18,
+      "stepname": "Validate control code #12",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:03.452Z",
+      "end_time": "2025-01-03T09:36:05.453Z"
+    },
+    {
+      "step": 19,
+      "stepname": "Validate control code #13",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:05.456Z",
+      "end_time": "2025-01-03T09:36:07.449Z"
+    },
+    {
+      "step": 20,
+      "stepname": "Validate control code #14",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:07.453Z",
+      "end_time": "2025-01-03T09:36:09.380Z"
+    },
+    {
+      "step": 21,
+      "stepname": "Validate control code #15",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:09.384Z",
+      "end_time": "2025-01-03T09:36:11.395Z"
+    },
+    {
+      "step": 22,
+      "stepname": "Validate control code #16",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:11.396Z",
+      "end_time": "2025-01-03T09:36:13.288Z"
+    },
+    {
+      "step": 23,
+      "stepname": "Validate control code #17",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:13.288Z",
+      "end_time": "2025-01-03T09:36:15.192Z"
+    },
+    {
+      "step": 24,
+      "stepname": "Validate control code #18",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:15.194Z",
+      "end_time": "2025-01-03T09:36:18.084Z"
+    },
+    {
+      "step": 25,
+      "stepname": "Validate control code #19",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:18.086Z",
+      "end_time": "2025-01-03T09:36:20.017Z"
+    },
+    {
+      "step": 26,
+      "stepname": "Validate control code #20",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:20.019Z",
+      "end_time": "2025-01-03T09:36:21.940Z"
+    },
+    {
+      "step": 27,
+      "stepname": "Validate control code #21",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:21.942Z",
+      "end_time": "2025-01-03T09:36:23.941Z"
+    },
+    {
+      "step": 28,
+      "stepname": "Validate control code #22",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:23.942Z",
+      "end_time": "2025-01-03T09:36:25.878Z"
+    },
+    {
+      "step": 29,
+      "stepname": "Validate control code #23",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:25.882Z",
+      "end_time": "2025-01-03T09:36:27.802Z"
+    },
+    {
+      "step": 30,
+      "stepname": "Validate control code #24",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:27.804Z",
+      "end_time": "2025-01-03T09:36:29.814Z"
+    },
+    {
+      "step": 31,
+      "stepname": "Validate control code #25",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:29.816Z",
+      "end_time": "2025-01-03T09:36:31.729Z"
+    },
+    {
+      "step": 32,
+      "stepname": "Validate control code #26",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:31.731Z",
+      "end_time": "2025-01-03T09:36:33.689Z"
+    },
+    {
+      "step": 33,
+      "stepname": "Validate control code #27",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:33.691Z",
+      "end_time": "2025-01-03T09:36:36.210Z"
+    },
+    {
+      "step": 34,
+      "stepname": "Validate control code #28",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:36.212Z",
+      "end_time": "2025-01-03T09:36:38.184Z"
+    },
+    {
+      "step": 35,
+      "stepname": "Validate control code #29",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:38.185Z",
+      "end_time": "2025-01-03T09:36:40.130Z"
+    },
+    {
+      "step": 36,
+      "stepname": "Validate control code #30",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:40.134Z",
+      "end_time": "2025-01-03T09:36:42.535Z"
+    },
+    {
+      "step": 37,
+      "stepname": "Validate control code #31",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:42.536Z",
+      "end_time": "2025-01-03T09:36:44.444Z"
+    },
+    {
+      "step": 38,
+      "stepname": "Validate control code #32",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:44.445Z",
+      "end_time": "2025-01-03T09:36:46.277Z"
+    },
+    {
+      "step": 39,
+      "stepname": "Validate control code #33",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:46.281Z",
+      "end_time": "2025-01-03T09:36:48.193Z"
+    },
+    {
+      "step": 40,
+      "stepname": "Validate control code #34",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:48.194Z",
+      "end_time": "2025-01-03T09:36:50.105Z"
+    },
+    {
+      "step": 41,
+      "stepname": "Validate control code #35",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:50.106Z",
+      "end_time": "2025-01-03T09:36:52.041Z"
+    },
+    {
+      "step": 42,
+      "stepname": "Validate control code #36",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:52.043Z",
+      "end_time": "2025-01-03T09:36:54.025Z"
+    },
+    {
+      "step": 43,
+      "stepname": "Validate control code #37",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:54.026Z",
+      "end_time": "2025-01-03T09:36:56.008Z"
+    },
+    {
+      "step": 44,
+      "stepname": "Validate control code #38",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:56.013Z",
+      "end_time": "2025-01-03T09:36:57.979Z"
+    },
+    {
+      "step": 45,
+      "stepname": "Validate control code #39",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:57.982Z",
+      "end_time": "2025-01-03T09:36:59.947Z"
+    },
+    {
+      "step": 46,
+      "stepname": "Validate control code #40",
+      "status": "passed",
+      "start_time": "2025-01-03T09:36:59.949Z",
+      "end_time": "2025-01-03T09:37:01.846Z"
+    },
+    {
+      "step": 47,
+      "stepname": "Validate control code #41",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:01.848Z",
+      "end_time": "2025-01-03T09:37:03.784Z"
+    },
+    {
+      "step": 48,
+      "stepname": "Validate control code #42",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:03.786Z",
+      "end_time": "2025-01-03T09:37:05.729Z"
+    },
+    {
+      "step": 49,
+      "stepname": "Validate control code #43",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:05.730Z",
+      "end_time": "2025-01-03T09:37:07.684Z"
+    },
+    {
+      "step": 50,
+      "stepname": "Validate control code #44",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:07.687Z",
+      "end_time": "2025-01-03T09:37:09.624Z"
+    },
+    {
+      "step": 51,
+      "stepname": "Validate control code #45",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:09.625Z",
+      "end_time": "2025-01-03T09:37:11.954Z"
+    },
+    {
+      "step": 52,
+      "stepname": "Validate control code #46",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:11.959Z",
+      "end_time": "2025-01-03T09:37:13.943Z"
+    },
+    {
+      "step": 53,
+      "stepname": "Validate control code #47",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:13.945Z",
+      "end_time": "2025-01-03T09:37:15.898Z"
+    },
+    {
+      "step": 54,
+      "stepname": "Validate control code #48",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:15.900Z",
+      "end_time": "2025-01-03T09:37:17.846Z"
+    },
+    {
+      "step": 55,
+      "stepname": "Validate control code #49",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:17.847Z",
+      "end_time": "2025-01-03T09:37:19.785Z"
+    },
+    {
+      "step": 56,
+      "stepname": "Validate control code #50",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:19.787Z",
+      "end_time": "2025-01-03T09:37:21.764Z"
+    },
+    {
+      "step": 57,
+      "stepname": "Validate control code #51",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:21.767Z",
+      "end_time": "2025-01-03T09:37:23.723Z"
+    },
+    {
+      "step": 58,
+      "stepname": "Validate control code #52",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:23.726Z",
+      "end_time": "2025-01-03T09:37:25.692Z"
+    },
+    {
+      "step": 59,
+      "stepname": "Validate control code #53",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:25.693Z",
+      "end_time": "2025-01-03T09:37:28.059Z"
+    },
+    {
+      "step": 60,
+      "stepname": "Validate control code #54",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:28.061Z",
+      "end_time": "2025-01-03T09:37:30.024Z"
+    },
+    {
+      "step": 61,
+      "stepname": "Validate control code #55",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:30.025Z",
+      "end_time": "2025-01-03T09:37:31.995Z"
+    },
+    {
+      "step": 62,
+      "stepname": "Validate control code #56",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:31.997Z",
+      "end_time": "2025-01-03T09:37:33.925Z"
+    },
+    {
+      "step": 63,
+      "stepname": "Validate control code #57",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:33.927Z",
+      "end_time": "2025-01-03T09:37:35.898Z"
+    },
+    {
+      "step": 64,
+      "stepname": "Validate control code #58",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:35.901Z",
+      "end_time": "2025-01-03T09:37:37.839Z"
+    },
+    {
+      "step": 65,
+      "stepname": "Validate control code #59",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:37.841Z",
+      "end_time": "2025-01-03T09:37:39.809Z"
+    },
+    {
+      "step": 66,
+      "stepname": "Validate control code #60",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:39.811Z",
+      "end_time": "2025-01-03T09:37:41.664Z"
+    },
+    {
+      "step": 67,
+      "stepname": "Validate control code #61",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:41.665Z",
+      "end_time": "2025-01-03T09:37:43.897Z"
+    },
+    {
+      "step": 68,
+      "stepname": "Validate control code #62",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:43.899Z",
+      "end_time": "2025-01-03T09:37:45.820Z"
+    },
+    {
+      "step": 69,
+      "stepname": "Validate control code #63",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:45.822Z",
+      "end_time": "2025-01-03T09:37:48.184Z"
+    },
+    {
+      "step": 70,
+      "stepname": "Validate control code #64",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:48.186Z",
+      "end_time": "2025-01-03T09:37:50.149Z"
+    },
+    {
+      "step": 71,
+      "stepname": "Validate control code #65",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:50.151Z",
+      "end_time": "2025-01-03T09:37:52.077Z"
+    },
+    {
+      "step": 72,
+      "stepname": "Validate control code #66",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:52.079Z",
+      "end_time": "2025-01-03T09:37:54.001Z"
+    },
+    {
+      "step": 73,
+      "stepname": "Validate control code #67",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:54.001Z",
+      "end_time": "2025-01-03T09:37:55.947Z"
+    },
+    {
+      "step": 74,
+      "stepname": "Validate control code #68",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:55.949Z",
+      "end_time": "2025-01-03T09:37:57.957Z"
+    },
+    {
+      "step": 75,
+      "stepname": "Validate control code #69",
+      "status": "passed",
+      "start_time": "2025-01-03T09:37:57.960Z",
+      "end_time": "2025-01-03T09:38:00.000Z"
+    },
+    {
+      "step": 76,
+      "stepname": "Validate control code #70",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:00.001Z",
+      "end_time": "2025-01-03T09:38:01.941Z"
+    },
+    {
+      "step": 77,
+      "stepname": "Validate control code #71",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:01.941Z",
+      "end_time": "2025-01-03T09:38:03.868Z"
+    },
+    {
+      "step": 78,
+      "stepname": "Validate control code #72",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:03.870Z",
+      "end_time": "2025-01-03T09:38:05.785Z"
+    },
+    {
+      "step": 79,
+      "stepname": "Validate control code #73",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:05.789Z",
+      "end_time": "2025-01-03T09:38:07.697Z"
+    },
+    {
+      "step": 80,
+      "stepname": "Validate control code #74",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:07.698Z",
+      "end_time": "2025-01-03T09:38:09.705Z"
+    },
+    {
+      "step": 81,
+      "stepname": "Validate control code #75",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:09.707Z",
+      "end_time": "2025-01-03T09:38:11.605Z"
+    },
+    {
+      "step": 82,
+      "stepname": "Validate control code #76",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:11.606Z",
+      "end_time": "2025-01-03T09:38:13.554Z"
+    },
+    {
+      "step": 83,
+      "stepname": "Validate control code #77",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:13.555Z",
+      "end_time": "2025-01-03T09:38:15.401Z"
+    },
+    {
+      "step": 84,
+      "stepname": "Validate control code #78",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:15.403Z",
+      "end_time": "2025-01-03T09:38:17.308Z"
+    },
+    {
+      "step": 85,
+      "stepname": "Validate control code #79",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:17.310Z",
+      "end_time": "2025-01-03T09:38:19.225Z"
+    },
+    {
+      "step": 86,
+      "stepname": "Validate control code #80",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:19.227Z",
+      "end_time": "2025-01-03T09:38:21.212Z"
+    },
+    {
+      "step": 87,
+      "stepname": "Validate control code #81",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:21.215Z",
+      "end_time": "2025-01-03T09:38:23.096Z"
+    },
+    {
+      "step": 88,
+      "stepname": "Validate control code #82",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:23.098Z",
+      "end_time": "2025-01-03T09:38:25.040Z"
+    },
+    {
+      "step": 89,
+      "stepname": "Validate control code #83",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:25.041Z",
+      "end_time": "2025-01-03T09:38:26.997Z"
+    },
+    {
+      "step": 90,
+      "stepname": "Validate control code #84",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:26.999Z",
+      "end_time": "2025-01-03T09:38:29.386Z"
+    },
+    {
+      "step": 91,
+      "stepname": "Validate control code #85",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:29.387Z",
+      "end_time": "2025-01-03T09:38:31.332Z"
+    },
+    {
+      "step": 92,
+      "stepname": "Validate control code #86",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:31.334Z",
+      "end_time": "2025-01-03T09:38:33.222Z"
+    },
+    {
+      "step": 93,
+      "stepname": "Validate control code #87",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:33.225Z",
+      "end_time": "2025-01-03T09:38:35.124Z"
+    },
+    {
+      "step": 94,
+      "stepname": "Validate control code #88",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:35.127Z",
+      "end_time": "2025-01-03T09:38:37.117Z"
+    },
+    {
+      "step": 95,
+      "stepname": "Validate control code #89",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:37.120Z",
+      "end_time": "2025-01-03T09:38:39.123Z"
+    },
+    {
+      "step": 96,
+      "stepname": "Validate control code #90",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:39.124Z",
+      "end_time": "2025-01-03T09:38:41.049Z"
+    },
+    {
+      "step": 97,
+      "stepname": "Validate control code #91",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:41.052Z",
+      "end_time": "2025-01-03T09:38:43.013Z"
+    },
+    {
+      "step": 98,
+      "stepname": "Validate control code #92",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:43.016Z",
+      "end_time": "2025-01-03T09:38:44.981Z"
+    },
+    {
+      "step": 99,
+      "stepname": "Validate control code #93",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:44.983Z",
+      "end_time": "2025-01-03T09:38:46.959Z"
+    },
+    {
+      "step": 100,
+      "stepname": "Validate control code #94",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:46.962Z",
+      "end_time": "2025-01-03T09:38:48.903Z"
+    },
+    {
+      "step": 101,
+      "stepname": "Validate control code #95",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:48.905Z",
+      "end_time": "2025-01-03T09:38:50.866Z"
+    },
+    {
+      "step": 102,
+      "stepname": "Validate control code #96",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:50.868Z",
+      "end_time": "2025-01-03T09:38:52.778Z"
+    },
+    {
+      "step": 103,
+      "stepname": "Validate control code #97",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:52.781Z",
+      "end_time": "2025-01-03T09:38:54.764Z"
+    },
+    {
+      "step": 104,
+      "stepname": "Validate control code #98",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:54.767Z",
+      "end_time": "2025-01-03T09:38:56.832Z"
+    },
+    {
+      "step": 105,
+      "stepname": "Validate control code #99",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:56.834Z",
+      "end_time": "2025-01-03T09:38:58.769Z"
+    },
+    {
+      "step": 106,
+      "stepname": "Validate control code #100",
+      "status": "passed",
+      "start_time": "2025-01-03T09:38:58.771Z",
+      "end_time": "2025-01-03T09:39:00.722Z"
+    },
+    {
+      "step": 107,
+      "stepname": "Validate control code #101",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:00.724Z",
+      "end_time": "2025-01-03T09:39:02.642Z"
+    },
+    {
+      "step": 108,
+      "stepname": "Validate control code #102",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:02.643Z",
+      "end_time": "2025-01-03T09:39:04.642Z"
+    },
+    {
+      "step": 109,
+      "stepname": "Validate control code #103",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:04.644Z",
+      "end_time": "2025-01-03T09:39:06.654Z"
+    },
+    {
+      "step": 110,
+      "stepname": "Validate control code #104",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:06.658Z",
+      "end_time": "2025-01-03T09:39:08.598Z"
+    },
+    {
+      "step": 111,
+      "stepname": "Validate control code #105",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:08.601Z",
+      "end_time": "2025-01-03T09:39:10.563Z"
+    },
+    {
+      "step": 112,
+      "stepname": "Validate control code #106",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:10.564Z",
+      "end_time": "2025-01-03T09:39:12.499Z"
+    },
+    {
+      "step": 113,
+      "stepname": "Validate control code #107",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:12.500Z",
+      "end_time": "2025-01-03T09:39:14.407Z"
+    },
+    {
+      "step": 114,
+      "stepname": "Validate control code #108",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:14.409Z",
+      "end_time": "2025-01-03T09:39:16.389Z"
+    },
+    {
+      "step": 115,
+      "stepname": "Validate control code #109",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:16.394Z",
+      "end_time": "2025-01-03T09:39:18.389Z"
+    },
+    {
+      "step": 116,
+      "stepname": "Validate control code #110",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:18.391Z",
+      "end_time": "2025-01-03T09:39:20.494Z"
+    },
+    {
+      "step": 117,
+      "stepname": "Validate control code #111",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:20.496Z",
+      "end_time": "2025-01-03T09:39:22.437Z"
+    },
+    {
+      "step": 118,
+      "stepname": "Validate control code #112",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:22.438Z",
+      "end_time": "2025-01-03T09:39:24.366Z"
+    },
+    {
+      "step": 119,
+      "stepname": "Validate control code #113",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:24.370Z",
+      "end_time": "2025-01-03T09:39:26.284Z"
+    },
+    {
+      "step": 120,
+      "stepname": "Validate control code #114",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:26.286Z",
+      "end_time": "2025-01-03T09:39:28.200Z"
+    },
+    {
+      "step": 121,
+      "stepname": "Validate control code #115",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:28.201Z",
+      "end_time": "2025-01-03T09:39:30.143Z"
+    },
+    {
+      "step": 122,
+      "stepname": "Validate control code #116",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:30.145Z",
+      "end_time": "2025-01-03T09:39:32.126Z"
+    },
+    {
+      "step": 123,
+      "stepname": "Validate control code #117",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:32.129Z",
+      "end_time": "2025-01-03T09:39:34.104Z"
+    },
+    {
+      "step": 124,
+      "stepname": "Validate control code #118",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:34.106Z",
+      "end_time": "2025-01-03T09:39:36.024Z"
+    },
+    {
+      "step": 125,
+      "stepname": "Validate control code #119",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:36.027Z",
+      "end_time": "2025-01-03T09:39:37.979Z"
+    },
+    {
+      "step": 126,
+      "stepname": "Validate control code #120",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:37.982Z",
+      "end_time": "2025-01-03T09:39:39.941Z"
+    },
+    {
+      "step": 127,
+      "stepname": "Validate control code #121",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:39.951Z",
+      "end_time": "2025-01-03T09:39:41.911Z"
+    },
+    {
+      "step": 128,
+      "stepname": "Validate control code #122",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:41.913Z",
+      "end_time": "2025-01-03T09:39:43.899Z"
+    },
+    {
+      "step": 129,
+      "stepname": "Validate control code #123",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:43.900Z",
+      "end_time": "2025-01-03T09:39:45.793Z"
+    },
+    {
+      "step": 130,
+      "stepname": "Validate control code #124",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:45.797Z",
+      "end_time": "2025-01-03T09:39:47.762Z"
+    },
+    {
+      "step": 131,
+      "stepname": "Validate control code #125",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:47.765Z",
+      "end_time": "2025-01-03T09:39:49.713Z"
+    },
+    {
+      "step": 132,
+      "stepname": "Validate control code #126",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:49.715Z",
+      "end_time": "2025-01-03T09:39:51.559Z"
+    },
+    {
+      "step": 133,
+      "stepname": "Validate control code #127",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:51.562Z",
+      "end_time": "2025-01-03T09:39:53.508Z"
+    },
+    {
+      "step": 134,
+      "stepname": "Validate control code #128",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:53.510Z",
+      "end_time": "2025-01-03T09:39:55.476Z"
+    },
+    {
+      "step": 135,
+      "stepname": "Validate control code #129",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:55.477Z",
+      "end_time": "2025-01-03T09:39:57.462Z"
+    },
+    {
+      "step": 136,
+      "stepname": "Validate control code #130",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:57.464Z",
+      "end_time": "2025-01-03T09:39:59.379Z"
+    },
+    {
+      "step": 137,
+      "stepname": "Validate control code #131",
+      "status": "passed",
+      "start_time": "2025-01-03T09:39:59.381Z",
+      "end_time": "2025-01-03T09:40:01.520Z"
+    },
+    {
+      "step": 138,
+      "stepname": "Validate control code #132",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:01.523Z",
+      "end_time": "2025-01-03T09:40:03.477Z"
+    },
+    {
+      "step": 139,
+      "stepname": "Validate control code #133",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:03.480Z",
+      "end_time": "2025-01-03T09:40:05.415Z"
+    },
+    {
+      "step": 140,
+      "stepname": "Validate control code #134",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:05.421Z",
+      "end_time": "2025-01-03T09:40:07.326Z"
+    },
+    {
+      "step": 141,
+      "stepname": "Validate control code #135",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:07.328Z",
+      "end_time": "2025-01-03T09:40:09.449Z"
+    },
+    {
+      "step": 142,
+      "stepname": "Validate control code #136",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:09.451Z",
+      "end_time": "2025-01-03T09:40:11.324Z"
+    },
+    {
+      "step": 143,
+      "stepname": "Validate control code #137",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:11.326Z",
+      "end_time": "2025-01-03T09:40:13.281Z"
+    },
+    {
+      "step": 144,
+      "stepname": "Validate control code #138",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:13.285Z",
+      "end_time": "2025-01-03T09:40:15.226Z"
+    },
+    {
+      "step": 145,
+      "stepname": "Validate control code #139",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:15.232Z",
+      "end_time": "2025-01-03T09:40:17.451Z"
+    },
+    {
+      "step": 146,
+      "stepname": "Validate control code #140",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:17.452Z",
+      "end_time": "2025-01-03T09:40:19.430Z"
+    },
+    {
+      "step": 147,
+      "stepname": "Validate control code #141",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:19.432Z",
+      "end_time": "2025-01-03T09:40:21.428Z"
+    },
+    {
+      "step": 148,
+      "stepname": "Validate control code #142",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:21.430Z",
+      "end_time": "2025-01-03T09:40:23.311Z"
+    },
+    {
+      "step": 149,
+      "stepname": "Validate control code #143",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:23.314Z",
+      "end_time": "2025-01-03T09:40:25.381Z"
+    },
+    {
+      "step": 150,
+      "stepname": "Validate control code #144",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:25.384Z",
+      "end_time": "2025-01-03T09:40:27.299Z"
+    },
+    {
+      "step": 151,
+      "stepname": "Validate control code #145",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:27.301Z",
+      "end_time": "2025-01-03T09:40:29.210Z"
+    },
+    {
+      "step": 152,
+      "stepname": "Validate control code #146",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:29.214Z",
+      "end_time": "2025-01-03T09:40:31.215Z"
+    },
+    {
+      "step": 153,
+      "stepname": "Validate control code #147",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:31.218Z",
+      "end_time": "2025-01-03T09:40:33.379Z"
+    },
+    {
+      "step": 154,
+      "stepname": "Validate control code #148",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:33.382Z",
+      "end_time": "2025-01-03T09:40:35.305Z"
+    },
+    {
+      "step": 155,
+      "stepname": "Validate control code #149",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:35.308Z",
+      "end_time": "2025-01-03T09:40:37.286Z"
+    },
+    {
+      "step": 156,
+      "stepname": "Validate control code #150",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:37.291Z",
+      "end_time": "2025-01-03T09:40:39.239Z"
+    },
+    {
+      "step": 157,
+      "stepname": "Validate control code #151",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:39.243Z",
+      "end_time": "2025-01-03T09:40:41.508Z"
+    },
+    {
+      "step": 158,
+      "stepname": "Validate control code #152",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:41.513Z",
+      "end_time": "2025-01-03T09:40:43.572Z"
+    },
+    {
+      "step": 159,
+      "stepname": "Validate control code #153",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:43.575Z",
+      "end_time": "2025-01-03T09:40:45.520Z"
+    },
+    {
+      "step": 160,
+      "stepname": "Validate control code #154",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:45.523Z",
+      "end_time": "2025-01-03T09:40:47.536Z"
+    },
+    {
+      "step": 161,
+      "stepname": "Validate control code #155",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:47.538Z",
+      "end_time": "2025-01-03T09:40:49.703Z"
+    },
+    {
+      "step": 162,
+      "stepname": "Validate control code #156",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:49.706Z",
+      "end_time": "2025-01-03T09:40:51.704Z"
+    },
+    {
+      "step": 163,
+      "stepname": "Validate control code #157",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:51.709Z",
+      "end_time": "2025-01-03T09:40:53.681Z"
+    },
+    {
+      "step": 164,
+      "stepname": "Validate control code #158",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:53.685Z",
+      "end_time": "2025-01-03T09:40:55.667Z"
+    },
+    {
+      "step": 165,
+      "stepname": "Validate control code #159",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:55.671Z",
+      "end_time": "2025-01-03T09:40:57.881Z"
+    },
+    {
+      "step": 166,
+      "stepname": "Validate control code #160",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:57.886Z",
+      "end_time": "2025-01-03T09:40:59.843Z"
+    },
+    {
+      "step": 167,
+      "stepname": "Validate control code #161",
+      "status": "passed",
+      "start_time": "2025-01-03T09:40:59.848Z",
+      "end_time": "2025-01-03T09:41:01.809Z"
+    },
+    {
+      "step": 168,
+      "stepname": "Validate control code #162",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:01.811Z",
+      "end_time": "2025-01-03T09:41:03.706Z"
+    },
+    {
+      "step": 169,
+      "stepname": "Validate control code #163",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:03.710Z",
+      "end_time": "2025-01-03T09:41:05.741Z"
+    },
+    {
+      "step": 170,
+      "stepname": "Validate control code #164",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:05.744Z",
+      "end_time": "2025-01-03T09:41:07.640Z"
+    },
+    {
+      "step": 171,
+      "stepname": "Validate control code #165",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:07.643Z",
+      "end_time": "2025-01-03T09:41:09.531Z"
+    },
+    {
+      "step": 172,
+      "stepname": "Validate control code #166",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:09.536Z",
+      "end_time": "2025-01-03T09:41:11.481Z"
+    },
+    {
+      "step": 173,
+      "stepname": "Validate control code #167",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:11.485Z",
+      "end_time": "2025-01-03T09:41:13.472Z"
+    },
+    {
+      "step": 174,
+      "stepname": "Validate control code #168",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:13.475Z",
+      "end_time": "2025-01-03T09:41:15.416Z"
+    },
+    {
+      "step": 175,
+      "stepname": "Validate control code #169",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:15.419Z",
+      "end_time": "2025-01-03T09:41:17.325Z"
+    },
+    {
+      "step": 176,
+      "stepname": "Validate control code #170",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:17.333Z",
+      "end_time": "2025-01-03T09:41:19.324Z"
+    },
+    {
+      "step": 177,
+      "stepname": "Validate control code #171",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:19.325Z",
+      "end_time": "2025-01-03T09:41:21.696Z"
+    },
+    {
+      "step": 178,
+      "stepname": "Validate control code #172",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:21.698Z",
+      "end_time": "2025-01-03T09:41:23.610Z"
+    },
+    {
+      "step": 179,
+      "stepname": "Validate control code #173",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:23.613Z",
+      "end_time": "2025-01-03T09:41:25.587Z"
+    },
+    {
+      "step": 180,
+      "stepname": "Validate control code #174",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:25.589Z",
+      "end_time": "2025-01-03T09:41:27.502Z"
+    },
+    {
+      "step": 181,
+      "stepname": "Validate control code #175",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:27.504Z",
+      "end_time": "2025-01-03T09:41:29.377Z"
+    },
+    {
+      "step": 182,
+      "stepname": "Validate control code #176",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:29.379Z",
+      "end_time": "2025-01-03T09:41:31.260Z"
+    },
+    {
+      "step": 183,
+      "stepname": "Validate control code #177",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:31.262Z",
+      "end_time": "2025-01-03T09:41:33.243Z"
+    },
+    {
+      "step": 184,
+      "stepname": "Validate control code #178",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:33.248Z",
+      "end_time": "2025-01-03T09:41:35.143Z"
+    },
+    {
+      "step": 185,
+      "stepname": "Validate control code #179",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:35.146Z",
+      "end_time": "2025-01-03T09:41:37.492Z"
+    },
+    {
+      "step": 186,
+      "stepname": "Validate control code #180",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:37.495Z",
+      "end_time": "2025-01-03T09:41:39.422Z"
+    },
+    {
+      "step": 187,
+      "stepname": "Validate control code #181",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:39.424Z",
+      "end_time": "2025-01-03T09:41:41.327Z"
+    },
+    {
+      "step": 188,
+      "stepname": "Validate control code #182",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:41.329Z",
+      "end_time": "2025-01-03T09:41:43.254Z"
+    },
+    {
+      "step": 189,
+      "stepname": "Validate control code #183",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:43.256Z",
+      "end_time": "2025-01-03T09:41:45.443Z"
+    },
+    {
+      "step": 190,
+      "stepname": "Validate control code #184",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:45.444Z",
+      "end_time": "2025-01-03T09:41:47.312Z"
+    },
+    {
+      "step": 191,
+      "stepname": "Validate control code #185",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:47.314Z",
+      "end_time": "2025-01-03T09:41:49.206Z"
+    },
+    {
+      "step": 192,
+      "stepname": "Validate control code #186",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:49.208Z",
+      "end_time": "2025-01-03T09:41:51.167Z"
+    },
+    {
+      "step": 193,
+      "stepname": "Validate control code #187",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:51.171Z",
+      "end_time": "2025-01-03T09:41:53.057Z"
+    },
+    {
+      "step": 194,
+      "stepname": "Validate control code #188",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:53.061Z",
+      "end_time": "2025-01-03T09:41:55.105Z"
+    },
+    {
+      "step": 195,
+      "stepname": "Validate control code #189",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:55.107Z",
+      "end_time": "2025-01-03T09:41:56.973Z"
+    },
+    {
+      "step": 196,
+      "stepname": "Validate control code #190",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:56.975Z",
+      "end_time": "2025-01-03T09:41:58.916Z"
+    },
+    {
+      "step": 197,
+      "stepname": "Validate control code #191",
+      "status": "passed",
+      "start_time": "2025-01-03T09:41:58.919Z",
+      "end_time": "2025-01-03T09:42:00.837Z"
+    },
+    {
+      "step": 198,
+      "stepname": "Validate control code #192",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:00.839Z",
+      "end_time": "2025-01-03T09:42:02.757Z"
+    },
+    {
+      "step": 199,
+      "stepname": "Validate control code #193",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:02.759Z",
+      "end_time": "2025-01-03T09:42:05.161Z"
+    },
+    {
+      "step": 200,
+      "stepname": "Validate control code #194",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:05.165Z",
+      "end_time": "2025-01-03T09:42:07.106Z"
+    },
+    {
+      "step": 201,
+      "stepname": "Validate control code #195",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:07.108Z",
+      "end_time": "2025-01-03T09:42:09.042Z"
+    },
+    {
+      "step": 202,
+      "stepname": "Validate control code #196",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:09.045Z",
+      "end_time": "2025-01-03T09:42:10.967Z"
+    },
+    {
+      "step": 203,
+      "stepname": "Validate control code #197",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:10.971Z",
+      "end_time": "2025-01-03T09:42:12.980Z"
+    },
+    {
+      "step": 204,
+      "stepname": "Validate control code #198",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:12.984Z",
+      "end_time": "2025-01-03T09:42:15.333Z"
+    },
+    {
+      "step": 205,
+      "stepname": "Validate control code #199",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:15.337Z",
+      "end_time": "2025-01-03T09:42:17.307Z"
+    },
+    {
+      "step": 206,
+      "stepname": "Validate control code #200",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:17.312Z",
+      "end_time": "2025-01-03T09:42:19.270Z"
+    },
+    {
+      "step": 207,
+      "stepname": "Validate control code #201",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:19.275Z",
+      "end_time": "2025-01-03T09:42:21.252Z"
+    },
+    {
+      "step": 208,
+      "stepname": "Validate control code #202",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:21.255Z",
+      "end_time": "2025-01-03T09:42:23.221Z"
+    },
+    {
+      "step": 209,
+      "stepname": "Validate control code #203",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:23.224Z",
+      "end_time": "2025-01-03T09:42:25.609Z"
+    },
+    {
+      "step": 210,
+      "stepname": "Validate control code #204",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:25.613Z",
+      "end_time": "2025-01-03T09:42:27.619Z"
+    },
+    {
+      "step": 211,
+      "stepname": "Validate control code #205",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:27.624Z",
+      "end_time": "2025-01-03T09:42:29.618Z"
+    },
+    {
+      "step": 212,
+      "stepname": "Validate control code #206",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:29.620Z",
+      "end_time": "2025-01-03T09:42:31.591Z"
+    },
+    {
+      "step": 213,
+      "stepname": "Validate control code #207",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:31.594Z",
+      "end_time": "2025-01-03T09:42:33.509Z"
+    },
+    {
+      "step": 214,
+      "stepname": "Validate control code #208",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:33.513Z",
+      "end_time": "2025-01-03T09:42:35.509Z"
+    },
+    {
+      "step": 215,
+      "stepname": "Validate control code #209",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:35.513Z",
+      "end_time": "2025-01-03T09:42:37.885Z"
+    },
+    {
+      "step": 216,
+      "stepname": "Validate control code #210",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:37.890Z",
+      "end_time": "2025-01-03T09:42:39.827Z"
+    },
+    {
+      "step": 217,
+      "stepname": "Validate control code #211",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:39.830Z",
+      "end_time": "2025-01-03T09:42:42.151Z"
+    },
+    {
+      "step": 218,
+      "stepname": "Validate control code #212",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:42.153Z",
+      "end_time": "2025-01-03T09:42:44.115Z"
+    },
+    {
+      "step": 219,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-03T09:42:44.118Z",
+      "end_time": "2025-01-03T09:42:44.468Z"
+    }
+  ]
+}

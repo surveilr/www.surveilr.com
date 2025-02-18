@@ -1,0 +1,60 @@
+{
+  "test_case_fii": "TC-CEP-0014",
+  "run_id": "TR-CEP-0014",
+  "title": "NIST Detail View Links navigation check",
+  "status": "passed",
+  "start_time": "2025-01-02T06:21:08.292Z",
+  "end_time": "2025-01-02T06:21:20.656Z",
+  "total_duration": "12.36 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:08.294Z",
+      "end_time": "2025-01-02T06:21:17.448Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:17.449Z",
+      "end_time": "2025-01-02T06:21:17.452Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:17.453Z",
+      "end_time": "2025-01-02T06:21:18.672Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:18.674Z",
+      "end_time": "2025-01-02T06:21:18.749Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Starting NIST Detail View Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:18.750Z",
+      "end_time": "2025-01-02T06:21:20.316Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:20.317Z",
+      "end_time": "2025-01-02T06:21:20.357Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-02T06:21:20.358Z",
+      "end_time": "2025-01-02T06:21:20.667Z"
+    }
+  ]
+}

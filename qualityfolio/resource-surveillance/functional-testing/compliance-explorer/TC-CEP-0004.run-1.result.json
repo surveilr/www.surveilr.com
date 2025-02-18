@@ -1,0 +1,67 @@
+{
+  "test_case_fii": "TC-CEP-0004",
+  "run_id": "TR-CEP-0004",
+  "title": "SCF Control Page Breadcrumb Navigation Check",
+  "status": "passed",
+  "start_time": "2025-01-01T06:08:50.944Z",
+  "end_time": "2025-01-01T06:09:02.447Z",
+  "total_duration": "11.50 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL gets loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-01T06:08:50.946Z",
+      "end_time": "2025-01-01T06:09:00.569Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:02.460Z",
+      "end_time": "2025-01-01T06:09:02.460Z"
+    },
+    {
+      "step": 3,
+      "stepname": "Starting SCF control menu Navigation Check",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:00.570Z",
+      "end_time": "2025-01-01T06:09:01.779Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:01.780Z",
+      "end_time": "2025-01-01T06:09:01.827Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Verify Breadcrumb Container is Visible",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:01.828Z",
+      "end_time": "2025-01-01T06:09:01.840Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Capture Breadcrumb Items",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:01.842Z",
+      "end_time": "2025-01-01T06:09:01.876Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Check Breadcrumb Item 1: Home > SCF Controls",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:01.877Z",
+      "end_time": "2025-01-01T06:09:02.000Z"
+    },
+    {
+      "step": 8,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:02.001Z",
+      "end_time": "2025-01-01T06:09:02.462Z"
+    }
+  ]
+}

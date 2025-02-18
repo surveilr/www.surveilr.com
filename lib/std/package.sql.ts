@@ -2,6 +2,7 @@
 import {
   console as c,
   docs,
+  ms,
   orchestration as orch,
   shell as sh,
   uniformResource as ur,
@@ -11,10 +12,11 @@ import * as spn from "./notebook/sqlpage.ts";
 export async function SQL() {
   return await spn.TypicalSqlPageNotebook.SQL(
     new sh.ShellSqlPages(),
-    new ur.UniformResourceSqlPages(),
     new c.ConsoleSqlPages(),
+    new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
     new docs.DocsSqlPages(),
+    new ms.OsqueryMsSqlPages(),
   );
 }
 // this will be used by any callers who want to serve it as a CLI with SDTOUT

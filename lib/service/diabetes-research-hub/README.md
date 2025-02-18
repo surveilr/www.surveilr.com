@@ -293,6 +293,11 @@ $ surveilr ingest files -r wadwa/ --tenant-id JAB001 --tenant-name "JAB001" && s
 $ surveilr ingest  files -r RT-CGM-Randomized-Clinical-Trial/ --tenant-id JAEB001 --tenant-name "JAEB001" && surveilr orchestrate transform-csv
 ```
 
+```bash
+# Ingest and transform the CSV files in the "illinois-institute/" directory, creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r illinois-institute/ --tenant-id IL0001 --tenant-name "IL0001" && surveilr orchestrate transform-csv
+```
+
 ### Running the SQL Package and Web UI
 
 For each Dataset a custom <packagefilename>.sql.ts will be created that perfoms the custom file transformation SQL generation and sqlpage setup
@@ -346,6 +351,11 @@ $ surveilr shell ./dataset-specific-package/wadwa-package.sql.ts
 # Tamborlane from Awesome CGM)
 $ deno run -A ./study-specific-stateless/rtccgm-cgm-metadata-generator.ts
 $ surveilr shell ./dataset-specific-package/rtccgm-package.sql.ts
+```
+
+```bash
+# For (Illionis institute CGM)
+$ surveilr shell ./dataset-specific-package/illinois-package.sql.ts
 ```
 
 # Start the server

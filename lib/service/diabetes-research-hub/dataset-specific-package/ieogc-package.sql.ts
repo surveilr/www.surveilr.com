@@ -1,8 +1,18 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
+import { processIEOGCgm } from "../study-specific-stateless/ieogc-ingest-data-sql.ts";
 
 export class ieogcSqlPages extends spn.TypicalSqlPageNotebook {
+
+
+  savecgmDDL() {
+      const dbFilePath = "./resource-surveillance.sqlite.db";
+      const jsonstmts = processIEOGCgm(dbFilePath);
+      return jsonstmts;
+    }
+
+
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics

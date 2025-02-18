@@ -1,0 +1,53 @@
+{
+  "test_case_id": "TC-CEP-000111",
+  "run_id": "TR-CEP-0001",
+  "title": "Compliance Explorer Logo Visibility Check",
+  "status": "passed",
+  "start_time": "2025-01-09T03:11:38.473Z",
+  "end_time": "2025-01-09T03:11:48.993Z",
+  "total_duration": "10.52 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "step_name": "Check whether the URL gets loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:38.486Z",
+      "end_time": "2025-01-09T03:11:47.465Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:47.519Z",
+      "end_time": "2025-01-09T03:11:47.527Z"
+    },
+    {
+      "step": 3,
+      "step_name": "Wait for the compliance explorer logo to load",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:47.529Z",
+      "end_time": "2025-01-09T03:11:48.543Z"
+    },
+    {
+      "step": 4,
+      "step_name": "Verify compliance explorer logo visibility",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:48.545Z",
+      "end_time": "2025-01-09T03:11:48.578Z"
+    },
+    {
+      "step": 5,
+      "step_name": "Checking for error occurrence",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:48.600Z",
+      "end_time": "2025-01-09T03:11:48.610Z"
+    },
+    {
+      "step": 6,
+      "step_name": "Close browser",
+      "status": "passed",
+      "start_time": "2025-01-09T03:11:48.611Z",
+      "end_time": "2025-01-09T03:11:49.024Z"
+    }
+  ]
+}

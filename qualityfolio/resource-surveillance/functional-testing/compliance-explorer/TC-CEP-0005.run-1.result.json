@@ -1,0 +1,60 @@
+{
+  "test_case_fii": "TC-CEP-0005",
+  "run_id": "TR-CEP-0005",
+  "title": "SCF Control page footer navigation check",
+  "status": "passed",
+  "start_time": "2024-12-12T11:09:28.692Z",
+  "end_time": "2024-12-12T11:09:38.629Z",
+  "total_duration": "9.94 seconds",
+  "steps": [
+    {
+      "step": 1,
+      "stepname": "Check whether the URL get loaded (https://www.surveilr.com/pattern/) then select compliance explorer pattern and click on 'Live demo' button.",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:35.404Z",
+      "end_time": "2025-01-01T06:09:35.142Z"
+    },
+    {
+      "step": 2,
+      "step_name": "Wait for page load",
+      "status": "passed",
+      "start_time": "2025-01-01T06:09:35.697Z",
+      "end_time": "2025-01-01T06:09:35.697Z"
+    },    
+    {
+      "step": 3,
+      "stepname": "Starting SCF controlmenu Navigation Check",
+      "status": "passed",
+      "start_time": "2024-12-12T11:09:35.409Z",
+      "end_time": "2024-12-12T11:09:36.301Z"
+    },
+    {
+      "step": 4,
+      "stepname": "Capture navigated page title text",
+      "status": "passed",
+      "start_time": "2024-12-12T11:09:36.304Z",
+      "end_time": "2024-12-12T11:09:36.416Z"
+    },
+    {
+      "step": 5,
+      "stepname": "Verify SCF Controls Footer 1 navigation",
+      "status": "passed",
+      "start_time": "2024-12-12T11:09:36.420Z",
+      "end_time": "2024-12-12T11:09:37.429Z"
+    },
+    {
+      "step": 6,
+      "stepname": "Verify SCF Controls Footer 2 navigation",
+      "status": "passed",
+      "start_time": "2024-12-12T11:09:37.431Z",
+      "end_time": "2024-12-12T11:09:38.429Z"
+    },
+    {
+      "step": 7,
+      "stepname": "Close-browser",
+      "status": "passed",
+      "start_time": "2024-12-12T11:09:38.431Z",
+      "end_time": "2024-12-12T11:09:38.653Z"
+    }
+  ]
+}

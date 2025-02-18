@@ -656,7 +656,7 @@ export class TypicalSqlPageNotebook
     );
 
     const sqlPageFileUpserts = await Promise.all(
-      cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/] })
+      cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/, /\.handlebars$/] })
         .map(
           async (method) => {
             const notebook = method.source.instance;
@@ -666,14 +666,16 @@ export class TypicalSqlPageNotebook
               content: await notebook.methodText(method as Any),
             };
             const shell = notebook.shellConfig(spfr);
+            const isHandlebars = spfr.path.endsWith(".handlebars");
             if (shell) {
               spfr = {
                 ...spfr,
                 // deno-fmt-ignore
                 content: ws.unindentWhitespace(`
-              ${shell.shellStmts !== "do-not-include" ? shell.shellStmts(spfr) : "-- not including shell"}
-              ${shell.breadcrumbsFromNavStmts !== "no" ? shell.breadcrumbsFromNavStmts(spfr) : "-- not including breadcrumbs from sqlpage_aide_navigation"}
-              ${shell.pageTitleFromNavStmts !== "no" ? shell.pageTitleFromNavStmts(spfr) : "-- not including page title from sqlpage_aide_navigation"}
+              ${shell.shellStmts !== "do-not-include" ? shell.shellStmts(spfr) : (isHandlebars ? "" : "-- not including shell")}
+              ${shell.breadcrumbsFromNavStmts !== "no" ? shell.breadcrumbsFromNavStmts(spfr) : (isHandlebars ? "" : "-- not including breadcrumbs from sqlpage_aide_navigation")}
+              ${shell.pageTitleFromNavStmts !== "no" ? shell.pageTitleFromNavStmts(spfr) : (isHandlebars ? "" : "-- not including page title from sqlpage_aide_navigation")}
+              
 
               ${spfr.content}
             `),

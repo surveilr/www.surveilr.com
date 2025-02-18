@@ -1,6 +1,8 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-net --allowffi
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
+import { ulid } from "https://deno.land/x/ulid/mod.ts";
+import { Buffer } from "node:buffer"; // Needed for Node.js environments
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -12,6 +14,323 @@ function logError(db: Database, errorMessage: string): void {
 
   const params = JSON.stringify({ message: errorMessage });
   db.prepare("INSERT INTO error_log (error_message) VALUES (?);").run(params);
+}
+
+export function createVsvSQL(dbFilePath: string, tableName: string): string {
+  const db = new Database(dbFilePath);
+
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the vsv table.`,
+    );
+    db.close();
+    return "";
+  }
+
+  let vsvSQL = ``;
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+  if (rows.length > 0) {
+    const firstColumnNames = Object.keys(rows[0]);
+    const separator = firstColumnNames[0].includes(";")
+      ? ";"
+      : firstColumnNames[0].includes("|")
+      ? "|"
+      : firstColumnNames[0].includes(":")
+      ? ":"
+      : ",";
+
+    let allConcatenatedValues = "";
+    if (separator == ";" || separator == "|" || separator == ":") {
+      const firstColumnName = firstColumnNames[0];
+
+      for (const row of rows) {
+        const concatenatedValues = Object.values(row).join(", ");
+        allConcatenatedValues += concatenatedValues + "\n";
+      }
+
+      vsvSQL = `create virtual table ${tableName}_vsv using vsv(
+            data="${firstColumnName}\n${allConcatenatedValues}",            
+            header=yes,
+            affinity=integer,
+            fsep='${separator}'
+        );
+        drop table ${tableName};
+        create table ${tableName} as select * from ${tableName}_vsv;   
+        drop table ${tableName}_vsv;
+            `;
+    }
+  }
+
+  db.close();
+  return vsvSQL;
+}
+
+export function checkAndConvertToVsp(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let vsvSQL = ``;
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the vsv table.`,
+    );
+
+    db.close();
+    return "";
+  }
+
+  const participantsStmt = db.prepare(
+    `SELECT DISTINCT file_name FROM ${tableName};`,
+  );
+  const fileNames = participantsStmt.all();
+
+  for (const { file_name } of fileNames) {
+    const arrFileName = file_name.split(".");
+    const tableNameCgm = `uniform_resource_${arrFileName[0].toLowerCase()}`;
+    const vsvSQLCgm = createVsvSQL(dbFilePath, tableNameCgm);
+
+    if (vsvSQLCgm) {
+      vsvSQL += vsvSQLCgm;
+    }
+  }
+
+  db.close();
+  return vsvSQL;
+}
+
+export async function saveJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let vsvSQL = ``;
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. `,
+    );
+
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
+    db_file_id TEXT NOT NULL,
+    participant_display_id text NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+
+    const file_name = row.file_name.replace(`.${row.file_format}`, "");
+
+    const rows_obs = db.prepare(
+      `SELECT * FROM uniform_resource_${file_name} ${
+        row.map_field_of_patient_id
+          ? `WHERE ${row.map_field_of_patient_id} = '${row.patient_id}'`
+          : ""
+      }`,
+    ).all();
+    const jsonStringObs = [];
+    let isNonCommaseparated = false;
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        // jsonObjectObs = { ...row_obs };
+      } else {
+        isNonCommaseparated = true;
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }
+      jsonStringObs.push(jsonObjectObs);
+    }
+
+    const jsonStringCgm = isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
+    
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+
+  }
+
+  db.close();
+  return vsvSQL;
+}
+
+// Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
+export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+
+  // Check if the required table exists
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the combined view.`,
+    );
+    db.close();
+    return "";
+  }
+
+  const cgmDateStmt = db.prepare(`SELECT CASE 
+      WHEN EXISTS (
+          SELECT 1 
+          FROM pragma_table_info('uniform_resource_cgm_file_metadata') 
+          WHERE name = 'map_field_of_cgm_date'
+      ) THEN 1
+      ELSE 0
+  END AS map_field_of_cgm_date_exists;`);
+  const cgm_date_row = cgmDateStmt.get();
+  const map_field_of_cgm_date_exists = cgm_date_row
+    ?.map_field_of_cgm_date_exists;
+
+  const cgmValueStmt = db.prepare(`SELECT CASE 
+      WHEN EXISTS (
+          SELECT 1 
+          FROM pragma_table_info('uniform_resource_cgm_file_metadata') 
+          WHERE name = 'map_field_of_cgm_value'
+      ) THEN 1
+      ELSE 0 
+  END AS map_field_of_cgm_value_exists;`);
+  const cgm_value_row = cgmValueStmt.get();
+  const map_field_of_cgm_value_exists = cgm_value_row
+    ?.map_field_of_cgm_value_exists;
+
+  try {
+    // Execute the initial view
+    db.exec(`DROP VIEW IF EXISTS drh_participant_file_names;`);
+    db.exec(`
+      CREATE VIEW drh_participant_file_names AS
+      SELECT patient_id, GROUP_CONCAT(file_name, ', ') AS file_names ${
+      map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+    } ${map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""}  
+      FROM uniform_resource_cgm_file_metadata
+      GROUP BY patient_id;
+    `);
+
+    //console.log("View 'drh_participant_file_names' created successfully.");
+  } catch (error) {
+    //console.error("Error creating view 'drh_participant_file_names':", error);
+    logError(db, error.message);
+    db.close();
+    return "";
+  }
+
+  const participantsStmt = db.prepare(
+    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
+  );
+  const participants = participantsStmt.all();
+
+  const sqlParts: string[] = [];
+  for (const { patient_id } of participants) {
+    const fileNamesStmt = db.prepare(
+      `SELECT file_names ${
+        map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+      } ${
+        map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""
+      }  FROM drh_participant_file_names WHERE patient_id = ?;`,
+    );
+    const file_names_row = fileNamesStmt.get(patient_id);
+
+    if (!file_names_row) {
+      //console.log(`No file names found for participant ${patient_id}.`);
+      continue;
+    }
+
+    const file_names = file_names_row.file_names;
+    const mapFieldOfCGMDate = map_field_of_cgm_date_exists
+      ? file_names_row?.map_field_of_cgm_date
+      : "date_time";
+    const mapFieldOfCGMValue = map_field_of_cgm_value_exists
+      ? file_names_row?.map_field_of_cgm_value
+      : "cgm_value";
+
+    let cgmDate = "";
+
+    if (mapFieldOfCGMDate.includes("/")) {
+      let arrDates = mapFieldOfCGMDate.split("/");
+      cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${
+        arrDates[1]
+      }) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
+    } else {
+      cgmDate =
+        `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`;
+    }
+
+    if (file_names) {
+      const participantTableNames = file_names.split(", ").map((fileName) =>
+        `uniform_resource_${fileName}`
+      );
+      participantTableNames.forEach((tableName) => {
+        const arrTableName = tableName.split(".");
+        sqlParts.push(`
+          SELECT 
+             'IL0001' as tenant_id,
+            '${patient_id}' as participant_id, 
+            ${cgmDate}, 
+            CAST(${mapFieldOfCGMValue} as REAL) as CGM_Value 
+          FROM ${arrTableName[0]}
+        `);
+      });
+    }
+    fileNamesStmt.finalize();
+  }
+
+  let combinedViewSQL = "";
+  if (sqlParts.length > 0) {
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    combinedViewSQL = `DROP VIEW IF EXISTS combined_cgm_tracing;
+      CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+  } else {
+    //console.log("No participant tables found, so the combined view will not be created.");
+  }
+
+  participantsStmt.finalize();
+  db.close();
+
+  return combinedViewSQL; // Return the SQL string instead of executing it
 }
 
 // Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
@@ -214,6 +533,206 @@ export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
   return combinedViewSQL; // Return the generated SQL string
 }
 
+function fetchCgmData(
+  db: Database,
+  file_name: string,
+  map_field_of_patient_id: string,
+  patient_id: string,
+): string {
+  try {
+    const rows_obs = db
+      .prepare(
+        `SELECT * FROM uniform_resource_${file_name} WHERE ${map_field_of_patient_id} = ?`,
+      )
+      .all(patient_id);
+
+    const jsonStringObs = [];
+    let isNonCommaseparated = false;
+
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        jsonObjectObs = { ...row_obs };
+      } else {
+        isNonCommaseparated = true;
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }
+      jsonStringObs.push(jsonObjectObs);
+    }
+
+    return isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
+  } catch (error) {
+    console.error(`Error fetching CGM data: ${error.message}`);
+    return "[]"; // Return empty JSON array if an error occurs
+  }
+}
+
+export function saveCTRJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let ctrSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
+    db_file_id TEXT NOT NULL,
+    participant_display_id TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+
+    // Trim the "CTR3-" prefix from patient_id safely
+    const deidentID = typeof row.patient_id === "string"
+      ? row.patient_id.replace(/^CTR3-/, "")
+      : row.patient_id;
+
+    // console.log(
+    //   `Processing participant: ${row.patient_id} -> Deidentified ID: ${deidentID}`,
+    // );
+
+    const file_name = row.file_name
+      .replace(`.${row.file_format}`, "")
+      .replace(/[^a-zA-Z0-9_]/g, "");
+
+    if (!file_name) {
+      console.warn(`Skipping row due to invalid file name: ${row.file_name}`);
+      continue;
+    }
+
+    const jsonStringCgm = fetchCgmData(
+      db,
+      file_name,
+      row.map_field_of_patient_id,
+      deidentID,
+    );
+
+    const file_meta_id = ulid();
+
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+    ).run(file_meta_id, db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+  }
+
+  db.close(); 
+  return ctrSQL;
+}
+
+export function saveDFAJsonCgm(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let dfaSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
+    db_file_id TEXT NOT NULL,
+    participant_display_id TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+
+  for (const row of rows) {
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+
+    const file_name = row.file_name.replace(`.${row.file_format}`, "");
+
+    const rows_obs = db.prepare(`SELECT * FROM uniform_resource_${file_name}`)
+      .all();
+    const jsonStringObs = [];
+    let isNonCommaseparated = false;
+    for (const row_obs of rows_obs) {
+      let jsonObjectObs;
+      if (Object.keys(row_obs).length > 1) {
+        jsonObjectObs = { ...row_obs };
+      } else {
+        isNonCommaseparated = true;
+        const firstKey = Object.keys(row_obs)[0];
+        const firstVal = row_obs[firstKey];
+        const splitKey = firstKey.split(/[\|;]/);
+        const splitValues = firstVal.split(/[\|;]/);
+
+        jsonObjectObs = {};
+        splitKey.forEach((key, index) => {
+          jsonObjectObs[key] = splitValues[index];
+        });
+      }
+      jsonStringObs.push(jsonObjectObs);
+    }
+
+    const jsonStringCgm = isNonCommaseparated
+      ? JSON.stringify(jsonStringObs)
+      : JSON.stringify(rows_obs);
+
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+  }
+
+  db.close();
+  return dfaSQL;
+}
+
 // If the script is being run directly, execute the functions
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
@@ -241,5 +760,13 @@ if (import.meta.main) {
   if (CombinedRTCCGMSQL) {
     console.log("Generated SQL for RTCCGM dataset:");
     console.log(CombinedRTCCGMSQL);
+  }
+
+  // Generate cgm json for ctr
+  const ctrJson = saveCTRJsonCgm(
+    dbFilePath,
+  );
+  if (ctrJson) {
+    console.log(ctrJson);
   }
 }
