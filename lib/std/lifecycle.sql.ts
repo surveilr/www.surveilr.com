@@ -181,12 +181,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
       ${this.codeNbModels.informationSchema.tableIndexes}
 
-      ${this.osQueryMsNotebooks()}
-
       ${this.notebookBusinessLogicViews()}
-
-      ${this.uniformResourceGraphViews()}
-
+  
       ${this.surveilrFunctionsAndExtensionsDocs()}
       `;
   }
@@ -633,6 +629,10 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${orchestrationNatureRules()}
 
       ${uniformResourceGraphRules}
+
+      ${this.uniformResourceGraphViews()}
+
+      ${this.osQueryMsNotebooks()}
       `;
   }
 

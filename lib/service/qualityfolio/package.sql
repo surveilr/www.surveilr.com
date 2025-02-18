@@ -3599,6 +3599,49 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.6'' as title, ''# `surveilr` v1.7.6 Release Notes
+
+---
+
+## 🚀 Bug Fixes
+
+### 1. `surveilr` Bootstrap SQL
+This release fixes the "no such table: device" error introduced in the previous version by propagating any erroors during the SQL initialization of the RSSD with `surveilr`.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.7.5'' as title, ''# `surveilr` v1.7.5 Release Notes
+
+---
+
+
+### 🆕 **New Features**
+- **osQuery Management Server Integration**:  
+  - `surveilr` now acts as a management layer for osQuery, enabling secure and efficient monitoring of infrastructure.
+  - Supports remote configuration, logging, and query execution for osQuery nodes.
+
+- **Behavior & Notebooks Support**:  
+  - Introduced **Notebooks**, which store predefined queries in the `code_notebook_cell` table.
+  - **Behaviors** allow defining and managing query execution for different node groups.
+
+- **Secure Node Enrollment**:  
+  - Nodes authenticate using an **enrollment secret key** (`SURVEILR_OSQUERY_MS_ENROLL_SECRET`).
+  - Secure communication via **TLS certificates** (`cert.pem`, `key.pem`).
+
+- **Automated Query Execution**:  
+  - Default queries from **"osQuery Management Server (Prime)"** execute automatically.
+  - Custom notebooks and queries can be added dynamically via SQL.
+
+- **Centralized Logging & Config Fetching**:  
+  - Osquery logs and configurations are fetched via TLS endpoints (`/logger`, `/config`).
+  - All communication is secured using **server-side TLS certificates**.
+
+- **Web UI for Query Results Visualization**:  
+  - `surveilr web-ui` provides an intuitive dashboard to inspect query results across enrolled nodes.
+  - Simply start with `surveilr web-ui -p 3050 --host <server-ip>`.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.7.1'' as title, ''# `surveilr` v1.7.1 Release Notes
 
 ---
