@@ -955,7 +955,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   }
 
   @osQueryMsCell({
-    description: "",
+    description: "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
   })
   "Server Uptime"() {
     return `SELECT * FROM uptime`;
