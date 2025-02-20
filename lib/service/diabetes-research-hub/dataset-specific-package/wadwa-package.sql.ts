@@ -49,13 +49,13 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringMeta = JSON.stringify(jsonObject);
 
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
-    const patient_id = row.patient_id.replace(/^WAD1-001-00/, '');
+    const patient_id = row.patient_id.replace(/^WAD1-001-00/, "");
 
     const rows_obs = db.prepare(
       `SELECT * FROM uniform_resource_${file_name} ${
-      row.map_field_of_patient_id
-        ? `WHERE CAST(${row.map_field_of_patient_id} AS INTEGER) = ${patient_id}`
-        : ""
+        row.map_field_of_patient_id
+          ? `WHERE CAST(${row.map_field_of_patient_id} AS INTEGER) = ${patient_id}`
+          : ""
       }`,
     ).all();
     const jsonStringObs = [];
@@ -82,11 +82,10 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringCgm = isNonCommaseparated
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
-    
-      db.prepare(
-        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
 
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+    ).run(ulid(), db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
