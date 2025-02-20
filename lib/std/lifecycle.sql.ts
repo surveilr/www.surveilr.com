@@ -9,6 +9,11 @@ import * as stdPackage from "./package.sql.ts";
 type Any = any;
 
 const surveilrSpecialMigrationNotebookName = "ConstructionSqlNotebook" as const;
+const osQueryMsNotebookName = "osQuery Management Server (Prime)" as const;
+const osQueryMsCellGovernance =
+  `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .counter)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}` as const;
+const osQueryMsFilterNotebookName =
+  "osQuery Management Server Default Filters (Prime)" as const;
 
 // TODO: should the `CREATE VIEW` definitions be in code_notebook_cell or straight in RSSD?
 // TODO: update ON CONFLICT to properly do updates, not just "DO NOTHING"
@@ -43,6 +48,76 @@ export function migratableCell(
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: surveilrSpecialMigrationNotebookName,
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+/**
+ * Decorator function which declares that the method it decorates creates a
+ * code_notebook_cell SQL kernel row but forced to be in a special notebook
+ * called "osQuery Management Server (Prime)", which defines osQuery SQL blocks.
+ *
+ * @param init - The code_notebook_cell.* column values
+ * @returns A decorator function that informs its host notebook about declaration
+ *
+ * @example
+ * class MyNotebook extends TypicalCodeNotebook {
+ *   @osQueryMsCell({ ... })
+ *   "myCell"() {
+ *     // method implementation
+ *   }
+ * }
+ */
+export function osQueryMsCell(
+  init?: Omit<
+    Parameters<typeof cnb.sqlCell>[0],
+    "notebook_name" | "cell_governance"
+  >,
+) {
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    ...init,
+    notebook_name: osQueryMsNotebookName,
+    cell_governance: osQueryMsCellGovernance,
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+/**
+ * Decorator function which declares that the method it decorates creates a
+ * code_notebook_cell SQL kernel row but forced to be in a special notebook
+ * called "osQuery Management Server Default Filters (Prime)", which defines parameters on how to execute osQuerMS queries and how to post precess the results.
+ *
+ * @param init - The code_notebook_cell.* column values
+ * @returns A decorator function that informs its host notebook about declaration
+ *
+ * @example
+ * class MyNotebook extends TypicalCodeNotebook {
+ *   @osQueryMsFilterCell({ ... })
+ *   "myCell"() {
+ *     // method implementation
+ *   }
+ * }
+ */
+export function osQueryMsFilterCell(
+  init?: Omit<
+    Parameters<typeof cnb.sqlCell>[0],
+    "notebook_name" | "cell_governance"
+  >,
+) {
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    ...init,
+    notebook_name: osQueryMsFilterNotebookName,
+    cell_governance: osQueryMsCellGovernance,
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -166,7 +241,6 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   readonly migratableCells: Map<string, cnb.DecoratedCell<"SQL">> = new Map();
   readonly codeNbModels = lcm.codeNotebooksModels();
   readonly serviceModels = lcm.serviceModels();
-  readonly osQueryMsCellGovernance = `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .counter)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}`;
 
   constructor() {
     super("rssd-init");
@@ -631,8 +705,6 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${uniformResourceGraphRules}
 
       ${this.uniformResourceGraphViews()}
-
-      ${this.osQueryMsNotebooks()}
       `;
   }
 
@@ -831,188 +903,70 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
     );
   }
 
-  osQueryMsNotebooks() {
-    return this.SQL`
-    INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server Default Filters (Prime)',
-        'osQuery Result Filters',
-        '-',
-        '-',
-        'Default filters for post-processing the results from osQuery',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description: "All running processes on the host system.",
+  })
+  "All Processes"() {
+    return `select * from processes`;
+  }
 
-    INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'All Processes',
-        'select * from processes',
-        'select * from processes',
-        'All running processes on the host system.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description: "System information for identification.",
+  })
+  "System Information"() {
+    return `SELECT * FROM system_info`;
+  }
 
-    INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'System Information',
-        'SELECT * FROM system_info',
-        'SELECT * FROM system_info',
-        'System information for identification.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description:
+      "A single row containing the operating system name and version.",
+  })
+  "OS Version"() {
+    return `SELECT * FROM os_version`;
+  }
 
-        INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'System Information',
-        'SELECT * FROM system_info',
-        'SELECT * FROM system_info',
-        'System information for identification.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description:
+      "Local user accounts (including domain accounts that have logged on locally (Windows)).",
+  })
+  "Users"() {
+    return `SELECT * FROM users`;
+  }
 
-        INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'OS Version',
-        'SELECT * FROM os_version',
-        'SELECT * FROM os_version',
-        'A single row containing the operating system name and version.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description: "Network interfaces and relevant metadata.",
+  })
+  "Interface Addresses"() {
+    return `SELECT * FROM interface_addresses`;
+  }
 
-        INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'Users',
-        'SELECT * FROM users',
-        'SELECT * FROM users',
-        'Local user accounts (including domain accounts that have logged on locally (Windows)).',
-        '${this.osQueryMsCellGovernance}'
-    );
-  
-        INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'Interface Addresses',
-        'SELECT * FROM interface_addresses',
-        'SELECT * FROM interface_addresses',
-        'Network interfaces and relevant metadata.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description: "Detailed information and stats of network interfaces.",
+  })
+  "Interface Details"() {
+    return `SELECT * FROM interface_details`;
+  }
 
-         INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'Interface Details',
-        'SELECT * FROM interface_details',
-        'SELECT * FROM interface_details',
-        'Detailed information and stats of network interfaces.',
-        '${this.osQueryMsCellGovernance}'
-    );
+  @osQueryMsCell({
+    description: "Processes with listening (bound) network sockets/ports.",
+  })
+  "Listening Ports"() {
+    return `SELECT * FROM listening_ports`;
+  }
 
-         INSERT OR REPLACE INTO code_notebook_cell (
-        notebook_kernel_id, 
-        code_notebook_cell_id, 
-        notebook_name, 
-        cell_name, 
-        interpretable_code, 
-        interpretable_code_hash, 
-        description, 
-        cell_governance
-    ) VALUES (
-        'SQL',
-        ulid(),
-        'osQuery Management Server (Prime)',
-        'Listening Ports',
-        'SELECT * FROM listening_ports',
-        'SELECT * FROM listening_ports',
-        'Processes with listening (bound) network sockets/ports.',
-        '${this.osQueryMsCellGovernance}'
-    );
-    `;
+  @osQueryMsCell({
+    description: "",
+  })
+  "Server Uptime"() {
+    return `SELECT * FROM uptime`;
+  }
+
+  @osQueryMsFilterCell({
+    description:
+      "Default filters for post-processing the results from osQuery.",
+  })
+  "osQuery Result Filters"() {
+    return ``;
   }
 }
 
