@@ -955,7 +955,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   }
 
   @osQueryMsCell({
-    description: "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
+    description:
+      "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
   })
   "Server Uptime"() {
     return `SELECT * FROM uptime`;
@@ -966,7 +967,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       "Default filters for post-processing the results from osQuery.",
   })
   "osQuery Result Filters"() {
-    return ``;
+    return osQueryMsCellGovernance;
   }
 }
 
