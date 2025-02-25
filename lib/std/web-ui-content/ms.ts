@@ -147,6 +147,23 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE l.log_type = 'result'
         AND json_extract(l.log_data, '$.name') = 'Interface Addresses';
 
+        DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
+        CREATE VIEW surveilr_osquery_ms_node_uptime AS
+        SELECT
+            l.node_key,
+            l.updated_at,
+            json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+            json_extract(l.log_data, '$.columns.days') AS days,
+            json_extract(l.log_data, '$.columns.hours') AS hours,
+            json_extract(l.log_data, '$.columns.minutes') AS minutes,
+            json_extract(l.log_data, '$.columns.seconds') AS seconds,
+            json_extract(l.log_data, '$.columns.total_seconds') AS total_seconds
+        FROM ur_ingest_session_osquery_ms_log AS l
+        WHERE l.log_type = 'result'
+        AND json_extract(l.log_data, '$.name') = 'Server Uptime'
+        ORDER BY l.created_at DESC
+        LIMIT 1;
+
         DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
         CREATE VIEW surveilr_osquery_ms_node_detail AS
         SELECT
@@ -194,7 +211,6 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
             platform as "OS",
             os_version as "OS Version",
             last_seen as 'Last Seen',
-            status as status,
             ip_address, mask
         FROM surveilr_osquery_ms_node_detail;
         `;
@@ -211,6 +227,12 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
             SELECT 'cpu_type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
             SELECT 'cpu_logical_cores' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
             SELECT 'physical_memory' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || ' GB' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+
+            select 'text' as component, 'Node Uptime' as title;
+            SELECT 'datagrid' as component;
+            SELECT 'Hours' as title, "hours" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
+            SELECT 'Minutes' as title, "minutes" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
+            SELECT 'Seconds' as title, "seconds" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
 
             SELECT 'list' as component;
             SELECT 
