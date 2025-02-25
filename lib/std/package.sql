@@ -710,6 +710,26 @@ FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'System Information';
 
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
+CREATE VIEW surveilr_osquery_ms_node_os_version AS
+SELECT
+    l.node_key,
+    l.updated_at,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.columns.name') AS name,
+    json_extract(l.log_data, '$.columns.version') AS version,
+    json_extract(l.log_data, '$.columns.major') AS major,
+    json_extract(l.log_data, '$.columns.minor') AS minor,
+    json_extract(l.log_data, '$.columns.patch') AS patch,
+    json_extract(l.log_data, '$.columns.build') AS build,
+    json_extract(l.log_data, '$.columns.platform') AS platform,
+    json_extract(l.log_data, '$.columns.platform_like') AS platform_like,
+    json_extract(l.log_data, '$.columns.codename') AS codename,
+    json_extract(l.log_data, '$.columns.arch') AS arch
+FROM ur_ingest_session_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'OS Version';
+
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
 SELECT
@@ -743,29 +763,54 @@ AND json_extract(l.log_data, '$.name') = 'Server Uptime'
 ORDER BY l.created_at DESC
 LIMIT 1;
 
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
+CREATE VIEW surveilr_osquery_ms_node_available_space AS
+SELECT
+    l.node_key,
+    l.updated_at,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.columns.available_space') AS available_space,
+    json_extract(l.log_data, '$.columns.path') AS path
+FROM ur_ingest_session_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+AND json_extract(l.log_data, '$.name') = 'Available Disk Space'
+ORDER BY l.created_at DESC
+LIMIT 1;
+
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
 CREATE VIEW surveilr_osquery_ms_node_detail AS
 SELECT
     n.surveilr_osquery_ms_node_id,
     n.node_key,
     n.host_identifier,
-    n.tls_cert_subject,
-    n.os_version,
     n.osquery_version,
-    n.platform,
     n.last_seen,
-    n.status,
-    n.device_id,
-    n.behavior_id,
     i.updated_at,
     i.address AS ip_address,
     i.broadcast,
     i.mask,
-    i.point_to_point,
-    i.type
+    o.name as os_name,
+    o.version as os_version,
+    a.available_space,
+    CASE
+      WHEN CAST(u.days AS INTEGER) > 0 THEN 
+          'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+      WHEN CAST(u.hours AS INTEGER) > 0 THEN 
+          'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+      WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
+          'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+      ELSE 
+          'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+    END AS last_restarted
 FROM surveilr_osquery_ms_node n
+LEFT JOIN surveilr_osquery_ms_node_available_space a
+  ON n.node_key = a.node_key
+LEFT JOIN surveilr_osquery_ms_node_os_version o 
+  ON n.node_key = o.node_key
+LEFT JOIN surveilr_osquery_ms_node_uptime u
+  ON n.node_key = u.node_key
 LEFT JOIN surveilr_osquery_ms_node_interface_address i
-ON n.node_key = i.node_key
+  ON n.node_key = i.node_key
     AND i.interface = 'eth0'
     -- this only selects the IPv4 addresses for now
     AND i.address LIKE '%.%';
@@ -3003,18 +3048,32 @@ FROM breadcrumbs ORDER BY level DESC;
 
               SELECT ''title'' AS component, ''All Registered Nodes'' as contents;
 SELECT ''table'' AS component,
-    ''osQuery Node Key'' as markdown,
+    ''Node'' as markdown,
     TRUE as sort,
     TRUE as search;
 
 SELECT 
-    ''['' || node_key || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' as "osQuery Node Key",
-    host_identifier as "Host Identifier",
-    platform as "OS",
-    os_version as "OS Version",
-    osquery_version as "osQuery Version",
-    last_seen as ''Last Seen'',
-    ip_address, mask
+  ''['' || host_identifier || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' AS "Node",
+  CASE 
+    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 60 THEN ''Online''
+    ELSE ''Offline''
+  END AS "Status",
+  0 as "Issues",
+  round(available_space, 2) || '' GB'' AS "Disk space available",
+  os_name || '' '' || os_version AS "Operating Sytem",
+  osquery_version AS "osQuery Version",
+  ip_address AS "IP Address",
+  CASE 
+    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 60 THEN 
+      (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) || '' seconds ago''
+    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 3600 THEN 
+      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 60) || '' minutes ago''
+    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 86400 THEN 
+      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 3600) || '' hours ago''
+    ELSE 
+      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 86400) || '' days ago''
+  END AS "Last Fetched",
+  last_restarted AS "Last Restarted"
 FROM surveilr_osquery_ms_node_detail;
             ',
       CURRENT_TIMESTAMP)
