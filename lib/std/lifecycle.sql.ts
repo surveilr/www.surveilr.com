@@ -962,6 +962,14 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
     return `SELECT * FROM uptime`;
   }
 
+  @osQueryMsCell({
+    description:
+      "Available memory space in the node.",
+  })
+  "Available Disk Space"() {
+    return `SELECT path, type, round((blocks_available * blocks_size / 1e9), 2) AS available_space FROM mounts WHERE path='/'`;
+  }
+
   @osQueryMsFilterCell({
     description:
       "Default filters for post-processing the results from osQuery.",
