@@ -1866,6 +1866,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       platform: gd.text(),
       last_seen: gd.dateTime(true),
       status: gd.text().default("active"),
+      osquery_version: gd.textNullable(),
       device_id: device.belongsTo.device_id(),
       behavior_id: behavior.belongsTo.behavior_id().optional(),
       ...gm.housekeeping.columns,
