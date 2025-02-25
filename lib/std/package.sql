@@ -751,6 +751,7 @@ SELECT
     n.host_identifier,
     n.tls_cert_subject,
     n.os_version,
+    n.osquery_version,
     n.platform,
     n.last_seen,
     n.status,
@@ -3011,6 +3012,7 @@ SELECT
     host_identifier as "Host Identifier",
     platform as "OS",
     os_version as "OS Version",
+    osquery_version as "osQuery Version",
     last_seen as ''Last Seen'',
     ip_address, mask
 FROM surveilr_osquery_ms_node_detail;
