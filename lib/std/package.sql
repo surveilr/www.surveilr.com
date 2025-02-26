@@ -785,13 +785,37 @@ SELECT
     n.host_identifier,
     n.osquery_version,
     n.last_seen,
+    n.created_at,
     i.updated_at,
     i.address AS ip_address,
     i.broadcast,
     i.mask,
-    o.name as os_name,
-    o.version as os_version,
-    a.available_space,
+    CASE 
+      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
+        (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
+      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
+        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
+      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
+        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
+      ELSE 
+        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
+    END AS added_to_surveilr_osquery_ms,
+    o.name || ' ' || o.version AS operating_system,
+    round(a.available_space, 2) || ' GB' AS available_space,
+    CASE 
+      WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
+      ELSE 'Offline'
+    END AS node_status,
+    CASE 
+      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
+        (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
+      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
+        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
+      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
+        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
+      ELSE 
+        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
+    END AS last_fetched,
     CASE
       WHEN CAST(u.days AS INTEGER) > 0 THEN 
           'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
@@ -3054,25 +3078,13 @@ SELECT ''table'' AS component,
 
 SELECT 
   ''['' || host_identifier || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' AS "Node",
-  CASE 
-    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 60 THEN ''Online''
-    ELSE ''Offline''
-  END AS "Status",
+  node_status as "Status",
   0 as "Issues",
-  round(available_space, 2) || '' GB'' AS "Disk space available",
-  os_name || '' '' || os_version AS "Operating Sytem",
+  available_space AS "Disk space available",
+  operating_system AS "Operating Sytem",
   osquery_version AS "osQuery Version",
   ip_address AS "IP Address",
-  CASE 
-    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 60 THEN 
-      (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) || '' seconds ago''
-    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 3600 THEN 
-      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 60) || '' minutes ago''
-    WHEN (strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) < 86400 THEN 
-      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 3600) || '' hours ago''
-    ELSE 
-      ((strftime(''%s'', ''now'') - strftime(''%s'', last_seen)) / 86400) || '' days ago''
-  END AS "Last Fetched",
+  last_fetched as "Last Fetched",
   last_restarted AS "Last Restarted"
 FROM surveilr_osquery_ms_node_detail;
             ',
@@ -3106,35 +3118,42 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
 SELECT $host_id || '' Node'' AS title, ''#'' AS link;
+SELECT ''title'' as component, $host_id as contents, 2  as level;
+SELECT ''text'' as component, ''Last fetched '' || "last_fetched" as contents, 1 as size FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
 SELECT ''datagrid'' as component;
-SELECT ''Computer Name'' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''Cpu Brand'' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''cpu_type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''cpu_logical_cores'' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''physical_memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''Status'' as title, "node_status" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+SELECT ''Issues'' as title, "0" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+SELECT ''Disk space'' as title, "available_space" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+SELECT ''Memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''Processor Type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+SELECT ''Operating system'' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+SELECT ''osQuery'' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
-select ''text'' as component, ''Node Uptime'' as title;
-SELECT ''datagrid'' as component;
-SELECT ''Hours'' as title, "hours" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
-SELECT ''Minutes'' as title, "minutes" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
-SELECT ''Seconds'' as title, "seconds" as description FROM surveilr_osquery_ms_node_uptime WHERE node_key = $key;
+-- SELECT ''Computer Name'' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+-- SELECT ''Cpu Brand'' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+-- SELECT ''cpu_logical_cores'' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
 
-SELECT ''list'' as component;
-SELECT 
-    ''Processes'' as title, 
-    ''Identify what processes are running (helpful to see if unauthorized processes are active).'' as description,
-    ''process.sql?key='' || $key || ''&host_id='' || $host_id as link;
+-- Define tabs
+SELECT ''tab'' AS component, TRUE AS center;
 
-SELECT 
-    ''Interface Details'' as title, 
-    ''Detailed information and stats of network interfaces for '' || $host_id as description,
-    ''network.sql?key='' || $key || ''&host_id='' || $host_id as link;
+-- Tab 1: Details
+SELECT ''Details'' AS title, ''?tab=details&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''details'' AS active;
 
- SELECT 
-    ''Listening Ports'' as title, 
-    ''Processes with listening (bound) network sockets/ports on '' || $host_id as description,
-    ''open-socket.sql?key='' || $key || ''&host_id='' || $host_id as link;
+-- Tab 2: Software
+SELECT ''Software'' AS title, ''?tab=software&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''software'' AS active;
+
+-- Tab specific content of Details
+select ''text'' as component, ''About'' as title, 2 as size WHERE $tab = ''details'' OR $tab IS NULL;
+SELECT ''datagrid'' as component WHERE $tab = ''details'' OR $tab IS NULL;
+SELECT ''Added to surveilr'' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+SELECT ''Last Restarted'' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+SELECT ''Hardware Model'' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+SELECT ''Serial Number'' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+SELECT ''IP Address'' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+
+-- Tab specific content for software
+select ''text'' as component, ''Software'' as title WHERE $tab = ''software'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
