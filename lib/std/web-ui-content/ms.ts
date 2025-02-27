@@ -323,6 +323,47 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     `;
   }
 
+  surveilr_osquery_ms_node_executed_policy() {
+    return this.SQL`
+    DROP VIEW IF EXISTS surveilr_osquery_ms_node_executed_policy;
+    CREATE VIEW surveilr_osquery_ms_node_executed_policy AS
+    WITH ranked_policies AS (
+        SELECT
+            l.node_key,
+            l.updated_at,
+            json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+            json_extract(l.log_data, '$.name') AS policy_name,
+            json_extract(l.log_data, '$.columns.policy_result') AS policy_result,
+            ROW_NUMBER() OVER (PARTITION BY json_extract(l.log_data, '$.name') ORDER BY l.created_at DESC) AS row_num
+        FROM ur_ingest_session_osquery_ms_log AS l
+        WHERE l.log_type = 'result'
+          AND json_extract(l.log_data, '$.name') IN (
+              'SSH keys encrypted', 
+              'Full disk encryption enabled (Linux)', 
+              'Full disk encryption enabled (Windows)', 
+              'Full disk encryption enabled (Macos)'
+          )
+    )
+    SELECT
+        ranked_policies.node_key,
+        ranked_policies.updated_at,
+        ranked_policies.host_identifier,
+        ranked_policies.policy_name,
+        CASE 
+            WHEN ranked_policies.policy_result = 'true' THEN 'Pass'
+            ELSE 'Fail'
+        END AS policy_result,
+        CASE 
+            WHEN ranked_policies.policy_result = 'true' THEN '-'
+            ELSE json_extract(c.cell_governance, '$.policy.resolution')
+        END AS resolution
+    FROM ranked_policies
+    JOIN code_notebook_cell c
+        ON ranked_policies.policy_name = c.cell_name
+    WHERE ranked_policies.row_num = 1;  -- Only select the most recent entry for each policy
+    `
+  }
+
   supportDDL() {
     return this.SQL`
       ${this.surveilr_osquery_ms_node_process()}
@@ -335,6 +376,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.surveilr_osquery_ms_node_available_space()}
       ${this.surveilr_osquery_ms_node_detail()}
       ${this.installed_software_view()}
+      ${this.surveilr_osquery_ms_node_executed_policy()}
     `;
   }
 
@@ -370,7 +412,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     const viewName = `surveilr_osquery_ms_node_installed_software`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
-      whereSQL: "WHERE node_key = $key"
+      whereSQL: "WHERE node_key = $key AND $tab = 'software'",
     });
 
     return this.SQL`
@@ -400,6 +442,9 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       -- Tab 2: Software
       SELECT 'Software' AS title, '?tab=software&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'software' AS active;
 
+      -- Tab 2: Software
+      SELECT 'Policies' AS title, '?tab=policies&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'policies' AS active;
+
       -- Tab specific content for Details
       select 'text' as component, 'About' as title, 2 as size WHERE $tab = 'details' OR $tab IS NULL;
       SELECT 'datagrid' as component WHERE $tab = 'details' OR $tab IS NULL;
@@ -420,6 +465,12 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
 
       ${pagination.renderSimpleMarkdown("key", "host_id", "tab")};
       
+      -- Tab specific content for Policies
+      select 'text' as component, 'Policies' as title WHERE $tab = 'software';
+      SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'policies';
+      SELECT policy_name AS "Policy", policy_result as "Status", resolution
+        FROM surveilr_osquery_ms_node_executed_policy
+        WHERE node_key = $key AND $tab = 'policies';
     `;
   }
 

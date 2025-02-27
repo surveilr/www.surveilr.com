@@ -434,7 +434,7 @@ export class TypicalSqlPageNotebook
           extraQueryParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
         }  ')' ELSE '' END)
               AS contents_md;`;
-      }      
+      },
     };
   }
 

@@ -20,6 +20,9 @@ const osQueryMsCellGovernance = {
 const osQueryMsFilterNotebookName =
   "osQuery Management Server Default Filters (Prime)" as const;
 
+const osQueryMsPolicyNotebookName =
+  "osQuery Management Server (Policy Enabled)" as const;
+
 // TODO: should the `CREATE VIEW` definitions be in code_notebook_cell or straight in RSSD?
 // TODO: update ON CONFLICT to properly do updates, not just "DO NOTHING"
 // TODO: use SQLa/pattern/typical/typical.ts:activityLogDmlPartial for history tracking
@@ -88,6 +91,33 @@ export function osQueryMsCell(
     ...init,
     notebook_name: osQueryMsNotebookName,
     cell_governance: JSON.stringify(osQueryMsCellGovernance),
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+interface OsqueryMsPolicyGovernance {
+  targets: string[],
+  required_note: string,
+  resolution: string,
+  critical: boolean,
+}
+
+export function osQueryMsPolicyCell(
+  policyGovernance: OsqueryMsPolicyGovernance,
+  init?: Omit<
+    Parameters<typeof cnb.sqlCell>[0],
+    "notebook_name" | "cell_governance"
+  >,
+) {
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    ...init,
+    notebook_name: osQueryMsPolicyNotebookName,
+    cell_governance: JSON.stringify({ ...osQueryMsCellGovernance, policy: policyGovernance }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -996,6 +1026,101 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   })
   "Installed Macos software"() {
     return `SELECT name AS name, bundle_short_version AS version, 'Application (macOS)' AS type, 'apps' AS source FROM apps UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name As name, version AS version, 'Browser plugin (Safari)' AS type, 'safari_extensions' AS source FROM safari_extensions UNION SELECT name AS name, version AS version, 'Package (Homebrew)' AS type, 'homebrew_packages' AS source FROM homebrew_packages;`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["macos", "windows", "linux"],
+    required_note: "osQuery must have Full Disk Access.",
+    resolution:
+      "Use this command to encrypt existing SSH keys by providing the path to the file: ssh-keygen -o -p -f /path/to/file",
+    critical: false,
+  }, {
+    description:
+      "Policy passes if all keys are encrypted, including if no keys are present.",
+  })
+  "SSH keys encrypted"() {
+    return `SELECT 
+  CASE 
+    WHEN NOT EXISTS (
+      SELECT 1
+      FROM users
+      CROSS JOIN user_ssh_keys USING (uid)
+      WHERE encrypted = '0'
+    ) THEN 'true' 
+    ELSE 'false' 
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["linux"],
+    required_note: "Checks if the root drive is encrypted. There are many ways to encrypt Linux systems. This is the default on distributions such as Ubuntu.",
+    resolution:
+      "Ensure the image deployed to your Linux workstation includes full disk encryption.",
+    critical: false,
+  }, {
+    description:
+      "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Linux)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM mounts m
+      JOIN disk_encryption d ON m.device_alias = d.name
+      WHERE d.encrypted = 1 AND m.path = '/'
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["windows"],
+    required_note: "Checks to make sure that full disk encryption is enabled on Windows devices.",
+    resolution:
+      "To get additional information, run the following osquery query on the failing device: SELECT * FROM bitlocker_info. In the query results, if protection_status is 2, then the status cannot be determined. If it is 0, it is considered unprotected. Use the additional results (percent_encrypted, conversion_status, etc.) to help narrow down the specific reason why Windows considers the volume unprotected.",
+    critical: false,
+  }, {
+    description:
+      "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Windows)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM bitlocker_info 
+      WHERE drive_letter = 'C:' AND protection_status = 1
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["macos"],
+    required_note: "Checks to make sure that full disk encryption (FileVault) is enabled on macOS devices.",
+    resolution:
+      "To enable full disk encryption, on the failing device, select System Preferences > Security & Privacy > FileVault > Turn On FileVault.",
+    critical: false,
+  }, {
+    description:
+      "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Macos)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM disk_encryption 
+      WHERE user_uuid IS NOT '' AND filevault_status = 'on'
+      LIMIT 1
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
   }
 
   @osQueryMsFilterCell({
