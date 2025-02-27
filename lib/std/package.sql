@@ -595,44 +595,43 @@ VALUES
     ('prime', 'index.sql', 1, 'ms/index.sql', 'ms/index.sql', 'osQuery Management Server', NULL, NULL, 'Explore details about all nodes', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
-    DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
-    CREATE VIEW surveilr_osquery_ms_node_process AS
-    SELECT
-        l.node_key,
-        l.updated_at,
-        json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-        json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
-        json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
-        json_extract(l.log_data, '$.columns.cwd') AS cwd,
-        json_extract(l.log_data, '$.columns.disk_bytes_read') AS disk_bytes_read,
-        json_extract(l.log_data, '$.columns.disk_bytes_written') AS disk_bytes_written,
-        json_extract(l.log_data, '$.columns.egid') AS egid,
-        json_extract(l.log_data, '$.columns.euid') AS euid,
-        json_extract(l.log_data, '$.columns.gid') AS gid,
-        json_extract(l.log_data, '$.columns.name') AS process_name,
-        json_extract(l.log_data, '$.columns.nice') AS nice,
-        json_extract(l.log_data, '$.columns.on_disk') AS on_disk,
-        json_extract(l.log_data, '$.columns.parent') AS parent,
-        json_extract(l.log_data, '$.columns.path') AS process_name,
-        json_extract(l.log_data, '$.columns.pgroup') AS pgroup,
-        json_extract(l.log_data, '$.columns.pid') AS pid,
-        json_extract(l.log_data, '$.columns.resident_size') AS resident_size,
-        json_extract(l.log_data, '$.columns.root') AS root,
-        json_extract(l.log_data, '$.columns.sgid') AS sgid,
-        json_extract(l.log_data, '$.columns.start_time') AS start_time,
-        json_extract(l.log_data, '$.columns.state') AS state,
-        json_extract(l.log_data, '$.columns.suid') AS suid,
-        json_extract(l.log_data, '$.columns.system_time') AS system_time,
-        json_extract(l.log_data, '$.columns.threads') AS threads,
-        json_extract(l.log_data, '$.columns.total_size') AS total_size,
-        json_extract(l.log_data, '$.columns.uid') AS uid,
-        json_extract(l.log_data, '$.columns.user_time') AS user_time,
-        json_extract(l.log_data, '$.columns.wired_size') AS wired_size
-    FROM ur_ingest_session_osquery_ms_log AS l
-    WHERE l.log_type = 'result'
-        AND json_extract(l.log_data, '$.name') = 'All Processes';
-
-
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
+CREATE VIEW surveilr_osquery_ms_node_process AS
+SELECT
+    l.node_key,
+    l.updated_at,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
+    json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
+    json_extract(l.log_data, '$.columns.cwd') AS cwd,
+    json_extract(l.log_data, '$.columns.disk_bytes_read') AS disk_bytes_read,
+    json_extract(l.log_data, '$.columns.disk_bytes_written') AS disk_bytes_written,
+    json_extract(l.log_data, '$.columns.egid') AS egid,
+    json_extract(l.log_data, '$.columns.euid') AS euid,
+    json_extract(l.log_data, '$.columns.gid') AS gid,
+    json_extract(l.log_data, '$.columns.name') AS process_name,
+    json_extract(l.log_data, '$.columns.nice') AS nice,
+    json_extract(l.log_data, '$.columns.on_disk') AS on_disk,
+    json_extract(l.log_data, '$.columns.parent') AS parent,
+    json_extract(l.log_data, '$.columns.path') AS process_name,
+    json_extract(l.log_data, '$.columns.pgroup') AS pgroup,
+    json_extract(l.log_data, '$.columns.pid') AS pid,
+    json_extract(l.log_data, '$.columns.resident_size') AS resident_size,
+    json_extract(l.log_data, '$.columns.root') AS root,
+    json_extract(l.log_data, '$.columns.sgid') AS sgid,
+    json_extract(l.log_data, '$.columns.start_time') AS start_time,
+    json_extract(l.log_data, '$.columns.state') AS state,
+    json_extract(l.log_data, '$.columns.suid') AS suid,
+    json_extract(l.log_data, '$.columns.system_time') AS system_time,
+    json_extract(l.log_data, '$.columns.threads') AS threads,
+    json_extract(l.log_data, '$.columns.total_size') AS total_size,
+    json_extract(l.log_data, '$.columns.uid') AS uid,
+    json_extract(l.log_data, '$.columns.user_time') AS user_time,
+    json_extract(l.log_data, '$.columns.wired_size') AS wired_size
+FROM ur_ingest_session_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+    AND json_extract(l.log_data, '$.name') = 'All Processes';
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
 CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
 SELECT
@@ -661,6 +660,7 @@ FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Interface Details';
 
+    ;   
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_listening_port;
 CREATE VIEW surveilr_osquery_ms_node_listening_port AS
 SELECT
@@ -679,7 +679,7 @@ SELECT
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Listening Ports';
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
 CREATE VIEW surveilr_osquery_ms_node_system_info AS
 SELECT
@@ -709,7 +709,7 @@ SELECT
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'System Information';
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
 CREATE VIEW surveilr_osquery_ms_node_os_version AS
 SELECT
@@ -729,7 +729,7 @@ SELECT
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'OS Version';
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
 SELECT
@@ -745,7 +745,7 @@ SELECT
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Interface Addresses';
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
 CREATE VIEW surveilr_osquery_ms_node_uptime AS
 SELECT
@@ -762,7 +762,7 @@ WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Server Uptime'
 ORDER BY l.created_at DESC
 LIMIT 1;
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
 CREATE VIEW surveilr_osquery_ms_node_available_space AS
 SELECT
@@ -776,7 +776,7 @@ WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Available Disk Space'
 ORDER BY l.created_at DESC
 LIMIT 1;
-
+    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
 CREATE VIEW surveilr_osquery_ms_node_detail AS
 SELECT
@@ -838,6 +838,32 @@ LEFT JOIN surveilr_osquery_ms_node_interface_address i
     AND i.interface = 'eth0'
     -- this only selects the IPv4 addresses for now
     AND i.address LIKE '%.%';
+    ;
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
+
+CREATE VIEW surveilr_osquery_ms_node_installed_software AS
+SELECT
+    l.node_key,
+    l.updated_at,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.columns.name') AS name,
+    json_extract(l.log_data, '$.columns.source') AS source,
+    json_extract(l.log_data, '$.columns.type') AS type,
+    json_extract(l.log_data, '$.columns.version') AS version,
+    CASE
+        WHEN json_extract(l.log_data, '$.name') = 'Installed Linux software' THEN 'linux'
+        WHEN json_extract(l.log_data, '$.name') = 'Installed Macos software' THEN 'macos'
+        WHEN json_extract(l.log_data, '$.name') = 'Installed Windows software' THEN 'windows'
+        ELSE 'unknown'
+    END AS platform
+FROM ur_ingest_session_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+  AND (
+      json_extract(l.log_data, '$.name') = 'Installed Linux software' OR
+      json_extract(l.log_data, '$.name') = 'Installed Macos software' OR
+      json_extract(l.log_data, '$.name') = 'Installed Windows software'
+  );
+;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
@@ -3118,42 +3144,62 @@ SELECT title ,
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
 SELECT $host_id || '' Node'' AS title, ''#'' AS link;
-SELECT ''title'' as component, $host_id as contents, 2  as level;
-SELECT ''text'' as component, ''Last fetched '' || "last_fetched" as contents, 1 as size FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
-SELECT ''datagrid'' as component;
-SELECT ''Status'' as title, "node_status" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-SELECT ''Issues'' as title, "0" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-SELECT ''Disk space'' as title, "available_space" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-SELECT ''Memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''Processor Type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
-SELECT ''Operating system'' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-SELECT ''osQuery'' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+-- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+SET total_rows = (SELECT COUNT(*) FROM surveilr_osquery_ms_node_installed_software WHERE node_key = $key);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
 
--- SELECT ''Computer Name'' as title, "computer_name" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
--- SELECT ''Cpu Brand'' as title, "cpu_brand" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
--- SELECT ''cpu_logical_cores'' as title, "cpu_logical_cores" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+  SELECT ''title'' as component, $host_id as contents, 2  as level;
+  SELECT ''text'' as component, ''Last fetched '' || "last_fetched" as contents, 1 as size FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
--- Define tabs
-SELECT ''tab'' AS component, TRUE AS center;
+  SELECT ''datagrid'' as component;
+  SELECT ''Status'' as title, "node_status" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''Issues'' as title, "0" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''Disk space'' as title, "available_space" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''Memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+  SELECT ''Processor Type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+  SELECT ''Operating system'' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''osQuery'' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
--- Tab 1: Details
-SELECT ''Details'' AS title, ''?tab=details&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''details'' AS active;
+  -- Define tabs
+  SELECT ''tab'' AS component, TRUE AS center;
 
--- Tab 2: Software
-SELECT ''Software'' AS title, ''?tab=software&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''software'' AS active;
+  -- Tab 1: Details
+  SELECT ''Details'' AS title, ''?tab=details&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''details'' AS active;
 
--- Tab specific content of Details
-select ''text'' as component, ''About'' as title, 2 as size WHERE $tab = ''details'' OR $tab IS NULL;
-SELECT ''datagrid'' as component WHERE $tab = ''details'' OR $tab IS NULL;
-SELECT ''Added to surveilr'' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
-SELECT ''Last Restarted'' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
-SELECT ''Hardware Model'' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
-SELECT ''Serial Number'' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
-SELECT ''IP Address'' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+  -- Tab 2: Software
+  SELECT ''Software'' AS title, ''?tab=software&key='' || $key || ''&host_id='' || $host_id AS link, $tab = ''software'' AS active;
 
--- Tab specific content for software
-select ''text'' as component, ''Software'' as title WHERE $tab = ''software'';
+  -- Tab specific content for Details
+  select ''text'' as component, ''About'' as title, 2 as size WHERE $tab = ''details'' OR $tab IS NULL;
+  SELECT ''datagrid'' as component WHERE $tab = ''details'' OR $tab IS NULL;
+  SELECT ''Added to surveilr'' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+  SELECT ''Last Restarted'' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+  SELECT ''Hardware Model'' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+  SELECT ''Serial Number'' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+  SELECT ''IP Address'' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = ''details'' OR $tab IS NULL);
+
+  -- Tab specific content for Software
+  select ''text'' as component, ''Software'' as title WHERE $tab = ''software'';
+
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
+  SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
+    FROM surveilr_osquery_ms_node_installed_software
+    WHERE node_key = $key AND $tab = ''software''
+    LIMIT $limit OFFSET $offset;
+
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&key='' || $key ||
+''&host_id='' || $host_id ||
+''&tab='' || $tab ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&key='' || $key ||
+''&host_id='' || $host_id ||
+''&tab='' || $tab ||  '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
