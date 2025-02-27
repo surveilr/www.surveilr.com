@@ -1919,6 +1919,26 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
+  const osQueryPolicy = gm.textPkTable(
+    `osquery_policy`,
+    {
+      osquery_policy_id: gm.keys.varCharPrimaryKey(),
+      policy_group: gd.textNullable(),
+      policy_name: gd.text(),
+      osquery_code: gd.text(),
+      policy_description: gd.text(),
+      policy_pass_label: gd.text().default("Pass"),
+      policy_fail_label: gd.text().default("Fail"),
+      policy_pass_remarks: gd.textNullable(),
+      policy_fail_remarks: gd.textNullable(),
+      osquery_platforms: gd.textNullable(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true
+    },
+  );
+
   const informationSchema = {
     tables: [
       partyType,
@@ -1971,6 +1991,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       uniformResourceEdge,
       osQueryMsNode,
       urIngestOsQueryMsLog,
+      osQueryPolicy
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2017,6 +2038,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...uniformResourceEdge.indexes,
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
+      ...osQueryPolicy.indexes
     ],
   };
 
@@ -2072,6 +2094,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     uniformResourceEdge,
     osQueryMsNode,
     urIngestOsQueryMsLog,
+    osQueryPolicy
   };
 }
 

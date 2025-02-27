@@ -21,7 +21,7 @@ const osQueryMsFilterNotebookName =
   "osQuery Management Server Default Filters (Prime)" as const;
 
 const osQueryMsPolicyNotebookName =
-  "osQuery Management Server (Policy Enabled)" as const;
+  "osQuery Management Server (Policy)" as const;
 
 // TODO: should the `CREATE VIEW` definitions be in code_notebook_cell or straight in RSSD?
 // TODO: update ON CONFLICT to properly do updates, not just "DO NOTHING"
@@ -740,6 +740,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${uniformResourceGraphRules}
 
       ${this.uniformResourceGraphViews()}
+
+      ${this.allOsqueryPolicies()}
       `;
   }
 
@@ -936,6 +938,33 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       this.emitCtx,
       await schemaNB.polygenContent(),
     );
+  }
+
+  allOsqueryPolicies() {
+    const { osQueryPolicy } = this.serviceModels;
+    const policyPassLabel = "Pass";
+    const policyFailLabel = "Fail";
+
+    return [
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Ad tracking is limited (macOS)",
+        osquery_code: "SELECT CASE WHEN EXISTS (SELECT 1 FROM managed_policies WHERE domain='com.apple.AdLib' AND name='forceLimitAdTracking' AND value='1' LIMIT 1) THEN 'true' ELSE 'false' END AS policy_result;",
+        policy_description: "Checks that a mobile device management (MDM) solution configures the Mac to limit advertisement tracking.",
+        policy_fail_remarks: "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel
+      }),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (Linux)",
+        osquery_code: "SELECT score FROM (SELECT CASE WHEN COUNT(*) = 2 THEN 'true' ELSE 'false' END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score = 'true';",
+        policy_description: "Checks that both ClamAV's daemon and its updater service (freshclam) are running.",
+        policy_fail_remarks: "Ensure ClamAV and Freshclam are installed and running.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel
+      }),
+    ]
   }
 
   @osQueryMsCell({
