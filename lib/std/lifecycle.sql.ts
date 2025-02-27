@@ -10,8 +10,13 @@ type Any = any;
 
 const surveilrSpecialMigrationNotebookName = "ConstructionSqlNotebook" as const;
 const osQueryMsNotebookName = "osQuery Management Server (Prime)" as const;
-const osQueryMsCellGovernance =
-  `{"osquery-ms-interval": 60, "results-uniform-resource-store-jq-filters": ["del(.calendarTime, .unixTime, .action, .counter)"], "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"]}` as const;
+const osQueryMsCellGovernance = {
+  "osquery-ms-interval": 60,
+  "results-uniform-resource-store-jq-filters": [
+    "del(.calendarTime, .unixTime, .action, .counter)",
+  ],
+  "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"],
+};
 const osQueryMsFilterNotebookName =
   "osQuery Management Server Default Filters (Prime)" as const;
 
@@ -82,7 +87,7 @@ export function osQueryMsCell(
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: osQueryMsNotebookName,
-    cell_governance: osQueryMsCellGovernance,
+    cell_governance: JSON.stringify(osQueryMsCellGovernance),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -117,7 +122,7 @@ export function osQueryMsFilterCell(
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: osQueryMsFilterNotebookName,
-    cell_governance: osQueryMsCellGovernance,
+    cell_governance: JSON.stringify(osQueryMsCellGovernance),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -963,11 +968,34 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
   }
 
   @osQueryMsCell({
-    description:
-      "Available memory space in the node.",
+    description: "Available memory space in the node.",
   })
   "Available Disk Space"() {
     return `SELECT path, type, round((blocks_available * blocks_size / 1e9), 2) AS available_space FROM mounts WHERE path='/'`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Linux computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  })
+  "Installed Linux software"() {
+    return `SELECT name AS name, version AS version, 'Package (APT)' AS type, 'apt_sources' AS source FROM apt_sources UNION SELECT name AS name, version AS version, 'Package (deb)' AS type, 'deb_packages' AS source FROM deb_packages UNION SELECT package AS name, version AS version, 'Package (Portage)' AS type, 'portage_packages' AS source FROM portage_packages UNION SELECT name AS name, version AS version, 'Package (RPM)' AS type, 'rpm_packages' AS source FROM rpm_packages UNION SELECT name AS name, '' AS version, 'Package (YUM)' AS type, 'yum_sources' AS source FROM yum_sources UNION SELECT name AS name, version AS version, 'Package (NPM)' AS type, 'npm_packages' AS source FROM npm_packages UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages;`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Windows computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  })
+  "Installed Windows software"() {
+    return `SELECT name AS name, version AS version, 'Program (Windows)' AS type, 'programs' AS source FROM programs UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (IE)' AS type, 'ie_extensions' AS source FROM ie_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name AS name, version AS version, 'Package (Chocolatey)' AS type, 'chocolatey_packages' AS source FROM chocolatey_packages;`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Macos computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  })
+  "Installed Macos software"() {
+    return `SELECT name AS name, bundle_short_version AS version, 'Application (macOS)' AS type, 'apps' AS source FROM apps UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name As name, version AS version, 'Browser plugin (Safari)' AS type, 'safari_extensions' AS source FROM safari_extensions UNION SELECT name AS name, version AS version, 'Package (Homebrew)' AS type, 'homebrew_packages' AS source FROM homebrew_packages;`;
   }
 
   @osQueryMsFilterCell({
