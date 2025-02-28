@@ -109,7 +109,7 @@ export function processIEOGCgm(dbFilePath: string): string {
 
     db.prepare(
       `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-    ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+    ).run(ulid(), db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
