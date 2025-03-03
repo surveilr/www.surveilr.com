@@ -50,7 +50,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
   @spn.navigationPrimeTopLevel({
     caption: "FleetFolio",
-    description: `FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
+    description:
+      `FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
   })
   "fleetfolio/index.sql"() {
     return this.SQL`

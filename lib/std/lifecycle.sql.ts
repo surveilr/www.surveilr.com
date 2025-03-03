@@ -963,6 +963,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -975,6 +976,76 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Ensure ClamAV and Freshclam are installed and running.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["linux", "windows", "macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (macOS)",
+        osquery_code:
+          "SELECT score FROM (SELECT case when COUNT(*) = 2 then 1 ELSE 0 END AS score FROM plist WHERE (key = 'CFBundleShortVersionString' AND path = '/Library/Apple/System/Library/CoreServices/XProtect.bundle/Contents/Info.plist' AND value>=2162) OR (key = 'CFBundleShortVersionString' AND path = '/Library/Apple/System/Library/CoreServices/MRT.app/Contents/Info.plist' and value>=1.93)) WHERE score == 1;",
+        policy_description:
+          "Checks the version of Malware Removal Tool (MRT) and the built-in macOS AV (Xprotect). Replace version numbers with the latest version regularly.",
+        policy_fail_remarks:
+          "To enable automatic security definition updates, on the failing device, select System Preferences > Software Update > Advanced > Turn on Install system data files and security updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (Windows)",
+        osquery_code:
+          "SELECT 1 from windows_security_center wsc CROSS JOIN windows_security_products wsp WHERE antivirus = 'Good' AND type = 'Antivirus' AND signatures_up_to_date=1;",
+        policy_description:
+          "Checks the status of antivirus and signature updates from the Windows Security Center.",
+        policy_fail_remarks:
+          "Ensure Windows Defender or your third-party antivirus is running, up to date, and visible in the Windows Security Center.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["windows"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Automatic installation of application updates is enabled (macOS)",
+        osquery_code:
+          "SELECT 1 FROM managed_policies WHERE domain='com.apple.SoftwareUpdate' AND name='AutomaticallyInstallAppUpdates' AND value=1 LIMIT 1;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to automatically install updates to App Store applications.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of application updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Automatic installation of operating system updates is enabled (macOS)",
+        osquery_code:
+          "SELECT 1 FROM managed_policies WHERE domain='com.apple.SoftwareUpdate' AND name='AutomaticallyInstallMacOSUpdates' AND value=1 LIMIT 1;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to automatically install operating system updates.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of operating system updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Ensure 'Minimum password length' is set to '14 or more characters'",
+        osquery_code:
+          "SELECT 1 FROM security_profile_info WHERE minimum_password_length >= 14;",
+        policy_description:
+          "This policy setting determines the least number of characters that make up a password for a user account.",
+        policy_fail_remarks: `Automatic method:
+Ask your system administrator to establish the recommended configuration via GP, set the following UI path to 14 or more characters
+'Computer Configuration\Policies\Windows Settings\Security Settings\Account Policies\Password Policy\Minimum password length'`,
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["windows"]),
       }, options),
     ];
   }
