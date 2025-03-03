@@ -349,7 +349,8 @@ $ surveilr shell ./dataset-specific-package/wadwa-package.sql.ts
 
 ```bash
 # Tamborlane from Awesome CGM)
-$ deno run -A ./study-specific-stateless/rtccgm-cgm-metadata-generator.ts
+$ deno run -A ./study-specific-stateless/rtccgm-cgm-metadata-generator.ts processCgmFiles
+$ deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts savertccgmJsonCgm
 $ surveilr shell ./dataset-specific-package/rtccgm-package.sql.ts
 ```
 

@@ -3,6 +3,7 @@
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
 import { Buffer } from "node:buffer"; // Needed for Node.js environments
+import { rtccgmSQL } from "../dataset-specific-package/rtccgm-package.sql.ts";
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -480,7 +481,7 @@ export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
 
   // Query to fetch all relevant tables (matching the pattern 'uniform_resource_tblADataRTCGM_%')
   const tablesStmt = db.prepare(
-    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_tblADataRTCGM_%'",
+    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_tbladatartcgm_%'",
   );
   const tables = tablesStmt.all();
   const sqlParts: string[] = [];
@@ -659,6 +660,115 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
   return ctrSQL;
 }
 
+export function savertccgmJsonCgm(dbFilePath: string): string {
+  console.log("Opening database:", dbFilePath);
+  const db = new Database(dbFilePath);
+  let rtccgmSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  console.log("Checking if table exists:", tableName);
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  console.log("Table existence check result:", tableExists);
+
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  console.log("Generated db_file_id:", db_file_id);
+
+  const recordCountStmt = db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`);
+  const recordCount = recordCountStmt.get();
+  console.log("Total records in table:", recordCount.count);
+
+  if (recordCount.count === 0) {
+    console.warn("No records found in table. Exiting function.");
+    db.close();
+    return "";
+  }
+
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+  console.log("Number of rows fetched:", rows.length);
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
+    db_file_id TEXT NOT NULL,
+    participant_display_id TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+  console.log("Ensured table file_meta_ingest_data exists.");
+
+  for (const row of rows) {
+    console.log("Processing row:", JSON.stringify(row, null, 2));
+    
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+    console.log("Generated JSON metadata:", jsonStringMeta);
+
+    const deidentID = typeof row.patient_id === "string"
+      ? row.patient_id.replace(/^RTCCGM-/, "")
+      : row.patient_id;
+    console.log("De-identified patient ID:", deidentID);
+
+    let file_name = row.file_name;
+    if (typeof file_name === "string" && row.file_format) {
+      file_name = file_name.replace(`.${row.file_format}`, "");
+    }
+    console.log("Processed file name:", file_name);
+
+    if (!file_name) {
+      console.warn(`Skipping row due to invalid file name: ${row.file_name}`);
+      continue;
+    }
+
+    console.log("Fetching CGM data...");
+    const jsonStringCgm = fetchCgmData(
+      db,
+      file_name,
+      row.map_field_of_patient_id,
+      deidentID,
+    );
+    console.log("Generated CGM data JSON length:", jsonStringCgm?.length);
+
+    const file_meta_id = ulid();
+    console.log("Generated file_meta_id:", file_meta_id);
+
+    console.log("Executing INSERT INTO file_meta_ingest_data...");
+    try {
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(file_meta_id, db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+      console.log("Data successfully inserted into file_meta_ingest_data.");
+    } catch (error) {
+      console.error("Error inserting data:", error);
+    }
+  }
+
+  console.log("Closing database connection...");
+  db.close(); 
+  console.log("Database closed.");
+  return rtccgmSQL;
+}
+
+
+
 export function saveDFAJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
   let dfaSQL = "";
@@ -737,41 +847,29 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
   db.close();
   return dfaSQL;
 }
-
-// If the script is being run directly, execute the functions
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
+  const functionName = Deno.args[0]; // Get function name from CLI arguments
 
-  // Run the first dataset view creation and get the SQL for combined view
-  const dclp1combinedCGMViewSQL = createUVACombinedCGMViewSQL(dbFilePath);
-  if (dclp1combinedCGMViewSQL) {
-    console.log("Generated SQL for DCLP1 Study dataset:");
-    console.log(dclp1combinedCGMViewSQL);
-  }
+  // Map available functions
+  const functions: Record<string, (dbFilePath: string) => any> = {
+    createUVACombinedCGMViewSQL,
+    generateDetrendedDSCombinedCGMViewSQL,
+    generateCombinedRTCCGMSQL,
+    saveCTRJsonCgm,
+    savertccgmJsonCgm,
+  };
 
-  // Generate and log the SQL for the second dataset
-  const detrendedDSCombinedCGMViewSQL = generateDetrendedDSCombinedCGMViewSQL(
-    dbFilePath,
-  );
-  if (detrendedDSCombinedCGMViewSQL) {
-    console.log("Generated SQL for detrended fluctuation analysis dataset:");
-    console.log(detrendedDSCombinedCGMViewSQL);
-  }
-
-  // Generate and log the SQL for the thrid  dataset
-  const CombinedRTCCGMSQL = generateCombinedRTCCGMSQL(
-    dbFilePath,
-  );
-  if (CombinedRTCCGMSQL) {
-    console.log("Generated SQL for RTCCGM dataset:");
-    console.log(CombinedRTCCGMSQL);
-  }
-
-  // Generate cgm json for ctr
-  const ctrJson = saveCTRJsonCgm(
-    dbFilePath,
-  );
-  if (ctrJson) {
-    console.log(ctrJson);
+  // Check if the function exists
+  if (functionName in functions) {
+    const result = functions[functionName](dbFilePath);
+    if (result) {
+      console.log(`Output for ${functionName}:`);
+      console.log(result);
+    }
+  } else {
+    console.log("Invalid function name. Available functions:");
+    console.log(Object.keys(functions).join(", "));
   }
 }
+
