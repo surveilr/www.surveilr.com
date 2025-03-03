@@ -6,12 +6,57 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
   "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP VIEW IF EXISTS system_detail_group;
+CREATE VIEW system_detail_group AS
+SELECT 
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,  
+    COUNT(*) AS count 
+FROM uniform_resource 
+GROUP BY name, hostIdentifier;
 
--- delete all /qltyfolio-related entries and recreate them in case routes are changed
-DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qltyfolio'||'/index.sql';
+DROP VIEW IF EXISTS system_detail_all_processes;
+CREATE VIEW system_detail_all_processes AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.cgroup_path') AS cgroup_path,
+    json_extract(content, '$.columns.cmdline') AS cmdline,
+    json_extract(content, '$.columns.cwd') AS cwd,
+    json_extract(content, '$.columns.disk_bytes_read') AS disk_bytes_read,
+    json_extract(content, '$.columns.disk_bytes_written') AS disk_bytes_written,
+    json_extract(content, '$.columns.egid') AS egid,
+    json_extract(content, '$.columns.euid') AS euid,
+    json_extract(content, '$.columns.gid') AS gid,
+    json_extract(content, '$.columns.name') AS system_name,
+    json_extract(content, '$.columns.nice') AS nice,
+    json_extract(content, '$.columns.on_disk') AS on_disk,
+    json_extract(content, '$.columns.parent') AS parent,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.pgroup') AS pgroup,
+    json_extract(content, '$.columns.pid') AS pid,
+    json_extract(content, '$.columns.resident_size') AS resident_size,
+    json_extract(content, '$.columns.root') AS root,
+    json_extract(content, '$.columns.sgid') AS sgid,
+    json_extract(content, '$.columns.start_time') AS start_time,
+    json_extract(content, '$.columns.state') AS state,
+    json_extract(content, '$.columns.suid') AS suid,
+    json_extract(content, '$.columns.system_time') AS system_time,
+    json_extract(content, '$.columns.threads') AS threads,
+    json_extract(content, '$.columns.total_size') AS total_size,
+    json_extract(content, '$.columns.uid') AS uid,
+    json_extract(content, '$.columns.user_time') AS user_time,
+    json_extract(content, '$.columns.wired_size') AS wired_size,
+    updated_at
+FROM uniform_resource 
+WHERE name = 'All Processes';
+-- delete all /fleetfolio-related entries and recreate them in case routes are changed
+DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', 'index.sql', 1, 'cak/index.sql', 'cak/index.sql', 'FleetFolio', NULL, NULL, 'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).', NULL)
+    ('prime', 'index.sql', 1, 'fleetfolio/index.sql', 'fleetfolio/index.sql', 'FleetFolio', NULL, NULL, 'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).', NULL),
+    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/host.sql', 'fleetfolio/host.sql', 'Server', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -600,7 +645,7 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
  JOIN orchestration_session_log osl ON ose.orchestration_session_exec_id = osl.parent_exec_id
  GROUP BY os.orchestration_session_id, onature.nature, osl.category;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'cak/index.sql',
+      'fleetfolio/index.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -610,7 +655,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''cak/index.sql''
+    WHERE namespace = ''prime'' AND path=''fleetfolio/index.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -631,14 +676,248 @@ FROM breadcrumbs ORDER BY level DESC;
   WITH navigation_cte AS (
       SELECT COALESCE(title, caption) as title, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = ''prime'' AND path = ''cak''||''/index.sql''
+       WHERE namespace = ''prime'' AND path = ''fleetfolio''||''/index.sql''
   )
   SELECT ''list'' AS component, title, description
     FROM navigation_cte;
   SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND parent_path = ''cak''||''/index.sql''
+   WHERE namespace = ''prime'' AND parent_path = ''fleetfolio''||''/index.sql''
    ORDER BY sibling_order;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/host.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''fleetfolio/host.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/host.sql/index.sql'') as contents;
+    ;
+  
+  -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+    --- Dsply Page Title
+SELECT
+    ''title''   as component,
+    ''Server '' contents;
+  
+   select
+    ''text''              as component,
+    ''The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.'' as contents;
+  
+  -- Dashboard count
+  select
+      ''card'' as component,
+      4      as columns;
+  select
+      host_identifier  as title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''host_detail.sql?link='' || host_identifier as link
+  FROM surveilr_osquery_ms_node_detail;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/host_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+--- Display breadcrumb
+ SELECT
+    ''breadcrumb'' AS component;
+  SELECT
+    ''Home'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+  SELECT
+    ''Server'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
+  SELECT
+    host_identifier as title
+  FROM
+    surveilr_osquery_ms_node_detail 
+  WHERE
+   host_identifier = $link::TEXT;
+
+   --- Dsply Page Title
+  SELECT
+   ''title'' as component,
+    host_identifier as contents
+  FROM
+    surveilr_osquery_ms_node_detail
+  WHERE
+    host_identifier = $link::TEXT;
+
+ select 
+''datagrid'' as component;
+select 
+      ''Host identifier'' as title,
+      host_identifier   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;
+select 
+      ''Model'' as title,
+      board_model   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
+select 
+      ''Serial No'' as title,
+      board_serial   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
+select 
+      ''Vendor'' as title,
+      board_vendor   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
+select 
+      ''Version'' as title,
+      board_version   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT; 
+select 
+      ''CPU brand'' as title,
+      cpu_brand   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
+select 
+      ''CPU brand'' as title,
+      cpu_brand   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT; 
+
+ select
+      ''card'' as component,
+      4      as columns;
+  SELECT name  as title,
+  count as description_md,
+  CASE
+    WHEN name = ''All Processes''
+    THEN sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''all_process.sql?host_identifier='' || hostIdentifier || ''&name='' || name 
+    ELSE NULL 
+  END AS link
+  FROM system_detail_group WHERE hostIdentifier = $link::TEXT;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/all_process.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+--- Display breadcrumb
+ SELECT
+    ''breadcrumb'' AS component;
+  SELECT
+    ''Home'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+  SELECT
+    ''Server'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
+    
+  SELECT
+    $host_identifier AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?link='' || $host_identifier AS link;
+  
+  SELECT
+    "Detail" AS title,
+    ''#'' AS link;
+  
+
+   --- Dsply Page Title
+  SELECT
+   ''title'' as component,
+    host_identifier as contents
+  FROM
+    surveilr_osquery_ms_node_detail
+  WHERE
+    host_identifier = $host_identifier::TEXT;
+   SET total_rows = (SELECT COUNT(*) FROM system_detail_all_processes WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+  select 
+      ''table''           as component,
+      TRUE              as sort,
+      ''hostIdentifier'',
+      ''cgroup_path'',
+      ''cmdline'',
+      ''cwd'',
+      ''disk_bytes_read'',
+      ''disk_bytes_written'',
+      ''egid'',
+      ''euid'',
+      ''gid'',
+      ''system_name'',
+      ''nice'',
+      ''on_disk'',
+      ''parent'',
+      ''path'',
+      ''pgroup'',
+      ''pid'',
+      ''resident_size'',
+      ''root'',
+      ''sgid'',
+      ''start_time'',
+      ''state'',
+      ''suid'',
+      ''system_time'',
+      ''threads'',
+      ''total_size'',
+      ''uid'',
+      ''user_time'',
+      ''wired_size'',
+      ''updated_at'';
+  SELECT 
+    host_identifier,
+    cgroup_path,
+    cmdline,
+    cwd,
+    disk_bytes_read,
+    disk_bytes_written,
+    egid,
+    euid,
+    gid,
+    system_name,
+    nice,
+    on_disk,
+    parent,
+    path,
+    pgroup,
+    pid,
+    resident_size,
+    root,
+    sgid,
+    start_time,
+    state,
+    suid,
+    system_time,
+    threads,
+    total_size,
+    uid,
+    user_time,
+    wired_size,
+    updated_at FROM system_detail_all_processes WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
+  OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    AS contents_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2732,10 +3011,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
   "component": "case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END",
-  "title": "Feetfolio",
+  "title": "fleetfolio",
   "icon": "",
-  "favicon": "https://www.surveilr.com/assets/brand/feetfolio-favicon.ico",
-  "image": "https://www.surveilr.com/assets/brand/feetfolio-logo.png",
+  "favicon": "https://www.surveilr.com/assets/brand/fleetfolio-favicon.ico",
+  "image": "https://www.surveilr.com/assets/brand/fleetfolio-logo.png",
   "layout": "fluid",
   "fixed_top_menu": true,
   "link": "index.sql",
@@ -2758,10 +3037,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
       'SELECT case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END AS component,
-       ''Feetfolio'' AS title,
+       ''fleetfolio'' AS title,
        NULL AS icon,
-       ''https://www.surveilr.com/assets/brand/feetfolio-favicon.ico'' AS favicon,
-       ''https://www.surveilr.com/assets/brand/feetfolio-logo.png'' AS image,
+       ''https://www.surveilr.com/assets/brand/fleetfolio-favicon.ico'' AS favicon,
+       ''https://www.surveilr.com/assets/brand/fleetfolio-logo.png'' AS image,
        ''fluid'' AS layout,
        true AS fixed_top_menu,
        ''index.sql'' AS link,
