@@ -963,6 +963,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"])
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -975,6 +976,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Ensure ClamAV and Freshclam are installed and running.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["linux", "windows", "macos"])
       }, options),
     ];
   }
