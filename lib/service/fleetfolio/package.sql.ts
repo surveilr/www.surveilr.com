@@ -42,15 +42,17 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
+      this.constructHomePath("qltyfolio")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
 
   @spn.navigationPrimeTopLevel({
     caption: "FleetFolio",
-    description: `FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
+    description:
+      `FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
   })
   "cak/index.sql"() {
     return this.SQL`
@@ -64,11 +66,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${this.absoluteURL("/")
-      } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("cak")
-      }
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("cak")
+    }
        ORDER BY sibling_order;`;
   }
 }
