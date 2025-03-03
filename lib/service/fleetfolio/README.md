@@ -80,3 +80,48 @@ Designed for modern, hybrid infrastructure, FleetFolio supports on-prem, cloud, 
 - Validates infrastructure as code (IaC) deployments  
 - Ensures that approved configurations are enforced  
 - Prevents drift between environments (staging vs. production)  
+
+### To up WebUI
+
+```bash
+# load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
+$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
+$ surveilr shell ./package.sql.ts    
+$ SURVEILR_SQLPKG=~/.sqlpkg surveilr shell ./package.sql.ts             # option 2 (same as option 1)
+
+# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
+$ SQLPAGE_SITE_PREFIX=/lib/pattern/content-assembler ../../std/surveilrctl.ts dev
+# browse http://localhost:9000/ to see surveilr web UI
+# browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
+```
+
+Once you apply `stateless.sql` you can ignore that files and all content will be
+accessed through views or `*.cached` tables in
+`resource-surveillance.sqlite.db`. At this point you can rename the SQLite
+database file, archive it, use in reporting tools, DBeaver, DataGrip, or any
+other SQLite data access tools.
+
+## Automatically reloading SQL when it changes
+
+On sandboxes during development and editing of `.sql` or `.sql.ts` you may want
+to automatically re-load the contents into SQLite regularly. Since it can be
+time-consuming to re-run the same command in the CLI manually each time a file
+changes, you can use _watch mode_ instead.
+
+See: [`surveilrctl.ts`](../../std/surveilrctl.ts).
+
+## How to Run the Tests
+
+To execute test and ensure that `surveilr` is functioning correctly:
+
+1. Run the tests using Deno:
+
+   ```bash
+   deno test -A  # Executes test
+   ```
+
+This process will create an 'assurance' folder, where you can find the files
+related to the test, including the database and ingestion folder
+
+The `-A` flag provides all necessary permissions for the tests to run, including
+file system access and network permissions.
