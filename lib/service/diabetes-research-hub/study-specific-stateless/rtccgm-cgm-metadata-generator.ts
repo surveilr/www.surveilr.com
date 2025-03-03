@@ -37,7 +37,9 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
   const trimmedFileName = fileName.replace(/^uniform_resource_/, "");
   const ptIdWithPrefix = `RTCCGM-${ptId}`;
 
-  console.log(`Generated metadata_id: ${metadata_id}, device_name: ${device_name}, device_id: ${device_id}`);
+  console.log(
+    `Generated metadata_id: ${metadata_id}, device_name: ${device_name}, device_id: ${device_id}`,
+  );
 
   // SQL query to insert into cgm_file_metadata
   const query = `
@@ -66,7 +68,9 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
       map_field_of_cgm_value,
       map_field_of_patient_id,
     ]);
-    console.log(`Successfully inserted PtID ${ptIdWithPrefix} from file ${trimmedFileName}`);
+    console.log(
+      `Successfully inserted PtID ${ptIdWithPrefix} from file ${trimmedFileName}`,
+    );
   } catch (error) {
     console.error(`Error inserting PtID ${ptIdWithPrefix}:`, error);
   }
@@ -75,7 +79,7 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
 // Function to process all tblADataRTCGM_* tables
 export async function processCgmFiles(dbFilePath: string): Promise<string> {
   let db: DB;
-  const result= "";
+  const result = "";
   try {
     console.log(`Opening database: ${dbFilePath}`);
     db = new DB(dbFilePath);

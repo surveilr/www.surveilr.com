@@ -496,7 +496,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
 
   @msNav({
     caption: "Policies",
-    description: "Quickly monitor your nodes by asking yes or no questions about them.",
+    description:
+      "Quickly monitor your nodes by asking yes or no questions about them.",
     siblingOrder: 99,
   })
   "ms/policies.sql"() {
@@ -531,7 +532,6 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       DELETE FROM code_notebook_cell WHERE cell_name = '' AND notebook_name 'osQuery Management Server (Policy)';
 
-    `
+    `;
   }
-  
 }

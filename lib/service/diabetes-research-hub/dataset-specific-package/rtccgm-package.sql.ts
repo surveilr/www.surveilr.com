@@ -2,26 +2,26 @@
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import {
-  generateCombinedRTCCGMSQL,savertccgmJsonCgm
+  generateCombinedRTCCGMSQL,
+  savertccgmJsonCgm,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 import { processCgmFiles } from "../study-specific-stateless/rtccgm-cgm-metadata-generator.ts";
 
 export class rtccgmSqlPages extends spn.TypicalSqlPageNotebook {
-
   // async generatermetadataDDL() {
   //   const dbFilePath = "./resource-surveillance.sqlite.db";
-  //   const result= await processCgmFiles(dbFilePath);            
+  //   const result= await processCgmFiles(dbFilePath);
   //   return result;
   // }
 
   // async savertccgmDDL() {
-  //     const dbFilePath = "./resource-surveillance.sqlite.db";          
+  //     const dbFilePath = "./resource-surveillance.sqlite.db";
   //     const jsonstmts = await savertccgmJsonCgm(dbFilePath);
   //     return jsonstmts;
   // }
 
   rtccgmViewDDL() {
-    const dbFilePath = "./resource-surveillance.sqlite.db";    
+    const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = generateCombinedRTCCGMSQL(dbFilePath);
     return this.SQL`
         ${sqlStatements} 
