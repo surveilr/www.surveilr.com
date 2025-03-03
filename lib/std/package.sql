@@ -777,68 +777,6 @@ AND json_extract(l.log_data, '$.name') = 'Available Disk Space'
 ORDER BY l.created_at DESC
 LIMIT 1;
     ;
-DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
-CREATE VIEW surveilr_osquery_ms_node_detail AS
-SELECT
-    n.surveilr_osquery_ms_node_id,
-    n.node_key,
-    n.host_identifier,
-    n.osquery_version,
-    n.last_seen,
-    n.created_at,
-    i.updated_at,
-    i.address AS ip_address,
-    i.broadcast,
-    i.mask,
-    CASE 
-      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
-        (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
-      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
-        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
-      WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
-        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
-      ELSE 
-        ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
-    END AS added_to_surveilr_osquery_ms,
-    o.name || ' ' || o.version AS operating_system,
-    round(a.available_space, 2) || ' GB' AS available_space,
-    CASE 
-      WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
-      ELSE 'Offline'
-    END AS node_status,
-    CASE 
-      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
-        (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
-      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
-        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
-      WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
-        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
-      ELSE 
-        ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
-    END AS last_fetched,
-    CASE
-      WHEN CAST(u.days AS INTEGER) > 0 THEN 
-          'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-      WHEN CAST(u.hours AS INTEGER) > 0 THEN 
-          'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-      WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
-          'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-      ELSE 
-          'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-    END AS last_restarted
-FROM surveilr_osquery_ms_node n
-LEFT JOIN surveilr_osquery_ms_node_available_space a
-  ON n.node_key = a.node_key
-LEFT JOIN surveilr_osquery_ms_node_os_version o 
-  ON n.node_key = o.node_key
-LEFT JOIN surveilr_osquery_ms_node_uptime u
-  ON n.node_key = u.node_key
-LEFT JOIN surveilr_osquery_ms_node_interface_address i
-  ON n.node_key = i.node_key
-    AND i.interface = 'eth0'
-    -- this only selects the IPv4 addresses for now
-    AND i.address LIKE '%.%';
-    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
 
 CREATE VIEW surveilr_osquery_ms_node_installed_software AS
@@ -899,8 +837,72 @@ SELECT
 FROM ranked_policies
 JOIN code_notebook_cell c
     ON ranked_policies.policy_name = c.cell_name
-WHERE ranked_policies.row_num = 1;  -- Only select the most recent entry for each policy
+WHERE ranked_policies.row_num = 1;
 ;
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
+CREATE VIEW surveilr_osquery_ms_node_detail AS
+SELECT
+    n.surveilr_osquery_ms_node_id,
+    n.node_key,
+    n.host_identifier,
+    n.osquery_version,
+    n.last_seen,
+    n.created_at,
+    i.updated_at,
+    i.address AS ip_address,
+    i.broadcast,
+    i.mask,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
+            (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
+        ELSE 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
+    END AS added_to_surveilr_osquery_ms,
+    o.name || ' ' || o.version AS operating_system,
+    round(a.available_space, 2) || ' GB' AS available_space,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
+        ELSE 'Offline'
+    END AS node_status,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
+            (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
+        ELSE 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
+    END AS last_fetched,
+    CASE
+        WHEN CAST(u.days AS INTEGER) > 0 THEN 
+            'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        WHEN CAST(u.hours AS INTEGER) > 0 THEN 
+            'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
+            'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        ELSE 
+            'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+    END AS last_restarted,
+    COALESCE(failed_policies.failed_count, 0) AS issues
+FROM surveilr_osquery_ms_node n
+LEFT JOIN surveilr_osquery_ms_node_available_space a ON n.node_key = a.node_key
+LEFT JOIN surveilr_osquery_ms_node_os_version o ON n.node_key = o.node_key
+LEFT JOIN surveilr_osquery_ms_node_uptime u ON n.node_key = u.node_key
+LEFT JOIN surveilr_osquery_ms_node_interface_address i ON n.node_key = i.node_key
+    AND i.interface = 'eth0'
+    AND i.address LIKE '%.%'
+LEFT JOIN (
+    SELECT node_key, COUNT(*) AS failed_count
+    FROM surveilr_osquery_ms_node_executed_policy
+    WHERE policy_result = 'Fail'
+    GROUP BY node_key
+) AS failed_policies ON n.node_key = failed_policies.node_key;
+    ;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
@@ -3133,22 +3135,23 @@ FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
               
 
-              SELECT ''title'' AS component, ''All Registered Nodes'' as contents;
-SELECT ''table'' AS component,
-    ''Node'' as markdown,
-    TRUE as sort,
-    TRUE as search;
+                SELECT ''title'' AS component, ''All Registered Nodes'' as contents;
+  SELECT ''table'' AS component,
+      ''Node'' as markdown,
+      ''Issues'' as markdown,
+      TRUE as sort,
+      TRUE as search;
 
-SELECT 
-  ''['' || host_identifier || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' AS "Node",
-  node_status as "Status",
-  0 as "Issues",
-  available_space AS "Disk space available",
-  operating_system AS "Operating Sytem",
-  osquery_version AS "osQuery Version",
-  ip_address AS "IP Address",
-  last_fetched as "Last Fetched",
-  last_restarted AS "Last Restarted"
+ SELECT 
+    ''['' || host_identifier || ''](node.sql?key='' || node_key || ''&host_id='' || host_identifier || '')'' AS "Node",
+    node_status AS "Status",
+    CONCAT(''['', issues, ''](node.sql?key='', node_key, ''&host_id='', host_identifier, ''&tab=policies)'') AS "Issues",
+    available_space AS "Disk space available",
+    operating_system AS "Operating System",
+    osquery_version AS "osQuery Version",
+    ip_address AS "IP Address",
+    last_fetched AS "Last Fetched",
+    last_restarted AS "Last Restarted"
 FROM surveilr_osquery_ms_node_detail;
             ',
       CURRENT_TIMESTAMP)
@@ -3194,7 +3197,7 @@ SET current_page = ($offset / $limit) + 1;
 
   SELECT ''datagrid'' as component;
   SELECT ''Status'' as title, "node_status" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-  SELECT ''Issues'' as title, "0" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''Issues'' as title, "issues" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
   SELECT ''Disk space'' as title, "available_space" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
   SELECT ''Memory'' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || '' GB'' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
   SELECT ''Processor Type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
