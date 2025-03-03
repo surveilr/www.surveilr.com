@@ -101,23 +101,27 @@ export function osQueryMsCell(
 }
 
 interface OsqueryMsPolicyGovernance {
-  targets: string[],
-  required_note: string,
-  resolution: string,
-  critical: boolean,
+  targets: string[];
+  required_note: string;
+  resolution: string;
+  critical: boolean;
+  description: string;
 }
 
 export function osQueryMsPolicyCell(
+  // init?: Omit<
+  // Parameters<typeof cnb.sqlCell>[0],
+  // "notebook_name" | "cell_governance"
+  // >,
   policyGovernance: OsqueryMsPolicyGovernance,
-  init?: Omit<
-    Parameters<typeof cnb.sqlCell>[0],
-    "notebook_name" | "cell_governance"
-  >,
 ) {
   return cnb.sqlCell<RssdInitSqlNotebook>({
-    ...init,
+    description: policyGovernance.description,
     notebook_name: osQueryMsPolicyNotebookName,
-    cell_governance: JSON.stringify({ ...osQueryMsCellGovernance, policy: policyGovernance }),
+    cell_governance: JSON.stringify({
+      ...osQueryMsCellGovernance,
+      policy: policyGovernance,
+    }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -942,6 +946,8 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
   allOsqueryPolicies() {
     const { osQueryPolicy } = this.serviceModels;
+    const options = { onConflict: { SQL: () => `ON CONFLICT DO NOTHING` } };
+
     const policyPassLabel = "Pass";
     const policyFailLabel = "Fail";
 
@@ -949,22 +955,28 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
         policy_name: "Ad tracking is limited (macOS)",
-        osquery_code: "SELECT CASE WHEN EXISTS (SELECT 1 FROM managed_policies WHERE domain='com.apple.AdLib' AND name='forceLimitAdTracking' AND value='1' LIMIT 1) THEN 'true' ELSE 'false' END AS policy_result;",
-        policy_description: "Checks that a mobile device management (MDM) solution configures the Mac to limit advertisement tracking.",
-        policy_fail_remarks: "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
+        osquery_code:
+          "SELECT CASE WHEN EXISTS (SELECT 1 FROM managed_policies WHERE domain='com.apple.AdLib' AND name='forceLimitAdTracking' AND value='1' LIMIT 1) THEN 'true' ELSE 'false' END AS policy_result;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to limit advertisement tracking.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
         policy_pass_label: policyPassLabel,
-        policy_fail_label: policyFailLabel
-      }),
+        policy_fail_label: policyFailLabel,
+      }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
         policy_name: "Antivirus healthy (Linux)",
-        osquery_code: "SELECT score FROM (SELECT CASE WHEN COUNT(*) = 2 THEN 'true' ELSE 'false' END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score = 'true';",
-        policy_description: "Checks that both ClamAV's daemon and its updater service (freshclam) are running.",
-        policy_fail_remarks: "Ensure ClamAV and Freshclam are installed and running.",
+        osquery_code:
+          "SELECT score FROM (SELECT CASE WHEN COUNT(*) = 2 THEN 'true' ELSE 'false' END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score = 'true';",
+        policy_description:
+          "Checks that both ClamAV's daemon and its updater service (freshclam) are running.",
+        policy_fail_remarks:
+          "Ensure ClamAV and Freshclam are installed and running.",
         policy_pass_label: policyPassLabel,
-        policy_fail_label: policyFailLabel
-      }),
-    ]
+        policy_fail_label: policyFailLabel,
+      }, options),
+    ];
   }
 
   @osQueryMsCell({
@@ -1063,7 +1075,6 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
     resolution:
       "Use this command to encrypt existing SSH keys by providing the path to the file: ssh-keygen -o -p -f /path/to/file",
     critical: false,
-  }, {
     description:
       "Policy passes if all keys are encrypted, including if no keys are present.",
   })
@@ -1083,13 +1094,12 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
   @osQueryMsPolicyCell({
     targets: ["linux"],
-    required_note: "Checks if the root drive is encrypted. There are many ways to encrypt Linux systems. This is the default on distributions such as Ubuntu.",
+    required_note:
+      "Checks if the root drive is encrypted. There are many ways to encrypt Linux systems. This is the default on distributions such as Ubuntu.",
     resolution:
       "Ensure the image deployed to your Linux workstation includes full disk encryption.",
     critical: false,
-  }, {
-    description:
-      "Checks if the root drive is encrypted.",
+    description: "Checks if the root drive is encrypted.",
   })
   "Full disk encryption enabled (Linux)"() {
     return `SELECT 
@@ -1107,13 +1117,12 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
   @osQueryMsPolicyCell({
     targets: ["windows"],
-    required_note: "Checks to make sure that full disk encryption is enabled on Windows devices.",
+    required_note:
+      "Checks to make sure that full disk encryption is enabled on Windows devices.",
     resolution:
       "To get additional information, run the following osquery query on the failing device: SELECT * FROM bitlocker_info. In the query results, if protection_status is 2, then the status cannot be determined. If it is 0, it is considered unprotected. Use the additional results (percent_encrypted, conversion_status, etc.) to help narrow down the specific reason why Windows considers the volume unprotected.",
     critical: false,
-  }, {
-    description:
-      "Checks if the root drive is encrypted.",
+    description: "Checks if the root drive is encrypted.",
   })
   "Full disk encryption enabled (Windows)"() {
     return `SELECT 
@@ -1130,13 +1139,12 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
 
   @osQueryMsPolicyCell({
     targets: ["macos"],
-    required_note: "Checks to make sure that full disk encryption (FileVault) is enabled on macOS devices.",
+    required_note:
+      "Checks to make sure that full disk encryption (FileVault) is enabled on macOS devices.",
     resolution:
       "To enable full disk encryption, on the failing device, select System Preferences > Security & Privacy > FileVault > Turn On FileVault.",
     critical: false,
-  }, {
-    description:
-      "Checks if the root drive is encrypted.",
+    description: "Checks if the root drive is encrypted.",
   })
   "Full disk encryption enabled (Macos)"() {
     return `SELECT 

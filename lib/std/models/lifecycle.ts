@@ -1935,7 +1935,16 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...gm.housekeeping.columns,
     },
     {
-      isIdempotent: true
+      isIdempotent: true,
+      constraints: (props, tableName) => {
+        const c = SQLa.tableConstraints(tableName, props);
+        return [
+          c.unique(
+            "policy_name",
+            "osquery_code",
+          ),
+        ];
+      },
     },
   );
 
@@ -1991,7 +2000,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       uniformResourceEdge,
       osQueryMsNode,
       urIngestOsQueryMsLog,
-      osQueryPolicy
+      osQueryPolicy,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2038,7 +2047,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...uniformResourceEdge.indexes,
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
-      ...osQueryPolicy.indexes
+      ...osQueryPolicy.indexes,
     ],
   };
 
@@ -2094,7 +2103,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     uniformResourceEdge,
     osQueryMsNode,
     urIngestOsQueryMsLog,
-    osQueryPolicy
+    osQueryPolicy,
   };
 }
 
