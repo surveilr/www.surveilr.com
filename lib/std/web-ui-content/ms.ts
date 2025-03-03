@@ -406,6 +406,24 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
           last_fetched AS "Last Fetched",
           last_restarted AS "Last Restarted"
       FROM surveilr_osquery_ms_node_detail;
+
+       WITH navigation_cte AS (
+                SELECT COALESCE(title, caption) as title, description
+                    FROM sqlpage_aide_navigation
+                WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("ms")
+    }
+                )
+                SELECT 'list' AS component, title, description
+                    FROM navigation_cte;
+                SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
+                    FROM sqlpage_aide_navigation
+                WHERE namespace = 'prime' AND parent_path =  ${
+      this.constructHomePath("ms")
+    }
+                ORDER BY sibling_order;
         `;
   }
 
@@ -476,73 +494,44 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/process.sql"() {
+  @msNav({
+    caption: "Policies",
+    description: "Quickly monitor your nodes by asking yes or no questions about them.",
+    siblingOrder: 99,
+  })
+  "ms/policies.sql"() {
     return this.SQL`
-        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Processes'` })}
-        SELECT 'title' AS component, 'All Running Processes on ' || $host_id as contents;
+        SELECT 'title' AS component, 'Policies' as contents;
         SELECT 'table' AS component,
+            'Policy Name' as markdown,
             TRUE as sort,
             TRUE as search;
 
-        SELECT 
-            node_key as "osQuery Node Key",
-            host_identifier as "Host Identifier",
-            updated_at as "Report Time",
-            cgroup_path, cmdline, cwd,
-            disk_bytes_read, disk_bytes_written, 
-            egid, euid,
-            gid, process_name, nice, on_disk,
-            parent, process_name, pgroup, pid, 
-            resident_size, root, 
-            sgid, start_time, state, suid, system_time,
-            threads, total_size,
-            uid, user_time, wired_size
-        FROM surveilr_osquery_ms_node_process WHERE node_key = $key;
-        `;
+        SELECT '[' || policy_name || '](policy.sql?policy_id=' || osquery_policy_id || ')' AS "Policy Name" FROM osquery_policy;    
+  `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/network.sql"() {
+  "ms/policy.sql"() {
     return this.SQL`
-        ${
-      this.activeBreadcrumbsSQL({
-        titleExpr: `$host_id || ' Interface Details'`,
-      })
-    }
-        SELECT 'title' AS component, 'Interface Details' as contents;
-        SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
-
-        SELECT 
-            updated_at as "Report Time", 
-            collisions, flags, type, ibytes, idrops, ierrors, ipackets, last_change
-            collisions, interface, link_speed, type, metric, pci_slot, mac, mtu,
-            obytes, odrops, oerrors, opackets
-        FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
-        `;
+      ${this.activeBreadcrumbsSQL()}
+      SELECT 'title' as component, "policy_name" as contents, 1 as level FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'text' as component, "policy_description" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'title' as component, 'Resolution:' as contents, 4 as level;
+      SELECT 'text' as component, "policy_fail_remarks" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'code' as component;
+      SELECT 'Query:' as title, 'sql' as language, "osquery_code" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'title' as component, 'Compatible with:' as contents, 4 as level;
+      SELECT 'text' AS component, value AS contents FROM osquery_policy, json_each(osquery_policy.osquery_platforms) WHERE osquery_policy_id = $policy_id;
+    `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/open-socket.sql"() {
+  @spn.shell({ eliminate: true })
+  "add_policy_to_code_notebook.sql"() {
     return this.SQL`
-        ${
-      this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Listening Ports'` })
-    }
-        SELECT 'title' AS component, 'Listening Ports on ' || $host_id as contents;
-        SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
+      DELETE FROM code_notebook_cell WHERE cell_name = '' AND notebook_name 'osQuery Management Server (Policy)';
 
-        SELECT 
-            node_key as "osQuery Node Key",
-            host_identifier as "Host Identifier",
-            updated_at as "Report Time",
-            family, fd, 
-            address, port,
-            net_namespace, path, pid, protocol, socket
-        FROM surveilr_osquery_ms_node_listening_port WHERE node_key = $key;
-        `;
+    `
   }
+  
 }

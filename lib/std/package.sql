@@ -592,7 +592,8 @@ ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', 'index.sql', 1, 'ms/index.sql', 'ms/index.sql', 'osQuery Management Server', NULL, NULL, 'Explore details about all nodes', NULL)
+    ('prime', 'index.sql', 1, 'ms/index.sql', 'ms/index.sql', 'osQuery Management Server', NULL, NULL, 'Explore details about all nodes', NULL),
+    ('prime', 'ms/index.sql', 99, 'ms/policies.sql', 'ms/policies.sql', 'Policies', NULL, NULL, 'Quickly monitor your nodes by asking yes or no questions about them.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
@@ -3153,6 +3154,18 @@ FROM breadcrumbs ORDER BY level DESC;
     last_fetched AS "Last Fetched",
     last_restarted AS "Last Restarted"
 FROM surveilr_osquery_ms_node_detail;
+
+ WITH navigation_cte AS (
+          SELECT COALESCE(title, caption) as title, description
+              FROM sqlpage_aide_navigation
+          WHERE namespace = ''prime'' AND path = ''ms''||''/index.sql''
+          )
+          SELECT ''list'' AS component, title, description
+              FROM navigation_cte;
+          SELECT caption as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' || COALESCE(url, path) as link, description
+              FROM sqlpage_aide_navigation
+          WHERE namespace = ''prime'' AND parent_path =  ''ms''||''/index.sql''
+          ORDER BY sibling_order;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3254,12 +3267,8 @@ SET current_page = ($offset / $limit) + 1;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ms/process.sql',
+      'ms/policies.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
     SELECT
@@ -3268,7 +3277,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ms/index.sql''
+    WHERE namespace = ''prime'' AND path=''ms/policies.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -3280,31 +3289,21 @@ WITH RECURSIVE breadcrumbs AS (
 SELECT title ,      
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
-SELECT $host_id || '' Processes'' AS title, ''#'' AS link;
-SELECT ''title'' AS component, ''All Running Processes on '' || $host_id as contents;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, ''Policies'' as contents;
 SELECT ''table'' AS component,
+    ''Policy Name'' as markdown,
     TRUE as sort,
     TRUE as search;
 
-SELECT 
-    node_key as "osQuery Node Key",
-    host_identifier as "Host Identifier",
-    updated_at as "Report Time",
-    cgroup_path, cmdline, cwd,
-    disk_bytes_read, disk_bytes_written, 
-    egid, euid,
-    gid, process_name, nice, on_disk,
-    parent, process_name, pgroup, pid, 
-    resident_size, root, 
-    sgid, start_time, state, suid, system_time,
-    threads, total_size,
-    uid, user_time, wired_size
-FROM surveilr_osquery_ms_node_process WHERE node_key = $key;
+SELECT ''['' || policy_name || ''](policy.sql?policy_id='' || osquery_policy_id || '')'' AS "Policy Name" FROM osquery_policy;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ms/network.sql',
+      'ms/policy.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -3330,62 +3329,19 @@ WITH RECURSIVE breadcrumbs AS (
 SELECT title ,      
 sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
 FROM breadcrumbs ORDER BY level DESC;
-SELECT $host_id || '' Interface Details'' AS title, ''#'' AS link;
-SELECT ''title'' AS component, ''Interface Details'' as contents;
-SELECT ''table'' AS component,
-    TRUE as sort,
-    TRUE as search;
-
-SELECT 
-    updated_at as "Report Time", 
-    collisions, flags, type, ibytes, idrops, ierrors, ipackets, last_change
-    collisions, interface, link_speed, type, metric, pci_slot, mac, mtu,
-    obytes, odrops, oerrors, opackets
-FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
+SELECT ''title'' as component, "policy_name" as contents, 1 as level FROM osquery_policy where osquery_policy_id = $policy_id;
+SELECT ''text'' as component, "policy_description" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+SELECT ''title'' as component, ''Resolution:'' as contents, 4 as level;
+SELECT ''text'' as component, "policy_fail_remarks" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+SELECT ''code'' as component;
+SELECT ''Query:'' as title, ''sql'' as language, "osquery_code" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+SELECT ''title'' as component, ''Compatible with:'' as contents, 4 as level;
+SELECT ''text'' AS component, value AS contents FROM osquery_policy, json_each(osquery_policy.osquery_platforms) WHERE osquery_policy_id = $policy_id;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ms/open-socket.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              SELECT ''breadcrumb'' as component;
-WITH RECURSIVE breadcrumbs AS (
-    SELECT
-        COALESCE(abbreviated_caption, caption) AS title,
-        COALESCE(url, path) AS link,
-        parent_path, 0 AS level,
-        namespace
-    FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ms/index.sql''
-    UNION ALL
-    SELECT
-        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
-        COALESCE(nav.url, nav.path) AS link,
-        nav.parent_path, b.level + 1, nav.namespace
-    FROM sqlpage_aide_navigation nav
-    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
-)
-SELECT title ,      
-sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
-FROM breadcrumbs ORDER BY level DESC;
-SELECT $host_id || '' Listening Ports'' AS title, ''#'' AS link;
-SELECT ''title'' AS component, ''Listening Ports on '' || $host_id as contents;
-SELECT ''table'' AS component,
-    TRUE as sort,
-    TRUE as search;
-
-SELECT 
-    node_key as "osQuery Node Key",
-    host_identifier as "Host Identifier",
-    updated_at as "Report Time",
-    family, fd, 
-    address, port,
-    net_namespace, path, pid, protocol, socket
-FROM surveilr_osquery_ms_node_listening_port WHERE node_key = $key;
-            ',
+      'add_policy_to_code_notebook.sql',
+      'DELETE FROM code_notebook_cell WHERE cell_name = '''' AND notebook_name ''osQuery Management Server (Policy)'';',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
