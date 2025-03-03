@@ -402,6 +402,7 @@ export class TypicalCodeNotebook
           const shouldIncludeExtraFields = [
             "osQuery Management Server (Prime)",
             "osQuery Management Server Default Filters (Prime)",
+            "osQuery Management Server (Policy)",
           ].includes(String(notebookName));
 
           const ensureKernel = cellOverrides?.ensureKernel;
