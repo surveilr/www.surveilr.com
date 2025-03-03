@@ -1665,6 +1665,19 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.8'' as title, ''# `surveilr` v1.7.8 Release Notes
+
+This release focuses on enhancing the `surveilr osquery-ms` UI by adding new tables and optimizing data management. No bugs were fixed or new features introduced. Please review the Web UI for updates.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.7.7'' as title, ''# `surveilr` v1.7.7 Release Notes
+
+This release aims to improve the `surveilr osquery-ms` server; no new features or bug fixes were added.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.7.6'' as title, ''# `surveilr` v1.7.6 Release Notes
 
 ---
