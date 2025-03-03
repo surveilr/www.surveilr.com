@@ -361,7 +361,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     JOIN code_notebook_cell c
         ON ranked_policies.policy_name = c.cell_name
     WHERE ranked_policies.row_num = 1;  -- Only select the most recent entry for each policy
-    `
+    `;
   }
 
   supportDDL() {
