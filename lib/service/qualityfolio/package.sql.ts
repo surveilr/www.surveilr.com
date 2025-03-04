@@ -42,9 +42,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qltyfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -87,9 +86,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${this.absoluteURL("/qltyfolio/suite-data.sql")
+      }||'?id='||suite_id||')' as id,
       
       suite_name,
       created_by_user as "Created By",
@@ -176,13 +174,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/plan-overview.sql")
-    }||'?id='||id||')' as id,      
+      '['||id||']('||${this.absoluteURL("/qltyfolio/plan-overview.sql")
+      }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${
-      this.absoluteURL("/qltyfolio/test-cases-list.sql")
-    }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${this.absoluteURL("/qltyfolio/test-cases-list.sql")
+      }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -275,7 +271,7 @@ select
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id) r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -294,7 +290,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id) r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -566,13 +562,11 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qltyfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -665,9 +659,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
@@ -778,9 +771,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || bug_id || '](' || ${
-      this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
-    }|| bug_id || ')' as id,
+    '[' || bug_id || '](' || ${this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
+      }|| bug_id || ')' as id,
       title,
       reporter as 'Reporter',
       strftime('%d-%m-%Y', created) as "Created At",
@@ -857,9 +849,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -986,9 +977,8 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| $id || '#actual-result-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -996,18 +986,16 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
-    }|| $id || '#test-run-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
+      }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
 
 --Tab 3: Bug Report
     SELECT
     'Bug Report' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
-    }|| $id || '#bug-report-content'  AS link,
+      ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
+      }|| $id || '#bug-report-content'  AS link,
       $tab = 'bug-report' AS active
          FROM bug_list  where test_case_id = $id;
 
@@ -1281,9 +1269,8 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| t.test_case_id || ')' as id,
       t.title,
        case when t.test_status is not null then t.test_status
         else 'TODO' END AS "test_status",
@@ -1370,9 +1357,8 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
