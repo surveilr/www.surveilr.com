@@ -54,6 +54,7 @@ WHERE uri LIKE '%/qf-case-group.md';
 
 DROP TABLE IF EXISTS test_case_run_results;
 CREATE TABLE test_case_run_results AS
+with test_case_result as(
 SELECT 
     content,
     json_extract(content, '$.test_case_fii') AS test_case_id,
@@ -66,8 +67,8 @@ SELECT
     json_extract(content, '$.total_duration') AS total_duration,
     json_extract(content, '$.steps') AS steps -- Extracts the full array of steps
 FROM uniform_resource
-WHERE uri LIKE '%.result.json';
-
+WHERE uri LIKE '%.result.json')
+SELECT * FROM test_case_result order by start_time desc;
 
 DROP TABLE IF EXISTS test_cases;
 CREATE TABLE test_cases AS
