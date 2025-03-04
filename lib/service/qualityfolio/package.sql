@@ -61,6 +61,7 @@ WHERE uri LIKE '%/qf-case-group.md';
 
 DROP TABLE IF EXISTS test_case_run_results;
 CREATE TABLE test_case_run_results AS
+with test_case_result as(
 SELECT 
     content,
     json_extract(content, '$.test_case_fii') AS test_case_id,
@@ -73,8 +74,8 @@ SELECT
     json_extract(content, '$.total_duration') AS total_duration,
     json_extract(content, '$.steps') AS steps -- Extracts the full array of steps
 FROM uniform_resource
-WHERE uri LIKE '%.result.json';
-
+WHERE uri LIKE '%.result.json')
+SELECT * FROM test_case_result order by start_time desc;
 
 DROP TABLE IF EXISTS test_cases;
 CREATE TABLE test_cases AS
@@ -285,15 +286,32 @@ SELECT
     g.suite_id,
     g.id AS group_id,
     g.created_by,   
-    strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at,
+    strftime('%d-%m-%Y', g.created_at) AS formatted_test_case_created_at,
     COUNT(tc.test_case_id) AS test_case_count,
-    COUNT(p.test_case_id) AS success_status_count,
-    (COUNT(tc.test_case_id)-COUNT(p.test_case_id)) AS failed_status_count
-FROM groups g
+    COUNT(CASE WHEN tc.test_status = 'passed' THEN tc.test_case_id END) AS success_status_count,
+    COUNT(CASE WHEN tc.test_status = 'failed' THEN tc.test_case_id END) AS failed_status_count,
+    COUNT(CASE WHEN tc.test_status is null THEN tc.test_case_id END) AS todo_status_count
+    FROM groups g
 LEFT JOIN test_cases tc
     ON g.id = tc.group_id
-LEFT JOIN test_case_run_results p on p.test_case_id=tc.test_case_id and status='passed'
-GROUP BY g.name, g.id;
+    GROUP BY g.name, g.id;    
+
+-- DROP VIEW IF EXISTS test_cases_run_status;
+-- CREATE VIEW test_cases_run_status AS 
+-- SELECT 
+--     g.name AS group_name,
+--     g.suite_id,
+--     g.id AS group_id,
+--     g.created_by,   
+--     strftime('%d-%m-%Y',  g.created_at) AS formatted_test_case_created_at,
+--     COUNT(tc.test_case_id) AS test_case_count,
+--     COUNT(p.test_case_id) AS success_status_count,
+--     (COUNT(tc.test_case_id)-COUNT(p.test_case_id)) AS failed_status_count
+-- FROM groups g
+-- LEFT JOIN test_cases tc
+--     ON g.id = tc.group_id
+-- LEFT JOIN test_case_run_results p on p.test_case_id=tc.test_case_id and status='passed'
+-- GROUP BY g.name, g.id;
 
 DROP VIEW IF EXISTS test_plan;
 CREATE VIEW test_plan AS
@@ -383,7 +401,8 @@ SELECT
     t.id as suite_id,
     sum(c.test_case_count) AS total_test_case,
     sum(c.success_status_count) AS success_count,
-    (sum(c.test_case_count) - sum(c.success_status_count)) AS failed_count
+    sum(c.failed_status_count)  AS failed_count,
+    sum(c.todo_status_count)  AS todo_count
 FROM 
     test_suites t 
 LEFT JOIN 
@@ -1056,6 +1075,16 @@ SELECT ''table'' as component,
      suite_name,
      created_by_user as "Created By",
      total_test_case as "test case count",
+   --   CASE
+   --     WHEN total_test_case > 0
+   --     THEN
+   --         ''**''||ROUND(
+   --             100.0 * success_count /
+   --             (total_test_case-todo_count),
+   --             2
+   --         ) || ''%**'' ||'' *(''||success_count || ''/'' || (total_test_case-todo_count)  ||''*)''
+   --     ELSE ''0%''
+   -- END AS "Success Rate",
       CASE
        WHEN total_test_case > 0
        THEN
@@ -1066,8 +1095,10 @@ SELECT ''table'' as component,
            ) || ''%**'' ||'' *(''||success_count || ''/'' || total_test_case  ||''*)''
        ELSE ''0%''
    END AS "Success Rate",
+   --  todo_count as "TO DO",
      strftime(''%d-%m-%Y'', created_at) as "Created On",
-      ''rowClass-''||(100* success_count/total_test_case) as _sqlpage_css_class
+      ''rowClass-''||(100* success_count/(total_test_case)) as _sqlpage_css_class
+     
      FROM test_suite_success_and_failed_rate st order by suite_id asc;
             ',
       CURRENT_TIMESTAMP)
@@ -1441,7 +1472,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id ) r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -1677,7 +1708,8 @@ SET current_page = ($offset / $limit) + 1;
   ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
     test_case_title AS "title",
       group_name AS "group",
-        test_status,
+      case when test_status is not null then test_status
+      else ''TODO'' END AS "test_status",
     ''rowClass-''||test_status as _sqlpage_css_class,
     created_by as "Created By",
     formatted_test_case_created_at as "Created On",
