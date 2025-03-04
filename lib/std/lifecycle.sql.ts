@@ -86,11 +86,19 @@ export function osQueryMsCell(
     Parameters<typeof cnb.sqlCell>[0],
     "notebook_name" | "cell_governance"
   >,
+  targets: string[] = ["macos", "windows", "linux"],
+  singleton: boolean = false,
 ) {
+  const cellGovernance = JSON.stringify({
+    ...osQueryMsCellGovernance,
+    targets,
+    singleton,
+  });
+
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: osQueryMsNotebookName,
-    cell_governance: JSON.stringify(osQueryMsCellGovernance),
+    cell_governance: cellGovernance,
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -120,7 +128,13 @@ export function osQueryMsPolicyCell(
     notebook_name: osQueryMsPolicyNotebookName,
     cell_governance: JSON.stringify({
       ...osQueryMsCellGovernance,
-      policy: policyGovernance,
+      targets: policyGovernance.targets,
+      singleton: false,
+      policy: {
+        required_note: policyGovernance.required_note,
+        resolution: policyGovernance.resolution,
+        critical: policyGovernance.critical,
+      },
     }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
@@ -156,7 +170,11 @@ export function osQueryMsFilterCell(
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: osQueryMsFilterNotebookName,
-    cell_governance: JSON.stringify(osQueryMsCellGovernance),
+    cell_governance: JSON.stringify({
+      ...osQueryMsCellGovernance,
+      targets: [],
+      singleton: false,
+    }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -1067,9 +1085,53 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "A single row containing the operating system name and version.",
-  })
-  "OS Version"() {
-    return `SELECT * FROM os_version`;
+  }, ["macos", "linux"])
+  "OS Version (Linux and Macos)"() {
+    return `SELECT
+    os.name,
+    os.major,
+    os.minor,
+    os.patch,
+    os.extra,
+    os.build,
+    os.arch,
+    os.platform,
+    os.version AS version,
+    k.version AS kernel_version
+  FROM
+    os_version os,
+    kernel_info k;
+`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "A single row containing the operating system name and version.",
+  }, ["windows"])
+  "OS Version (Windows)"() {
+    return `
+    WITH display_version_table AS (
+      SELECT data as display_version
+      FROM registry
+      WHERE path = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\DisplayVersion'
+    ),
+    ubr_table AS (
+      SELECT data AS ubr
+      FROM registry
+      WHERE path ='HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\UBR'
+    )
+    SELECT
+      os.name,
+      COALESCE(d.display_version, '') AS display_version,
+      COALESCE(CONCAT((SELECT version FROM os_version), '.', u.ubr), k.version) AS version
+    FROM
+      os_version os,
+      kernel_info k
+    LEFT JOIN
+      display_version_table d
+    LEFT JOIN
+      ubr_table u;
+`;
   }
 
   @osQueryMsCell({
@@ -1081,17 +1143,65 @@ Ask your system administrator to establish the recommended configuration via GP,
   }
 
   @osQueryMsCell({
-    description: "Network interfaces and relevant metadata.",
-  })
-  "Interface Addresses"() {
-    return `SELECT * FROM interface_addresses`;
+    description:
+      "Retrieves information about network interfaces on devices running windows.",
+  }, ["windows"])
+  "Network Interfaces (Windows)"() {
+    return `
+      SELECT
+          ia.address,
+          id.mac
+      FROM
+          interface_addresses ia
+          JOIN interface_details id ON id.interface = ia.interface
+          JOIN routes r ON r.interface = ia.address
+      WHERE
+          (r.destination = '0.0.0.0' OR r.destination = '::') AND r.netmask = 0
+          AND r.type = 'remote'
+          AND (
+          inet_aton(ia.address) IS NOT NULL AND (
+            split(ia.address, '.', 0) = '10'
+            OR (split(ia.address, '.', 0) = '172' AND (CAST(split(ia.address, '.', 1) AS INTEGER) & 0xf0) = 16)
+            OR (split(ia.address, '.', 0) = '192' AND split(ia.address, '.', 1) = '168')
+          )
+          OR (inet_aton(ia.address) IS NULL AND regex_match(lower(ia.address), '^f[cd][0-9a-f][0-9a-f]:[0-9a-f:]+', 0) IS NOT NULL)
+        )
+      ORDER BY
+          r.metric ASC,
+        inet_aton(ia.address) IS NOT NULL DESC
+      LIMIT 1;
+    `;
   }
 
   @osQueryMsCell({
-    description: "Detailed information and stats of network interfaces.",
-  })
-  "Interface Details"() {
-    return `SELECT * FROM interface_details`;
+    description:
+      "Retrieves information about network interfaces on macOS and Linux devices.",
+  }, ["macos", "linux"])
+  "Network Interfaces (Linux and Macos)"() {
+    return `
+      SELECT
+          ia.address,
+          id.mac
+      FROM
+          interface_addresses ia
+          JOIN interface_details id ON id.interface = ia.interface
+          JOIN routes r ON r.interface = ia.interface
+      WHERE
+          (r.destination = '0.0.0.0' OR r.destination = '::') AND r.netmask = 0
+          AND r.type = 'gateway'
+          AND (
+          inet_aton(ia.address) IS NOT NULL AND (
+            split(ia.address, '.', 0) = '10'
+            OR (split(ia.address, '.', 0) = '172' AND (CAST(split(ia.address, '.', 1) AS INTEGER) & 0xf0) = 16)
+            OR (split(ia.address, '.', 0) = '192' AND split(ia.address, '.', 1) = '168')
+          )
+          OR (inet_aton(ia.address) IS NULL AND regex_match(lower(ia.address), '^f[cd][0-9a-f][0-9a-f]:[0-9a-f:]+', 0) IS NOT NULL)
+        )
+      ORDER BY
+          r.metric ASC,
+        inet_aton(ia.address) IS NOT NULL DESC
+      LIMIT 1;
+    `;
   }
 
   @osQueryMsCell({
@@ -1101,25 +1211,59 @@ Ask your system administrator to establish the recommended configuration via GP,
     return `SELECT * FROM listening_ports`;
   }
 
-  @osQueryMsCell({
-    description:
-      "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
-  })
+  @osQueryMsCell(
+    {
+      description:
+        "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
+    },
+    ["linux", "macos", "windows"],
+    true,
+  )
   "Server Uptime"() {
-    return `SELECT * FROM uptime`;
+    return `SELECT * FROM uptime LIMIT 1;`;
   }
 
-  @osQueryMsCell({
-    description: "Available memory space in the node.",
-  })
-  "Available Disk Space"() {
-    return `SELECT path, type, round((blocks_available * blocks_size / 1e9), 2) AS available_space FROM mounts WHERE path='/'`;
+  @osQueryMsCell(
+    {
+      description:
+        "Retrieves total amount of free disk space on a Windows host.",
+    },
+    ["windows"],
+    true,
+  )
+  "Available Disk Space (Windows)"() {
+    return `
+    SELECT 
+      ROUND((sum(free_space) * 100 * 10e-10) / (sum(size) * 10e-10)) AS percent_disk_space_available,
+      ROUND(sum(free_space) * 10e-10) AS gigs_disk_space_available,
+      ROUND(sum(size)       * 10e-10) AS gigs_total_disk_space
+    FROM logical_drives
+    WHERE file_system = 'NTFS' LIMIT 1;
+`;
+  }
+
+  @osQueryMsCell(
+    {
+      description: "Retrieves total amount of free disk space on a host.",
+    },
+    ["macos", "linux"],
+    true,
+  )
+  "Available Disk Space (Linux and Macos)"() {
+    return `
+    SELECT 
+      (blocks_available * 100 / blocks) AS percent_disk_space_available,
+      round((blocks_available * blocks_size * 10e-10),2) AS gigs_disk_space_available,
+      round((blocks           * blocks_size * 10e-10),2) AS gigs_total_disk_space
+    FROM mounts
+    WHERE path = '/' LIMIT 1;
+`;
   }
 
   @osQueryMsCell({
     description:
       "Get all software installed on a Linux computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
-  })
+  }, ["linux"])
   "Installed Linux software"() {
     return `SELECT name AS name, version AS version, 'Package (APT)' AS type, 'apt_sources' AS source FROM apt_sources UNION SELECT name AS name, version AS version, 'Package (deb)' AS type, 'deb_packages' AS source FROM deb_packages UNION SELECT package AS name, version AS version, 'Package (Portage)' AS type, 'portage_packages' AS source FROM portage_packages UNION SELECT name AS name, version AS version, 'Package (RPM)' AS type, 'rpm_packages' AS source FROM rpm_packages UNION SELECT name AS name, '' AS version, 'Package (YUM)' AS type, 'yum_sources' AS source FROM yum_sources UNION SELECT name AS name, version AS version, 'Package (NPM)' AS type, 'npm_packages' AS source FROM npm_packages UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages;`;
   }
@@ -1127,7 +1271,7 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "Get all software installed on a Windows computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
-  })
+  }, ["windows"])
   "Installed Windows software"() {
     return `SELECT name AS name, version AS version, 'Program (Windows)' AS type, 'programs' AS source FROM programs UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (IE)' AS type, 'ie_extensions' AS source FROM ie_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name AS name, version AS version, 'Package (Chocolatey)' AS type, 'chocolatey_packages' AS source FROM chocolatey_packages;`;
   }
@@ -1135,7 +1279,7 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "Get all software installed on a Macos computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
-  })
+  }, ["macos"])
   "Installed Macos software"() {
     return `SELECT name AS name, bundle_short_version AS version, 'Application (macOS)' AS type, 'apps' AS source FROM apps UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name As name, version AS version, 'Browser plugin (Safari)' AS type, 'safari_extensions' AS source FROM safari_extensions UNION SELECT name AS name, version AS version, 'Package (Homebrew)' AS type, 'homebrew_packages' AS source FROM homebrew_packages;`;
   }
