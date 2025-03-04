@@ -397,6 +397,13 @@ export class TypicalCodeNotebook
 
           const cell_name = String(c.callable).replace(/_cell$/, "");
           const cellOverrides = notebook.cellConfig.get(cell_name);
+          const notebookName = cellOverrides?.notebook_name ??
+            notebook.notebookName;
+          const shouldIncludeExtraFields = [
+            "osQuery Management Server (Prime)",
+            "osQuery Management Server Default Filters (Prime)",
+            "osQuery Management Server (Policy)",
+          ].includes(String(notebookName));
 
           const ensureKernel = cellOverrides?.ensureKernel;
           if (
@@ -421,9 +428,15 @@ export class TypicalCodeNotebook
               ulid.ulid(),
             notebook_kernel_id: ensureKernel?.code_notebook_kernel_id ??
               cellOverrides?.notebook_kernel_id ?? "SQL",
-            notebook_name: cellOverrides?.notebook_name ??
-              notebook.notebookName,
+            notebook_name: notebookName,
             cell_name: cellOverrides?.cell_name ?? cell_name,
+            ...(shouldIncludeExtraFields
+              ? {
+                cell_governance: cellOverrides?.cell_governance ?? "{}",
+                description: cellOverrides?.description ??
+                  "No description available",
+              }
+              : {}),
             interpretable_code,
             interpretable_code_hash: cellOverrides?.interpretable_code_hash ??
               await notebook.interpretableCodeHash(

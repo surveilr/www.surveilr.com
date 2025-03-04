@@ -4,14 +4,11 @@ import * as pkg from "../drh-basepackage.sql.ts";
 import { processIEOGCgm } from "../study-specific-stateless/ieogc-ingest-data-sql.ts";
 
 export class ieogcSqlPages extends spn.TypicalSqlPageNotebook {
-
-
   savecgmDDL() {
-      const dbFilePath = "./resource-surveillance.sqlite.db";
-      const jsonstmts = processIEOGCgm(dbFilePath);
-      return jsonstmts;
-    }
-
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const jsonstmts = processIEOGCgm(dbFilePath);
+    return jsonstmts;
+  }
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
