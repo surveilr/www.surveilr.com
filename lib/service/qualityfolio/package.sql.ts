@@ -92,6 +92,16 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       suite_name,
       created_by_user as "Created By",
       total_test_case as "test case count",
+    --   CASE
+    --     WHEN total_test_case > 0
+    --     THEN
+    --         '**'||ROUND(
+    --             100.0 * success_count /
+    --             (total_test_case-todo_count),
+    --             2
+    --         ) || '%**' ||' *('||success_count || '/' || (total_test_case-todo_count)  ||'*)'
+    --     ELSE '0%'
+    -- END AS "Success Rate",
        CASE
         WHEN total_test_case > 0
         THEN
@@ -102,8 +112,10 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
             ) || '%**' ||' *('||success_count || '/' || total_test_case  ||'*)'
         ELSE '0%'
     END AS "Success Rate",
+    --  todo_count as "TO DO",
       strftime('%d-%m-%Y', created_at) as "Created On",
-       'rowClass-'||(100* success_count/total_test_case) as _sqlpage_css_class
+       'rowClass-'||(100* success_count/(total_test_case)) as _sqlpage_css_class
+      
       FROM test_suite_success_and_failed_rate st order by suite_id asc;
 
     
@@ -428,7 +440,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id ) r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -651,7 +663,8 @@ SELECT 'table' as component,
       }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
-          test_status,
+        case when test_status is not null then test_status
+        else 'TODO' END AS "test_status",
       'rowClass-'||test_status as _sqlpage_css_class,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
