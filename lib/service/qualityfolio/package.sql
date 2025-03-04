@@ -1300,7 +1300,7 @@ select
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id) r
     ON
     t.test_case_id = r.test_case_id;
 
@@ -1319,7 +1319,7 @@ LEFT JOIN
     FROM 
     test_cases t
 LEFT JOIN 
-    test_case_run_results r
+    (select * from test_case_run_results group by test_case_id) r
     ON
     t.test_case_id = r.test_case_id;
 
