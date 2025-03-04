@@ -596,91 +596,6 @@ VALUES
     ('prime', 'ms/index.sql', 99, 'ms/policies.sql', 'ms/policies.sql', 'Policies', NULL, NULL, 'Quickly monitor your nodes by asking yes or no questions about them.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
-DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
-CREATE VIEW surveilr_osquery_ms_node_process AS
-SELECT
-    l.node_key,
-    l.updated_at,
-    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
-    json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
-    json_extract(l.log_data, '$.columns.cwd') AS cwd,
-    json_extract(l.log_data, '$.columns.disk_bytes_read') AS disk_bytes_read,
-    json_extract(l.log_data, '$.columns.disk_bytes_written') AS disk_bytes_written,
-    json_extract(l.log_data, '$.columns.egid') AS egid,
-    json_extract(l.log_data, '$.columns.euid') AS euid,
-    json_extract(l.log_data, '$.columns.gid') AS gid,
-    json_extract(l.log_data, '$.columns.name') AS process_name,
-    json_extract(l.log_data, '$.columns.nice') AS nice,
-    json_extract(l.log_data, '$.columns.on_disk') AS on_disk,
-    json_extract(l.log_data, '$.columns.parent') AS parent,
-    json_extract(l.log_data, '$.columns.path') AS process_name,
-    json_extract(l.log_data, '$.columns.pgroup') AS pgroup,
-    json_extract(l.log_data, '$.columns.pid') AS pid,
-    json_extract(l.log_data, '$.columns.resident_size') AS resident_size,
-    json_extract(l.log_data, '$.columns.root') AS root,
-    json_extract(l.log_data, '$.columns.sgid') AS sgid,
-    json_extract(l.log_data, '$.columns.start_time') AS start_time,
-    json_extract(l.log_data, '$.columns.state') AS state,
-    json_extract(l.log_data, '$.columns.suid') AS suid,
-    json_extract(l.log_data, '$.columns.system_time') AS system_time,
-    json_extract(l.log_data, '$.columns.threads') AS threads,
-    json_extract(l.log_data, '$.columns.total_size') AS total_size,
-    json_extract(l.log_data, '$.columns.uid') AS uid,
-    json_extract(l.log_data, '$.columns.user_time') AS user_time,
-    json_extract(l.log_data, '$.columns.wired_size') AS wired_size
-FROM ur_ingest_session_osquery_ms_log AS l
-WHERE l.log_type = 'result'
-    AND json_extract(l.log_data, '$.name') = 'All Processes';
-    ;
-DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
-CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
-SELECT
-    l.node_key,
-    l.updated_at,
-    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.columns.collisions') AS collisions,
-    json_extract(l.log_data, '$.columns.flags') AS flags,
-    json_extract(l.log_data, '$.columns.ibytes') AS ibytes,
-    json_extract(l.log_data, '$.columns.idrops') AS idrops,
-    json_extract(l.log_data, '$.columns.ierrors') AS ierrors,
-    json_extract(l.log_data, '$.columns.interface') AS interface,
-    json_extract(l.log_data, '$.columns.ipackets') AS ipackets,
-    json_extract(l.log_data, '$.columns.last_change') AS last_change,
-    json_extract(l.log_data, '$.columns.link_speed') AS link_speed,
-    json_extract(l.log_data, '$.columns.mac') AS mac,
-    json_extract(l.log_data, '$.columns.metric') AS metric,
-    json_extract(l.log_data, '$.columns.mtu') AS mtu,
-    json_extract(l.log_data, '$.columns.obytes') AS obytes,
-    json_extract(l.log_data, '$.columns.odrops') AS odrops,
-    json_extract(l.log_data, '$.columns.oerrors') AS oerrors,
-    json_extract(l.log_data, '$.columns.opackets') AS opackets,
-    json_extract(l.log_data, '$.columns.pci_slot') AS pci_slot,
-    json_extract(l.log_data, '$.columns.type') AS type
-FROM ur_ingest_session_osquery_ms_log AS l
-WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'Interface Details';
-
-    ;   
-DROP VIEW IF EXISTS surveilr_osquery_ms_node_listening_port;
-CREATE VIEW surveilr_osquery_ms_node_listening_port AS
-SELECT
-    l.node_key,
-    l.updated_at,
-    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.columns.family') AS family,
-    json_extract(l.log_data, '$.columns.fd') AS fd,
-    json_extract(l.log_data, '$.columns.address') AS address,
-    json_extract(l.log_data, '$.columns.port') AS port,
-    json_extract(l.log_data, '$.columns.net_namespace') AS net_namespace,
-    json_extract(l.log_data, '$.columns.path') AS path,
-    json_extract(l.log_data, '$.columns.pid') AS pid,
-    json_extract(l.log_data, '$.columns.protocol') AS protocol,
-    json_extract(l.log_data, '$.columns.socket') AS socket
-FROM ur_ingest_session_osquery_ms_log AS l
-WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'Listening Ports';
-    ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
 CREATE VIEW surveilr_osquery_ms_node_system_info AS
 SELECT
@@ -717,16 +632,16 @@ SELECT
     l.node_key,
     l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.columns.name') AS name,
-    json_extract(l.log_data, '$.columns.version') AS version,
+    json_extract(l.log_data, '$.columns.arch') AS arch,
+    json_extract(l.log_data, '$.columns.build') AS build,
+    json_extract(l.log_data, '$.columns.extra') AS extra,
+    json_extract(l.log_data, '$.columns.kernel_version') AS kernel_version,
     json_extract(l.log_data, '$.columns.major') AS major,
     json_extract(l.log_data, '$.columns.minor') AS minor,
+    json_extract(l.log_data, '$.columns.name') AS name,
     json_extract(l.log_data, '$.columns.patch') AS patch,
-    json_extract(l.log_data, '$.columns.build') AS build,
     json_extract(l.log_data, '$.columns.platform') AS platform,
-    json_extract(l.log_data, '$.columns.platform_like') AS platform_like,
-    json_extract(l.log_data, '$.columns.codename') AS codename,
-    json_extract(l.log_data, '$.columns.arch') AS arch
+    json_extract(l.log_data, '$.columns.version') AS version
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'OS Version';
@@ -738,14 +653,11 @@ SELECT
     l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
     json_extract(l.log_data, '$.columns.address') AS address,
-    json_extract(l.log_data, '$.columns.broadcast') AS broadcast,
-    json_extract(l.log_data, '$.columns.interface') AS interface,
-    json_extract(l.log_data, '$.columns.mask') AS mask,
-    json_extract(l.log_data, '$.columns.point_to_point') AS point_to_point,
-    json_extract(l.log_data, '$.columns.type') AS type
+    json_extract(l.log_data, '$.columns.mac') AS mac
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'Interface Addresses';
+  AND (json_extract(l.log_data, '$.name') = 'Network Interfaces (Linux and Macos)'
+      OR json_extract(l.log_data, '$.name') = 'Network Interfaces (Windows)');
     ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
 CREATE VIEW surveilr_osquery_ms_node_uptime AS
@@ -761,8 +673,7 @@ SELECT
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
 AND json_extract(l.log_data, '$.name') = 'Server Uptime'
-ORDER BY l.created_at DESC
-LIMIT 1;
+ORDER BY l.created_at DESC;
     ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
 CREATE VIEW surveilr_osquery_ms_node_available_space AS
@@ -770,13 +681,14 @@ SELECT
     l.node_key,
     l.updated_at,
     json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.log_data, '$.columns.available_space') AS available_space,
-    json_extract(l.log_data, '$.columns.path') AS path
+    json_extract(l.log_data, '$.columns.gigs_disk_space_available') AS available_space,
+    json_extract(l.log_data, '$.columns.gigs_total_disk_space') AS gigs_total_disk_space,
+    json_extract(l.log_data, '$.columns.percent_disk_space_available') AS percent_disk_space_available
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'Available Disk Space'
-ORDER BY l.created_at DESC
-LIMIT 1;
+AND (json_extract(l.log_data, '$.name') = 'Available Disk Space (Linux and Macos)'
+        OR json_extract(l.log_data, '$.name') = 'Available Disk Space (Windows)')
+ORDER BY l.created_at DESC;
     ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
 
@@ -851,8 +763,7 @@ SELECT
     n.created_at,
     i.updated_at,
     i.address AS ip_address,
-    i.broadcast,
-    i.mask,
+    i.mac,
     CASE 
         WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
             (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
@@ -895,8 +806,6 @@ LEFT JOIN surveilr_osquery_ms_node_available_space a ON n.node_key = a.node_key
 LEFT JOIN surveilr_osquery_ms_node_os_version o ON n.node_key = o.node_key
 LEFT JOIN surveilr_osquery_ms_node_uptime u ON n.node_key = u.node_key
 LEFT JOIN surveilr_osquery_ms_node_interface_address i ON n.node_key = i.node_key
-    AND i.interface = 'eth0'
-    AND i.address LIKE '%.%'
 LEFT JOIN (
     SELECT node_key, COUNT(*) AS failed_count
     FROM surveilr_osquery_ms_node_executed_policy
