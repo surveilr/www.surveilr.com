@@ -298,6 +298,8 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
           operating_system AS "Operating System",
           osquery_version AS "osQuery Version",
           ip_address AS "IP Address",
+          '-' AS "Boundary",
+          '-' AS "Team",
           last_fetched AS "Last Fetched",
           last_restarted AS "Last Restarted"
       FROM surveilr_osquery_ms_node_detail;
@@ -347,6 +349,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'Processor Type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
       SELECT 'Operating system' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
       SELECT 'osQuery' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Boundary' as title, "-" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
       SELECT 'datagrid' as component;
       SELECT 'Added to surveilr' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
@@ -354,6 +357,7 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'Hardware Model' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
       SELECT 'Serial Number' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
       SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Team' as title, "-" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
   
       -- Define tabs
       SELECT 'tab' AS component, TRUE AS center;
