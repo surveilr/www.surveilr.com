@@ -348,26 +348,24 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'Operating system' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
       SELECT 'osQuery' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
+      SELECT 'datagrid' as component;
+      SELECT 'Added to surveilr' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Last Restarted' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Hardware Model' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+      SELECT 'Serial Number' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+      SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  
       -- Define tabs
       SELECT 'tab' AS component, TRUE AS center;
 
-      -- Tab 1: Details
-      SELECT 'Details' AS title, '?tab=details&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'details' AS active;
-
-      -- Tab 2: Software
+      -- Tab 1: Software
       SELECT 'Software' AS title, '?tab=software&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'software' AS active;
 
       -- Tab 2: Software
       SELECT 'Policies' AS title, '?tab=policies&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'policies' AS active;
 
-      -- Tab specific content for Details
-      select 'text' as component, 'About' as title, 2 as size WHERE $tab = 'details' OR $tab IS NULL;
-      SELECT 'datagrid' as component WHERE $tab = 'details' OR $tab IS NULL;
-      SELECT 'Added to surveilr' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Last Restarted' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Hardware Model' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Serial Number' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
+     
+      -- SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
 
       -- Tab specific content for Software
       select 'text' as component, 'Software' as title WHERE $tab = 'software';
