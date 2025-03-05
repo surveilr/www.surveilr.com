@@ -16,34 +16,45 @@ FleetFolio is the missing link between infrastructure monitoring, security, and 
 Many organizations struggle with shadow IT, compliance violations, and operational blind spots due to a lack of infrastructure assurance. FleetFolio helps by:  
 
 ### 🔍 Identifying Reliability Issues  
+
 If an expected asset (server, VM, container) is missing, it could indicate a downtime event, misconfiguration, or failure. FleetFolio flags missing assets, allowing teams to respond before they impact operations.  
 
 ### 🛡️ Detecting Unauthorized Assets  
+
 If an asset is found but was not expected, it could be a security risk—such as a rogue machine, unauthorized cloud instance, or compromised system. FleetFolio detects unauthorized assets in real time.  
 
 ### ✅ Ensuring Compliance & Governance  
+
 Regulatory frameworks (e.g., ISO 27001, NIST, SOC 2) require organizations to track and validate infrastructure components. FleetFolio ensures compliance by verifying that only approved assets exist and that nothing is missing.  
 
 ### 🚀 Automating Infrastructure Audits  
+
 FleetFolio eliminates the need for manual asset audits by continuously reconciling expected vs. actual infrastructure and generating real-time reports for IT, security, and compliance teams.  
 
 ## How FleetFolio Works  
+
 FleetFolio operates in three key steps:  
 
 ### 1️⃣ Define Expected Assets (via infra-assurance)  
+
 FleetFolio uses the infra-assurance framework from surveilr to create a structured list of expected assets. These include:  
+
 - Servers, VMs, and Containers  
 - Network devices and cloud instances  
 - Compliance rules (e.g., approved OS versions, configurations)  
 
 ### 2️⃣ Discover Actual Assets (via osQuery MS)  
+
 FleetFolio connects to osQuery MS to collect real-time data on infrastructure. It pulls detailed system information including:  
+
 - Hostname, IPs, MAC addresses  
 - Installed software & running processes  
 - OS configurations, kernel versions, and security policies  
 
 ### 3️⃣ Analyze & Report Compliance  
+
 FleetFolio automatically compares expected vs. actual assets and categorizes them into:  
+
 - ✅ Compliant: Expected & Found
 - ⚠️ Missing: Expected but Not Found
 - 🚨 Unauthorized: Found but Not Expected
@@ -53,30 +64,37 @@ This generates audit-ready reports and real-time alerts to ensure complete visib
 ## What Makes FleetFolio Unique?  
 
 ### 🔗 Integrated with surveilr’s infra-assurance  
+
 FleetFolio is built using surveilr’s infra-assurance framework, making it part of a larger evidence-driven compliance ecosystem. This allows seamless integration with governance policies and IT security standards.  
 
 ### 🕵️ Proactive, Not Just Reactive  
+
 Unlike traditional asset inventory tools that just list assets, FleetFolio actively monitors for missing or unauthorized assets and provides automated remediation workflows.  
 
 ### 📊 Unified Compliance & Security Auditing  
+
 FleetFolio bridges the gap between compliance, security, and IT operations—ensuring that governance policies are actually enforced in real infrastructure.  
 
 ### 🌍 Cloud-Native & Scalable  
+
 Designed for modern, hybrid infrastructure, FleetFolio supports on-prem, cloud, and containerized environments without performance trade-offs.  
 
 ## Who Benefits from FleetFolio?  
 
 ### 🔹 IT Operations & DevOps  
+
 - Ensures that expected servers and services are always running  
 - Detects misconfigurations before they cause failures  
 - Automates asset tracking across environments  
 
 ### 🔹 Security & Compliance Teams  
+
 - Detects unauthorized machines or shadow IT  
 - Enforces governance policies (SOC 2, NIST, ISO 27001, etc.)  
 - Simplifies audit reporting with real-time compliance checks  
 
 ### 🔹 Enterprise & Cloud Architects  
+
 - Validates infrastructure as code (IaC) deployments  
 - Ensures that approved configurations are enforced  
 - Prevents drift between environments (staging vs. production)  
@@ -90,7 +108,7 @@ $ surveilr shell ./package.sql.ts
 $ SURVEILR_SQLPKG=~/.sqlpkg surveilr shell ./package.sql.ts             # option 2 (same as option 1)
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
-$ SQLPAGE_SITE_PREFIX=/lib/pattern/content-assembler ../../std/surveilrctl.ts dev
+$ SQLPAGE_SITE_PREFIX=/lib/pattern/fleetfolio ../../std/surveilrctl.ts dev
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
 ```
