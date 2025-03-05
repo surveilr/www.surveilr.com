@@ -6,6 +6,21 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
   "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP VIEW IF EXISTS boundary_list;
+CREATE VIEW boundary_list AS
+SELECT 
+    boundary_id,
+    name 
+FROM boundary;
+
+DROP VIEW IF EXISTS active_asset_list;
+CREATE VIEW active_asset_list AS
+SELECT 
+    asset_id,
+    boundary_id,
+    name 
+FROM asset WHERE asset_tag = 'ACTIVE';
+
 DROP VIEW IF EXISTS system_detail_group;
 CREATE VIEW system_detail_group AS
 SELECT 
@@ -56,7 +71,7 @@ DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', 'index.sql', 1, 'fleetfolio/index.sql', 'fleetfolio/index.sql', 'FleetFolio', NULL, NULL, 'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).', NULL),
-    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/host.sql', 'fleetfolio/host.sql', 'Server', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
+    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/boundary.sql', 'fleetfolio/boundary.sql', 'Boundary', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -688,7 +703,7 @@ FROM breadcrumbs ORDER BY level DESC;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/host.sql',
+      'fleetfolio/boundary.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -698,7 +713,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''fleetfolio/host.sql''
+    WHERE namespace = ''prime'' AND path=''fleetfolio/boundary.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -715,27 +730,76 @@ FROM breadcrumbs ORDER BY level DESC;
 
                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/host.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/boundary.sql/index.sql'') as contents;
     ;
   
   -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
     --- Dsply Page Title
 SELECT
     ''title''   as component,
-    ''Server '' contents;
+    ''Boundary '' contents;
   
    select
     ''text''              as component,
-    ''The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.'' as contents;
+    ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
   
   -- Dashboard count
   select
       ''card'' as component,
       4      as columns;
   select
-      host_identifier  as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''host_detail.sql?link='' || host_identifier as link
-  FROM surveilr_osquery_ms_node_detail;
+      name  as title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/asset.sql?boundary_id='' || boundary_id as link
+  FROM boundary_list;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/asset.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/asset.sql/index.sql'') as contents;
+    ;
+
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+  SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link;
+ SELECT
+   (SELECT name FROM boundary_list WHERE boundary_id=$boundary_id::TEXT) AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/asset_list.sql?boundary_id='' || $boundary_id  AS link;
+
+   
+     --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     ''Boundary '' contents;
+
+    select
+     ''text''              as component,
+     ''Servers under a boundary are individual computing resources that are part of the collection of assets within that defined perimeter. These servers typically perform specific tasks or functions such as hosting applications, managing databases, or handling network traffic. Within the boundary, servers are organized and managed to ensure efficient resource allocation, security, and performance. They work together to deliver the services and processes defined by the boundary, with clear roles and interconnections to maintain the integrity and smooth operation of the overall system.'' as contents;
+
+   -- Dashboard count
+   select
+       ''card'' as component,
+       4      as columns;
+   select
+       name  as title,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''host_detail.sql?asset_id='' || asset_id as link
+   FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
