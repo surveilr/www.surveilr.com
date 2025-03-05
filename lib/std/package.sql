@@ -644,7 +644,8 @@ SELECT
     json_extract(l.log_data, '$.columns.version') AS version
 FROM ur_ingest_session_osquery_ms_log AS l
 WHERE l.log_type = 'result'
-AND json_extract(l.log_data, '$.name') = 'OS Version';
+AND (json_extract(l.log_data, '$.name') = 'OS Version (Linux and Macos)'
+        OR json_extract(l.log_data, '$.name') = 'OS Version (Windows)');
     ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
@@ -774,7 +775,7 @@ SELECT
         ELSE 
             ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
     END AS added_to_surveilr_osquery_ms,
-    o.name || ' ' || o.version AS operating_system,
+    o.name AS operating_system,
     round(a.available_space, 2) || ' GB' AS available_space,
     CASE 
         WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
