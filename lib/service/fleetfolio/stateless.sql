@@ -1,3 +1,18 @@
+DROP VIEW IF EXISTS boundary_list;
+CREATE VIEW boundary_list AS
+SELECT 
+    boundary_id,
+    name 
+FROM boundary;
+
+DROP VIEW IF EXISTS active_asset_list;
+CREATE VIEW active_asset_list AS
+SELECT 
+    asset_id,
+    boundary_id,
+    name 
+FROM asset WHERE asset_tag = 'ACTIVE';
+
 DROP VIEW IF EXISTS system_detail_group;
 CREATE VIEW system_detail_group AS
 SELECT 
