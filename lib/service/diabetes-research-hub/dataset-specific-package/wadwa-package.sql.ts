@@ -50,7 +50,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringMeta = JSON.stringify(jsonObject);
 
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
-    const patient_id = row.patient_id.replace(/^WADWA-/, '');
+    const patient_id = row.patient_id.replace(/^WAD1-001-00/, "");
 
     const rows_obs = db.prepare(
       `SELECT * FROM uniform_resource_${file_name} ${
