@@ -33,6 +33,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
     cgm_data TEXT
   );`);
 
+  
   for (const row of rows) {
     const jsonObject = {
       device_id: row.device_id,
@@ -49,7 +50,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringMeta = JSON.stringify(jsonObject);
 
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
-    const patient_id = row.patient_id.replace(/^WAD1-001-00/, "");
+    const patient_id = row.patient_id.replace(/^WADWA-/, '');
 
     const rows_obs = db.prepare(
       `SELECT * FROM uniform_resource_${file_name} ${
@@ -79,9 +80,19 @@ export async function saveJsonCgm(dbFilePath: string): string {
       jsonStringObs.push(jsonObjectObs);
     }
 
-    const jsonStringCgm = isNonCommaseparated
+    let jsonStringCgm = isNonCommaseparated
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
+    
+      const jsonStringCgm2 = JSON.parse(jsonStringCgm);
+      jsonStringCgm = JSON.stringify(jsonStringCgm2.map((item: any) => {
+        if (item.DeviceDtTm) {
+          const date = new Date(item.DeviceDtTm);
+          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+          item.DeviceDtTm = formattedDate;
+        }
+        return item;
+      }));
 
     db.prepare(
       `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,

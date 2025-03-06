@@ -11,11 +11,11 @@ Error executing service/diabetes-research-hub/dataset-specific-package/anderson.
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deps.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/constants.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite/mod.ts
+[0m[33mWarning[0m Implicitly using latest version (v3.9.1) for https://deno.land/x/sqlite/mod.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deno.json
+[0m[32mDownload[0m https://deno.land/x/sqlite@v3.9.1/mod.ts
 [0m[32mDownload[0m https://jsr.io/@std/path/meta.json
 [0m[32mDownload[0m https://jsr.io/@denosaurs/plug/meta.json
-[0m[33mWarning[0m Implicitly using latest version (v3.9.1) for https://deno.land/x/sqlite/mod.ts
-[0m[32mDownload[0m https://deno.land/x/sqlite@v3.9.1/mod.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite@v3.9.1/src/db.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite@v3.9.1/src/error.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite@v3.9.1/src/constants.ts
