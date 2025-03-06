@@ -753,6 +753,20 @@ JOIN code_notebook_cell c
     ON ranked_policies.policy_name = c.cell_name
 WHERE ranked_policies.row_num = 1;
 ;
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_boundary;
+CREATE VIEW surveilr_osquery_ms_node_boundary AS
+SELECT
+    l.node_key,
+    l.updated_at,
+    json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.log_data, '$.columns.value') AS boundary
+FROM ur_ingest_session_osquery_ms_log AS l
+WHERE l.log_type = 'result'
+  AND (
+      json_extract(l.log_data, '$.name') = 'osquery-ms Boundary (Linux and Macos)' OR
+      json_extract(l.log_data, '$.name') = 'osquery-ms Boundary (Windows)'
+  );
+;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
 CREATE VIEW surveilr_osquery_ms_node_detail AS
 SELECT
@@ -765,6 +779,7 @@ SELECT
     i.updated_at,
     i.address AS ip_address,
     i.mac,
+    b.boundary,
     CASE 
         WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
             (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
@@ -807,6 +822,7 @@ LEFT JOIN surveilr_osquery_ms_node_available_space a ON n.node_key = a.node_key
 LEFT JOIN surveilr_osquery_ms_node_os_version o ON n.node_key = o.node_key
 LEFT JOIN surveilr_osquery_ms_node_uptime u ON n.node_key = u.node_key
 LEFT JOIN surveilr_osquery_ms_node_interface_address i ON n.node_key = i.node_key
+LEFT JOIN surveilr_osquery_ms_node_boundary b ON n.node_key = b.node_key
 LEFT JOIN (
     SELECT node_key, COUNT(*) AS failed_count
     FROM surveilr_osquery_ms_node_executed_policy
@@ -3083,7 +3099,7 @@ FROM breadcrumbs ORDER BY level DESC;
     operating_system AS "Operating System",
     osquery_version AS "osQuery Version",
     ip_address AS "IP Address",
-    ''-'' AS "Boundary",
+    boundary AS "Boundary",
     ''-'' AS "Team",
     last_fetched AS "Last Fetched",
     last_restarted AS "Last Restarted"
@@ -3150,7 +3166,7 @@ SET current_page = ($offset / $limit) + 1;
   SELECT ''Processor Type'' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
   SELECT ''Operating system'' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
   SELECT ''osQuery'' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-  SELECT ''Boundary'' as title, "-" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  SELECT ''Boundary'' as title, "boundary" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
   SELECT ''datagrid'' as component;
   SELECT ''Added to surveilr'' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
