@@ -1082,6 +1082,28 @@ Ask your system administrator to establish the recommended configuration via GP,
     return `SELECT * FROM system_info`;
   }
 
+  @osQueryMsCell(
+    {
+      description: "Get the boundary for a node.",
+    },
+    ["linux", "macos"],
+    true,
+  )
+  "osquery-ms Boundary (Linux and Macos)"() {
+    return `SELECT DISTINCT value, key FROM process_envs WHERE key='SURVEILR_OSQUERY_BOUNDARY';`;
+  }
+
+  @osQueryMsCell(
+    {
+      description: "Get the boundary for a node.",
+    },
+    ["windows"],
+    true,
+  )
+  "osquery-ms Boundary (Windows)"() {
+    return `SELECT DISTINCT value, variable FROM default_environment WHERE variable='SURVEILR_OSQUERY_BOUNDARY';`;
+  }
+
   @osQueryMsCell({
     description:
       "A single row containing the operating system name and version.",

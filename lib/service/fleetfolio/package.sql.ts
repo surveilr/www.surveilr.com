@@ -42,8 +42,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fleetfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("fleetfolio")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
+      this.constructHomePath("fleetfolio")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -61,16 +62,19 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = ${this.constructHomePath("fleetfolio")
-      }
+           WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("fleetfolio")
+    }
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${this.absoluteURL("/")
-      } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fleetfolio")
-      }
+       WHERE namespace = 'prime' AND parent_path = ${
+      this.constructHomePath("fleetfolio")
+    }
        ORDER BY sibling_order;`;
   }
 
@@ -100,8 +104,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             name  as title,
-            ${this.absoluteURL("/fleetfolio/asset.sql?boundary_id=")
-      } || boundary_id as link
+            ${
+      this.absoluteURL("/fleetfolio/asset.sql?boundary_id=")
+    } || boundary_id as link
         FROM boundary_list;
         `;
   }
@@ -125,7 +130,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link;
       SELECT
         (SELECT name FROM boundary_list WHERE boundary_id=$boundary_id::TEXT) AS title,
-        ${this.absoluteURL("/fleetfolio/asset_list.sql?boundary_id=")} || $boundary_id  AS link;
+        ${
+      this.absoluteURL("/fleetfolio/asset_list.sql?boundary_id=")
+    } || $boundary_id  AS link;
      
         
           --- Dsply Page Title
@@ -143,8 +150,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             name  as title,
-            ${this.absoluteURL("host_detail.sql?asset_id=")
-      } || asset_id as link
+            ${this.absoluteURL("host_detail.sql?asset_id=")} || asset_id as link
         FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT;
         `;
   }
@@ -209,8 +215,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       count as description_md,
       CASE
         WHEN name = 'All Processes'
-        THEN ${this.absoluteURL("all_process.sql?host_identifier=")
-      } || hostIdentifier || '&name=' || name 
+        THEN ${
+      this.absoluteURL("all_process.sql?host_identifier=")
+    } || hostIdentifier || '&name=' || name 
         ELSE NULL 
       END AS link
       FROM system_detail_group WHERE hostIdentifier = $link::TEXT
@@ -238,8 +245,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         
       SELECT
         $host_identifier AS title,
-        ${this.absoluteURL("/fleetfolio/host_detail.sql?link=")
-      } || $host_identifier AS link;
+        ${
+      this.absoluteURL("/fleetfolio/host_detail.sql?link=")
+    } || $host_identifier AS link;
       
       SELECT
         "Detail" AS title,
