@@ -442,6 +442,58 @@ JOIN pragma_index_list(tbl.name) idx
 JOIN pragma_index_info(idx.name) pi
 WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
 
+DROP VIEW IF EXISTS rssd_statistics_overview;
+CREATE VIEW rssd_statistics_overview AS
+SELECT 
+    (SELECT ROUND(page_count * page_size / (1024.0 * 1024), 2) FROM pragma_page_count(), pragma_page_size()) AS db_size_mb,
+    (SELECT ROUND(page_count * page_size / (1024.0 * 1024 * 1024), 4) FROM pragma_page_count(), pragma_page_size()) AS db_size_gb,
+    (SELECT COUNT(*) FROM sqlite_master WHERE type = 'table') AS total_tables,
+    (SELECT COUNT(*) FROM sqlite_master WHERE type = 'index') AS total_indexes,
+    (SELECT SUM(tbl_rows) FROM (
+        SELECT name, 
+              (SELECT COUNT(*) FROM sqlite_master sm WHERE sm.type='table' AND sm.name=t.name) AS tbl_rows
+        FROM sqlite_master t WHERE type='table'
+    )) AS total_rows,
+    (SELECT page_size FROM pragma_page_size()) AS page_size,
+    (SELECT page_count FROM pragma_page_count()) AS total_pages;
+
+
+CREATE TABLE IF NOT EXISTS table_sizes (
+    table_name TEXT PRIMARY KEY,
+    table_size_mb REAL
+);
+
+DELETE FROM table_sizes;
+INSERT INTO table_sizes (table_name, table_size_mb)
+SELECT name, 
+      ROUND(SUM(pgsize) / (1024.0 * 1024), 2)
+FROM dbstat
+GROUP BY name;
+
+
+DROP VIEW IF EXISTS rssd_table_statistic;
+CREATE VIEW rssd_table_statistic AS
+SELECT 
+    m.name AS table_name,
+
+    -- Count total columns
+    (SELECT COUNT(*) FROM pragma_table_info(m.name)) AS total_columns,
+
+    -- Count total indexes
+    (SELECT COUNT(*) FROM pragma_index_list(m.name)) AS total_indexes,
+
+    -- Count foreign keys
+    (SELECT COUNT(*) FROM pragma_foreign_key_list(m.name)) AS foreign_keys,
+
+    -- Count primary keys
+    (SELECT COUNT(*) FROM pragma_table_info(m.name) WHERE pk != 0) AS primary_keys,
+
+    -- Fetch table size from our manually updated table_sizes table
+    (SELECT table_size_mb FROM table_sizes WHERE table_name = m.name) AS table_size_mb
+
+FROM sqlite_master m
+WHERE m.type = 'table';
+
 -- Drop and create the table for storing navigation entries
 -- for testing only: DROP TABLE IF EXISTS sqlpage_aide_navigation;
 CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
@@ -473,7 +525,8 @@ VALUES
     ('prime', 'console/index.sql', 3, 'console/sqlpage-nav/index.sql', 'console/sqlpage-nav/index.sql', 'RSSD SQLPage Navigation', 'SQLPage Navigation', NULL, 'See all the navigation entries for the web-UI; TODO: need to improve this to be able to get details for each navigation entry as a table', NULL),
     ('prime', 'console/index.sql', 2, 'console/notebooks/index.sql', 'console/notebooks/index.sql', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL),
     ('prime', 'console/index.sql', 2, 'console/migrations/index.sql', 'console/migrations/index.sql', 'RSSD Lifecycle (migrations)', 'Migrations', NULL, 'Explore RSSD Migrations to determine what was executed and not', NULL),
-    ('prime', 'console/index.sql', 2, 'console/about.sql', 'console/about.sql', 'Resource Surveillance Details', 'About', NULL, 'Detailed information about the underlying surveilr binary', NULL)
+    ('prime', 'console/index.sql', 2, 'console/about.sql', 'console/about.sql', 'Resource Surveillance Details', 'About', NULL, 'Detailed information about the underlying surveilr binary', NULL),
+    ('prime', 'console/index.sql', 1, 'console/statistics/index.sql', 'console/statistics/index.sql', 'RSSD Statistics', 'Statistics', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 
@@ -2198,6 +2251,46 @@ SELECT
 FROM console_information_schema_view
 WHERE view_name LIKE ''surveilr_doctor%''
 GROUP BY view_name;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'console/statistics/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''console/statistics/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''datagrid'' as component;
+SELECT ''Size'' as title, "db_size_mb" || '' MB'' as description FROM rssd_statistics_overview;
+SELECT ''Tables'' as title, "total_tables" as description FROM rssd_statistics_overview;
+SELECT ''Indexes'' as title, "total_indexes" as description FROM rssd_statistics_overview;
+SELECT ''Rows'' as title, "total_rows" as description FROM rssd_statistics_overview;
+SELECT ''Page Size'' as title, "page_size" as description FROM rssd_statistics_overview;
+SELECT ''Total Pages'' as title, "total_pages" as description FROM rssd_statistics_overview;
+    
+select ''text'' as component, ''Tables'' as title;
+SELECT ''table'' AS component, TRUE as sort, TRUE as search;
+SELECT * FROM rssd_table_statistic ORDER BY table_size_mb DESC;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
