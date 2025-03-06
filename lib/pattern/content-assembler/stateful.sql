@@ -129,15 +129,24 @@ WHERE
 
 -- TO DO: http_method currently done is temporary
 
+DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
+CREATE TABLE ur_transform_html_email_anchor_http_cached AS
+SELECT
+        uniform_resource_transform_id,
+        uniform_resource_id,
+        anchor,
+        http_timeout_set(7200000),
+        http_get_body(anchor) as html_body
+    FROM ur_transform_html_email_anchor_cached LIMIT 50;
+
 -- DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
 -- CREATE TABLE ur_transform_html_email_anchor_http_cached AS
 -- SELECT
 --         uniform_resource_transform_id,
 --         uniform_resource_id,
 --         anchor,
---         http_timeout_set(7200000),
---         http_get_body(anchor) as html_body
---     FROM ur_transform_html_email_anchor_cached LIMIT 200;
+--         "<html><body>Check</body></html>" as html_body
+--     FROM ur_transform_html_email_anchor_cached;
 
 -- DROP TABLE IF EXISTS ur_transform_http_url_status_cached;
 CREATE TABLE IF NOT EXISTS ur_transform_http_url_status_cached (
@@ -150,15 +159,25 @@ CREATE TABLE IF NOT EXISTS ur_transform_http_url_status_cached (
         message TEXT,
         status TEXT
     );
+    
 
-DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
-CREATE TABLE ur_transform_html_email_anchor_http_cached AS
-SELECT
-        uniform_resource_transform_id,
-        uniform_resource_id,
-        url as anchor,
-        html_body
-    FROM ur_transform_http_url_status_cached WHERE status='Success';
+-- DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
+-- CREATE TABLE ur_transform_html_email_anchor_http_cached AS
+-- SELECT
+--         uniform_resource_transform_id,
+--         uniform_resource_id,
+--         url as anchor,
+--         html_body
+--     FROM ur_transform_http_url_status_cached WHERE status='Success';
+
+-- DROP TABLE IF EXISTS ur_transform_html_email_anchor_http_cached;
+-- CREATE TABLE ur_transform_html_email_anchor_http_cached AS
+-- SELECT
+--         uniform_resource_transform_id,
+--         uniform_resource_id,
+--         anchor,
+--         html_body
+--     FROM ur_transform_html_email_anchor_cached;
 
 -- This query creates the table `ur_transform_html_email_anchor_canonical_cached` to cache
 -- canonical link information extracted from HTML documents retrieved from email anchor links.
