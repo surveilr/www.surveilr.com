@@ -108,7 +108,7 @@ $ surveilr shell ./package.sql.ts
 $ SURVEILR_SQLPKG=~/.sqlpkg surveilr shell ./package.sql.ts             # option 2 (same as option 1)
 
 # start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
-$ SQLPAGE_SITE_PREFIX=/lib/pattern/fleetfolio ../../std/surveilrctl.ts dev
+$ SQLPAGE_SITE_PREFIX=/lib/service ../../std/surveilrctl.ts dev
 # browse http://localhost:9000/ to see surveilr web UI
 # browse http://localhost:9000/dms/info-schema.sql to see DMS-specific schema
 ```
