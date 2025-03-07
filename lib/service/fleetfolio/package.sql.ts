@@ -75,12 +75,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @fleetfolioNav({
-    caption: "Boundary",
+    caption: "Parent Boundary",
     description:
       `The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.`,
     siblingOrder: 1,
   })
-  "fleetfolio/boundary.sql"() {
+  "fleetfolio/parent_boundary.sql"() {
     return this.SQL`
         ${this.activePageTitle()}
   
@@ -100,9 +100,50 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             name  as title,
+            ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
+      } || boundary_id as link
+        FROM parent_boundary;
+        `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/boundary.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || $boundary_id  AS link;
+        
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          'Boundary ' contents;
+  
+         select
+          'text'              as component,
+          'A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.' as contents;
+  
+        -- Dashboard count
+        select
+            'card' as component,
+            4      as columns;
+        select
+            name  as title,
             ${this.absoluteURL("/fleetfolio/asset.sql?boundary_id=")
       } || boundary_id as link
-        FROM boundary_list;
+        FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
         `;
   }
 
@@ -117,21 +158,24 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
-       SELECT
+      SELECT
         'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;
       SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+      SELECT
         'Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link;
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || (SELECT parent_boundary_id FROM boundary_list WHERE boundary_id=$boundary_id::TEXT)  AS link;
       SELECT
         (SELECT name FROM boundary_list WHERE boundary_id=$boundary_id::TEXT) AS title,
-        ${this.absoluteURL("/fleetfolio/asset_list.sql?boundary_id=")} || $boundary_id  AS link;
+        ${this.absoluteURL("/fleetfolio/asset.sql?boundary_id=")} || $boundary_id  AS link;
      
         
           --- Dsply Page Title
       SELECT
           'title'   as component,
-          'Boundary ' contents;
+          'Boundary' contents;
 
          select
           'text'              as component,
@@ -139,18 +183,15 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
         -- Dashboard count
         select
-            'card' as component,
-            4      as columns;
-        select
-            name  as title,
-            ${this.absoluteURL("host_detail.sql?asset_id=")
-      } || asset_id as link
+            'table' as component,
+           'assets' AS markdown;
+        select '[' || name || '](' || ${this.absoluteURL("/fleetfolio/asset_detail.sql?link=")} || name || ')' as 'assets'
         FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT;
         `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/host_detail.sql"() {
+  "fleetfolio/asset_detail.sql"() {
     return this.SQL`
 
     --- Display breadcrumb
@@ -203,16 +244,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
           cpu_brand   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT; 
 
      select
-          'card' as component,
-          4      as columns;
-      SELECT name  as title,
-      count as description_md,
-      CASE
-        WHEN name = 'All Processes'
-        THEN ${this.absoluteURL("all_process.sql?host_identifier=")
-      } || hostIdentifier || '&name=' || name 
-        ELSE NULL 
-      END AS link
+          'table' as component,
+          'title' AS markdown;
+      select name,
+      count
       FROM system_detail_group WHERE hostIdentifier = $link::TEXT
           `;
   }

@@ -1,9 +1,17 @@
+DROP VIEW IF EXISTS parent_boundary;
+CREATE VIEW parent_boundary AS
+SELECT 
+    boundary_id,
+    name 
+FROM boundary WHERE parent_boundary_id IS NULL;
+
 DROP VIEW IF EXISTS boundary_list;
 CREATE VIEW boundary_list AS
 SELECT 
     boundary_id,
+    parent_boundary_id,
     name 
-FROM boundary;
+FROM boundary WHERE parent_boundary_id IS NOT NULL;
 
 DROP VIEW IF EXISTS active_asset_list;
 CREATE VIEW active_asset_list AS
