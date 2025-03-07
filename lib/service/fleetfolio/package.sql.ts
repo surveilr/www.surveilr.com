@@ -245,8 +245,14 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
      select
           'table' as component,
-          'title' AS markdown;
-      select name,
+          'Process' AS markdown;
+      select 
+       CASE
+        WHEN name = 'All Processes'
+        THEN
+          '[' || name || '](' || ${this.absoluteURL("/fleetfolio/all_process.sql?host_identifier=")} || hostIdentifier || ')'
+        ELSE name 
+      END AS  process,
       count
       FROM system_detail_group WHERE hostIdentifier = $link::TEXT
           `;
