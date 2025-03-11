@@ -123,13 +123,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Parent Boundary' AS title,
         ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
       SELECT
-        'Boundary' AS title,
+        (SELECT name FROM parent_boundary WHERE boundary_id=$boundary_id) AS title,
         ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || $boundary_id  AS link;
         
       --- Dsply Page Title
       SELECT
           'title'   as component,
-          'Boundary ' contents;
+          name contents FROM parent_boundary WHERE boundary_id=$boundary_id;
   
          select
           'text'              as component,
@@ -141,10 +141,89 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             name  as title,
-            ${this.absoluteURL("/fleetfolio/asset.sql?boundary_id=")
+            ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=")
       } || boundary_id as link
         FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
         `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/inner_boundary.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT parent.name AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || parent.boundary_id AS link
+       FROM all_boundary child
+       INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
+        WHERE child.boundary_id=$boundary_id;
+
+      SELECT 
+      name AS title,
+      ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=")} || $boundary_id  AS link
+      FROM boundary_list
+      WHERE boundary_id=$boundary_id::TEXT;
+        
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          name contents
+      FROM boundary_list
+      WHERE boundary_id=$boundary_id::TEXT;
+  
+         select
+          'text'              as component,
+          'A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.' as contents;
+  
+       select 'tab' as component;
+        select 'Discovered' as title,
+        ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=")
+      }|| $boundary_id  AS link,
+        $tab = 'Discovered' as active;
+        select 'Expectation'    as title, 
+        ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Expectation&boundary_id=")
+      }|| $boundary_id  AS link,
+        $tab = 'Expectation'    as active;
+
+        select 'table' as component,
+        'assets' AS markdown,
+        "All Processes" AS markdown,
+        "Available Disk Space (Linux and Macos)" AS markdown;
+
+        select 
+        '[' || name || '](' || ${this.absoluteURL("/fleetfolio/asset_detail.sql?link=")} || name || ')' as 'assets',
+        '[' || (SELECT count FROM system_detail_group WHERE name="All Processes" AND hostIdentifier=active_asset_list.name) || '](' || ${this.absoluteURL("/fleetfolio/all_process.sql?host_identifier=")} || name || ')' as 'All Processes',
+        '[' || (SELECT count FROM system_detail_group WHERE name="Available Disk Space (Linux and Macos)" AND hostIdentifier=active_asset_list.name) || '](' || ${this.absoluteURL("/fleetfolio/system_available_disk.sql?host_identifier=")} || name || ')' as 'Available Disk Space (Linux and Macos)',
+        (SELECT count FROM system_detail_group WHERE name="Installed Linux software" AND hostIdentifier=active_asset_list.name) AS "Installed Linux software",
+        (SELECT count FROM system_detail_group WHERE name="Listening Ports" AND hostIdentifier=active_asset_list.name) AS "Listening Ports",
+        (SELECT count FROM system_detail_group WHERE name="Network Interfaces (Linux and Macos)" AND hostIdentifier=active_asset_list.name) AS "Network Interfaces (Linux and Macos)",
+        (SELECT count FROM system_detail_group WHERE name="OS Version (Linux and Macos)" AND hostIdentifier=active_asset_list.name) AS "OS Version (Linux and Macos)",
+        (SELECT count FROM system_detail_group WHERE name="SSH keys encrypted" AND hostIdentifier=active_asset_list.name) AS "SSH keys encrypted",
+        (SELECT count FROM system_detail_group WHERE name="Server Uptime" AND hostIdentifier=active_asset_list.name) AS "Server Uptime",
+        (SELECT count FROM system_detail_group WHERE name="System Information" AND hostIdentifier=active_asset_list.name) AS "System Information",
+        (SELECT count FROM system_detail_group WHERE name="Users" AND hostIdentifier=active_asset_list.name) AS "Users"
+        FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT AND $tab = 'Discovered';
+        
+    select 
+      name,asset_status,asset_tag,
+      asset_retired_date as 'asset retired date',
+      description, asset_type as "type", installed_date as "installed date",
+      planned_retirement_date as "planned retirement date",
+      purchase_delivery_date as "purchase delivery date",
+      purchase_order_date as "purchase order date",criticality
+      FROM expected_asset_list WHERE boundary_id = $boundary_id::TEXT AND $tab = 'Expectation'`;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -259,33 +338,27 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/all_process.sql"() {
-    const viewName = `system_detail_all_processes`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
-      whereSQL: "WHERE host_identifier=$host_identifier",
-    });
+  "fleetfolio/expected.sql"() {
     return this.SQL`
 
-    --- Display breadcrumb
+       --- Display breadcrumb
      SELECT
         'breadcrumb' AS component;
       SELECT
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'Server' AS title,
+        'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;
-        
       SELECT
-        $host_identifier AS title,
-        ${this.absoluteURL("/fleetfolio/host_detail.sql?link=")
-      } || $host_identifier AS link;
-      
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
       SELECT
-        "Detail" AS title,
-        '#' AS link;
-      
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || (SELECT parent_boundary_id FROM boundary_list WHERE boundary_id=$boundary_id::TEXT)  AS link;
+      SELECT
+        $link AS title,
+        ${this.absoluteURL("/fleetfolio/expected.sql?link=")} || $link  AS link;
 
        --- Dsply Page Title
       SELECT
@@ -294,41 +367,76 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       FROM
         surveilr_osquery_ms_node_detail
       WHERE
-        host_identifier = $host_identifier::TEXT;
-       ${pagination.init()}
+        host_identifier = $link::TEXT;
+
+     select
+          'table' as component,
+          'Process' AS markdown;
+      select 
+      name,asset_status,asset_tag,
+      asset_retired_date as 'asset retired date',
+      description, asset_type as "type", installed_date as "installed date",
+      planned_retirement_date as "planned retirement date",
+      purchase_delivery_date as "purchase delivery date",
+      purchase_order_date as "purchase order date",criticality
+      FROM expected_asset_list WHERE name = $link::TEXT
+          `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/all_process.sql"() {
+    const viewName = `system_detail_all_processes`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+    return this.SQL`
+
+           --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT parent.name AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || parent.boundary_id AS link
+      FROM active_asset_list assl
+      INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
+      INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
+      WHERE assl.name=$host_identifier::TEXT;
+
+      SELECT 
+      ab.name AS title,
+      ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=")} || ab.boundary_id  AS link
+      FROM active_asset_list assl
+      INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
+      WHERE assl.name=$host_identifier::TEXT;
+      SELECT
+        name AS title,
+        ${this.absoluteURL("/fleetfolio/all_process.sql?host_identifier=")} || $host_identifier  AS link
+      FROM ${viewName} LIMIT 1;
+        
+  
+
+       --- Dsply Page Title
+      SELECT
+       'title' as component,
+        name as contents FROM ${viewName} LIMIT 1;
+
+      --- content listing
+      ${pagination.init()}
       select 
           'table'           as component,
-          TRUE              as sort,
-          'hostIdentifier',
-          'cgroup_path',
-          'cmdline',
-          'cwd',
-          'disk_bytes_read',
-          'disk_bytes_written',
-          'egid',
-          'euid',
-          'gid',
-          'system_name',
-          'nice',
-          'on_disk',
-          'parent',
-          'path',
-          'pgroup',
-          'pid',
-          'resident_size',
-          'root',
-          'sgid',
-          'start_time',
-          'state',
-          'suid',
-          'system_time',
-          'threads',
-          'total_size',
-          'uid',
-          'user_time',
-          'wired_size',
-          'updated_at';
+          TRUE              as sort;
       SELECT 
+        name as process,
         host_identifier,
         cgroup_path,
         cmdline,
@@ -360,6 +468,67 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         updated_at FROM ${viewName} WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
       OFFSET $offset;
       ${pagination.renderSimpleMarkdown("host_identifier")};`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/system_available_disk.sql"() {
+    const viewName = `system_available_disk`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+    return this.SQL`
+
+           --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT parent.name AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")} || parent.boundary_id AS link
+      FROM active_asset_list assl
+      INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
+      INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
+      WHERE assl.name=$host_identifier::TEXT;
+
+      SELECT 
+      ab.name AS title,
+      ${this.absoluteURL("/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=")} || ab.boundary_id  AS link
+      FROM active_asset_list assl
+      INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
+      WHERE assl.name=$host_identifier::TEXT;
+      SELECT
+        name AS title,
+        ${this.absoluteURL("/fleetfolio/system_available_disk.sql?host_identifier=")} || $host_identifier  AS link
+        FROM ${viewName} LIMIT 1;
+
+       --- Dsply Page Title
+      SELECT
+       'title' as component,
+        name as contents FROM ${viewName} LIMIT 1;
+
+       ${pagination.init()}
+      select 
+          'table'           as component,
+          TRUE              as sort;
+      SELECT 
+        name as process,
+        host_identifier as "host identifier",
+        gigs_disk_space_available,
+        gigs_total_disk_space,
+        percent_disk_space_available,
+        updated_at
+        FROM ${viewName} WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
+      OFFSET $offset;
+      ${pagination.renderSimpleMarkdown("host_identifier", "process")};`;
   }
 }
 
