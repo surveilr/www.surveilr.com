@@ -88,11 +88,14 @@ export function osQueryMsCell(
   >,
   targets: string[] = ["macos", "windows", "linux"],
   singleton: boolean = false,
-  extraFilters: string[] = []
+  extraFilters: string[] = [],
 ) {
   const cellGovernance = JSON.stringify({
     ...osQueryMsCellGovernance,
-  "results-uniform-resource-store-jq-filters": [...osQueryMsCellGovernance["results-uniform-resource-store-jq-filters"], ...extraFilters],
+    "results-uniform-resource-store-jq-filters": [
+      ...osQueryMsCellGovernance["results-uniform-resource-store-jq-filters"],
+      ...extraFilters,
+    ],
     targets,
     singleton,
   });
@@ -1070,9 +1073,14 @@ Ask your system administrator to establish the recommended configuration via GP,
     ];
   }
 
-  @osQueryMsCell({
-    description: "All running processes on the host system.",
-  }, ["macos", "windows", "linux"], false, [ "del(.columns.elapsed_time, .columns.system_time)",])
+  @osQueryMsCell(
+    {
+      description: "All running processes on the host system.",
+    },
+    ["macos", "windows", "linux"],
+    false,
+    ["del(.columns.elapsed_time, .columns.system_time)"],
+  )
   "All Processes"() {
     return `select * from processes`;
   }

@@ -1,7 +1,7 @@
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
-import { assert, assertEquals } from "jsr:@std/assert@1";
+import { assertEquals } from "jsr:@std/assert@1";
 
 const E2E_TEST_DIR = path.fromFileUrl(
   import.meta.resolve(`./`),

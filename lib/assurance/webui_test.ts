@@ -4,6 +4,7 @@ import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 async function isPortOpen(port: number): Promise<boolean> {
   try {
     const response = await fetch(`http://localhost:${port}`);
+    await response.text();
     return response.ok;
   } catch {
     return false;

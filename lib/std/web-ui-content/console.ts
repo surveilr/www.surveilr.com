@@ -951,6 +951,6 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
       SELECT 'table' AS component, TRUE as sort, TRUE as search;
       SELECT * FROM rssd_table_statistic ORDER BY table_size_mb DESC;
 
-    `
+    `;
   }
 }
