@@ -1903,6 +1903,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       node_key: osQueryMsNode.belongsTo.node_key(),
       log_type: gd.text(),
       log_data: gd.jsonText(),
+      applied_jq_filters: gd.jsonTextNullable(),
       ...gm.housekeeping.columns,
     },
     {
