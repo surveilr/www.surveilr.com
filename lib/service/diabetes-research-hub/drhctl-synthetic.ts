@@ -373,61 +373,64 @@ class App {
 }
 
 // Main Execution Block
-if (import.meta.main) {  
-    // const studyName = args[0];
-    // const tenant = args[1];
-    // const no_of_participants = args[2];
-    // const cgm_frequency = args[3];
-    const studyName = prompt("Enter study name:") || "Default Study";
-    const tenant = prompt("Enter tenant name:") || "Default Tenant";  
-    const no_of_participants = parseInt(prompt("Enter number of participants:") || "10", 10);
-    const cgm_frequency = parseInt(prompt("Enter CGM data frequency (14, 30, 90 days):") || "14", 10);
+if (import.meta.main) {
+  // const studyName = args[0];
+  // const tenant = args[1];
+  // const no_of_participants = args[2];
+  // const cgm_frequency = args[3];
+  const studyName = prompt("Enter study name:") || "Default Study";
+  const tenant = prompt("Enter tenant name:") || "Default Tenant";
+  const no_of_participants = parseInt(
+    prompt("Enter number of participants:") || "10",
+    10,
+  );
+  const cgm_frequency = parseInt(
+    prompt("Enter CGM data frequency (14, 30, 90 days):") || "14",
+    10,
+  );
 
-    // Delete existing database if it exists
-    await FileHandler.checkAndDeleteFile(dbFilePath);
+  // Delete existing database if it exists
+  await FileHandler.checkAndDeleteFile(dbFilePath);
 
+  try {
+    await CommandExecutor.executeCommand([
+      "deno",
+      "run",
+      "-A",
+      "./generate-synthetic-data-per-study.ts",
+      studyName,
+      tenant,
+      no_of_participants,
+      cgm_frequency,
+    ]);
+
+    await CommandExecutor.executeCommand([
+      toolCmd,
+      "shell",
+      "./synthetic-data-generator/synthetic-package.sql.ts",
+    ]);
+
+    // Start the UI
     try {
-      await CommandExecutor.executeCommand([
-        "deno",
-        "run",
-        "-A",
-        "./generate-synthetic-data-per-study.ts",
-        studyName,
-        tenant,
-        no_of_participants,
-        cgm_frequency,
-      ]);
-
-      await CommandExecutor.executeCommand([
-        toolCmd,
-        "shell",
-        "./synthetic-data-generator/synthetic-package.sql.ts",
-      ]);
-      
-
-      // Start the UI
-      try {
-        console.log(
-          colors.green("Starting the UI at http://localhost:9000/drh/index.sql"),
-        );
-        await CommandExecutor.executeCommandWithEnv(
-          [toolCmd, "web-ui", "--port", "9000"],
-          { SQLPAGE_SITE_PREFIX: "" },
-        );
-        console.log(colors.green("DRH Edge UI started successfully."));
-      } catch (error) {
-        console.error(colors.red("Error starting DRH Edge UI:"), error.message);
-        Deno.exit(1);
-      }
-
+      console.log(
+        colors.green("Starting the UI at http://localhost:9000/drh/index.sql"),
+      );
+      await CommandExecutor.executeCommandWithEnv(
+        [toolCmd, "web-ui", "--port", "9000"],
+        { SQLPAGE_SITE_PREFIX: "" },
+      );
+      console.log(colors.green("DRH Edge UI started successfully."));
     } catch (error) {
-      console.error(colors.red("Error generating synthetic data:"), error.message);
+      console.error(colors.red("Error starting DRH Edge UI:"), error.message);
       Deno.exit(1);
     }
-
-  
-  
-
+  } catch (error) {
+    console.error(
+      colors.red("Error generating synthetic data:"),
+      error.message,
+    );
+    Deno.exit(1);
+  }
 }
 
 //deno run -A  ./drhctl-synthetic.ts wadwa TN0134 3 14

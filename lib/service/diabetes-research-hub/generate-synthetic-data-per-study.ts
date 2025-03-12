@@ -6,8 +6,14 @@ const db = new Database("resource-surveillance.sqlite.db");
 
 // List of valid investigator names
 const investigatorNames = [
-  "Dr. John Smith", "Dr. Emily Johnson", "Dr. Michael Brown", "Dr. Sarah Davis",
-  "Dr. William Miller", "Dr. Olivia Wilson", "Dr. James Moore", "Dr. Sophia Taylor"
+  "Dr. John Smith",
+  "Dr. Emily Johnson",
+  "Dr. Michael Brown",
+  "Dr. Sarah Davis",
+  "Dr. William Miller",
+  "Dr. Olivia Wilson",
+  "Dr. James Moore",
+  "Dr. Sophia Taylor",
 ];
 
 // Function to create tables if they do not exist
@@ -145,7 +151,7 @@ const generateTenantId = (tenantName: string) => {
   //return tenantName.replace(/\s+/g, "_").toUpperCase().substring(0, 10);
   return tenantName
     .split(/\s+/) // Split by spaces
-    .map(word => word[0]) // Take the first letter of each word
+    .map((word) => word[0]) // Take the first letter of each word
     .join("") // Join them together
     .toUpperCase() // Convert to uppercase
     .substring(0, 4); // Ensure it's only 4 letters
@@ -153,26 +159,44 @@ const generateTenantId = (tenantName: string) => {
 
 // Function to generate a valid DOI
 const generateDOI = () => {
-  return `10.${Math.floor(Math.random() * 9999)}/study${ulid().substring(0, 8)}`;
+  return `10.${Math.floor(Math.random() * 9999)}/study${
+    ulid().substring(0, 8)
+  }`;
 };
 
 // Function to generate study metadata
-const generateStudyMetadata = (studyName: string, days: number, tenantId: string) => {
+const generateStudyMetadata = (
+  studyName: string,
+  days: number,
+  tenantId: string,
+) => {
   const studyId = studyName
-  .split(/\s+/) // Split by spaces
-  .map(word => word[0]) // Take the first letter of each word
-  .join("") // Join them together
-  .toUpperCase() // Convert to uppercase
-  .substring(0, 4); // Ensure it's only 4 letters
+    .split(/\s+/) // Split by spaces
+    .map((word) => word[0]) // Take the first letter of each word
+    .join("") // Join them together
+    .toUpperCase() // Convert to uppercase
+    .substring(0, 4); // Ensure it's only 4 letters
 
-  console.log(studyId); 
+  console.log(studyId);
 
   const startDate = new Date().toISOString();
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + days);
   const nctNumber = `NCT${Math.floor(100000 + Math.random() * 900000)}`;
-  db.prepare(`INSERT INTO uniform_resource_study VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`)
-    .run(studyId, studyName, startDate, endDate.toISOString(), "Insulin Therapy", "NIH", nctNumber, "Study on diabetes management", tenantId);
+  db.prepare(
+    `INSERT INTO uniform_resource_study VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+  )
+    .run(
+      studyId,
+      studyName,
+      startDate,
+      endDate.toISOString(),
+      "Insulin Therapy",
+      "NIH",
+      nctNumber,
+      "Study on diabetes management",
+      tenantId,
+    );
   console.log(`Study metadata generated for studyId: ${studyId}`);
   return studyId;
 };
@@ -185,11 +209,18 @@ const generateFitnessData = (participantId: string, days: number) => {
     const steps = Math.floor(Math.random() * (15000 - 3000) + 3000);
     const exerciseMinutes = Math.floor(Math.random() * 90);
     const caloriesBurned = Math.floor(Math.random() * (700 - 150) + 150);
-    
+
     db.prepare(`
       INSERT INTO uniform_resource_fitness_data VALUES (?, ?, ?, ?, ?, ?)
-    `).run(fitnessId, participantId, date.toISOString().split("T")[0], steps, exerciseMinutes, caloriesBurned);
-    
+    `).run(
+      fitnessId,
+      participantId,
+      date.toISOString().split("T")[0],
+      steps,
+      exerciseMinutes,
+      caloriesBurned,
+    );
+
     date.setDate(date.getDate() - 1);
   }
   console.log(`Fitness data generated for participantId: ${participantId}`);
@@ -204,7 +235,10 @@ const generateMealData = (participantId: string, days: number) => {
     mealTypes.forEach((mealType) => {
       const mealId = ulid();
       const mealTime = new Date(date);
-      mealTime.setHours(7 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60));
+      mealTime.setHours(
+        7 + Math.floor(Math.random() * 10),
+        Math.floor(Math.random() * 60),
+      );
       const calories = Math.floor(Math.random() * (800 - 200) + 200);
 
       db.prepare(`
@@ -222,7 +256,7 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
   let date = new Date(startDate);
   for (let i = 0; i < days * 24 * 12; i++) { // 5 min intervals
     const cgmValue = (Math.random() * 80) + 70;
-    
+
     db.prepare("INSERT INTO uniform_resource_cgm_tracing VALUES (?, ?, ?)")
       .run(sid, date.toISOString(), cgmValue.toFixed(1));
     date.setMinutes(date.getMinutes() + 5);
@@ -232,12 +266,16 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
 
 const generateCGMFileMetadata = (sid: string, studyId: string) => {
   const deviceList = [
-    "Dexcom G6", "Dexcom G7", "Dexcom Platinum",
-    "Freestyle Libre", "Libre 2", "Libre 3"
+    "Dexcom G6",
+    "Dexcom G7",
+    "Dexcom Platinum",
+    "Freestyle Libre",
+    "Libre 2",
+    "Libre 3",
   ];
 
   // Get start and end dates for the participant's CGM data
-  const dateRange: { start_date: string, end_date: string } = db.prepare(`
+  const dateRange: { start_date: string; end_date: string } = db.prepare(`
     SELECT MIN(Date_Time) AS start_date, MAX(Date_Time) AS end_date 
     FROM uniform_resource_cgm_tracing WHERE SID = ?;
   `).get(sid);
@@ -257,15 +295,31 @@ const generateCGMFileMetadata = (sid: string, studyId: string) => {
      study_id, tenant_id, map_field_of_cgm_date, map_field_of_cgm_value, map_field_of_patient_id) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `).run(
-    metadataId, deviceName, ulid(), "CGM Platform", sid,
-    fileName, fileFormat, fileUploadDate, dateRange.start_date, dateRange.end_date,
-    studyId, "default_tenant", "Date_Time", "CGM_Value", "SID"
+    metadataId,
+    deviceName,
+    ulid(),
+    "CGM Platform",
+    sid,
+    fileName,
+    fileFormat,
+    fileUploadDate,
+    dateRange.start_date,
+    dateRange.end_date,
+    studyId,
+    "default_tenant",
+    "Date_Time",
+    "CGM_Value",
+    "SID",
   );
   console.log(`CGM file metadata generated for SID: ${sid}`);
 };
 
 // Function to generate participants
-const generateParticipants = (studyId: string, participants: number, tenantId: string) => {
+const generateParticipants = (
+  studyId: string,
+  participants: number,
+  tenantId: string,
+) => {
   const genders = ["Male", "Female", "Other", "Unknown"];
   const diabetesTypes = ["Type 1", "Type 2", "Gestational", "Other"];
   for (let i = 1; i <= participants; i++) {
@@ -274,9 +328,27 @@ const generateParticipants = (studyId: string, participants: number, tenantId: s
     const age = (18 + Math.floor(Math.random() * 50)).toString();
     const bmi = (18 + Math.random() * 12).toFixed(1);
     const hba1c = (5 + Math.random() * 2).toFixed(1);
-    const diabetesType = diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
-    db.prepare(`INSERT INTO uniform_resource_participant VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
-      .run(participantId, studyId, "", "", "", "", gender, "", age, bmi, hba1c, diabetesType, "A", tenantId);
+    const diabetesType =
+      diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
+    db.prepare(
+      `INSERT INTO uniform_resource_participant VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+    )
+      .run(
+        participantId,
+        studyId,
+        "",
+        "",
+        "",
+        "",
+        gender,
+        "",
+        age,
+        bmi,
+        hba1c,
+        diabetesType,
+        "A",
+        tenantId,
+      );
   }
   console.log(`Participants generated for studyId: ${studyId}`);
 };
@@ -284,36 +356,63 @@ const generateParticipants = (studyId: string, participants: number, tenantId: s
 // Function to generate a study and related entities
 const generateStudy = async () => {
   createTables();
-  
+
   // Get user inputs
   const studyName = Deno.args[0] || "Default Study";
-  const tenantName = Deno.args[1] || "Default Tenant";  
+  const tenantName = Deno.args[1] || "Default Tenant";
   const participants = parseInt(Deno.args[2] || "10", 10);
   const days = parseInt(Deno.args[3] || "14", 10);
   const tenantId = generateTenantId(tenantName);
 
   const studyId = generateStudyMetadata(studyName, days, tenantId);
-  
+
   // Generate investigators (3-4 per study)
-  const selectedInvestigators = investigatorNames.sort(() => 0.5 - Math.random()).slice(0, 4);
+  const selectedInvestigators = investigatorNames.sort(() =>
+    0.5 - Math.random()
+  ).slice(0, 4);
   selectedInvestigators.forEach((name, index) => {
     const investigatorId = ulid();
-    db.prepare(`INSERT INTO uniform_resource_investigator VALUES (?, ?, ?, ?, ?, ?);`)
-      .run(investigatorId, name, `investigator${index}@example.com`, "INST_1", studyId, tenantId);
+    db.prepare(
+      `INSERT INTO uniform_resource_investigator VALUES (?, ?, ?, ?, ?, ?);`,
+    )
+      .run(
+        investigatorId,
+        name,
+        `investigator${index}@example.com`,
+        "INST_1",
+        studyId,
+        tenantId,
+      );
   });
   console.log(`Investigators generated for studyId: ${studyId}`);
-  
+
   // Generate publication
   const publicationId = ulid();
-  db.prepare(`INSERT INTO uniform_resource_publication VALUES (?, ?, ?, ?, ?, ?);`)
-    .run(publicationId, `${studyName} Results`, generateDOI(), "Journal of Diabetes Research", studyId, tenantId);
+  db.prepare(
+    `INSERT INTO uniform_resource_publication VALUES (?, ?, ?, ?, ?, ?);`,
+  )
+    .run(
+      publicationId,
+      `${studyName} Results`,
+      generateDOI(),
+      "Journal of Diabetes Research",
+      studyId,
+      tenantId,
+    );
   console.log(`Publication generated for studyId: ${studyId}`);
-  
+
   // Generate authors from the investigators (at least 2-3 authors per study)
   selectedInvestigators.slice(0, 3).forEach((name, index) => {
     const authorId = ulid();
     db.prepare(`INSERT INTO uniform_resource_author VALUES (?, ?, ?, ?, ?, ?);`)
-      .run(authorId, name, `author${index}@example.com`, "INV_1", studyId, tenantId);
+      .run(
+        authorId,
+        name,
+        `author${index}@example.com`,
+        "INV_1",
+        studyId,
+        tenantId,
+      );
   });
   console.log(`Authors generated for studyId: ${studyId}`);
 

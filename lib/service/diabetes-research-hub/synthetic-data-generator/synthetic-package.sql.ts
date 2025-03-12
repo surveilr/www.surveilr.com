@@ -4,8 +4,7 @@ import * as pkg from "../drh-basepackage.sql.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
 
-
-export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {  
+export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics
