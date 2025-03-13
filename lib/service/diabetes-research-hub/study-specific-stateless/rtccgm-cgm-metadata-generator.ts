@@ -5,12 +5,12 @@ function getRandomDeviceId(): string {
   return "DEV-" + Math.floor(Math.random() * 100000).toString();
 }
 
-// Function to generate a random device name
-function getRandomDeviceName(): string {
+// Function to generate a random device with source platform
+function getRandomDevice(): { device_name: string; source_platform: string } {
   const devices = [
-    "FreeStyle Navigator",
-    "Dexcom SEVEN",
-    "Medtronic Paradigm",
+    { device_name: "FreeStyle Navigator", source_platform: "Abbott" },
+    { device_name: "Dexcom G7", source_platform: "Dexcom" },
+    { device_name: "Medtronic Paradigm", source_platform: "Medtronic" },
   ];
   return devices[Math.floor(Math.random() * devices.length)];
 }
@@ -20,7 +20,7 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
   console.log(`Preparing to insert PtID: ${ptId} from file: ${fileName}`);
 
   const metadata_id = "MD-" + Math.floor(Math.random() * 1000000).toString();
-  const device_name = getRandomDeviceName();
+  const { device_name, source_platform } = getRandomDevice(); // Get device and source platform
   const device_id = "Unknown";
   const study_id = "RTCCGM";
   const tenant_id = "JAEB001";
@@ -28,7 +28,6 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
   const file_upload_date = "";
   const data_start_date = "";
   const data_end_date = "";
-  const source_platform = "Unknown";
   const map_field_of_cgm_date = "DeviceDtTm";
   const map_field_of_cgm_value = "Glucose";
   const map_field_of_patient_id = "PtID";
@@ -37,9 +36,9 @@ function insertPtIdToMetadata(db: DB, ptId: string, fileName: string) {
   const trimmedFileName = fileName.replace(/^uniform_resource_/, "");
   const ptIdWithPrefix = `RTCCGM-${ptId}`;
 
-  console.log(
-    `Generated metadata_id: ${metadata_id}, device_name: ${device_name}, device_id: ${device_id}`,
-  );
+
+  console.log(`Generated metadata_id: ${metadata_id}, device_name: ${device_name}, device_id: ${device_id},source_platform=${source_platform}`);
+
 
   // SQL query to insert into cgm_file_metadata
   const query = `
