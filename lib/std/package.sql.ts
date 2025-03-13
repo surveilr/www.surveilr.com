@@ -2,6 +2,7 @@
 import {
   console as c,
   docs,
+  ms,
   orchestration as orch,
   shell as sh,
   uniformResource as ur,
@@ -15,6 +16,7 @@ export async function SQL() {
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
     new docs.DocsSqlPages(),
+    new ms.OsqueryMsSqlPages(),
   );
 }
 // this will be used by any callers who want to serve it as a CLI with SDTOUT

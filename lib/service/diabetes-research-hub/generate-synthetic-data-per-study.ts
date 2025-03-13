@@ -358,16 +358,10 @@ const generateStudy = async () => {
   createTables();
 
   // Get user inputs
-  const studyName = prompt("Enter study name:") || "Default Study";
-  const tenantName = prompt("Enter tenant name:") || "Default Tenant";
-  const participants = parseInt(
-    prompt("Enter number of participants:") || "10",
-    10,
-  );
-  const days = parseInt(
-    prompt("Enter CGM data frequency (14, 30, 90 days):") || "14",
-    10,
-  );
+  const studyName = Deno.args[0] || "Default Study";
+  const tenantName = Deno.args[1] || "Default Tenant";
+  const participants = parseInt(Deno.args[2] || "10", 10);
+  const days = parseInt(Deno.args[3] || "14", 10);
   const tenantId = generateTenantId(tenantName);
 
   const studyId = generateStudyMetadata(studyName, days, tenantId);
@@ -446,3 +440,5 @@ generateStudy().then(() => {
   console.error("Error generating synthetic study data:", error);
   db.close();
 });
+
+//deno run --allow-all  ./generate-synthetic-data-per-study.ts wadwa TN0134 3 14

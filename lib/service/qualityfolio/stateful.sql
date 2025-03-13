@@ -54,6 +54,7 @@ WHERE uri LIKE '%/qf-case-group.md';
 
 DROP TABLE IF EXISTS test_case_run_results;
 CREATE TABLE test_case_run_results AS
+with test_case_result as(
 SELECT 
     content,
     json_extract(content, '$.test_case_fii') AS test_case_id,
@@ -66,8 +67,8 @@ SELECT
     json_extract(content, '$.total_duration') AS total_duration,
     json_extract(content, '$.steps') AS steps -- Extracts the full array of steps
 FROM uniform_resource
-WHERE uri LIKE '%.result.json';
-
+WHERE uri LIKE '%.result.json')
+SELECT * FROM test_case_result order by start_time desc;
 
 DROP TABLE IF EXISTS test_cases;
 CREATE TABLE test_cases AS
@@ -82,6 +83,7 @@ SELECT
     json_extract(frontmatter, '$.created_at') AS created_at,
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.priority') AS priority,
+    json_extract(frontmatter, '$.bugId') AS bug_list,
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
@@ -100,6 +102,7 @@ SELECT
     tc.priority,
     tc.front_matter,
     tc.body,
+    tc.bug_list,
     g.name AS group_name,
     g.suite_id,
     g.description AS group_description,
@@ -117,4 +120,19 @@ FROM test_case_run_results
 group BY test_case_id) r on r.test_case_id=tc.test_case_id;
 
 
+DROP TABLE IF EXISTS jira_issues;
+CREATE TABLE jira_issues AS
+SELECT 
+json_extract(content, '$.key') AS bug_id, 
+json_extract(content, '$.fields.summary') AS title, 
+json_extract(content, '$.fields.assignee.displayName') AS assignee, 
+json_extract(content, '$.fields.description') AS description, 
+json_extract(content, '$.fields.reporter.displayName') AS reporter, 
+json_extract(content, '$.fields.status.name') AS status, 
+json_extract(content, '$.fields.created') AS created, 
+json_extract(content, '$.fields.updated') AS updated,
+json_extract(content, '$.fields.issuetype.name') AS type
+FROM 
+uniform_resource where uri like 'https://civco.atlassian.net/rest/api/%' and nature='json'
+and json_extract(content, '$.fields.issuetype.name')='Bug';
 

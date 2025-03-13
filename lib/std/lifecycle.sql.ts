@@ -9,6 +9,19 @@ import * as stdPackage from "./package.sql.ts";
 type Any = any;
 
 const surveilrSpecialMigrationNotebookName = "ConstructionSqlNotebook" as const;
+const osQueryMsNotebookName = "osQuery Management Server (Prime)" as const;
+const osQueryMsCellGovernance = {
+  "osquery-ms-interval": 60,
+  "results-uniform-resource-store-jq-filters": [
+    "del(.calendarTime, .unixTime, .action, .counter)",
+  ],
+  "results-uniform-resource-captured-jq-filters": ["{calendarTime, unixTime}"],
+};
+const osQueryMsFilterNotebookName =
+  "osQuery Management Server Default Filters (Prime)" as const;
+
+const osQueryMsPolicyNotebookName =
+  "osQuery Management Server (Policy)" as const;
 
 // TODO: should the `CREATE VIEW` definitions be in code_notebook_cell or straight in RSSD?
 // TODO: update ON CONFLICT to properly do updates, not just "DO NOTHING"
@@ -43,6 +56,130 @@ export function migratableCell(
   return cnb.sqlCell<RssdInitSqlNotebook>({
     ...init,
     notebook_name: surveilrSpecialMigrationNotebookName,
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+/**
+ * Decorator function which declares that the method it decorates creates a
+ * code_notebook_cell SQL kernel row but forced to be in a special notebook
+ * called "osQuery Management Server (Prime)", which defines osQuery SQL blocks.
+ *
+ * @param init - The code_notebook_cell.* column values
+ * @returns A decorator function that informs its host notebook about declaration
+ *
+ * @example
+ * class MyNotebook extends TypicalCodeNotebook {
+ *   @osQueryMsCell({ ... })
+ *   "myCell"() {
+ *     // method implementation
+ *   }
+ * }
+ */
+export function osQueryMsCell(
+  init?: Omit<
+    Parameters<typeof cnb.sqlCell>[0],
+    "notebook_name" | "cell_governance"
+  >,
+  targets: string[] = ["macos", "windows", "linux"],
+  singleton: boolean = false,
+  extraFilters: string[] = [],
+) {
+  const cellGovernance = JSON.stringify({
+    ...osQueryMsCellGovernance,
+    "results-uniform-resource-store-jq-filters": [
+      ...osQueryMsCellGovernance["results-uniform-resource-store-jq-filters"],
+      ...extraFilters,
+    ],
+    targets,
+    singleton,
+  });
+
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    ...init,
+    notebook_name: osQueryMsNotebookName,
+    cell_governance: cellGovernance,
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+interface OsqueryMsPolicyGovernance {
+  targets: string[];
+  required_note: string;
+  resolution: string;
+  critical: boolean;
+  description: string;
+}
+
+export function osQueryMsPolicyCell(
+  // init?: Omit<
+  // Parameters<typeof cnb.sqlCell>[0],
+  // "notebook_name" | "cell_governance"
+  // >,
+  policyGovernance: OsqueryMsPolicyGovernance,
+) {
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    description: policyGovernance.description,
+    notebook_name: osQueryMsPolicyNotebookName,
+    cell_governance: JSON.stringify({
+      ...osQueryMsCellGovernance,
+      targets: policyGovernance.targets,
+      singleton: false,
+      policy: {
+        required_note: policyGovernance.required_note,
+        resolution: policyGovernance.resolution,
+        critical: policyGovernance.critical,
+      },
+    }),
+  }, (dc, methodCtx) => {
+    methodCtx.addInitializer(function () {
+      this.migratableCells.set(String(methodCtx.name), dc);
+    });
+    // we're not modifying the DecoratedCell
+    return dc;
+  });
+}
+
+/**
+ * Decorator function which declares that the method it decorates creates a
+ * code_notebook_cell SQL kernel row but forced to be in a special notebook
+ * called "osQuery Management Server Default Filters (Prime)", which defines parameters on how to execute osQuerMS queries and how to post precess the results.
+ *
+ * @param init - The code_notebook_cell.* column values
+ * @returns A decorator function that informs its host notebook about declaration
+ *
+ * @example
+ * class MyNotebook extends TypicalCodeNotebook {
+ *   @osQueryMsFilterCell({ ... })
+ *   "myCell"() {
+ *     // method implementation
+ *   }
+ * }
+ */
+export function osQueryMsFilterCell(
+  init?: Omit<
+    Parameters<typeof cnb.sqlCell>[0],
+    "notebook_name" | "cell_governance"
+  >,
+) {
+  return cnb.sqlCell<RssdInitSqlNotebook>({
+    ...init,
+    notebook_name: osQueryMsFilterNotebookName,
+    cell_governance: JSON.stringify({
+      ...osQueryMsCellGovernance,
+      targets: [],
+      singleton: false,
+    }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
       this.migratableCells.set(String(methodCtx.name), dc);
@@ -181,9 +318,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${this.codeNbModels.informationSchema.tableIndexes}
 
       ${this.notebookBusinessLogicViews()}
-
-      ${this.uniformResourceGraphViews()}
-
+  
       ${this.surveilrFunctionsAndExtensionsDocs()}
       `;
   }
@@ -630,37 +765,12 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       ${orchestrationNatureRules()}
 
       ${uniformResourceGraphRules}
+
+      ${this.uniformResourceGraphViews()}
+
+      ${this.allOsqueryPolicies()}
       `;
   }
-
-  // @migratableCell({
-  //   description:
-  //     "Creates a simple graph infrastructure so that uniform_resource content can be tracked as graphs in addition to relationally.",
-  // })
-  // v002_uniform_resource_graphs() {
-  //   return this.SQL`
-  //     CREATE TABLE IF NOT EXISTS uniform_resource_graph (
-  //         name TEXT PRIMARY KEY
-  //     );
-
-  //     CREATE TABLE IF NOT EXISTS uniform_resource_edge (
-  //         graph_name TEXT PRIMARY KEY,
-  //         nature TEXT,
-  //         node_id TEXT,
-  //         uniform_resource_id TEXT,
-  //         elaboration TEXT,
-  //         UNIQUE(graph_name, nature, node_id, uniform_resource_id) ON CONFLICT REPLACE,
-  //         FOREIGN KEY(graph_name) REFERENCES uniform_resource_graph(name),
-  //         FOREIGN KEY(uniform_resource_id) REFERENCES uniform_resource(uniform_resource_id)
-  //     );
-
-  //     CREATE INDEX IF NOT EXISTS target_idx ON uniform_resource_edge(uniform_resource_id);
-
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('filesystem');
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('imap');
-  //     INSERT OR IGNORE INTO uniform_resource_graph (name) VALUES('plm');
-  //     `;
-  // }
 
   /**
    * Prepares a prompt that will allow the user to "teach" an LLM about this
@@ -855,6 +965,454 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       this.emitCtx,
       await schemaNB.polygenContent(),
     );
+  }
+
+  allOsqueryPolicies() {
+    const { osQueryPolicy } = this.serviceModels;
+    const options = { onConflict: { SQL: () => `ON CONFLICT DO NOTHING` } };
+
+    const policyPassLabel = "Pass";
+    const policyFailLabel = "Fail";
+
+    return [
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Ad tracking is limited (macOS)",
+        osquery_code:
+          "SELECT CASE WHEN EXISTS (SELECT 1 FROM managed_policies WHERE domain='com.apple.AdLib' AND name='forceLimitAdTracking' AND value='1' LIMIT 1) THEN 'true' ELSE 'false' END AS policy_result;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to limit advertisement tracking.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (Linux)",
+        osquery_code:
+          "SELECT score FROM (SELECT CASE WHEN COUNT(*) = 2 THEN 'true' ELSE 'false' END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score = 'true';",
+        policy_description:
+          "Checks that both ClamAV's daemon and its updater service (freshclam) are running.",
+        policy_fail_remarks:
+          "Ensure ClamAV and Freshclam are installed and running.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["linux", "windows", "macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (macOS)",
+        osquery_code:
+          "SELECT score FROM (SELECT case when COUNT(*) = 2 then 1 ELSE 0 END AS score FROM plist WHERE (key = 'CFBundleShortVersionString' AND path = '/Library/Apple/System/Library/CoreServices/XProtect.bundle/Contents/Info.plist' AND value>=2162) OR (key = 'CFBundleShortVersionString' AND path = '/Library/Apple/System/Library/CoreServices/MRT.app/Contents/Info.plist' and value>=1.93)) WHERE score == 1;",
+        policy_description:
+          "Checks the version of Malware Removal Tool (MRT) and the built-in macOS AV (Xprotect). Replace version numbers with the latest version regularly.",
+        policy_fail_remarks:
+          "To enable automatic security definition updates, on the failing device, select System Preferences > Software Update > Advanced > Turn on Install system data files and security updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name: "Antivirus healthy (Windows)",
+        osquery_code:
+          "SELECT 1 from windows_security_center wsc CROSS JOIN windows_security_products wsp WHERE antivirus = 'Good' AND type = 'Antivirus' AND signatures_up_to_date=1;",
+        policy_description:
+          "Checks the status of antivirus and signature updates from the Windows Security Center.",
+        policy_fail_remarks:
+          "Ensure Windows Defender or your third-party antivirus is running, up to date, and visible in the Windows Security Center.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["windows"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Automatic installation of application updates is enabled (macOS)",
+        osquery_code:
+          "SELECT 1 FROM managed_policies WHERE domain='com.apple.SoftwareUpdate' AND name='AutomaticallyInstallAppUpdates' AND value=1 LIMIT 1;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to automatically install updates to App Store applications.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of application updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Automatic installation of operating system updates is enabled (macOS)",
+        osquery_code:
+          "SELECT 1 FROM managed_policies WHERE domain='com.apple.SoftwareUpdate' AND name='AutomaticallyInstallMacOSUpdates' AND value=1 LIMIT 1;",
+        policy_description:
+          "Checks that a mobile device management (MDM) solution configures the Mac to automatically install operating system updates.",
+        policy_fail_remarks:
+          "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of operating system updates.",
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["macos"]),
+      }, options),
+      osQueryPolicy.insertDML({
+        osquery_policy_id: this.sqlEngineNewUlid,
+        policy_name:
+          "Ensure 'Minimum password length' is set to '14 or more characters'",
+        osquery_code:
+          "SELECT 1 FROM security_profile_info WHERE minimum_password_length >= 14;",
+        policy_description:
+          "This policy setting determines the least number of characters that make up a password for a user account.",
+        policy_fail_remarks: `Automatic method:
+Ask your system administrator to establish the recommended configuration via GP, set the following UI path to 14 or more characters
+'Computer Configuration\Policies\Windows Settings\Security Settings\Account Policies\Password Policy\Minimum password length'`,
+        policy_pass_label: policyPassLabel,
+        policy_fail_label: policyFailLabel,
+        osquery_platforms: JSON.stringify(["windows"]),
+      }, options),
+    ];
+  }
+
+  @osQueryMsCell(
+    {
+      description: "All running processes on the host system.",
+    },
+    ["macos", "windows", "linux"],
+    false,
+    ["del(.columns.elapsed_time, .columns.system_time)"],
+  )
+  "All Processes"() {
+    return `select * from processes`;
+  }
+
+  @osQueryMsCell({
+    description: "System information for identification.",
+  })
+  "System Information"() {
+    return `SELECT * FROM system_info`;
+  }
+
+  @osQueryMsCell(
+    {
+      description: "Get the boundary for a node.",
+    },
+    ["linux", "macos"],
+    true,
+  )
+  "osquery-ms Boundary (Linux and Macos)"() {
+    return `SELECT DISTINCT value, key FROM process_envs WHERE key='SURVEILR_OSQUERY_BOUNDARY';`;
+  }
+
+  @osQueryMsCell(
+    {
+      description: "Get the boundary for a node.",
+    },
+    ["windows"],
+    true,
+  )
+  "osquery-ms Boundary (Windows)"() {
+    return `SELECT DISTINCT value, variable FROM default_environment WHERE variable='SURVEILR_OSQUERY_BOUNDARY';`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "A single row containing the operating system name and version.",
+  }, ["macos", "linux"])
+  "OS Version (Linux and Macos)"() {
+    return `SELECT
+    os.name,
+    os.major,
+    os.minor,
+    os.patch,
+    os.extra,
+    os.build,
+    os.arch,
+    os.platform,
+    os.version AS version,
+    k.version AS kernel_version
+  FROM
+    os_version os,
+    kernel_info k;
+`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "A single row containing the operating system name and version.",
+  }, ["windows"])
+  "OS Version (Windows)"() {
+    return `
+    WITH display_version_table AS (
+      SELECT data as display_version
+      FROM registry
+      WHERE path = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\DisplayVersion'
+    ),
+    ubr_table AS (
+      SELECT data AS ubr
+      FROM registry
+      WHERE path ='HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\UBR'
+    )
+    SELECT
+      os.name,
+      COALESCE(d.display_version, '') AS display_version,
+      COALESCE(CONCAT((SELECT version FROM os_version), '.', u.ubr), k.version) AS version
+    FROM
+      os_version os,
+      kernel_info k
+    LEFT JOIN
+      display_version_table d
+    LEFT JOIN
+      ubr_table u;
+`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Local user accounts (including domain accounts that have logged on locally (Windows)).",
+  })
+  "Users"() {
+    return `SELECT * FROM users`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Retrieves information about network interfaces on devices running windows.",
+  }, ["windows"])
+  "Network Interfaces (Windows)"() {
+    return `
+      SELECT
+          ia.address,
+          id.mac
+      FROM
+          interface_addresses ia
+          JOIN interface_details id ON id.interface = ia.interface
+          JOIN routes r ON r.interface = ia.address
+      WHERE
+          (r.destination = '0.0.0.0' OR r.destination = '::') AND r.netmask = 0
+          AND r.type = 'remote'
+          AND (
+          inet_aton(ia.address) IS NOT NULL AND (
+            split(ia.address, '.', 0) = '10'
+            OR (split(ia.address, '.', 0) = '172' AND (CAST(split(ia.address, '.', 1) AS INTEGER) & 0xf0) = 16)
+            OR (split(ia.address, '.', 0) = '192' AND split(ia.address, '.', 1) = '168')
+          )
+          OR (inet_aton(ia.address) IS NULL AND regex_match(lower(ia.address), '^f[cd][0-9a-f][0-9a-f]:[0-9a-f:]+', 0) IS NOT NULL)
+        )
+      ORDER BY
+          r.metric ASC,
+        inet_aton(ia.address) IS NOT NULL DESC
+      LIMIT 1;
+    `;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Retrieves information about network interfaces on macOS and Linux devices.",
+  }, ["macos", "linux"])
+  "Network Interfaces (Linux and Macos)"() {
+    return `
+      SELECT
+          ia.address,
+          id.mac
+      FROM
+          interface_addresses ia
+          JOIN interface_details id ON id.interface = ia.interface
+          JOIN routes r ON r.interface = ia.interface
+      WHERE
+          (r.destination = '0.0.0.0' OR r.destination = '::') AND r.netmask = 0
+          AND r.type = 'gateway'
+          AND (
+          inet_aton(ia.address) IS NOT NULL AND (
+            split(ia.address, '.', 0) = '10'
+            OR (split(ia.address, '.', 0) = '172' AND (CAST(split(ia.address, '.', 1) AS INTEGER) & 0xf0) = 16)
+            OR (split(ia.address, '.', 0) = '192' AND split(ia.address, '.', 1) = '168')
+          )
+          OR (inet_aton(ia.address) IS NULL AND regex_match(lower(ia.address), '^f[cd][0-9a-f][0-9a-f]:[0-9a-f:]+', 0) IS NOT NULL)
+        )
+      ORDER BY
+          r.metric ASC,
+        inet_aton(ia.address) IS NOT NULL DESC
+      LIMIT 1;
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Processes with listening (bound) network sockets/ports.",
+  })
+  "Listening Ports"() {
+    return `SELECT * FROM listening_ports`;
+  }
+
+  @osQueryMsCell(
+    {
+      description:
+        "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
+    },
+    ["linux", "macos", "windows"],
+    true,
+  )
+  "Server Uptime"() {
+    return `SELECT * FROM uptime LIMIT 1;`;
+  }
+
+  @osQueryMsCell(
+    {
+      description:
+        "Retrieves total amount of free disk space on a Windows host.",
+    },
+    ["windows"],
+    true,
+  )
+  "Available Disk Space (Windows)"() {
+    return `
+    SELECT 
+      ROUND((sum(free_space) * 100 * 10e-10) / (sum(size) * 10e-10)) AS percent_disk_space_available,
+      ROUND(sum(free_space) * 10e-10) AS gigs_disk_space_available,
+      ROUND(sum(size)       * 10e-10) AS gigs_total_disk_space
+    FROM logical_drives
+    WHERE file_system = 'NTFS' LIMIT 1;
+`;
+  }
+
+  @osQueryMsCell(
+    {
+      description: "Retrieves total amount of free disk space on a host.",
+    },
+    ["macos", "linux"],
+    true,
+  )
+  "Available Disk Space (Linux and Macos)"() {
+    return `
+    SELECT 
+      (blocks_available * 100 / blocks) AS percent_disk_space_available,
+      round((blocks_available * blocks_size * 10e-10),2) AS gigs_disk_space_available,
+      round((blocks           * blocks_size * 10e-10),2) AS gigs_total_disk_space
+    FROM mounts
+    WHERE path = '/' LIMIT 1;
+`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Linux computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  }, ["linux"])
+  "Installed Linux software"() {
+    return `SELECT name AS name, version AS version, 'Package (APT)' AS type, 'apt_sources' AS source FROM apt_sources UNION SELECT name AS name, version AS version, 'Package (deb)' AS type, 'deb_packages' AS source FROM deb_packages UNION SELECT package AS name, version AS version, 'Package (Portage)' AS type, 'portage_packages' AS source FROM portage_packages UNION SELECT name AS name, version AS version, 'Package (RPM)' AS type, 'rpm_packages' AS source FROM rpm_packages UNION SELECT name AS name, '' AS version, 'Package (YUM)' AS type, 'yum_sources' AS source FROM yum_sources UNION SELECT name AS name, version AS version, 'Package (NPM)' AS type, 'npm_packages' AS source FROM npm_packages UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages;`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Windows computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  }, ["windows"])
+  "Installed Windows software"() {
+    return `SELECT name AS name, version AS version, 'Program (Windows)' AS type, 'programs' AS source FROM programs UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (IE)' AS type, 'ie_extensions' AS source FROM ie_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name AS name, version AS version, 'Package (Chocolatey)' AS type, 'chocolatey_packages' AS source FROM chocolatey_packages;`;
+  }
+
+  @osQueryMsCell({
+    description:
+      "Get all software installed on a Macos computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
+  }, ["macos"])
+  "Installed Macos software"() {
+    return `SELECT name AS name, bundle_short_version AS version, 'Application (macOS)' AS type, 'apps' AS source FROM apps UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name As name, version AS version, 'Browser plugin (Safari)' AS type, 'safari_extensions' AS source FROM safari_extensions UNION SELECT name AS name, version AS version, 'Package (Homebrew)' AS type, 'homebrew_packages' AS source FROM homebrew_packages;`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["macos", "windows", "linux"],
+    required_note: "osQuery must have Full Disk Access.",
+    resolution:
+      "Use this command to encrypt existing SSH keys by providing the path to the file: ssh-keygen -o -p -f /path/to/file",
+    critical: false,
+    description:
+      "Policy passes if all keys are encrypted, including if no keys are present.",
+  })
+  "SSH keys encrypted"() {
+    return `SELECT 
+  CASE 
+    WHEN NOT EXISTS (
+      SELECT 1
+      FROM users
+      CROSS JOIN user_ssh_keys USING (uid)
+      WHERE encrypted = '0'
+    ) THEN 'true' 
+    ELSE 'false' 
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["linux"],
+    required_note:
+      "Checks if the root drive is encrypted. There are many ways to encrypt Linux systems. This is the default on distributions such as Ubuntu.",
+    resolution:
+      "Ensure the image deployed to your Linux workstation includes full disk encryption.",
+    critical: false,
+    description: "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Linux)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM mounts m
+      JOIN disk_encryption d ON m.device_alias = d.name
+      WHERE d.encrypted = 1 AND m.path = '/'
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["windows"],
+    required_note:
+      "Checks to make sure that full disk encryption is enabled on Windows devices.",
+    resolution:
+      "To get additional information, run the following osquery query on the failing device: SELECT * FROM bitlocker_info. In the query results, if protection_status is 2, then the status cannot be determined. If it is 0, it is considered unprotected. Use the additional results (percent_encrypted, conversion_status, etc.) to help narrow down the specific reason why Windows considers the volume unprotected.",
+    critical: false,
+    description: "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Windows)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM bitlocker_info 
+      WHERE drive_letter = 'C:' AND protection_status = 1
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsPolicyCell({
+    targets: ["macos"],
+    required_note:
+      "Checks to make sure that full disk encryption (FileVault) is enabled on macOS devices.",
+    resolution:
+      "To enable full disk encryption, on the failing device, select System Preferences > Security & Privacy > FileVault > Turn On FileVault.",
+    critical: false,
+    description: "Checks if the root drive is encrypted.",
+  })
+  "Full disk encryption enabled (Macos)"() {
+    return `SELECT 
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 
+      FROM disk_encryption 
+      WHERE user_uuid IS NOT '' AND filevault_status = 'on'
+      LIMIT 1
+    ) THEN 'true'
+    ELSE 'false'
+  END AS policy_result;
+`;
+  }
+
+  @osQueryMsFilterCell({
+    description:
+      "Default filters for post-processing the results from osQuery.",
+  })
+  "osQuery Result Filters"() {
+    return osQueryMsCellGovernance;
   }
 }
 

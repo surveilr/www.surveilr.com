@@ -185,11 +185,10 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringCgm = isNonCommaseparated
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
-    
-      db.prepare(
-        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
 
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+    ).run(ulid(), db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
@@ -648,10 +647,16 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
 
     db.prepare(
       `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-    ).run(file_meta_id, db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+    ).run(
+      file_meta_id,
+      db_file_id,
+      row.patient_id,
+      jsonStringCgm,
+      jsonStringMeta,
+    );
   }
 
-  db.close(); 
+  db.close();
   return ctrSQL;
 }
 
@@ -677,7 +682,9 @@ export function savertccgmJsonCgm(dbFilePath: string): string {
   const db_file_id = ulid();
   console.log("Generated db_file_id:", db_file_id);
 
-  const recordCountStmt = db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`);
+  const recordCountStmt = db.prepare(
+    `SELECT COUNT(*) as count FROM ${tableName}`,
+  );
   const recordCount = recordCountStmt.get();
   console.log("Total records in table:", recordCount.count);
 
@@ -701,7 +708,7 @@ export function savertccgmJsonCgm(dbFilePath: string): string {
 
   for (const row of rows) {
     console.log("Processing row:", JSON.stringify(row, null, 2));
-    
+
     const jsonObject = {
       device_id: row.device_id,
       file_name: row.file_name,
@@ -749,7 +756,13 @@ export function savertccgmJsonCgm(dbFilePath: string): string {
     try {
       db.prepare(
         `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-      ).run(file_meta_id, db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+      ).run(
+        file_meta_id,
+        db_file_id,
+        row.patient_id,
+        jsonStringCgm,
+        jsonStringMeta,
+      );
       console.log("Data successfully inserted into file_meta_ingest_data.");
     } catch (error) {
       console.error("Error inserting data:", error);
@@ -757,12 +770,10 @@ export function savertccgmJsonCgm(dbFilePath: string): string {
   }
 
   console.log("Closing database connection...");
-  db.close(); 
+  db.close();
   console.log("Database closed.");
   return rtccgmSQL;
 }
-
-
 
 export function saveDFAJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
@@ -834,9 +845,9 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
       ? JSON.stringify(jsonStringObs)
       : JSON.stringify(rows_obs);
 
-      db.prepare(
-        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
-      ).run(ulid(), db_file_id , row.patient_id, jsonStringCgm, jsonStringMeta);
+    db.prepare(
+      `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+    ).run(ulid(), db_file_id, row.patient_id, jsonStringCgm, jsonStringMeta);
   }
 
   db.close();
@@ -867,4 +878,3 @@ if (import.meta.main) {
     console.log(Object.keys(functions).join(", "));
   }
 }
-

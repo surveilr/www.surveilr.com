@@ -1,5 +1,5 @@
---DFA-study-DS   sql
--------------------------------------------------
+-------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- Perform De-identification
 -- Anonymize email addresses in the uniform_resource_investigator table
 UPDATE uniform_resource_investigator
@@ -287,6 +287,13 @@ SELECT
     1
 UNION ALL
 SELECT
+    'uniform_resource_institution',
+    'tenant_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
     'uniform_resource_lab',
     'lab_id',
     'TEXT',
@@ -317,6 +324,13 @@ UNION ALL
 SELECT
     'uniform_resource_lab',
     'study_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
+    'uniform_resource_lab',
+    'tenant_id',
     'TEXT',
     0,
     1
@@ -378,6 +392,13 @@ SELECT
     1
 UNION ALL
 SELECT
+    'uniform_resource_study',
+    'tenant_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
     'uniform_resource_site',
     'site_id',
     'TEXT',
@@ -401,6 +422,13 @@ UNION ALL
 SELECT
     'uniform_resource_site',
     'site_type',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
+    'uniform_resource_site',
+    'tenant_id',
     'TEXT',
     0,
     1
@@ -441,6 +469,13 @@ SELECT
     1
 UNION ALL
 SELECT
+    'uniform_resource_investigator',
+    'tenant_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
     'uniform_resource_publication',
     'publication_id',
     'TEXT',
@@ -476,6 +511,13 @@ SELECT
     1
 UNION ALL
 SELECT
+    'uniform_resource_publication',
+    'tenant_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
     'uniform_resource_author',
     'author_id',
     'TEXT',
@@ -506,6 +548,13 @@ UNION ALL
 SELECT
     'uniform_resource_author',
     'study_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
+    'uniform_resource_author',
+    'tenant_id',
     'TEXT',
     0,
     1
@@ -583,6 +632,13 @@ UNION ALL
 SELECT
     'uniform_resource_cgm_file_metadata',
     'study_id',
+    'TEXT',
+    0,
+    1
+UNION ALL
+SELECT
+    'uniform_resource_cgm_file_metadata',
+    'tenant_id',
     'TEXT',
     0,
     1;
@@ -687,7 +743,7 @@ VALUES
             limit
                 1
         ), -- Session ID from previous insert
-        'ctr-anderson-stateless.sql', -- Replace with actual ingest source
+        'dclp1-single-cgm-tracing.sql', -- Replace with actual ingest source
         '', -- Placeholder for actual table name
         NULL -- Elaboration (if any)
     );
@@ -975,6 +1031,17 @@ FROM
             study_description IS NULL
             OR study_description = ''
         UNION ALL
+        SELECT
+            'uniform_resource_study' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_study
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
+        UNION ALL
         --- uniform_resource_institution table
         SELECT
             'uniform_resource_institution' AS table_name,
@@ -1031,6 +1098,17 @@ FROM
             country IS NULL
             OR country = ''
         UNION ALL
+        SELECT
+            'uniform_resource_institution' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_institution
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
+        UNION ALL
         -- uniform_resource_site table
         SELECT
             'uniform_resource_site' AS table_name,
@@ -1075,6 +1153,17 @@ FROM
         WHERE
             site_type IS NULL
             OR site_type = ''
+        UNION ALL
+        SELECT
+            'uniform_resource_site' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_site
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
         UNION ALL
         -- uniform_resource_lab table
         SELECT
@@ -1131,6 +1220,17 @@ FROM
         WHERE
             study_id IS NULL
             OR study_id = ''
+        UNION ALL
+        SELECT
+            'uniform_resource_lab' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_lab
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
         UNION ALL
         -- uniform_resource_cgm_file_metadata 
         SELECT
@@ -1254,6 +1354,17 @@ FROM
             study_id IS NULL
             OR study_id = ''
         UNION ALL
+        SELECT
+            'uniform_resource_cgm_file_metadata' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_cgm_file_metadata
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
+        UNION ALL
         -- uniform_resource_investigator
         SELECT
             'uniform_resource_investigator' AS table_name,
@@ -1310,6 +1421,17 @@ FROM
             study_id IS NULL
             OR study_id = ''
         UNION ALL
+        SELECT
+            'uniform_resource_investigator' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_investigator
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
+        UNION ALL
         -- uniform_resource_publication table
         SELECT
             'uniform_resource_publication' AS table_name,
@@ -1365,8 +1487,19 @@ FROM
         WHERE
             study_id IS NULL
             OR study_id = ''
-            -- uniform_resource_author table
         UNION ALL
+        SELECT
+            'uniform_resource_publication' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_publication
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
+        UNION ALL
+        -- uniform_resource_author table        
         SELECT
             'uniform_resource_author' AS table_name,
             'author_id' AS column_name,
@@ -1421,6 +1554,17 @@ FROM
         WHERE
             study_id IS NULL
             OR study_id = ''
+        UNION ALL
+        SELECT
+            'uniform_resource_author' AS table_name,
+            'tenant_id' AS column_name,
+            tenant_id AS value,
+            rowid
+        FROM
+            uniform_resource_author
+        WHERE
+            tenant_id IS NULL
+            OR tenant_id = ''
     )
 GROUP BY
     table_name,
@@ -1566,16 +1710,132 @@ WHERE
             1
     );
 
--- Update the session identified in the temp view
---------------------------------------------------------------------------------------------------------------------------
---transform uniform_resource_clinical_data to participant view
--- Drop and recreate the participant view
+
+
+-- Drop the view if it exists, then create the drh_participant view
 DROP VIEW IF EXISTS drh_participant;
 
-CREATE VIEW
-    drh_participant AS
+CREATE VIEW drh_participant AS
 SELECT
-    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id, 
+    '' AS db_file_id,  
+    (SELECT party_id FROM party LIMIT 1) AS tenant_id,  -- Fetching tenant_id from the party table    
+    study_id,  -- Fetches study_id from the uniform_resource_study table
+    participant_id,  -- Concatenates study_id and DeidentID to form participant_id
+    site_id,  -- Placeholder for site_id
+    diagnosis_icd,  -- Placeholder for diagnosis ICD
+    med_rxnorm,  -- Placeholder for medication RxNorm
+    treatment_modality,  -- Placeholder for treatment modality
+    gender,  -- Maps Gender to 'M' or 'F'
+    race_ethnicity,  -- Concatenates Race and Ethnicity for race_ethnicity
+    age,  -- Converts Age to REAL type
+    bmi,  -- Maps BMI
+    baseline_hba1c,  -- Maps HbA1C to baseline_hba1c
+    diabetes_type,  -- Sets diabetes_type
+    study_arm  -- Placeholder for study arm
+FROM
+    uniform_resource_participant;
+
+
+CREATE TABLE IF NOT EXISTS participant AS
+    SELECT *
+    FROM drh_participant;
+
+ALTER TABLE participant 
+RENAME COLUMN study_id TO study_display_id;
+
+ALTER TABLE participant 
+RENAME COLUMN participant_id TO participant_display_id;
+
+-- Drop the view if it exists, then create the combined CGM tracing view
+DROP VIEW IF EXISTS combined_cgm_tracing;
+
+CREATE VIEW
+    combined_cgm_tracing AS
+SELECT
+    '' as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
+    SID as participant_id,    
+    Date_Time, 
+    CGM_Value     
+FROM
+    uniform_resource_cgm_tracing;
+
+
+
+-- View to count the number of CGM tracing files
+DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
+
+CREATE VIEW
+    drh_number_of_cgm_tracing_files_view AS
+SELECT
+    COUNT(*) AS table_count
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (        
+        'uniform_resource_cgmnddevicecgm'
+        
+    );
+
+-- View to list the names of raw CGM tables
+DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
+
+
+CREATE VIEW drh_raw_cgm_table_lst AS
+SELECT
+    (
+        SELECT party_id
+        FROM party
+        LIMIT 1
+    ) AS tenant_id,
+    (
+        SELECT study_id
+        FROM uniform_resource_study
+        LIMIT 1
+    ) AS study_id,
+    name,
+    tbl_name AS table_name,
+    files.file_name||'.'||files.file_format as raw_cgm_file_name
+FROM
+    sqlite_master
+LEFT JOIN
+    drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
+WHERE
+    type = 'table'
+    AND tbl_name IN (        
+        'uniform_resource_cgmnddevicecgm'
+    );
+
+
+
+-- View to count the total number of CGM raw files
+DROP VIEW IF EXISTS drh_number_cgm_count;
+
+CREATE VIEW
+    drh_number_cgm_count AS
+SELECT
+    count(*) as number_of_cgm_raw_files
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (        
+        'uniform_resource_cgmnddevicecgm'
+    );
+
+DROP VIEW IF EXISTS study_wise_csv_file_names;
+
+CREATE VIEW
+    study_wise_csv_file_names AS
+SELECT
     (
         select
             party_id
@@ -1592,38 +1852,30 @@ SELECT
         limit
             1
     ) as study_id,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) || '-' || pid AS participant_id, -- Map pid to participant_id    
-    '' AS site_id, -- No equivalent column, set to NULL
-    '' AS diagnosis_icd, -- No equivalent column, set to NULL
-    '' AS med_rxnorm, -- No equivalent column, set to NULL
-    '' AS treatment_modality, -- No equivalent column, set to NULL
-    CASE
-        WHEN gender = '0' THEN 'M' -- Convert gender  '0' (male)
-        WHEN gender = '1' THEN 'F' -- Convert gender '1' (female)
-        ELSE gender -- Keep original value if any other exists
-    END AS gender,
-    NULL AS race_ethnicity, -- No equivalent column, set to NULL
-    age, -- Map age directly
-    BMI AS bmi, -- Map BMI directly
-    HbA1c AS baseline_hba1c, -- Map HbA1c to baseline_hba1c
-    CASE
-        WHEN T2DM = 'TRUE'
-        OR T2DM = '1' THEN 'Type 2 Diabetes Mellitus'
-        ELSE 'No Type 2 Diabetes'
-    END AS diabetes_type, -- Convert T2DM to true/false representation
-    NULL AS study_arm -- No equivalent column, set to NULL
+    name
 FROM
-    uniform_resource_clinical_data;
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name LIKE 'uniform_resource_%'
+    and name != 'uniform_resource_transform';
 
---device details and converted files views----------------------------------
---Drop and recreate the device view
+DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
+
+CREATE VIEW
+    study_wise_number_cgm_raw_files_count AS
+SELECT
+    count(*) as number_of_cgm_raw_files
+FROM
+    sqlite_master
+WHERE
+    type = 'table'
+    AND name IN (        
+        'uniform_resource_cgmnddevicecgm'
+    );
+
+
+
 DROP VIEW IF EXISTS drh_device;
 
 CREATE VIEW
@@ -1652,6 +1904,8 @@ FROM
     device d;
 
 -- Drop and recreate the number_of_files_converted view
+-- This view calculates the total number of files that have been converted,
+-- excluding those with a placeholder content_digest.
 DROP VIEW IF EXISTS drh_number_of_files_converted;
 
 CREATE VIEW
@@ -1664,6 +1918,7 @@ WHERE
     content_digest != '-';
 
 -- Drop and recreate the converted_files_list view
+-- This view lists all converted files based on their file extensions.
 DROP VIEW IF EXISTS drh_converted_files_list;
 
 CREATE VIEW
@@ -1676,6 +1931,8 @@ WHERE
     file_extn IN ('csv', 'xls', 'xlsx', 'json', 'html');
 
 -- Drop and recreate the converted_table_list view
+-- This view retrieves the names of all converted tables, filtering out
+-- certain specific tables from the results.
 DROP VIEW IF EXISTS drh_converted_table_list;
 
 CREATE VIEW
@@ -1690,29 +1947,6 @@ WHERE
     AND name != 'uniform_resource_transform'
     AND name != 'uniform_resource';
 
---DROP VIEW IF EXISTS drh_study_files_table_info;
--- CREATE VIEW
---     IF NOT EXISTS drh_study_files_table_info AS
--- SELECT
---     ur.uniform_resource_id,
---     ur.nature AS file_format,
---     SUBSTR (
---         pe.file_path_rel,
---         INSTR (pe.file_path_rel, '/') + 1,
---         INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
---     ) as file_name,
---     'uniform_resource_' || SUBSTR (
---         pe.file_path_rel,
---         INSTR (pe.file_path_rel, '/') + 1,
---         INSTR (pe.file_path_rel, '.') - INSTR (pe.file_path_rel, '/') - 1
---     ) AS table_name
--- FROM
---     uniform_resource ur
---     LEFT JOIN ur_ingest_session_fs_path p ON ur.ingest_fs_path_id = p.ur_ingest_session_fs_path_id
---     LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id
--- WHERE
---     ur.ingest_fs_path_id IS NOT NULL;
---the view will change to the below version based on surveilr 1.1.0 and further versions
 DROP VIEW IF EXISTS drh_study_files_table_info;
 
 CREATE VIEW
@@ -1737,9 +1971,9 @@ FROM
     LEFT JOIN ur_ingest_session_fs_path p ON ure.node_id = p.ur_ingest_session_fs_path_id
     LEFT JOIN ur_ingest_session_fs_path_entry pe ON ur.uniform_resource_id = pe.uniform_resource_id;
 
---orchestration views---------------------------------------------
--- Drop and recreate the orch_session_view view
--- Drop and recreate the vw_orchestration_deidentify view
+-- Orchestration views-----------------------------------------------------------------------
+-- Drop and recreate the orchestration deidentification view
+-- This view aggregates information from orchestration session executions related to deidentification.
 DROP VIEW IF EXISTS drh_vw_orchestration_deidentify;
 
 CREATE VIEW
@@ -1773,17 +2007,20 @@ FROM
 WHERE
     os.orchestration_nature_id = 'deidentification';
 
+-- Drop and recreate the V&V orchestration issues view
+-- This view summarizes the issues encountered during validation and verification
+-- of orchestration sessions, providing useful diagnostics.
 DROP VIEW IF EXISTS drh_vandv_orch_issues;
 
 CREATE VIEW
     drh_vandv_orch_issues AS
 SELECT
-    osi.issue_type as 'Issue Type',
-    osi.issue_message as 'Issue Message',
-    osi.issue_column as 'Issue column',
-    osi.remediation,
-    osi.issue_row as 'Issue Row',
-    osi.invalid_value
+    osi.issue_type AS 'Issue Type',
+    osi.issue_message AS 'Issue Message',
+    osi.issue_column AS 'Issue Column',
+    osi.remediation AS 'Remediation',
+    osi.issue_row AS 'Issue Row',
+    osi.invalid_value AS 'Invalid Value'
 FROM
     orchestration_session_issue osi
     JOIN orchestration_session os ON osi.session_id = os.orchestration_session_id
@@ -1791,6 +2028,7 @@ WHERE
     os.orchestration_nature_id = 'V&V';
 
 ----------------------DRH specific views------------------------------------------------------
+-- Drop and recreate the study view to consolidate study details
 -- Drop and recreate the study view
 DROP VIEW IF EXISTS drh_study;
 
@@ -1829,7 +2067,15 @@ SELECT
             party
         limit
             1
-    ) as tenant_id,
+    ) as tenant_id,    
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     metadata_id,
     devicename,
     device_id,
@@ -1839,15 +2085,7 @@ SELECT
     file_format,
     file_upload_date,
     data_start_date,
-    data_end_date,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as study_id
+    data_end_date
 FROM
     uniform_resource_cgm_file_metadata;
 
@@ -1894,6 +2132,14 @@ SELECT
         limit
             1
     ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     institution_id,
     institution_name,
     city,
@@ -2062,124 +2308,28 @@ GROUP BY
     s.end_date,
     s.nct_number;
 
----raw cgm views-------------------------
-DROP VIEW IF EXISTS drh_number_of_cgm_tracing_files_view;
-
-CREATE VIEW
-    drh_number_of_cgm_tracing_files_view AS
-SELECT
-    COUNT(*) AS table_count
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name LIKE 'uniform_resource_case_%';
-
-DROP VIEW IF EXISTS drh_raw_cgm_table_lst;
-
-CREATE VIEW
-    drh_raw_cgm_table_lst AS
-SELECT
-    (
-        SELECT
-            party_id
-        FROM
-            party
-        LIMIT
-            1
-    ) AS tenant_id,
-    (
-        SELECT
-            study_id
-        FROM
-            uniform_resource_study
-        LIMIT
-            1
-    ) AS study_id,
-    name,
-    tbl_name AS table_name,
-    files.file_name || '.' || files.file_format as raw_cgm_file_name
-FROM
-    sqlite_master
-    LEFT JOIN drh_study_files_table_info files ON lower(files.table_name) = lower(tbl_name)
-WHERE
-    type = 'table'
-    AND tbl_name LIKE 'uniform_resource_case_%';
-
-DROP VIEW IF EXISTS drh_number_cgm_count;
-
-CREATE VIEW
-    drh_number_cgm_count AS
-SELECT
-    count(*) as number_of_cgm_raw_files
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name LIKE 'uniform_resource_case_%';
-
-DROP VIEW IF EXISTS study_wise_csv_file_names;
-
-CREATE VIEW
-    study_wise_csv_file_names AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as study_id,
-    name
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name LIKE 'uniform_resource_%'
-    and name != 'uniform_resource_transform';
-
-DROP VIEW IF EXISTS study_wise_number_cgm_raw_files_count;
-
-CREATE VIEW
-    study_wise_number_cgm_raw_files_count AS
-SELECT
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,
-    (
-        select
-            study_id
-        from
-            uniform_resource_study
-        limit
-            1
-    ) as study_id,
-    count(*) as number_of_cgm_raw_files
-FROM
-    sqlite_master
-WHERE
-    type = 'table'
-    AND name LIKE 'uniform_resource_case_%';
-
+-- View to count the number of files for each device in the CGM file metadata
 DROP VIEW IF EXISTS drh_device_file_count_view;
 
 CREATE VIEW
     drh_device_file_count_view AS
 SELECT
+    (
+        select
+            party_id
+        from
+            party
+        limit
+            1
+    ) as tenant_id,
+    (
+        select
+            study_id
+        from
+            uniform_resource_study
+        limit
+            1
+    ) as study_id,
     devicename,
     COUNT(DISTINCT file_name) AS number_of_files
 FROM
@@ -2190,38 +2340,6 @@ ORDER BY
     number_of_files DESC;
 
 -- cached tables----------------------------------------------------------------------------------------
-
-
-DROP TABLE IF EXISTS participant;
-
-CREATE TABLE IF NOT EXISTS participant AS
-SELECT 
-    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id, 
-    (
-        select
-            party_id
-        from
-            party
-        limit
-            1
-    ) as tenant_id,  
-    study_id AS study_display_id,  
-    participant_id AS participant_display_id,  
-    site_id,  
-    diagnosis_icd,  
-    med_rxnorm,  
-    treatment_modality,  
-    gender,  
-    race_ethnicity,  
-    age,  
-    bmi,  
-    baseline_hba1c,  
-    diabetes_type,  
-    study_arm
-FROM drh_participant;
-
-
-
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 
 CREATE TABLE
@@ -2286,10 +2404,10 @@ GROUP BY
     s.end_date,
     s.nct_number;
 
--------------Dynamically insert the sqlpages for CGM raw tables--------------------------
+------------- Dynamically insert the SQLPage configurations for CGM raw tables --------------------------
 WITH
     raw_cgm_table_name AS (
-        -- Select all table names
+        -- Select all table names from the cached list of raw CGM tables
         SELECT
             table_name
         FROM
@@ -2300,10 +2418,10 @@ SELECT
     'drh/cgm-data/raw-cgm/' || table_name || '.sql' AS path,
     '
     SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-    -- not including breadcrumbs from sqlpage_aide_navigation
-    -- not including page title from sqlpage_aide_navigation
+    -- Not including breadcrumbs from sqlpage_aide_navigation
+    -- Not including page title from sqlpage_aide_navigation
 
-    SELECT ''breadcrumb'' as component;
+    SELECT ''breadcrumb'' AS component;
     WITH RECURSIVE breadcrumbs AS (
         SELECT
             COALESCE(abbreviated_caption, caption) AS title,
@@ -2326,21 +2444,22 @@ SELECT
     SELECT ''title'' AS component, ''' || table_name || ''' AS contents;
     
 
-    -- Initialize pagination
-    SET total_rows = (SELECT COUNT(*) FROM ''' || table_name || ''');
-    SET limit = COALESCE($limit, 50);
-    SET offset = COALESCE($offset, 0);
-    SET total_pages = ($total_rows + $limit - 1) / $limit;
-    SET current_page = ($offset / $limit) + 1;
+    -- Initialize pagination parameters
+    SET total_rows = (SELECT COUNT(*) FROM ''' || table_name || ''');  -- Total rows in the current table
+    SET limit = COALESCE($limit, 50);  -- Limit for pagination, defaulting to 50
+    SET offset = COALESCE($offset, 0);  -- Offset for pagination, defaulting to 0
+    SET total_pages = ($total_rows + $limit - 1) / $limit;  -- Calculate total number of pages
+    SET current_page = ($offset / $limit) + 1;  -- Calculate current page number
 
     -- Display table with pagination
     SELECT ''table'' AS component,
-        TRUE AS sort,
-        TRUE AS search;
+        TRUE AS sort,  -- Enable sorting
+        TRUE AS search;  -- Enable searching
     SELECT * FROM ''' || table_name || '''
     LIMIT $limit
     OFFSET $offset;    
 
+    -- Pagination controls for navigating through pages
     SELECT ''text'' AS component,
         (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END) || '' '' ||
         ''(Page '' || $current_page || '' of '' || $total_pages || '')'' || '' '' ||
@@ -2349,3 +2468,7 @@ SELECT
     '
 FROM
     raw_cgm_table_name;
+
+
+
+
