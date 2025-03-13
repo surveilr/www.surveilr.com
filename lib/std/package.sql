@@ -652,7 +652,7 @@ DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
 CREATE VIEW surveilr_osquery_ms_node_system_info AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.board_model') AS board_model,
@@ -676,15 +676,14 @@ SELECT
     json_extract(l.content, '$.columns.physical_memory') AS physical_memory,
     json_extract(l.content, '$.columns.uuid') AS uuid
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-    ON l.uniform_resource_id = ure.uniform_resource_id
+
 WHERE l.uri = 'osquery-ms'
 AND json_extract(l.content, '$.name') = 'System Information';
     ;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
 CREATE VIEW surveilr_osquery_ms_node_os_version AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.arch') AS arch,
@@ -698,8 +697,7 @@ SELECT
     json_extract(l.content, '$.columns.platform') AS platform,
     json_extract(l.content, '$.columns.version') AS version
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-    ON l.uniform_resource_id = ure.uniform_resource_id
+
 WHERE l.uri = 'osquery-ms'
 AND (json_extract(l.content, '$.name') = 'OS Version (Linux and Macos)'
         OR json_extract(l.content, '$.name') = 'OS Version (Windows)');
@@ -707,14 +705,12 @@ AND (json_extract(l.content, '$.name') = 'OS Version (Linux and Macos)'
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.address') AS address,
     json_extract(l.content, '$.columns.mac') AS mac
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-    ON l.uniform_resource_id = ure.uniform_resource_id
 WHERE l.uri = 'osquery-ms'
   AND (
       json_extract(l.content, '$.name') = 'Network Interfaces (Linux and Macos)'
@@ -724,7 +720,7 @@ WHERE l.uri = 'osquery-ms'
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
 CREATE VIEW surveilr_osquery_ms_node_uptime AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.days') AS days,
@@ -733,8 +729,6 @@ SELECT
     json_extract(l.content, '$.columns.seconds') AS seconds,
     json_extract(l.content, '$.columns.total_seconds') AS total_seconds
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-    ON l.uniform_resource_id = ure.uniform_resource_id
 WHERE l.uri = 'osquery-ms'
   AND json_extract(l.content, '$.name') = 'Server Uptime'
 ORDER BY l.created_at DESC;
@@ -742,15 +736,13 @@ ORDER BY l.created_at DESC;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
 CREATE VIEW surveilr_osquery_ms_node_available_space AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.gigs_disk_space_available') AS available_space,
     json_extract(l.content, '$.columns.gigs_total_disk_space') AS gigs_total_disk_space,
     json_extract(l.content, '$.columns.percent_disk_space_available') AS percent_disk_space_available
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-    ON l.uniform_resource_id = ure.uniform_resource_id
 WHERE l.uri = 'osquery-ms'
   AND (
       json_extract(l.content, '$.name') = 'Available Disk Space (Linux and Macos)'
@@ -762,7 +754,7 @@ DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
 
 CREATE VIEW surveilr_osquery_ms_node_installed_software AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.name') AS name,
@@ -776,8 +768,6 @@ SELECT
         ELSE 'unknown'
     END AS platform
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-  ON l.uniform_resource_id = ure.uniform_resource_id
 WHERE l.uri = 'osquery-ms'
   AND (
       json_extract(l.content, '$.name') = 'Installed Linux software' OR
@@ -789,15 +779,13 @@ DROP VIEW IF EXISTS surveilr_osquery_ms_node_executed_policy;
 CREATE VIEW surveilr_osquery_ms_node_executed_policy AS
 WITH ranked_policies AS (
     SELECT
-        ure.node_id AS node_key,
+        json_extract(l.frontmatter, '$.node_key') AS node_key,
         l.updated_at,
         json_extract(l.content, '$.hostIdentifier') AS host_identifier,
         json_extract(l.content, '$.name') AS policy_name,
         json_extract(l.content, '$.columns.policy_result') AS policy_result,
         ROW_NUMBER() OVER (PARTITION BY json_extract(l.content, '$.name') ORDER BY l.created_at DESC) AS row_num
     FROM uniform_resource AS l
-    JOIN uniform_resource_edge AS ure
-      ON l.uniform_resource_id = ure.uniform_resource_id
     WHERE l.uri = 'osquery-ms'
       AND json_extract(l.content, '$.name') IN (
           'SSH keys encrypted', 
@@ -827,13 +815,11 @@ WHERE ranked_policies.row_num = 1;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_boundary;
 CREATE VIEW surveilr_osquery_ms_node_boundary AS
 SELECT
-    ure.node_id AS node_key,
+    json_extract(l.frontmatter, '$.node_key') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.value') AS boundary
 FROM uniform_resource AS l
-JOIN uniform_resource_edge AS ure
-  ON l.uniform_resource_id = ure.uniform_resource_id
 WHERE l.uri = 'osquery-ms'
   AND (
       json_extract(l.content, '$.name') = 'osquery-ms Boundary (Linux and Macos)' OR
