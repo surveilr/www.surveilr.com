@@ -3724,6 +3724,15 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.12'' as title, ''# `surveilr` v1.7.12 Release Notes
+
+## 🚀 What''''s New
+
+### 1. `surveilr osquery-ms` Server
+The server has been fully setup, configured with boundaries and the corresponding WebUI, fully configurable with `code_notebooks`.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.7.11'' as title, ''# `surveilr` v1.7.11 Release Notes
 
 ## 🚀 What''''s New
