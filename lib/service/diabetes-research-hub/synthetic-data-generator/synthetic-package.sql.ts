@@ -5,11 +5,11 @@ import { saveJsonCgm } from "../study-specific-stateless/generate-cgm-combined-s
 
 export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
 
-  // async savecgmSQL() {
-  //     const dbFilePath = "./resource-surveillance.sqlite.db";
-  //     const sqlStatements = saveJsonCgm(dbFilePath);
-  //     return await sqlStatements;
-  //   }
+  async savecgmSQL() {
+      const dbFilePath = "./resource-surveillance.sqlite.db";
+      const sqlStatements = saveJsonCgm(dbFilePath);
+      return await sqlStatements;
+    }
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
