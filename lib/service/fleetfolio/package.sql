@@ -29,202 +29,59 @@ SELECT
     name 
 FROM boundary WHERE parent_boundary_id IS NOT NULL;
 
-DROP VIEW IF EXISTS active_asset_list;
-CREATE VIEW active_asset_list AS
+DROP VIEW IF EXISTS asset_active_list;
+CREATE VIEW asset_active_list AS
 SELECT 
-    asset_id,
-    boundary_id,
-    name 
-FROM asset WHERE asset_tag = 'ACTIVE';
+    bnd.boundary_id,
+    bnd.parent_boundary_id,
+    parent.name as parent_boundary,
+    ast.asset_id,
+    bnd.name as boundry,
+    ast.name as host,
+    ast.description,
+    nodeDet.surveilr_osquery_ms_node_id,
+    nodeDet.node_key,
+    nodeDet.host_identifier,
+    nodeDet.osquery_version,
+    nodeDet.last_seen,
+    nodeDet.created_at,
+    nodeDet.updated_at,
+    nodeDet.ip_address,
+    nodeDet.mac,
+    nodeDet.added_to_surveilr_osquery_ms,
+    nodeDet.operating_system,
+    nodeDet.available_space,
+    nodeDet.node_status as status,
+    nodeDet.last_fetched,
+    nodeDet.last_restarted,
+    nodeDet. issues,
+   sysinfo.board_model,
+   sysinfo.board_serial,
+   sysinfo.board_vendor,
+   sysinfo.board_version,
+   sysinfo.computer_name,
+   sysinfo.cpu_brand,
+   sysinfo.cpu_logical_cores,
+   sysinfo.cpu_microcode,
+   sysinfo.cpu_physical_cores,
+   sysinfo.cpu_sockets,
+   sysinfo.cpu_subtype,
+   sysinfo.cpu_type,
+   sysinfo.hardware_model,
+   sysinfo.hardware_serial,
+   sysinfo.hardware_vendor,
+   sysinfo.hardware_version,
+   sysinfo.local_hostname,
+   sysinfo.physical_memory,
+   sysinfo.uuid
+FROM asset ast
+INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
+INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast.name
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
+WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
 
-DROP VIEW IF EXISTS boundary_asset_list;
-CREATE VIEW boundary_asset_list AS
-SELECT 
-   asset.asset_id,asset.boundary_id,boundary.name as boundary,asset.name as asset
-FROM asset INNER JOIN boundary ON boundary.boundary_id=asset.boundary_id;
-
-DROP VIEW IF EXISTS expected_asset_list;
-CREATE VIEW expected_asset_list AS
-SELECT 
-    asset_id,
-    boundary_id,
-    name,
-    asset_retired_date,
-    assetSt.value as asset_status,
-    asset_tag,
-    description,
-    assetType.value as asset_type,
-    assignment.value as assignment,
-    installed_date,
-    planned_retirement_date,
-    purchase_delivery_date,
-    purchase_order_date,
-    criticality
-FROM asset 
-LEFT JOIN asset_status assetSt ON assetSt.asset_status_id = asset.asset_status_id
-LEFT JOIN asset_type assetType ON assetType.asset_type_id=asset.asset_type_id
-LEFT JOIN assignment ON assignment.assignment_id = asset.assignment_id;
-
-DROP VIEW IF EXISTS system_detail_group;
-CREATE VIEW system_detail_group AS
-SELECT 
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,  
-    COUNT(*) AS count 
-FROM uniform_resource 
-GROUP BY name, hostIdentifier;
-
-DROP VIEW IF EXISTS system_detail_all_processes;
-CREATE VIEW system_detail_all_processes AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier,
-    json_extract(u.content, '$.columns.cgroup_path') AS cgroup_path,
-    json_extract(u.content, '$.columns.cmdline') AS cmdline,
-    json_extract(u.content, '$.columns.cwd') AS cwd,
-    json_extract(u.content, '$.columns.disk_bytes_read') AS disk_bytes_read,
-    json_extract(u.content, '$.columns.disk_bytes_written') AS disk_bytes_written,
-    json_extract(u.content, '$.columns.egid') AS egid,
-    json_extract(u.content, '$.columns.euid') AS euid,
-    json_extract(u.content, '$.columns.gid') AS gid,
-    json_extract(u.content, '$.columns.name') AS system_name,
-    json_extract(u.content, '$.columns.nice') AS nice,
-    json_extract(u.content, '$.columns.on_disk') AS on_disk,
-    json_extract(u.content, '$.columns.parent') AS parent,
-    json_extract(u.content, '$.columns.path') AS path,
-    json_extract(u.content, '$.columns.pgroup') AS pgroup,
-    json_extract(u.content, '$.columns.pid') AS pid,
-    json_extract(u.content, '$.columns.resident_size') AS resident_size,
-    json_extract(u.content, '$.columns.root') AS root,
-    json_extract(u.content, '$.columns.sgid') AS sgid,
-    json_extract(u.content, '$.columns.start_time') AS start_time,
-    json_extract(u.content, '$.columns.state') AS state,
-    json_extract(u.content, '$.columns.suid') AS suid,
-    json_extract(u.content, '$.columns.system_time') AS system_time,
-    json_extract(u.content, '$.columns.threads') AS threads,
-    json_extract(u.content, '$.columns.total_size') AS total_size,
-    json_extract(u.content, '$.columns.uid') AS uid,
-    json_extract(u.content, '$.columns.user_time') AS user_time,
-    json_extract(u.content, '$.columns.wired_size') AS wired_size,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'All Processes' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_available_disk;
-CREATE VIEW system_available_disk AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier,
-    json_extract(u.content, '$.columns.gigs_disk_space_available') AS gigs_disk_space_available,
-    json_extract(u.content, '$.columns.gigs_total_disk_space') AS gigs_total_disk_space,
-    json_extract(u.content, '$.columns.percent_disk_space_available') AS percent_disk_space_available,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Available Disk Space (Linux and Macos)' AND ue.graph_name='osquery-ms'; 
-
-DROP VIEW IF EXISTS system_full_disk_encryption_linux;
-CREATE VIEW system_full_disk_encryption_linux AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.policy_result') AS policy_result,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Full disk encryption enabled (Linux)' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_installed_software_linux;
-CREATE VIEW system_installed_software_linux AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.name') AS software_name,
-    json_extract(u.content, '$.columns.source') AS software_source,
-    json_extract(u.content, '$.columns.type') AS software_type,
-    json_extract(u.content, '$.columns.version') AS software_version,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Installed Linux software' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_listening_ports;
-CREATE VIEW system_listening_ports AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.address') AS address,
-    json_extract(u.content, '$.columns.family') AS family,
-    json_extract(u.content, '$.columns.fd') AS fd,
-    json_extract(u.content, '$.columns.net_namespace') AS net_namespace,
-    json_extract(u.content, '$.columns.path') AS path,
-    json_extract(u.content, '$.columns.pid') AS pid,
-    json_extract(u.content, '$.columns.port') AS port,
-    json_extract(u.content, '$.columns.protocol') AS protocol,
-    json_extract(u.content, '$.columns.socket') AS socket,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Listening Ports' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_linux_macos_network_interface;
-CREATE VIEW system_linux_macos_network_interface AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.address') AS ip_address,
-    json_extract(u.content, '$.columns.mac') AS mac,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Network Interfaces (Linux and Macos)' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_os_version;
-CREATE VIEW system_os_version AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.arch') AS arch,
-    json_extract(u.content, '$.columns.build') AS build,
-    json_extract(u.content, '$.columns.extra') AS extra,
-    json_extract(u.content, '$.columns.kernel_version') AS kernel_version,
-    json_extract(u.content, '$.columns.major') AS major,
-    json_extract(u.content, '$.columns.minor') AS minor,
-    json_extract(u.content, '$.columns.name') AS os_name,
-    json_extract(u.content, '$.columns.patch') AS patch,
-    json_extract(u.content, '$.columns.platform') AS platform,
-    json_extract(u.content, '$.columns.version') AS os_version,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'OS Version (Linux and Macos)' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_ssh_keys_encrypted;
-CREATE VIEW system_ssh_keys_encrypted AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.policy_result') AS policy_result,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'SSH keys encrypted' AND ue.graph_name='osquery-ms';
-
+-- server up time os query for all host 
 DROP VIEW IF EXISTS system_server_uptime;
 CREATE VIEW system_server_uptime AS
 SELECT 
@@ -241,59 +98,6 @@ SELECT
 FROM uniform_resource u
 INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
 WHERE name = 'Server Uptime' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_information;
-CREATE VIEW system_information AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.board_model') AS board_model,
-    json_extract(u.content, '$.columns.board_serial') AS board_serial,
-    json_extract(u.content, '$.columns.board_vendor') AS board_vendor,
-    json_extract(u.content, '$.columns.board_version') AS board_version,
-    json_extract(u.content, '$.columns.computer_name') AS computer_name,
-    json_extract(u.content, '$.columns.cpu_brand') AS cpu_brand,
-    json_extract(u.content, '$.columns.cpu_logical_cores') AS cpu_logical_cores,
-    json_extract(u.content, '$.columns.cpu_microcode') AS cpu_microcode,
-    json_extract(u.content, '$.columns.cpu_physical_cores') AS cpu_physical_cores,
-    json_extract(u.content, '$.columns.cpu_sockets') AS cpu_sockets,
-    json_extract(u.content, '$.columns.cpu_subtype') AS cpu_subtype,
-    json_extract(u.content, '$.columns.cpu_type') AS cpu_type,
-    json_extract(u.content, '$.columns.hardware_model') AS hardware_model,
-    json_extract(u.content, '$.columns.hardware_serial') AS hardware_serial,
-    json_extract(u.content, '$.columns.hardware_vendor') AS hardware_vendor,
-    json_extract(u.content, '$.columns.hardware_version') AS hardware_version,
-    json_extract(u.content, '$.columns.hostname') AS hostname,
-    json_extract(u.content, '$.columns.local_hostname') AS local_hostname,
-    json_extract(u.content, '$.columns.physical_memory') AS physical_memory,
-    json_extract(u.content, '$.columns.uuid') AS uuid,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'System Information' AND ue.graph_name='osquery-ms';
-
-DROP VIEW IF EXISTS system_user;
-CREATE VIEW system_user AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.username') AS user_name,
-    json_extract(u.content, '$.columns.directory') AS directory,
-    json_extract(u.content, '$.columns.description') AS description,
-    json_extract(u.content, '$.columns.gid') AS gid,
-    json_extract(u.content, '$.columns.gid_signed') AS gid_signed,
-    json_extract(u.content, '$.columns.shell') AS shell,
-    json_extract(u.content, '$.columns.uid') AS uid,
-    json_extract(u.content, '$.columns.uid_signed') AS uid_signed,
-    json_extract(u.content, '$.columns.uuid') AS uuid,
-    u.updated_at
-FROM uniform_resource u
-INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Users' AND ue.graph_name='osquery-ms';
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1013,17 +817,17 @@ FROM breadcrumbs ORDER BY level DESC;
     FROM sqlpage_aide_navigation
    WHERE namespace = ''prime'' AND path = ''fleetfolio/parent_boundary.sql/index.sql'') as contents;
     ;
-  
+      
   -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
     --- Dsply Page Title
 SELECT
     ''title''   as component,
     ''Boundary '' contents;
-  
+      
    select
     ''text''              as component,
     ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
-  
+      
   -- Dashboard count
   select
       ''card'' as component,
@@ -1077,1088 +881,270 @@ SELECT
        4      as columns;
    select
        name  as title,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || boundary_id as link
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id as link
    FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/inner_boundary.sql',
+      'fleetfolio/host_list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
               
 
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/inner_boundary.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/host_list.sql/index.sql'') as contents;
     ;
-    --- Display breadcrumb
- SELECT
+  --- Display breadcrumb
+  SELECT
+      ''breadcrumb'' AS component;
+  SELECT
+      ''Home'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+  SELECT
+      ''FleetFolio'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+  SELECT
+      ''Parent Boundary'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+  SELECT parent_boundary AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
+      FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
+  SELECT boundry AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
+      FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
+    
+  
+--- Dsply Page Title
+SELECT
+    ''title''   as component,
+    boundry as contents FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
+  
+   select
+    ''text''              as component,
+    ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
+  
+ -- asset list
+  SELECT ''table'' AS component,
+      ''host'' as markdown,
+      TRUE as sort,
+      TRUE as search;
+  SELECT 
+  ''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id || '')'' as host,
+  boundry,
+  CASE 
+      WHEN status = ''Online'' THEN ''🟢 Online''
+      WHEN status = ''Offline'' THEN ''🔴 Offline''
+      ELSE ''⚠️ Unknown''
+  END AS "Status",
+  osquery_version as "Os query version",
+  available_space AS "Disk space available",
+  operating_system AS "Operating System",
+  osquery_version AS "osQuery Version",
+  ip_address AS "IP Address",
+  last_fetched AS "Last Fetched",
+  last_restarted AS "Last Restarted"
+  FROM asset_active_list WHERE boundary_id=$boundary_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/host_detail.sql',
+      '            SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+            -- not including breadcrumbs from sqlpage_aide_navigation
+            -- not including page title from sqlpage_aide_navigation
+            
+
+            SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+  FROM sqlpage_aide_navigation
+ WHERE namespace = ''prime'' AND path = ''fleetfolio/host_detail.sql/index.sql'') as contents;
+  ;
+--- Display breadcrumb
+SELECT
     ''breadcrumb'' AS component;
-  SELECT
+SELECT
     ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-  SELECT
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+SELECT
     ''FleetFolio'' AS title,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
+SELECT
     ''Parent Boundary'' AS title,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
-  SELECT parent.name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
-   FROM all_boundary child
-   INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
-    WHERE child.boundary_id=$boundary_id;
-
-  SELECT 
-  name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || $boundary_id  AS link
-  FROM boundary_list
-  WHERE boundary_id=$boundary_id::TEXT;
-    
-  --- Dsply Page Title
-  SELECT
-      ''title''   as component,
-      name contents
-  FROM boundary_list
-  WHERE boundary_id=$boundary_id::TEXT;
+SELECT parent_boundary AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
+    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+SELECT boundry AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
+    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+SELECT host AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id  AS link
+    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
   
-     select
-      ''text''              as component,
-      ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
-  
-   select ''tab'' as component;
-    select ''Discovered'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id=''|| $boundary_id  AS link,
-    $tab = ''Discovered'' as active;
-    select ''Expectation''    as title, 
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Expectation&boundary_id=''|| $boundary_id  AS link,
-    $tab = ''Expectation''    as active;
 
-    select ''table'' as component,
-    TRUE    as freeze_headers,
-    "All Processes" AS markdown,
-    "Available Disk Space (Linux and Macos)" AS markdown,
-    ''Full disk encryption enabled (Linux)'' AS markdown,
-    "Installed Linux software" AS markdown,
-    "Listening Ports" AS markdown,
-    "Network Interfaces (Linux and Macos)" AS markdown,
-    "OS Version (Linux and Macos)" AS markdown,
-    "SSH keys encrypted" AS markdown,
-    "Server Uptime" AS markdown,
-    "System Information" AS markdown,
-    "Users" AS markdown;
+--- Dsply Page Title
+SELECT
+    ''title''   as component,
+    host as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+  
+SELECT
+    ''text''              as component,
+    description as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+--- Display Asset (Host) Details first row
+SELECT ''datagrid'' as component;
+    SELECT ''Parent Boundary'' as title, parent_boundary as description FROM asset_active_list WHERE asset_id=$host_identifier;
+    SELECT ''Boundary'' as title, boundry as description FROM asset_active_list WHERE asset_id=$host_identifier;
+    SELECT ''Status'' as title,
+    CASE 
+        WHEN status = ''Online'' THEN ''🟢 Online''
+        WHEN status = ''Offline'' THEN ''🔴 Offline''
+        ELSE ''⚠️ Unknown''
+    END AS  description FROM asset_active_list WHERE asset_id=$host_identifier; 
+    SELECT ''Issues'' as title, issues as description FROM asset_active_list WHERE asset_id=$host_identifier; 
+    SELECT ''Osquery version'' as title, osquery_version as description FROM asset_active_list WHERE asset_id=$host_identifier;
+    SELECT ''Operating system'' as title, operating_system as description FROM asset_active_list WHERE asset_id=$host_identifier;
 
     select 
-    name as ''Asset'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="All Processes" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/all_process.sql?host_identifier='' || name || '')'' as ''All Processes'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Available Disk Space (Linux and Macos)" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_available_disk.sql?host_identifier='' || name || '')'' as ''Available Disk Space (Linux and Macos)'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Full disk encryption enabled (Linux)" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_full_disk_encryption_linux.sql?host_identifier='' || name || '')'' as ''Full disk encryption enabled (Linux)'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Installed Linux software" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_installed_software_linux.sql?host_identifier='' || name || '')'' as ''Installed Linux software'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Listening Ports" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_listening_ports.sql?host_identifier='' || name || '')'' as ''Listening Ports'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Network Interfaces (Linux and Macos)" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_linux_macos_network_interface.sql?host_identifier='' || name || '')'' as ''Network Interfaces (Linux and Macos)'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="OS Version (Linux and Macos)" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_os_version.sql?host_identifier='' || name || '')'' as ''OS Version (Linux and Macos)'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="SSH keys encrypted" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_ssh_keys_encrypted.sql?host_identifier='' || name || '')'' as ''SSH keys encrypted'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Server Uptime" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_server_uptime.sql?host_identifier='' || name || '')'' as ''Server Uptime'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="System Information" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_information.sql?host_identifier='' || name || '')'' as ''System Information'',
-    ''['' || (SELECT count FROM system_detail_group WHERE name="Users" AND hostIdentifier=active_asset_list.name) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_user.sql?host_identifier='' || name || '')'' as ''Users''
-    FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT AND $tab = ''Discovered'';
-    
-select 
-  name,asset_status,asset_tag,
-  asset_retired_date as ''asset retired date'',
-  description, asset_type as "type", installed_date as "installed date",
-  planned_retirement_date as "planned retirement date",
-  purchase_delivery_date as "purchase delivery date",
-  purchase_order_date as "purchase order date",criticality
-  FROM expected_asset_list WHERE boundary_id = $boundary_id::TEXT AND $tab = ''Expectation'';
-            ',
+        ''html'' as component,
+        ''<div style="display: flex; gap: 20px; width: 100%;">
+            <!-- First Column -->
+            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Disk space</div>
+                    <div>'' || available_space || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Memory</div>
+                    <div>'' || ROUND(physical_memory / (1024 * 1024 * 1024), 2) || '' GB'' || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Processor Type</div>
+                    <div>'' || cpu_type || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px;">
+                    <div class="datagrid-title">Added to surveilr</div>
+                    <div>'' || added_to_surveilr_osquery_ms || ''</div>
+                </div>
+            </div> 
+
+            <!-- Second Column -->
+            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Hardware Model</div>
+                    <div>'' || hardware_model || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Board Model</div>
+                    <div>'' || board_model || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Serial Number</div>
+                    <div>'' || hardware_serial || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px;">
+                    <div class="datagrid-title">Last restarted</div>
+                    <div>'' || last_restarted || ''</div>
+                </div>
+            </div> 
+
+            <!-- Third Column -->
+            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">IP Address</div>
+                    <div>'' || ip_address || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                    <div class="datagrid-title">Mac Address</div>
+                    <div>'' || mac || ''</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 4px;">
+                    <div class="datagrid-title">Last Fetched</div>
+                    <div>'' || last_fetched || ''</div>
+                </div>
+            </div>
+        </div>
+
+    '' as html FROM asset_active_list WHERE asset_id=$host_identifier;
+          ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/asset.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/asset.sql/index.sql'') as contents;
-    ;
-
-   --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
- SELECT
-   ''Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || (SELECT parent_boundary_id FROM boundary_list WHERE boundary_id=$boundary_id::TEXT)  AS link;
- SELECT
-   (SELECT name FROM boundary_list WHERE boundary_id=$boundary_id::TEXT) AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/asset.sql?boundary_id='' || $boundary_id  AS link;
-
-   
-     --- Dsply Page Title
- SELECT
-     ''title''   as component,
-     ''Boundary'' contents;
-
-    select
-     ''text''              as component,
-     ''Servers under a boundary are individual computing resources that are part of the collection of assets within that defined perimeter. These servers typically perform specific tasks or functions such as hosting applications, managing databases, or handling network traffic. Within the boundary, servers are organized and managed to ensure efficient resource allocation, security, and performance. They work together to deliver the services and processes defined by the boundary, with clear roles and interconnections to maintain the integrity and smooth operation of the overall system.'' as contents;
-
-   -- Dashboard count
-   select
-       ''table'' as component,
-      ''assets'' AS markdown;
-   select ''['' || name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/asset_detail.sql?link='' || name || '')'' as ''assets''
-   FROM active_asset_list WHERE boundary_id=$boundary_id::TEXT;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/asset_detail.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
---- Display breadcrumb
- SELECT
-    ''breadcrumb'' AS component;
-  SELECT
-    ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-  SELECT
-    ''Server'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
-  SELECT
-    host_identifier as title
-  FROM
-    surveilr_osquery_ms_node_detail 
-  WHERE
-   host_identifier = $link::TEXT;
-
-   --- Dsply Page Title
-  SELECT
-   ''title'' as component,
-    host_identifier as contents
-  FROM
-    surveilr_osquery_ms_node_detail
-  WHERE
-    host_identifier = $link::TEXT;
-
- select 
-''datagrid'' as component;
-select 
-      ''Host identifier'' as title,
-      host_identifier   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;
-select 
-      ''Model'' as title,
-      board_model   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
-select 
-      ''Serial No'' as title,
-      board_serial   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
-select 
-      ''Vendor'' as title,
-      board_vendor   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
-select 
-      ''Version'' as title,
-      board_version   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT; 
-select 
-      ''CPU brand'' as title,
-      cpu_brand   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT;  
-select 
-      ''CPU brand'' as title,
-      cpu_brand   as description FROM surveilr_osquery_ms_node_system_info WHERE host_identifier = $link::TEXT; 
-
- select
-      ''table'' as component,
-      ''Process'' AS markdown;
-  select 
-   CASE
-    WHEN name = ''All Processes''
-    THEN
-      ''['' || name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/all_process.sql?host_identifier='' || hostIdentifier || '')''
-    ELSE name 
-  END AS  process,
-  count
-  FROM system_detail_group WHERE hostIdentifier = $link::TEXT;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/expected.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-  --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
- SELECT
-   ''Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || (SELECT parent_boundary_id FROM boundary_list WHERE boundary_id=$boundary_id::TEXT)  AS link;
- SELECT
-   $link AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/expected.sql?link='' || $link  AS link;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   host_identifier as contents
- FROM
-   surveilr_osquery_ms_node_detail
- WHERE
-   host_identifier = $link::TEXT;
-
-select
-     ''table'' as component,
-     ''Process'' AS markdown;
- select 
- name,asset_status,asset_tag,
- asset_retired_date as ''asset retired date'',
- description, asset_type as "type", installed_date as "installed date",
- planned_retirement_date as "planned retirement date",
- purchase_delivery_date as "purchase delivery date",
- purchase_order_date as "purchase order date",criticality
- FROM expected_asset_list WHERE name = $link::TEXT;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/all_process.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
---- Display breadcrumb
- SELECT
-    ''breadcrumb'' AS component;
-  SELECT
-    ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-  SELECT
-    ''FleetFolio'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
-    ''Parent Boundary'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
-  SELECT parent.name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
-  INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-
-  SELECT 
-  ab.name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-  SELECT
-    name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/all_process.sql?host_identifier='' || $host_identifier  AS link
-  FROM system_detail_all_processes LIMIT 1;
-    
-   --- Dsply Page Title
-  SELECT
-   ''title'' as component,
-    name as contents FROM system_detail_all_processes LIMIT 1;
-
-  --- content listing
-  SET total_rows = (SELECT COUNT(*) FROM system_detail_all_processes WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-  select 
-      ''table''           as component,
-      TRUE    as freeze_headers,
-      TRUE              as sort,
-      TRUE    as striped_rows,
-      TRUE    as search;
-  SELECT 
-    name as process,
-    host_identifier,
-   
-    disk_bytes_read,
-    disk_bytes_written,
-    system_name,
-    path,
-    resident_size,
-    start_time,
-    state,
-    system_time,
-    threads,
-    total_size,
-    cgroup_path,
-    cmdline,
-    cwd,
-    updated_at FROM system_detail_all_processes WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
-  OFFSET $offset;
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_available_disk.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_available_disk.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_available_disk LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_available_disk LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_available_disk WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   gigs_disk_space_available,
-   gigs_total_disk_space,
-   percent_disk_space_available,
-   updated_at
-   FROM system_available_disk WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||
-''&process='' || $process ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||
-''&process='' || $process ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_full_disk_encryption_linux.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_full_disk_encryption_linux.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_full_disk_encryption_linux LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_full_disk_encryption_linux LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_full_disk_encryption_linux WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   numerics,
-   policy_result,
-   updated_at
-   FROM system_full_disk_encryption_linux WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_installed_software_linux.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_installed_software_linux.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_installed_software_linux LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_installed_software_linux LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_installed_software_linux WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   numerics,
-   software_name,
-   software_source,
-   software_type,
-   software_version,
-   updated_at
-   FROM system_installed_software_linux WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_listening_ports.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_listening_ports.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_listening_ports LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_listening_ports LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_listening_ports WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   address,
-   family,
-   fd,
-   net_namespace,
-   path,
-   pid,
-   port,
-   protocol,
-   socket,
-   updated_at
-   FROM system_listening_ports WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_linux_macos_network_interface.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_linux_macos_network_interface.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_linux_macos_network_interface LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_linux_macos_network_interface LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_linux_macos_network_interface WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   ip_address,
-   mac,
-   updated_at
-   FROM system_linux_macos_network_interface WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_os_version.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_os_version.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_os_version LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_os_version LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_os_version WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   os_name as "os name",
-   platform,
-   os_version as "os version",
-   kernel_version as "kernel version",
-   arch,
-   build,
-   extra,
-   major,
-   minor,
-   patch,
-   updated_at
-   FROM system_os_version WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_ssh_keys_encrypted.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_ssh_keys_encrypted.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_ssh_keys_encrypted LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_ssh_keys_encrypted LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_ssh_keys_encrypted WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   policy_result,
-   updated_at
-   FROM system_ssh_keys_encrypted WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_server_uptime.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
-      --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
- SELECT parent.name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
- INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
- WHERE assl.name=$host_identifier::TEXT;
-
- SELECT 
- ab.name AS title,
- sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
- FROM active_asset_list assl
- INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
- WHERE assl.name=$host_identifier::TEXT;
- SELECT
-   name AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_server_uptime.sql?host_identifier='' || $host_identifier  AS link
-   FROM system_server_uptime LIMIT 1;
-
-  --- Dsply Page Title
- SELECT
-  ''title'' as component,
-   name as contents FROM system_server_uptime LIMIT 1;
-
-  SET total_rows = (SELECT COUNT(*) FROM system_server_uptime WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
- select 
-     ''table''           as component,
-     TRUE              as sort;
- SELECT 
-   name as process,
-   host_identifier as "host identifier",
-   days,
-   hours,
-   minutes,
-   seconds,
-   total_seconds,
-   updated_at
-   FROM system_server_uptime WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
- OFFSET $offset;
- SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_information.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
---- Display breadcrumb
- SELECT
-    ''breadcrumb'' AS component;
-  SELECT
-    ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-  SELECT
-    ''FleetFolio'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
-    ''Parent Boundary'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
-  SELECT parent.name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
-  INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-
-  SELECT 
-  ab.name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-  SELECT
-    name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_information.sql?host_identifier='' || $host_identifier  AS link
-    FROM system_information LIMIT 1;
-
-   --- Dsply Page Title
-  SELECT
-   ''title'' as component,
-    name as contents FROM system_information LIMIT 1;
-
-   SET total_rows = (SELECT COUNT(*) FROM system_information WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-  select 
-      ''table''           as component,
-      TRUE              as sort;
-  SELECT 
-    name as process,
-    host_identifier as "host identifier",
-    board_model,
-    board_serial,
-    board_vendor,
-    board_version,
-    computer_name,
-    cpu_brand,
-    cpu_logical_cores,
-    cpu_microcode,
-    cpu_physical_cores,
-    cpu_sockets,
-    cpu_subtype,
-    cpu_type,
-    hardware_model,
-    hardware_serial,
-    hardware_vendor,
-    hardware_version,
-    hostname,
-    local_hostname,
-    physical_memory,
-    uuid,
-    updated_at
-    FROM system_information WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
-  OFFSET $offset;
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/system_user.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-              
---- Display breadcrumb
- SELECT
-    ''breadcrumb'' AS component;
-  SELECT
-    ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
-  SELECT
-    ''FleetFolio'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
-    ''Parent Boundary'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-
-  SELECT parent.name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent.boundary_id AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary child ON child.boundary_id=assl.boundary_id
-  INNER JOIN all_boundary parent ON parent.boundary_id=child.parent_boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-
-  SELECT 
-  ab.name AS title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/inner_boundary.sql?tab=Discovered&boundary_id='' || ab.boundary_id  AS link
-  FROM active_asset_list assl
-  INNER JOIN all_boundary ab ON ab.boundary_id=assl.boundary_id
-  WHERE assl.name=$host_identifier::TEXT;
-  SELECT
-    name AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/system_user.sql?host_identifier='' || $host_identifier  AS link
-    FROM system_user LIMIT 1;
-
-   --- Dsply Page Title
-  SELECT
-   ''title'' as component,
-    name as contents FROM system_user LIMIT 1;
-
-   SET total_rows = (SELECT COUNT(*) FROM system_user WHERE host_identifier=$host_identifier);
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1;
-  select 
-      ''table''           as component,
-      TRUE              as sort,
-      TRUE    as freeze_headers;
-  SELECT 
-    name as process,
-    host_identifier as "host identifier",
-    user_name as "user name",
-    directory,
-    description,
-    gid,
-    gid_signed,
-    shell,
-    uid,
-    uid_signed,
-    uuid,
-    updated_at
-    FROM system_user WHERE host_identifier = $host_identifier::TEXT LIMIT $limit
-  OFFSET $offset;
-  SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
-    AS contents_md;
-            ',
+      'sqlpage/templates/shell-custom.handlebars',
+      '        
+        
+        
+        
+
+        <!DOCTYPE html>
+<html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
+<head>
+    <meta charset="utf-8" />
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{{static_path ''sqlpage.css''}}">
+    {{#each (to_array css)}}
+        {{#if this}}
+            <link rel="stylesheet" href="{{this}}">
+        {{/if}}
+    {{/each}}
+
+    <!-- Font Setup -->
+    {{#if font}}
+        {{#if (starts_with font "/")}}
+            <style>
+                @font-face {
+                    font-family: ''LocalFont'';
+                    src: url(''{{font}}'') format(''woff2'');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                :root {
+                    --tblr-font-sans-serif: ''LocalFont'', Arial, sans-serif;
+                }
+            </style>
+        {{else}}
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+            <style>
+                :root {
+                    --tblr-font-sans-serif: ''{{font}}'', Arial, sans-serif;
+                }
+            </style>
+        {{/if}}
+    {{/if}}
+
+    <!-- JavaScript -->
+    <script src="{{static_path ''sqlpage.js''}}" defer nonce="{{@csp_nonce}}"></script>
+    {{#each (to_array javascript)}}
+        {{#if this}}
+            <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+    {{#each (to_array javascript_module)}}
+        {{#if this}}
+            <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+        {{/if}}
+    {{/each}}
+</head>
+
+<body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
+    <div class="page">
+        <!-- Header -->
+        
+
+        <!-- Page Wrapper -->
+        <div class="page-wrapper">
+            <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout ''boxed'')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+                {{~#each_row~}}{{~/each_row~}}
+            </main>
+        </div>
+    </div>
+</body>
+</html>;
+      ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
