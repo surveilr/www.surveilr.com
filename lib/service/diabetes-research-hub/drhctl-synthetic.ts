@@ -372,20 +372,31 @@ class App {
   }
 }
 
+// Function to get user input
+const promptUser = (question: string): string => {
+  const input = prompt(question);
+  if (!input) {
+    console.error("Input cannot be empty.");
+    return promptUser(question); // Keep asking until a valid input is provided
+  }
+  return input;
+};
+
 // Main Execution Block
 if (import.meta.main) {
   // const studyName = args[0];
   // const tenant = args[1];
   // const no_of_participants = args[2];
   // const cgm_frequency = args[3];
-  const studyName = prompt("Enter study name:") || "Default Study";
-  const tenant = prompt("Enter tenant name:") || "Default Tenant";
+
+  const studyName = promptUser("Enter study name:") ;
+  const tenant = promptUser("Enter tenant name:");
   const no_of_participants = parseInt(
-    prompt("Enter number of participants:") || "10",
+    promptUser("Enter number of participants:") || "10",
     10,
   );
   const cgm_frequency = parseInt(
-    prompt("Enter CGM data frequency (14, 30, 90 days):") || "14",
+    promptUser("Enter CGM data frequency (14, 30, 90 days):") || "14",
     10,
   );
 
@@ -397,11 +408,8 @@ if (import.meta.main) {
       "deno",
       "run",
       "-A",
-      "./generate-synthetic-data-per-study.ts",
-      studyName,
-      tenant,
-      no_of_participants,
-      cgm_frequency,
+      "./synthetic-data-generator/generate-synthetic-data-per-study.ts",
+      studyName, tenant, no_of_participants.toString(), cgm_frequency.toString()
     ]);
 
     await CommandExecutor.executeCommand([
