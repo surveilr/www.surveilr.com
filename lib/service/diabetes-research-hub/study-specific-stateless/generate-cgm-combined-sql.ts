@@ -864,6 +864,7 @@ if (import.meta.main) {
     generateCombinedRTCCGMSQL,
     saveCTRJsonCgm,
     savertccgmJsonCgm,
+    saveJsonCgm,
   };
 
   // Check if the function exists

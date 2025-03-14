@@ -4,6 +4,17 @@ import { ulid } from "https://deno.land/x/ulid/mod.ts";
 // Initialize database
 const db = new Database("resource-surveillance.sqlite.db");
 
+// Function to get user input
+const promptUser = (question: string): string => {
+  const input = prompt(question);
+  if (!input) {
+    console.error("Input cannot be empty.");
+    return promptUser(question); // Keep asking until a valid input is provided
+  }
+  return input;
+};
+
+
 // List of valid investigator names
 const investigatorNames = [
   "Dr. John Smith",
@@ -20,6 +31,48 @@ const investigatorNames = [
 const createTables = () => {
   console.log("Creating tables if they do not exist...");
   db.exec(`
+
+    -- party definition
+
+    CREATE TABLE "party" (
+        "party_id" VARCHAR PRIMARY KEY NOT NULL,
+        "party_type_id" ULID NOT NULL,
+        "party_name" TEXT NOT NULL,
+        "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
+        "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        "created_by" TEXT DEFAULT 'UNKNOWN',
+        "updated_at" TIMESTAMPTZ,
+        "updated_by" TEXT,
+        "deleted_at" TIMESTAMPTZ,
+        "deleted_by" TEXT,
+        "activity_log" TEXT
+    );
+
+    -- party_type definition
+
+    CREATE TABLE "party_type" (
+        "party_type_id" ULID PRIMARY KEY NOT NULL,
+        "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+        "value" TEXT NOT NULL,
+        "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        "created_by" TEXT DEFAULT 'UNKNOWN',
+        "updated_at" TIMESTAMPTZ,
+        "updated_by" TEXT,
+        "deleted_at" TIMESTAMPTZ,
+        "deleted_by" TEXT,
+        "activity_log" TEXT,
+        UNIQUE("code")
+    );
+
+      INSERT INTO party_type 
+      (party_type_id, code, value, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, activity_log) 
+      VALUES 
+      ('01JP7GCMDK7GVTBQPJJV9G7XRS', 'ORGANIZATION', 'Organization', CURRENT_TIMESTAMP, 'UNKNOWN', NULL, NULL, NULL, NULL, ''),
+      ('01JP7GCMDK9E63DJA6P56TY519', 'PERSON', 'Person', CURRENT_TIMESTAMP, 'UNKNOWN', NULL, NULL, NULL, NULL, '')
+      ON CONFLICT (party_type_id) DO NOTHING;
+
+
+
     CREATE TABLE IF NOT EXISTS uniform_resource_study (
       study_id TEXT PRIMARY KEY,
       study_name TEXT,
@@ -149,13 +202,16 @@ const createTables = () => {
 // Function to generate a tenant_id from the tenant name
 const generateTenantId = (tenantName: string) => {
   //return tenantName.replace(/\s+/g, "_").toUpperCase().substring(0, 10);
-  return tenantName
-    .split(/\s+/) // Split by spaces
-    .map((word) => word[0]) // Take the first letter of each word
-    .join("") // Join them together
-    .toUpperCase() // Convert to uppercase
-    .substring(0, 4); // Ensure it's only 4 letters
+  return tenantName  
+  .replace(/[^a-zA-Z0-9\s]/g, "") // Remove special characters
+  .split(/\s+/) // Split by spaces
+  .map((word) => word[0]) // Take the first letter of each word
+  .join("") // Join them together
+  .toUpperCase() // Convert to uppercase
+  .substring(0, 4); // Ensure it's only 4 letters
 };
+
+
 
 // Function to generate a valid DOI
 const generateDOI = () => {
@@ -164,18 +220,53 @@ const generateDOI = () => {
   }`;
 };
 
+
+
+// Function to insert an institution and create a corresponding party
+const insertInstitution = (institutionName: string, tenantName: string) => {
+  const institutionId = ulid(); // Generate a unique institution ID
+  const tenantId = generateTenantId(tenantName); // Generate tenant ID from tenant name
+  
+  // Prompt user for city, state, and country
+  const city = promptUser("Enter city:");
+  const state = promptUser("Enter state:");
+  const country = promptUser("Enter country:");
+
+  // Insert institution into uniform_resource_institution table
+  db.prepare(`
+    INSERT INTO uniform_resource_institution (institution_id, institution_name, city, state, country, tenant_id)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(institutionId, institutionName, city, state, country, tenantId);
+
+  console.log(`Institution inserted: ${institutionName} (Tenant ID: ${tenantId})`);
+
+  // Insert into party table using tenantId as party_id
+  db.prepare(`
+    INSERT INTO party (party_id, party_type_id, party_name, created_at, created_by)
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP, 'SYSTEM')
+  `).run(tenantId, '01JP7GCMDK7GVTBQPJJV9G7XRS', tenantName);
+
+  console.log(`Party inserted for Tenant ID: ${tenantId}`);
+
+  return tenantId; // Return the generated tenant ID
+};
+
+
 // Function to generate study metadata
 const generateStudyMetadata = (
   studyName: string,
   days: number,
   tenantId: string,
-) => {
+) => { 
+
   const studyId = studyName
-    .split(/\s+/) // Split by spaces
-    .map((word) => word[0]) // Take the first letter of each word
-    .join("") // Join them together
-    .toUpperCase() // Convert to uppercase
-    .substring(0, 4); // Ensure it's only 4 letters
+  .replace(/[^a-zA-Z0-9\s]/g, "") // Remove special characters
+  .split(/\s+/) // Split by spaces
+  .map((word) => word[0]) // Take the first letter of each word
+  .join("") // Join them together
+  .toUpperCase() // Convert to uppercase
+  .substring(0, 4); // Ensure it's only 4 letters
+  
 
   console.log(studyId);
 
@@ -251,6 +342,7 @@ const generateMealData = (participantId: string, days: number) => {
   console.log(`Meal data generated for participantId: ${participantId}`);
 };
 
+
 // Function to generate synthetic CGM data
 const generateCGMData = (sid: string, startDate: Date, days: number) => {
   let date = new Date(startDate);
@@ -264,15 +356,47 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
   console.log(`CGM data generated for SID: ${sid}`);
 };
 
-const generateCGMFileMetadata = (sid: string, studyId: string) => {
-  const deviceList = [
-    "Dexcom G6",
-    "Dexcom G7",
-    "Dexcom Platinum",
-    "Freestyle Libre",
-    "Libre 2",
-    "Libre 3",
+function getRandomDevice() {
+  const devices = [
+      { device_name: "Freestyle Libre", source_platform: "Abbott" },
+      { device_name: "Clarity", source_platform: "Dexcom" },
+      { device_name: "Carelink", source_platform: "Medtronic" },
+      { device_name: "Tidepool", source_platform: "Tidepool" },
+      { device_name: "Dexcom G4", source_platform: "Dexcom" },
+      { device_name: "Dexcom G5", source_platform: "Dexcom" },
+      { device_name: "Dexcom G6", source_platform: "Dexcom" },
+      { device_name: "Dexcom G7", source_platform: "Dexcom" },
+      { device_name: "Stelo", source_platform: "Dexcom" },
+      { device_name: "FreeStyle Libre 2", source_platform: "Abbott" },
+      { device_name: "FreeStyle Libre 3", source_platform: "Abbott" },
+      { device_name: "FreeStyle Libre Pro", source_platform: "Abbott" },
+      { device_name: "Guardian Connect", source_platform: "Medtronic" },
+      { device_name: "Simplera CGM System", source_platform: "Medtronic" },
+      { device_name: "Eversense", source_platform: "Senseonics" },
+      { device_name: "Eversense XL", source_platform: "Senseonics" },
+      { device_name: "Eversense E3", source_platform: "Senseonics" },
+      { device_name: "Eversense 365", source_platform: "Senseonics" },
+      { device_name: "FreeStyle Navigator", source_platform: "Abbott" },
+      { device_name: "Medtronic Paradigm", source_platform: "Medtronic" }
   ];
+  return devices[Math.floor(Math.random() * devices.length)];
+}
+
+
+// Store assigned devices per study to ensure consistency
+const studyDeviceMap: Record<string, { device_name: string; source_platform: string }> = {};
+
+// Function to get or assign a device for a study
+function getStudyDevice(studyId: string) {
+  if (!studyDeviceMap[studyId]) {
+    studyDeviceMap[studyId] = getRandomDevice(); // Assign a device if not already assigned
+  }
+  return studyDeviceMap[studyId];
+}
+
+const generateCGMFileMetadata = (sid: string, studyId: string,tenantId:string) => {
+  // Get the assigned device for this study
+  const { device_name, source_platform } = getStudyDevice(studyId);
 
   // Get start and end dates for the participant's CGM data
   const dateRange: { start_date: string; end_date: string } = db.prepare(`
@@ -283,8 +407,7 @@ const generateCGMFileMetadata = (sid: string, studyId: string) => {
   if (!dateRange || !dateRange.start_date || !dateRange.end_date) return;
 
   const metadataId = ulid();
-  const deviceName = deviceList[Math.floor(Math.random() * deviceList.length)];
-  const fileName = `cgm_tracing_${sid}.csv`;
+  const fileName = `cgm_tracing`;
   const fileFormat = "CSV";
   const fileUploadDate = new Date().toISOString();
 
@@ -296,9 +419,9 @@ const generateCGMFileMetadata = (sid: string, studyId: string) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `).run(
     metadataId,
-    deviceName,
-    ulid(),
-    "CGM Platform",
+    device_name,       // Use the assigned device name
+    "",
+    source_platform,   // Use the assigned source platform
     sid,
     fileName,
     fileFormat,
@@ -306,13 +429,15 @@ const generateCGMFileMetadata = (sid: string, studyId: string) => {
     dateRange.start_date,
     dateRange.end_date,
     studyId,
-    "default_tenant",
+    tenantId,
     "Date_Time",
     "CGM_Value",
     "SID",
   );
-  console.log(`CGM file metadata generated for SID: ${sid}`);
+  console.log(`CGM file metadata generated for SID: ${sid} (Device: ${device_name}, Source Platform: ${source_platform})`);
 };
+
+
 
 // Function to generate participants
 const generateParticipants = (
@@ -322,53 +447,93 @@ const generateParticipants = (
 ) => {
   const genders = ["Male", "Female", "Other", "Unknown"];
   const diabetesTypes = ["Type 1", "Type 2", "Gestational", "Other"];
+
+  const raceEthnicityOptions = [
+    { race: "Asian", ethnicity: "Hispanic or Latino" },
+    { race: "Asian", ethnicity: "Not Hispanic or Latino" },
+    { race: "Black", ethnicity: "Hispanic or Latino" },
+    { race: "Black", ethnicity: "Not Hispanic or Latino" },
+    { race: "White", ethnicity: "Hispanic or Latino" },
+    { race: "White", ethnicity: "Not Hispanic or Latino" },
+    { race: "Native Hawaiian", ethnicity: "Hispanic or Latino" },
+    { race: "Native Hawaiian", ethnicity: "Not Hispanic or Latino" },
+    { race: "American Indian", ethnicity: "Hispanic or Latino" },
+    { race: "American Indian", ethnicity: "Not Hispanic or Latino" },
+    { race: "Unknown", ethnicity: "Asked but unknown" },
+    { race: "Unknown", ethnicity: "Unknown" }
+  ];
+
+  const diagnosisIcdOptions = ["E10", "E11", "O24", "R73", "Z13.1"]; // Example ICD-10 codes
+  const medRxnormOptions = ["860975", "860976", "197763", "860977", "197762"]; // Example RxNorm drug codes
+  const treatmentModalityOptions = ["Insulin", "Oral Medication", "Lifestyle Changes", "Diet & Exercise"];
+  const studyArmOptions = ["Control", "Intervention", "Placebo", "Experimental"];
+
   for (let i = 1; i <= participants; i++) {
     const participantId = `${studyId}-${i}`;
     const gender = genders[Math.floor(Math.random() * genders.length)];
     const age = (18 + Math.floor(Math.random() * 50)).toString();
     const bmi = (18 + Math.random() * 12).toFixed(1);
     const hba1c = (5 + Math.random() * 2).toFixed(1);
-    const diabetesType =
-      diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
+    const diabetesType = diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
+    const raceEthnicity = raceEthnicityOptions[Math.floor(Math.random() * raceEthnicityOptions.length)];
+    const raceEthnicityText = [raceEthnicity.race, raceEthnicity.ethnicity].filter(Boolean).join(" ");
+
+    const diagnosisIcd = diagnosisIcdOptions[Math.floor(Math.random() * diagnosisIcdOptions.length)];
+    const medRxnorm = medRxnormOptions[Math.floor(Math.random() * medRxnormOptions.length)];
+    const treatmentModality = treatmentModalityOptions[Math.floor(Math.random() * treatmentModalityOptions.length)];
+    const studyArm = studyArmOptions[Math.floor(Math.random() * studyArmOptions.length)]; // Random study arm
+
     db.prepare(
-      `INSERT INTO uniform_resource_participant VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-    )
-      .run(
-        participantId,
-        studyId,
-        "",
-        "",
-        "",
-        "",
-        gender,
-        "",
-        age,
-        bmi,
-        hba1c,
-        diabetesType,
-        "A",
-        tenantId,
-      );
+      `INSERT INTO uniform_resource_participant 
+      (participant_id, study_id, site_id, diagnosis_icd, med_rxnorm, treatment_modality, gender, 
+       race_ethnicity, age, bmi, baseline_hba1c, diabetes_type, study_arm, tenant_id) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+    ).run(
+      participantId,
+      studyId,
+      "", // site_id (optional)
+      diagnosisIcd,
+      medRxnorm,
+      treatmentModality,
+      gender,
+      raceEthnicityText, // Now properly concatenated
+      age,
+      bmi,
+      hba1c,
+      diabetesType,
+      studyArm, // Dynamically assigned
+      tenantId
+    );
   }
   console.log(`Participants generated for studyId: ${studyId}`);
 };
+
 
 // Function to generate a study and related entities
 const generateStudy = async () => {
   createTables();
 
-  // Get user inputs
-  const studyName = prompt("Enter study name:") || "Default Study";
-  const tenantName = prompt("Enter tenant name:") || "Default Tenant";
+  //Get user inputs
+  const studyName = promptUser("Enter study name:") ;
+  const tenantName = promptUser("Enter tenant name:");
   const participants = parseInt(
-    prompt("Enter number of participants:") || "10",
+    promptUser("Enter number of participants:") || "10",
     10,
   );
   const days = parseInt(
-    prompt("Enter CGM data frequency (14, 30, 90 days):") || "14",
+    promptUser("Enter CGM data frequency (14, 30, 90 days):") || "14",
     10,
   );
-  const tenantId = generateTenantId(tenantName);
+
+  //const [studyName, tenantName, participants, days] = Deno.args;
+
+  console.log("Generating synthetic data for:");
+  console.log(`Study Name: ${studyName}`);
+  console.log(`Tenant Name: ${tenantName}`);
+  console.log(`Participants: ${participants}`);
+  console.log(`Days: ${days}`);
+
+  const tenantId = insertInstitution(tenantName,tenantName);
 
   const studyId = generateStudyMetadata(studyName, days, tenantId);
 
@@ -428,14 +593,11 @@ const generateStudy = async () => {
   for (let i = 1; i <= participants; i++) {
     const sid = `${studyId}-${i}`;
     const startDate = new Date();
-    generateFitnessData(sid, days);
-    //console.log(`Fitness data generated for participantId: ${sid}`);
-    generateMealData(sid, days);
-    //console.log(`Meal data generated for participantId: ${sid}`);
-    generateCGMData(sid, startDate, days);
-    //console.log(`CGM data generated for participantId: ${sid}`);
-    generateCGMFileMetadata(sid, studyId);
-    //console.log(`CGM file metadata generated for participantId: ${sid}`);
+    generateFitnessData(sid, days);    
+    generateMealData(sid, days);    
+    generateCGMData(sid, startDate, days);    
+    generateCGMFileMetadata(sid, studyId,tenantId);
+    
   }
 };
 
