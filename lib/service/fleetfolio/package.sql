@@ -55,25 +55,25 @@ SELECT
     nodeDet.last_fetched,
     nodeDet.last_restarted,
     nodeDet. issues,
-   sysinfo.board_model,
-   sysinfo.board_serial,
-   sysinfo.board_vendor,
-   sysinfo.board_version,
-   sysinfo.computer_name,
-   sysinfo.cpu_brand,
-   sysinfo.cpu_logical_cores,
-   sysinfo.cpu_microcode,
-   sysinfo.cpu_physical_cores,
-   sysinfo.cpu_sockets,
-   sysinfo.cpu_subtype,
-   sysinfo.cpu_type,
-   sysinfo.hardware_model,
-   sysinfo.hardware_serial,
-   sysinfo.hardware_vendor,
-   sysinfo.hardware_version,
-   sysinfo.local_hostname,
-   sysinfo.physical_memory,
-   sysinfo.uuid
+    sysinfo.board_model,
+    sysinfo.board_serial,
+    sysinfo.board_vendor,
+    sysinfo.board_version,
+    sysinfo.computer_name,
+    sysinfo.cpu_brand,
+    sysinfo.cpu_logical_cores,
+    sysinfo.cpu_microcode,
+    sysinfo.cpu_physical_cores,
+    sysinfo.cpu_sockets,
+    sysinfo.cpu_subtype,
+    sysinfo.cpu_type,
+    sysinfo.hardware_model,
+    sysinfo.hardware_serial,
+    sysinfo.hardware_vendor,
+    sysinfo.hardware_version,
+    sysinfo.local_hostname,
+    sysinfo.physical_memory,
+    sysinfo.uuid
 FROM asset ast
 INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
 INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
@@ -81,23 +81,66 @@ LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast
 LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
 WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
 
--- server up time os query for all host 
-DROP VIEW IF EXISTS system_server_uptime;
-CREATE VIEW system_server_uptime AS
+-- policy list of host 
+DROP VIEW IF EXISTS asset_policy_list;
+CREATE VIEW asset_policy_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    pol.host_identifier,
+    pol.policy_name,
+    pol.policy_result,
+    pol.resolution
+FROM asset ast
+INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=ast.name;
+
+-- Installed software of host 
+DROP VIEW IF EXISTS asset_software_list;
+CREATE VIEW asset_software_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    sw.host_identifier,
+    sw.name,
+    sw.source,
+    sw.type,
+    sw.version,
+    sw.platform
+FROM asset ast
+INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=ast.name;
+
+DROP VIEW IF EXISTS system_user;
+CREATE VIEW system_user AS
 SELECT 
     u.uniform_resource_id,
     json_extract(u.content, '$.name') AS name,
     json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
     json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.days') AS days,
-    json_extract(u.content, '$.columns.hours') AS hours,
-    json_extract(u.content, '$.columns.minutes') AS minutes,
-    json_extract(u.content, '$.columns.seconds') AS seconds,
-    json_extract(u.content, '$.columns.total_seconds') AS total_seconds,
+    json_extract(u.content, '$.columns.username') AS user_name,
+    json_extract(u.content, '$.columns.directory') AS directory,
+    json_extract(u.content, '$.columns.description') AS description,
+    json_extract(u.content, '$.columns.gid') AS gid,
+    json_extract(u.content, '$.columns.gid_signed') AS gid_signed,
+    json_extract(u.content, '$.columns.shell') AS shell,
+    json_extract(u.content, '$.columns.uid') AS uid,
+    json_extract(u.content, '$.columns.uid_signed') AS uid_signed,
+    json_extract(u.content, '$.columns.uuid') AS uuid,
     u.updated_at
 FROM uniform_resource u
 INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Server Uptime' AND ue.graph_name='osquery-ms';
+WHERE name = 'Users' AND ue.graph_name='osquery-ms';
+
+-- User list of host 
+DROP VIEW IF EXISTS asset_user_list;
+CREATE VIEW asset_user_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    ss.host_identifier,
+    ss.user_name,
+    ss.directory
+FROM asset ast
+INNER JOIN system_user ss ON ss.host_identifier=ast.name;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -952,122 +995,197 @@ SELECT
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'fleetfolio/host_detail.sql',
-      '            SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-            -- not including breadcrumbs from sqlpage_aide_navigation
-            -- not including page title from sqlpage_aide_navigation
-            
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
 
-            SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-  FROM sqlpage_aide_navigation
- WHERE namespace = ''prime'' AND path = ''fleetfolio/host_detail.sql/index.sql'') as contents;
-  ;
---- Display breadcrumb
-SELECT
-    ''breadcrumb'' AS component;
-SELECT
-    ''Home'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
-SELECT
-    ''FleetFolio'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-SELECT
-    ''Parent Boundary'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-SELECT parent_boundary AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
-    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-SELECT boundry AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
-    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-SELECT host AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id  AS link
-    FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/host_detail.sql/index.sql'') as contents;
+    ;
+  --- Display breadcrumb
+  SELECT
+      ''breadcrumb'' AS component;
+  SELECT
+      ''Home'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+  SELECT
+      ''FleetFolio'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+  SELECT
+      ''Parent Boundary'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+  SELECT parent_boundary AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
+      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+  SELECT boundry AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
+      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+  SELECT host AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id  AS link
+      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+    
   
+  --- Dsply Page Title
+  SELECT
+      ''title''   as component,
+      host as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+    
+  SELECT
+      ''text''              as component,
+      description as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+  --- Display Asset (Host) Details first row
+  SELECT ''datagrid'' as component;
+      SELECT ''Parent Boundary'' as title, parent_boundary as description FROM asset_active_list WHERE asset_id=$host_identifier;
+      SELECT ''Boundary'' as title, boundry as description FROM asset_active_list WHERE asset_id=$host_identifier;
+      SELECT ''Status'' as title,
+      CASE 
+          WHEN status = ''Online'' THEN ''🟢 Online''
+          WHEN status = ''Offline'' THEN ''🔴 Offline''
+          ELSE ''⚠️ Unknown''
+      END AS  description FROM asset_active_list WHERE asset_id=$host_identifier; 
+      SELECT ''Issues'' as title, issues as description FROM asset_active_list WHERE asset_id=$host_identifier; 
+      SELECT ''Osquery version'' as title, osquery_version as description FROM asset_active_list WHERE asset_id=$host_identifier;
+      SELECT ''Operating system'' as title, operating_system as description FROM asset_active_list WHERE asset_id=$host_identifier;
 
---- Dsply Page Title
-SELECT
-    ''title''   as component,
-    host as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+      select 
+          ''html'' as component,
+          ''<div style="display: flex; gap: 20px; width: 100%;">
+              <!-- First Column -->
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Disk space</div>
+                      <div>'' || available_space || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Memory</div>
+                      <div>'' || ROUND(physical_memory / (1024 * 1024 * 1024), 2) || '' GB'' || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Processor Type</div>
+                      <div>'' || cpu_type || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px;">
+                      <div class="datagrid-title">Added to surveilr</div>
+                      <div>'' || added_to_surveilr_osquery_ms || ''</div>
+                  </div>
+              </div> 
+
+              <!-- Second Column -->
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Hardware Model</div>
+                      <div>'' || hardware_model || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Board Model</div>
+                      <div>'' || board_model || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Serial Number</div>
+                      <div>'' || hardware_serial || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px;">
+                      <div class="datagrid-title">Last restarted</div>
+                      <div>'' || last_restarted || ''</div>
+                  </div>
+              </div> 
+
+              <!-- Third Column -->
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">IP Address</div>
+                      <div>'' || ip_address || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                      <div class="datagrid-title">Mac Address</div>
+                      <div>'' || mac || ''</div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 4px;">
+                      <div class="datagrid-title">Last Fetched</div>
+                      <div>'' || last_fetched || ''</div>
+                  </div>
+              </div>
+          </div>
+
+      '' as html FROM asset_active_list WHERE asset_id=$host_identifier;
+
+  select 
+  ''divider'' as component,
+  ''System Environment''   as contents;
+
+  SELECT ''tab'' AS component, TRUE AS center;
+  SELECT ''Policies'' AS title, ''?tab=policies&host_identifier='' || $host_identifier AS link, $tab = ''policies'' AS active;
+  select ''Software'' as title, ''?tab=software&host_identifier='' || $host_identifier AS link, $tab = ''software'' as active;
+  select ''Users'' as title, ''?tab=users&host_identifier='' || $host_identifier AS link, $tab = ''users'' as active;
+
+  -- policy table and tab value Start here
+  -- policy pagenation
+  SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE asset_id=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''policies'';
+  SELECT 
+  policy_name AS "Policy", policy_result as "Status", resolution
+  FROM asset_policy_list
+  WHERE asset_id = $host_identifier AND $tab = ''policies'' LIMIT $limit
+  OFFSET $offset;
+  -- checking
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''policies'';;
+
+  -- Software table and tab value Start here
+  -- Software pagenation 
+  SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE asset_id=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
+  SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
+  FROM asset_software_list
+  WHERE asset_id = $host_identifier AND $tab = ''software''
+  LIMIT $limit OFFSET $offset;
   
-SELECT
-    ''text''              as component,
-    description as contents FROM asset_active_list WHERE asset_id=$host_identifier;
---- Display Asset (Host) Details first row
-SELECT ''datagrid'' as component;
-    SELECT ''Parent Boundary'' as title, parent_boundary as description FROM asset_active_list WHERE asset_id=$host_identifier;
-    SELECT ''Boundary'' as title, boundry as description FROM asset_active_list WHERE asset_id=$host_identifier;
-    SELECT ''Status'' as title,
-    CASE 
-        WHEN status = ''Online'' THEN ''🟢 Online''
-        WHEN status = ''Offline'' THEN ''🔴 Offline''
-        ELSE ''⚠️ Unknown''
-    END AS  description FROM asset_active_list WHERE asset_id=$host_identifier; 
-    SELECT ''Issues'' as title, issues as description FROM asset_active_list WHERE asset_id=$host_identifier; 
-    SELECT ''Osquery version'' as title, osquery_version as description FROM asset_active_list WHERE asset_id=$host_identifier;
-    SELECT ''Operating system'' as title, operating_system as description FROM asset_active_list WHERE asset_id=$host_identifier;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''software'';;
 
-    select 
-        ''html'' as component,
-        ''<div style="display: flex; gap: 20px; width: 100%;">
-            <!-- First Column -->
-            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Disk space</div>
-                    <div>'' || available_space || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Memory</div>
-                    <div>'' || ROUND(physical_memory / (1024 * 1024 * 1024), 2) || '' GB'' || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Processor Type</div>
-                    <div>'' || cpu_type || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px;">
-                    <div class="datagrid-title">Added to surveilr</div>
-                    <div>'' || added_to_surveilr_osquery_ms || ''</div>
-                </div>
-            </div> 
-
-            <!-- Second Column -->
-            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Hardware Model</div>
-                    <div>'' || hardware_model || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Board Model</div>
-                    <div>'' || board_model || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Serial Number</div>
-                    <div>'' || hardware_serial || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px;">
-                    <div class="datagrid-title">Last restarted</div>
-                    <div>'' || last_restarted || ''</div>
-                </div>
-            </div> 
-
-            <!-- Third Column -->
-            <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">IP Address</div>
-                    <div>'' || ip_address || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                    <div class="datagrid-title">Mac Address</div>
-                    <div>'' || mac || ''</div>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 4px;">
-                    <div class="datagrid-title">Last Fetched</div>
-                    <div>'' || last_fetched || ''</div>
-                </div>
-            </div>
-        </div>
-
-    '' as html FROM asset_active_list WHERE asset_id=$host_identifier;
-          ',
+  -- User table and tab value Start here
+  -- User pagenation
+  SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE asset_id=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''users'';
+  SELECT user_name as "User Name", directory as "Directory"
+  FROM asset_user_list
+  WHERE asset_id = $host_identifier AND $tab = ''users''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
+''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''users'';
+            ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -2983,7 +3101,8 @@ SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md;
+    AS contents_md 
+;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3153,7 +3272,8 @@ SELECT
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
-    AS contents_md;
+    AS contents_md 
+;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
