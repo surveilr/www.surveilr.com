@@ -1079,7 +1079,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     },
     ["macos", "windows", "linux"],
     false,
-    ["del(.columns.elapsed_time, .columns.system_time)"],
+    ["del(.columns.elapsed_time, .columns.system_time, .columns.user_time, .columns.disk_bytes_read, .columns.resident_size)"],
   )
   "All Processes"() {
     return `select * from processes`;
@@ -1240,7 +1240,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     description: "Processes with listening (bound) network sockets/ports.",
   })
   "Listening Ports"() {
-    return `SELECT * FROM listening_ports`;
+    return `SELECT address, family, net_namespace, path, pid, port, protocol, socket FROM listening_ports`;
   }
 
   @osQueryMsCell(
