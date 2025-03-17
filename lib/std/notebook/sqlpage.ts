@@ -32,14 +32,14 @@ export interface SqlPagesFileRecord {
 export type PathShellConfig = {
   readonly path: string;
   readonly shellStmts:
-    | "do-not-include"
-    | ((spfr: SqlPagesFileRecord) => string | string[]);
+  | "do-not-include"
+  | ((spfr: SqlPagesFileRecord) => string | string[]);
   readonly breadcrumbsFromNavStmts:
-    | "no"
-    | ((spfr: SqlPagesFileRecord) => string | string[]);
+  | "no"
+  | ((spfr: SqlPagesFileRecord) => string | string[]);
   readonly pageTitleFromNavStmts:
-    | "no"
-    | ((spfr: SqlPagesFileRecord) => string | string[]);
+  | "no"
+  | ((spfr: SqlPagesFileRecord) => string | string[]);
 };
 
 /**
@@ -389,17 +389,15 @@ export class TypicalSqlPageNotebook
       init: () => {
         const countSQL = config.countSQL
           ? config.countSQL
-          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${
-            config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
-          }`;
+          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
+            }`;
 
         return this.SQL`
           SET ${n("total_rows")} = (${countSQL.SQL(this.emitCtx)});
           SET ${n("limit")} = COALESCE(${$("limit")}, 50);
           SET ${n("offset")} = COALESCE(${$("offset")}, 0);
-          SET ${n("total_pages")} = (${$("total_rows")} + ${
-          $("limit")
-        } - 1) / ${$("limit")};
+          SET ${n("total_pages")} = (${$("total_rows")} + ${$("limit")
+          } - 1) / ${$("limit")};
           SET ${n("current_page")} = (${$("offset")} / ${$("limit")}) + 1;`;
       },
 
@@ -414,26 +412,22 @@ export class TypicalSqlPageNotebook
       },
 
       renderSimpleMarkdown: (...extraQueryParams: string[]) => {
+        const whereTabvalue = extraQueryParams.find(item => item.startsWith("$tab='")) || null;
+        const filteredParams = extraQueryParams.filter(item => item !== whereTabvalue);
         return this.SQL`
           SELECT 'text' AS component,
-              (SELECT CASE WHEN ${
-          $("current_page")
-        } > 1 THEN '[Previous](?limit=' || ${$("limit")} || '&offset=' || (${
-          $("offset")
-        } - ${$("limit")}) ||  ${
-          extraQueryParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
-        }   ')' ELSE '' END) || ' ' ||
-              '(Page ' || ${$("current_page")} || ' of ' || ${
-          $("total_pages")
-        } || ") " ||
-              (SELECT CASE WHEN ${$("current_page")} < ${
-          $("total_pages")
-        } THEN '[Next](?limit=' || ${$("limit")} || '&offset=' || (${
-          $("offset")
-        } + ${$("limit")}) ||   ${
-          extraQueryParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
-        }  ')' ELSE '' END)
-              AS contents_md;`;
+              (SELECT CASE WHEN ${$("current_page")
+          } > 1 THEN '[Previous](?limit=' || ${$("limit")} || '&offset=' || (${$("offset")
+          } - ${$("limit")}) ||  ${filteredParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
+          }   ')' ELSE '' END) || ' ' ||
+              '(Page ' || ${$("current_page")} || ' of ' || ${$("total_pages")
+          } || ") " ||
+              (SELECT CASE WHEN ${$("current_page")} < ${$("total_pages")
+          } THEN '[Next](?limit=' || ${$("limit")} || '&offset=' || (${$("offset")
+          } + ${$("limit")}) ||   ${filteredParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
+          }  ')' ELSE '' END)
+              AS contents_md 
+          ${whereTabvalue ? ` WHERE ${(whereTabvalue)}` : ''};`;
       },
     };
   }
@@ -443,8 +437,8 @@ export class TypicalSqlPageNotebook
       typeof text === "number"
         ? text
         : text
-        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(text)[1]
-        : "NULL";
+          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(text)[1]
+          : "NULL";
     // deno-fmt-ignore
     return this.SQL`
       INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -593,9 +587,8 @@ export class TypicalSqlPageNotebook
     return this.SQL`
           SELECT 'title' AS component, (SELECT COALESCE(title, caption)
               FROM sqlpage_aide_navigation
-             WHERE namespace = 'prime' AND path = ${
-      literal(activePPC?.absPath ?? "/")
-    }) as contents;
+             WHERE namespace = 'prime' AND path = ${literal(activePPC?.absPath ?? "/")
+      }) as contents;
     `;
   }
 
@@ -610,11 +603,10 @@ export class TypicalSqlPageNotebook
     const methodName = activePPC?.methodName.replaceAll("'", "''") ?? "??";
     return this.SQL`
         SELECT 'text' AS component,
-       '[View ${methodName}](' || ${
-      this.absoluteURL(
-        `/console/sqlpage-files/sqlpage-file.sql?path=${methodName}`,
-      )
-    } || ')' AS contents_md;       
+       '[View ${methodName}](' || ${this.absoluteURL(
+      `/console/sqlpage-files/sqlpage-file.sql?path=${methodName}`,
+    )
+      } || ')' AS contents_md;       
   `;
   }
 
