@@ -206,6 +206,21 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "fleetfolio/host_detail.sql"() {
+        const policyViewName = `asset_policy_list`;
+        const policyPagination = this.pagination({
+            tableOrViewName: policyViewName,
+            whereSQL: "WHERE asset_id=$host_identifier",
+        });
+        const softwareViewName = `asset_software_list`;
+        const softwarePagination = this.pagination({
+            tableOrViewName: softwareViewName,
+            whereSQL: "WHERE asset_id=$host_identifier",
+        });
+        const userListViewName = `asset_user_list`;
+        const userListPagination = this.pagination({
+            tableOrViewName: userListViewName,
+            whereSQL: "WHERE asset_id=$host_identifier",
+        });
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -314,7 +329,50 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 </div>
 
             ' as html FROM asset_active_list WHERE asset_id=$host_identifier;
+
+        select 
+        'divider' as component,
+        'System Environment'   as contents;
+
+        SELECT 'tab' AS component, TRUE AS center;
+        SELECT 'Policies' AS title, '?tab=policies&host_identifier=' || $host_identifier AS link, $tab = 'policies' AS active;
+        select 'Software' as title, '?tab=software&host_identifier=' || $host_identifier AS link, $tab = 'software' as active;
+        select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
+
+        -- policy table and tab value Start here
+        -- policy pagenation
+        ${policyPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'policies';
+        SELECT 
+        policy_name AS "Policy", policy_result as "Status", resolution
+        FROM ${policyViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'policies' LIMIT $limit
+        OFFSET $offset;
+        -- checking
+        ${policyPagination.renderSimpleMarkdown("tab", "host_identifier", "$tab='policies'")};
+
+        -- Software table and tab value Start here
+        -- Software pagenation 
+        ${softwarePagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'software';
+        SELECT name, version, type, platform, '-' AS "Vulnerabilities"
+        FROM ${softwareViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'software'
+        LIMIT $limit OFFSET $offset;
+        
+        ${softwarePagination.renderSimpleMarkdown("tab", "host_identifier", "$tab='software'")};
+
+        -- User table and tab value Start here
+        -- User pagenation
+        ${userListPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'users';
+        SELECT user_name as "User Name", directory as "Directory"
+        FROM ${userListViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'users'
+        LIMIT $limit OFFSET $offset;
+        ${userListPagination.renderSimpleMarkdown("tab", "host_identifier", "$tab='users'")};
         `;
+
     }
     @spn.shell({
         breadcrumbsFromNavStmts: "no",

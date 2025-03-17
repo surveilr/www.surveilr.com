@@ -47,25 +47,25 @@ SELECT
     nodeDet.last_fetched,
     nodeDet.last_restarted,
     nodeDet. issues,
-   sysinfo.board_model,
-   sysinfo.board_serial,
-   sysinfo.board_vendor,
-   sysinfo.board_version,
-   sysinfo.computer_name,
-   sysinfo.cpu_brand,
-   sysinfo.cpu_logical_cores,
-   sysinfo.cpu_microcode,
-   sysinfo.cpu_physical_cores,
-   sysinfo.cpu_sockets,
-   sysinfo.cpu_subtype,
-   sysinfo.cpu_type,
-   sysinfo.hardware_model,
-   sysinfo.hardware_serial,
-   sysinfo.hardware_vendor,
-   sysinfo.hardware_version,
-   sysinfo.local_hostname,
-   sysinfo.physical_memory,
-   sysinfo.uuid
+    sysinfo.board_model,
+    sysinfo.board_serial,
+    sysinfo.board_vendor,
+    sysinfo.board_version,
+    sysinfo.computer_name,
+    sysinfo.cpu_brand,
+    sysinfo.cpu_logical_cores,
+    sysinfo.cpu_microcode,
+    sysinfo.cpu_physical_cores,
+    sysinfo.cpu_sockets,
+    sysinfo.cpu_subtype,
+    sysinfo.cpu_type,
+    sysinfo.hardware_model,
+    sysinfo.hardware_serial,
+    sysinfo.hardware_vendor,
+    sysinfo.hardware_version,
+    sysinfo.local_hostname,
+    sysinfo.physical_memory,
+    sysinfo.uuid
 FROM asset ast
 INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
 INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
@@ -73,20 +73,63 @@ LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast
 LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
 WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
 
--- server up time os query for all host 
-DROP VIEW IF EXISTS system_server_uptime;
-CREATE VIEW system_server_uptime AS
+-- policy list of host 
+DROP VIEW IF EXISTS asset_policy_list;
+CREATE VIEW asset_policy_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    pol.host_identifier,
+    pol.policy_name,
+    pol.policy_result,
+    pol.resolution
+FROM asset ast
+INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=ast.name;
+
+-- Installed software of host 
+DROP VIEW IF EXISTS asset_software_list;
+CREATE VIEW asset_software_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    sw.host_identifier,
+    sw.name,
+    sw.source,
+    sw.type,
+    sw.version,
+    sw.platform
+FROM asset ast
+INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=ast.name;
+
+DROP VIEW IF EXISTS system_user;
+CREATE VIEW system_user AS
 SELECT 
     u.uniform_resource_id,
     json_extract(u.content, '$.name') AS name,
     json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
     json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.days') AS days,
-    json_extract(u.content, '$.columns.hours') AS hours,
-    json_extract(u.content, '$.columns.minutes') AS minutes,
-    json_extract(u.content, '$.columns.seconds') AS seconds,
-    json_extract(u.content, '$.columns.total_seconds') AS total_seconds,
+    json_extract(u.content, '$.columns.username') AS user_name,
+    json_extract(u.content, '$.columns.directory') AS directory,
+    json_extract(u.content, '$.columns.description') AS description,
+    json_extract(u.content, '$.columns.gid') AS gid,
+    json_extract(u.content, '$.columns.gid_signed') AS gid_signed,
+    json_extract(u.content, '$.columns.shell') AS shell,
+    json_extract(u.content, '$.columns.uid') AS uid,
+    json_extract(u.content, '$.columns.uid_signed') AS uid_signed,
+    json_extract(u.content, '$.columns.uuid') AS uuid,
     u.updated_at
 FROM uniform_resource u
 INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
-WHERE name = 'Server Uptime' AND ue.graph_name='osquery-ms';
+WHERE name = 'Users' AND ue.graph_name='osquery-ms';
+
+-- User list of host 
+DROP VIEW IF EXISTS asset_user_list;
+CREATE VIEW asset_user_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    ss.host_identifier,
+    ss.user_name,
+    ss.directory
+FROM asset ast
+INNER JOIN system_user ss ON ss.host_identifier=ast.name;
