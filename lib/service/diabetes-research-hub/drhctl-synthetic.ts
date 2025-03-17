@@ -389,7 +389,7 @@ if (import.meta.main) {
   // const no_of_participants = args[2];
   // const cgm_frequency = args[3];
 
-  const studyName = promptUser("Enter study name:") ;
+  const studyName = promptUser("Enter study name:");
   const tenant = promptUser("Enter tenant name:");
   const no_of_participants = parseInt(
     promptUser("Enter number of participants:") || "10",
@@ -409,7 +409,10 @@ if (import.meta.main) {
       "run",
       "-A",
       "./synthetic-data-generator/generate-synthetic-data-per-study.ts",
-      studyName, tenant, no_of_participants.toString(), cgm_frequency.toString()
+      studyName,
+      tenant,
+      no_of_participants.toString(),
+      cgm_frequency.toString(),
     ]);
 
     await CommandExecutor.executeCommand([
