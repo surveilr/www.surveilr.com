@@ -3,6 +3,7 @@ import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
+import {generateMealFitnessJson } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export async function saveJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
@@ -49,7 +50,12 @@ export async function saveJsonCgm(dbFilePath: string): string {
     const jsonStringMeta = JSON.stringify(jsonObject);
 
     const file_name = row.file_name.replace(`.${row.file_format}`, "");
-    const patient_id = row.patient_id.replace(/^WAD1-001-00/, "");
+    //const patient_id = row.patient_id.replace(/^WAD1-001-00/, "");
+
+    // Trim the "CTR3-" prefix from patient_id safely
+    const patient_id = typeof row.patient_id === "string"
+      ? row.patient_id.replace(/^WADWA-/, "")
+      : row.patient_id;
 
     const rows_obs = db.prepare(
       `SELECT * FROM uniform_resource_${file_name} ${
@@ -114,6 +120,13 @@ export class wadaSqlPages extends spn.TypicalSqlPageNotebook {
     const sqlStatements = saveJsonCgm(dbFilePath);
     return await sqlStatements;
   }
+
+  async savemealDDL() {
+      const dbFilePath = "./resource-surveillance.sqlite.db";
+      const jsonstmts = generateMealFitnessJson(dbFilePath);
+      return await jsonstmts;
+    }
+
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
     // stateless SQL for the metrics

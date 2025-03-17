@@ -2499,6 +2499,96 @@ SELECT
     study_arm
 FROM drh_participant;
 
+
+
+CREATE TABLE study_meta_data AS
+SELECT
+    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
+    lower(hex(randomblob(16))) AS study_meta_id,
+    (
+        SELECT party_id
+        FROM party
+        LIMIT 1
+    ) AS tenant_id, 
+    s.study_id AS study_display_id,
+    s.study_name,
+    s.start_date,
+    s.end_date,
+    s.treatment_modalities,
+    s.funding_source,
+    s.nct_number,
+    s.study_description,   
+  
+    -- Investigators as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'investigator_name', i.investigator_name,
+                'email', i.email,
+                'institution_id', i.institution_id
+            )
+        , ', ') || ']' 
+     FROM drh_investigator i WHERE i.study_id = s.study_id) AS investigators,
+
+    -- Publications as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'title', p.publication_title,
+                'doi', p.digital_object_identifier,
+                'publication_site', p.publication_site
+            )
+        , ', ') || ']' 
+     FROM drh_publication p WHERE p.study_id = s.study_id) AS publications,
+
+    -- Authors as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'name', a.name,
+                'email', a.email,
+                'investigator_id', a.investigator_id
+            )
+        , ', ') || ']' 
+     FROM drh_author a WHERE a.study_id = s.study_id) AS authors,
+
+    -- Institutions as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'name', iv.institution_name,
+                'city', iv.city,
+                'state', iv.state,
+                'country', iv.country
+            )
+        , ', ') || ']' 
+     FROM drh_institution iv WHERE iv.tenant_id = s.tenant_id) AS institutions,
+
+    -- Labs as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'lab_name', l.lab_name,
+                'lab_pi', l.lab_pi,
+                'institution_id', l.institution_id
+            )
+        , ', ') || ']' 
+     FROM drh_lab l WHERE l.study_id = s.study_id) AS labs,
+
+    -- Sites as JSON Array
+    (SELECT 
+        '[' || GROUP_CONCAT(
+            JSON_OBJECT(
+                'site_name', si.site_name,
+                'site_type', si.site_type
+            )
+        , ', ') || ']' 
+     FROM drh_site si WHERE si.study_id = s.study_id) AS sites
+
+FROM drh_study s;
+
+
+
     
 DROP TABLE IF EXISTS raw_cgm_lst_cached;
 
@@ -2628,3 +2718,7 @@ SELECT
     '
 FROM
     raw_cgm_table_name;
+
+
+
+-----------------------
