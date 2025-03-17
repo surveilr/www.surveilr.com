@@ -854,13 +854,12 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
   return dfaSQL;
 }
 
-
 export function generateMealFitnessJson(dbFilePath: string) {
-    const db = new Database(dbFilePath);
-    let mealJson = "";
+  const db = new Database(dbFilePath);
+  let mealJson = "";
 
-    // Step 1: Ensure tables exist
-    db.exec(`
+  // Step 1: Ensure tables exist
+  db.exec(`
         CREATE TABLE IF NOT EXISTS uniform_resource_fitness_data (
             fitness_id TEXT PRIMARY KEY,
             participant_id TEXT,
@@ -889,52 +888,61 @@ export function generateMealFitnessJson(dbFilePath: string) {
         );
     `);
 
-    // Step 2: Get participants who have at least one meal OR fitness record
-    const participantIds = db.prepare(`
+  // Step 2: Get participants who have at least one meal OR fitness record
+  const participantIds = db.prepare(`
         SELECT participant_id FROM uniform_resource_meal_data
         UNION
         SELECT participant_id FROM uniform_resource_fitness_data
     `).all();
 
-    console.log(`🔍 Found ${participantIds.length} participants with data.`);
+  console.log(`🔍 Found ${participantIds.length} participants with data.`);
 
-    // Step 3: Get study metadata (single-row values)
-    const studyMetadata: { db_file_id: string; tenant_id: string; study_display_id: string } = db.prepare(`
+  // Step 3: Get study metadata (single-row values)
+  const studyMetadata: {
+    db_file_id: string;
+    tenant_id: string;
+    study_display_id: string;
+  } = db.prepare(`
         SELECT 
             COALESCE((SELECT db_file_id FROM file_meta_ingest_data LIMIT 1), 'UNKNOWN') AS db_file_id,
             COALESCE((SELECT party_id FROM party LIMIT 1), 'UNKNOWN') AS tenant_id,
             COALESCE((SELECT study_id FROM uniform_resource_study LIMIT 1), 'UNKNOWN') AS study_display_id
-    `).get() || { db_file_id: 'UNKNOWN', tenant_id: 'UNKNOWN', study_display_id: 'UNKNOWN' };
+    `).get() ||
+    {
+      db_file_id: "UNKNOWN",
+      tenant_id: "UNKNOWN",
+      study_display_id: "UNKNOWN",
+    };
 
-    console.log("📌 studyMetadata:", studyMetadata);  
+  console.log("📌 studyMetadata:", studyMetadata);
 
-    if (!studyMetadata.db_file_id || studyMetadata.db_file_id === 'UNKNOWN') {
-        console.error("❌ ERROR: Missing db_file_id. Check database records.");
-        return;
-    }
+  if (!studyMetadata.db_file_id || studyMetadata.db_file_id === "UNKNOWN") {
+    console.error("❌ ERROR: Missing db_file_id. Check database records.");
+    return;
+  }
 
-    console.log("🟢 Preparing to insert participant data...");
-    console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
-    console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
-    console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
+  console.log("🟢 Preparing to insert participant data...");
+  console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
+  console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
+  console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
 
-    // // Step 4: Prepare insert statement (NO conflict update)
-    // const insertStmt = db.prepare(`
-    //     INSERT INTO participant_meal_fitness_data (
-    //         db_file_id, tenant_id, study_display_id, fitness_meal_id, 
-    //         participant_display_id, meal_data, fitness_data
-    //     )
-    //     VALUES (@db_file_id, @tenant_id, @study_display_id, @fitness_meal_id, 
-    //             @participant_display_id, @meal_data, @fitness_data);
-    // `);
+  // // Step 4: Prepare insert statement (NO conflict update)
+  // const insertStmt = db.prepare(`
+  //     INSERT INTO participant_meal_fitness_data (
+  //         db_file_id, tenant_id, study_display_id, fitness_meal_id,
+  //         participant_display_id, meal_data, fitness_data
+  //     )
+  //     VALUES (@db_file_id, @tenant_id, @study_display_id, @fitness_meal_id,
+  //             @participant_display_id, @meal_data, @fitness_data);
+  // `);
 
-    // Step 5: Loop through each participant and insert JSON
-    db.transaction(() => {
-        for (const { participant_id } of participantIds) {
-            console.log(`🔄 Processing participant: ${participant_id}`);
+  // Step 5: Loop through each participant and insert JSON
+  db.transaction(() => {
+    for (const { participant_id } of participantIds) {
+      console.log(`🔄 Processing participant: ${participant_id}`);
 
-            // Fetch meal data
-            const meals = db.prepare(`
+      // Fetch meal data
+      const meals = db.prepare(`
                 SELECT json_group_array(json_object(
                     'meal_id', meal_id,
                     'meal_time', meal_time,
@@ -945,8 +953,8 @@ export function generateMealFitnessJson(dbFilePath: string) {
                 WHERE participant_id = ?
             `).get(participant_id) as { meal_data: string | null };
 
-            // Fetch fitness data
-            const fitness = db.prepare(`
+      // Fetch fitness data
+      const fitness = db.prepare(`
                 SELECT json_group_array(json_object(
                     'fitness_id', fitness_id,
                     'date', date,
@@ -958,59 +966,58 @@ export function generateMealFitnessJson(dbFilePath: string) {
                 WHERE participant_id = ?
             `).get(participant_id) as { fitness_data: string | null };
 
-            // Ensure empty arrays for missing data
-            const mealDataJson = meals.meal_data ?? '[]';
-            const fitnessDataJson = fitness.fitness_data ?? '[]';
+      // Ensure empty arrays for missing data
+      const mealDataJson = meals.meal_data ?? "[]";
+      const fitnessDataJson = fitness.fitness_data ?? "[]";
 
-            // Skip insert if both meal and fitness data are empty
-            if (mealDataJson === '[]' && fitnessDataJson === '[]') {
-                console.warn(`⚠️ Skipping participant ${participant_id} - No data found.`);
-                continue;
-            }
+      // Skip insert if both meal and fitness data are empty
+      if (mealDataJson === "[]" && fitnessDataJson === "[]") {
+        console.warn(
+          `⚠️ Skipping participant ${participant_id} - No data found.`,
+        );
+        continue;
+      }
 
-            // Generate a ULID for `fitness_meal_id`
-            const fitness_meal_id = ulid();
+      // Generate a ULID for `fitness_meal_id`
+      const fitness_meal_id = ulid();
 
-            console.log("📌 Insert Data:", {
-                db_file_id: studyMetadata.db_file_id,
-                tenant_id: studyMetadata.tenant_id,
-                study_display_id: studyMetadata.study_display_id,
-                fitness_meal_id,
-                participant_display_id: participant_id,
-                meal_data: mealDataJson,
-                fitness_data: fitnessDataJson
-            });
+      console.log("📌 Insert Data:", {
+        db_file_id: studyMetadata.db_file_id,
+        tenant_id: studyMetadata.tenant_id,
+        study_display_id: studyMetadata.study_display_id,
+        fitness_meal_id,
+        participant_display_id: participant_id,
+        meal_data: mealDataJson,
+        fitness_data: fitnessDataJson,
+      });
 
-
-            console.log("Executing INSERT INTO file_meta_ingest_data...");
-            try {
-              db.prepare(
-                `INSERT INTO participant_meal_fitness_data (
+      console.log("Executing INSERT INTO file_meta_ingest_data...");
+      try {
+        db.prepare(
+          `INSERT INTO participant_meal_fitness_data (
                 db_file_id, tenant_id, study_display_id, fitness_meal_id, 
                 participant_display_id, meal_data, fitness_data
             )
             VALUES (?, ?, ?, ?,?,?,?);`,
-              ).run(
-                studyMetadata.db_file_id,
-                studyMetadata.tenant_id,
-                studyMetadata.study_display_id,
-                fitness_meal_id,
-                participant_id,
-                mealDataJson,
-                fitnessDataJson,
-              );
-              console.log("Data successfully inserted ");
-            } catch (error) {
-              console.error("Error inserting data:", error);
-            }
-          }
-            
-    })();
+        ).run(
+          studyMetadata.db_file_id,
+          studyMetadata.tenant_id,
+          studyMetadata.study_display_id,
+          fitness_meal_id,
+          participant_id,
+          mealDataJson,
+          fitnessDataJson,
+        );
+        console.log("Data successfully inserted ");
+      } catch (error) {
+        console.error("Error inserting data:", error);
+      }
+    }
+  })();
 
-    db.close();
-    return mealJson;
+  db.close();
+  return mealJson;
 }
-
 
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
@@ -1023,8 +1030,8 @@ if (import.meta.main) {
     generateCombinedRTCCGMSQL,
     saveCTRJsonCgm,
     savertccgmJsonCgm,
-    saveJsonCgm,    
-    generateMealFitnessJson
+    saveJsonCgm,
+    generateMealFitnessJson,
   };
 
   // Check if the function exists
