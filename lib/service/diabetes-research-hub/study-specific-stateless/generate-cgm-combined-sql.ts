@@ -117,7 +117,7 @@ export async function saveJsonCgm(dbFilePath: string): string {
   );
   const tableExists = checkTableStmt.get(tableName);
   // Debugging output
-  console.log("🔍 Table Check Result:", tableExists);
+  //console.log(" Table Check Result:", tableExists);
 
   if (!tableExists) {
     console.error(
