@@ -1073,18 +1073,6 @@ Ask your system administrator to establish the recommended configuration via GP,
     ];
   }
 
-  @osQueryMsCell(
-    {
-      description: "All running processes on the host system.",
-    },
-    ["macos", "windows", "linux"],
-    false,
-    ["del(.columns.elapsed_time, .columns.system_time, .columns.user_time, .columns.disk_bytes_read, .columns.resident_size)"],
-  )
-  "All Processes"() {
-    return `select * from processes`;
-  }
-
   @osQueryMsCell({
     description: "System information for identification.",
   })
@@ -1240,7 +1228,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     description: "Processes with listening (bound) network sockets/ports.",
   })
   "Listening Ports"() {
-    return `SELECT address, family, net_namespace, path, pid, port, protocol, socket FROM listening_ports`;
+    return `SELECT l.port, l.pid, p.name, p.path FROM listening_ports l JOIN processes p USING (pid);`;
   }
 
   @osQueryMsCell(
