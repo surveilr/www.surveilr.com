@@ -2,8 +2,7 @@
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
-import { Buffer } from "node:buffer"; // Needed for Node.js environments
-import { rtccgmSQL } from "../dataset-specific-package/rtccgm-package.sql.ts";
+
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -117,6 +116,9 @@ export async function saveJsonCgm(dbFilePath: string): string {
     `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
   );
   const tableExists = checkTableStmt.get(tableName);
+  // Debugging output
+  console.log("🔍 Table Check Result:", tableExists);
+
   if (!tableExists) {
     console.error(
       `The required table "${tableName}" does not exist. `,
@@ -896,7 +898,8 @@ export function generateMealFitnessJson(dbFilePath: string) {
         SELECT participant_id FROM uniform_resource_fitness_data
     `).all();
 
-    console.log(`🔍 Found ${participantIds.length} participants with data.`);
+
+    
 
     // Step 3: Get study metadata (single-row values)
     const studyMetadata: { db_file_id: string; tenant_id: string; study_display_id: string } = db.prepare(`
@@ -906,17 +909,17 @@ export function generateMealFitnessJson(dbFilePath: string) {
             COALESCE((SELECT study_id FROM uniform_resource_study LIMIT 1), 'UNKNOWN') AS study_display_id
     `).get() || { db_file_id: 'UNKNOWN', tenant_id: 'UNKNOWN', study_display_id: 'UNKNOWN' };
 
-    console.log("📌 studyMetadata:", studyMetadata);  
+    // console.log(" studyMetadata:", studyMetadata);  
 
     if (!studyMetadata.db_file_id || studyMetadata.db_file_id === 'UNKNOWN') {
         console.error("❌ ERROR: Missing db_file_id. Check database records.");
         return;
     }
 
-    console.log("🟢 Preparing to insert participant data...");
-    console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
-    console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
-    console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
+    // console.log("🟢 Preparing to insert participant data...");
+    // console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
+    // console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
+    // console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
 
     // // Step 4: Prepare insert statement (NO conflict update)
     // const insertStmt = db.prepare(`
@@ -931,7 +934,7 @@ export function generateMealFitnessJson(dbFilePath: string) {
     // Step 5: Loop through each participant and insert JSON
     db.transaction(() => {
         for (const { participant_id } of participantIds) {
-            console.log(`🔄 Processing participant: ${participant_id}`);
+            //console.log(`🔄 Processing participant: ${participant_id}`);
 
             // Fetch meal data
             const meals = db.prepare(`
@@ -971,15 +974,15 @@ export function generateMealFitnessJson(dbFilePath: string) {
             // Generate a ULID for `fitness_meal_id`
             const fitness_meal_id = ulid();
 
-            console.log("📌 Insert Data:", {
-                db_file_id: studyMetadata.db_file_id,
-                tenant_id: studyMetadata.tenant_id,
-                study_display_id: studyMetadata.study_display_id,
-                fitness_meal_id,
-                participant_display_id: participant_id,
-                meal_data: mealDataJson,
-                fitness_data: fitnessDataJson
-            });
+            // console.log("📌 Insert Data:", {
+            //     db_file_id: studyMetadata.db_file_id,
+            //     tenant_id: studyMetadata.tenant_id,
+            //     study_display_id: studyMetadata.study_display_id,
+            //     fitness_meal_id,
+            //     participant_display_id: participant_id,
+            //     meal_data: mealDataJson,
+            //     fitness_data: fitnessDataJson
+            // });
 
 
             console.log("Executing INSERT INTO file_meta_ingest_data...");

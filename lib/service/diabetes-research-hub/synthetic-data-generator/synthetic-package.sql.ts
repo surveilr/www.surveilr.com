@@ -5,18 +5,18 @@ import { saveJsonCgm,generateMealFitnessJson } from "../study-specific-stateless
 
 export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
 
-  async savecgmSQL() {
-      const dbFilePath = "./resource-surveillance.sqlite.db";
-      const sqlStatements = saveJsonCgm(dbFilePath);
-      return await sqlStatements;
-    }
+  // async savecgmSQL() {
+  //     const dbFilePath = "./resource-surveillance.sqlite.db";
+  //     const sqlStatements = saveJsonCgm(dbFilePath);
+  //     return await sqlStatements;
+  //   }
 
 
-    savemealDDL() {
-        const dbFilePath = "./resource-surveillance.sqlite.db";
-        const jsonstmts = generateMealFitnessJson(dbFilePath);
-        return jsonstmts;
-      }
+  //   async savemealDDL() {
+  //       const dbFilePath = "./resource-surveillance.sqlite.db";
+  //       const jsonstmts = generateMealFitnessJson(dbFilePath);
+  //       return await jsonstmts;
+  //     }
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
