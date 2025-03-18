@@ -1754,87 +1754,73 @@ RENAME COLUMN participant_id TO participant_display_id;
 
 CREATE TABLE study_meta_data AS
 SELECT
-    (SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS db_file_id,  
-    lower(hex(randomblob(16))) AS study_meta_id,
-    (
-        SELECT party_id
-        FROM party
-        LIMIT 1
-    ) AS tenant_id, 
-    s.study_id AS study_display_id,
-    s.study_name,
-    s.start_date,
-    s.end_date,
-    s.treatment_modalities,
-    s.funding_source,
-    s.nct_number,
-    s.study_description,   
-  
-    -- Investigators as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'investigator_name', i.investigator_name,
-                'email', i.email,
-                'institution_id', i.institution_id
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_investigator i) AS investigators,
+    CAST((SELECT db_file_id FROM file_meta_ingest_data LIMIT 1) AS TEXT) AS db_file_id,  
+    CAST(lower(hex(randomblob(16))) AS TEXT) AS study_meta_id,
+    CAST((SELECT party_id FROM party LIMIT 1) AS TEXT) AS tenant_id, 
+    CAST(s.study_id AS TEXT) AS study_display_id,
+    CAST(s.study_name AS TEXT) AS study_name,
+    CAST(s.start_date AS TEXT) AS start_date,
+    CAST(s.end_date AS TEXT) AS end_date,
+    CAST(s.treatment_modalities AS TEXT) AS treatment_modalities,
+    CAST(s.funding_source AS TEXT) AS funding_source,
+    CAST(s.nct_number AS TEXT) AS nct_number,
+    CAST(s.study_description AS TEXT) AS study_description,  
+    -- Investigators as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'investigator_name', i.investigator_name,
+            'email', i.email,
+            'institution_id', i.institution_id
+        )
+     ) FROM uniform_resource_investigator i) AS TEXT) AS investigators,
 
-    -- Publications as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'title', p.publication_title,
-                'doi', p.digital_object_identifier,
-                'publication_site', p.publication_site
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_publication p ) AS publications,
+    -- Publications as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'title', p.publication_title,
+            'doi', p.digital_object_identifier,
+            'publication_site', p.publication_site
+        )
+     ) FROM uniform_resource_publication p) AS TEXT) AS publications,
 
-    -- Authors as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'name', a.name,
-                'email', a.email,
-                'investigator_id', a.investigator_id
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_author a ) AS authors,
+    -- Authors as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'name', a.name,
+            'email', a.email,
+            'investigator_id', a.investigator_id
+        )
+     ) FROM uniform_resource_author a) AS TEXT) AS authors,
 
-    -- Institutions as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'name', iv.institution_name,
-                'city', iv.city,
-                'state', iv.state,
-                'country', iv.country
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_institution iv ) AS institutions,
+    -- Institutions as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'name', iv.institution_name,
+            'city', iv.city,
+            'state', iv.state,
+            'country', iv.country
+        )
+     ) FROM uniform_resource_institution iv) AS TEXT) AS institutions,
 
-    -- Labs as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'lab_name', l.lab_name,
-                'lab_pi', l.lab_pi,
-                'institution_id', l.institution_id
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_lab l ) AS labs,
+    -- Labs as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'lab_name', l.lab_name,
+            'lab_pi', l.lab_pi,
+            'institution_id', l.institution_id
+        )
+     ) FROM uniform_resource_lab l) AS TEXT) AS labs,
 
-    -- Sites as JSON Array
-    (SELECT 
-        '[' || GROUP_CONCAT(
-            JSON_OBJECT(
-                'site_name', si.site_name,
-                'site_type', si.site_type
-            )
-        , ', ') || ']' 
-     FROM uniform_resource_site si ) AS sites
+    -- Sites as JSON Array (Text)
+    CAST((SELECT JSON_GROUP_ARRAY(
+        JSON_OBJECT(
+            'site_name', si.site_name,
+            'site_type', si.site_type
+        )
+     ) FROM uniform_resource_site si) AS TEXT) AS sites,
+     
+    -- Mark studies as synthetic or real in JSON format
+    CAST(JSON_OBJECT('type', 'real' ) AS TEXT) AS elaboration
 
 FROM uniform_resource_study s;
 
