@@ -2,8 +2,7 @@
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
-import { Buffer } from "node:buffer"; // Needed for Node.js environments
-import { rtccgmSQL } from "../dataset-specific-package/rtccgm-package.sql.ts";
+
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -117,6 +116,9 @@ export async function saveJsonCgm(dbFilePath: string): string {
     `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
   );
   const tableExists = checkTableStmt.get(tableName);
+  // Debugging output
+  console.log("🔍 Table Check Result:", tableExists);
+
   if (!tableExists) {
     console.error(
       `The required table "${tableName}" does not exist. `,
@@ -895,8 +897,6 @@ export function generateMealFitnessJson(dbFilePath: string) {
         SELECT participant_id FROM uniform_resource_fitness_data
     `).all();
 
-  console.log(`🔍 Found ${participantIds.length} participants with data.`);
-
   // Step 3: Get study metadata (single-row values)
   const studyMetadata: {
     db_file_id: string;
@@ -914,35 +914,36 @@ export function generateMealFitnessJson(dbFilePath: string) {
       study_display_id: "UNKNOWN",
     };
 
-  console.log("📌 studyMetadata:", studyMetadata);
 
   if (!studyMetadata.db_file_id || studyMetadata.db_file_id === "UNKNOWN") {
     console.error("❌ ERROR: Missing db_file_id. Check database records.");
     return;
   }
 
-  console.log("🟢 Preparing to insert participant data...");
-  console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
-  console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
-  console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
 
-  // // Step 4: Prepare insert statement (NO conflict update)
-  // const insertStmt = db.prepare(`
-  //     INSERT INTO participant_meal_fitness_data (
-  //         db_file_id, tenant_id, study_display_id, fitness_meal_id,
-  //         participant_display_id, meal_data, fitness_data
-  //     )
-  //     VALUES (@db_file_id, @tenant_id, @study_display_id, @fitness_meal_id,
-  //             @participant_display_id, @meal_data, @fitness_data);
-  // `);
+    // console.log("🟢 Preparing to insert participant data...");
+    // console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
+    // console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
+    // console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
 
-  // Step 5: Loop through each participant and insert JSON
-  db.transaction(() => {
-    for (const { participant_id } of participantIds) {
-      console.log(`🔄 Processing participant: ${participant_id}`);
+    // // Step 4: Prepare insert statement (NO conflict update)
+    // const insertStmt = db.prepare(`
+    //     INSERT INTO participant_meal_fitness_data (
+    //         db_file_id, tenant_id, study_display_id, fitness_meal_id, 
+    //         participant_display_id, meal_data, fitness_data
+    //     )
+    //     VALUES (@db_file_id, @tenant_id, @study_display_id, @fitness_meal_id, 
+    //             @participant_display_id, @meal_data, @fitness_data);
+    // `);
 
-      // Fetch meal data
-      const meals = db.prepare(`
+    // Step 5: Loop through each participant and insert JSON
+    db.transaction(() => {
+        for (const { participant_id } of participantIds) {
+            //console.log(`🔄 Processing participant: ${participant_id}`);
+
+            // Fetch meal data
+            const meals = db.prepare(`
+
                 SELECT json_group_array(json_object(
                     'meal_id', meal_id,
                     'meal_time', meal_time,
@@ -966,35 +967,35 @@ export function generateMealFitnessJson(dbFilePath: string) {
                 WHERE participant_id = ?
             `).get(participant_id) as { fitness_data: string | null };
 
-      // Ensure empty arrays for missing data
-      const mealDataJson = meals.meal_data ?? "[]";
-      const fitnessDataJson = fitness.fitness_data ?? "[]";
 
-      // Skip insert if both meal and fitness data are empty
-      if (mealDataJson === "[]" && fitnessDataJson === "[]") {
-        console.warn(
-          `⚠️ Skipping participant ${participant_id} - No data found.`,
-        );
-        continue;
-      }
+            // Ensure empty arrays for missing data
+            const mealDataJson = meals.meal_data ?? '[]';
+            const fitnessDataJson = fitness.fitness_data ?? '[]';
 
-      // Generate a ULID for `fitness_meal_id`
-      const fitness_meal_id = ulid();
+            // Skip insert if both meal and fitness data are empty
+            if (mealDataJson === '[]' && fitnessDataJson === '[]') {
+                console.warn(`⚠️ Skipping participant ${participant_id} - No data found.`);
+                continue;
+            }
 
-      console.log("📌 Insert Data:", {
-        db_file_id: studyMetadata.db_file_id,
-        tenant_id: studyMetadata.tenant_id,
-        study_display_id: studyMetadata.study_display_id,
-        fitness_meal_id,
-        participant_display_id: participant_id,
-        meal_data: mealDataJson,
-        fitness_data: fitnessDataJson,
-      });
+            // Generate a ULID for `fitness_meal_id`
+            const fitness_meal_id = ulid();
 
-      console.log("Executing INSERT INTO file_meta_ingest_data...");
-      try {
-        db.prepare(
-          `INSERT INTO participant_meal_fitness_data (
+            // console.log("📌 Insert Data:", {
+            //     db_file_id: studyMetadata.db_file_id,
+            //     tenant_id: studyMetadata.tenant_id,
+            //     study_display_id: studyMetadata.study_display_id,
+            //     fitness_meal_id,
+            //     participant_display_id: participant_id,
+            //     meal_data: mealDataJson,
+            //     fitness_data: fitnessDataJson
+            // });
+
+
+            console.log("Executing INSERT INTO file_meta_ingest_data...");
+            try {
+              db.prepare(
+                `INSERT INTO participant_meal_fitness_data (
                 db_file_id, tenant_id, study_display_id, fitness_meal_id, 
                 participant_display_id, meal_data, fitness_data
             )
