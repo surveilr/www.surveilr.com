@@ -3,7 +3,7 @@ import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
-import {generateMealFitnessJson } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
+import { generateMealFitnessJson } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export async function saveJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
@@ -122,10 +122,10 @@ export class wadaSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   async savemealDDL() {
-      const dbFilePath = "./resource-surveillance.sqlite.db";
-      const jsonstmts = generateMealFitnessJson(dbFilePath);
-      return await jsonstmts;
-    }
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const jsonstmts = generateMealFitnessJson(dbFilePath);
+    return await jsonstmts;
+  }
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {

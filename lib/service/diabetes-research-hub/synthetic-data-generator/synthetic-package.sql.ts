@@ -1,9 +1,13 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
-import { saveJsonCgm,generateMealFitnessJson } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
+import {
+  generateMealFitnessJson,
+  saveJsonCgm,
+} from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
+
 
   // async savecgmSQL() {
   //     const dbFilePath = "./resource-surveillance.sqlite.db";
@@ -17,6 +21,7 @@ export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
   //       const jsonstmts = generateMealFitnessJson(dbFilePath);
   //       return await jsonstmts;
   //     }
+
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
