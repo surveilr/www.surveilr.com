@@ -2,6 +2,7 @@
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import { processIEOGCgm } from "../study-specific-stateless/ieogc-ingest-data-sql.ts";
+import { saveJsonCgm,generateMealFitnessJson } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class ieogcSqlPages extends spn.TypicalSqlPageNotebook {
   savecgmDDL() {
@@ -9,6 +10,12 @@ export class ieogcSqlPages extends spn.TypicalSqlPageNotebook {
     const jsonstmts = processIEOGCgm(dbFilePath);
     return jsonstmts;
   }
+
+  savemealDDL() {
+          const dbFilePath = "./resource-surveillance.sqlite.db";
+          const jsonstmts = generateMealFitnessJson(dbFilePath);
+          return jsonstmts;
+        }
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {
