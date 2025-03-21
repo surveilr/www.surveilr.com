@@ -197,6 +197,6 @@ export default defineConfig({
   output: "static",
   experimental: {
     clientPrerender: true,
-    directRenderScript: true,
+    // directRenderScript: true,
   },
 });
