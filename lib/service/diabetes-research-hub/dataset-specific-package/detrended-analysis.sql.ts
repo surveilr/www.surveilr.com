@@ -13,6 +13,12 @@ export class detrendedSqlPages extends spn.TypicalSqlPageNotebook {
     return jsonstmts;
   }
 
+  savemealDDL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const jsonstmts = generateMealFitnessJson(dbFilePath);
+    return jsonstmts;
+  }
+
   detrendedViewDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const sqlStatements = generateDetrendedDSCombinedCGMViewSQL(dbFilePath);

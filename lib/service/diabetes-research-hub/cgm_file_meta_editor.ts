@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
     const __dirname = dirname(fileURLToPath(import.meta.url));
 
     // Define the folder and file path
-    const folderPath = join(__dirname, "wadwa"); // Adjust folder name as needed
+    const folderPath = join(__dirname, "de-trended-analysis-files"); // Adjust folder name as needed
     const fileName = "cgm_file_metadata.csv";
     const filePath = join(folderPath, fileName);
 
@@ -33,7 +33,7 @@ import { fileURLToPath } from "node:url";
       if (index === 0 || line.trim() === "") return line; // Keep header and empty lines unchanged
 
       const columns = line.split(",");
-      columns[sourcePlatformIndex] = "Dexcom"; // Update 'source_platform' column
+      columns[sourcePlatformIndex] = "Medtronic"; // Update 'source_platform' column
       return columns.join(",");
     });
 
