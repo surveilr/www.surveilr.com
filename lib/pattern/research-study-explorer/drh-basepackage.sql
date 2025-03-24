@@ -122,7 +122,6 @@ SELECT name,
 FROM dbstat
 GROUP BY name;
 
-
 DROP VIEW IF EXISTS rssd_table_statistic;
 CREATE VIEW rssd_table_statistic AS
 SELECT 
