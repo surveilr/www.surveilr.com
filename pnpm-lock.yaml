@@ -36,8 +36,8 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       '@preline/overlay':
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^3.0.0
+        version: 3.0.0
       '@preline/tabs':
         specifier: ^2.5.2
         version: 2.5.2
@@ -888,8 +888,8 @@ packages:
   '@preline/dropdown@2.6.0':
     resolution: {integrity: sha512-Ryjeo0tOnsxzT9dI1S4gybUwTcvQPszVTqxmxry1yxIaKWzpom2As/AFoYETZ/8EbdQxr7G6CQj4d0Fw+9u+mA==}
 
-  '@preline/overlay@2.6.0':
-    resolution: {integrity: sha512-UHwvQ/urc9JXkepINlFUXYYZg6Z4FMKyN2YO/2Kn7mCbpY+QbXtoRBvq+8j9aC2MFOvV6HQhm1yLbCibt1qwFA==}
+  '@preline/overlay@3.0.0':
+    resolution: {integrity: sha512-68+h4Z5CMCUUPkreNGGCQSx7Nh5BNFpj3LADW8GrdjqNleHHMm+o0weq9No2GSauWrrXaVWnPUveeFSw7ofGlQ==}
 
   '@preline/tabs@2.5.2':
     resolution: {integrity: sha512-fF6rPN+dCX7XV9nnYCWSShuMdJzOzs7DfA5/2ale/TR7Pa/pleGpUXkwuKoTsxdNeSdVymN9p9u9nfpkxdPrZg==}
@@ -4773,7 +4773,7 @@ snapshots:
 
   '@preline/dropdown@2.6.0': {}
 
-  '@preline/overlay@2.6.0': {}
+  '@preline/overlay@3.0.0': {}
 
   '@preline/tabs@2.5.2': {}
 
