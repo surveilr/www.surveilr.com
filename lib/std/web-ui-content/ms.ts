@@ -14,134 +14,38 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
-  surveilr_osquery_ms_node_process() {
-    return this.SQL`
-      DROP VIEW IF EXISTS surveilr_osquery_ms_node_process;
-      CREATE VIEW surveilr_osquery_ms_node_process AS
-      SELECT
-          l.node_key,
-          l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.cgroup_path') AS cgroup_path,
-          json_extract(l.log_data, '$.columns.cmdline') AS cmdline,
-          json_extract(l.log_data, '$.columns.cwd') AS cwd,
-          json_extract(l.log_data, '$.columns.disk_bytes_read') AS disk_bytes_read,
-          json_extract(l.log_data, '$.columns.disk_bytes_written') AS disk_bytes_written,
-          json_extract(l.log_data, '$.columns.egid') AS egid,
-          json_extract(l.log_data, '$.columns.euid') AS euid,
-          json_extract(l.log_data, '$.columns.gid') AS gid,
-          json_extract(l.log_data, '$.columns.name') AS process_name,
-          json_extract(l.log_data, '$.columns.nice') AS nice,
-          json_extract(l.log_data, '$.columns.on_disk') AS on_disk,
-          json_extract(l.log_data, '$.columns.parent') AS parent,
-          json_extract(l.log_data, '$.columns.path') AS process_name,
-          json_extract(l.log_data, '$.columns.pgroup') AS pgroup,
-          json_extract(l.log_data, '$.columns.pid') AS pid,
-          json_extract(l.log_data, '$.columns.resident_size') AS resident_size,
-          json_extract(l.log_data, '$.columns.root') AS root,
-          json_extract(l.log_data, '$.columns.sgid') AS sgid,
-          json_extract(l.log_data, '$.columns.start_time') AS start_time,
-          json_extract(l.log_data, '$.columns.state') AS state,
-          json_extract(l.log_data, '$.columns.suid') AS suid,
-          json_extract(l.log_data, '$.columns.system_time') AS system_time,
-          json_extract(l.log_data, '$.columns.threads') AS threads,
-          json_extract(l.log_data, '$.columns.total_size') AS total_size,
-          json_extract(l.log_data, '$.columns.uid') AS uid,
-          json_extract(l.log_data, '$.columns.user_time') AS user_time,
-          json_extract(l.log_data, '$.columns.wired_size') AS wired_size
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-          AND json_extract(l.log_data, '$.name') = 'All Processes';
-    `;
-  }
-
-  surveilr_osquery_ms_node_interface_detail() {
-    return this.SQL`
-        DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_detail;
-        CREATE VIEW surveilr_osquery_ms_node_interface_detail AS
-        SELECT
-            l.node_key,
-            l.updated_at,
-            json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-            json_extract(l.log_data, '$.columns.collisions') AS collisions,
-            json_extract(l.log_data, '$.columns.flags') AS flags,
-            json_extract(l.log_data, '$.columns.ibytes') AS ibytes,
-            json_extract(l.log_data, '$.columns.idrops') AS idrops,
-            json_extract(l.log_data, '$.columns.ierrors') AS ierrors,
-            json_extract(l.log_data, '$.columns.interface') AS interface,
-            json_extract(l.log_data, '$.columns.ipackets') AS ipackets,
-            json_extract(l.log_data, '$.columns.last_change') AS last_change,
-            json_extract(l.log_data, '$.columns.link_speed') AS link_speed,
-            json_extract(l.log_data, '$.columns.mac') AS mac,
-            json_extract(l.log_data, '$.columns.metric') AS metric,
-            json_extract(l.log_data, '$.columns.mtu') AS mtu,
-            json_extract(l.log_data, '$.columns.obytes') AS obytes,
-            json_extract(l.log_data, '$.columns.odrops') AS odrops,
-            json_extract(l.log_data, '$.columns.oerrors') AS oerrors,
-            json_extract(l.log_data, '$.columns.opackets') AS opackets,
-            json_extract(l.log_data, '$.columns.pci_slot') AS pci_slot,
-            json_extract(l.log_data, '$.columns.type') AS type
-        FROM ur_ingest_session_osquery_ms_log AS l
-        WHERE l.log_type = 'result'
-        AND json_extract(l.log_data, '$.name') = 'Interface Details';
-
-    `;
-  }
-
-  surveilr_osquery_ms_node_listening_port() {
-    return this.SQL`
-      DROP VIEW IF EXISTS surveilr_osquery_ms_node_listening_port;
-      CREATE VIEW surveilr_osquery_ms_node_listening_port AS
-      SELECT
-          l.node_key,
-          l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.family') AS family,
-          json_extract(l.log_data, '$.columns.fd') AS fd,
-          json_extract(l.log_data, '$.columns.address') AS address,
-          json_extract(l.log_data, '$.columns.port') AS port,
-          json_extract(l.log_data, '$.columns.net_namespace') AS net_namespace,
-          json_extract(l.log_data, '$.columns.path') AS path,
-          json_extract(l.log_data, '$.columns.pid') AS pid,
-          json_extract(l.log_data, '$.columns.protocol') AS protocol,
-          json_extract(l.log_data, '$.columns.socket') AS socket
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-      AND json_extract(l.log_data, '$.name') = 'Listening Ports';
-    `;
-  }
-
   surveilr_osquery_ms_node_system_info() {
     return this.SQL`
       DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
       CREATE VIEW surveilr_osquery_ms_node_system_info AS
       SELECT
-          l.node_key,
+          json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
           l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.board_model') AS board_model,
-          json_extract(l.log_data, '$.columns.board_serial') AS board_serial,
-          json_extract(l.log_data, '$.columns.board_vendor') AS board_vendor,
-          json_extract(l.log_data, '$.columns.board_version') AS board_version,
-          json_extract(l.log_data, '$.columns.computer_name') AS computer_name,
-          json_extract(l.log_data, '$.columns.cpu_brand') AS cpu_brand,
-          json_extract(l.log_data, '$.columns.cpu_logical_cores') AS cpu_logical_cores,
-          json_extract(l.log_data, '$.columns.cpu_microcode') AS cpu_microcode,
-          json_extract(l.log_data, '$.columns.cpu_physical_cores') AS cpu_physical_cores,
-          json_extract(l.log_data, '$.columns.cpu_sockets') AS cpu_sockets,
-          json_extract(l.log_data, '$.columns.cpu_subtype') AS cpu_subtype,
-          json_extract(l.log_data, '$.columns.cpu_type') AS cpu_type,
-          json_extract(l.log_data, '$.columns.hardware_model') AS hardware_model,
-          json_extract(l.log_data, '$.columns.hardware_serial') AS hardware_serial,
-          json_extract(l.log_data, '$.columns.hardware_vendor') AS hardware_vendor,
-          json_extract(l.log_data, '$.columns.hardware_version') AS hardware_version,
-          json_extract(l.log_data, '$.columns.hostname') AS hostname,
-          json_extract(l.log_data, '$.columns.local_hostname') AS local_hostname,
-          json_extract(l.log_data, '$.columns.physical_memory') AS physical_memory,
-          json_extract(l.log_data, '$.columns.uuid') AS uuid
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-      AND json_extract(l.log_data, '$.name') = 'System Information';
+          json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+          json_extract(l.content, '$.columns.board_model') AS board_model,
+          json_extract(l.content, '$.columns.board_serial') AS board_serial,
+          json_extract(l.content, '$.columns.board_vendor') AS board_vendor,
+          json_extract(l.content, '$.columns.board_version') AS board_version,
+          json_extract(l.content, '$.columns.computer_name') AS computer_name,
+          json_extract(l.content, '$.columns.cpu_brand') AS cpu_brand,
+          json_extract(l.content, '$.columns.cpu_logical_cores') AS cpu_logical_cores,
+          json_extract(l.content, '$.columns.cpu_microcode') AS cpu_microcode,
+          json_extract(l.content, '$.columns.cpu_physical_cores') AS cpu_physical_cores,
+          json_extract(l.content, '$.columns.cpu_sockets') AS cpu_sockets,
+          json_extract(l.content, '$.columns.cpu_subtype') AS cpu_subtype,
+          json_extract(l.content, '$.columns.cpu_type') AS cpu_type,
+          json_extract(l.content, '$.columns.hardware_model') AS hardware_model,
+          json_extract(l.content, '$.columns.hardware_serial') AS hardware_serial,
+          json_extract(l.content, '$.columns.hardware_vendor') AS hardware_vendor,
+          json_extract(l.content, '$.columns.hardware_version') AS hardware_version,
+          json_extract(l.content, '$.columns.hostname') AS hostname,
+          json_extract(l.content, '$.columns.local_hostname') AS local_hostname,
+          json_extract(l.content, '$.columns.physical_memory') AS physical_memory,
+          json_extract(l.content, '$.columns.uuid') AS uuid
+      FROM uniform_resource AS l
+
+      WHERE l.uri = 'osquery-ms:query-result'
+      AND json_extract(l.content, '$.name') = 'System Information';
     `;
   }
 
@@ -150,42 +54,43 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
       CREATE VIEW surveilr_osquery_ms_node_os_version AS
       SELECT
-          l.node_key,
+          json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
           l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.name') AS name,
-          json_extract(l.log_data, '$.columns.version') AS version,
-          json_extract(l.log_data, '$.columns.major') AS major,
-          json_extract(l.log_data, '$.columns.minor') AS minor,
-          json_extract(l.log_data, '$.columns.patch') AS patch,
-          json_extract(l.log_data, '$.columns.build') AS build,
-          json_extract(l.log_data, '$.columns.platform') AS platform,
-          json_extract(l.log_data, '$.columns.platform_like') AS platform_like,
-          json_extract(l.log_data, '$.columns.codename') AS codename,
-          json_extract(l.log_data, '$.columns.arch') AS arch
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-      AND json_extract(l.log_data, '$.name') = 'OS Version';
+          json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+          json_extract(l.content, '$.columns.arch') AS arch,
+          json_extract(l.content, '$.columns.build') AS build,
+          json_extract(l.content, '$.columns.extra') AS extra,
+          json_extract(l.content, '$.columns.kernel_version') AS kernel_version,
+          json_extract(l.content, '$.columns.major') AS major,
+          json_extract(l.content, '$.columns.minor') AS minor,
+          json_extract(l.content, '$.columns.name') AS name,
+          json_extract(l.content, '$.columns.patch') AS patch,
+          json_extract(l.content, '$.columns.platform') AS platform,
+          json_extract(l.content, '$.columns.version') AS version
+      FROM uniform_resource AS l
+
+      WHERE l.uri = 'osquery-ms:query-result'
+      AND (json_extract(l.content, '$.name') = 'OS Version (Linux and Macos)'
+              OR json_extract(l.content, '$.name') = 'OS Version (Windows)');
     `;
   }
 
   surveilr_osquery_ms_node_interface_address() {
     return this.SQL`
-        DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
-        CREATE VIEW surveilr_osquery_ms_node_interface_address AS
-        SELECT
-            l.node_key,
-            l.updated_at,
-            json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-            json_extract(l.log_data, '$.columns.address') AS address,
-            json_extract(l.log_data, '$.columns.broadcast') AS broadcast,
-            json_extract(l.log_data, '$.columns.interface') AS interface,
-            json_extract(l.log_data, '$.columns.mask') AS mask,
-            json_extract(l.log_data, '$.columns.point_to_point') AS point_to_point,
-            json_extract(l.log_data, '$.columns.type') AS type
-        FROM ur_ingest_session_osquery_ms_log AS l
-        WHERE l.log_type = 'result'
-        AND json_extract(l.log_data, '$.name') = 'Interface Addresses';
+      DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
+      CREATE VIEW surveilr_osquery_ms_node_interface_address AS
+      SELECT
+          json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+          l.updated_at,
+          json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+          json_extract(l.content, '$.columns.address') AS address,
+          json_extract(l.content, '$.columns.mac') AS mac
+      FROM uniform_resource AS l
+      WHERE l.uri = 'osquery-ms:query-result'
+        AND (
+            json_extract(l.content, '$.name') = 'Network Interfaces (Linux and Macos)'
+            OR json_extract(l.content, '$.name') = 'Network Interfaces (Windows)'
+        );
     `;
   }
 
@@ -194,19 +99,18 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
       CREATE VIEW surveilr_osquery_ms_node_uptime AS
       SELECT
-          l.node_key,
+          json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
           l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.days') AS days,
-          json_extract(l.log_data, '$.columns.hours') AS hours,
-          json_extract(l.log_data, '$.columns.minutes') AS minutes,
-          json_extract(l.log_data, '$.columns.seconds') AS seconds,
-          json_extract(l.log_data, '$.columns.total_seconds') AS total_seconds
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-      AND json_extract(l.log_data, '$.name') = 'Server Uptime'
-      ORDER BY l.created_at DESC
-      LIMIT 1;
+          json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+          json_extract(l.content, '$.columns.days') AS days,
+          json_extract(l.content, '$.columns.hours') AS hours,
+          json_extract(l.content, '$.columns.minutes') AS minutes,
+          json_extract(l.content, '$.columns.seconds') AS seconds,
+          json_extract(l.content, '$.columns.total_seconds') AS total_seconds
+      FROM uniform_resource AS l
+      WHERE l.uri = 'osquery-ms:query-result'
+        AND json_extract(l.content, '$.name') = 'Server Uptime'
+      ORDER BY l.created_at DESC;
     `;
   }
 
@@ -215,16 +119,37 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
       DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
       CREATE VIEW surveilr_osquery_ms_node_available_space AS
       SELECT
-          l.node_key,
+          json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
           l.updated_at,
-          json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-          json_extract(l.log_data, '$.columns.available_space') AS available_space,
-          json_extract(l.log_data, '$.columns.path') AS path
-      FROM ur_ingest_session_osquery_ms_log AS l
-      WHERE l.log_type = 'result'
-      AND json_extract(l.log_data, '$.name') = 'Available Disk Space'
-      ORDER BY l.created_at DESC
-      LIMIT 1;
+          json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+          json_extract(l.content, '$.columns.gigs_disk_space_available') AS available_space,
+          json_extract(l.content, '$.columns.gigs_total_disk_space') AS gigs_total_disk_space,
+          json_extract(l.content, '$.columns.percent_disk_space_available') AS percent_disk_space_available
+      FROM uniform_resource AS l
+      WHERE l.uri = 'osquery-ms:query-result'
+        AND (
+            json_extract(l.content, '$.name') = 'Available Disk Space (Linux and Macos)'
+            OR json_extract(l.content, '$.name') = 'Available Disk Space (Windows)'
+        )
+      ORDER BY l.created_at DESC;
+    `;
+  }
+
+  surveilr_osquery_ms_node_boundary() {
+    return this.SQL`
+    DROP VIEW IF EXISTS surveilr_osquery_ms_node_boundary;
+    CREATE VIEW surveilr_osquery_ms_node_boundary AS
+    SELECT
+        json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+        l.updated_at,
+        json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+        json_extract(l.content, '$.columns.value') AS boundary
+    FROM uniform_resource AS l
+    WHERE l.uri = 'osquery-ms:query-result'
+      AND (
+          json_extract(l.content, '$.name') = 'osquery-ms Boundary (Linux and Macos)' OR
+          json_extract(l.content, '$.name') = 'osquery-ms Boundary (Windows)'
+      );
     `;
   }
 
@@ -241,56 +166,57 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
           n.created_at,
           i.updated_at,
           i.address AS ip_address,
-          i.broadcast,
-          i.mask,
+          i.mac,
+          b.boundary,
           CASE 
-            WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
-              (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
-            WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
-              ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
-            WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
-              ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
-            ELSE 
-              ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
+                  (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
+                  ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
+                  ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
+              ELSE 
+                  ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
           END AS added_to_surveilr_osquery_ms,
-          o.name || ' ' || o.version AS operating_system,
+          o.name AS operating_system,
           round(a.available_space, 2) || ' GB' AS available_space,
           CASE 
-            WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
-            ELSE 'Offline'
+              WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
+              ELSE 'Offline'
           END AS node_status,
           CASE 
-            WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
-              (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
-            WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
-              ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
-            WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
-              ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
-            ELSE 
-              ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
+                  (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
+                  ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
+              WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
+                  ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
+              ELSE 
+                  ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
           END AS last_fetched,
           CASE
-            WHEN CAST(u.days AS INTEGER) > 0 THEN 
-                'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-            WHEN CAST(u.hours AS INTEGER) > 0 THEN 
-                'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-            WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
-                'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-            ELSE 
-                'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
-          END AS last_restarted
+              WHEN CAST(u.days AS INTEGER) > 0 THEN 
+                  'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+              WHEN CAST(u.hours AS INTEGER) > 0 THEN 
+                  'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+              WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
+                  'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+              ELSE 
+                  'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+          END AS last_restarted,
+          COALESCE(failed_policies.failed_count, 0) AS issues
       FROM surveilr_osquery_ms_node n
-      LEFT JOIN surveilr_osquery_ms_node_available_space a
-        ON n.node_key = a.node_key
-      LEFT JOIN surveilr_osquery_ms_node_os_version o 
-        ON n.node_key = o.node_key
-      LEFT JOIN surveilr_osquery_ms_node_uptime u
-        ON n.node_key = u.node_key
-      LEFT JOIN surveilr_osquery_ms_node_interface_address i
-        ON n.node_key = i.node_key
-          AND i.interface = 'eth0'
-          -- this only selects the IPv4 addresses for now
-          AND i.address LIKE '%.%';
+      LEFT JOIN surveilr_osquery_ms_node_available_space a ON n.node_key = a.node_key
+      LEFT JOIN surveilr_osquery_ms_node_os_version o ON n.node_key = o.node_key
+      LEFT JOIN surveilr_osquery_ms_node_uptime u ON n.node_key = u.node_key
+      LEFT JOIN surveilr_osquery_ms_node_interface_address i ON n.node_key = i.node_key
+      LEFT JOIN surveilr_osquery_ms_node_boundary b ON n.node_key = b.node_key
+      LEFT JOIN (
+          SELECT node_key, COUNT(*) AS failed_count
+          FROM surveilr_osquery_ms_node_executed_policy
+          WHERE policy_result = 'Fail'
+          GROUP BY node_key
+      ) AS failed_policies ON n.node_key = failed_policies.node_key;
     `;
   }
 
@@ -300,25 +226,25 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
 
     CREATE VIEW surveilr_osquery_ms_node_installed_software AS
     SELECT
-        l.node_key,
+        json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
         l.updated_at,
-        json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-        json_extract(l.log_data, '$.columns.name') AS name,
-        json_extract(l.log_data, '$.columns.source') AS source,
-        json_extract(l.log_data, '$.columns.type') AS type,
-        json_extract(l.log_data, '$.columns.version') AS version,
+        json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+        json_extract(l.content, '$.columns.name') AS name,
+        json_extract(l.content, '$.columns.source') AS source,
+        json_extract(l.content, '$.columns.type') AS type,
+        json_extract(l.content, '$.columns.version') AS version,
         CASE
-            WHEN json_extract(l.log_data, '$.name') = 'Installed Linux software' THEN 'linux'
-            WHEN json_extract(l.log_data, '$.name') = 'Installed Macos software' THEN 'macos'
-            WHEN json_extract(l.log_data, '$.name') = 'Installed Windows software' THEN 'windows'
+            WHEN json_extract(l.content, '$.name') = 'Installed Linux software' THEN 'linux'
+            WHEN json_extract(l.content, '$.name') = 'Installed Macos software' THEN 'macos'
+            WHEN json_extract(l.content, '$.name') = 'Installed Windows software' THEN 'windows'
             ELSE 'unknown'
         END AS platform
-    FROM ur_ingest_session_osquery_ms_log AS l
-    WHERE l.log_type = 'result'
+    FROM uniform_resource AS l
+    WHERE l.uri = 'osquery-ms:query-result'
       AND (
-          json_extract(l.log_data, '$.name') = 'Installed Linux software' OR
-          json_extract(l.log_data, '$.name') = 'Installed Macos software' OR
-          json_extract(l.log_data, '$.name') = 'Installed Windows software'
+          json_extract(l.content, '$.name') = 'Installed Linux software' OR
+          json_extract(l.content, '$.name') = 'Installed Macos software' OR
+          json_extract(l.content, '$.name') = 'Installed Windows software'
       );
     `;
   }
@@ -329,15 +255,15 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     CREATE VIEW surveilr_osquery_ms_node_executed_policy AS
     WITH ranked_policies AS (
         SELECT
-            l.node_key,
+            json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
             l.updated_at,
-            json_extract(l.log_data, '$.hostIdentifier') AS host_identifier,
-            json_extract(l.log_data, '$.name') AS policy_name,
-            json_extract(l.log_data, '$.columns.policy_result') AS policy_result,
-            ROW_NUMBER() OVER (PARTITION BY json_extract(l.log_data, '$.name') ORDER BY l.created_at DESC) AS row_num
-        FROM ur_ingest_session_osquery_ms_log AS l
-        WHERE l.log_type = 'result'
-          AND json_extract(l.log_data, '$.name') IN (
+            json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+            json_extract(l.content, '$.name') AS policy_name,
+            json_extract(l.content, '$.columns.policy_result') AS policy_result,
+            ROW_NUMBER() OVER (PARTITION BY json_extract(l.content, '$.name') ORDER BY l.created_at DESC) AS row_num
+        FROM uniform_resource AS l
+        WHERE l.uri = 'osquery-ms:query-result'
+          AND json_extract(l.content, '$.name') IN (
               'SSH keys encrypted', 
               'Full disk encryption enabled (Linux)', 
               'Full disk encryption enabled (Windows)', 
@@ -360,23 +286,21 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     FROM ranked_policies
     JOIN code_notebook_cell c
         ON ranked_policies.policy_name = c.cell_name
-    WHERE ranked_policies.row_num = 1;  -- Only select the most recent entry for each policy
-    `
+    WHERE ranked_policies.row_num = 1;
+    `;
   }
 
   supportDDL() {
     return this.SQL`
-      ${this.surveilr_osquery_ms_node_process()}
-      ${this.surveilr_osquery_ms_node_interface_detail()}   
-      ${this.surveilr_osquery_ms_node_listening_port()}
       ${this.surveilr_osquery_ms_node_system_info()}
       ${this.surveilr_osquery_ms_node_os_version()}
       ${this.surveilr_osquery_ms_node_interface_address()}
       ${this.surveilr_osquery_ms_node_uptime()}
       ${this.surveilr_osquery_ms_node_available_space()}
-      ${this.surveilr_osquery_ms_node_detail()}
       ${this.installed_software_view()}
       ${this.surveilr_osquery_ms_node_executed_policy()}
+      ${this.surveilr_osquery_ms_node_boundary()}
+      ${this.surveilr_osquery_ms_node_detail()}
     `;
   }
 
@@ -389,21 +313,41 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'title' AS component, 'All Registered Nodes' as contents;
         SELECT 'table' AS component,
             'Node' as markdown,
+            'Issues' as markdown,
             TRUE as sort,
             TRUE as search;
 
-        SELECT 
+       SELECT 
           '[' || host_identifier || '](node.sql?key=' || node_key || '&host_id=' || host_identifier || ')' AS "Node",
-          node_status as "Status",
-          0 as "Issues",
+          node_status AS "Status",
+          CONCAT('[', issues, '](node.sql?key=', node_key, '&host_id=', host_identifier, '&tab=policies)') AS "Issues",
           available_space AS "Disk space available",
-          operating_system AS "Operating Sytem",
+          operating_system AS "Operating System",
           osquery_version AS "osQuery Version",
           ip_address AS "IP Address",
-          last_fetched as "Last Fetched",
+          boundary AS "Boundary",
+          '-' AS "Team",
+          last_fetched AS "Last Fetched",
           last_restarted AS "Last Restarted"
-        FROM surveilr_osquery_ms_node_detail;
+      FROM surveilr_osquery_ms_node_detail;
 
+       WITH navigation_cte AS (
+                SELECT COALESCE(title, caption) as title, description
+                    FROM sqlpage_aide_navigation
+                WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("ms")
+    }
+                )
+                SELECT 'list' AS component, title, description
+                    FROM navigation_cte;
+                SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
+                    FROM sqlpage_aide_navigation
+                WHERE namespace = 'prime' AND parent_path =  ${
+      this.constructHomePath("ms")
+    }
+                ORDER BY sibling_order;
         `;
   }
 
@@ -426,33 +370,33 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT 'datagrid' as component;
       SELECT 'Status' as title, "node_status" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
-      SELECT 'Issues' as title, "0" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Issues' as title, "issues" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
       SELECT 'Disk space' as title, "available_space" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
       SELECT 'Memory' as title, ROUND("physical_memory" / (1024 * 1024 * 1024), 2) || ' GB' AS description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
       SELECT 'Processor Type' as title, "cpu_type" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
       SELECT 'Operating system' as title, "operating_system" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
       SELECT 'osQuery' as title, "osquery_version" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Boundary' as title, "boundary" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
 
+      SELECT 'datagrid' as component;
+      SELECT 'Added to surveilr' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Last Restarted' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Hardware Model' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+      SELECT 'Serial Number' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key;
+      SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+      SELECT 'Team' as title, "-" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key;
+  
       -- Define tabs
       SELECT 'tab' AS component, TRUE AS center;
 
-      -- Tab 1: Details
-      SELECT 'Details' AS title, '?tab=details&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'details' AS active;
-
-      -- Tab 2: Software
+      -- Tab 1: Software
       SELECT 'Software' AS title, '?tab=software&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'software' AS active;
 
       -- Tab 2: Software
       SELECT 'Policies' AS title, '?tab=policies&key=' || $key || '&host_id=' || $host_id AS link, $tab = 'policies' AS active;
 
-      -- Tab specific content for Details
-      select 'text' as component, 'About' as title, 2 as size WHERE $tab = 'details' OR $tab IS NULL;
-      SELECT 'datagrid' as component WHERE $tab = 'details' OR $tab IS NULL;
-      SELECT 'Added to surveilr' as title, "added_to_surveilr_osquery_ms" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Last Restarted' as title, "last_restarted" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Hardware Model' as title, "hardware_model" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'Serial Number' as title, "hardware_serial" as description FROM surveilr_osquery_ms_node_system_info WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
-      SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
+     
+      -- SELECT 'IP Address' as title, "ip_address" as description FROM surveilr_osquery_ms_node_detail WHERE node_key = $key AND ($tab = 'details' OR $tab IS NULL);
 
       -- Tab specific content for Software
       select 'text' as component, 'Software' as title WHERE $tab = 'software';
@@ -474,73 +418,44 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
     `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/process.sql"() {
+  @msNav({
+    caption: "Policies",
+    description:
+      "Quickly monitor your nodes by asking yes or no questions about them.",
+    siblingOrder: 99,
+  })
+  "ms/policies.sql"() {
     return this.SQL`
-        ${this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Processes'` })}
-        SELECT 'title' AS component, 'All Running Processes on ' || $host_id as contents;
+        SELECT 'title' AS component, 'Policies' as contents;
         SELECT 'table' AS component,
+            'Policy Name' as markdown,
             TRUE as sort,
             TRUE as search;
 
-        SELECT 
-            node_key as "osQuery Node Key",
-            host_identifier as "Host Identifier",
-            updated_at as "Report Time",
-            cgroup_path, cmdline, cwd,
-            disk_bytes_read, disk_bytes_written, 
-            egid, euid,
-            gid, process_name, nice, on_disk,
-            parent, process_name, pgroup, pid, 
-            resident_size, root, 
-            sgid, start_time, state, suid, system_time,
-            threads, total_size,
-            uid, user_time, wired_size
-        FROM surveilr_osquery_ms_node_process WHERE node_key = $key;
-        `;
+        SELECT '[' || policy_name || '](policy.sql?policy_id=' || osquery_policy_id || ')' AS "Policy Name" FROM osquery_policy;    
+  `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/network.sql"() {
+  "ms/policy.sql"() {
     return this.SQL`
-        ${
-      this.activeBreadcrumbsSQL({
-        titleExpr: `$host_id || ' Interface Details'`,
-      })
-    }
-        SELECT 'title' AS component, 'Interface Details' as contents;
-        SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
-
-        SELECT 
-            updated_at as "Report Time", 
-            collisions, flags, type, ibytes, idrops, ierrors, ipackets, last_change
-            collisions, interface, link_speed, type, metric, pci_slot, mac, mtu,
-            obytes, odrops, oerrors, opackets
-        FROM surveilr_osquery_ms_node_interface_detail WHERE node_key = $key;
-        `;
+      ${this.activeBreadcrumbsSQL()}
+      SELECT 'title' as component, "policy_name" as contents, 1 as level FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'text' as component, "policy_description" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'title' as component, 'Resolution:' as contents, 4 as level;
+      SELECT 'text' as component, "policy_fail_remarks" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'code' as component;
+      SELECT 'Query:' as title, 'sql' as language, "osquery_code" as contents FROM osquery_policy where osquery_policy_id = $policy_id;
+      SELECT 'title' as component, 'Compatible with:' as contents, 4 as level;
+      SELECT 'text' AS component, value AS contents FROM osquery_policy, json_each(osquery_policy.osquery_platforms) WHERE osquery_policy_id = $policy_id;
+    `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ms/open-socket.sql"() {
+  @spn.shell({ eliminate: true })
+  "add_policy_to_code_notebook.sql"() {
     return this.SQL`
-        ${
-      this.activeBreadcrumbsSQL({ titleExpr: `$host_id || ' Listening Ports'` })
-    }
-        SELECT 'title' AS component, 'Listening Ports on ' || $host_id as contents;
-        SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
+      DELETE FROM code_notebook_cell WHERE cell_name = '' AND notebook_name 'osQuery Management Server (Policy)';
 
-        SELECT 
-            node_key as "osQuery Node Key",
-            host_identifier as "Host Identifier",
-            updated_at as "Report Time",
-            family, fd, 
-            address, port,
-            net_namespace, path, pid, protocol, socket
-        FROM surveilr_osquery_ms_node_listening_port WHERE node_key = $key;
-        `;
+    `;
   }
 }

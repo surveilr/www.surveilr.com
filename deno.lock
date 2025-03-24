@@ -12,7 +12,6 @@
     "jsr:@std/path@0.217": "0.217.0",
     "jsr:@std/path@0.221": "0.221.0",
     "npm:@astrojs/sitemap@^3.2.1": "3.2.1",
-    "npm:@preline/collapse@^2.5.0": "2.5.0",
     "npm:@types/node@*": "18.16.19",
     "npm:@types/papaparse@*": "5.3.15",
     "npm:clipboard@^2.0.11": "2.0.11",
@@ -244,9 +243,6 @@
         "@nodelib/fs.scandir",
         "fastq"
       ]
-    },
-    "@preline/collapse@2.5.0": {
-      "integrity": "sha512-FFVB+T7FXn66EUmwgR8c1OtxXDlL74pRvBXtntXwwQ+9fqCZML1xPTOXfdeRL4e46kroAtigVcp/Y28lEpkXTQ=="
     },
     "@sindresorhus/merge-streams@2.3.0": {
       "integrity": "sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg=="
@@ -1671,9 +1667,9 @@
         "npm:@astrojs/starlight@~0.29.3",
         "npm:@astrojs/tailwind@^5.1.5",
         "npm:@commitlint/cli@^19.6.1",
-        "npm:@commitlint/config-conventional@^19.6.0",
+        "npm:@commitlint/config-conventional@^19.8.0",
         "npm:@preline/accordion@^2.6.0",
-        "npm:@preline/collapse@^2.5.0",
+        "npm:@preline/collapse@3",
         "npm:@preline/dropdown@^2.6.0",
         "npm:@preline/overlay@^2.6.0",
         "npm:@preline/tabs@^2.5.2",
@@ -1688,13 +1684,13 @@
         "npm:gsap@^3.12.7",
         "npm:html-minifier-terser@^7.2.0",
         "npm:husky@^9.1.7",
-        "npm:lenis@^1.1.18",
-        "npm:lint-staged@^15.2.10",
+        "npm:lenis@^1.2.3",
+        "npm:lint-staged@^15.5.0",
         "npm:marked@^15.0.6",
         "npm:preline@^2.5.1",
         "npm:prettier-eslint@^16.3.0",
         "npm:prettier-plugin-astro@~0.14.1",
-        "npm:prettier-plugin-tailwindcss@~0.6.8",
+        "npm:prettier-plugin-tailwindcss@~0.6.11",
         "npm:prettier@^3.4.1",
         "npm:react-dom@19",
         "npm:react@19",

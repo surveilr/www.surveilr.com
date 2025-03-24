@@ -104,6 +104,58 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       JOIN pragma_index_info(idx.name) pi
       WHERE tbl.type = 'table' AND tbl.name NOT LIKE 'sqlite_%';
 
+      DROP VIEW IF EXISTS rssd_statistics_overview;
+      CREATE VIEW rssd_statistics_overview AS
+      SELECT 
+          (SELECT ROUND(page_count * page_size / (1024.0 * 1024), 2) FROM pragma_page_count(), pragma_page_size()) AS db_size_mb,
+          (SELECT ROUND(page_count * page_size / (1024.0 * 1024 * 1024), 4) FROM pragma_page_count(), pragma_page_size()) AS db_size_gb,
+          (SELECT COUNT(*) FROM sqlite_master WHERE type = 'table') AS total_tables,
+          (SELECT COUNT(*) FROM sqlite_master WHERE type = 'index') AS total_indexes,
+          (SELECT SUM(tbl_rows) FROM (
+              SELECT name, 
+                    (SELECT COUNT(*) FROM sqlite_master sm WHERE sm.type='table' AND sm.name=t.name) AS tbl_rows
+              FROM sqlite_master t WHERE type='table'
+          )) AS total_rows,
+          (SELECT page_size FROM pragma_page_size()) AS page_size,
+          (SELECT page_count FROM pragma_page_count()) AS total_pages;
+
+
+      CREATE TABLE IF NOT EXISTS surveilr_table_size (
+          table_name TEXT PRIMARY KEY,
+          table_size_mb REAL
+      );
+      
+      DELETE FROM surveilr_table_size;
+      INSERT INTO surveilr_table_size (table_name, table_size_mb)
+      SELECT name, 
+            ROUND(SUM(pgsize) / (1024.0 * 1024), 2)
+      FROM dbstat
+      GROUP BY name;
+
+
+      DROP VIEW IF EXISTS rssd_table_statistic;
+      CREATE VIEW rssd_table_statistic AS
+      SELECT 
+          m.name AS table_name,
+
+          -- Count total columns
+          (SELECT COUNT(*) FROM pragma_table_info(m.name)) AS total_columns,
+
+          -- Count total indexes
+          (SELECT COUNT(*) FROM pragma_index_list(m.name)) AS total_indexes,
+
+          -- Count foreign keys
+          (SELECT COUNT(*) FROM pragma_foreign_key_list(m.name)) AS foreign_keys,
+
+          -- Count primary keys
+          (SELECT COUNT(*) FROM pragma_table_info(m.name) WHERE pk != 0) AS primary_keys,
+
+          -- Fetch table size from our manually updated surveilr_table_size table
+          (SELECT table_size_mb FROM surveilr_table_size WHERE table_name = m.name) AS table_size_mb
+
+      FROM sqlite_master m
+      WHERE m.type = 'table';
+
       -- Drop and create the table for storing navigation entries
       -- for testing only: DROP TABLE IF EXISTS sqlpage_aide_navigation;
       CREATE TABLE IF NOT EXISTS sqlpage_aide_navigation (
@@ -874,6 +926,30 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
     FROM console_information_schema_view
     WHERE view_name LIKE 'surveilr_doctor%'
     GROUP BY view_name;
+
+    `;
+  }
+
+  @consoleNav({
+    caption: "RSSD Statistics",
+    abbreviatedCaption: "Statistics",
+    description:
+      "Explore RSSD tables, columns, views, and other information schema documentation",
+    siblingOrder: 1,
+  })
+  "console/statistics/index.sql"() {
+    return this.SQL`
+      SELECT 'datagrid' as component;
+      SELECT 'Size' as title, "db_size_mb" || ' MB' as description FROM rssd_statistics_overview;
+      SELECT 'Tables' as title, "total_tables" as description FROM rssd_statistics_overview;
+      SELECT 'Indexes' as title, "total_indexes" as description FROM rssd_statistics_overview;
+      SELECT 'Rows' as title, "total_rows" as description FROM rssd_statistics_overview;
+      SELECT 'Page Size' as title, "page_size" as description FROM rssd_statistics_overview;
+      SELECT 'Total Pages' as title, "total_pages" as description FROM rssd_statistics_overview;
+    
+      select 'text' as component, 'Tables' as title;
+      SELECT 'table' AS component, TRUE as sort, TRUE as search;
+      SELECT * FROM rssd_table_statistic ORDER BY table_size_mb DESC;
 
     `;
   }

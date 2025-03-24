@@ -414,6 +414,11 @@ export class TypicalSqlPageNotebook
       },
 
       renderSimpleMarkdown: (...extraQueryParams: string[]) => {
+        const whereTabvalue =
+          extraQueryParams.find((item) => item.startsWith("$tab='")) || null;
+        const filteredParams = extraQueryParams.filter((item) =>
+          item !== whereTabvalue
+        );
         return this.SQL`
           SELECT 'text' AS component,
               (SELECT CASE WHEN ${
@@ -421,7 +426,7 @@ export class TypicalSqlPageNotebook
         } > 1 THEN '[Previous](?limit=' || ${$("limit")} || '&offset=' || (${
           $("offset")
         } - ${$("limit")}) ||  ${
-          extraQueryParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
+          filteredParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
         }   ')' ELSE '' END) || ' ' ||
               '(Page ' || ${$("current_page")} || ' of ' || ${
           $("total_pages")
@@ -431,9 +436,10 @@ export class TypicalSqlPageNotebook
         } THEN '[Next](?limit=' || ${$("limit")} || '&offset=' || (${
           $("offset")
         } + ${$("limit")}) ||   ${
-          extraQueryParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
+          filteredParams.map((qp) => `'&${n(qp)}=' || ${$(qp)} ||`)
         }  ')' ELSE '' END)
-              AS contents_md;`;
+              AS contents_md 
+          ${whereTabvalue ? ` WHERE ${whereTabvalue}` : ""};`;
       },
     };
   }

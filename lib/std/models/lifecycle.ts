@@ -1867,6 +1867,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       last_seen: gd.dateTime(true),
       status: gd.text().default("active"),
       osquery_version: gd.textNullable(),
+      osquery_build_platform: gd.text(),
       device_id: device.belongsTo.device_id(),
       behavior_id: behavior.belongsTo.behavior_id().optional(),
       ...gm.housekeeping.columns,
@@ -1902,6 +1903,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       node_key: osQueryMsNode.belongsTo.node_key(),
       log_type: gd.text(),
       log_data: gd.jsonText(),
+      applied_jq_filters: gd.jsonTextNullable(),
       ...gm.housekeeping.columns,
     },
     {
@@ -1935,7 +1937,16 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...gm.housekeeping.columns,
     },
     {
-      isIdempotent: true
+      isIdempotent: true,
+      constraints: (props, tableName) => {
+        const c = SQLa.tableConstraints(tableName, props);
+        return [
+          c.unique(
+            "policy_name",
+            "osquery_code",
+          ),
+        ];
+      },
     },
   );
 
@@ -1991,7 +2002,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       uniformResourceEdge,
       osQueryMsNode,
       urIngestOsQueryMsLog,
-      osQueryPolicy
+      osQueryPolicy,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2038,7 +2049,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...uniformResourceEdge.indexes,
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
-      ...osQueryPolicy.indexes
+      ...osQueryPolicy.indexes,
     ],
   };
 
@@ -2094,7 +2105,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     uniformResourceEdge,
     osQueryMsNode,
     urIngestOsQueryMsLog,
-    osQueryPolicy
+    osQueryPolicy,
   };
 }
 

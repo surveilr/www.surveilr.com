@@ -1,12 +1,21 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-ffi
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
-import { saveCTRJsonCgm } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
+import {
+  generateMealFitnessJson,
+  saveCTRJsonCgm,
+} from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class andersonSqlPages extends spn.TypicalSqlPageNotebook {
   savecgmDDL() {
     const dbFilePath = "./resource-surveillance.sqlite.db";
     const jsonstmts = saveCTRJsonCgm(dbFilePath);
+    return jsonstmts;
+  }
+
+  savemealDDL() {
+    const dbFilePath = "./resource-surveillance.sqlite.db";
+    const jsonstmts = generateMealFitnessJson(dbFilePath);
     return jsonstmts;
   }
 

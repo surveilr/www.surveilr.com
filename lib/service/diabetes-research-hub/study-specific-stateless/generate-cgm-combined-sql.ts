@@ -2,7 +2,7 @@
 
 import { Database } from "https://deno.land/x/sqlite3@0.12.0/mod.ts";
 import { ulid } from "https://deno.land/x/ulid/mod.ts";
-import { Buffer } from "node:buffer"; // Needed for Node.js environments
+
 
 // Common function to log errors into the database
 function logError(db: Database, errorMessage: string): void {
@@ -116,6 +116,9 @@ export async function saveJsonCgm(dbFilePath: string): string {
     `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
   );
   const tableExists = checkTableStmt.get(tableName);
+  // Debugging output
+  //console.log(" Table Check Result:", tableExists);
+
   if (!tableExists) {
     console.error(
       `The required table "${tableName}" does not exist. `,
@@ -480,7 +483,7 @@ export function generateCombinedRTCCGMSQL(dbFilePath: string): string {
 
   // Query to fetch all relevant tables (matching the pattern 'uniform_resource_tblADataRTCGM_%')
   const tablesStmt = db.prepare(
-    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_tblADataRTCGM_%'",
+    "SELECT name AS table_name FROM sqlite_master WHERE type = 'table' AND name LIKE 'uniform_resource_tbladatartcgm_%'",
   );
   const tables = tablesStmt.all();
   const sqlParts: string[] = [];
@@ -659,6 +662,121 @@ export function saveCTRJsonCgm(dbFilePath: string): string {
   return ctrSQL;
 }
 
+export function savertccgmJsonCgm(dbFilePath: string): string {
+  console.log("Opening database:", dbFilePath);
+  const db = new Database(dbFilePath);
+  let rtccgmSQL = "";
+
+  const tableName = "uniform_resource_cgm_file_metadata";
+  console.log("Checking if table exists:", tableName);
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+  console.log("Table existence check result:", tableExists);
+
+  if (!tableExists) {
+    console.error(`The required table "${tableName}" does not exist.`);
+    db.close();
+    return "";
+  }
+
+  const db_file_id = ulid();
+  console.log("Generated db_file_id:", db_file_id);
+
+  const recordCountStmt = db.prepare(
+    `SELECT COUNT(*) as count FROM ${tableName}`,
+  );
+  const recordCount = recordCountStmt.get();
+  console.log("Total records in table:", recordCount.count);
+
+  if (recordCount.count === 0) {
+    console.warn("No records found in table. Exiting function.");
+    db.close();
+    return "";
+  }
+
+  const rows = db.prepare(`SELECT * FROM ${tableName}`).all();
+  console.log("Number of rows fetched:", rows.length);
+
+  db.exec(`CREATE TABLE IF NOT EXISTS file_meta_ingest_data (
+    file_meta_id text not null,
+    db_file_id TEXT NOT NULL,
+    participant_display_id TEXT NOT NULL,
+    file_meta_data TEXT NULL,
+    cgm_data TEXT
+  );`);
+  console.log("Ensured table file_meta_ingest_data exists.");
+
+  for (const row of rows) {
+    console.log("Processing row:", JSON.stringify(row, null, 2));
+
+    const jsonObject = {
+      device_id: row.device_id,
+      file_name: row.file_name,
+      devicename: row.devicename,
+      file_format: row.file_format,
+      source_platform: row.source_platform,
+      file_upload_date: row.file_upload_date,
+      map_field_of_cgm_date: row.map_field_of_cgm_date,
+      map_field_of_cgm_value: row.map_field_of_cgm_value,
+      map_field_of_patient_id: row.map_field_of_patient_id,
+    };
+
+    const jsonStringMeta = JSON.stringify(jsonObject);
+    console.log("Generated JSON metadata:", jsonStringMeta);
+
+    const deidentID = typeof row.patient_id === "string"
+      ? row.patient_id.replace(/^RTCCGM-/, "")
+      : row.patient_id;
+    console.log("De-identified patient ID:", deidentID);
+
+    let file_name = row.file_name;
+    if (typeof file_name === "string" && row.file_format) {
+      file_name = file_name.replace(`.${row.file_format}`, "");
+    }
+    console.log("Processed file name:", file_name);
+
+    if (!file_name) {
+      console.warn(`Skipping row due to invalid file name: ${row.file_name}`);
+      continue;
+    }
+
+    console.log("Fetching CGM data...");
+    const jsonStringCgm = fetchCgmData(
+      db,
+      file_name,
+      row.map_field_of_patient_id,
+      deidentID,
+    );
+    console.log("Generated CGM data JSON length:", jsonStringCgm?.length);
+
+    const file_meta_id = ulid();
+    console.log("Generated file_meta_id:", file_meta_id);
+
+    console.log("Executing INSERT INTO file_meta_ingest_data...");
+    try {
+      db.prepare(
+        `INSERT INTO file_meta_ingest_data(file_meta_id, db_file_id, participant_display_id, cgm_data, file_meta_data) VALUES (?, ?, ?, ?,?);`,
+      ).run(
+        file_meta_id,
+        db_file_id,
+        row.patient_id,
+        jsonStringCgm,
+        jsonStringMeta,
+      );
+      console.log("Data successfully inserted into file_meta_ingest_data.");
+    } catch (error) {
+      console.error("Error inserting data:", error);
+    }
+  }
+
+  console.log("Closing database connection...");
+  db.close();
+  console.log("Database closed.");
+  return rtccgmSQL;
+}
+
 export function saveDFAJsonCgm(dbFilePath: string): string {
   const db = new Database(dbFilePath);
   let dfaSQL = "";
@@ -738,40 +856,194 @@ export function saveDFAJsonCgm(dbFilePath: string): string {
   return dfaSQL;
 }
 
-// If the script is being run directly, execute the functions
+export function generateMealFitnessJson(dbFilePath: string) {
+  const db = new Database(dbFilePath);
+  let mealJson = "";
+
+  // Step 1: Ensure tables exist
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS uniform_resource_fitness_data (
+            fitness_id TEXT PRIMARY KEY,
+            participant_id TEXT,
+            date TEXT,
+            steps INTEGER,
+            exercise_minutes INTEGER,
+            calories_burned INTEGER
+        );
+
+        CREATE TABLE IF NOT EXISTS uniform_resource_meal_data (
+            meal_id TEXT PRIMARY KEY,
+            participant_id TEXT,
+            meal_time TEXT,
+            calories INTEGER,
+            meal_type TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS participant_meal_fitness_data (
+            db_file_id TEXT,
+            tenant_id TEXT,
+            study_display_id TEXT,
+            fitness_meal_id TEXT,
+            participant_display_id TEXT,
+            meal_data TEXT DEFAULT '[]',
+            fitness_data TEXT DEFAULT '[]'
+        );
+    `);
+
+  // Step 2: Get participants who have at least one meal OR fitness record
+  const participantIds = db.prepare(`
+        SELECT participant_id FROM uniform_resource_meal_data
+        UNION
+        SELECT participant_id FROM uniform_resource_fitness_data
+    `).all();
+
+  // Step 3: Get study metadata (single-row values)
+  const studyMetadata: {
+    db_file_id: string;
+    tenant_id: string;
+    study_display_id: string;
+  } = db.prepare(`
+        SELECT 
+            COALESCE((SELECT db_file_id FROM file_meta_ingest_data LIMIT 1), 'UNKNOWN') AS db_file_id,
+            COALESCE((SELECT party_id FROM party LIMIT 1), 'UNKNOWN') AS tenant_id,
+            COALESCE((SELECT study_id FROM uniform_resource_study LIMIT 1), 'UNKNOWN') AS study_display_id
+    `).get() ||
+    {
+      db_file_id: "UNKNOWN",
+      tenant_id: "UNKNOWN",
+      study_display_id: "UNKNOWN",
+    };
+
+
+  if (!studyMetadata.db_file_id || studyMetadata.db_file_id === "UNKNOWN") {
+    console.error("❌ ERROR: Missing db_file_id. Check database records.");
+    return;
+  }
+
+
+    // console.log("🟢 Preparing to insert participant data...");
+    // console.log(`🔹 db_file_id: ${studyMetadata.db_file_id}`);
+    // console.log(`🔹 tenant_id: ${studyMetadata.tenant_id}`);
+    // console.log(`🔹 study_display_id: ${studyMetadata.study_display_id}`);
+
+    // // Step 4: Prepare insert statement (NO conflict update)
+    // const insertStmt = db.prepare(`
+    //     INSERT INTO participant_meal_fitness_data (
+    //         db_file_id, tenant_id, study_display_id, fitness_meal_id, 
+    //         participant_display_id, meal_data, fitness_data
+    //     )
+    //     VALUES (@db_file_id, @tenant_id, @study_display_id, @fitness_meal_id, 
+    //             @participant_display_id, @meal_data, @fitness_data);
+    // `);
+
+    // Step 5: Loop through each participant and insert JSON
+    db.transaction(() => {
+        for (const { participant_id } of participantIds) {
+            //console.log(`🔄 Processing participant: ${participant_id}`);
+
+            // Fetch meal data
+            const meals = db.prepare(`
+
+                SELECT json_group_array(json_object(
+                    'meal_id', meal_id,
+                    'meal_time', meal_time,
+                    'calories', calories,
+                    'meal_type', meal_type
+                )) AS meal_data
+                FROM uniform_resource_meal_data
+                WHERE participant_id = ?
+            `).get(participant_id) as { meal_data: string | null };
+
+      // Fetch fitness data
+      const fitness = db.prepare(`
+                SELECT json_group_array(json_object(
+                    'fitness_id', fitness_id,
+                    'date', date,
+                    'steps', steps,
+                    'exercise_minutes', exercise_minutes,
+                    'calories_burned', calories_burned
+                )) AS fitness_data
+                FROM uniform_resource_fitness_data
+                WHERE participant_id = ?
+            `).get(participant_id) as { fitness_data: string | null };
+
+
+            // Ensure empty arrays for missing data
+            const mealDataJson = meals.meal_data ?? '[]';
+            const fitnessDataJson = fitness.fitness_data ?? '[]';
+
+            // Skip insert if both meal and fitness data are empty
+            if (mealDataJson === '[]' && fitnessDataJson === '[]') {
+                console.warn(`⚠️ Skipping participant ${participant_id} - No data found.`);
+                continue;
+            }
+
+            // Generate a ULID for `fitness_meal_id`
+            const fitness_meal_id = ulid();
+
+            // console.log("📌 Insert Data:", {
+            //     db_file_id: studyMetadata.db_file_id,
+            //     tenant_id: studyMetadata.tenant_id,
+            //     study_display_id: studyMetadata.study_display_id,
+            //     fitness_meal_id,
+            //     participant_display_id: participant_id,
+            //     meal_data: mealDataJson,
+            //     fitness_data: fitnessDataJson
+            // });
+
+
+            console.log("Executing INSERT INTO file_meta_ingest_data...");
+            try {
+              db.prepare(
+                `INSERT INTO participant_meal_fitness_data (
+                db_file_id, tenant_id, study_display_id, fitness_meal_id, 
+                participant_display_id, meal_data, fitness_data
+            )
+            VALUES (?, ?, ?, ?,?,?,?);`,
+        ).run(
+          studyMetadata.db_file_id,
+          studyMetadata.tenant_id,
+          studyMetadata.study_display_id,
+          fitness_meal_id,
+          participant_id,
+          mealDataJson,
+          fitnessDataJson,
+        );
+        console.log("Data successfully inserted ");
+      } catch (error) {
+        console.error("Error inserting data:", error);
+      }
+    }
+  })();
+
+  db.close();
+  return mealJson;
+}
+
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
+  const functionName = Deno.args[0]; // Get function name from CLI arguments
 
-  // Run the first dataset view creation and get the SQL for combined view
-  const dclp1combinedCGMViewSQL = createUVACombinedCGMViewSQL(dbFilePath);
-  if (dclp1combinedCGMViewSQL) {
-    console.log("Generated SQL for DCLP1 Study dataset:");
-    console.log(dclp1combinedCGMViewSQL);
-  }
+  // Map available functions
+  const functions: Record<string, (dbFilePath: string) => any> = {
+    createUVACombinedCGMViewSQL,
+    generateDetrendedDSCombinedCGMViewSQL,
+    generateCombinedRTCCGMSQL,
+    saveCTRJsonCgm,
+    savertccgmJsonCgm,
+    saveJsonCgm,
+    generateMealFitnessJson,
+  };
 
-  // Generate and log the SQL for the second dataset
-  const detrendedDSCombinedCGMViewSQL = generateDetrendedDSCombinedCGMViewSQL(
-    dbFilePath,
-  );
-  if (detrendedDSCombinedCGMViewSQL) {
-    console.log("Generated SQL for detrended fluctuation analysis dataset:");
-    console.log(detrendedDSCombinedCGMViewSQL);
-  }
-
-  // Generate and log the SQL for the thrid  dataset
-  const CombinedRTCCGMSQL = generateCombinedRTCCGMSQL(
-    dbFilePath,
-  );
-  if (CombinedRTCCGMSQL) {
-    console.log("Generated SQL for RTCCGM dataset:");
-    console.log(CombinedRTCCGMSQL);
-  }
-
-  // Generate cgm json for ctr
-  const ctrJson = saveCTRJsonCgm(
-    dbFilePath,
-  );
-  if (ctrJson) {
-    console.log(ctrJson);
+  // Check if the function exists
+  if (functionName in functions) {
+    const result = functions[functionName](dbFilePath);
+    if (result) {
+      console.log(`Output for ${functionName}:`);
+      console.log(result);
+    }
+  } else {
+    console.log("Invalid function name. Available functions:");
+    console.log(Object.keys(functions).join(", "));
   }
 }
