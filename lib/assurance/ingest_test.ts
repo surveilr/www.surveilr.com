@@ -245,7 +245,6 @@ Deno.test("multitenancy file ingestion", async (t) => {
   });
 
   await t.step("verify tenant ID in transformed tables", () => {
-    // Check a few tables to ensure tenant ID is correctly populated
     const tableCheckQueries = [
       "SELECT COUNT(*) FROM uniform_resource WHERE tenant_id = ?",
       "SELECT COUNT(*) FROM uniform_resource_transform WHERE tenant_id = ?"
@@ -367,7 +366,6 @@ Deno.test("csv auto transformation", async (t) => {
       `❌ Error: Failed to ingest data with multiple same-named CSVs`
     );
   
-    // Open the database and verify
     const db = new DB(multipleFileRssd);
     
     try {
@@ -376,11 +374,9 @@ Deno.test("csv auto transformation", async (t) => {
       );
       assertEquals(result.length, 1);
       
-      // Verify 4 rows are present
       const rowCount = result[0][0];
       assertEquals(rowCount, 4, "Should have 4 rows from both CSV files");
   
-      // Optional: You might want to add more specific checks about the data
       const rows = db.query<[number, string]>(
         `SELECT id, name FROM uniform_resource_users ORDER BY id`
       );
