@@ -3896,6 +3896,15 @@ The `surveilr_udi_dal_dropbox` SQLite function, is a powerful new virtual table 
                 
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.5.11'' as title, ''# `surveilr` v1.5.11 Release Notes
+
+---
+
+### Overview
+This release includes updates to dependencies, bug fixes, and performance improvements to enhance stability and functionality.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.5.10'' as title, ''# `surveilr` v1.5.9 Release Notes
 
 ---
