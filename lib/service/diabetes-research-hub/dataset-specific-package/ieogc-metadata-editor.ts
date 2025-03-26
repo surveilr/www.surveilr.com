@@ -4,7 +4,8 @@ import { join } from "node:path";
 (async () => {
   try {
     // Set the correct folder and file path
-    const folderPath = "/home/anitha/workspaces/github.com/www.surveilr.com/lib/service/diabetes-research-hub/direc-net-inPt-exercise";
+    const folderPath =
+      "/home/anitha/workspaces/github.com/www.surveilr.com/lib/service/diabetes-research-hub/direc-net-inPt-exercise";
     const fileName = "cgm_file_metadata.csv";
     const filePath = join(folderPath, fileName);
 
@@ -46,7 +47,9 @@ import { join } from "node:path";
       } else if (deviceName.includes("MiniMed Continuous Glucose Monitor")) {
         columns[sourcePlatformIndex] = "MiniMed";
       } else {
-        console.warn(`⚠️ Unrecognized device: "${deviceName}", leaving source_platform unchanged.`);
+        console.warn(
+          `⚠️ Unrecognized device: "${deviceName}", leaving source_platform unchanged.`,
+        );
       }
 
       return columns.join(",");

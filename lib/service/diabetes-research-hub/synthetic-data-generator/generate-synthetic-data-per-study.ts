@@ -192,7 +192,7 @@ const createTables = () => {
         meal_time TEXT,
         calories INTEGER,
         meal_type TEXT
-      )`
+      )`,
     ];
 
     // Execute each table creation statement
@@ -325,7 +325,7 @@ const generateFitnessData = (participantId: string, days: number) => {
         date.toISOString().split("T")[0],
         steps,
         exerciseMinutes,
-        caloriesBurned
+        caloriesBurned,
       );
 
       date.setDate(date.getDate() - 1);
@@ -333,10 +333,15 @@ const generateFitnessData = (participantId: string, days: number) => {
 
     // Commit the transaction
     db.exec("COMMIT;");
-    console.log(`Fitness data generated for participantId: ${participantId} (${days} days)`);
+    console.log(
+      `Fitness data generated for participantId: ${participantId} (${days} days)`,
+    );
   } catch (error) {
     db.exec("ROLLBACK;");
-    console.error(`Error generating fitness data for participantId: ${participantId}:`, error);
+    console.error(
+      `Error generating fitness data for participantId: ${participantId}:`,
+      error,
+    );
     throw error;
   }
 };
@@ -360,25 +365,37 @@ const generateMealData = (participantId: string, days: number) => {
         const mealId = ulid();
         const mealTime = new Date(date);
         // Distribute meal times throughout the day based on meal type
-        switch(mealType) {
+        switch (mealType) {
           case "Breakfast":
-            mealTime.setHours(7 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 60));
+            mealTime.setHours(
+              7 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
             break;
           case "Lunch":
-            mealTime.setHours(11 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 60));
+            mealTime.setHours(
+              11 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
             break;
           case "Dinner":
-            mealTime.setHours(17 + Math.floor(Math.random() * 3), Math.floor(Math.random() * 60));
+            mealTime.setHours(
+              17 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
             break;
           case "Snack":
             // Snacks can happen any time
-            mealTime.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+            mealTime.setHours(
+              Math.floor(Math.random() * 24),
+              Math.floor(Math.random() * 60),
+            );
             break;
         }
 
         // Calories more realistically based on meal type
         let caloriesMin = 200, caloriesMax = 800;
-        switch(mealType) {
+        switch (mealType) {
           case "Breakfast":
             caloriesMin = 300;
             caloriesMax = 700;
@@ -396,14 +413,16 @@ const generateMealData = (participantId: string, days: number) => {
             caloriesMax = 400;
             break;
         }
-        const calories = Math.floor(Math.random() * (caloriesMax - caloriesMin) + caloriesMin);
+        const calories = Math.floor(
+          Math.random() * (caloriesMax - caloriesMin) + caloriesMin,
+        );
 
         stmt.run(
           mealId,
           participantId,
           mealTime.toISOString(),
           calories,
-          mealType
+          mealType,
         );
       });
 
@@ -412,10 +431,17 @@ const generateMealData = (participantId: string, days: number) => {
 
     // Commit the transaction
     db.exec("COMMIT;");
-    console.log(`Meal data generated for participantId: ${participantId} (${days * mealTypes.length} entries)`);
+    console.log(
+      `Meal data generated for participantId: ${participantId} (${
+        days * mealTypes.length
+      } entries)`,
+    );
   } catch (error) {
     db.exec("ROLLBACK;");
-    console.error(`Error generating meal data for participantId: ${participantId}:`, error);
+    console.error(
+      `Error generating meal data for participantId: ${participantId}:`,
+      error,
+    );
     throw error;
   }
 };
@@ -430,7 +456,9 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
 
   try {
     // Use a single prepared statement for all inserts
-    const stmt = db.prepare("INSERT INTO uniform_resource_cgm_tracing VALUES (?, ?, ?)");
+    const stmt = db.prepare(
+      "INSERT INTO uniform_resource_cgm_tracing VALUES (?, ?, ?)",
+    );
 
     // Begin transaction for batch processing
     db.exec("BEGIN TRANSACTION;");
@@ -441,7 +469,10 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
         // Introduce variability in CGM values
         const cgmValue = (Math.random() * 80) + 70; // Base value
         const variability = Math.random() * 40 - 20; // Variability range [-20, 20]
-        const finalCGMValue = Math.max(40, Math.min(400, cgmValue + variability)); // Ensure values are within realistic range
+        const finalCGMValue = Math.max(
+          40,
+          Math.min(400, cgmValue + variability),
+        ); // Ensure values are within realistic range
 
         stmt.run(sid, date.toISOString(), finalCGMValue.toFixed(1));
 
@@ -451,7 +482,9 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
 
       // Log progress for large datasets
       if (entriesProcessed % 1000 === 0) {
-        console.log(`CGM data generation progress: ${entriesProcessed}/${totalEntries} entries`);
+        console.log(
+          `CGM data generation progress: ${entriesProcessed}/${totalEntries} entries`,
+        );
       }
     }
 
@@ -518,13 +551,16 @@ const generateCGMFileMetadata = (
     const { device_name, source_platform } = getStudyDevice(studyId);
 
     // Get start and end dates for the participant's CGM data
-    const dateRange: { start_date: string; end_date: string } | undefined = db.prepare(`
+    const dateRange: { start_date: string; end_date: string } | undefined = db
+      .prepare(`
       SELECT MIN(Date_Time) AS start_date, MAX(Date_Time) AS end_date
       FROM uniform_resource_cgm_tracing WHERE SID = ?;
     `).get(sid);
 
     if (!dateRange || !dateRange.start_date || !dateRange.end_date) {
-      console.warn(`No CGM data found for SID: ${sid}, skipping metadata generation`);
+      console.warn(
+        `No CGM data found for SID: ${sid}, skipping metadata generation`,
+      );
       return;
     }
 
@@ -542,7 +578,7 @@ const generateCGMFileMetadata = (
     `).run(
       metadataId,
       device_name,
-      '', // Generate a device ID for better data representation
+      "", // Generate a device ID for better data representation
       source_platform,
       sid,
       fileName,
@@ -580,7 +616,7 @@ const generateParticipants = (
       `INSERT INTO uniform_resource_participant
       (participant_id, study_id, site_id, diagnosis_icd, med_rxnorm, treatment_modality, gender,
        race_ethnicity, age, bmi, baseline_hba1c, diabetes_type, study_arm, tenant_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
     );
 
     // Preload options for better performance
@@ -621,20 +657,29 @@ const generateParticipants = (
       const age = (18 + Math.floor(Math.random() * 50)).toString();
       const bmi = (18 + Math.random() * 12).toFixed(1);
       const hba1c = (5 + Math.random() * 2).toFixed(1);
-      const diabetesType = diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
+      const diabetesType =
+        diabetesTypes[Math.floor(Math.random() * diabetesTypes.length)];
 
-      const raceEthnicity = raceEthnicityOptions[Math.floor(Math.random() * raceEthnicityOptions.length)];
-      const raceEthnicityText = `${raceEthnicity.race} ${raceEthnicity.ethnicity}`;
+      const raceEthnicity = raceEthnicityOptions[
+        Math.floor(Math.random() * raceEthnicityOptions.length)
+      ];
+      const raceEthnicityText =
+        `${raceEthnicity.race} ${raceEthnicity.ethnicity}`;
 
-      const diagnosisIcd = diagnosisIcdOptions[Math.floor(Math.random() * diagnosisIcdOptions.length)];
-      const medRxnorm = medRxnormOptions[Math.floor(Math.random() * medRxnormOptions.length)];
-      const treatmentModality = treatmentModalityOptions[Math.floor(Math.random() * treatmentModalityOptions.length)];
-      const studyArm = studyArmOptions[Math.floor(Math.random() * studyArmOptions.length)];
+      const diagnosisIcd = diagnosisIcdOptions[
+        Math.floor(Math.random() * diagnosisIcdOptions.length)
+      ];
+      const medRxnorm =
+        medRxnormOptions[Math.floor(Math.random() * medRxnormOptions.length)];
+      const treatmentModality = treatmentModalityOptions[
+        Math.floor(Math.random() * treatmentModalityOptions.length)
+      ];
+      const studyArm =
+        studyArmOptions[Math.floor(Math.random() * studyArmOptions.length)];
 
-0.
+      0.;
 
-
-stmt.run(
+      stmt.run(
         participantId,
         studyId,
         "", // site_id (optional)
@@ -648,7 +693,7 @@ stmt.run(
         hba1c,
         diabetesType,
         studyArm,
-        tenantId
+        tenantId,
       );
 
       // Log progress for large participant groups
@@ -659,11 +704,16 @@ stmt.run(
 
     // Commit the transaction
     db.exec("COMMIT;");
-    console.log(`All ${participants} participants generated for studyId: ${studyId}`);
+    console.log(
+      `All ${participants} participants generated for studyId: ${studyId}`,
+    );
   } catch (error) {
     // Rollback the transaction on error
     db.exec("ROLLBACK;");
-    console.error(`Error generating participants for studyId ${studyId}:`, error);
+    console.error(
+      `Error generating participants for studyId ${studyId}:`,
+      error,
+    );
     throw error;
   }
 };
@@ -684,7 +734,9 @@ const generateStudy = async () => {
 
     // Validate participants count
     if (participants > 1000) {
-      console.warn("Warning: Large participant count may affect performance. Limiting to 1000.");
+      console.warn(
+        "Warning: Large participant count may affect performance. Limiting to 1000.",
+      );
       participants = 1000;
     }
 
@@ -695,7 +747,9 @@ const generateStudy = async () => {
 
     // Validate days
     if (![14, 30, 90].includes(days)) {
-      console.warn(`Warning: Unusual day count ${days}. Recommended values are 14, 30, or 90 days.`);
+      console.warn(
+        `Warning: Unusual day count ${days}. Recommended values are 14, 30, or 90 days.`,
+      );
     }
 
     console.log("Generating synthetic data for:");
@@ -725,7 +779,7 @@ const generateStudy = async () => {
       .slice(0, 4);
 
     const investigatorStmt = db.prepare(
-      `INSERT INTO uniform_resource_investigator VALUES (?, ?, ?, ?, ?, ?);`
+      `INSERT INTO uniform_resource_investigator VALUES (?, ?, ?, ?, ?, ?);`,
     );
 
     selectedInvestigators.forEach((name, index) => {
@@ -749,7 +803,7 @@ const generateStudy = async () => {
     publicationDate.setMonth(publicationDate.getMonth() + 6); // Publication 6 months in future
 
     db.prepare(
-      `INSERT INTO uniform_resource_publication VALUES (?, ?, ?, ?, ?, ?);`
+      `INSERT INTO uniform_resource_publication VALUES (?, ?, ?, ?, ?, ?);`,
     ).run(
       publicationId,
       `${studyName} Results and Analysis`,
@@ -759,16 +813,20 @@ const generateStudy = async () => {
       tenantId,
     );
 
-    console.log(`Publication generated for studyId: ${studyId} with DOI: ${doi}`);
+    console.log(
+      `Publication generated for studyId: ${studyId} with DOI: ${doi}`,
+    );
 
     // Generate authors from the investigators with more realistic data
     const authorStmt = db.prepare(
-      `INSERT INTO uniform_resource_author VALUES (?, ?, ?, ?, ?, ?);`
+      `INSERT INTO uniform_resource_author VALUES (?, ?, ?, ?, ?, ?);`,
     );
 
     selectedInvestigators.slice(0, 3).forEach((name, index) => {
       const authorId = ulid();
-      const email = `${name.replace(/Dr\.\s+/, "").toLowerCase().replace(/\s+/g, ".")}@example.com`;
+      const email = `${
+        name.replace(/Dr\.\s+/, "").toLowerCase().replace(/\s+/g, ".")
+      }@example.com`;
 
       authorStmt.run(
         authorId,
@@ -808,12 +866,16 @@ const generateStudy = async () => {
         const percentComplete = Math.round((i / participants) * 100);
         const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
 
-        console.log(`Progress: ${i}/${participants} participants (${percentComplete}%) - ${elapsedSeconds}s elapsed`);
+        console.log(
+          `Progress: ${i}/${participants} participants (${percentComplete}%) - ${elapsedSeconds}s elapsed`,
+        );
 
         // Estimate remaining time
         if (i < participants) {
           const estimatedTotalSeconds = (elapsedSeconds / i) * participants;
-          const remainingSeconds = Math.round(estimatedTotalSeconds - elapsedSeconds);
+          const remainingSeconds = Math.round(
+            estimatedTotalSeconds - elapsedSeconds,
+          );
           console.log(`Estimated time remaining: ${remainingSeconds}s`);
         }
       }
@@ -823,7 +885,11 @@ const generateStudy = async () => {
     console.log("Performing database optimizations...");
     db.exec("PRAGMA optimize;");
 
-    console.log(`Study generated successfully in ${Math.round((Date.now() - startTime) / 1000)}s`);
+    console.log(
+      `Study generated successfully in ${
+        Math.round((Date.now() - startTime) / 1000)
+      }s`,
+    );
     return { studyId, participants, days };
   } catch (error) {
     console.error("Error in generate study:", error);
