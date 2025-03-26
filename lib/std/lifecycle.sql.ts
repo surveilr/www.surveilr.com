@@ -1228,7 +1228,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     description: "Processes with listening (bound) network sockets/ports.",
   })
   "Listening Ports"() {
-    return `SELECT l.port, l.pid, p.name, p.path FROM listening_ports l JOIN processes p USING (pid);`;
+    return `SELECT p.name, p.path FROM listening_ports l JOIN processes p USING (pid);`;
   }
 
   @osQueryMsCell(
