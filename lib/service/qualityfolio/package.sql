@@ -3731,6 +3731,15 @@ This release aims to improve the `surveilr osquery-ms` server; no new features o
                 
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.7.16'' as title, ''# `surveilr` v1.7.16 Release Notes
+
+## Bug Fixes
+1. Enhanced the CSV transform functionality to correctly include partyID for each ingested CSV table when provided.
+
+2. Resolved an issue where ingesting multiple CSV files with the same name from different folders resulted in data loss. Now, all files are consolidated into a single table while preserving distinct data sources with the partyID field.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.7.13'' as title, ''# `surveilr` v1.7.13 Release Notes
 
 This release aims to improve the `surveilr osquery-ms` server; no new features or bug fixes were added.'' as description_md;
