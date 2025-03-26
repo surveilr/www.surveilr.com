@@ -36,22 +36,28 @@ jobs:
         with:
           deno-version: v2.0.0
           
-      # Step 3: Install dependencies from package.json
+      # Step 4: Install dependencies from package.json
       - name: Install dependencies
         run: npm install
         
-      # Step 4: Print Git logs for debugging
+      # Step 5: Print Git logs for debugging
       - name: Print Git Log
         run: git log --oneline -10  # Show the last 10 commits for debug purposes
 
-      # Step 5: Build the Astro site (output will be in the 'dist' directory)
+      # Step 6: Build the Astro site (output will be in the 'dist' directory)
       - name: Build Astro site
         run: |
           deno --version
           npm run astro build          
-            
 
-      # Step 6: Deploy to GitHub Pages using the 'dist' directory
+      # Step 7: Copy surveilrctl.sh and surveilrctl.ps1 to the 'dist' folder
+      - name: Copy surveilrctl.sh and surveilrctl.ps1 to 'dist' folder
+        run: |
+          cp ./support/scripts/surveilrctl.sh ./dist/surveilrctl.sh
+          cp ./support/scripts/surveilrctl.ps1 ./dist/surveilrctl.ps1
+
+            
+      # Step 8: Deploy to GitHub Pages using the 'dist' directory
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
