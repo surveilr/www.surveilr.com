@@ -7,21 +7,17 @@ import {
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
 export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
-
-
   // async savecgmSQL() {
   //     const dbFilePath = "./resource-surveillance.sqlite.db";
   //     const sqlStatements = saveJsonCgm(dbFilePath);
   //     return await sqlStatements;
   //   }
 
-
   //   async savemealDDL() {
   //       const dbFilePath = "./resource-surveillance.sqlite.db";
   //       const jsonstmts = generateMealFitnessJson(dbFilePath);
   //       return await jsonstmts;
   //     }
-
 
   //metrics static views shall be generated after the combined_cgm_tracing is created.
   async statelessMetricsSQL() {

@@ -651,7 +651,7 @@ DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
 CREATE VIEW surveilr_osquery_ms_node_system_info AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.board_model') AS board_model,
@@ -682,7 +682,7 @@ AND json_extract(l.content, '$.name') = 'System Information';
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
 CREATE VIEW surveilr_osquery_ms_node_os_version AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.arch') AS arch,
@@ -704,7 +704,7 @@ AND (json_extract(l.content, '$.name') = 'OS Version (Linux and Macos)'
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
 CREATE VIEW surveilr_osquery_ms_node_interface_address AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.address') AS address,
@@ -719,7 +719,7 @@ WHERE l.uri = 'osquery-ms:query-result'
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
 CREATE VIEW surveilr_osquery_ms_node_uptime AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.days') AS days,
@@ -735,7 +735,7 @@ ORDER BY l.created_at DESC;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
 CREATE VIEW surveilr_osquery_ms_node_available_space AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.gigs_disk_space_available') AS available_space,
@@ -753,7 +753,7 @@ DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
 
 CREATE VIEW surveilr_osquery_ms_node_installed_software AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.name') AS name,
@@ -778,7 +778,7 @@ DROP VIEW IF EXISTS surveilr_osquery_ms_node_executed_policy;
 CREATE VIEW surveilr_osquery_ms_node_executed_policy AS
 WITH ranked_policies AS (
     SELECT
-        json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+        json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
         l.updated_at,
         json_extract(l.content, '$.hostIdentifier') AS host_identifier,
         json_extract(l.content, '$.name') AS policy_name,
@@ -814,7 +814,7 @@ WHERE ranked_policies.row_num = 1;
 DROP VIEW IF EXISTS surveilr_osquery_ms_node_boundary;
 CREATE VIEW surveilr_osquery_ms_node_boundary AS
 SELECT
-    json_extract(l.content, '$.osQueryMsNodeKey') AS node_key,
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
     json_extract(l.content, '$.columns.value') AS boundary
