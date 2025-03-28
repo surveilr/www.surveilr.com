@@ -32,6 +32,40 @@ The osQuery system works by defining queries as methods in a class that extends 
 - Returns a SQL string that will be executed by osQuery
 - Can have a string literal name (like `"System Information"`)
 
+# Important Package Behavior: Upserts Only
+
+## Understanding Package Behavior
+
+The `surveilr` osQuery Server Management system follows an important design principle:
+
+**The package scripts (`package.sql.ts`, `queries.sql.ts`, etc.) only perform upserts (insert or update operations) and never delete any data.**
+
+## Performing Deletions
+
+When you need to remove data, queries, or configurations, you must explicitly do so through separate SQL calls. This deliberate separation ensures that deletions are intentional and carefully managed.
+
+### Example: Deleting an osQuery Configuration
+
+If you need to remove a specific osQuery query that's no longer needed, you would:
+
+```sql
+-- Delete a specific query by name from the management server
+DELETE FROM code_notebook_cell 
+WHERE name = 'osQuery Management Server (Prime)'
+AND json_extract(cell_governance, '$.query_name') = 'Windows Registry Settings';
+```
+
+### Example: Cleaning Up All Queries for a Specific Platform
+
+```sql
+-- Remove all Windows-specific queries
+DELETE FROM code_notebook_cell 
+WHERE cell_name = 'osQuery Management Server (Prime)'
+AND json_extract(cell_governance, '$.targets') LIKE '%windows%'
+AND json_extract(cell_governance, '$.targets') NOT LIKE '%linux%' 
+AND json_extract(cell_governance, '$.targets') NOT LIKE '%macos%';
+```
+
 ### How to Add a New Query
 
 #### Step 1: Identify the Information You Need
