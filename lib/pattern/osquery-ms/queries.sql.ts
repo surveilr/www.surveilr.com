@@ -1,3 +1,4 @@
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
 import { codeNB as cnb, RssdInitSqlNotebook } from "./deps.ts";
 
 const osQueryMsNotebookName = "osQuery Management Server (Prime)" as const;
@@ -11,7 +12,7 @@ const osQueryMsCellGovernance = {
   ],
 };
 
-export function osQueryMsCell(
+function osQueryMsCell(
   init?: Omit<
     Parameters<typeof cnb.sqlCell>[0],
     "notebook_name" | "cell_governance"
