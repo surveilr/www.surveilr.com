@@ -1950,6 +1950,11 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
+  const surveilrTableSize = gm.table("surveilr_table_size", {
+    table_name: gm.keys.varCharPrimaryKey(),
+    table_size_mb: gd.integer(),
+  }, { isIdempotent: true });
+
   const informationSchema = {
     tables: [
       partyType,
@@ -2003,6 +2008,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osQueryMsNode,
       urIngestOsQueryMsLog,
       osQueryPolicy,
+      surveilrTableSize
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2050,6 +2056,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
       ...osQueryPolicy.indexes,
+      ...surveilrTableSize.indexes
     ],
   };
 
@@ -2106,6 +2113,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     osQueryMsNode,
     urIngestOsQueryMsLog,
     osQueryPolicy,
+    surveilrTableSize
   };
 }
 
