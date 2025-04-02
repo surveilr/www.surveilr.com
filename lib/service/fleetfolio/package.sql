@@ -173,7 +173,7 @@ SELECT
     json_extract(content, '$.columns.name') as container_name,
     json_extract(content, '$.columns.image') as image, 
     json_extract(content, '$.columns.status') as status
-FROM uniform_resource WHERE name="list Containers";
+FROM uniform_resource WHERE name="list Containers" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_container_image;
 CREATE VIEW list_container_image AS
@@ -184,7 +184,7 @@ SELECT
     json_extract(content, '$.columns.id') as image_id, 
     json_extract(content, '$.columns.size_bytes') as size_bytes,
     json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images";
+FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_container_image;
 CREATE VIEW list_container_image AS
@@ -195,7 +195,7 @@ SELECT
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.size_bytes') as size_bytes,
     json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images";
+FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_network_information;
 CREATE VIEW list_network_information AS
@@ -205,7 +205,7 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS hostIdentifier,
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.ip_address') as ip_address
-FROM uniform_resource WHERE name="container Network Information";
+FROM uniform_resource WHERE name="container Network Information" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_network_volume;
 CREATE VIEW list_network_volume AS
@@ -216,7 +216,7 @@ SELECT
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.mount_point') as mount_point, 
     json_extract(content, '$.columns.name') as volume_name
-FROM uniform_resource WHERE name="list Container Volumes";
+FROM uniform_resource WHERE name="list Container Volumes" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_docker_container;
 CREATE VIEW list_docker_container AS
@@ -1186,7 +1186,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT ''Policies'' AS title, ''?tab=policies&host_identifier='' || $host_identifier AS link, ($tab = ''policies'' OR $tab IS NULL) AS active;
   select ''Software'' as title, ''?tab=software&host_identifier='' || $host_identifier AS link, $tab = ''software'' as active;
   select ''Users'' as title, ''?tab=users&host_identifier='' || $host_identifier AS link, $tab = ''users'' as active;
-  select ''Container'' as title, ''?tab=container&host_identifier='' || $host_identifier AS link, $tab = ''container'' as active;
+  select ''Containers'' as title, ''?tab=container&host_identifier='' || $host_identifier AS link, $tab = ''container'' as active;
 
   -- policy table and tab value Start here
   -- policy pagenation
@@ -1195,11 +1195,11 @@ SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''policies'';
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE ($tab = ''policies'' OR $tab IS NULL);
   SELECT 
   policy_name AS "Policy", policy_result as "Status", resolution
   FROM asset_policy_list
-  WHERE asset_id = $host_identifier AND $tab = ''policies'' LIMIT $limit
+  WHERE asset_id = $host_identifier AND ($tab = ''policies'' OR $tab IS NULL) LIMIT $limit
   OFFSET $offset;
   -- checking
   SELECT ''text'' AS component,
@@ -1263,7 +1263,7 @@ SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''container'';
-  SELECT container_name as name, image, ip_address as "IP Address", status 
+  SELECT LTRIM(container_name, ''/'') AS name, image, ip_address as "IP Address", status 
   FROM list_docker_container
   WHERE asset_id = $host_identifier AND $tab = ''container''
   LIMIT $limit OFFSET $offset;

@@ -350,16 +350,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Policies' AS title, '?tab=policies&host_identifier=' || $host_identifier AS link, ($tab = 'policies' OR $tab IS NULL) AS active;
         select 'Software' as title, '?tab=software&host_identifier=' || $host_identifier AS link, $tab = 'software' as active;
         select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
-        select 'Container' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
+        select 'Containers' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
         ${policyPagination.init()} 
-        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'policies';
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE ($tab = 'policies' OR $tab IS NULL);
         SELECT 
         policy_name AS "Policy", policy_result as "Status", resolution
         FROM ${policyViewName}
-        WHERE asset_id = $host_identifier AND $tab = 'policies' LIMIT $limit
+        WHERE asset_id = $host_identifier AND ($tab = 'policies' OR $tab IS NULL) LIMIT $limit
         OFFSET $offset;
         -- checking
         ${policyPagination.renderSimpleMarkdown(
@@ -403,7 +403,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         -- Container pagenation
          ${containerPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'container';
-        SELECT container_name as name, image, ip_address as "IP Address", status 
+        SELECT LTRIM(container_name, '/') AS name, image, ip_address as "IP Address", status 
         FROM ${containerViewName}
         WHERE asset_id = $host_identifier AND $tab = 'container'
         LIMIT $limit OFFSET $offset;
