@@ -58,59 +58,59 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     return `select * from docker_info;`;
   }
 
-@osQueryMsCell({
-    description: "listContainers.",
+  @osQueryMsCell({
+    description: "list Containers.",
   }, ["linux"])
-  "listContainers"() {
+  "list Containers"() {
     return `SELECT id, name, image, status FROM docker_containers;`;
   }
 
- @osQueryMsCell({
-    description: "listContainerImages.",
+  @osQueryMsCell({
+    description: "list Container Images.",
   }, ["linux"])
-  "listContainerImages"() {
+  "list Container Images"() {
     return `SELECT * FROM docker_images;`;
   }
 
- @osQueryMsCell({
-    description: "containerNetworkInformation.",
+  @osQueryMsCell({
+    description: "container Network Information.",
   }, ["linux"])
-  "containerNetworkInformation"() {
+  "container Network Information"() {
     return `SELECT id, ip_address FROM docker_container_networks;`;
   }
 
- @osQueryMsCell({
-    description: "listContainerVolumes.",
+  @osQueryMsCell({
+    description: "list Container Volumes.",
   }, ["linux"])
-  "listContainerVolumes"() {
+  "list Container Volumes"() {
     return `SELECT mount_point, name FROM docker_volumes;`;
   }
 
   @osQueryMsCell({
-    description: "containerDaemonInfo.",
+    description: "container Daemon Info.",
   }, ["linux"])
-  "containerDaemonInfo"() {
+  "container Daemon Info"() {
     return `SELECT * FROM processes WHERE name = 'dockerd';`;
   }
 
- @osQueryMsCell({
-    description: "dockerhostInfo.",
+  @osQueryMsCell({
+    description: "docker host Info.",
   }, ["linux"])
-  "dockerhostInfo"() {
+  "docker host Info"() {
     return `SELECT os, os_type, architecture, cpus, memory FROM docker_info;`;
   }
 
- @osQueryMsCell({
-    description: "dockerImage.",
+  @osQueryMsCell({
+    description: "docker Image.",
   }, ["linux"])
-  "dockerImage"() {
+  "docker Image"() {
     return `SELECT SUBSTR(id, 0, 8) AS id, strftime('%d-%m-%Y ', datetime(created, 'unixepoch')) AS created, size_bytes, tags FROM docker_images WHERE LENGTH(tags) < 20 AND tags <> '' AND tags != '<none>:<none>' LIMIT 5;`;
   }
 
- @osQueryMsCell({
-    description: "dockerNetwork.",
+  @osQueryMsCell({
+    description: "docker Network.",
   }, ["linux"])
-  "dockerNetwork"() {
+  "docker Network"() {
     return `SELECT SUBSTR(id, 0, 8) AS container, name, SUBSTR(network_id, 0, 8) AS network, gateway, ip_address FROM docker_container_networks WHERE name = 'appliance';`;
   }
 
@@ -122,45 +122,44 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   }
 
   @osQueryMsCell({
-    description: "osqueryMfaEnabled.",
+    description: "osquery Mfa Enabled.",
   }, ["linux"])
-  "osqueryMfaEnabled"() {
+  "osquery Mfa Enabled"() {
     return `SELECT  node, value, label, path FROM augeas WHERE path='/etc/pam.d/sshd' AND value like '%pam_google_authenticator.so%';`;
   }
 
- @osQueryMsCell({
-    description: "osqueryDenyRootLogin.",
+  @osQueryMsCell({
+    description: "osquery Deny Root Login.",
   }, ["linux"])
-  "osqueryDenyRootLogin"() {
+  "osquery Deny Root Login"() {
     return `SELECT node, value, label, path FROM augeas WHERE path='/etc/ssh/sshd_config' AND label like 'PermitRootLogin' AND value like 'no';`;
   }
 
- @osQueryMsCell({
+  @osQueryMsCell({
     description: "osqueryRemovedUserAccounts.",
   }, ["linux"])
   "osqueryRemovedUserAccounts"() {
     return `SELECT * FROM users WHERE shell = 'disabled';`;
   }
 
-
- @osQueryMsCell({
-    description: "osqueryEncryptedPasswords.",
+  @osQueryMsCell({
+    description: "osquery Encrypted Passwords.",
   }, ["linux"])
-  "osqueryEncryptedPasswords"() {
+  "osquery Encrypted Passwords"() {
     return `SELECT md5, sha1, sha256 from hash where path = '/etc/passwd';`;
   }
 
- @osQueryMsCell({
-    description: "osqueryAntivirusStatus.",
+  @osQueryMsCell({
+    description: "osquery Antivirus Status.",
   }, ["linux"])
-  "osqueryAntivirusStatus"() {
+  "osquery Antivirus Status"() {
     return `SELECT score FROM (SELECT case when COUNT(*) = 2 then 1 ELSE 0 END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score == 1;`;
   }
  
- @osQueryMsCell({
-    description: "AsymmetricCryptography.",
+  @osQueryMsCell({
+    description: "Asymmetric Cryptography.",
   }, ["linux"])
-  "AsymmetricCryptography"() {
+  "Asymmetric Cryptography"() {
     return `SELECT * FROM file WHERE (path LIKE '/home/%/.ssh/%.pub' OR path LIKE '/home/%/.ssh/authorized_keys');`;
   }
 }

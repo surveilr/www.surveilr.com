@@ -26,8 +26,8 @@ const patternsCollection = defineCollection({
       longDescription: z.object({
         title: z.string(),
         subTitle: z.string(),
-        btnTitle: z.string(),
-        btnURL: z.string(),
+        btnTitle: z.string().optional(),
+        btnURL: z.string().optional(),
       }),
       descriptionList: z.array(
         z.object({

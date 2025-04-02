@@ -126,10 +126,12 @@ const webPageSchema = {
                 {pattern.data.longDescription.subTitle}
               </p>
               <p class="mt-5">
-                <PrimaryCTA
-                  title={pattern.data.longDescription.btnTitle}
-                  url={pattern.data.longDescription.btnURL}
-                />
+                {pattern.data.longDescription?.btnURL && (
+                  <PrimaryCTA
+                    title={pattern.data.longDescription.btnTitle}
+                    url={pattern.data.longDescription.btnURL}
+                  />
+                )}
                 {pattern.data.liveDemo?.btnURL && (
                   <OutboundButton
                     title={pattern.data.liveDemo?.btnTitle}
