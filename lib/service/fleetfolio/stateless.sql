@@ -165,7 +165,7 @@ SELECT
     json_extract(content, '$.columns.name') as container_name,
     json_extract(content, '$.columns.image') as image, 
     json_extract(content, '$.columns.status') as status
-FROM uniform_resource WHERE name="list Containers";
+FROM uniform_resource WHERE name="list Containers" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_container_image;
 CREATE VIEW list_container_image AS
@@ -176,7 +176,7 @@ SELECT
     json_extract(content, '$.columns.id') as image_id, 
     json_extract(content, '$.columns.size_bytes') as size_bytes,
     json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images";
+FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_container_image;
 CREATE VIEW list_container_image AS
@@ -187,7 +187,7 @@ SELECT
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.size_bytes') as size_bytes,
     json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images";
+FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_network_information;
 CREATE VIEW list_network_information AS
@@ -197,7 +197,7 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS hostIdentifier,
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.ip_address') as ip_address
-FROM uniform_resource WHERE name="container Network Information";
+FROM uniform_resource WHERE name="container Network Information" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_network_volume;
 CREATE VIEW list_network_volume AS
@@ -208,7 +208,7 @@ SELECT
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.mount_point') as mount_point, 
     json_extract(content, '$.columns.name') as volume_name
-FROM uniform_resource WHERE name="list Container Volumes";
+FROM uniform_resource WHERE name="list Container Volumes" AND uri="osquery-ms:query-result";
 
 DROP VIEW IF EXISTS list_docker_container;
 CREATE VIEW list_docker_container AS
