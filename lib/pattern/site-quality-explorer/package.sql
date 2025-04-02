@@ -683,39 +683,19 @@ SELECT
     (SELECT page_size FROM pragma_page_size()) AS page_size,
     (SELECT page_count FROM pragma_page_count()) AS total_pages;
 
-
 CREATE TABLE IF NOT EXISTS surveilr_table_size (
     table_name TEXT PRIMARY KEY,
     table_size_mb REAL
 );
-
-DELETE FROM surveilr_table_size;
-INSERT INTO surveilr_table_size (table_name, table_size_mb)
-SELECT name, 
-      ROUND(SUM(pgsize) / (1024.0 * 1024), 2)
-FROM dbstat
-GROUP BY name;
-
 DROP VIEW IF EXISTS rssd_table_statistic;
 CREATE VIEW rssd_table_statistic AS
 SELECT 
     m.name AS table_name,
-
-    -- Count total columns
     (SELECT COUNT(*) FROM pragma_table_info(m.name)) AS total_columns,
-
-    -- Count total indexes
     (SELECT COUNT(*) FROM pragma_index_list(m.name)) AS total_indexes,
-
-    -- Count foreign keys
     (SELECT COUNT(*) FROM pragma_foreign_key_list(m.name)) AS foreign_keys,
-
-    -- Count primary keys
     (SELECT COUNT(*) FROM pragma_table_info(m.name) WHERE pk != 0) AS primary_keys,
-
-    -- Fetch table size from our manually updated surveilr_table_size table
     (SELECT table_size_mb FROM surveilr_table_size WHERE table_name = m.name) AS table_size_mb
-
 FROM sqlite_master m
 WHERE m.type = 'table';
 

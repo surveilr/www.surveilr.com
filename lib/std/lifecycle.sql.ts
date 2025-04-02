@@ -590,6 +590,27 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
       `;
   }
 
+  @migratableCell({
+    description:
+      "Creates a surveilr_table_size to compute the sizes for individual tables for statistical purposes.",
+  })
+  surveilr_table_size() {
+    // deno-fmt-ignore
+    return this.SQL`
+      CREATE TABLE IF NOT EXISTS surveilr_table_size (
+          table_name TEXT PRIMARY KEY,
+          table_size_mb REAL
+      );
+      
+      DELETE FROM surveilr_table_size;
+      INSERT INTO surveilr_table_size (table_name, table_size_mb)
+      SELECT name, 
+            ROUND(SUM(pgsize) / (1024.0 * 1024), 2)
+      FROM dbstat
+      GROUP BY name;  
+    `;
+  }
+
   // TODO: check with DML should only be inserted once so that if customers override
   //       content, a future migration won't overwrite their data
   @migratableCell({
