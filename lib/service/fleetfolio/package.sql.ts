@@ -42,9 +42,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fleetfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("fleetfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("fleetfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -62,19 +61,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("fleetfolio")
-    }
+           WHERE namespace = 'prime' AND path = ${this.constructHomePath("fleetfolio")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("fleetfolio")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fleetfolio")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -104,9 +100,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 4      as columns;
             select
                 name  as title,
-                ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || boundary_id as link
+                ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
+      } || boundary_id as link
             FROM parent_boundary;
             `;
   }
@@ -129,9 +124,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
       SELECT
         (SELECT name FROM parent_boundary WHERE boundary_id=$boundary_id) AS title,
-        ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || $boundary_id  AS link;
+        ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
+      } || $boundary_id  AS link;
         
       --- Dsply Page Title
       SELECT
@@ -148,9 +142,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             name  as title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id as link
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
+      } || boundary_id as link
         FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
         `;
   }
@@ -172,14 +165,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'Parent Boundary' AS title,
             ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
         SELECT parent_boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || parent_boundary_id  AS link
+            ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
+      } || parent_boundary_id  AS link
             FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
         SELECT boundry AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id  AS link
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
+      } || boundary_id  AS link
             FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
     
         
@@ -198,9 +189,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
         SELECT 
-        '[' || host || '](' || ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || asset_id || ')' as host,
+        '[' || host || '](' || ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || asset_id || ')' as host,
         boundry,
         CASE 
             WHEN status = 'Online' THEN '🟢 Online'
@@ -235,6 +225,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: userListViewName,
       whereSQL: "WHERE asset_id=$host_identifier",
     });
+    const containerViewName = `list_docker_container`;
+    const containerPagination = this.pagination({
+      tableOrViewName: containerViewName,
+      whereSQL: "WHERE asset_id=$host_identifier",
+    });
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -250,19 +245,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'Parent Boundary' AS title,
             ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
         SELECT parent_boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || parent_boundary_id  AS link
+            ${this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
+      } || parent_boundary_id  AS link
             FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
         SELECT boundry AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id  AS link
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
+      } || boundary_id  AS link
             FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
         SELECT host AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || asset_id  AS link
+            ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || asset_id  AS link
             FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
     
         
@@ -355,9 +347,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'System Environment'   as contents;
 
         SELECT 'tab' AS component, TRUE AS center;
-        SELECT 'Policies' AS title, '?tab=policies&host_identifier=' || $host_identifier AS link, $tab = 'policies' AS active;
+        SELECT 'Policies' AS title, '?tab=policies&host_identifier=' || $host_identifier AS link, ($tab = 'policies' OR $tab IS NULL) AS active;
         select 'Software' as title, '?tab=software&host_identifier=' || $host_identifier AS link, $tab = 'software' as active;
         select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
+        select 'Container' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -369,13 +362,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE asset_id = $host_identifier AND $tab = 'policies' LIMIT $limit
         OFFSET $offset;
         -- checking
-        ${
-      policyPagination.renderSimpleMarkdown(
+        ${policyPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='policies'",
-      )
-    };
+      )};
 
         -- Software table and tab value Start here
         -- Software pagenation 
@@ -386,29 +377,42 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE asset_id = $host_identifier AND $tab = 'software'
         LIMIT $limit OFFSET $offset;
         
-        ${
-      softwarePagination.renderSimpleMarkdown(
+        ${softwarePagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='software'",
-      )
-    };
+      )};
 
         -- User table and tab value Start here
         -- User pagenation
+
         ${userListPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'users';
         SELECT user_name as "User Name", directory as "Directory"
         FROM ${userListViewName}
         WHERE asset_id = $host_identifier AND $tab = 'users'
         LIMIT $limit OFFSET $offset;
-        ${
-      userListPagination.renderSimpleMarkdown(
+        ${userListPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='users'",
       )
-    };
+      };
+
+       -- Container table and tab value Start here
+        -- Container pagenation
+         ${containerPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'container';
+        SELECT container_name as name, image, ip_address as "IP Address", status 
+        FROM ${containerViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'container'
+        LIMIT $limit OFFSET $offset;
+        ${containerPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='container'",
+      )
+      };
         `;
   }
   @spn.shell({
@@ -473,11 +477,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
           <div class="page">
               <!-- Header -->
-              
-
               <!-- Page Wrapper -->
               <div class="page-wrapper">
-                  <main class="page-body container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout 'boxed')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+                  <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
                       {{~#each_row~}}{{~/each_row~}}
                   </main>
               </div>
