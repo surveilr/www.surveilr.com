@@ -7,7 +7,7 @@ author: "Geo V L"
 authorImage: "@/images/blog/geo-vl.avif"
 authorImageAlt: "Geo V L"
 pubDate: 2024-11-11
-cardImage: "@/images/insights/content-explorer.avif"
+cardImage: "@/images/insights/compliance-explorer-pattern.avif"
 cardImageAlt: "Compliance Explorer"
 readTime: 3
 tags: ["compliance", "surveilr-pattern"]
