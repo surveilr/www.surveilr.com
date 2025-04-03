@@ -167,21 +167,21 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Osquery SystemInfo",
   }, ["linux"])
   "Osquery SystemInfo"() {
-    return `SELECT *  from system_info`;
+    return `SELECT *  from system_info;`;
   }
 
   @osQueryMsCell({
     description: "Osquery All Processes",
   }, ["linux"])
   "Osquery All Processes"() {
-    return `select pid,name, path from processes`;
+    return `select name, path from processes;`;
   }
 
   @osQueryMsCell({
     description: "Osquery Authentication Log",
   }, ["linux"])
   "Osquery Authentication Log"() {
-    return `SELECT username, tty, time, status, message FROM authentications`;
+    return `SELECT username, tty, time, status, message FROM authentications;`;
   }
 }
 
