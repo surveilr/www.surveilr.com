@@ -155,12 +155,33 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   "osquery Antivirus Status"() {
     return `SELECT score FROM (SELECT case when COUNT(*) = 2 then 1 ELSE 0 END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score == 1;`;
   }
- 
+
   @osQueryMsCell({
     description: "Asymmetric Cryptography.",
   }, ["linux"])
   "Asymmetric Cryptography"() {
     return `SELECT * FROM file WHERE (path LIKE '/home/%/.ssh/%.pub' OR path LIKE '/home/%/.ssh/authorized_keys');`;
+  }
+
+  @osQueryMsCell({
+    description: "Osquery SystemInfo",
+  }, ["linux"])
+  "Osquery SystemInfo"() {
+    return `SELECT *  from system_info`;
+  }
+
+  @osQueryMsCell({
+    description: "Osquery All Processes",
+  }, ["linux"])
+  "Osquery All Processes"() {
+    return `select pid,name, path from processes`;
+  }
+
+  @osQueryMsCell({
+    description: "Osquery Authentication Log",
+  }, ["linux"])
+  "Osquery Authentication Log"() {
+    return `SELECT username, tty, time, status, message FROM authentications`;
   }
 }
 
