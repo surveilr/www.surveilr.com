@@ -174,7 +174,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Osquery All Processes",
   }, ["linux"])
   "Osquery All Processes"() {
-    return `select name, path from processes;`;
+    return `SELECT name, path from processes;`;
   }
 
   @osQueryMsCell({
