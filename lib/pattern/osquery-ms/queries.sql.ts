@@ -62,7 +62,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "List Containers.",
   }, ["linux"])
   "List Containers"() {
-    return `SELECT id, name, image, status FROM docker_containers;`;
+    return `SELECT id, name, image, image_id, status, state FROM docker_containers;`;
   }
 
   @osQueryMsCell({
