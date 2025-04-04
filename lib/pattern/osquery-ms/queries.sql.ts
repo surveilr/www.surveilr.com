@@ -62,7 +62,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "List Containers.",
   }, ["linux"])
   "List Containers"() {
-    return `SELECT id, name, image, image_id, status, state, created FROM docker_containers;`;
+    return `SELECT id, name, image, image_id, status, state, created, pid FROM docker_containers;`;
   }
 
   @osQueryMsCell({
@@ -182,7 +182,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Osquery All Processes",
   }, ["linux"])
   "Osquery All Processes"() {
-    return `SELECT name, path from processes;`;
+    return `SELECT name, path, uid from processes;`;
   }
 
   @osQueryMsCell({
