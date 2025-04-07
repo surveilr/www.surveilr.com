@@ -179,10 +179,10 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   }
 
   @osQueryMsCell({
-    description: "Osquery All Processes",
+    description: "Osquery All Container Processes",
   }, ["linux"])
-  "Osquery All Processes"() {
-    return `SELECT name, path, uid from processes;`;
+  "Osquery All Container Processes"() {
+    return `SELECT name, path, uid, pid, uid from processes;`;
   }
 
   @osQueryMsCell({
