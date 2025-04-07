@@ -13,7 +13,7 @@ importers:
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.4.1)(typescript@5.7.3)
       '@astrojs/react':
         specifier: ^4.2.3
-        version: 4.2.3(@types/node@22.13.10)(@types/react-dom@18.3.1)(@types/react@18.3.12)(jiti@2.4.2)(react-dom@19.0.0(react@19.1.0))(react@19.1.0)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1)
+        version: 4.2.3(@types/node@22.13.10)(@types/react-dom@18.3.1)(@types/react@18.3.12)(jiti@2.4.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1)
       '@astrojs/sitemap':
         specifier: ^3.3.0
         version: 3.3.0
@@ -33,8 +33,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@preline/dropdown':
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^3.0.1
+        version: 3.0.1
       '@preline/overlay':
         specifier: ^3.0.0
         version: 3.0.0
@@ -78,8 +78,8 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.1.0)
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -584,6 +584,15 @@ packages:
   '@expressive-code/plugin-text-markers@0.40.2':
     resolution: {integrity: sha512-/XoLjD67K9nfM4TgDlXAExzMJp6ewFKxNpfUw4F7q5Ecy+IU3/9zQQG/O70Zy+RxYTwKGw2MA9kd7yelsxnSmw==}
 
+  '@floating-ui/core@1.6.9':
+    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
+
+  '@floating-ui/dom@1.6.13':
+    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+
+  '@floating-ui/utils@0.2.9':
+    resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
@@ -885,8 +894,8 @@ packages:
   '@preline/collapse@3.0.0':
     resolution: {integrity: sha512-bVNoNPHBfis81f6D1ngFXXMmB6J1mgLBIhTNO9nJJNvJ8ak+cHLU4rcJrzjMZExBUk0VKcs7rknxJ5RwKQzaBw==}
 
-  '@preline/dropdown@2.6.0':
-    resolution: {integrity: sha512-Ryjeo0tOnsxzT9dI1S4gybUwTcvQPszVTqxmxry1yxIaKWzpom2As/AFoYETZ/8EbdQxr7G6CQj4d0Fw+9u+mA==}
+  '@preline/dropdown@3.0.1':
+    resolution: {integrity: sha512-Kh7H8W8Bjbm9HtRaEX6SlYDhyNIEtjUk+pGT69+FVaM/p0fnAZZsb9FfphhHj2F0UvEXYqxr7/kRDtEBV7f/LA==}
 
   '@preline/overlay@3.0.0':
     resolution: {integrity: sha512-68+h4Z5CMCUUPkreNGGCQSx7Nh5BNFpj3LADW8GrdjqNleHHMm+o0weq9No2GSauWrrXaVWnPUveeFSw7ofGlQ==}
@@ -3041,10 +3050,10 @@ packages:
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
-  react-dom@19.0.0:
-    resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
+  react-dom@19.1.0:
+    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
-      react: ^19.0.0
+      react: ^19.1.0
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
@@ -3237,8 +3246,8 @@ packages:
   sax@1.4.1:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
 
-  scheduler@0.25.0:
-    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
+  scheduler@0.26.0:
+    resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
 
   select@1.1.2:
     resolution: {integrity: sha512-OwpTSOfy6xSs1+pwcNrv0RBMOzI39Lp3qQKUTPVVPRjCdNa5JH/oPRiqsesIskK8TVgmRiHwO4KXlV2Li9dANA==}
@@ -4052,13 +4061,13 @@ snapshots:
     dependencies:
       prismjs: 1.30.0
 
-  '@astrojs/react@4.2.3(@types/node@22.13.10)(@types/react-dom@18.3.1)(@types/react@18.3.12)(jiti@2.4.2)(react-dom@19.0.0(react@19.1.0))(react@19.1.0)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1)':
+  '@astrojs/react@4.2.3(@types/node@22.13.10)(@types/react-dom@18.3.1)(@types/react@18.3.12)(jiti@2.4.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1)':
     dependencies:
       '@types/react': 18.3.12
       '@types/react-dom': 18.3.1
       '@vitejs/plugin-react': 4.3.4(vite@6.2.4(@types/node@22.13.10)(jiti@2.4.2)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1))
       react: 19.1.0
-      react-dom: 19.0.0(react@19.1.0)
+      react-dom: 19.1.0(react@19.1.0)
       ultrahtml: 1.5.3
       vite: 6.2.4(@types/node@22.13.10)(jiti@2.4.2)(sass@1.83.4)(terser@5.36.0)(yaml@2.7.1)
     transitivePeerDependencies:
@@ -4528,6 +4537,17 @@ snapshots:
     dependencies:
       '@expressive-code/core': 0.40.2
 
+  '@floating-ui/core@1.6.9':
+    dependencies:
+      '@floating-ui/utils': 0.2.9
+
+  '@floating-ui/dom@1.6.13':
+    dependencies:
+      '@floating-ui/core': 1.6.9
+      '@floating-ui/utils': 0.2.9
+
+  '@floating-ui/utils@0.2.9': {}
+
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -4804,7 +4824,9 @@ snapshots:
 
   '@preline/collapse@3.0.0': {}
 
-  '@preline/dropdown@2.6.0': {}
+  '@preline/dropdown@3.0.1':
+    dependencies:
+      '@floating-ui/dom': 1.6.13
 
   '@preline/overlay@3.0.0': {}
 
@@ -7412,10 +7434,10 @@ snapshots:
 
   radix3@1.1.2: {}
 
-  react-dom@19.0.0(react@19.1.0):
+  react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
-      scheduler: 0.25.0
+      scheduler: 0.26.0
 
   react-is@18.3.1: {}
 
@@ -7700,7 +7722,7 @@ snapshots:
 
   sax@1.4.1: {}
 
-  scheduler@0.25.0: {}
+  scheduler@0.26.0: {}
 
   select@1.1.2: {}
 
