@@ -1,7 +1,7 @@
 -- Create a virtual table to connect to Google Drive
 WITH gdrive_files AS (
     SELECT * FROM surveilr_udi_dal_gdrive 
-    WHERE access_token = 'ya29.a0AZYkNZhGdU7IdRFUln0Ur53GHLMFTFrq9y3fYL5-x2A_6_mYJBINH_jmVwZDOswY1OxPy9OB59bPIbcMwr2L396JeI-MOjRSAPJJ0vBUOmeP3y_1LZPRmySnhGwJU5AxAWk_wtogYvimi4kUoY1BxpMSFWK9qZavXxnmgsihaCgYKATISARESFQHGX2MiuGD2wIbaHM1e5WgEQLBNng0175'
+    WHERE access_token = ''
     AND path_filter = '/'
 )
 -- Insert files from Google Drive into the uniform_resource table
@@ -21,8 +21,8 @@ INSERT INTO uniform_resource (
 )
 SELECT
     hex(randomblob(16)),     -- Generate a random UUID for uniform_resource_id
-    surveilr_device_id(),         -- Device identifier
-    surveilr_ingest_session_id(), -- Session ID with timestamp
+    surveilr_device_id(),         
+    surveilr_ingest_session_id(), 
     NULL,                
     'https://drive.google.com/drive' || path,     -- URI using the GDrive path
     hex(md5(content)),              
