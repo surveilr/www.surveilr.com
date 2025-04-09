@@ -47,7 +47,7 @@ for entry in "${ADDR[@]}"; do
     fi
 done
 
-echo "All NMAP scans completed. JSON results saved in /home/niba/nmap/json/test/"
+echo "All NMAP scans completed. JSON results saved in /home/nmap/result"
 echo "Running surveilr ingest files to generate the RSSD database..."
 cd /home/nmap/result
 surveilr ingest files
