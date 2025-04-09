@@ -101,8 +101,8 @@ SELECT
 FROM asset ast
 INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=ast.name;
 
--- DROP VIEW IF EXISTS system_user;
--- CREATE VIEW system_user AS
+-- DROP VIEW IF EXISTS list_user;
+-- CREATE VIEW list_user AS
 -- SELECT 
 --     u.uniform_resource_id,
 --     json_extract(u.content, '$.name') AS name,
@@ -122,94 +122,6 @@ INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=
 -- INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
 -- WHERE name = 'Users' AND ue.graph_name='osquery-ms';
 
-DROP VIEW IF EXISTS system_user;
-CREATE VIEW system_user AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.numerics') AS numerics,
-    json_extract(u.content, '$.columns.username') AS user_name,
-    json_extract(u.content, '$.columns.directory') AS directory,
-    json_extract(u.content, '$.columns.description') AS description,
-    json_extract(u.content, '$.columns.gid') AS gid,
-    json_extract(u.content, '$.columns.gid_signed') AS gid_signed,
-    json_extract(u.content, '$.columns.shell') AS shell,
-    json_extract(u.content, '$.columns.uid') AS uid,
-    json_extract(u.content, '$.columns.uid_signed') AS uid_signed,
-    json_extract(u.content, '$.columns.uuid') AS uuid,
-    u.updated_at
-FROM uniform_resource u
-WHERE name = 'Users';
-
--- User list of host 
-DROP VIEW IF EXISTS asset_user_list;
-CREATE VIEW asset_user_list AS
-SELECT 
-    ast.asset_id,
-    ast.name as host,
-    ss.host_identifier,
-    ss.user_name,
-    ss.directory
-FROM asset ast
-INNER JOIN system_user ss ON ss.host_identifier=ast.name;
-
--- Container views
-DROP VIEW IF EXISTS list_container;
-CREATE VIEW list_container AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.name') as container_name,
-    json_extract(content, '$.columns.image') as image, 
-    json_extract(content, '$.columns.status') as status
-FROM uniform_resource WHERE name="list Containers" AND uri="osquery-ms:query-result";
-
-DROP VIEW IF EXISTS list_container_image;
-CREATE VIEW list_container_image AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as image_id, 
-    json_extract(content, '$.columns.size_bytes') as size_bytes,
-    json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
-
-DROP VIEW IF EXISTS list_container_image;
-CREATE VIEW list_container_image AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.size_bytes') as size_bytes,
-    json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="list Container Images" AND uri="osquery-ms:query-result";
-
-DROP VIEW IF EXISTS list_network_information;
-CREATE VIEW list_network_information AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.ip_address') as ip_address
-FROM uniform_resource WHERE name="container Network Information" AND uri="osquery-ms:query-result";
-
-DROP VIEW IF EXISTS list_network_volume;
-CREATE VIEW list_network_volume AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.mount_point') as mount_point, 
-    json_extract(content, '$.columns.name') as volume_name
-FROM uniform_resource WHERE name="list Container Volumes" AND uri="osquery-ms:query-result";
-
 DROP VIEW IF EXISTS list_docker_container;
 CREATE VIEW list_docker_container AS
 SELECT 
@@ -217,7 +129,16 @@ asset.asset_id,
 c.container_name,
 c.image,
 c.status,
-ni.ip_address
+c.state,
+port.host_port,
+port.port,
+ni.ip_address,
+process.process_name as process,
+user.user_name as owenrship,
+datetime(created, 'unixepoch', 'localtime') AS created_date
 FROM list_container AS c
+INNER JOIN list_container_ports AS port ON port.id=c.id
 INNER JOIN list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
-INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier;
+INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier
+INNER JOIN list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
+INNER JOIN asset_user_list AS user ON user.uid=process.uid;
