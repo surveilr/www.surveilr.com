@@ -1870,6 +1870,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osquery_build_platform: gd.text(),
       device_id: device.belongsTo.device_id(),
       behavior_id: behavior.belongsTo.behavior_id().optional(),
+      accelerate: gd.integer().default(60),
       ...gm.housekeeping.columns,
     },
     {
@@ -1955,6 +1956,37 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     table_size_mb: gd.integer(),
   }, { isIdempotent: true });
 
+  const surveilrOsQueryMsDistributedQuery = gm.table(
+    `surveilr_osquery_ms_distributed_query`,
+    {
+      query_id: gm.keys.varCharPrimaryKey(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      query_name: gd.text(),
+      query_sql: gd.text(),
+      discovery_query: gd.textNullable(),
+      status: gd.text(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    }
+  );
+
+  const surveilrOsQueryMsDistributedResult = gm.textPkTable(
+    `surveilr_osquery_ms_distributed_result`,
+    {
+      surveilr_osquery_ms_distributed_result_id: gm.keys.varCharPrimaryKey(),
+      query_id: surveilrOsQueryMsDistributedQuery.belongsTo.query_id(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      results: gd.jsonText(),
+      status_code: gd.integer(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    }
+  );
+
   const informationSchema = {
     tables: [
       partyType,
@@ -2008,7 +2040,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osQueryMsNode,
       urIngestOsQueryMsLog,
       osQueryPolicy,
-      surveilrTableSize
+      surveilrTableSize,
+      surveilrOsQueryMsDistributedQuery,
+      surveilrOsQueryMsDistributedResult
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2056,7 +2090,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
       ...osQueryPolicy.indexes,
-      ...surveilrTableSize.indexes
+      ...surveilrTableSize.indexes,
+      ...surveilrOsQueryMsDistributedQuery.indexes,
+      ...surveilrOsQueryMsDistributedResult.indexes
     ],
   };
 
@@ -2113,7 +2149,9 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     osQueryMsNode,
     urIngestOsQueryMsLog,
     osQueryPolicy,
-    surveilrTableSize
+    surveilrTableSize,
+    surveilrOsQueryMsDistributedQuery,
+    surveilrOsQueryMsDistributedResult
   };
 }
 
