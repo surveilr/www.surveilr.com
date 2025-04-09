@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 -- DROP VIEW IF EXISTS list_container_authentication_log;
 -- DROP VIEW IF EXISTS list_all_process;
 
-DROP TABLE IF EXISTS list_user;
-CREATE TABLE list_user AS
+DROP TABLE IF EXISTS ur_transform_list_user;
+CREATE TABLE ur_transform_list_user AS
 SELECT 
     u.uniform_resource_id,
     json_extract(u.content, '$.name') AS name,
@@ -33,22 +33,10 @@ SELECT
 FROM uniform_resource u
 WHERE name = 'Users';
 
--- User list of host 
-DROP TABLE IF EXISTS asset_user_list;
-CREATE TABLE asset_user_list AS
-SELECT 
-    ast.asset_id,
-    ast.name as host,
-    ss.host_identifier,
-    ss.user_name,
-    ss.directory,
-    ss.uid
-FROM asset ast
-INNER JOIN list_user ss ON ss.host_identifier=ast.name;
 
 -- Container TABLE
-DROP TABLE IF EXISTS list_container;
-CREATE TABLE list_container AS
+DROP TABLE IF EXISTS ur_transform_list_container;
+CREATE TABLE ur_transform_list_container AS
 SELECT 
     uniform_resource_id,
     json_extract(content, '$.name') AS name,
@@ -63,8 +51,8 @@ SELECT
     json_extract(content, '$.columns.created') as created
 FROM uniform_resource WHERE name="List Containers" AND uri="osquery-ms:query-result";
 
-DROP TABLE IF EXISTS list_container_image;
-CREATE TABLE list_container_image AS
+DROP TABLE IF EXISTS ur_transform_list_container_image;
+CREATE TABLE ur_transform_list_container_image AS
 SELECT 
     uniform_resource_id,
     json_extract(content, '$.name') AS name,
@@ -74,8 +62,8 @@ SELECT
     json_extract(content, '$.columns.tags') as tags
 FROM uniform_resource WHERE name="List Container Images" AND uri="osquery-ms:query-result";
 
-DROP TABLE IF EXISTS list_network_information;
-CREATE TABLE list_network_information AS
+DROP TABLE IF EXISTS ur_transform_list_network_information;
+CREATE TABLE ur_transform_list_network_information AS
 SELECT 
     uniform_resource_id,
     json_extract(content, '$.name') AS name,
@@ -84,8 +72,8 @@ SELECT
     json_extract(content, '$.columns.ip_address') as ip_address
 FROM uniform_resource WHERE name="Container Network Information" AND uri="osquery-ms:query-result";
 
-DROP TABLE IF EXISTS list_network_volume;
-CREATE TABLE list_network_volume AS
+DROP TABLE IF EXISTS ur_transform_list_network_volume;
+CREATE TABLE ur_transform_list_network_volume AS
 SELECT 
     uniform_resource_id,
     json_extract(content, '$.name') AS name,
@@ -95,8 +83,8 @@ SELECT
     json_extract(content, '$.columns.name') as volume_name
 FROM uniform_resource WHERE name="list Container Volumes" AND uri="osquery-ms:query-result";
 
-DROP TABLE IF EXISTS list_container_ports;
-CREATE TABLE list_container_ports AS
+DROP TABLE IF EXISTS ur_transform_list_container_ports;
+CREATE TABLE ur_transform_list_container_ports AS
 SELECT 
     uniform_resource_id,
     json_extract(content, '$.name') AS name,
@@ -108,8 +96,8 @@ SELECT
     json_extract(content, '$.columns.type') as type
 FROM uniform_resource WHERE name="Docker Container Ports" AND uri="osquery-ms:query-result";
 
-DROP TABLE IF EXISTS list_container_process;
-CREATE TABLE list_container_process AS
+DROP TABLE IF EXISTS ur_transform_list_container_process;
+CREATE TABLE ur_transform_list_container_process AS
 SELECT 
     asset.asset_id,
     json_extract(ur.content, '$.name') AS name,
@@ -119,14 +107,14 @@ SELECT
     json_extract(ur.content, '$.columns.uid') as uid
 FROM uniform_resource as ur
 INNER JOIN asset_active_list AS asset ON asset.host=host_identifier
-WHERE name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY 
+WHERE name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
     json_extract(ur.content, '$.columns.pid'),
     json_extract(ur.content, '$.columns.uid');
 
 
 -- All Process
-DROP TABLE IF EXISTS list_all_process;
-CREATE TABLE list_all_process AS
+DROP TABLE IF EXISTS ur_transform_list_all_process;
+CREATE TABLE ur_transform_list_all_process AS
 SELECT 
     asset.asset_id,
     json_extract(ur.content, '$.name') AS name,
@@ -157,6 +145,19 @@ SELECT
     parent_boundary_id,
     name 
 FROM boundary WHERE parent_boundary_id IS NOT NULL;
+
+-- User list of host 
+DROP VIEW IF EXISTS asset_user_list;
+CREATE VIEW asset_user_list AS
+SELECT 
+    ast.asset_id,
+    ast.name as host,
+    ss.host_identifier,
+    ss.user_name,
+    ss.directory,
+    ss.uid
+FROM asset ast
+INNER JOIN ur_transform_list_user ss ON ss.host_identifier=ast.name;
 
 DROP VIEW IF EXISTS asset_active_list;
 CREATE VIEW asset_active_list AS
@@ -238,26 +239,6 @@ SELECT
 FROM asset ast
 INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=ast.name;
 
--- DROP VIEW IF EXISTS list_user;
--- CREATE VIEW list_user AS
--- SELECT 
---     u.uniform_resource_id,
---     json_extract(u.content, '$.name') AS name,
---     json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
---     json_extract(u.content, '$.numerics') AS numerics,
---     json_extract(u.content, '$.columns.username') AS user_name,
---     json_extract(u.content, '$.columns.directory') AS directory,
---     json_extract(u.content, '$.columns.description') AS description,
---     json_extract(u.content, '$.columns.gid') AS gid,
---     json_extract(u.content, '$.columns.gid_signed') AS gid_signed,
---     json_extract(u.content, '$.columns.shell') AS shell,
---     json_extract(u.content, '$.columns.uid') AS uid,
---     json_extract(u.content, '$.columns.uid_signed') AS uid_signed,
---     json_extract(u.content, '$.columns.uuid') AS uuid,
---     u.updated_at
--- FROM uniform_resource u
--- INNER JOIN uniform_resource_edge ue ON ue.uniform_resource_id=u.uniform_resource_id
--- WHERE name = 'Users' AND ue.graph_name='osquery-ms';
 
 DROP VIEW IF EXISTS list_docker_container;
 CREATE VIEW list_docker_container AS
@@ -273,11 +254,11 @@ ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
 datetime(created, 'unixepoch', 'localtime') AS created_date
-FROM list_container AS c
-INNER JOIN list_container_ports AS port ON port.id=c.id
-INNER JOIN list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
+FROM ur_transform_list_container AS c
+INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
+INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
 INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier
-INNER JOIN list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
+INNER JOIN ur_transform_list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
 INNER JOIN asset_user_list AS user ON user.uid=process.uid;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
@@ -1331,14 +1312,14 @@ SET current_page = ($offset / $limit) + 1;
 
  -- all_process table and tab value Start here
   -- all_process pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_all_process WHERE asset_id=$host_identifier);
+  SET total_rows = (SELECT COUNT(*) FROM ur_transform_list_container_process WHERE asset_id=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
   SELECT process_name AS "process name"
-  FROM list_all_process
+  FROM ur_transform_list_container_process
   WHERE asset_id = $host_identifier AND $tab = ''all_process''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
