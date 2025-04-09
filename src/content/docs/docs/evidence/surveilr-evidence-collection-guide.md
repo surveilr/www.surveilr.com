@@ -14,7 +14,7 @@ To effectively collect data from cloud platforms like **AWS**, **Azure**, etc., 
 Alternatively, instead of using **deno**, you can use this simple command:
 
 ```bash
-cat cloud-steampipe.jsonl | surveilr ingest tasks
+cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
 This process ensures that both server and cloud platform data are ingested and stored in the **RSSD SQLite** format.
