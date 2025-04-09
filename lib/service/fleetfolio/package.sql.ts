@@ -230,6 +230,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: containerViewName,
       whereSQL: "WHERE asset_id=$host_identifier",
     });
+    const processViewName = `list_all_process`;
+    const processPagination = this.pagination({
+      tableOrViewName: processViewName,
+      whereSQL: "WHERE asset_id=$host_identifier",
+    });
+    const authenticationLogViewName = `list_container_authentication_log`;
+    const authenticationLogPagination = this.pagination({
+      tableOrViewName: authenticationLogViewName,
+      whereSQL: "WHERE asset_id=$host_identifier",
+    });
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -351,6 +361,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'Software' as title, '?tab=software&host_identifier=' || $host_identifier AS link, $tab = 'software' as active;
         select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
         select 'Containers' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
+        select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -402,8 +413,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
        -- Container table and tab value Start here
         -- Container pagenation
          ${containerPagination.init()} 
-        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'container';
-        SELECT LTRIM(container_name, '/') AS name, image, ip_address as "IP Address", status 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search,TRUE    as hover
+         WHERE $tab = 'container';
+        SELECT LTRIM(container_name, '/') AS name, image,host_port AS "host Port",
+        port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
         FROM ${containerViewName}
         WHERE asset_id = $host_identifier AND $tab = 'container'
         LIMIT $limit OFFSET $offset;
@@ -411,6 +424,21 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "tab",
         "host_identifier",
         "$tab='container'",
+      )
+      };
+
+       -- all_process table and tab value Start here
+        -- all_process pagenation
+        ${processPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'all_process';
+        SELECT process_name AS "process name"
+        FROM ${processViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'all_process'
+        LIMIT $limit OFFSET $offset;
+        ${processPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='all_process'",
       )
       };
         `;
