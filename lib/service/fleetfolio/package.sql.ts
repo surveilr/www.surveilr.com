@@ -230,14 +230,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: containerViewName,
       whereSQL: "WHERE asset_id=$host_identifier",
     });
-    const processViewName = `list_all_process`;
+    const processViewName = `ur_transform_list_container_process`;
     const processPagination = this.pagination({
       tableOrViewName: processViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
-    });
-    const authenticationLogViewName = `list_container_authentication_log`;
-    const authenticationLogPagination = this.pagination({
-      tableOrViewName: authenticationLogViewName,
       whereSQL: "WHERE asset_id=$host_identifier",
     });
     return this.SQL`
