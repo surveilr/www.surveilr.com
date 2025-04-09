@@ -1969,7 +1969,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
     {
       isIdempotent: true,
-    }
+    },
   );
 
   const surveilrOsQueryMsDistributedResult = gm.textPkTable(
@@ -1984,7 +1984,29 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
     {
       isIdempotent: true,
-    }
+    },
+  );
+
+  const surveilrOsQueryMsCarve = gm.textPkTable(
+    `surveilr_osquery_ms_carve`,
+    {
+      surveilr_osquery_ms_carve_id: gm.keys.varCharPrimaryKey(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      session_id: tcf.unique(gd.text()),
+      carve_guid: gd.text(),
+      carve_size: gd.integer(),
+      block_count: gd.integer(),
+      block_size: gd.integer(),
+      received_blocks: gd.integer().default(0),
+      carve_path: gd.textNullable(),
+      status: gd.text(),
+      start_time: gd.dateTime(),
+      completion_time: gd.dateTimeNullable(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    },
   );
 
   const informationSchema = {
@@ -2042,7 +2064,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osQueryPolicy,
       surveilrTableSize,
       surveilrOsQueryMsDistributedQuery,
-      surveilrOsQueryMsDistributedResult
+      surveilrOsQueryMsDistributedResult,
+      surveilrOsQueryMsCarve
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2092,7 +2115,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...osQueryPolicy.indexes,
       ...surveilrTableSize.indexes,
       ...surveilrOsQueryMsDistributedQuery.indexes,
-      ...surveilrOsQueryMsDistributedResult.indexes
+      ...surveilrOsQueryMsDistributedResult.indexes,
+      ...surveilrOsQueryMsCarve.indexes
     ],
   };
 
@@ -2151,7 +2175,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     osQueryPolicy,
     surveilrTableSize,
     surveilrOsQueryMsDistributedQuery,
-    surveilrOsQueryMsDistributedResult
+    surveilrOsQueryMsDistributedResult,
+    surveilrOsQueryMsCarve
   };
 }
 
