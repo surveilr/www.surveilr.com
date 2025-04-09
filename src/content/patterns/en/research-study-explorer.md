@@ -2,7 +2,7 @@
 title: "Diabetes Research Hub Study Pattern"
 description: "A seamless integration for converting study files and generating metrics, visual insights  for diabetes research."
 main:
-  id: 5
+  id: 7
   content: |
     The Diabetes Research Hub (DRH) pattern simplifies the ingestion of CGM (Continuous Glucose Monitoring) files and supporting datasets. It allows seamless conversion to SQLite databases, executing advanced queries, and generating visual insights such as AGP (Ambulatory Glucose Profile) graphs and key metrics like J-Index, GRI, and more.
   imgCard: "@/images/pattern/research-study-explorer-pattern-ss-3.avif"
