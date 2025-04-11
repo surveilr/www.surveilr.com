@@ -145,6 +145,15 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
       } || boundary_id as link
         FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
+
+        -- Dashboard count
+        select
+            'card' as component,
+            4      as columns;
+        select
+            "AWS Trust Boundary"  as title,
+            ${this.absoluteURL("/fleetfolio/aws_list.sql")} as link
+       ;
         `;
   }
 
@@ -228,6 +237,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
     const containerViewName = `list_docker_container`;
     const containerPagination = this.pagination({
       tableOrViewName: containerViewName,
+      whereSQL: "WHERE asset_id=$host_identifier",
+    });
+    const processViewName = `ur_transform_list_container_process`;
+    const processPagination = this.pagination({
+      tableOrViewName: processViewName,
       whereSQL: "WHERE asset_id=$host_identifier",
     });
     return this.SQL`
@@ -351,6 +365,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'Software' as title, '?tab=software&host_identifier=' || $host_identifier AS link, $tab = 'software' as active;
         select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
         select 'Containers' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
+        select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -402,8 +417,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
        -- Container table and tab value Start here
         -- Container pagenation
          ${containerPagination.init()} 
-        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'container';
-        SELECT LTRIM(container_name, '/') AS name, image, ip_address as "IP Address", status 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search,TRUE    as hover
+         WHERE $tab = 'container';
+        SELECT LTRIM(container_name, '/') AS name, image,host_port AS "host Port",
+        port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
         FROM ${containerViewName}
         WHERE asset_id = $host_identifier AND $tab = 'container'
         LIMIT $limit OFFSET $offset;
@@ -413,8 +430,202 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "$tab='container'",
       )
       };
+
+       -- all_process table and tab value Start here
+        -- all_process pagenation
+        ${processPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'all_process';
+        SELECT process_name AS "process name"
+        FROM ${processViewName}
+        WHERE asset_id = $host_identifier AND $tab = 'all_process'
+        LIMIT $limit OFFSET $offset;
+        ${processPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='all_process'",
+      )
+      };
         `;
   }
+
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_list.sql"() {
+    const viewName = `ur_transform_ec2_instance`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_list.sql")} AS link; 
+     
+        
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS Trust Boundary" contents;
+  
+         select
+          'text'              as component,
+          'An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.' as contents;
+  
+
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            'host' as markdown,
+            TRUE as sort,
+            TRUE as search,
+            'title' as markdown;
+        SELECT 
+        '[' || title || '](' || ${this.absoluteURL("/fleetfolio/aws_detail.sql?instance_id=")
+      } || instance_id || ')' as title,
+        architecture,
+        platform_details AS platform, 
+        root_device_name as "root device name",
+        state,
+        instance_type as "instance type",
+        datetime(substr(launch_time, 1, 19)) as "launch time"
+        FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_detail.sql"() {
+
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_list.sql")} AS link; 
+      SELECT
+        title,
+        ${this.absoluteURL("/fleetfolio/aws_detail.sql?instance_id=")} || instance_id AS link FROM ur_transform_ec2_instance WHERE instance_id=$instance_id; 
+     
+      --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          title as contents FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
+  
+        select
+          'text'              as component,
+          'An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.' as contents;
+  
+         select 
+                'html' as component,
+                '<div style="display: flex; gap: 20px; width: 100%;">
+                    <!-- First Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Architecture</div>
+                            <div>'|| architecture ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Platform</div>
+                            <div>'|| platform_details ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Root Device Name</div>
+                            <div>'|| root_device_name ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Type </div>
+                            <div>'|| instance_type ||'</div>
+                        </div>
+                    </div> 
+
+                    <!-- Second Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">state</div>
+                            <div>'|| state ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Cpu options core count</div>
+                            <div>'|| cpu_options_core_count ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Availability Zone</div>
+                            <div>'|| az ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Launch Time</div>
+                            <div>'|| datetime(substr(launch_time, 1, 19)) ||'</div>
+                        </div>
+                    </div> 
+
+                    <!-- Third Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Private IP Address</div>
+                            <div>'|| private_ip_address ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Mac Address</div>
+                            <div>'|| mac_address ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Public IP Address</div>
+                            <div>'|| COALESCE(public_ip_address, 'No IP address') ||'</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Status</div>
+                            <div>'|| status ||'</div>
+                        </div>
+                    </div>
+                     <!-- Fourth Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">IP Address</div>
+                            <div>Value</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Mac Address</div>
+                            <div>Value</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Last Fetched</div>
+                            <div>Value</div>
+                        </div>
+                    </div>
+                </div>
+
+            ' as html FROM ur_transform_ec2_instance WHERE instance_id=$instance_id
+  
+
+     `;
+  }
+
+
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",

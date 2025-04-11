@@ -2,7 +2,7 @@
 title: "Direct Secure Messaging Service"
 description: "Trusted and protected health information exchange is backed by the Direct Standard®"
 main:
-  id: 5
+  id: 4
   content: |
     The Direct Secure Messaging Service Pattern for surveilr ingests clinical data CCDA XML files and allows querying, summarizing episodes of care and exploration of those files.
   imgCard: "@/images/pattern/direct-secure-messaging-service.avif"

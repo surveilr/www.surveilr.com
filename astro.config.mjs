@@ -158,6 +158,11 @@ export default defineConfig({
           autogenerate: { directory: "docs/releases" },
           collapsed: true,
         },
+        {
+          label: "Evidence",
+          autogenerate: { directory: "docs/evidence" },
+          collapsed: true,
+        },
       ],
       social: {
         github: "https://github.com/surveilr",
