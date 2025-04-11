@@ -21,6 +21,58 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 -- DROP VIEW IF EXISTS list_container_authentication_log;
 -- DROP VIEW IF EXISTS list_all_process;
 
+DROP VIEW IF EXISTS asset_active_list;
+CREATE VIEW asset_active_list AS
+SELECT 
+    bnd.boundary_id,
+    bnd.parent_boundary_id,
+    parent.name as parent_boundary,
+    ast.asset_id,
+    bnd.name as boundry,
+    ast.name as host,
+    ast.description,
+    nodeDet.surveilr_osquery_ms_node_id,
+    nodeDet.node_key,
+    nodeDet.host_identifier,
+    nodeDet.osquery_version,
+    nodeDet.last_seen,
+    nodeDet.created_at,
+    nodeDet.updated_at,
+    nodeDet.ip_address,
+    nodeDet.mac,
+    nodeDet.added_to_surveilr_osquery_ms,
+    nodeDet.operating_system,
+    nodeDet.available_space,
+    nodeDet.node_status as status,
+    nodeDet.last_fetched,
+    nodeDet.last_restarted,
+    nodeDet. issues,
+    sysinfo.board_model,
+    sysinfo.board_serial,
+    sysinfo.board_vendor,
+    sysinfo.board_version,
+    sysinfo.computer_name,
+    sysinfo.cpu_brand,
+    sysinfo.cpu_logical_cores,
+    sysinfo.cpu_microcode,
+    sysinfo.cpu_physical_cores,
+    sysinfo.cpu_sockets,
+    sysinfo.cpu_subtype,
+    sysinfo.cpu_type,
+    sysinfo.hardware_model,
+    sysinfo.hardware_serial,
+    sysinfo.hardware_vendor,
+    sysinfo.hardware_version,
+    sysinfo.local_hostname,
+    sysinfo.physical_memory,
+    sysinfo.uuid
+FROM asset ast
+INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
+INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast.name
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
+WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
+
 DROP TABLE IF EXISTS ur_transform_list_user;
 CREATE TABLE ur_transform_list_user AS
 SELECT 
@@ -123,6 +175,36 @@ SELECT
 FROM uniform_resource as ur
 INNER JOIN asset_active_list AS asset ON asset.host=host_identifier
 WHERE name="Osquery All Processes" AND uri="osquery-ms:query-result";
+
+
+
+---------------------AWS Tables-----------------------
+DROP TABLE IF EXISTS ur_transform_ec2_instance;
+CREATE TABLE ur_transform_ec2_instance AS
+SELECT 
+  json_extract(instance.value, '$.instance_id') AS instance_id,
+  json_extract(instance.value, '$.account_id') AS account_id,
+  json_extract(instance.value, '$.title') AS title,
+  json_extract(instance.value, '$.architecture') AS architecture,
+  json_extract(instance.value, '$.platform_details') AS platform_details,
+  json_extract(instance.value, '$.root_device_name') AS root_device_name,
+  json_extract(instance.value, '$.instance_state') AS state,
+  json_extract(instance.value, '$.instance_type') AS instance_type,
+  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
+  json_extract(instance.value, '$.az') AS az,
+  json_extract(instance.value, '$.launch_time') AS launch_time,
+  
+  json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
+  json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
+  json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
+  json_extract(ni.value, '$.SubnetId') AS subnet_id,
+  json_extract(ni.value, '$.VpcId') AS vpc_id,
+  json_extract(ni.value, '$.MacAddress') AS mac_address,
+  json_extract(ni.value, '$.Status') AS status
+FROM uniform_resource,
+     json_each(content) AS instance,
+     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
+WHERE uri = 'steampipeawsEC2Instances';
 DROP VIEW IF EXISTS all_boundary;
 CREATE VIEW all_boundary AS
 SELECT 
@@ -159,57 +241,6 @@ SELECT
 FROM asset ast
 INNER JOIN ur_transform_list_user ss ON ss.host_identifier=ast.name;
 
-DROP VIEW IF EXISTS asset_active_list;
-CREATE VIEW asset_active_list AS
-SELECT 
-    bnd.boundary_id,
-    bnd.parent_boundary_id,
-    parent.name as parent_boundary,
-    ast.asset_id,
-    bnd.name as boundry,
-    ast.name as host,
-    ast.description,
-    nodeDet.surveilr_osquery_ms_node_id,
-    nodeDet.node_key,
-    nodeDet.host_identifier,
-    nodeDet.osquery_version,
-    nodeDet.last_seen,
-    nodeDet.created_at,
-    nodeDet.updated_at,
-    nodeDet.ip_address,
-    nodeDet.mac,
-    nodeDet.added_to_surveilr_osquery_ms,
-    nodeDet.operating_system,
-    nodeDet.available_space,
-    nodeDet.node_status as status,
-    nodeDet.last_fetched,
-    nodeDet.last_restarted,
-    nodeDet. issues,
-    sysinfo.board_model,
-    sysinfo.board_serial,
-    sysinfo.board_vendor,
-    sysinfo.board_version,
-    sysinfo.computer_name,
-    sysinfo.cpu_brand,
-    sysinfo.cpu_logical_cores,
-    sysinfo.cpu_microcode,
-    sysinfo.cpu_physical_cores,
-    sysinfo.cpu_sockets,
-    sysinfo.cpu_subtype,
-    sysinfo.cpu_type,
-    sysinfo.hardware_model,
-    sysinfo.hardware_serial,
-    sysinfo.hardware_vendor,
-    sysinfo.hardware_version,
-    sysinfo.local_hostname,
-    sysinfo.physical_memory,
-    sysinfo.uuid
-FROM asset ast
-INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
-INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
-LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast.name
-LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
-WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
 
 -- policy list of host 
 DROP VIEW IF EXISTS asset_policy_list;
@@ -1024,6 +1055,15 @@ SELECT
        name  as title,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id as link
    FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
+
+   -- Dashboard count
+   select
+       ''card'' as component,
+       4      as columns;
+   select
+       "AWS Trust Boundary"  as title,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' as link
+  ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1330,6 +1370,195 @@ SET current_page = ($offset / $limit) + 1;
 ''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''all_process'';
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Parent Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' AS link; 
+
+   
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS Trust Boundary" contents;
+  
+    select
+     ''text''              as component,
+     ''An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.'' as contents;
+  
+
+ SET total_rows = (SELECT COUNT(*) FROM ur_transform_ec2_instance );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       ''host'' as markdown,
+       TRUE as sort,
+       TRUE as search,
+       ''title'' as markdown;
+   SELECT 
+   ''['' || title || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_detail.sql?instance_id='' || instance_id || '')'' as title,
+   architecture,
+   platform_details AS platform, 
+   root_device_name as "root device name",
+   state,
+   instance_type as "instance type",
+   datetime(substr(launch_time, 1, 19)) as "launch time"
+   FROM ur_transform_ec2_instance;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_detail.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Parent Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' AS link; 
+ SELECT
+   title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_detail.sql?instance_id='' || instance_id AS link FROM ur_transform_ec2_instance WHERE instance_id=$instance_id; 
+
+ --- Dsply Page Title
+   SELECT
+     ''title''   as component,
+     title as contents FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
+  
+   select
+     ''text''              as component,
+     ''An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.'' as contents;
+  
+    select 
+           ''html'' as component,
+           ''<div style="display: flex; gap: 20px; width: 100%;">
+               <!-- First Column -->
+               <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Architecture</div>
+                       <div>''|| architecture ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Platform</div>
+                       <div>''|| platform_details ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Root Device Name</div>
+                       <div>''|| root_device_name ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px;">
+                       <div class="datagrid-title">Type </div>
+                       <div>''|| instance_type ||''</div>
+                   </div>
+               </div> 
+
+               <!-- Second Column -->
+               <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">state</div>
+                       <div>''|| state ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Cpu options core count</div>
+                       <div>''|| cpu_options_core_count ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Availability Zone</div>
+                       <div>''|| az ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px;">
+                       <div class="datagrid-title">Launch Time</div>
+                       <div>''|| datetime(substr(launch_time, 1, 19)) ||''</div>
+                   </div>
+               </div> 
+
+               <!-- Third Column -->
+               <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Private IP Address</div>
+                       <div>''|| private_ip_address ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Mac Address</div>
+                       <div>''|| mac_address ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Public IP Address</div>
+                       <div>''|| COALESCE(public_ip_address, ''No IP address'') ||''</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px;">
+                       <div class="datagrid-title">Status</div>
+                       <div>''|| status ||''</div>
+                   </div>
+               </div>
+                <!-- Fourth Column -->
+               <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">IP Address</div>
+                       <div>Value</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                       <div class="datagrid-title">Mac Address</div>
+                       <div>Value</div>
+                   </div>
+                   <div style="display: flex; justify-content: space-between; padding: 4px;">
+                       <div class="datagrid-title">Last Fetched</div>
+                       <div>Value</div>
+                   </div>
+               </div>
+           </div>
+
+       '' as html FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

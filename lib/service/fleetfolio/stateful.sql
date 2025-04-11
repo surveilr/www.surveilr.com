@@ -14,6 +14,58 @@
 -- DROP VIEW IF EXISTS list_container_authentication_log;
 -- DROP VIEW IF EXISTS list_all_process;
 
+DROP VIEW IF EXISTS asset_active_list;
+CREATE VIEW asset_active_list AS
+SELECT 
+    bnd.boundary_id,
+    bnd.parent_boundary_id,
+    parent.name as parent_boundary,
+    ast.asset_id,
+    bnd.name as boundry,
+    ast.name as host,
+    ast.description,
+    nodeDet.surveilr_osquery_ms_node_id,
+    nodeDet.node_key,
+    nodeDet.host_identifier,
+    nodeDet.osquery_version,
+    nodeDet.last_seen,
+    nodeDet.created_at,
+    nodeDet.updated_at,
+    nodeDet.ip_address,
+    nodeDet.mac,
+    nodeDet.added_to_surveilr_osquery_ms,
+    nodeDet.operating_system,
+    nodeDet.available_space,
+    nodeDet.node_status as status,
+    nodeDet.last_fetched,
+    nodeDet.last_restarted,
+    nodeDet. issues,
+    sysinfo.board_model,
+    sysinfo.board_serial,
+    sysinfo.board_vendor,
+    sysinfo.board_version,
+    sysinfo.computer_name,
+    sysinfo.cpu_brand,
+    sysinfo.cpu_logical_cores,
+    sysinfo.cpu_microcode,
+    sysinfo.cpu_physical_cores,
+    sysinfo.cpu_sockets,
+    sysinfo.cpu_subtype,
+    sysinfo.cpu_type,
+    sysinfo.hardware_model,
+    sysinfo.hardware_serial,
+    sysinfo.hardware_vendor,
+    sysinfo.hardware_version,
+    sysinfo.local_hostname,
+    sysinfo.physical_memory,
+    sysinfo.uuid
+FROM asset ast
+INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
+INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast.name
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
+WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
+
 DROP TABLE IF EXISTS ur_transform_list_user;
 CREATE TABLE ur_transform_list_user AS
 SELECT 
@@ -116,3 +168,33 @@ SELECT
 FROM uniform_resource as ur
 INNER JOIN asset_active_list AS asset ON asset.host=host_identifier
 WHERE name="Osquery All Processes" AND uri="osquery-ms:query-result";
+
+
+
+---------------------AWS Tables-----------------------
+DROP TABLE IF EXISTS ur_transform_ec2_instance;
+CREATE TABLE ur_transform_ec2_instance AS
+SELECT 
+  json_extract(instance.value, '$.instance_id') AS instance_id,
+  json_extract(instance.value, '$.account_id') AS account_id,
+  json_extract(instance.value, '$.title') AS title,
+  json_extract(instance.value, '$.architecture') AS architecture,
+  json_extract(instance.value, '$.platform_details') AS platform_details,
+  json_extract(instance.value, '$.root_device_name') AS root_device_name,
+  json_extract(instance.value, '$.instance_state') AS state,
+  json_extract(instance.value, '$.instance_type') AS instance_type,
+  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
+  json_extract(instance.value, '$.az') AS az,
+  json_extract(instance.value, '$.launch_time') AS launch_time,
+  
+  json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
+  json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
+  json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
+  json_extract(ni.value, '$.SubnetId') AS subnet_id,
+  json_extract(ni.value, '$.VpcId') AS vpc_id,
+  json_extract(ni.value, '$.MacAddress') AS mac_address,
+  json_extract(ni.value, '$.Status') AS status
+FROM uniform_resource,
+     json_each(content) AS instance,
+     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
+WHERE uri = 'steampipeawsEC2Instances';
