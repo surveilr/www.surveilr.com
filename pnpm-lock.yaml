@@ -39,8 +39,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@preline/tabs':
-        specifier: ^2.5.2
-        version: 2.5.2
+        specifier: ^3.0.0
+        version: 3.0.0
       '@vercel/nft':
         specifier: ^0.29.0
         version: 0.29.0(rollup@4.39.0)
@@ -900,8 +900,8 @@ packages:
   '@preline/overlay@3.0.0':
     resolution: {integrity: sha512-68+h4Z5CMCUUPkreNGGCQSx7Nh5BNFpj3LADW8GrdjqNleHHMm+o0weq9No2GSauWrrXaVWnPUveeFSw7ofGlQ==}
 
-  '@preline/tabs@2.5.2':
-    resolution: {integrity: sha512-fF6rPN+dCX7XV9nnYCWSShuMdJzOzs7DfA5/2ale/TR7Pa/pleGpUXkwuKoTsxdNeSdVymN9p9u9nfpkxdPrZg==}
+  '@preline/tabs@3.0.0':
+    resolution: {integrity: sha512-VR11skwWKlrBAnVDtbtkGdzCmBwkmSScjfxwxi95QdTOwVpgdDdDHkZ8rgYtpVNfAdNQ288j5XTUIXRxdICoJg==}
 
   '@rollup/pluginutils@5.1.4':
     resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
@@ -4935,7 +4935,7 @@ snapshots:
 
   '@preline/overlay@3.0.0': {}
 
-  '@preline/tabs@2.5.2': {}
+  '@preline/tabs@3.0.0': {}
 
   '@rollup/pluginutils@5.1.4(rollup@4.39.0)':
     dependencies:
