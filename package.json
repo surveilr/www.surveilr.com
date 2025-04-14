@@ -16,7 +16,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.2.3",
     "@astrojs/sitemap": "^3.3.0",
-    "@astrojs/starlight": "^0.32.6",
+    "@astrojs/starlight": "^0.33.1",
     "@astrojs/starlight-tailwind": "^3.0.1",
     "@astrojs/tailwind": "6.0.2",
     "@preline/accordion": "^2.6.0",
