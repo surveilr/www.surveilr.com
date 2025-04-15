@@ -1,11 +1,6 @@
 -- =====================================================================
 -- GOOGLE DRIVE INTEGRATION WITH SURVEILR
 -- =====================================================================
--- PREREQUISITES:
---   1. Surveilr installed and configured
---   2. Google API credentials
---   3. SQLite database with uniform_resource table
--- 
 -- HOW TO GET ACCESS TOKEN:
 -- Step 1: Create a Google Cloud Project
 -- Go to https://console.cloud.google.com/
@@ -48,16 +43,18 @@
 --   grant_type=authorization_code
 -- }
 -- Response contains access_token, refresh_token, etc.
---
--- HOW THE INGESTION WORKS:
---   - The surveilr_udi_dal_gdrive virtual table connects to Google Drive
---   - Files are filtered based on criteria (extension, size, etc.)
---   - Data is mapped to Surveilr's uniform_resource table
---   - Files receive unique identifiers and appropriate metadata
---
+
+--Setting Up with Environment Variables
+-- Create a .env file in your project directory:
+--  *GDRIVE_ACCESS_TOKEN=your_oauth_access_token
+--  *GDRIVE_BASE_PATH=/
+
+
 -- RUNNING THE INTEGRATION:
 --   This script must be executed through the Surveilr shell:
---   $ surveilr shell --file (gdrive.sql)
+--   $ surveilr shell gdrive.sql
+
+
 
 
 -- Create a virtual table to connect to Google Drive
@@ -66,6 +63,12 @@ WITH gdrive_files AS (
     WHERE access_token = ''
     AND path_filter = '/'
 )
+
+ --Testing by passing env variables
+WITH gdrive_files AS (
+    SELECT * FROM surveilr_udi_dal_gdrive();
+)
+
 -- Insert files from Google Drive into the uniform_resource table
 INSERT INTO uniform_resource (
     uniform_resource_id,
@@ -82,11 +85,11 @@ INSERT INTO uniform_resource (
     created_at
 )
 SELECT
-    hex(randomblob(16)),     -- Generate a random UUID for uniform_resource_id
+    hex(randomblob(16)),    
     surveilr_device_id(),         
     surveilr_ingest_session_id(), 
     NULL,                
-    'https://drive.google.com/drive' || path,     -- URI using the GDrive path
+    'https://drive.google.com/drive' || path,   
     hex(md5(content)),              
     content,                       
     size AS size_bytes,             
@@ -95,16 +98,21 @@ SELECT
     'system',                       
     CURRENT_TIMESTAMP
 FROM gdrive_files
-WHERE size < 10485760;       -- Limit to files under 10MB
+WHERE size < 10485760;      
 
 
 --Import Google Drive files with specific extensions
-
 WITH gdrive_files AS (
     SELECT * FROM surveilr_udi_dal_gdrive 
     WHERE access_token = ''
     AND path_filter = '/'
 )
+
+ --Testing by passing env variables
+WITH gdrive_files AS (
+    SELECT * FROM surveilr_udi_dal_gdrive();
+)
+
 -- Insert files from Google Drive into the uniform_resource table
 INSERT INTO uniform_resource (
     uniform_resource_id,
@@ -121,11 +129,11 @@ INSERT INTO uniform_resource (
     created_at
 )
 SELECT
-    hex(randomblob(16)),     -- Generate a random UUID for uniform_resource_id
+    hex(randomblob(16)),    
     surveilr_device_id(),         
     surveilr_ingest_session_id(), 
     NULL,                
-    'https://drive.google.com/drive/' || path,     -- URI using the GDrive path
+    'https://drive.google.com/drive/' || path,    
     hex(md5(content)),              
     content,                       
     size AS size_bytes,             
