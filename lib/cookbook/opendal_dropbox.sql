@@ -65,7 +65,7 @@ WHERE size < 10485760;
 
 WITH dropbox_files AS (
     SELECT name, size, last_modified, content_type, content, path
-    FROM surveilr_udi_dal_dropbox('YOUR_ACCESS_TOKEN', 'root')
+    FROM surveilr_udi_dal_dropbox('YOUR_ACCESS_TOKEN', '/')
 )
 
 --Testing by passing env variables
