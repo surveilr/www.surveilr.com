@@ -198,3 +198,24 @@ FROM uniform_resource,
      json_each(content) AS instance,
      json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
 WHERE uri = 'steampipeawsEC2Instances';
+
+DROP TABLE IF EXISTS ur_transform_vpc;
+CREATE TABLE ur_transform_vpc AS
+SELECT 
+  json_extract(value, '$.owner_id') AS owner_id,
+  json_extract(value, '$.state') AS state,
+  json_extract(value, '$.title') AS title,
+  json_extract(value, '$.vpc_id') AS vpc_id
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeawsVPC';
+
+DROP TABLE IF EXISTS ur_transform_aws_buckets;
+CREATE TABLE ur_transform_aws_buckets AS
+SELECT 
+  json_extract(value, '$.name') AS name,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.creation_date') AS creation_date
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeListAllAwsBuckets';

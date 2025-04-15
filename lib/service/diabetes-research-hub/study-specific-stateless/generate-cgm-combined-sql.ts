@@ -958,7 +958,9 @@ export function generateMealFitnessJson(dbFilePath: string) {
                     'date', date,
                     'steps', steps,
                     'exercise_minutes', exercise_minutes,
-                    'calories_burned', calories_burned
+                    'calories_burned', calories_burned,
+                    'distance', distance,
+                    'heart_rate', heart_rate
                 )) AS fitness_data
                 FROM uniform_resource_fitness_data
                 WHERE participant_id = ?

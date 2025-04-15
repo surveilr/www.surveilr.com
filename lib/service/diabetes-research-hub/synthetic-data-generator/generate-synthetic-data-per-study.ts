@@ -184,7 +184,9 @@ const createTables = () => {
         date TEXT,
         steps INTEGER,
         exercise_minutes INTEGER,
-        calories_burned INTEGER
+        calories_burned INTEGER,
+        distance REAL,
+        heart_rate INTEGER        
       )`,
       `CREATE TABLE IF NOT EXISTS uniform_resource_meal_data (
         meal_id TEXT PRIMARY KEY,
@@ -310,7 +312,7 @@ const generateFitnessData = (participantId: string, days: number) => {
 
     // Prepare statement once
     const stmt = db.prepare(`
-      INSERT INTO uniform_resource_fitness_data VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO uniform_resource_fitness_data VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (let i = 0; i < days; i++) {
@@ -318,6 +320,8 @@ const generateFitnessData = (participantId: string, days: number) => {
       const steps = Math.floor(Math.random() * (15000 - 3000) + 3000);
       const exerciseMinutes = Math.floor(Math.random() * 90);
       const caloriesBurned = Math.floor(Math.random() * (700 - 150) + 150);
+      const distance = Math.floor(Math.random() * (10 - 1) + 1); // Distance in km
+      const heartRate = Math.floor(Math.random() * (180 - 60) + 60); // Heart rate in bpm
 
       stmt.run(
         fitnessId,
@@ -326,6 +330,8 @@ const generateFitnessData = (participantId: string, days: number) => {
         steps,
         exerciseMinutes,
         caloriesBurned,
+        distance,
+        heartRate,
       );
 
       date.setDate(date.getDate() - 1);
