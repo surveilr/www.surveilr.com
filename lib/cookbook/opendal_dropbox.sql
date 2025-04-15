@@ -9,8 +9,8 @@
 
 --Setting Up with Environment Variables
 -- Create a .env file in your project directory:
---  *ACCESS_TOKEN=your_access_token
---  *path=file_root
+--  *DROPBOX_ACCESS_TOKEN=your_access_token
+--  *DROPBOX_BASE_PATH=file_root
 
 -- RUNNING THE INTEGRATION:
 --   This script must be executed through the Surveilr shell:
