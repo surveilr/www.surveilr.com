@@ -205,6 +205,27 @@ FROM uniform_resource,
      json_each(content) AS instance,
      json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
 WHERE uri = 'steampipeawsEC2Instances';
+
+DROP TABLE IF EXISTS ur_transform_vpc;
+CREATE TABLE ur_transform_vpc AS
+SELECT 
+  json_extract(value, '$.owner_id') AS owner_id,
+  json_extract(value, '$.state') AS state,
+  json_extract(value, '$.title') AS title,
+  json_extract(value, '$.vpc_id') AS vpc_id
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeawsVPC';
+
+DROP TABLE IF EXISTS ur_transform_aws_buckets;
+CREATE TABLE ur_transform_aws_buckets AS
+SELECT 
+  json_extract(value, '$.name') AS name,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.creation_date') AS creation_date
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeListAllAwsBuckets';
 DROP VIEW IF EXISTS all_boundary;
 CREATE VIEW all_boundary AS
 SELECT 
@@ -291,6 +312,42 @@ INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.host
 INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier
 INNER JOIN ur_transform_list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
 INNER JOIN asset_user_list AS user ON user.uid=process.uid;
+
+DROP VIEW IF EXISTS list_aws_ec2_instance;
+CREATE VIEW list_aws_ec2_instance AS
+SELECT
+  ec2.instance_id,
+  ec2.account_id,
+  ec2.title,
+  ec2.architecture,
+  ec2.platform_details,
+  ec2.root_device_name,
+  ec2.state,
+  ec2.instance_type,
+  ec2.cpu_options_core_count,
+  ec2.az,
+  ec2.launch_time,
+  ec2.network_interface_id,
+  ec2.private_ip_address,
+  ec2.public_ip_address,
+  ec2.subnet_id,
+  ec2.vpc_id,
+  ec2.mac_address,
+  ec2.status,
+  vpc.title as vpc_name,
+  vpc.state as vpc_state
+FROM
+  ur_transform_ec2_instance AS ec2
+LEFT JOIN ur_transform_vpc vpc ON ec2.vpc_id=vpc.vpc_id;
+
+DROP VIEW IF EXISTS list_aws_s3_bucket;
+CREATE VIEW list_aws_s3_bucket AS
+SELECT
+name,
+region,
+creation_date
+FROM
+  ur_transform_aws_buckets;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1062,7 +1119,7 @@ SELECT
        4      as columns;
    select
        "AWS Trust Boundary"  as title,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' as link
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' as link
   ;
             ',
       CURRENT_TIMESTAMP)
@@ -1374,7 +1431,7 @@ SET current_page = ($offset / $limit) + 1;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/aws_list.sql',
+      'fleetfolio/aws_trust_boundary_list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1382,7 +1439,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_list.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_trust_boundary_list.sql/index.sql'') as contents;
     ;
    --- Display breadcrumb
 SELECT
@@ -1399,20 +1456,74 @@ SELECT
 
  SELECT
    ''AWS Trust Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' AS link; 
-
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
    
  --- Dsply Page Title
  SELECT
      ''title''   as component,
      "AWS Trust Boundary" contents;
   
+  -- Dashboard count
+       select
+           ''card'' as component,
+           4      as columns;
+       select
+           "AWS EC2 instance "  as title,
+           ''IconSquare'' as icon,
+           ''orange''                    as color,
+           sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_list.sql'' as link;
+       select
+           "AWS S3 buckets"  as title,
+           "bucket" as icon,
+           ''blue''                    as color,
+           sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_s3_bucket_list.sql'' as link;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_ec2_instance_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_ec2_instance_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Parent Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS EC2 instance'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
+
+   
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS EC2 instance" contents;
+  
     select
      ''text''              as component,
      ''An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.'' as contents;
   
 
- SET total_rows = (SELECT COUNT(*) FROM ur_transform_ec2_instance );
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_ec2_instance );
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1423,14 +1534,14 @@ SELECT ''table'' AS component,
        TRUE as search,
        ''title'' as markdown;
    SELECT 
-   ''['' || title || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_detail.sql?instance_id='' || instance_id || '')'' as title,
+   ''['' || title || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_detail.sql?instance_id='' || instance_id || '')'' as title,
    architecture,
    platform_details AS platform, 
    root_device_name as "root device name",
    state,
    instance_type as "instance type",
    datetime(substr(launch_time, 1, 19)) as "launch time"
-   FROM ur_transform_ec2_instance;
+   FROM list_aws_ec2_instance;
     SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -1441,7 +1552,7 @@ SELECT ''table'' AS component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/aws_detail.sql',
+      'fleetfolio/aws_ec2_instance_detail.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1449,7 +1560,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_detail.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_ec2_instance_detail.sql/index.sql'') as contents;
     ;
    --- Display breadcrumb
 SELECT
@@ -1465,15 +1576,19 @@ SELECT
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
  SELECT
    ''AWS Trust Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_list.sql'' AS link; 
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS EC2 instance'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
  SELECT
    title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_detail.sql?instance_id='' || instance_id AS link FROM ur_transform_ec2_instance WHERE instance_id=$instance_id; 
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_detail.sql?instance_id='' || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
 
  --- Dsply Page Title
    SELECT
      ''title''   as component,
-     title as contents FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
+     title as contents FROM list_aws_ec2_instance WHERE instance_id=$instance_id;
   
    select
      ''text''              as component,
@@ -1544,12 +1659,12 @@ SELECT
                 <!-- Fourth Column -->
                <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
                    <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                       <div class="datagrid-title">IP Address</div>
-                       <div>Value</div>
+                       <div class="datagrid-title">VPC</div>
+                       <div>''|| vpc_name ||''</div>
                    </div>
                    <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                       <div class="datagrid-title">Mac Address</div>
-                       <div>Value</div>
+                       <div class="datagrid-title">VPC State</div>
+                       <div>''|| vpc_state ||''</div>
                    </div>
                    <div style="display: flex; justify-content: space-between; padding: 4px;">
                        <div class="datagrid-title">Last Fetched</div>
@@ -1558,7 +1673,74 @@ SELECT
                </div>
            </div>
 
-       '' as html FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
+       '' as html FROM list_aws_ec2_instance WHERE instance_id=$instance_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_s3_bucket_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_s3_bucket_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Parent Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS S3 buckets'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
+
+   
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS S3 buckets" contents;
+  
+    select
+     ''text''              as component,
+     ''AWS S3 Bucket is a scalable storage container in Amazon Simple Storage Service (S3) used to store and organize objects (such as files, images, backups, and data). Each bucket has a globally unique name and supports features like versioning, access control, encryption, and lifecycle policies.'' as contents;
+  
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_s3_bucket );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       ''host'' as markdown,
+       TRUE as sort,
+       TRUE as search,
+       ''title'' as markdown;
+   SELECT 
+   name,
+   region,
+   datetime(substr(creation_date, 1, 19)) as "Creation date"
+   FROM list_aws_s3_bucket;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
