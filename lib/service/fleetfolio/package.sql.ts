@@ -152,7 +152,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         select
             "AWS Trust Boundary"  as title,
-            ${this.absoluteURL("/fleetfolio/aws_list.sql")} as link
+            ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} as link
        ;
         `;
   }
@@ -448,10 +448,56 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         `;
   }
 
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_trust_boundary_list.sql"() {
+
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+        
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS Trust Boundary" contents;
+  
+       -- Dashboard count
+            select
+                'card' as component,
+                4      as columns;
+            select
+                "AWS EC2 instance "  as title,
+                'IconSquare' as icon,
+                'orange'                    as color,
+                ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")} as link;
+            select
+                "AWS S3 buckets"  as title,
+                "bucket" as icon,
+                'blue'                    as color,
+                ${this.absoluteURL("/fleetfolio/aws_s3_bucket_list.sql")} as link;
+
+     `;
+  }
+
+
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/aws_list.sql"() {
-    const viewName = `ur_transform_ec2_instance`;
+  "fleetfolio/aws_ec2_instance_list.sql"() {
+    const viewName = `list_aws_ec2_instance`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
       whereSQL: "",
@@ -473,13 +519,17 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
         'AWS Trust Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_list.sql")} AS link; 
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS EC2 instance' AS title,
+        ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
      
         
       --- Dsply Page Title
       SELECT
           'title'   as component,
-          "AWS Trust Boundary" contents;
+          "AWS EC2 instance" contents;
   
          select
           'text'              as component,
@@ -493,7 +543,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as search,
             'title' as markdown;
         SELECT 
-        '[' || title || '](' || ${this.absoluteURL("/fleetfolio/aws_detail.sql?instance_id=")
+        '[' || title || '](' || ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
       } || instance_id || ')' as title,
         architecture,
         platform_details AS platform, 
@@ -507,7 +557,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/aws_detail.sql"() {
+  "fleetfolio/aws_ec2_instance_detail.sql"() {
 
     return this.SQL`
       ${this.activePageTitle()}
@@ -525,15 +575,19 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
       SELECT
         'AWS Trust Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_list.sql")} AS link; 
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS EC2 instance' AS title,
+        ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
       SELECT
         title,
-        ${this.absoluteURL("/fleetfolio/aws_detail.sql?instance_id=")} || instance_id AS link FROM ur_transform_ec2_instance WHERE instance_id=$instance_id; 
+        ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")} || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
      
       --- Dsply Page Title
         SELECT
           'title'   as component,
-          title as contents FROM ur_transform_ec2_instance WHERE instance_id=$instance_id;
+          title as contents FROM list_aws_ec2_instance WHERE instance_id=$instance_id;
   
         select
           'text'              as component,
@@ -604,12 +658,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                      <!-- Fourth Column -->
                     <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
                         <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                            <div class="datagrid-title">IP Address</div>
-                            <div>Value</div>
+                            <div class="datagrid-title">VPC</div>
+                            <div>'|| vpc_name ||'</div>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                            <div class="datagrid-title">Mac Address</div>
-                            <div>Value</div>
+                            <div class="datagrid-title">VPC State</div>
+                            <div>'|| vpc_state ||'</div>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 4px;">
                             <div class="datagrid-title">Last Fetched</div>
@@ -618,10 +672,65 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                     </div>
                 </div>
 
-            ' as html FROM ur_transform_ec2_instance WHERE instance_id=$instance_id
+            ' as html FROM list_aws_ec2_instance WHERE instance_id=$instance_id
+     `;
+  }
+
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_s3_bucket_list.sql"() {
+    const viewName = `list_aws_s3_bucket`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Parent Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS S3 buckets' AS title,
+        ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
+     
+        
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS S3 buckets" contents;
+  
+         select
+          'text'              as component,
+          'AWS S3 Bucket is a scalable storage container in Amazon Simple Storage Service (S3) used to store and organize objects (such as files, images, backups, and data). Each bucket has a globally unique name and supports features like versioning, access control, encryption, and lifecycle policies.' as contents;
   
 
-     `;
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            'host' as markdown,
+            TRUE as sort,
+            TRUE as search,
+            'title' as markdown;
+        SELECT 
+        name,
+        region,
+        datetime(substr(creation_date, 1, 19)) as "Creation date"
+        FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
   }
 
 
