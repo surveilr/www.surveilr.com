@@ -84,3 +84,39 @@ INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.host
 INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier
 INNER JOIN ur_transform_list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
 INNER JOIN asset_user_list AS user ON user.uid=process.uid;
+
+DROP VIEW IF EXISTS list_aws_ec2_instance;
+CREATE VIEW list_aws_ec2_instance AS
+SELECT
+  ec2.instance_id,
+  ec2.account_id,
+  ec2.title,
+  ec2.architecture,
+  ec2.platform_details,
+  ec2.root_device_name,
+  ec2.state,
+  ec2.instance_type,
+  ec2.cpu_options_core_count,
+  ec2.az,
+  ec2.launch_time,
+  ec2.network_interface_id,
+  ec2.private_ip_address,
+  ec2.public_ip_address,
+  ec2.subnet_id,
+  ec2.vpc_id,
+  ec2.mac_address,
+  ec2.status,
+  vpc.title as vpc_name,
+  vpc.state as vpc_state
+FROM
+  ur_transform_ec2_instance AS ec2
+LEFT JOIN ur_transform_vpc vpc ON ec2.vpc_id=vpc.vpc_id;
+
+DROP VIEW IF EXISTS list_aws_s3_bucket;
+CREATE VIEW list_aws_s3_bucket AS
+SELECT
+name,
+region,
+creation_date
+FROM
+  ur_transform_aws_buckets;
