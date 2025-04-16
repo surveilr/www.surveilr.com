@@ -25,7 +25,7 @@ To begin the process, use the following command to ingest the data directly into
 cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
-This will ensure both server and cloud platform data are ingested and stored in the **RSSD SQLite** format for further use.
+This will ensure cloud platform data are ingested and stored in the **RSSD SQLite** format for further use.
 
 ---
 
