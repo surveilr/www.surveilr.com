@@ -99,6 +99,12 @@ connection "aws" {
   secret_key = "fSxxxxxxxxxxxxxxxxxxxx7t" }
 ```
 
+To start the service:
+
+```bash
+steampipe service start
+```
+
 ### **3. Cnquery**
 
 Install cnquery with the installation script:
