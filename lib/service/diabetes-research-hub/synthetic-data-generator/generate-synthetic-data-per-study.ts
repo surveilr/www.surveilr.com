@@ -279,7 +279,7 @@ const generateStudyMetadata = (
 
   console.log(studyId);
 
-  const startDate = new Date().toISOString();
+  const startDate = new Date().toISOString().replace("T", " ").replace("Z", "");
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + days);
   const nctNumber = `NCT${Math.floor(100000 + Math.random() * 900000)}`;
@@ -290,7 +290,7 @@ const generateStudyMetadata = (
       studyId,
       studyName,
       startDate,
-      endDate.toISOString(),
+      endDate.toISOString().replace("T", " ").replace("Z", ""),
       "Insulin Therapy",
       "NIH",
       nctNumber,
@@ -426,7 +426,7 @@ const generateMealData = (participantId: string, days: number) => {
         stmt.run(
           mealId,
           participantId,
-          mealTime.toISOString(),
+          mealTime.toISOString().replace("T", " ").replace("Z", ""),
           calories,
           mealType,
         );
@@ -480,7 +480,7 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
           Math.min(400, cgmValue + variability),
         ); // Ensure values are within realistic range
 
-        stmt.run(sid, date.toISOString(), finalCGMValue.toFixed(1));
+        stmt.run(sid, date.toISOString().replace("T", " ").replace("Z", ""), finalCGMValue.toFixed(1));
 
         date.setMinutes(date.getMinutes() + 5);
         entriesProcessed++;
