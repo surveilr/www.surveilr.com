@@ -43,9 +43,9 @@ Before starting, make sure you have the necessary tools installed on your system
 To install the AWS CLI on Linux, run the following commands:
 
 ```bash
-$ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-$ unzip awscliv2.zip
-$ sudo ./aws/install
+ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+ unzip awscliv2.zip
+ sudo ./aws/install
 ```
 
 #### **macOS**
