@@ -23,18 +23,7 @@ This process ensures that both server and cloud platform data are ingested and s
 
 ## **Prerequisites**
 
-### **Add the User to the Docker Group (Optional)**
-
-Add your user to the Docker group if Docker is installed; otherwise, skip this
-step
-
-```bash
-sudo usermod -aG docker "$(whoami)"
-```
-
----
-
-## **Tool Installation**
+### **Tool Installation**
 
 ### **1. AWS CLI**
 
