@@ -14,7 +14,7 @@ To effectively collect data from cloud platforms like **AWS**, **Azure**, and ot
 
 ### Workflow Overview:
 
-1. **Steampipe and CNquery Configuration**: Retrieve data from cloud platforms using the tools and save the queries in **JSONL** format for ingestion.
+1. **Steampipe and CNquery Configuration**: Retrieve data from cloud platforms using the tools. Save the queries in **JSONL** format for ingestion.
 2. **Ingestion into surveilr**: Use the **surveilr ingest tasks** process to import the JSONL files into the surveilr system and convert them into an SQLite database format.
 3. **SQLite Database**: The resulting SQLite database can be accessed, queried, and analyzed as needed.
 
