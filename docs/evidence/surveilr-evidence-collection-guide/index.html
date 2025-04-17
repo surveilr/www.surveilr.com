@@ -86,7 +86,7 @@
 <p>To effectively collect data from cloud platforms like <strong>AWS</strong>, <strong>Azure</strong>, and others, we utilize tools such as <strong>Steampipe</strong> and <strong>CNquery</strong>. These tools interact with cloud infrastructure, retrieve necessary data, and store it in an <strong>RSSD SQLite</strong> format for subsequent querying and analysis.</p>
 <h3 id="workflow-overview">Workflow Overview:</h3>
 <ol>
-<li><strong>Steampipe and CNquery Configuration</strong>: Retrieve data from cloud platforms using the tools and save the queries in <strong>JSONL</strong> format for ingestion.</li>
+<li><strong>Steampipe and CNquery Configuration</strong>: Retrieve data from cloud platforms using the tools. Save the queries in <strong>JSONL</strong> format for ingestion.</li>
 <li><strong>Ingestion into surveilr</strong>: Use the <strong>surveilr ingest tasks</strong> process to import the JSONL files into the surveilr system and convert them into an SQLite database format.</li>
 <li><strong>SQLite Database</strong>: The resulting SQLite database can be accessed, queried, and analyzed as needed.</li>
 </ol>
