@@ -266,7 +266,7 @@ To set up variables for the Nmap penetration testing workflow:
 
 ---
 
-### **Sharing the Generated RSSD File**
+## **Sharing the Generated RSSD File**
 
 Once you have completed the evidence collection and the **RSSD SQLite** file (named `resource-surveillance.sqlite.db`) is generated, please share the file with us using any of the following methods:
 
