@@ -30,17 +30,17 @@ This command ensures that cloud platform data are ingested and stored in the **R
 
 ## Prerequisites
 
-Before proceeding, ensure the necessary tools are installed on your system (main server). These tools are essential for interacting with cloud platforms and local systems.
+Before proceeding, ensure the necessary tools are installed on your Management Server. These tools are essential for interacting with cloud platforms and Management Server. surveilr, AWS CLI, Steampipe, and CNquery must all be installed on the Management Server.
 
 ---
 
 ### 1. **surveilr Installation**
 
-Ensure **surveilr** is installed on your **main server** before running the command `cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks`.
+Ensure **surveilr** is installed on your **Management Server** before running the command `cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks`.
 
-You **do not** need to install **surveilr** on other nodes (servers). It only needs to be installed on the main server where the data ingestion process occurs.
+You **do not** need to install **surveilr** on other nodes (servers). It only needs to be installed on the Management Server where the data ingestion process occurs.
 
-To install **surveilr** on the main server, use one of the following methods:
+To install **surveilr** on the Management Server, use one of the following methods:
 
 #### Default Installation:
 ```bash
