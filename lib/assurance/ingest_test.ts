@@ -247,12 +247,15 @@ Deno.test("multitenancy file ingestion", async (t) => {
   await t.step("verify tenant ID in transformed tables", () => {
     const tableCheckQueries = [
       "SELECT COUNT(*) FROM uniform_resource WHERE tenant_id = ?",
-      "SELECT COUNT(*) FROM uniform_resource_transform WHERE tenant_id = ?"
+      "SELECT COUNT(*) FROM uniform_resource_transform WHERE tenant_id = ?",
     ];
 
-    tableCheckQueries.forEach(query => {
+    tableCheckQueries.forEach((query) => {
       const result = db.query<[number]>(query, [tenantId]);
-      assert(result[0][0] > 0, `❌ Error: No rows found with tenant ID in table`);
+      assert(
+        result[0][0] > 0,
+        `❌ Error: No rows found with tenant ID in table`,
+      );
     });
   });
 
@@ -335,52 +338,53 @@ Deno.test("csv auto transformation", async (t) => {
 
   await t.step("handle multiple csv files with same name", async () => {
     // Prepare test files with same name but different content
-    const testDir1 = path.join(TEST_FIXTURES_DIR, 'folder1');
-    const testDir2 = path.join(TEST_FIXTURES_DIR, 'folder2');
-    
+    const testDir1 = path.join(TEST_FIXTURES_DIR, "folder1");
+    const testDir2 = path.join(TEST_FIXTURES_DIR, "folder2");
+
     // Ensure test directories exist
     await Deno.mkdir(testDir1, { recursive: true });
     await Deno.mkdir(testDir2, { recursive: true });
-  
+
     // Create two CSV files with same name but different content
-    const csv1Path = path.join(testDir1, 'users.csv');
-    const csv2Path = path.join(testDir2, 'users.csv');
-  
+    const csv1Path = path.join(testDir1, "users.csv");
+    const csv2Path = path.join(testDir2, "users.csv");
+
     await Deno.writeTextFile(csv1Path, "id,name\n1,Alice\n2,Bob");
     await Deno.writeTextFile(csv2Path, "id,name\n3,Charlie\n4,David");
-  
+
     const multipleFileRssd = path.join(
       E2E_TEST_DIR,
-      "csv-multiple-files.e2e.sqlite.db"
+      "csv-multiple-files.e2e.sqlite.db",
     );
-  
+
     if (await Deno.stat(multipleFileRssd).catch(() => false)) {
       await Deno.remove(multipleFileRssd);
     }
-  
+
     // Ingest files with auto CSV transformation
-    const ingestResult = await $`surveilr ingest files -d ${multipleFileRssd} -r ${TEST_FIXTURES_DIR} --csv-transform-auto`;
+    const ingestResult =
+      await $`surveilr ingest files -d ${multipleFileRssd} -r ${TEST_FIXTURES_DIR} --csv-transform-auto`;
     assertEquals(
       ingestResult.code,
       0,
-      `❌ Error: Failed to ingest data with multiple same-named CSVs`
+      `❌ Error: Failed to ingest data with multiple same-named CSVs`,
     );
-  
+
     const db = new DB(multipleFileRssd);
-    
+
     try {
       const result = db.query<[number]>(
-        `SELECT COUNT(*) AS count FROM uniform_resource_users`
+        `SELECT COUNT(*) AS count FROM uniform_resource_users`,
       );
       assertEquals(result.length, 1);
-      
+
       const rowCount = result[0][0];
       assertEquals(rowCount, 4, "Should have 4 rows from both CSV files");
-  
+
       const rows = db.query<[number, string]>(
-        `SELECT id, name FROM uniform_resource_users ORDER BY id`
+        `SELECT id, name FROM uniform_resource_users ORDER BY id`,
       );
-      
+
       assertEquals(rows[0][0], 1);
       assertEquals(rows[0][1], "Alice");
       assertEquals(rows[1][0], 2);
@@ -406,5 +410,3 @@ Deno.test("csv auto transformation", async (t) => {
 
   db.close();
 });
-
-

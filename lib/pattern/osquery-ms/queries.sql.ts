@@ -128,7 +128,6 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     return `select id,type,port,host_ip,host_port from docker_container_ports;`;
   }
 
-
   @osQueryMsCell({
     description: "Osquery Mfa Enabled.",
   }, ["linux"])
