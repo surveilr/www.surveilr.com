@@ -181,9 +181,9 @@ For more information, refer to the [CNquery Documentation](https://mondoo.com/do
 
 ### **surveilrctl**
 
-**surveilrctl** automates the setup of **osQuery** and the connection of nodes to the **osQuery management server** (which will be running on the main server where **surveilr** is installed). This simplifies installation, certificate retrieval, and node configuration.
+**surveilrctl** automates the setup of **osQuery** and the connection of nodes to the **osQuery management server** (which will be running on the management server where **surveilr** is installed). This simplifies installation, certificate retrieval, and node configuration.
 
-The following setup process should be executed **on the nodes** that will connect to the **osQuery management server** on the main server.
+The following setup process should be executed **on the nodes** that will connect to the **osQuery management server** on the management server.
 
 ---
 
