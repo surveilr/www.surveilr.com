@@ -34,11 +34,19 @@ Before proceeding, ensure the necessary tools are installed on your system (main
 
 ---
 
+Thank you for the clarification. Based on your input, I will revise the installation instructions for **surveilr** to make it clear that **surveilr** only needs to be installed on the main server and not on other nodes.
+
+Here’s how you can update the instructions in your README:
+
+---
+
 ### 1. **surveilr Installation**
 
-Ensure **surveilr** is installed on your system before running the command `cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks`.
+Ensure **surveilr** is installed on your **main server** before running the command `cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks`.
 
-To install **surveilr**, use the following commands:
+You **do not** need to install **surveilr** on other nodes (servers). It only needs to be installed on the main server where the data ingestion process occurs.
+
+To install **surveilr** on the main server, use one of the following methods:
 
 #### Default Installation:
 ```bash
