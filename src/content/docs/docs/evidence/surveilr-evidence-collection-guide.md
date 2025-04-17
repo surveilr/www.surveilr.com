@@ -176,38 +176,6 @@ For more information, refer to the [CNquery Documentation](https://mondoo.com/do
 
 ### **surveilrctl**
 
-**surveilrctl** automates the setup of **osQuery** and the connection of nodes to the **osQuery management server** initiated by **surveilr osquery-ms**. It simplifies installation, certificate retrieval, and node configuration.
-
----
-
-### **Quick Installation for surveilrctl**
-
-#### **Linux & macOS:**
-
-```bash
-SURVEILR_HOST=https://your-host curl -sL surveilr.com/surveilrctl.sh | bash
-```
-
-#### **Windows:**
-
-To install **surveilrctl** on **Windows**, run:
-
-```powershell
-irm https://surveilr.com/surveilrctl.ps1 | iex
-```
-
-For automatic setup:
-
-```powershell
-$env:SURVEILR_HOST="https://your-host"; irm https://surveilr.com/surveilrctl.ps1 | iex
-```
-
-**Note**: Ensure you run PowerShell as Administrator on **Windows**.
-
----
-
-### **surveilrctl**
-
 **surveilrctl** automates the setup of **osQuery** and the connection of nodes to the **osQuery management server** (which will be running on the main server where **surveilr** is installed). This simplifies installation, certificate retrieval, and node configuration.
 
 The following setup process should be executed **on the nodes** that will connect to the **osQuery management server** on the main server.
