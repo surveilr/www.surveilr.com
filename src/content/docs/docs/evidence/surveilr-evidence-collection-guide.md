@@ -28,9 +28,14 @@ This command ensures that cloud platform data are ingested and stored in the **R
 
 ---
 
-## Prerequisites
+### Prerequisites
 
-Before proceeding, ensure the necessary tools are installed on your Management Server. These tools are essential for interacting with cloud platforms and Management Server. surveilr, AWS CLI, Steampipe, and CNquery must all be installed on the Management Server.
+Before proceeding, ensure that the following tools are installed on your **Management Server**. These tools are essential for interacting with cloud platforms and managing data ingestion:
+
+- **surveilr**
+- **AWS CLI**
+- **Steampipe**
+- **CNquery**
 
 ---
 
