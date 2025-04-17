@@ -1965,6 +1965,8 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       query_sql: gd.text(),
       discovery_query: gd.textNullable(),
       status: gd.text(),
+      elaboration: gd.jsonTextNullable(),
+      interval: gd.integer(),
       ...gm.housekeeping.columns,
     },
     {
@@ -2065,7 +2067,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       surveilrTableSize,
       surveilrOsQueryMsDistributedQuery,
       surveilrOsQueryMsDistributedResult,
-      surveilrOsQueryMsCarve
+      surveilrOsQueryMsCarve,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2116,7 +2118,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...surveilrTableSize.indexes,
       ...surveilrOsQueryMsDistributedQuery.indexes,
       ...surveilrOsQueryMsDistributedResult.indexes,
-      ...surveilrOsQueryMsCarve.indexes
+      ...surveilrOsQueryMsCarve.indexes,
     ],
   };
 
@@ -2176,7 +2178,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     surveilrTableSize,
     surveilrOsQueryMsDistributedQuery,
     surveilrOsQueryMsDistributedResult,
-    surveilrOsQueryMsCarve
+    surveilrOsQueryMsCarve,
   };
 }
 

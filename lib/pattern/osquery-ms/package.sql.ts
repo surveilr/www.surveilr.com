@@ -50,16 +50,19 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
          WITH navigation_cte AS (
                   SELECT COALESCE(title, caption) as title, description
                       FROM sqlpage_aide_navigation
-                  WHERE namespace = 'prime' AND path = ${this.constructHomePath("ms")
-      }
+                  WHERE namespace = 'prime' AND path = ${
+      this.constructHomePath("ms")
+    }
                   )
                   SELECT 'list' AS component, title, description
                       FROM navigation_cte;
-                  SELECT caption as title, ${this.absoluteURL("/")
-      } || COALESCE(url, path) as link, description
+                  SELECT caption as title, ${
+      this.absoluteURL("/")
+    } || COALESCE(url, path) as link, description
                       FROM sqlpage_aide_navigation
-                  WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("ms")
-      }
+                  WHERE namespace = 'prime' AND parent_path =  ${
+      this.constructHomePath("ms")
+    }
                   ORDER BY sibling_order;
           `;
   }

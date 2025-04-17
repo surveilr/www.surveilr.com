@@ -480,7 +480,11 @@ const generateCGMData = (sid: string, startDate: Date, days: number) => {
           Math.min(400, cgmValue + variability),
         ); // Ensure values are within realistic range
 
-        stmt.run(sid, date.toISOString().replace("T", " ").replace("Z", ""), finalCGMValue.toFixed(1));
+        stmt.run(
+          sid,
+          date.toISOString().replace("T", " ").replace("Z", ""),
+          finalCGMValue.toFixed(1),
+        );
 
         date.setMinutes(date.getMinutes() + 5);
         entriesProcessed++;
