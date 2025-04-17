@@ -264,4 +264,15 @@ To set up variables for the Nmap penetration testing workflow:
 5. Click **Add variable**.
 
 
+---
+
+### **Sharing the Generated RSSD File**
+
+Once you have completed the evidence collection and the **RSSD SQLite** file (named `resource-surveillance.sqlite.db`) is generated, please share the file with us using any of the following methods:
+
+- **Google Drive**: Upload the file to your Google Drive and share the link with us.
+- **Dropbox**: Upload the file to Dropbox and send us the shared link.
+- **Other Cloud Services**: You can also use other cloud file-sharing services that allow you to upload and share files via a link (e.g., OneDrive, Box, etc.).
+
+Please make sure the file is accessible by link sharing, and ensure the correct permissions are set so we can access and analyze the data.
 
