@@ -72,8 +72,8 @@ importers:
         specifier: ^15.0.6
         version: 15.0.6
       preline:
-        specifier: ^2.5.1
-        version: 2.5.1
+        specifier: ^3.0.1
+        version: 3.0.1
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -884,9 +884,6 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
-
-  '@popperjs/core@2.11.8':
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@preline/accordion@3.0.0':
     resolution: {integrity: sha512-FaA+cwrzakIqWmaLoiguAajWKbWPzpQ4YnalKWWskW7WmxDuLYJlfYdsAbDeJP/RDURbt3wSjGeTcdWyfEe6Ig==}
@@ -3031,8 +3028,8 @@ packages:
     resolution: {integrity: sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preline@2.5.1:
-    resolution: {integrity: sha512-fEXOsz0xLfTm5sJmNanourrMjwjcgGtaVNg8Pt6GzUbZ/oXHIdcR94LBdeE0Ea0pBPFOOHzEL5LQwSbAvCJEfw==}
+  preline@3.0.1:
+    resolution: {integrity: sha512-rwtpdYZPCJZaJ+kGDCegmId/xrxx4IZMo+l+YCTaqis/ponVyVMimQ6TxTYjHgdOTpIbI5A9xXMYROXT4Jbbbg==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -4922,8 +4919,6 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
-  '@popperjs/core@2.11.8': {}
 
   '@preline/accordion@3.0.0': {}
 
@@ -7530,9 +7525,9 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preline@2.5.1:
+  preline@3.0.1:
     dependencies:
-      '@popperjs/core': 2.11.8
+      '@floating-ui/dom': 1.6.13
 
   prelude-ls@1.2.1: {}
 
