@@ -7,99 +7,88 @@ description:  surveilr is an extendable file system inspector used for performin
 enableEditButton: true
 ---
 
+# ** `surveilr` Evidence Collection and Integration Guide for SOC 2 Type 1 Compliance**
+-----
+## **Overview**
+To support your SOC 2 Type 1 compliance efforts, we are providing a set of streamlined, open-source-based tools to collect critical evidence from your AWS cloud infrastructure and connected devices.
 
-## Evidence Collection Workflow
+This guide outlines the steps required to collect and deliver a structured database containing resource configuration and system state data. We will analyze this database and produce a detailed report supporting your compliance documentation.
 
-To effectively collect data from cloud platforms like **AWS**, **Azure**, and others, we utilize tools such as **Steampipe** and **CNquery**. These tools interact with cloud infrastructure, retrieve necessary data, and store it in an **RSSD SQLite** format for subsequent querying and analysis.
+The tools used include:
 
-### Workflow Overview:
+- **Steampipe** and **cnquery** for querying cloud and device configurations
+- **surveilr** for ingesting and consolidating collected data into an SQLite database
 
-1. **Steampipe and CNquery Configuration**: Retrieve data from cloud platforms using the tools. Save the queries in **JSONL** format for ingestion.
-2. **Ingestion into surveilr**: Use the **surveilr ingest tasks** process to import the JSONL files into the surveilr system and convert them into an SQLite database format.
-3. **SQLite Database**: The resulting SQLite database can be accessed, queried, and analyzed as needed.
+Once the process is complete, you will securely share the generated SQLite file (resource-surveillance.sqlite.db) with us for review.
 
-### To begin the process, execute the following command to ingest the data directly into surveilr:
+-----
+## **Evidence Collection Workflow**
 
-```bash
-cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
-```
+- **Tool Installation**: Set up Steampipe, CNquery, AWS CLI, and surveilr on a centralized machine or server.
+- **Data Collection**: Authenticate to AWS and execute predefined queries using Steampipe and CNquery.
+- **Ingestion with surveilr**: Use surveilr to ingest collected data and create an SQLite database (RSSD).
+- **Data Submission**: Share the generated SQLite database with our team for analysis.
 
-This command ensures that cloud platform data are ingested and stored in the **RSSD SQLite** format for later use.
+-----
+## **Prerequisites**
+Please prepare a **centralized machine or server** (e.g., an EC2 instance, on-premises server, or local machine) with the following installed:
 
----
+[surveilr](https://github.com/opsfolio/releases.opsfolio.com)
 
-### Prerequisites
+[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 
-Before proceeding, ensure that the following tools are installed on your **Management Server**. These tools are essential for interacting with cloud platforms and managing data ingestion:
+[Steampipe](https://steampipe.io/docs/)
 
-- **surveilr**
-- **AWS CLI**
-- **Steampipe**
-- **CNquery**
+[cnquery](https://mondoo.com/docs/cnquery/install/)
 
----
+**Note**: You do *not* need to install these tools on all individual AWS resources (EC2s, etc.).
 
-### 1. **surveilr Installation**
+-----
+## **Step-by-Step Setup Instructions**
+### **1. Install surveilr**
+**Default Installation:**
 
-Ensure **surveilr** is installed on your **Management Server** before running the command `cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks`.
-
-You **do not** need to install **surveilr** on other nodes (servers). It only needs to be installed on the Management Server where the data ingestion process occurs.
-
-To install **surveilr** on the Management Server, use one of the following methods:
-
-#### Default Installation:
 ```bash
 curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
 ```
+**Custom Installation Path:**
 
-#### Custom Installation Path:
 ```bash
 SURVEILR_HOME="$HOME/bin" curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
 ```
 
-Alternatively, you can use [eget](https://github.com/zyedidia/eget) to install **surveilr**:
+**Verification Commands:**
 
 ```bash
-eget opsfolio/releases.opsfolio.com --asset tar.gz
+surveilr --version
+
+surveilr --help
 ```
+For more information, refer to the [Installation Guide](https://www.surveilr.com/docs/core/installation/).
 
-For help on using **surveilr** commands:
-
-```bash
-surveilr --version                 # Get version info
-surveilr --help                    # CLI help
-surveilr --completions fish | source # Shell completions for easier usage
-```
-
----
-
-### 2. **AWS CLI Installation**
-
-To install **AWS CLI**, follow these steps based on your operating system.
-
-#### Linux:
+-----
+### **2. Install AWS CLI**
+**Linux:**
 ```bash
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
 unzip awscliv2.zip
+
 sudo ./aws/install
 ```
-
-#### macOS:
+**macOS:**
 ```bash
 curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+
 sudo installer -pkg AWSCLIV2.pkg -target /
 ```
-
-#### Windows:
+**Windows:**
 ```bash
 msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
 ```
 
-For more information, refer to the [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions).
-
----
-
-### 3. **Steampipe Installation**
+-----
+### **3. Install Steampipe**
 
 Steampipe is used for querying cloud services, requiring plugins for each cloud provider. Follow the steps below for installation:
 
@@ -121,13 +110,8 @@ steampipe plugin install aws
 
 For more information, refer to the [Steampipe Plugin Documentation](https://steampipe.io/docs/managing/plugins#managing-plugins).
 
-Configuration details are saved in the following directory:
-
-```bash
-~/.steampipe/config/
-```
-
-A sample configuration for **AWS** (`aws.spc`):
+#### A sample configuration for **AWS** (`aws.spc`):
+Installing the latest aws plugin will create a config file (~/.steampipe/config/aws.spc) with a single connection named aws. By default, Steampipe uses the same AWS CLI mechanisms (environment variables, default profile) to resolve region and credentials. For a customized experience, refer [configuring-aws-credentials](https://hub.steampipe.io/plugins/turbot/aws#configuring-aws-credentials)
 
 ```bash
 connection "aws" {
@@ -144,117 +128,85 @@ To start the service:
 steampipe service start
 ```
 
----
+-----
+### **4. Install CNquery**
 
-### 4. **CNquery Installation**
-
-CNquery is another tool for querying system configurations. To install it, use the commands below:
-
-#### Linux and macOS:
+**Linux & macOS:**
 ```bash
 bash -c "$(curl -sSL https://install.mondoo.com/sh)"
 ```
-
-#### Windows:
-```powershell
-Set-ExecutionPolicy Unrestricted -Scope Process -Force;
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-iex ((New-Object System.Net.WebClient).DownloadString('https://install.mondoo.com/ps1/cnquery'));
-Install-Mondoo -Product cnquery;
+**Windows:**
+```bash
+Set-ExecutionPolicy Unrestricted -Scope Process -Force
+iex ((New-Object System.Net.WebClient).DownloadString('https://install.mondoo.com/ps1/cnquery'))
+Install-Mondoo -Product cnquery
 ```
 
 To run queries, use:
-
 ```bash
 cnquery run TARGET -c "QUERY"
 ```
 
 Example to list services and their statuses on a local system:
-
 ```bash
 cnquery run local -c "services.list { name running }"
 ```
 
+To use CNquery with AWS, make sure your AWS credentials and region are configured. For more details on setting up AWS credentials, refer to the AWS CLI documentation.
+
 For more information, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/index.html).
 
----
 
-### **surveilrctl**
+-----
+## **Data Collection and Ingestion**
 
-**surveilrctl** automates the setup of **osQuery** and the connection of nodes to the **osQuery management server** (which will be running on the management server where **surveilr** is installed). This simplifies installation, certificate retrieval, and node configuration.
+We will provide you with a JSONL file containing the specific Steampipe and CNquery queries.
 
-The following setup process should be executed **on the nodes** that will connect to the **osQuery management server** on the management server.
-
----
-
-### **Quick Installation for surveilrctl on Nodes**
-
-#### **Linux & macOS:**
-
+Ingest the queries using surveilr:
 ```bash
-SURVEILR_HOST=https://your-host curl -sL surveilr.com/surveilrctl.sh | bash
+cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
+This command will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
 
-#### **Windows:**
+-----
+## **Optional: Centralized Node Management (Advanced)**
+If you prefer connecting individual EC2 instances or servers directly to a centralized osquery management server, you can use **surveilrctl** for automated setup.
 
-To install **surveilrctl** on **Windows** nodes, run:
+**Quick Installation on Nodes:**
 
-```powershell
+**Linux & macOS:**
+```bash
+SURVEILR_HOST=https://your-management-server curl -sL surveilr.com/surveilrctl.sh | bash
+```
+**Windows:**
+```bash
 irm https://surveilr.com/surveilrctl.ps1 | iex
 ```
-
-For automatic setup:
-
-```powershell
-$env:SURVEILR_HOST="https://your-host"; irm https://surveilr.com/surveilrctl.ps1 | iex
-```
-
-**Note**: Ensure to run PowerShell as Administrator on **Windows**.
-
----
-
-### **surveilrctl Node Setup**
-
-To set up **surveilrctl** on the **nodes** and connect them to the **osQuery management server**, use the following command:
-
+**Setup Example:**
 ```bash
-surveilrctl setup --uri https://your-host
-# Example:
 surveilrctl setup --uri https://osquery-ms.example.com
 ```
+-----
+## **Delivering the SQLite Evidence Database**
+Once evidence collection is complete, please share the generated resource-surveillance.sqlite.db file with us securely via one of the following methods:
 
-If the server requires **Basic Authentication**, use:
+**Google Drive** (Shareable link)
 
-```bash
-surveilrctl setup --uri https://osquery-ms.example.com --username admin --password securepass
-```
+**Dropbox** (Shared folder or link)
 
-To specify custom file paths for certificates and secrets:
+**OneDrive**, **Box**, or other secure file-sharing services
 
-```bash
-surveilrctl setup --uri https://osquery-ms.example.com \
-  --cert-path /path/to/cert.pem \
-  --secret-path /path/to/secret.txt
-```
+Please ensure appropriate permissions are configured so that our team can access the file.
 
-To **upgrade** to the latest version of **surveilrctl**:
+-----
 
-```bash
-surveilrctl upgrade
-```
+## **Additional Toolkit: Penetration Testing (Optional)**
+For organizations seeking additional assurance, we offer the **Opsfolio Penetration Toolkit**, which includes:
 
----
+- **Automated scheduled security scans** (e.g., Nmap) via GitHub Actions
+- **Centralized SQLite-based reporting**
+- **Custom SQL queries for advanced data analysis**
 
-## **Opsfolio Penetration Toolkit**
-
-The **Opsfolio Penetration Toolkit** is a comprehensive suite of tools for penetration testing. It includes **Nmap** for network discovery and security audits. The toolkit is fully automated via **GitHub Actions**, allowing scheduled tests without manual intervention.
-
-### **Key Features:**
-
-- **Automated Testing**: Runs on GitHub-managed remote runners, enabling regular tests without manual effort.
-- **Comprehensive Toolset**: Includes **Nmap** for network discovery and security audits.
-- **Centralized Reporting**: Aggregates Nmap XML outputs into a single SQLite database for efficient querying and reporting.
-- **Advanced Querying**: Use SQL to query and analyze the data stored in the SQLite database.
 
 ### **Configuring Variables in GitHub**
 
@@ -268,16 +220,10 @@ To set up variables for the Nmap penetration testing workflow:
    - Example: `EC2_PRIME|19x.xx.xx.x7|AWS_EC2`
 5. Click **Add variable**.
 
+For more details: [Opsfolio PenTest Toolkit](https://github.com/opsfolio/pentest.opsfolio.com)
 
----
+-----
+## **Support**
+Should you encounter any issues during setup or data collection, our technical team is available to assist you.
 
-## **Sharing the Generated RSSD File**
-
-Once you have completed the evidence collection and the **RSSD SQLite** file (named `resource-surveillance.sqlite.db`) is generated, please share the file with us using any of the following methods:
-
-- **Google Drive**: Upload the file to your Google Drive and share the link with us.
-- **Dropbox**: Upload the file to Dropbox and send us the shared link.
-- **Other Cloud Services**: You can also use other cloud file-sharing services that allow you to upload and share files via a link (e.g., OneDrive, Box, etc.).
-
-Please make sure the file is accessible by link sharing, and ensure the correct permissions are set so we can access and analyze the data.
-
+-----
