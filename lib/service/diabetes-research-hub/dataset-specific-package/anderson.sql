@@ -1,17 +1,16 @@
 Error executing service/diabetes-research-hub/dataset-specific-package/anderson.sql: Command failed: lib/service/diabetes-research-hub/dataset-specific-package/anderson.sql.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/mod.ts
 [0m[32mDownload[0m https://deno.land/x/ulid/mod.ts
-[0m[33mWarning[0m Implicitly using latest version (v0.3.0) for https://deno.land/x/ulid/mod.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/database.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/blob.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/statement.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/util.ts
+[0m[33mWarning[0m Implicitly using latest version (v0.3.0) for https://deno.land/x/ulid/mod.ts
 [0m[32mDownload[0m https://deno.land/x/ulid@v0.3.0/mod.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/ffi.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deps.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/constants.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deno.json
-[0m[32mDownload[0m https://jsr.io/@std/path/meta.json
 [0m[32mDownload[0m https://jsr.io/@denosaurs/plug/meta.json
 [0m[32mDownload[0m https://jsr.io/@std/path/0.217.0_meta.json
 [0m[32mDownload[0m https://jsr.io/@denosaurs/plug/1.0.6_meta.json

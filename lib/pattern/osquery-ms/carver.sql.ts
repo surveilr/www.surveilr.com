@@ -1,4 +1,5 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
+import { fromFileUrl } from "@std/path";
 import { codeNB as cnb, RssdInitSqlNotebook } from "./deps.ts";
 
 const osQueryMsNotebookName = "osQuery MS File Carve" as const;
@@ -50,6 +51,7 @@ export class SurveilrOsqueryMsCarverQueries extends cnb.TypicalCodeNotebook {
     },
     ["linux"],
     60,
+    "capturable-executable"
   )
   "/etc/passwd"() {
     return `
@@ -59,6 +61,18 @@ export class SurveilrOsqueryMsCarverQueries extends cnb.TypicalCodeNotebook {
 # This is useful for testing the capturable executable context.
 cat
     `;
+  }
+
+  @osQueryMsFileCarverQuery(
+    {
+      description: "Transform /var/log/auth.log from each osQuery-MS node into a combined type-safe parsed table called osquery_ms_carved_var_log_auth_log",
+    },
+    ["linux"],
+    60,
+    "capturable-executable"
+  )
+  "/var/log/auth.log"() {
+    return Deno.readTextFileSync(fromFileUrl(import.meta.resolve('./carver-cap-exec/var-log-auth.log-transform-tabular.sh')));
   }
 }
 
