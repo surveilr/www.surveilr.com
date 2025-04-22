@@ -141,6 +141,7 @@ Set-ExecutionPolicy Unrestricted -Scope Process -Force
 iex ((New-Object System.Net.WebClient).DownloadString('https://install.mondoo.com/ps1/cnquery'))
 Install-Mondoo -Product cnquery
 ```
+For more information, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/index.html).
 
 To run queries, use:
 ```bash
@@ -153,9 +154,6 @@ cnquery run local -c "services.list { name running }"
 ```
 
 To use CNquery with AWS, make sure your AWS credentials and region are configured. For more details on setting up AWS credentials, refer to the AWS CLI documentation.
-
-For more information, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/index.html).
-
 
 -----
 ## **Data Collection and Ingestion**
