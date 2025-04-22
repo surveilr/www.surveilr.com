@@ -2004,6 +2004,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       status: gd.text(),
       start_time: gd.dateTime(),
       completion_time: gd.dateTimeNullable(),
+      elaboration : gd.jsonTextNullable(),
       ...gm.housekeeping.columns,
     },
     {
