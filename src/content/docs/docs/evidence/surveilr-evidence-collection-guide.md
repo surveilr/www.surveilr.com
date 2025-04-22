@@ -37,7 +37,7 @@ Before starting, ensure that the following tools are installed on a **centralize
 - [Steampipe](https://steampipe.io/docs/)
 - [cnquery](https://mondoo.com/docs/cnquery/install/)
 
-**Note**: These tools are not required to be installed on individual AWS resources (e.g., EC2s).
+**Note**: You do *not* need to install these tools on all individual AWS resources (EC2s, etc.).
 
 ## Step-by-Step Setup Instructions
 
