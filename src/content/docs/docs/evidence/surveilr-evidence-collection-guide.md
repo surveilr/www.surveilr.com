@@ -7,9 +7,9 @@ description:  surveilr is an extendable file system inspector used for performin
 enableEditButton: true
 ---
 
-# ** `surveilr` Evidence Collection and Integration Guide for SOC 2 Type 1 Compliance**
------
-## **Overview**
+#  `surveilr` Evidence Collection and Integration Guide for SOC 2 Type 1 Compliance
+
+## Overview
 To support your SOC 2 Type 1 compliance efforts, we are providing a set of streamlined, open-source-based tools to collect critical evidence from your AWS cloud infrastructure and connected devices.
 
 This guide outlines the necessary steps to collect and deliver a structured database containing resource configuration and system state data. We will analyze this database and produce a detailed report to support your compliance documentation.
