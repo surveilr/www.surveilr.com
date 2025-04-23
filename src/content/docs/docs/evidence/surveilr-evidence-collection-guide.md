@@ -35,7 +35,7 @@ Before starting, ensure that the following tools are installed on a **centralize
 - [surveilr](https://github.com/opsfolio/releases.opsfolio.com)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 - [Steampipe](https://steampipe.io/docs/)
-- [cnquery](https://mondoo.com/docs/cnquery/install/)
+- [cnquery](https://mondoo.com/docs/cnquery/index.html)
 
 **Note**: You do *not* need to install these tools on all individual AWS resources (EC2s, etc.).
 
@@ -81,6 +81,23 @@ sudo installer -pkg AWSCLIV2.pkg -target /
 ```bash
 msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
 ```
+
+### Configure AWS CLI
+
+After installing AWS CLI, you can configure it by running:
+
+```bash
+aws configure
+```
+
+This command will prompt you to enter the following details:
+
+1. **AWS Access Key ID**
+2. **AWS Secret Access Key**
+3. **Default region name** (e.g., `us-west-2`)
+4. **Default output format** (e.g., `json`)
+
+For more information, please refer to the official AWS documentation on [Configuration and Credential File Settings](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
 
 ---
 
@@ -136,8 +153,6 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://install.mondoo.co
 Install-Mondoo -Product cnquery
 ```
 
-For more details, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/index.html).
-
 To run queries:
 ```bash
 cnquery run TARGET -c "QUERY"
@@ -149,6 +164,7 @@ cnquery run local -c "services.list { name running }"
 ```
 
 Make sure your AWS credentials and region are properly configured for AWS queries.
+For more details, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/cloud/aws/).
 
 ---
 
