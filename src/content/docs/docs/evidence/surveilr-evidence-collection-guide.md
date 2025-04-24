@@ -166,7 +166,7 @@ cnquery run local -c "services.list { name running }"
 Make sure your AWS credentials and region are properly configured for AWS queries.
 For more details, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/cloud/aws/).
 
-To make use of various query packs, such as the AWS asset inventory and incident response packs, you need to download and install the respective `cnquery-packs`. These query packs are available in Mondoo’s [GitHub repo](https://github.com/mondoo/cnquery-packs).
+To make use of various query packs, such as the AWS asset inventory and incident response packs, you need to clone the respective `cnquery-packs`. These query packs are available in Mondoo’s [GitHub repo](https://github.com/mondoo/cnquery-packs).
 
 You can follow these steps:
 
