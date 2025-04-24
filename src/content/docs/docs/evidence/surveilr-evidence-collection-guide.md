@@ -166,6 +166,19 @@ cnquery run local -c "services.list { name running }"
 Make sure your AWS credentials and region are properly configured for AWS queries.
 For more details, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/cloud/aws/).
 
+To make use of various query packs, such as the AWS asset inventory and incident response packs, you need to download and install the respective `cnquery-packs`. These query packs are available in Mondoo’s [GitHub repo](https://github.com/mondoo/cnquery-packs).
+
+You can follow these steps:
+
+- Clone the `cnquery-packs` repository to your local `$HOME` directory:
+
+```bash
+cd ~
+git clone https://github.com/mondoo/cnquery-packs.git
+```
+
+For more details, refer to the [core AWS query packs] (https://mondoo.com/docs/cnquery/cloud/aws/account/#analyze-your-environment-with-aws-query-packs)
+
 ---
 
 ## Data Collection and Ingestion
@@ -174,6 +187,9 @@ We will provide you with a JSONL file containing specific Steampipe and CNquery 
 
 To ingest the queries using surveilr, run:
 ```bash
+cat filename.jsonl | surveilr ingest tasks
+
+example:
 cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
