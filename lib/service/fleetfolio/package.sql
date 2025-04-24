@@ -9,6 +9,262 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 -- Script to create a table from uniform_resource.content column
 -- as osqueryms content, ensuring only valid JSON is processed.
 -- --------------------------------------------------------------------------------
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_system_info;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_os_version;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_interface_address;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_uptime;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_available_space;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_boundary;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_installed_software;
+-- DROP VIEW IF EXISTS surveilr_osquery_ms_node_executed_policy; 
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_system_info;
+CREATE TABLE surveilr_osquery_ms_node_system_info AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.board_model') AS board_model,
+    json_extract(l.content, '$.columns.board_serial') AS board_serial,
+    json_extract(l.content, '$.columns.board_vendor') AS board_vendor,
+    json_extract(l.content, '$.columns.board_version') AS board_version,
+    json_extract(l.content, '$.columns.computer_name') AS computer_name,
+    json_extract(l.content, '$.columns.cpu_brand') AS cpu_brand,
+    json_extract(l.content, '$.columns.cpu_logical_cores') AS cpu_logical_cores,
+    json_extract(l.content, '$.columns.cpu_microcode') AS cpu_microcode,
+    json_extract(l.content, '$.columns.cpu_physical_cores') AS cpu_physical_cores,
+    json_extract(l.content, '$.columns.cpu_sockets') AS cpu_sockets,
+    json_extract(l.content, '$.columns.cpu_subtype') AS cpu_subtype,
+    json_extract(l.content, '$.columns.cpu_type') AS cpu_type,
+    json_extract(l.content, '$.columns.hardware_model') AS hardware_model,
+    json_extract(l.content, '$.columns.hardware_serial') AS hardware_serial,
+    json_extract(l.content, '$.columns.hardware_vendor') AS hardware_vendor,
+    json_extract(l.content, '$.columns.hardware_version') AS hardware_version,
+    json_extract(l.content, '$.columns.hostname') AS hostname,
+    json_extract(l.content, '$.columns.local_hostname') AS local_hostname,
+    json_extract(l.content, '$.columns.physical_memory') AS physical_memory,
+    json_extract(l.content, '$.columns.uuid') AS uuid
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+AND json_extract(l.content, '$.name') = 'System Information';
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_os_version;
+CREATE TABLE surveilr_osquery_ms_node_os_version AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.arch') AS arch,
+    json_extract(l.content, '$.columns.build') AS build,
+    json_extract(l.content, '$.columns.extra') AS extra,
+    json_extract(l.content, '$.columns.kernel_version') AS kernel_version,
+    json_extract(l.content, '$.columns.major') AS major,
+    json_extract(l.content, '$.columns.minor') AS minor,
+    json_extract(l.content, '$.columns.name') AS name,
+    json_extract(l.content, '$.columns.patch') AS patch,
+    json_extract(l.content, '$.columns.platform') AS platform,
+    json_extract(l.content, '$.columns.version') AS version
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+AND (json_extract(l.content, '$.name') = 'OS Version (Linux and Macos)'
+    OR json_extract(l.content, '$.name') = 'OS Version (Windows)');
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_interface_address;
+CREATE TABLE surveilr_osquery_ms_node_interface_address AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.address') AS address,
+    json_extract(l.content, '$.columns.mac') AS mac
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+AND (
+    json_extract(l.content, '$.name') = 'Network Interfaces (Linux and Macos)'
+    OR json_extract(l.content, '$.name') = 'Network Interfaces (Windows)'
+);
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_uptime;
+CREATE TABLE surveilr_osquery_ms_node_uptime AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.days') AS days,
+    json_extract(l.content, '$.columns.hours') AS hours,
+    json_extract(l.content, '$.columns.minutes') AS minutes,
+    json_extract(l.content, '$.columns.seconds') AS seconds,
+    json_extract(l.content, '$.columns.total_seconds') AS total_seconds
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+AND json_extract(l.content, '$.name') = 'Server Uptime'
+ORDER BY l.created_at DESC;
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_available_space;
+CREATE TABLE surveilr_osquery_ms_node_available_space AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.gigs_disk_space_available') AS available_space,
+    json_extract(l.content, '$.columns.gigs_total_disk_space') AS gigs_total_disk_space,
+    json_extract(l.content, '$.columns.percent_disk_space_available') AS percent_disk_space_available
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+AND (
+    json_extract(l.content, '$.name') = 'Available Disk Space (Linux and Macos)'
+    OR json_extract(l.content, '$.name') = 'Available Disk Space (Windows)'
+)
+ORDER BY l.created_at DESC;
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_boundary;
+CREATE TABLE surveilr_osquery_ms_node_boundary AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.value') AS boundary
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+    AND (
+        json_extract(l.content, '$.name') = 'osquery-ms Boundary (Linux and Macos)' OR
+        json_extract(l.content, '$.name') = 'osquery-ms Boundary (Windows)'
+    );
+
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_installed_software;
+CREATE TABLE surveilr_osquery_ms_node_installed_software AS
+SELECT
+    json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+    l.updated_at,
+    json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+    json_extract(l.content, '$.columns.name') AS name,
+    json_extract(l.content, '$.columns.source') AS source,
+    json_extract(l.content, '$.columns.type') AS type,
+    json_extract(l.content, '$.columns.version') AS version,
+    CASE
+        WHEN json_extract(l.content, '$.name') = 'Installed Linux software' THEN 'linux'
+        WHEN json_extract(l.content, '$.name') = 'Installed Macos software' THEN 'macos'
+        WHEN json_extract(l.content, '$.name') = 'Installed Windows software' THEN 'windows'
+        ELSE 'unknown'
+    END AS platform
+FROM uniform_resource AS l
+WHERE l.uri = 'osquery-ms:query-result'
+    AND (
+        json_extract(l.content, '$.name') = 'Installed Linux software' OR
+        json_extract(l.content, '$.name') = 'Installed Macos software' OR
+        json_extract(l.content, '$.name') = 'Installed Windows software'
+    );
+
+DROP TABLE IF EXISTS surveilr_osquery_ms_node_executed_policy;
+CREATE TABLE surveilr_osquery_ms_node_executed_policy AS
+WITH ranked_policies AS (
+    SELECT
+        json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
+        l.updated_at,
+        json_extract(l.content, '$.hostIdentifier') AS host_identifier,
+        json_extract(l.content, '$.name') AS policy_name,
+        json_extract(l.content, '$.columns.policy_result') AS policy_result,
+        ROW_NUMBER() OVER (PARTITION BY json_extract(l.content, '$.name') ORDER BY l.created_at DESC) AS row_num
+    FROM uniform_resource AS l
+    WHERE l.uri = 'osquery-ms:query-result'
+        AND json_extract(l.content, '$.name') IN (
+            'SSH keys encrypted', 
+            'Full disk encryption enabled (Linux)', 
+            'Full disk encryption enabled (Windows)', 
+            'Full disk encryption enabled (Macos)'
+        )
+)
+SELECT
+    ranked_policies.node_key,
+    ranked_policies.updated_at,
+    ranked_policies.host_identifier,
+    ranked_policies.policy_name,
+    CASE 
+        WHEN ranked_policies.policy_result = 'true' THEN 'Pass'
+        ELSE 'Fail'
+    END AS policy_result,
+    CASE 
+        WHEN ranked_policies.policy_result = 'true' THEN '-'
+        ELSE json_extract(c.cell_governance, '$.policy.resolution')
+    END AS resolution
+FROM ranked_policies
+JOIN code_notebook_cell c
+    ON ranked_policies.policy_name = c.cell_name
+WHERE ranked_policies.row_num = 1;
+-- --------------------------------------------------------------------------------
+-- Script to prepare convenience views to access uniform_resource.content column
+-- as osqueryms content, ensuring only valid JSON is processed.
+-- --------------------------------------------------------------------------------
+
+DROP VIEW IF EXISTS surveilr_osquery_ms_node_detail;
+CREATE VIEW surveilr_osquery_ms_node_detail AS
+SELECT
+    n.surveilr_osquery_ms_node_id,
+    n.node_key,
+    n.host_identifier,
+    n.osquery_version,
+    n.last_seen,
+    n.created_at,
+    i.updated_at,
+    i.address AS ip_address,
+    i.mac,
+    b.boundary,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 60 THEN 
+            (strftime('%s', 'now') - strftime('%s', n.created_at)) || ' seconds ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 3600 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 60) || ' minutes ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.created_at)) < 86400 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 3600) || ' hours ago'
+        ELSE 
+            ((strftime('%s', 'now') - strftime('%s', n.created_at)) / 86400) || ' days ago'
+    END AS added_to_surveilr_osquery_ms,
+    o.name AS operating_system,
+    round(a.available_space, 2) || ' GB' AS available_space,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', last_seen)) < 60 THEN 'Online'
+        ELSE 'Offline'
+    END AS node_status,
+    CASE 
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 60 THEN 
+            (strftime('%s', 'now') - strftime('%s', n.last_seen)) || ' seconds ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 3600 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 60) || ' minutes ago'
+        WHEN (strftime('%s', 'now') - strftime('%s', n.last_seen)) < 86400 THEN 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 3600) || ' hours ago'
+        ELSE 
+            ((strftime('%s', 'now') - strftime('%s', n.last_seen)) / 86400) || ' days ago'
+    END AS last_fetched,
+    CASE
+        WHEN CAST(u.days AS INTEGER) > 0 THEN 
+            'about ' || u.days || ' day' || (CASE WHEN CAST(u.days AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        WHEN CAST(u.hours AS INTEGER) > 0 THEN 
+            'about ' || u.hours || ' hour' || (CASE WHEN CAST(u.hours AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        WHEN CAST(u.minutes AS INTEGER) > 0 THEN 
+            'about ' || u.minutes || ' minute' || (CASE WHEN CAST(u.minutes AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+        ELSE 
+            'about ' || u.seconds || ' second' || (CASE WHEN CAST(u.seconds AS INTEGER) = 1 THEN '' ELSE 's' END) || ' ago'
+    END AS last_restarted,
+    COALESCE(failed_policies.failed_count, 0) AS issues
+FROM surveilr_osquery_ms_node n
+LEFT JOIN surveilr_osquery_ms_node_available_space a ON n.node_key = a.node_key
+LEFT JOIN surveilr_osquery_ms_node_os_version o ON n.node_key = o.node_key
+LEFT JOIN surveilr_osquery_ms_node_uptime u ON n.node_key = u.node_key
+LEFT JOIN surveilr_osquery_ms_node_interface_address i ON n.node_key = i.node_key
+LEFT JOIN surveilr_osquery_ms_node_boundary b ON n.node_key = b.node_key
+LEFT JOIN (
+    SELECT node_key, COUNT(*) AS failed_count
+    FROM surveilr_osquery_ms_node_executed_policy
+    WHERE policy_result = 'Fail'
+    GROUP BY node_key
+) AS failed_policies ON n.node_key = failed_policies.node_key;
+
+
+-- --------------------------------------------------------------------------------
+-- Script to create a table from uniform_resource.content column
+-- as osqueryms content, ensuring only valid JSON is processed.
+-- --------------------------------------------------------------------------------
 
 -- DROP VIEW IF EXISTS list_user;
 -- DROP VIEW IF EXISTS asset_user_list;
@@ -21,17 +277,300 @@ CREATE TABLE IF NOT EXISTS "sqlpage_files" (
 -- DROP VIEW IF EXISTS list_container_authentication_log;
 -- DROP VIEW IF EXISTS list_all_process;
 
-DROP VIEW IF EXISTS asset_active_list;
-CREATE VIEW asset_active_list AS
+DROP TABLE IF EXISTS ur_transform_list_user;
+CREATE TABLE ur_transform_list_user AS
 SELECT 
-    bnd.boundary_id,
-    bnd.parent_boundary_id,
-    parent.name as parent_boundary,
-    ast.asset_id,
-    bnd.name as boundry,
-    ast.name as host,
-    ast.description,
+    u.uniform_resource_id,
+    json_extract(u.content, '$.name') AS name,
+    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
+    json_extract(u.content, '$.columns.username') AS user_name,
+    json_extract(u.content, '$.columns.directory') AS directory,
+    json_extract(u.content, '$.columns.uid') AS uid
+FROM uniform_resource u
+WHERE u.uri="osquery-ms:query-result" AND name = 'Users';
+
+
+-- -- Container TABLE
+DROP TABLE IF EXISTS ur_transform_list_container;
+CREATE TABLE ur_transform_list_container AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
+    json_extract(content, '$.columns.id') as id,  
+    json_extract(content, '$.columns.pid') as pid,
+    json_extract(content, '$.columns.name') as container_name,
+    json_extract(content, '$.columns.image') as image, 
+    json_extract(content, '$.columns.image_id') as image_id, 
+    json_extract(content, '$.columns.status') as status,
+    json_extract(content, '$.columns.state') as state,
+    json_extract(content, '$.columns.created') as created
+FROM uniform_resource WHERE json_valid(content) = 1 AND name="List Containers" AND uri="osquery-ms:query-result";
+
+DROP TABLE IF EXISTS ur_transform_list_container_image;
+CREATE TABLE ur_transform_list_container_image AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
+    json_extract(content, '$.columns.id') as image_id, 
+    json_extract(content, '$.columns.size_bytes') as size_bytes,
+    json_extract(content, '$.columns.tags') as tags
+FROM uniform_resource WHERE json_valid(content) = 1 AND name="List Container Images" AND uri="osquery-ms:query-result";
+
+DROP TABLE IF EXISTS ur_transform_list_network_information;
+CREATE TABLE ur_transform_list_network_information AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
+    json_extract(content, '$.columns.id') as id, 
+    json_extract(content, '$.columns.ip_address') as ip_address
+FROM uniform_resource WHERE json_valid(content) = 1 AND name="Container Network Information" AND uri="osquery-ms:query-result";
+
+DROP TABLE IF EXISTS ur_transform_list_network_volume;
+CREATE TABLE ur_transform_list_network_volume AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
+    json_extract(content, '$.columns.id') as id, 
+    json_extract(content, '$.columns.mount_point') as mount_point, 
+    json_extract(content, '$.columns.name') as volume_name
+FROM uniform_resource WHERE json_valid(content) = 1 AND name="list Container Volumes" AND uri="osquery-ms:query-result";
+
+DROP TABLE IF EXISTS ur_transform_list_container_ports;
+CREATE TABLE ur_transform_list_container_ports AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
+    json_extract(content, '$.columns.id') as id, 
+    json_extract(content, '$.columns.host_ip') as host_ip, 
+    json_extract(content, '$.columns.host_port') as host_port,
+    json_extract(content, '$.columns.port') as port,
+    json_extract(content, '$.columns.type') as type
+FROM uniform_resource WHERE json_valid(content) = 1 AND name="Docker Container Ports" AND uri="osquery-ms:query-result";
+
+DROP TABLE IF EXISTS ur_transform_list_container_process;
+CREATE TABLE ur_transform_list_container_process AS
+SELECT 
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host,
+    json_extract(content, '$.columns.name') as process_name,
+    json_extract(content, '$.columns.pid') as pid,
+    json_extract(content, '$.columns.uid') as uid
+FROM uniform_resource 
+WHERE json_valid(content) = 1 AND name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
+    json_extract(content, '$.columns.pid'),
+    json_extract(content, '$.columns.uid');
+
+
+-- -- All Process
+DROP TABLE IF EXISTS ur_transform_list_all_process;
+CREATE TABLE ur_transform_list_all_process AS
+SELECT 
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(ur.content, '$.name') AS name,
+    json_extract(ur.content, '$.hostIdentifier') AS host,
+    json_extract(ur.content, '$.columns.name') as process_name
+FROM uniform_resource as ur
+WHERE json_valid(content) = 1 AND name="Osquery All Processes" AND uri="osquery-ms:query-result";
+
+-- -- Authentication Data
+-- DROP TABLE IF EXISTS ur_transform_carve_data;
+-- CREATE TABLE ur_transform_carve_data AS
+-- SELECT 
+--     ssmn.host_identifier,
+--     CAST(ur.content AS TEXT) as carve_data,
+--     SUBSTR(
+--         ur.uri,
+--         INSTR(ur.uri, 'osquery_carve_') + LENGTH('osquery_carve_'),
+--         36
+--     ) AS carve_uuid
+-- FROM uniform_resource as ur
+-- INNER JOIN surveilr_osquery_ms_carve ssmc ON carve_uuid=ssmc.carve_guid
+-- INNER JOIN surveilr_osquery_ms_node ssmn ON ssmc.node_key=ssmn.node_key
+-- WHERE ur.uri LIKE "%/var/log/auth.log%";
+
+-- DROP TABLE IF EXISTS ur_transform_carved_ssh_data;
+-- CREATE TABLE ur_transform_carved_ssh_data AS
+-- WITH RECURSIVE
+-- split_lines(host_identifier, carve_uuid, line, rest) AS (
+--   SELECT
+--     ssmn.host_identifier,
+--     SUBSTR(
+--         ur.uri,
+--         INSTR(ur.uri, 'osquery_carve_') + LENGTH('osquery_carve_'),
+--         36
+--     ) AS carve_uuid,
+--     -- Extract first line
+--     SUBSTR(CAST(ur.content AS TEXT), 1, INSTR(CAST(ur.content AS TEXT) || CHAR(10), CHAR(10)) - 1),
+--     -- Extract the rest of the content
+--     SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT) || CHAR(10), CHAR(10)) + 1)
+--   FROM uniform_resource AS ur
+--   INNER JOIN surveilr_osquery_ms_carve ssmc 
+--     ON SUBSTR(ur.uri, INSTR(ur.uri, 'osquery_carve_') + LENGTH('osquery_carve_'), 36) = ssmc.carve_guid
+--   INNER JOIN surveilr_osquery_ms_node ssmn 
+--     ON ssmc.node_key = ssmn.node_key
+--   WHERE ur.uri LIKE "%/var/log/auth.log%"
+
+--   UNION ALL
+
+--   SELECT
+--     host_identifier,
+--     carve_uuid,
+--     SUBSTR(rest, 1, INSTR(rest || CHAR(10), CHAR(10)) - 1),
+--     SUBSTR(rest, INSTR(rest || CHAR(10), CHAR(10)) + 1)
+--   FROM split_lines
+--   WHERE LENGTH(rest) > 0
+-- )
+
+-- SELECT host_identifier, carve_uuid, line AS sshd_log_line
+-- FROM split_lines
+-- WHERE line LIKE '%sshd%';
+
+
+
+-- -------------------AWS Tables-----------------------
+
+-- steampipeawsEC2Instances
+DROP TABLE IF EXISTS ur_transform_ec2_instance;
+CREATE TABLE ur_transform_ec2_instance AS
+SELECT 
+  json_extract(instance.value, '$.instance_id') AS instance_id,
+  json_extract(instance.value, '$.account_id') AS account_id,
+  json_extract(instance.value, '$.title') AS title,
+  json_extract(instance.value, '$.architecture') AS architecture,
+  json_extract(instance.value, '$.platform_details') AS platform_details,
+  json_extract(instance.value, '$.root_device_name') AS root_device_name,
+  json_extract(instance.value, '$.instance_state') AS state,
+  json_extract(instance.value, '$.instance_type') AS instance_type,
+  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
+  json_extract(instance.value, '$.az') AS az,
+  json_extract(instance.value, '$.launch_time') AS launch_time,
+  
+  json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
+  json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
+  json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
+  json_extract(ni.value, '$.SubnetId') AS subnet_id,
+  json_extract(ni.value, '$.VpcId') AS vpc_id,
+  json_extract(ni.value, '$.MacAddress') AS mac_address,
+  json_extract(ni.value, '$.Status') AS status
+FROM uniform_resource,
+     json_each(content) AS instance,
+     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
+WHERE uri = 'SteampipeawsEC2Instances';
+
+-- steampipeListAllAwsBuckets
+DROP TABLE IF EXISTS ur_transform_aws_buckets;
+CREATE TABLE ur_transform_aws_buckets AS
+SELECT 
+  json_extract(value, '$.name') AS name,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.creation_date') AS creation_date
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'SteampipeListAllawsS3Buckets';
+
+-- steampipeListAllAwsVPCs
+DROP TABLE IF EXISTS ur_transform_aws_vpc;
+CREATE TABLE ur_transform_aws_vpc AS
+SELECT 
+  json_extract(value, '$.vpc_id') AS vpc_id,
+  json_extract(value, '$.title') AS title,
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.owner_id') AS owner_id,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.state') AS state,
+  json_extract(value, '$.cidr_block') AS cidr_block,
+  json_extract(value, '$.dhcp_options_id') AS dhcp_options_id,
+  json_extract(value, '$.is_default') AS is_default,
+  json_extract(value, '$.partition') AS partition
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeListAllAwsVPCs';
+
+-- steampipeawsIAMUserInfo
+DROP TABLE IF EXISTS ur_transform_aws_user_info;
+CREATE TABLE ur_transform_aws_user_info AS
+SELECT 
+  json_extract(value, '$.user_id') AS user_id,
+  json_extract(value, '$.name') AS name,
+  json_extract(value, '$.create_date') AS create_date,
+  json_extract(value, '$.password_last_used') AS password_last_used,
+  json_extract(value, '$.path') AS path
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'steampipeawsIAMUserInfo';
+
+-- SteampipeawsAccountInfo
+DROP TABLE IF EXISTS ur_transform_aws_account_info;
+CREATE TABLE ur_transform_aws_account_info AS
+SELECT 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.title') AS title,
+  json_extract(value, '$.alias') AS alias,
+  json_extract(value, '$.arn') AS arn,
+  json_extract(value, '$.organization_id') AS organization_id,
+  json_extract(value, '$.organization_master_account_email') AS organization_master_account_email,
+  json_extract(value, '$.organization_master_account_id') AS organization_master_account_id,
+  json_extract(value, '$.partition') AS partition,
+  json_extract(value, '$.region') AS region
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'SteampipeawsAccountInfo';
+
+-- SteampipeawsEC2ApplicationLoadBalancers
+DROP TABLE IF EXISTS ur_transform_aws_ec2_application_load_balancer;
+CREATE TABLE ur_transform_aws_ec2_application_load_balancer AS
+SELECT 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.name') AS name,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.canonical_hosted_zone_id') AS canonical_hosted_zone_id,
+  json_extract(value, '$.created_time') AS created_time,
+  json_extract(value, '$.dns_name') AS dns_name,
+  json_extract(value, '$.ip_address_type') AS ip_address_type,
+  json_extract(value, '$.load_balancer_attributes') AS load_balancer_attributes,
+  json_extract(value, '$.scheme') AS scheme,
+  json_extract(value, '$.security_groups') AS security_groups,
+  json_extract(value, '$.type') AS type,
+  json_extract(value, '$.vpc_id') AS vpc_id
+FROM uniform_resource,
+     json_each(content)
+WHERE uri = 'SteampipeawsEC2ApplicationLoadBalancers';
+-- DROP VIEW IF EXISTS all_boundary;
+-- CREATE VIEW all_boundary AS
+-- SELECT 
+--     boundary_id,
+--     parent_boundary_id,
+--     name 
+-- FROM boundary;
+
+-- DROP VIEW IF EXISTS parent_boundary;
+-- CREATE VIEW parent_boundary AS
+-- SELECT 
+--     boundary_id,
+--     name 
+-- FROM boundary WHERE parent_boundary_id IS NULL;
+
+DROP VIEW IF EXISTS boundary_list;
+CREATE VIEW boundary_list AS
+SELECT 
+    boundary as boundary_key,
+    boundary 
+FROM surveilr_osquery_ms_node_boundary GROUP BY boundary;
+
+DROP VIEW IF EXISTS host_list;
+CREATE VIEW host_list AS
+SELECT 
+    "" as description,
     nodeDet.surveilr_osquery_ms_node_id,
+    boundary.boundary as boundary,
+    boundary.boundary as boundary_key,
+    boundary.host_identifier as host,
     nodeDet.node_key,
     nodeDet.host_identifier,
     nodeDet.osquery_version,
@@ -66,236 +605,54 @@ SELECT
     sysinfo.local_hostname,
     sysinfo.physical_memory,
     sysinfo.uuid
-FROM asset ast
-INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
-INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
-LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=ast.name
-LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=ast.name
-WHERE ast.asset_tag="ACTIVE" AND ast.asset_retired_date IS NULL;
-
-DROP TABLE IF EXISTS ur_transform_list_user;
-CREATE TABLE ur_transform_list_user AS
-SELECT 
-    u.uniform_resource_id,
-    json_extract(u.content, '$.name') AS name,
-    json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
-    json_extract(u.content, '$.columns.username') AS user_name,
-    json_extract(u.content, '$.columns.directory') AS directory,
-    json_extract(u.content, '$.columns.uid') AS uid
-FROM uniform_resource u
-WHERE name = 'Users';
-
-
--- Container TABLE
-DROP TABLE IF EXISTS ur_transform_list_container;
-CREATE TABLE ur_transform_list_container AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id,  
-    json_extract(content, '$.columns.pid') as pid,
-    json_extract(content, '$.columns.name') as container_name,
-    json_extract(content, '$.columns.image') as image, 
-    json_extract(content, '$.columns.image_id') as image_id, 
-    json_extract(content, '$.columns.status') as status,
-    json_extract(content, '$.columns.state') as state,
-    json_extract(content, '$.columns.created') as created
-FROM uniform_resource WHERE name="List Containers" AND uri="osquery-ms:query-result";
-
-DROP TABLE IF EXISTS ur_transform_list_container_image;
-CREATE TABLE ur_transform_list_container_image AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as image_id, 
-    json_extract(content, '$.columns.size_bytes') as size_bytes,
-    json_extract(content, '$.columns.tags') as tags
-FROM uniform_resource WHERE name="List Container Images" AND uri="osquery-ms:query-result";
-
-DROP TABLE IF EXISTS ur_transform_list_network_information;
-CREATE TABLE ur_transform_list_network_information AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.ip_address') as ip_address
-FROM uniform_resource WHERE name="Container Network Information" AND uri="osquery-ms:query-result";
-
-DROP TABLE IF EXISTS ur_transform_list_network_volume;
-CREATE TABLE ur_transform_list_network_volume AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.mount_point') as mount_point, 
-    json_extract(content, '$.columns.name') as volume_name
-FROM uniform_resource WHERE name="list Container Volumes" AND uri="osquery-ms:query-result";
-
-DROP TABLE IF EXISTS ur_transform_list_container_ports;
-CREATE TABLE ur_transform_list_container_ports AS
-SELECT 
-    uniform_resource_id,
-    json_extract(content, '$.name') AS name,
-    json_extract(content, '$.hostIdentifier') AS hostIdentifier,
-    json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.host_ip') as host_ip, 
-    json_extract(content, '$.columns.host_port') as host_port,
-    json_extract(content, '$.columns.port') as port,
-    json_extract(content, '$.columns.type') as type
-FROM uniform_resource WHERE name="Docker Container Ports" AND uri="osquery-ms:query-result";
-
-DROP TABLE IF EXISTS ur_transform_list_container_process;
-CREATE TABLE ur_transform_list_container_process AS
-SELECT 
-    asset.asset_id,
-    json_extract(ur.content, '$.name') AS name,
-    json_extract(ur.content, '$.hostIdentifier') AS host,
-    json_extract(ur.content, '$.columns.name') as process_name,
-    json_extract(ur.content, '$.columns.pid') as pid,
-    json_extract(ur.content, '$.columns.uid') as uid
-FROM uniform_resource as ur
-INNER JOIN asset_active_list AS asset ON asset.host=host_identifier
-WHERE name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
-    json_extract(ur.content, '$.columns.pid'),
-    json_extract(ur.content, '$.columns.uid');
-
-
--- All Process
-DROP TABLE IF EXISTS ur_transform_list_all_process;
-CREATE TABLE ur_transform_list_all_process AS
-SELECT 
-    asset.asset_id,
-    json_extract(ur.content, '$.name') AS name,
-    json_extract(ur.content, '$.hostIdentifier') AS host,
-    json_extract(ur.content, '$.columns.name') as process_name
-FROM uniform_resource as ur
-INNER JOIN asset_active_list AS asset ON asset.host=host_identifier
-WHERE name="Osquery All Processes" AND uri="osquery-ms:query-result";
-
-
-
----------------------AWS Tables-----------------------
-DROP TABLE IF EXISTS ur_transform_ec2_instance;
-CREATE TABLE ur_transform_ec2_instance AS
-SELECT 
-  json_extract(instance.value, '$.instance_id') AS instance_id,
-  json_extract(instance.value, '$.account_id') AS account_id,
-  json_extract(instance.value, '$.title') AS title,
-  json_extract(instance.value, '$.architecture') AS architecture,
-  json_extract(instance.value, '$.platform_details') AS platform_details,
-  json_extract(instance.value, '$.root_device_name') AS root_device_name,
-  json_extract(instance.value, '$.instance_state') AS state,
-  json_extract(instance.value, '$.instance_type') AS instance_type,
-  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
-  json_extract(instance.value, '$.az') AS az,
-  json_extract(instance.value, '$.launch_time') AS launch_time,
-  
-  json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
-  json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
-  json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
-  json_extract(ni.value, '$.SubnetId') AS subnet_id,
-  json_extract(ni.value, '$.VpcId') AS vpc_id,
-  json_extract(ni.value, '$.MacAddress') AS mac_address,
-  json_extract(ni.value, '$.Status') AS status
-FROM uniform_resource,
-     json_each(content) AS instance,
-     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
-WHERE uri = 'steampipeawsEC2Instances';
-
-DROP TABLE IF EXISTS ur_transform_vpc;
-CREATE TABLE ur_transform_vpc AS
-SELECT 
-  json_extract(value, '$.owner_id') AS owner_id,
-  json_extract(value, '$.state') AS state,
-  json_extract(value, '$.title') AS title,
-  json_extract(value, '$.vpc_id') AS vpc_id
-FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeawsVPC';
-
-DROP TABLE IF EXISTS ur_transform_aws_buckets;
-CREATE TABLE ur_transform_aws_buckets AS
-SELECT 
-  json_extract(value, '$.name') AS name,
-  json_extract(value, '$.region') AS region,
-  json_extract(value, '$.creation_date') AS creation_date
-FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeListAllAwsBuckets';
-DROP VIEW IF EXISTS all_boundary;
-CREATE VIEW all_boundary AS
-SELECT 
-    boundary_id,
-    parent_boundary_id,
-    name 
-FROM boundary;
-
-DROP VIEW IF EXISTS parent_boundary;
-CREATE VIEW parent_boundary AS
-SELECT 
-    boundary_id,
-    name 
-FROM boundary WHERE parent_boundary_id IS NULL;
-
-DROP VIEW IF EXISTS boundary_list;
-CREATE VIEW boundary_list AS
-SELECT 
-    boundary_id,
-    parent_boundary_id,
-    name 
-FROM boundary WHERE parent_boundary_id IS NOT NULL;
-
--- User list of host 
-DROP VIEW IF EXISTS asset_user_list;
-CREATE VIEW asset_user_list AS
-SELECT 
-    ast.asset_id,
-    ast.name as host,
-    ss.host_identifier,
-    ss.user_name,
-    ss.directory,
-    ss.uid
-FROM asset ast
-INNER JOIN ur_transform_list_user ss ON ss.host_identifier=ast.name;
-
+FROM surveilr_osquery_ms_node_boundary boundary
+LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=boundary.host_identifier
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier;
 
 -- policy list of host 
 DROP VIEW IF EXISTS asset_policy_list;
 CREATE VIEW asset_policy_list AS
 SELECT 
-    ast.asset_id,
-    ast.name as host,
+    host.host_identifier,
+    host.host_identifier as host,
     pol.host_identifier,
     pol.policy_name,
     pol.policy_result,
     pol.resolution
-FROM asset ast
-INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=ast.name;
+FROM surveilr_osquery_ms_node_boundary host
+INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=host.host_identifier;
 
 -- Installed software of host 
 DROP VIEW IF EXISTS asset_software_list;
 CREATE VIEW asset_software_list AS
 SELECT 
-    ast.asset_id,
-    ast.name as host,
-    sw.host_identifier,
+    host.host_identifier,
+    host.host_identifier as host,
     sw.name,
     sw.source,
     sw.type,
     sw.version,
     sw.platform
-FROM asset ast
-INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=ast.name;
+FROM surveilr_osquery_ms_node_boundary host
+INNER JOIN surveilr_osquery_ms_node_installed_software sw ON sw.host_identifier=host.host_identifier;
 
+-- User list of host 
+DROP VIEW IF EXISTS asset_user_list;
+CREATE VIEW asset_user_list AS
+SELECT 
+    host.host_identifier,
+    host.host_identifier as host,
+    ss.host_identifier,
+    ss.user_name,
+    ss.directory,
+    ss.uid
+FROM surveilr_osquery_ms_node_boundary host
+INNER JOIN ur_transform_list_user ss ON ss.host_identifier=host.host_identifier;
 
 DROP VIEW IF EXISTS list_docker_container;
 CREATE VIEW list_docker_container AS
 SELECT 
-asset.asset_id,
+host.host_identifier,
 c.container_name,
 c.image,
 c.status,
@@ -309,7 +666,28 @@ datetime(created, 'unixepoch', 'localtime') AS created_date
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
-INNER JOIN asset_active_list AS asset ON asset.host=c.hostIdentifier
+INNER JOIN surveilr_osquery_ms_node_boundary AS host ON host.host_identifier=c.hostIdentifier
+INNER JOIN ur_transform_list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
+INNER JOIN asset_user_list AS user ON user.uid=process.uid; 
+
+DROP VIEW IF EXISTS list_docker_container;
+CREATE VIEW list_docker_container AS
+SELECT 
+host.host_identifier,
+c.container_name,
+c.image,
+c.status,
+c.state,
+port.host_port,
+port.port,
+ni.ip_address,
+process.process_name as process,
+user.user_name as owenrship,
+datetime(created, 'unixepoch', 'localtime') AS created_date
+FROM ur_transform_list_container AS c
+INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
+INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
+INNER JOIN surveilr_osquery_ms_node_boundary AS host ON host.host_identifier=c.hostIdentifier
 INNER JOIN ur_transform_list_container_process AS process ON process.pid=c.pid AND process.host=c.hostIdentifier
 INNER JOIN asset_user_list AS user ON user.uid=process.uid;
 
@@ -338,7 +716,7 @@ SELECT
   vpc.state as vpc_state
 FROM
   ur_transform_ec2_instance AS ec2
-LEFT JOIN ur_transform_vpc vpc ON ec2.vpc_id=vpc.vpc_id;
+LEFT JOIN ur_transform_aws_vpc vpc ON ec2.vpc_id=vpc.vpc_id;
 
 DROP VIEW IF EXISTS list_aws_s3_bucket;
 CREATE VIEW list_aws_s3_bucket AS
@@ -348,12 +726,28 @@ region,
 creation_date
 FROM
   ur_transform_aws_buckets;
+
+DROP VIEW IF EXISTS list_aws_vpc;
+CREATE VIEW list_aws_vpc AS
+SELECT
+vpc.title as vpc_name,
+account.title as account,
+account.title as owner,
+vpc.region,
+vpc.state,
+vpc.cidr_block,
+vpc.dhcp_options_id,
+vpc.is_default,
+vpc.partition
+FROM
+  ur_transform_aws_vpc vpc
+INNER JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', 'index.sql', 1, 'fleetfolio/index.sql', 'fleetfolio/index.sql', 'FleetFolio', NULL, NULL, 'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).', NULL),
-    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/parent_boundary.sql', 'fleetfolio/parent_boundary.sql', 'Parent Boundary', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
+    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/boundary.sql', 'fleetfolio/boundary.sql', 'Boundary', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -1017,7 +1411,7 @@ FROM breadcrumbs ORDER BY level DESC;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/parent_boundary.sql',
+      'fleetfolio/boundary.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -1027,7 +1421,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''fleetfolio/parent_boundary.sql''
+    WHERE namespace = ''prime'' AND path=''fleetfolio/boundary.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -1042,85 +1436,38 @@ FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
               
 
-                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/parent_boundary.sql/index.sql'') as contents;
-    ;
-      
-  -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
-    --- Dsply Page Title
-SELECT
-    ''title''   as component,
-    ''Boundary '' contents;
-      
-   select
-    ''text''              as component,
-    ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
-      
-  -- Dashboard count
-  select
-      ''card'' as component,
-      4      as columns;
-  select
-      name  as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || boundary_id as link
-  FROM parent_boundary;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/boundary.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+                  SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
    WHERE namespace = ''prime'' AND path = ''fleetfolio/boundary.sql/index.sql'') as contents;
     ;
-   --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
- SELECT
-   (SELECT name FROM parent_boundary WHERE boundary_id=$boundary_id) AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || $boundary_id  AS link;
-   
- --- Dsply Page Title
- SELECT
-     ''title''   as component,
-     name contents FROM parent_boundary WHERE boundary_id=$boundary_id;
-  
-    select
-     ''text''              as component,
-     ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
-  
-   -- Dashboard count
-   select
-       ''card'' as component,
-       4      as columns;
-   select
-       name  as title,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id as link
-   FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
 
-   -- Dashboard count
-   select
-       ''card'' as component,
-       4      as columns;
-   select
-       "AWS Trust Boundary"  as title,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' as link
-  ;
+    -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+      --- Dsply Page Title
+  SELECT
+      ''title''   as component,
+      ''Boundary '' contents;
+
+     select
+      ''text''              as component,
+      ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
+
+    -- Dashboard count
+    select
+        ''card'' as component,
+        4      as columns;
+    select
+        boundary  as title,
+        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key as link
+    FROM boundary_list;
+
+-- AWS Trust Boundary
+ select
+    ''card'' as component,
+     4      as columns;
+ select
+     "AWS Trust Boundary"  as title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' as link
+ ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1144,34 +1491,30 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT
       ''FleetFolio'' AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
-      ''Parent Boundary'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-  SELECT parent_boundary AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
-      FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-  SELECT boundry AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
-      FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-    
-  
+  SELECT ''Boundary'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link;
+  SELECT boundary AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key  AS link
+    FROM host_list WHERE boundary_key=$boundary_key LIMIT 1;
+
+
 --- Dsply Page Title
 SELECT
     ''title''   as component,
-    boundry as contents FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-  
+    boundary as contents FROM host_list WHERE boundary_key=$boundary_key LIMIT 1;
+
    select
     ''text''              as component,
     ''A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.'' as contents;
-  
+
  -- asset list
   SELECT ''table'' AS component,
       ''host'' as markdown,
       TRUE as sort,
       TRUE as search;
   SELECT 
-  ''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id || '')'' as host,
-  boundry,
+  ''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier || '')'' as host,
+  boundary,
   CASE 
       WHEN status = ''Online'' THEN ''🟢 Online''
       WHEN status = ''Offline'' THEN ''🔴 Offline''
@@ -1184,7 +1527,7 @@ SELECT
   ip_address AS "IP Address",
   last_fetched AS "Last Fetched",
   last_restarted AS "Last Restarted"
-  FROM asset_active_list WHERE boundary_id=$boundary_id;
+  FROM host_list WHERE boundary_key=$boundary_key;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1209,40 +1552,37 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       ''FleetFolio'' AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
   SELECT
-      ''Parent Boundary'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
-  SELECT parent_boundary AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql?boundary_id='' || parent_boundary_id  AS link
-      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-  SELECT boundry AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_id='' || boundary_id  AS link
-      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+      ''Boundary'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+  SELECT boundary AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key  AS link
+      FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
   SELECT host AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || asset_id  AS link
-      FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-    
-  
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier  AS link
+      FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
+
+
   --- Dsply Page Title
   SELECT
       ''title''   as component,
-      host as contents FROM asset_active_list WHERE asset_id=$host_identifier;
-    
+      host as contents FROM host_list WHERE host_identifier=$host_identifier;
+
   SELECT
       ''text''              as component,
-      description as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+      description as contents FROM host_list WHERE host_identifier=$host_identifier;
   --- Display Asset (Host) Details first row
   SELECT ''datagrid'' as component;
-      SELECT ''Parent Boundary'' as title, parent_boundary as description FROM asset_active_list WHERE asset_id=$host_identifier;
-      SELECT ''Boundary'' as title, boundry as description FROM asset_active_list WHERE asset_id=$host_identifier;
+      -- SELECT ''Parent Boundary'' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
+      SELECT ''Boundary'' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
       SELECT ''Status'' as title,
       CASE 
           WHEN status = ''Online'' THEN ''🟢 Online''
           WHEN status = ''Offline'' THEN ''🔴 Offline''
           ELSE ''⚠️ Unknown''
-      END AS  description FROM asset_active_list WHERE asset_id=$host_identifier; 
-      SELECT ''Issues'' as title, issues as description FROM asset_active_list WHERE asset_id=$host_identifier; 
-      SELECT ''Osquery version'' as title, osquery_version as description FROM asset_active_list WHERE asset_id=$host_identifier;
-      SELECT ''Operating system'' as title, operating_system as description FROM asset_active_list WHERE asset_id=$host_identifier;
+      END AS  description FROM host_list WHERE host_identifier=$host_identifier;
+      SELECT ''Issues'' as title, issues as description FROM host_list WHERE host_identifier=$host_identifier;
+      SELECT ''Osquery version'' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
+      SELECT ''Operating system'' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
 
       select 
           ''html'' as component,
@@ -1304,7 +1644,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               </div>
           </div>
 
-      '' as html FROM asset_active_list WHERE asset_id=$host_identifier;
+      '' as html FROM host_list WHERE host_identifier=$host_identifier;
 
   select 
   ''divider'' as component,
@@ -1319,7 +1659,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   -- policy table and tab value Start here
   -- policy pagenation
-  SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE asset_id=$host_identifier);
+  SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1328,7 +1668,7 @@ SET current_page = ($offset / $limit) + 1;
   SELECT 
   policy_name AS "Policy", policy_result as "Status", resolution
   FROM asset_policy_list
-  WHERE asset_id = $host_identifier AND ($tab = ''policies'' OR $tab IS NULL) LIMIT $limit
+  WHERE host_identifier = $host_identifier AND ($tab = ''policies'' OR $tab IS NULL) LIMIT $limit
   OFFSET $offset;
   -- checking
   SELECT ''text'' AS component,
@@ -1341,8 +1681,8 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''policies'';;
 
   -- Software table and tab value Start here
-  -- Software pagenation 
-  SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE asset_id=$host_identifier);
+ 
+  SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1350,9 +1690,10 @@ SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
   SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
   FROM asset_software_list
-  WHERE asset_id = $host_identifier AND $tab = ''software''
+  WHERE host_identifier = $host_identifier AND $tab = ''software''
   LIMIT $limit OFFSET $offset;
-  
+
+  -- Software pagenation
   SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
 ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
@@ -1363,9 +1704,7 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''software'';;
 
   -- User table and tab value Start here
-  -- User pagenation
-
-  SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE asset_id=$host_identifier);
+  SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1373,8 +1712,10 @@ SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''users'';
   SELECT user_name as "User Name", directory as "Directory"
   FROM asset_user_list
-  WHERE asset_id = $host_identifier AND $tab = ''users''
+  WHERE host_identifier = $host_identifier AND $tab = ''users''
   LIMIT $limit OFFSET $offset;
+
+  -- User pagenation
   SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
 ''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
@@ -1384,9 +1725,9 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''users'';;
 
- -- Container table and tab value Start here
-  -- Container pagenation
-   SET total_rows = (SELECT COUNT(*) FROM list_docker_container WHERE asset_id=$host_identifier);
+-- Container table and tab value Start here
+-- Container pagenation
+SET total_rows = (SELECT COUNT(*) FROM list_docker_container WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1396,7 +1737,7 @@ SET current_page = ($offset / $limit) + 1;
   SELECT LTRIM(container_name, ''/'') AS name, image,host_port AS "host Port",
   port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
   FROM list_docker_container
-  WHERE asset_id = $host_identifier AND $tab = ''container''
+  WHERE host_identifier = $host_identifier AND $tab = ''container''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
@@ -1407,9 +1748,10 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''container'';;
 
- -- all_process table and tab value Start here
+
+  -- all_process table and tab value Start here
   -- all_process pagenation
-  SET total_rows = (SELECT COUNT(*) FROM ur_transform_list_container_process WHERE asset_id=$host_identifier);
+  SET total_rows = (SELECT COUNT(*) FROM ur_transform_list_container_process WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -1417,7 +1759,7 @@ SET current_page = ($offset / $limit) + 1;
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
   SELECT process_name AS "process name"
   FROM ur_transform_list_container_process
-  WHERE asset_id = $host_identifier AND $tab = ''all_process''
+  WHERE host_identifier = $host_identifier AND $tab = ''all_process''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
@@ -1451,32 +1793,37 @@ SELECT
    ''FleetFolio'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
  SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
 
  SELECT
    ''AWS Trust Boundary'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
-   
+
  --- Dsply Page Title
  SELECT
      ''title''   as component,
      "AWS Trust Boundary" contents;
-  
+
   -- Dashboard count
-       select
-           ''card'' as component,
-           4      as columns;
-       select
-           "AWS EC2 instance "  as title,
-           ''IconSquare'' as icon,
-           ''orange''                    as color,
-           sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_list.sql'' as link;
-       select
-           "AWS S3 buckets"  as title,
-           "bucket" as icon,
-           ''blue''                    as color,
-           sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_s3_bucket_list.sql'' as link;
+   select
+       ''card'' as component,
+       4      as columns;
+   select
+       "AWS EC2 instance "  as title,
+       ''square'' as icon,
+       ''orange''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_list.sql'' as link;
+   select
+       "AWS S3 buckets"  as title,
+       "bucket" as icon,
+       ''blue''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_s3_bucket_list.sql'' as link;
+   select
+       "AWS VPC"  as title,
+       "cloud" as icon,
+       ''black''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_vpc_list.sql'' as link;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1501,8 +1848,8 @@ SELECT
    ''FleetFolio'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
  SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
 
  SELECT
    ''AWS Trust Boundary'' AS title,
@@ -1510,18 +1857,18 @@ SELECT
 
  SELECT
    ''AWS EC2 instance'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_list.sql'' AS link; 
 
-   
+
  --- Dsply Page Title
  SELECT
      ''title''   as component,
      "AWS EC2 instance" contents;
-  
+
     select
      ''text''              as component,
      ''An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.'' as contents;
-  
+
 
  SET total_rows = (SELECT COUNT(*) FROM list_aws_ec2_instance );
 SET limit = COALESCE($limit, 50);
@@ -1572,8 +1919,8 @@ SELECT
    ''FleetFolio'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
  SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
  SELECT
    ''AWS Trust Boundary'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
@@ -1589,11 +1936,11 @@ SELECT
    SELECT
      ''title''   as component,
      title as contents FROM list_aws_ec2_instance WHERE instance_id=$instance_id;
-  
+
    select
      ''text''              as component,
      ''An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.'' as contents;
-  
+
     select 
            ''html'' as component,
            ''<div style="display: flex; gap: 20px; width: 100%;">
@@ -1698,8 +2045,8 @@ SELECT
    ''FleetFolio'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
  SELECT
-   ''Parent Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/parent_boundary.sql'' AS link; 
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
 
  SELECT
    ''AWS Trust Boundary'' AS title,
@@ -1709,16 +2056,16 @@ SELECT
    ''AWS S3 buckets'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
 
-   
+
  --- Dsply Page Title
  SELECT
      ''title''   as component,
      "AWS S3 buckets" contents;
-  
+
     select
      ''text''              as component,
      ''AWS S3 Bucket is a scalable storage container in Amazon Simple Storage Service (S3) used to store and organize objects (such as files, images, backups, and data). Each bucket has a globally unique name and supports features like versioning, access control, encryption, and lifecycle policies.'' as contents;
-  
+
 
  SET total_rows = (SELECT COUNT(*) FROM list_aws_s3_bucket );
 SET limit = COALESCE($limit, 50);
@@ -1735,6 +2082,78 @@ SELECT ''table'' AS component,
    region,
    datetime(substr(creation_date, 1, 19)) as "Creation date"
    FROM list_aws_s3_bucket;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_vpc_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_vpc_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS VPC'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_vpc_list.sql'' AS link; 
+
+
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS VPC" contents;
+
+    select
+     ''text''              as component,
+     ''Amazon Virtual Private Cloud (VPC) is a logically isolated section of the AWS Cloud where you can launch and manage AWS resources in a custom-defined network. You control key networking aspects like IP address ranges, subnets, route tables, internet gateways, and security settings.'' as contents;
+
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_vpc );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       ''host'' as markdown,
+       TRUE as sort,
+       TRUE as search;
+   SELECT 
+   vpc_name as name,
+   account,
+   owner,
+   region,
+   state,
+   cidr_block as ''cidr block'',
+   dhcp_options_id as ''DHCP Options ID'',
+   is_default as "is default",
+   partition
+   FROM list_aws_vpc;
     SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
