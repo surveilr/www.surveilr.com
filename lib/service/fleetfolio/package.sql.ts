@@ -8,6 +8,7 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sh from "./custom_shell.ts";
+import * as osQueryMS from "../../pattern/osquery-ms/package.sql.ts"
 
 const WEB_UI_TITLE = "fleetfolio";
 const WE_UI_LOGO = "fleetfolio-logo.png";
@@ -42,9 +43,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fleetfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("fleetfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("fleetfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -62,109 +62,61 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("fleetfolio")
-    }
+           WHERE namespace = 'prime' AND path = ${this.constructHomePath("fleetfolio")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("fleetfolio")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fleetfolio")
+      }
        ORDER BY sibling_order;`;
   }
 
   @fleetfolioNav({
-    caption: "Parent Boundary",
+    caption: "Boundary",
     description:
       `The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.`,
     siblingOrder: 1,
   })
-  "fleetfolio/parent_boundary.sql"() {
+  "fleetfolio/boundary.sql"() {
     return this.SQL`
             ${this.activePageTitle()}
-      
+
             -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
               --- Dsply Page Title
           SELECT
               'title'   as component,
               'Boundary ' contents;
-      
+
              select
               'text'              as component,
               'A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.' as contents;
-      
+
             -- Dashboard count
             select
                 'card' as component,
                 4      as columns;
             select
-                name  as title,
-                ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || boundary_id as link
-            FROM parent_boundary;
+                boundary  as title,
+                ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key as link
+            FROM boundary_list;
+
+        -- AWS Trust Boundary
+         select
+            'card' as component,
+             4      as columns;
+         select
+             "AWS Trust Boundary"  as title,
+            ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")
+      } as link
+         ;
             `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/boundary.sql"() {
-    return this.SQL`
-      ${this.activePageTitle()}
-        --- Display breadcrumb
-     SELECT
-        'breadcrumb' AS component;
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")}    AS link;
-      SELECT
-        'FleetFolio' AS title,
-        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
-      SELECT
-        'Parent Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
-      SELECT
-        (SELECT name FROM parent_boundary WHERE boundary_id=$boundary_id) AS title,
-        ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || $boundary_id  AS link;
-        
-      --- Dsply Page Title
-      SELECT
-          'title'   as component,
-          name contents FROM parent_boundary WHERE boundary_id=$boundary_id;
-  
-         select
-          'text'              as component,
-          'A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.' as contents;
-  
-        -- Dashboard count
-        select
-            'card' as component,
-            4      as columns;
-        select
-            name  as title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id as link
-        FROM boundary_list WHERE parent_boundary_id=$boundary_id::TEXT;
-
-        -- Dashboard count
-        select
-            'card' as component,
-            4      as columns;
-        select
-            "AWS Trust Boundary"  as title,
-            ${
-      this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")
-    } as link
-       ;
-        `;
-  }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "fleetfolio/host_list.sql"() {
@@ -179,40 +131,32 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
             'FleetFolio' AS title,
             ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
-        SELECT
-            'Parent Boundary' AS title,
-            ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
-        SELECT parent_boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || parent_boundary_id  AS link
-            FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-        SELECT boundry AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id  AS link
-            FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-    
-        
+        SELECT 'Boundary' AS title,
+            ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link;
+        SELECT boundary AS title,
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key  AS link
+          FROM host_list WHERE boundary_key=$boundary_key LIMIT 1;
+
+
       --- Dsply Page Title
       SELECT
           'title'   as component,
-          boundry as contents FROM asset_active_list WHERE boundary_id=$boundary_id LIMIT 1;
-  
+          boundary as contents FROM host_list WHERE boundary_key=$boundary_key LIMIT 1;
+
          select
           'text'              as component,
           'A boundary refers to a defined collection of servers and assets that work together to provide a specific function or service. It typically represents a perimeter or a framework within which resources are organized, managed, and controlled. Within this boundary, servers and assets are interconnected, often with defined roles and responsibilities, ensuring that operations are executed smoothly and securely. This concept is widely used in IT infrastructure and network management to segment and protect different environments or resources.' as contents;
-  
+
        -- asset list
         SELECT 'table' AS component,
             'host' as markdown,
             TRUE as sort,
             TRUE as search;
         SELECT 
-        '[' || host || '](' || ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || asset_id || ')' as host,
-        boundry,
+        '[' || host || '](' || ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || host_identifier || ')' as host,
+        boundary,
         CASE 
             WHEN status = 'Online' THEN '🟢 Online'
             WHEN status = 'Offline' THEN '🔴 Offline'
@@ -225,7 +169,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ip_address AS "IP Address",
         last_fetched AS "Last Fetched",
         last_restarted AS "Last Restarted"
-        FROM asset_active_list WHERE boundary_id=$boundary_id;
+        FROM host_list WHERE boundary_key=$boundary_key;
         `;
   }
 
@@ -234,27 +178,27 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
     const policyViewName = `asset_policy_list`;
     const policyPagination = this.pagination({
       tableOrViewName: policyViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
+      whereSQL: "WHERE host_identifier=$host_identifier",
     });
     const softwareViewName = `asset_software_list`;
     const softwarePagination = this.pagination({
       tableOrViewName: softwareViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
+      whereSQL: "WHERE host_identifier=$host_identifier",
     });
     const userListViewName = `asset_user_list`;
     const userListPagination = this.pagination({
       tableOrViewName: userListViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
+      whereSQL: "WHERE host_identifier=$host_identifier",
     });
     const containerViewName = `list_docker_container`;
     const containerPagination = this.pagination({
       tableOrViewName: containerViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
+      whereSQL: "WHERE host_identifier=$host_identifier",
     });
     const processViewName = `ur_transform_list_container_process`;
     const processPagination = this.pagination({
       tableOrViewName: processViewName,
-      whereSQL: "WHERE asset_id=$host_identifier",
+      whereSQL: "WHERE host_identifier=$host_identifier",
     });
     return this.SQL`
       ${this.activePageTitle()}
@@ -268,46 +212,39 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'FleetFolio' AS title,
             ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
         SELECT
-            'Parent Boundary' AS title,
-            ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
-        SELECT parent_boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/boundary.sql?boundary_id=")
-    } || parent_boundary_id  AS link
-            FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-        SELECT boundry AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_id=")
-    } || boundary_id  AS link
-            FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
+            'Boundary' AS title,
+            ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+        SELECT boundary AS title,
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key  AS link
+            FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
         SELECT host AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || asset_id  AS link
-            FROM asset_active_list WHERE asset_id=$host_identifier LIMIT 1;
-    
-        
+            ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || host_identifier  AS link
+            FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
+
+
         --- Dsply Page Title
         SELECT
             'title'   as component,
-            host as contents FROM asset_active_list WHERE asset_id=$host_identifier;
-    
+            host as contents FROM host_list WHERE host_identifier=$host_identifier;
+
         SELECT
             'text'              as component,
-            description as contents FROM asset_active_list WHERE asset_id=$host_identifier;
+            description as contents FROM host_list WHERE host_identifier=$host_identifier;
         --- Display Asset (Host) Details first row
         SELECT 'datagrid' as component;
-            SELECT 'Parent Boundary' as title, parent_boundary as description FROM asset_active_list WHERE asset_id=$host_identifier;
-            SELECT 'Boundary' as title, boundry as description FROM asset_active_list WHERE asset_id=$host_identifier;
+            -- SELECT 'Parent Boundary' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
+            SELECT 'Boundary' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
             SELECT 'Status' as title,
             CASE 
                 WHEN status = 'Online' THEN '🟢 Online'
                 WHEN status = 'Offline' THEN '🔴 Offline'
                 ELSE '⚠️ Unknown'
-            END AS  description FROM asset_active_list WHERE asset_id=$host_identifier; 
-            SELECT 'Issues' as title, issues as description FROM asset_active_list WHERE asset_id=$host_identifier; 
-            SELECT 'Osquery version' as title, osquery_version as description FROM asset_active_list WHERE asset_id=$host_identifier;
-            SELECT 'Operating system' as title, operating_system as description FROM asset_active_list WHERE asset_id=$host_identifier;
+            END AS  description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT 'Issues' as title, issues as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT 'Osquery version' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT 'Operating system' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
 
             select 
                 'html' as component,
@@ -369,7 +306,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                     </div>
                 </div>
 
-            ' as html FROM asset_active_list WHERE asset_id=$host_identifier;
+            ' as html FROM host_list WHERE host_identifier=$host_identifier;
 
         select 
         'divider' as component,
@@ -389,85 +326,80 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 
         policy_name AS "Policy", policy_result as "Status", resolution
         FROM ${policyViewName}
-        WHERE asset_id = $host_identifier AND ($tab = 'policies' OR $tab IS NULL) LIMIT $limit
+        WHERE host_identifier = $host_identifier AND ($tab = 'policies' OR $tab IS NULL) LIMIT $limit
         OFFSET $offset;
         -- checking
-        ${
-      policyPagination.renderSimpleMarkdown(
+        ${policyPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
-        "$tab='policies'",
-      )
-    };
+        "$tab='policies'",)};
 
         -- Software table and tab value Start here
-        -- Software pagenation 
+       
         ${softwarePagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'software';
         SELECT name, version, type, platform, '-' AS "Vulnerabilities"
         FROM ${softwareViewName}
-        WHERE asset_id = $host_identifier AND $tab = 'software'
+        WHERE host_identifier = $host_identifier AND $tab = 'software'
         LIMIT $limit OFFSET $offset;
-        
-        ${
-      softwarePagination.renderSimpleMarkdown(
-        "tab",
-        "host_identifier",
-        "$tab='software'",
-      )
-    };
+
+        -- Software pagenation
+        ${softwarePagination.renderSimpleMarkdown(
+          "tab",
+          "host_identifier",
+          "$tab='software'",
+        )
+      };
 
         -- User table and tab value Start here
-        -- User pagenation
-
         ${userListPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'users';
         SELECT user_name as "User Name", directory as "Directory"
         FROM ${userListViewName}
-        WHERE asset_id = $host_identifier AND $tab = 'users'
+        WHERE host_identifier = $host_identifier AND $tab = 'users'
         LIMIT $limit OFFSET $offset;
-        ${
-      userListPagination.renderSimpleMarkdown(
+
+        -- User pagenation
+        ${userListPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='users'",
       )
-    };
+      };
 
-       -- Container table and tab value Start here
-        -- Container pagenation
-         ${containerPagination.init()} 
+      -- Container table and tab value Start here
+      -- Container pagenation
+      ${containerPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search,TRUE    as hover
          WHERE $tab = 'container';
         SELECT LTRIM(container_name, '/') AS name, image,host_port AS "host Port",
         port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
         FROM ${containerViewName}
-        WHERE asset_id = $host_identifier AND $tab = 'container'
+        WHERE host_identifier = $host_identifier AND $tab = 'container'
         LIMIT $limit OFFSET $offset;
-        ${
-      containerPagination.renderSimpleMarkdown(
+        ${containerPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='container'",
       )
-    };
+      };
+      
 
-       -- all_process table and tab value Start here
+        -- all_process table and tab value Start here
         -- all_process pagenation
         ${processPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'all_process';
         SELECT process_name AS "process name"
         FROM ${processViewName}
-        WHERE asset_id = $host_identifier AND $tab = 'all_process'
+        WHERE host_identifier = $host_identifier AND $tab = 'all_process'
         LIMIT $limit OFFSET $offset;
-        ${
-      processPagination.renderSimpleMarkdown(
+        ${processPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='all_process'",
       )
-    };
-        `;
+      };
+      `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -484,36 +416,37 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
-        'Parent Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
 
       SELECT
         'AWS Trust Boundary' AS title,
         ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
-        
+
       --- Dsply Page Title
       SELECT
           'title'   as component,
           "AWS Trust Boundary" contents;
-  
+
        -- Dashboard count
-            select
-                'card' as component,
-                4      as columns;
-            select
-                "AWS EC2 instance "  as title,
-                'IconSquare' as icon,
-                'orange'                    as color,
-                ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")
-    } as link;
-            select
-                "AWS S3 buckets"  as title,
-                "bucket" as icon,
-                'blue'                    as color,
-                ${
-      this.absoluteURL("/fleetfolio/aws_s3_bucket_list.sql")
-    } as link;
+        select
+            'card' as component,
+            4      as columns;
+        select
+            "AWS EC2 instance "  as title,
+            'square' as icon,
+            'orange'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")} as link;
+        select
+            "AWS S3 buckets"  as title,
+            "bucket" as icon,
+            'blue'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_s3_bucket_list.sql")} as link;
+        select
+            "AWS VPC"  as title,
+            "cloud" as icon,
+            'black'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_vpc_list.sql")} as link;
 
      `;
   }
@@ -537,8 +470,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
-        'Parent Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
 
       SELECT
         'AWS Trust Boundary' AS title,
@@ -546,18 +479,18 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
         'AWS EC2 instance' AS title,
-        ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
-     
-        
+        ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")} AS link; 
+
+
       --- Dsply Page Title
       SELECT
           'title'   as component,
           "AWS EC2 instance" contents;
-  
+
          select
           'text'              as component,
           'An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.' as contents;
-  
+
 
       ${pagination.init()} 
      SELECT 'table' AS component,
@@ -566,9 +499,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as search,
             'title' as markdown;
         SELECT 
-        '[' || title || '](' || ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
-    } || instance_id || ')' as title,
+        '[' || title || '](' || ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
+      } || instance_id || ')' as title,
         architecture,
         platform_details AS platform, 
         root_device_name as "root device name",
@@ -593,8 +525,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
-        'Parent Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
       SELECT
         'AWS Trust Boundary' AS title,
         ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
@@ -604,19 +536,18 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
       SELECT
         title,
-        ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
-    } || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
-     
+        ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
+      } || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
+
       --- Dsply Page Title
         SELECT
           'title'   as component,
           title as contents FROM list_aws_ec2_instance WHERE instance_id=$instance_id;
-  
+
         select
           'text'              as component,
           'An EC2 instance represents a virtual server hosted on Amazon Web Services (AWS), used to run applications, services, or processes in a scalable and flexible cloud environment. Each instance is provisioned with a specific configuration—such as CPU, memory, storage, and networking capabilities—to meet the needs of the workload it supports. EC2 instances are a core component of cloud infrastructure, enabling users to deploy and manage computing resources without the need for physical hardware. They can be started, stopped, resized, or terminated as needed, offering full control over performance, cost, and security.' as contents;
-  
+
          select 
                 'html' as component,
                 '<div style="display: flex; gap: 20px; width: 100%;">
@@ -719,8 +650,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'FleetFolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
-        'Parent Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/parent_boundary.sql")} AS link; 
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
 
       SELECT
         'AWS Trust Boundary' AS title,
@@ -729,17 +660,17 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'AWS S3 buckets' AS title,
         ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
-     
-        
+
+
       --- Dsply Page Title
       SELECT
           'title'   as component,
           "AWS S3 buckets" contents;
-  
+
          select
           'text'              as component,
           'AWS S3 Bucket is a scalable storage container in Amazon Simple Storage Service (S3) used to store and organize objects (such as files, images, backups, and data). Each bucket has a globally unique name and supports features like versioning, access control, encryption, and lifecycle policies.' as contents;
-  
+
 
       ${pagination.init()} 
      SELECT 'table' AS component,
@@ -753,6 +684,67 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         datetime(substr(creation_date, 1, 19)) as "Creation date"
         FROM ${viewName};
          ${pagination.renderSimpleMarkdown()};`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_vpc_list.sql"() {
+    const viewName = `list_aws_vpc`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS VPC' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_vpc_list.sql")} AS link; 
+
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS VPC" contents;
+
+         select
+          'text'              as component,
+          'Amazon Virtual Private Cloud (VPC) is a logically isolated section of the AWS Cloud where you can launch and manage AWS resources in a custom-defined network. You control key networking aspects like IP address ranges, subnets, route tables, internet gateways, and security settings.' as contents;
+
+
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            'host' as markdown,
+            TRUE as sort,
+            TRUE as search;
+        SELECT 
+        vpc_name as name,
+        account,
+        owner,
+        region,
+        state,
+        cidr_block as 'cidr block',
+        dhcp_options_id as 'DHCP Options ID',
+        is_default as "is default",
+        partition
+        FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
   }
 
   @spn.shell({
@@ -831,8 +823,25 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 }
 
 export async function SQL() {
+
   return await spn.TypicalSqlPageNotebook.SQL(
+
     new class extends spn.TypicalSqlPageNotebook {
+
+      async statefulOsQeryMSSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("../../pattern/osquery-ms/stateful.sql"),
+        );
+      }
+
+      async statelessOsQeryMSSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("../../pattern/osquery-ms/stateless.sql"),
+        );
+      }
+
       async statefulfleetfolioSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
