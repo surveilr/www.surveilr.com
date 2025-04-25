@@ -742,6 +742,26 @@ vpc.partition
 FROM
   ur_transform_aws_vpc vpc
 INNER JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
+
+DROP VIEW IF EXISTS list_aws_ec2_application_load_balancer;
+CREATE VIEW list_aws_ec2_application_load_balancer AS
+SELECT
+lb.name,
+account.title as account,
+account.title as owner,
+vpc.title as vpc,
+lb.region,
+lb.created_time,
+lb.dns_name,
+lb.ip_address_type,
+lb.load_balancer_attributes,
+lb.scheme,
+lb.security_groups,
+lb.type
+FROM
+  ur_transform_aws_ec2_application_load_balancer lb
+INNER JOIN ur_transform_aws_account_info account ON lb.account_id = account.account_id
+INNER JOIN ur_transform_aws_vpc vpc ON lb.vpc_id=vpc.vpc_id;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1824,6 +1844,11 @@ SELECT
        "cloud" as icon,
        ''black''                    as color,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_vpc_list.sql'' as link;
+    select
+       "AWS EC2 Application Load Balancer"  as title,
+       "load-balancer" as icon,
+       ''orange''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_application_load_balancer.sql'' as link;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -1927,7 +1952,7 @@ SELECT
 
  SELECT
    ''AWS EC2 instance'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/list_aws_ec2_instance.sql'' AS link; 
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_list.sql'' AS link; 
  SELECT
    title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_instance_detail.sql?instance_id='' || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
@@ -2007,16 +2032,13 @@ SELECT
                <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
                    <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
                        <div class="datagrid-title">VPC</div>
-                       <div>''|| vpc_name ||''</div>
+                       <div>''|| COALESCE(vpc_name, ''No VPC name available'') ||''</div>
                    </div>
                    <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
                        <div class="datagrid-title">VPC State</div>
-                       <div>''|| vpc_state ||''</div>
+                       <div>''|| COALESCE(vpc_state, ''No VPC state available'') ||''</div>
                    </div>
-                   <div style="display: flex; justify-content: space-between; padding: 4px;">
-                       <div class="datagrid-title">Last Fetched</div>
-                       <div>Value</div>
-                   </div>
+           
                </div>
            </div>
 
@@ -2164,6 +2186,77 @@ SELECT ''table'' AS component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_ec2_application_load_balancer.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_ec2_application_load_balancer.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS EC2 Application Load Balancer'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_application_load_balancer.sql'' AS link; 
+
+
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS EC2 Application Load Balancer" contents;
+
+    select
+     ''text''              as component,
+     ''The AWS EC2 Application Load Balancer (ALB) is a highly scalable and flexible load balancing service designed to distribute incoming HTTP and HTTPS traffic across multiple targets, such as EC2 instances, containers, and IP addresses, within one or more Availability Zones. It operates at the application layer (Layer 7 of the OSI model), allowing advanced routing based on content such as URL paths, host headers, and HTTP headers. ALB supports features like SSL termination, WebSocket support, and integration with AWS services like Auto Scaling and ECS, making it ideal for modern web applications and microservices architectures.'' as contents;
+
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_ec2_application_load_balancer );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       TRUE as sort,
+       TRUE as search;
+   SELECT 
+   name,
+   account,
+   owner,
+   vpc,
+   region,
+   dns_name as ''dns name'',
+   ip_address_type as ''ip address type'',
+   scheme,
+   type
+   FROM list_aws_ec2_application_load_balancer;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'sqlpage/templates/shell-custom.handlebars',
       '        
         
@@ -2177,6 +2270,50 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
     <!-- Base CSS -->
     <link rel="stylesheet" href="{{static_path ''sqlpage.css''}}">
+
+    <style>
+    .py-4 {
+          padding-top: 1rem !important;
+          padding-bottom: 1rem !important;
+    }
+    header .py-4 {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+    header .w-6 {
+        height: 1.5rem !important;
+    }
+    header .h-6 {
+        height: 1.5rem !important;
+    }
+    header .space-x-8 {
+        display: flex;
+        gap: 0rem !important;
+    }
+    footer .pt-6 {
+        padding-top: 1.5rem !important;
+    }
+    footer .pt-8 {
+        padding-top: 2rem !important;
+    }
+    footer .px-4 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    footer .mt-4 {
+        padding-top: 1rem !important;
+    }
+
+    :is(.dark .dark:bg-gray-900) {
+    --tw-bg-opacity: 1;
+    background-color: rgb(17 24 39 / var(--tw-bg-opacity)) !important;
+    }
+    :is(.dark .dark:border-gray-600) {
+    --tw-border-opacity: 1;
+    border-color: rgb(75 85 99 / var(--tw-border-opacity)) !important;
+    }
+    </style>
+    
     {{#each (to_array css)}}
         {{#if this}}
             <link rel="stylesheet" href="{{this}}">

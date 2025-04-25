@@ -447,6 +447,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             "cloud" as icon,
             'black'                    as color,
             ${this.absoluteURL("/fleetfolio/aws_vpc_list.sql")} as link;
+         select
+            "AWS EC2 Application Load Balancer"  as title,
+            "load-balancer" as icon,
+            'orange'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_ec2_application_load_balancer.sql")} as link;
 
      `;
   }
@@ -533,7 +538,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
       SELECT
         'AWS EC2 instance' AS title,
-        ${this.absoluteURL("/fleetfolio/list_aws_ec2_instance.sql")} AS link; 
+        ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")} AS link; 
       SELECT
         title,
         ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
@@ -614,16 +619,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                     <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
                         <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
                             <div class="datagrid-title">VPC</div>
-                            <div>'|| vpc_name ||'</div>
+                            <div>'|| COALESCE(vpc_name, 'No VPC name available') ||'</div>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
                             <div class="datagrid-title">VPC State</div>
-                            <div>'|| vpc_state ||'</div>
+                            <div>'|| COALESCE(vpc_state, 'No VPC state available') ||'</div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; padding: 4px;">
-                            <div class="datagrid-title">Last Fetched</div>
-                            <div>Value</div>
-                        </div>
+                
                     </div>
                 </div>
 
@@ -747,6 +749,66 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       };`;
   }
 
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_ec2_application_load_balancer.sql"() {
+    const viewName = `list_aws_ec2_application_load_balancer`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS EC2 Application Load Balancer' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_ec2_application_load_balancer.sql")} AS link; 
+
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS EC2 Application Load Balancer" contents;
+
+         select
+          'text'              as component,
+          'The AWS EC2 Application Load Balancer (ALB) is a highly scalable and flexible load balancing service designed to distribute incoming HTTP and HTTPS traffic across multiple targets, such as EC2 instances, containers, and IP addresses, within one or more Availability Zones. It operates at the application layer (Layer 7 of the OSI model), allowing advanced routing based on content such as URL paths, host headers, and HTTP headers. ALB supports features like SSL termination, WebSocket support, and integration with AWS services like Auto Scaling and ECS, making it ideal for modern web applications and microservices architectures.' as contents;
+
+
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
+        SELECT 
+        name,
+        account,
+        owner,
+        vpc,
+        region,
+        dns_name as 'dns name',
+        ip_address_type as 'ip address type',
+        scheme,
+        type
+        FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
+  }
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
@@ -760,6 +822,50 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
           <!-- Base CSS -->
           <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
+      
+          <style>
+          .py-4 {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+          }
+          header .py-4 {
+              padding-top: 1rem !important;
+              padding-bottom: 1rem !important;
+          }
+          header .w-6 {
+              height: 1.5rem !important;
+          }
+          header .h-6 {
+              height: 1.5rem !important;
+          }
+          header .space-x-8 {
+              display: flex;
+              gap: 0rem !important;
+          }
+          footer .pt-6 {
+              padding-top: 1.5rem !important;
+          }
+          footer .pt-8 {
+              padding-top: 2rem !important;
+          }
+          footer .px-4 {
+              padding-left: 1rem !important;
+              padding-right: 1rem !important;
+          }
+          footer .mt-4 {
+              padding-top: 1rem !important;
+          }
+
+          :is(.dark .dark\:bg-gray-900) {
+          --tw-bg-opacity: 1;
+          background-color: rgb(17 24 39 / var(--tw-bg-opacity)) !important;
+          }
+          :is(.dark .dark\:border-gray-600) {
+          --tw-border-opacity: 1;
+          border-color: rgb(75 85 99 / var(--tw-border-opacity)) !important;
+          }
+          </style>
+          
           {{#each (to_array css)}}
               {{#if this}}
                   <link rel="stylesheet" href="{{this}}">
