@@ -126,6 +126,7 @@ For more information, refer to the [Steampipe Plugin Documentation](https://stea
 ```bash
 connection "aws" {
   plugin = "aws"
+  profile = "mapcollective"  ## Ensure the profile name matches the one in the AWS credentials file
   regions = ["us-xxxx"]
   access_key = "AKxxxxxxxxxxxxxxxxxxH"
   secret_key = "fSxxxxxxxxxxxxxxxxxxxx7t"
