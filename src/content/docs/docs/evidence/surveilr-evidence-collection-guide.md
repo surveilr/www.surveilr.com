@@ -178,23 +178,29 @@ cd ~
 git clone https://github.com/mondoohq/cnquery-packs.git
 ```
 
-For more details, refer to the [core AWS query packs] (https://mondoo.com/docs/cnquery/cloud/aws/account/#analyze-your-environment-with-aws-query-packs)
+For more details, refer to the [core AWS query packs](https://mondoo.com/docs/cnquery/cloud/aws/account/#analyze-your-environment-with-aws-query-packs)
 
 ---
 
 ## Data Collection and Ingestion
 
-We will provide you with a JSONL file containing specific Steampipe and CNquery queries.
+We will provide you with a `.jsonl` file containing specific **Steampipe** and **CNquery** queries.
 
-To ingest the queries using surveilr, run:
+First, download the `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
+
+To ingest the queries using **surveilr**, run:
+
 ```bash
 cat filename.jsonl | surveilr ingest tasks
+```
 
-example:
+**Example:**
+
+```bash
 cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
-This will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
+This command will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
 
 ---
 
