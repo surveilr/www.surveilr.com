@@ -199,3 +199,23 @@ vpc.partition
 FROM
   ur_transform_aws_vpc vpc
 INNER JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
+
+DROP VIEW IF EXISTS list_aws_ec2_application_load_balancer;
+CREATE VIEW list_aws_ec2_application_load_balancer AS
+SELECT
+lb.name,
+account.title as account,
+account.title as owner,
+vpc.title as vpc,
+lb.region,
+lb.created_time,
+lb.dns_name,
+lb.ip_address_type,
+lb.load_balancer_attributes,
+lb.scheme,
+lb.security_groups,
+lb.type
+FROM
+  ur_transform_aws_ec2_application_load_balancer lb
+INNER JOIN ur_transform_aws_account_info account ON lb.account_id = account.account_id
+INNER JOIN ur_transform_aws_vpc vpc ON lb.vpc_id=vpc.vpc_id;
