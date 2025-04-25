@@ -44,13 +44,23 @@ Before starting, ensure that the following tools are installed on a **centralize
 ### 1. Install surveilr
 
 #### Default Installation:
+**Windows:**
 ```bash
-curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
+irm https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/refs/heads/main/surveilr/install.ps1 | iex
 ```
 
-#### Custom Installation Path:
+**macOS and Linux:** 
+Install in desired path by running any of the following commands:
+
 ```bash
-SURVEILR_HOME="$HOME/bin" curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
+# install in current path
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+
+# Install globally
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="$HOME/bin" bash
+
+# install in preferred path
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="/path/to/directory" bash
 ```
 
 #### Verification Commands:
