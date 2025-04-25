@@ -194,7 +194,7 @@ For more details, refer to the [core AWS query packs](https://mondoo.com/docs/cn
 
 ## Data Collection and Ingestion
 
-We will provide you with a `.jsonl` file containing specific **Steampipe** and **CNquery** queries.
+We will provide you with `.jsonl` files containing specific **Steampipe** and **CNquery** queries.
 
 First, download the `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
 
