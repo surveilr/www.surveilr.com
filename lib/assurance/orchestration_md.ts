@@ -3,8 +3,8 @@ import { assert, assertEquals, assertExists } from "jsr:@std/assert@1";
 import { $ } from "https://deno.land/x/dax@0.39.2/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.9.1/mod.ts";
 
-const TEST_DIR = join(Deno.cwd(), "markdown-transform-test");
-const TEST_DATA_DIR = join(TEST_DIR, "markdown-files");
+const TEST_DIR = join(Deno.cwd(), "lib/assurance");
+const TEST_DATA_DIR = join(TEST_DIR, "datasets-transformed-archive/study-2");
 const RSSD_PATH = join(TEST_DIR, "test.sqlite.db");
 
 Deno.test("transform markdown test", async (t) => {
