@@ -132,6 +132,11 @@ steampipe plugin install aws
 
 For more information, refer to the [Steampipe Plugin Documentation](https://steampipe.io/docs/managing/plugins#managing-plugins).
 
+Plugin details are stored in the following directory:
+```bash
+~/.steampipe/config/
+```
+
 #### Sample AWS Configuration (`aws.spc`):
 ```bash
 connection "aws" {
