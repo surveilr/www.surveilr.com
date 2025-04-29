@@ -1995,7 +1995,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       surveilr_osquery_ms_carve_id: gm.keys.varCharPrimaryKey(),
       node_key: osQueryMsNode.belongsTo.node_key(),
       session_id: tcf.unique(gd.text()),
-      carve_guid: gd.text(),
+      carve_guid: tcf.unique(gd.text()),
       carve_size: gd.integer(),
       block_count: gd.integer(),
       block_size: gd.integer(),
@@ -2004,11 +2004,38 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       status: gd.text(),
       start_time: gd.dateTime(),
       completion_time: gd.dateTimeNullable(),
-      elaboration : gd.jsonTextNullable(),
+      elaboration: gd.jsonTextNullable(),
       ...gm.housekeeping.columns,
     },
     {
       isIdempotent: true,
+    },
+  );
+
+  const surveilrOsQueryMsCarvedExtractedFile = gm.textPkTable(
+    `surveilr_osquery_ms_carved_extracted_file`,
+    {
+      surveilr_osquery_ms_carved_extracted_file_id: gm.keys.varCharPrimaryKey(),
+      carve_guid: surveilrOsQueryMsCarve.belongsTo.carve_guid(),
+      path: gd.text(),
+      size_bytes: gd.integer(),
+      content_digest: gd.text(),
+      nature: gd.textNullable(),
+      extracted_at: gd.dateTime(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+      indexes: (props, tableName) => {
+        const tif = SQLa.tableIndexesFactory(tableName, props);
+        return [
+          tif.index(
+            { isIdempotent: true },
+            "path",
+            "carve_guid",
+          ),
+        ];
+      },
     },
   );
 
@@ -2069,6 +2096,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       surveilrOsQueryMsDistributedQuery,
       surveilrOsQueryMsDistributedResult,
       surveilrOsQueryMsCarve,
+      surveilrOsQueryMsCarvedExtractedFile,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2120,6 +2148,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...surveilrOsQueryMsDistributedQuery.indexes,
       ...surveilrOsQueryMsDistributedResult.indexes,
       ...surveilrOsQueryMsCarve.indexes,
+      ...surveilrOsQueryMsCarvedExtractedFile.indexes,
     ],
   };
 
@@ -2180,6 +2209,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     surveilrOsQueryMsDistributedQuery,
     surveilrOsQueryMsDistributedResult,
     surveilrOsQueryMsCarve,
+    surveilrOsQueryMsCarvedExtractedFile,
   };
 }
 
