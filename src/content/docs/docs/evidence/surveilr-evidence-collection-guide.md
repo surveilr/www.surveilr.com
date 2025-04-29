@@ -44,13 +44,23 @@ Before starting, ensure that the following tools are installed on a **centralize
 ### 1. Install surveilr
 
 #### Default Installation:
+**Windows:**
 ```bash
-curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
+irm https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/refs/heads/main/surveilr/install.ps1 | iex
 ```
 
-#### Custom Installation Path:
+**macOS and Linux:** 
+Install in desired path by running any of the following commands:
+
 ```bash
-SURVEILR_HOME="$HOME/bin" curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
+# install in current path
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+
+# Install globally
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="$HOME/bin" bash
+
+# install in preferred path
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="/path/to/directory" bash
 ```
 
 #### Verification Commands:
@@ -122,10 +132,16 @@ steampipe plugin install aws
 
 For more information, refer to the [Steampipe Plugin Documentation](https://steampipe.io/docs/managing/plugins#managing-plugins).
 
+Plugin details are stored in the following directory:
+```bash
+~/.steampipe/config/
+```
+
 #### Sample AWS Configuration (`aws.spc`):
 ```bash
 connection "aws" {
   plugin = "aws"
+  profile = "mapcollective"  ## Ensure the profile name matches the one in the AWS credentials file
   regions = ["us-xxxx"]
   access_key = "AKxxxxxxxxxxxxxxxxxxH"
   secret_key = "fSxxxxxxxxxxxxxxxxxxxx7t"
@@ -166,7 +182,7 @@ cnquery run local -c "services.list { name running }"
 Make sure your AWS credentials and region are properly configured for AWS queries.
 For more details, refer to the [CNquery Documentation](https://mondoo.com/docs/cnquery/cloud/aws/).
 
-To make use of various query packs, such as the AWS asset inventory and incident response packs, you need to clone the respective `cnquery-packs`. These query packs are available in Mondoo’s [GitHub repo](https://github.com/mondoo/cnquery-packs).
+To make use of various query packs, such as the AWS asset inventory and incident response packs, you need to clone the respective `cnquery-packs`. These query packs are available in Mondoo’s [GitHub repo](https://github.com/mondoohq/cnquery-packs).
 
 You can follow these steps:
 
@@ -174,26 +190,32 @@ You can follow these steps:
 
 ```bash
 cd ~
-git clone https://github.com/mondoo/cnquery-packs.git
+git clone https://github.com/mondoohq/cnquery-packs.git
 ```
 
-For more details, refer to the [core AWS query packs] (https://mondoo.com/docs/cnquery/cloud/aws/account/#analyze-your-environment-with-aws-query-packs)
+For more details, refer to the [core AWS query packs](https://mondoo.com/docs/cnquery/cloud/aws/account/#analyze-your-environment-with-aws-query-packs)
 
 ---
 
 ## Data Collection and Ingestion
 
-We will provide you with a JSONL file containing specific Steampipe and CNquery queries.
+We will provide you with `.jsonl` files containing specific **Steampipe** and **CNquery** queries.
 
-To ingest the queries using surveilr, run:
+First, download the `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
+
+To ingest the queries using **surveilr**, run:
+
 ```bash
 cat filename.jsonl | surveilr ingest tasks
+```
 
-example:
+**Example:**
+
+```bash
 cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
-This will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
+This command will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
 
 ---
 
