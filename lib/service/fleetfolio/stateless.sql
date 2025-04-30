@@ -198,7 +198,7 @@ vpc.is_default,
 vpc.partition
 FROM
   ur_transform_aws_vpc vpc
-INNER JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
+LEFT JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
 
 DROP VIEW IF EXISTS list_aws_ec2_application_load_balancer;
 CREATE VIEW list_aws_ec2_application_load_balancer AS
@@ -219,3 +219,25 @@ FROM
   ur_transform_aws_ec2_application_load_balancer lb
 INNER JOIN ur_transform_aws_account_info account ON lb.account_id = account.account_id
 INNER JOIN ur_transform_aws_vpc vpc ON lb.vpc_id=vpc.vpc_id;
+
+DROP VIEW IF EXISTS list_aws_cost_detail;
+CREATE VIEW list_aws_cost_detail AS
+SELECT 
+account_id,
+amortized_cost_amount,
+amortized_cost_unit,
+blended_cost_amount,
+estimated,
+unblended_cost_unit,
+net_unblended_cost_unit,
+linked_account_id,
+canonical_hosted_zone_id,
+net_amortized_cost_amount,
+net_unblended_cost_amount,
+period_start,
+period_end,
+region,
+usage_quantity_amount,
+usage_quantity_unit,
+unblended_cost_amount
+FROM ur_transform_list_aws_cost_detail;
