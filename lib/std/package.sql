@@ -2299,6 +2299,17 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.2'' as title, ''# `surveilr ` v1.8.2 Release Notes
+
+---
+
+## 🚀 What''''s New
+
+### **1. surveilr osquery-ms` Server**
+- Significant enhancements and a complete overhaul of the file carving architecture in osQuery MS server'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.1'' as title, ''# `surveilr` v1.8.1 Release Notes
 
 ---
