@@ -439,18 +439,18 @@ WHERE json_valid(content) = 1 AND name="Osquery All Processes" AND uri="osquery-
 DROP TABLE IF EXISTS ur_transform_ec2_instance;
 CREATE TABLE ur_transform_ec2_instance AS
 SELECT 
-  json_extract(instance.value, '$.instance_id') AS instance_id,
-  json_extract(instance.value, '$.account_id') AS account_id,
-  json_extract(instance.value, '$.title') AS title,
-  json_extract(instance.value, '$.architecture') AS architecture,
-  json_extract(instance.value, '$.platform_details') AS platform_details,
-  json_extract(instance.value, '$.root_device_name') AS root_device_name,
-  json_extract(instance.value, '$.instance_state') AS state,
-  json_extract(instance.value, '$.instance_type') AS instance_type,
-  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
-  json_extract(instance.value, '$.az') AS az,
-  json_extract(instance.value, '$.launch_time') AS launch_time,
-  
+  json_extract(rowsValue.value, '$.instance_id') AS instance_id,
+  json_extract(rowsValue.value, '$.account_id') AS account_id,
+  json_extract(rowsValue.value, '$.title') AS title,
+  json_extract(rowsValue.value, '$.architecture') AS architecture,
+  json_extract(rowsValue.value, '$.platform_details') AS platform_details,
+  json_extract(rowsValue.value, '$.root_device_name') AS root_device_name,
+  json_extract(rowsValue.value, '$.instance_state') AS state,
+  json_extract(rowsValue.value, '$.instance_type') AS instance_type,
+  json_extract(rowsValue.value, '$.cpu_options_core_count') AS cpu_options_core_count,
+  json_extract(rowsValue.value, '$.az') AS az,
+  json_extract(rowsValue.value, '$.launch_time') AS launch_time,
+
   json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
   json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
   json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
@@ -458,10 +458,12 @@ SELECT
   json_extract(ni.value, '$.VpcId') AS vpc_id,
   json_extract(ni.value, '$.MacAddress') AS mac_address,
   json_extract(ni.value, '$.Status') AS status
-FROM uniform_resource,
-     json_each(content) AS instance,
-     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
-WHERE uri = 'SteampipeawsEC2Instances';
+FROM 
+  uniform_resource,
+  json_each(json_extract(content, '$.rows')) as rowsValue,
+  json_each(json_extract(rowsValue.value, '$.network_interfaces')) AS ni
+WHERE 
+  uri = 'SteampipeawsEC2Instances';
 
 -- steampipeListAllAwsBuckets
 DROP TABLE IF EXISTS ur_transform_aws_buckets;
@@ -471,7 +473,7 @@ SELECT
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.creation_date') AS creation_date
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAllawsS3Buckets';
 
 -- steampipeListAllAwsVPCs
@@ -489,8 +491,8 @@ SELECT
   json_extract(value, '$.is_default') AS is_default,
   json_extract(value, '$.partition') AS partition
 FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeListAllAwsVPCs';
+     json_each(content ,'$.rows')
+WHERE uri = 'SteampipeListAllAwsVPCs';
 
 -- steampipeawsIAMUserInfo
 DROP TABLE IF EXISTS ur_transform_aws_user_info;
@@ -502,8 +504,8 @@ SELECT
   json_extract(value, '$.password_last_used') AS password_last_used,
   json_extract(value, '$.path') AS path
 FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeawsIAMUserInfo';
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeawsIAMUserInfo';
 
 -- SteampipeawsAccountInfo
 DROP TABLE IF EXISTS ur_transform_aws_account_info;
@@ -519,7 +521,7 @@ SELECT
   json_extract(value, '$.partition') AS partition,
   json_extract(value, '$.region') AS region
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsAccountInfo';
 
 -- SteampipeawsEC2ApplicationLoadBalancers
@@ -539,8 +541,33 @@ SELECT
   json_extract(value, '$.type') AS type,
   json_extract(value, '$.vpc_id') AS vpc_id
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsEC2ApplicationLoadBalancers';
+
+-- SteampipeListAwsCostDetails
+DROP TABLE IF EXISTS ur_transform_list_aws_cost_detail;
+CREATE TABLE ur_transform_list_aws_cost_detail AS
+SELECT 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount, 
+  json_extract(value, '$.amortized_cost_unit') AS amortized_cost_unit,
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount, 
+  json_extract(value, '$.estimated') AS estimated,
+  json_extract(value, '$.unblended_cost_unit') AS unblended_cost_unit, 
+  json_extract(value, '$.net_unblended_cost_unit') AS net_unblended_cost_unit,
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.canonical_hosted_zone_id') AS canonical_hosted_zone_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount,
+  json_extract(value, '$.net_unblended_cost_amount') AS net_unblended_cost_amount,
+  json_extract(value, '$.period_start') AS period_start,
+  json_extract(value, '$.period_end') AS period_end,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
+  json_extract(value, '$.usage_quantity_unit') AS usage_quantity_unit,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount 
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeListAwsCostDetails';
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -741,7 +768,7 @@ vpc.is_default,
 vpc.partition
 FROM
   ur_transform_aws_vpc vpc
-INNER JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
+LEFT JOIN ur_transform_aws_account_info account ON vpc.account_id = account.account_id;
 
 DROP VIEW IF EXISTS list_aws_ec2_application_load_balancer;
 CREATE VIEW list_aws_ec2_application_load_balancer AS
@@ -762,6 +789,29 @@ FROM
   ur_transform_aws_ec2_application_load_balancer lb
 INNER JOIN ur_transform_aws_account_info account ON lb.account_id = account.account_id
 INNER JOIN ur_transform_aws_vpc vpc ON lb.vpc_id=vpc.vpc_id;
+
+DROP VIEW IF EXISTS list_aws_cost_detail;
+CREATE VIEW list_aws_cost_detail AS
+SELECT 
+account_id,
+amortized_cost_amount,
+amortized_cost_unit,
+blended_cost_amount,
+estimated,
+unblended_cost_unit,
+net_unblended_cost_unit,
+linked_account_id,
+canonical_hosted_zone_id,
+net_amortized_cost_amount,
+net_unblended_cost_amount,
+period_start,
+period_end,
+region,
+usage_quantity_amount,
+usage_quantity_unit,
+unblended_cost_amount
+FROM ur_transform_list_aws_cost_detail;
+
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1481,11 +1531,13 @@ FROM breadcrumbs ORDER BY level DESC;
     FROM boundary_list;
 
 -- AWS Trust Boundary
- select
+select
     ''card'' as component,
      4      as columns;
- select
-     "AWS Trust Boundary"  as title,
+select
+    "AWS Trust Boundary"  as title,
+    ''brand-aws'' as icon,
+    ''orange'' as color,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' as link
  ;
             ',
@@ -1844,11 +1896,16 @@ SELECT
        "cloud" as icon,
        ''black''                    as color,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_vpc_list.sql'' as link;
-    select
+   select
        "AWS EC2 Application Load Balancer"  as title,
        "load-balancer" as icon,
        ''orange''                    as color,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_application_load_balancer.sql'' as link;
+   select
+       "AWS Cost"  as title,
+       "settings-dollar" as icon,
+       ''black''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' as link;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2247,6 +2304,74 @@ SELECT ''table'' AS component,
    scheme,
    type
    FROM list_aws_ec2_application_load_balancer;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_cost_detail_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_cost_detail_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS Cost Summary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
+
+
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS Cost Summary" contents;
+
+    select
+     ''text''              as component,
+     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
+
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_cost_detail );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       TRUE as sort,
+       TRUE as search;
+   SELECT 
+   amortized_cost_amount AS "Amortized Cost",
+   blended_cost_amount AS "Blended Cost",
+   region,
+   net_amortized_cost_amount AS "Net Amortized AWS Cost",
+   datetime(substr(period_start, 1, 19)) as "Period Start",
+   datetime(substr(period_end, 1, 19)) as "Period End"
+   FROM list_aws_cost_detail;
     SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||

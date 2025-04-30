@@ -176,18 +176,18 @@ WHERE json_valid(content) = 1 AND name="Osquery All Processes" AND uri="osquery-
 DROP TABLE IF EXISTS ur_transform_ec2_instance;
 CREATE TABLE ur_transform_ec2_instance AS
 SELECT 
-  json_extract(instance.value, '$.instance_id') AS instance_id,
-  json_extract(instance.value, '$.account_id') AS account_id,
-  json_extract(instance.value, '$.title') AS title,
-  json_extract(instance.value, '$.architecture') AS architecture,
-  json_extract(instance.value, '$.platform_details') AS platform_details,
-  json_extract(instance.value, '$.root_device_name') AS root_device_name,
-  json_extract(instance.value, '$.instance_state') AS state,
-  json_extract(instance.value, '$.instance_type') AS instance_type,
-  json_extract(instance.value, '$.cpu_options_core_count') AS cpu_options_core_count, 
-  json_extract(instance.value, '$.az') AS az,
-  json_extract(instance.value, '$.launch_time') AS launch_time,
-  
+  json_extract(rowsValue.value, '$.instance_id') AS instance_id,
+  json_extract(rowsValue.value, '$.account_id') AS account_id,
+  json_extract(rowsValue.value, '$.title') AS title,
+  json_extract(rowsValue.value, '$.architecture') AS architecture,
+  json_extract(rowsValue.value, '$.platform_details') AS platform_details,
+  json_extract(rowsValue.value, '$.root_device_name') AS root_device_name,
+  json_extract(rowsValue.value, '$.instance_state') AS state,
+  json_extract(rowsValue.value, '$.instance_type') AS instance_type,
+  json_extract(rowsValue.value, '$.cpu_options_core_count') AS cpu_options_core_count,
+  json_extract(rowsValue.value, '$.az') AS az,
+  json_extract(rowsValue.value, '$.launch_time') AS launch_time,
+
   json_extract(ni.value, '$.NetworkInterfaceId') AS network_interface_id,
   json_extract(ni.value, '$.PrivateIpAddress') AS private_ip_address,
   json_extract(ni.value, '$.Association.PublicIp') AS public_ip_address,
@@ -195,10 +195,12 @@ SELECT
   json_extract(ni.value, '$.VpcId') AS vpc_id,
   json_extract(ni.value, '$.MacAddress') AS mac_address,
   json_extract(ni.value, '$.Status') AS status
-FROM uniform_resource,
-     json_each(content) AS instance,
-     json_each(json_extract(instance.value, '$.network_interfaces')) AS ni
-WHERE uri = 'SteampipeawsEC2Instances';
+FROM 
+  uniform_resource,
+  json_each(json_extract(content, '$.rows')) as rowsValue,
+  json_each(json_extract(rowsValue.value, '$.network_interfaces')) AS ni
+WHERE 
+  uri = 'SteampipeawsEC2Instances';
 
 -- steampipeListAllAwsBuckets
 DROP TABLE IF EXISTS ur_transform_aws_buckets;
@@ -208,7 +210,7 @@ SELECT
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.creation_date') AS creation_date
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAllawsS3Buckets';
 
 -- steampipeListAllAwsVPCs
@@ -226,8 +228,8 @@ SELECT
   json_extract(value, '$.is_default') AS is_default,
   json_extract(value, '$.partition') AS partition
 FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeListAllAwsVPCs';
+     json_each(content ,'$.rows')
+WHERE uri = 'SteampipeListAllAwsVPCs';
 
 -- steampipeawsIAMUserInfo
 DROP TABLE IF EXISTS ur_transform_aws_user_info;
@@ -239,8 +241,8 @@ SELECT
   json_extract(value, '$.password_last_used') AS password_last_used,
   json_extract(value, '$.path') AS path
 FROM uniform_resource,
-     json_each(content)
-WHERE uri = 'steampipeawsIAMUserInfo';
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeawsIAMUserInfo';
 
 -- SteampipeawsAccountInfo
 DROP TABLE IF EXISTS ur_transform_aws_account_info;
@@ -256,7 +258,7 @@ SELECT
   json_extract(value, '$.partition') AS partition,
   json_extract(value, '$.region') AS region
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsAccountInfo';
 
 -- SteampipeawsEC2ApplicationLoadBalancers
@@ -276,5 +278,30 @@ SELECT
   json_extract(value, '$.type') AS type,
   json_extract(value, '$.vpc_id') AS vpc_id
 FROM uniform_resource,
-     json_each(content)
+     json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsEC2ApplicationLoadBalancers';
+
+-- SteampipeListAwsCostDetails
+DROP TABLE IF EXISTS ur_transform_list_aws_cost_detail;
+CREATE TABLE ur_transform_list_aws_cost_detail AS
+SELECT 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount, 
+  json_extract(value, '$.amortized_cost_unit') AS amortized_cost_unit,
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount, 
+  json_extract(value, '$.estimated') AS estimated,
+  json_extract(value, '$.unblended_cost_unit') AS unblended_cost_unit, 
+  json_extract(value, '$.net_unblended_cost_unit') AS net_unblended_cost_unit,
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.canonical_hosted_zone_id') AS canonical_hosted_zone_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount,
+  json_extract(value, '$.net_unblended_cost_amount') AS net_unblended_cost_amount,
+  json_extract(value, '$.period_start') AS period_start,
+  json_extract(value, '$.period_end') AS period_end,
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
+  json_extract(value, '$.usage_quantity_unit') AS usage_quantity_unit,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount 
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeListAwsCostDetails';

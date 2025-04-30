@@ -43,9 +43,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /fleetfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("fleetfolio")
-    };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("fleetfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -63,19 +62,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("fleetfolio")
-    }
+           WHERE namespace = 'prime' AND path = ${this.constructHomePath("fleetfolio")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("fleetfolio")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("fleetfolio")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -105,20 +101,20 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 4      as columns;
             select
                 boundary  as title,
-                ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
-    } || boundary_key as link
+                ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key as link
             FROM boundary_list;
 
         -- AWS Trust Boundary
-         select
+        select
             'card' as component,
              4      as columns;
-         select
-             "AWS Trust Boundary"  as title,
-            ${
-      this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")
-    } as link
+        select
+            "AWS Trust Boundary"  as title,
+            'brand-aws' as icon,
+            'orange' as color,
+            ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")
+      } as link
          ;
             `;
   }
@@ -139,9 +135,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Boundary' AS title,
             ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link;
         SELECT boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
-    } || boundary_key  AS link
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key  AS link
           FROM host_list WHERE boundary_key=$boundary_key LIMIT 1;
 
 
@@ -160,9 +155,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
         SELECT 
-        '[' || host || '](' || ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || host_identifier || ')' as host,
+        '[' || host || '](' || ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || host_identifier || ')' as host,
         boundary,
         CASE 
             WHEN status = 'Online' THEN '🟢 Online'
@@ -222,14 +216,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'Boundary' AS title,
             ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
         SELECT boundary AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
-    } || boundary_key  AS link
+            ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
+      } || boundary_key  AS link
             FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
         SELECT host AS title,
-            ${
-      this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-    } || host_identifier  AS link
+            ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || host_identifier  AS link
             FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
 
 
@@ -338,13 +330,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         WHERE host_identifier = $host_identifier AND ($tab = 'policies' OR $tab IS NULL) LIMIT $limit
         OFFSET $offset;
         -- checking
-        ${
-      policyPagination.renderSimpleMarkdown(
+        ${policyPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='policies'",
       )
-    };
+      };
 
         -- Software table and tab value Start here
        
@@ -356,13 +347,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         LIMIT $limit OFFSET $offset;
 
         -- Software pagenation
-        ${
-      softwarePagination.renderSimpleMarkdown(
+        ${softwarePagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='software'",
       )
-    };
+      };
 
         -- User table and tab value Start here
         ${userListPagination.init()} 
@@ -373,13 +363,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         LIMIT $limit OFFSET $offset;
 
         -- User pagenation
-        ${
-      userListPagination.renderSimpleMarkdown(
+        ${userListPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='users'",
       )
-    };
+      };
 
       -- Container table and tab value Start here
       -- Container pagenation
@@ -391,13 +380,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         FROM ${containerViewName}
         WHERE host_identifier = $host_identifier AND $tab = 'container'
         LIMIT $limit OFFSET $offset;
-        ${
-      containerPagination.renderSimpleMarkdown(
+        ${containerPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='container'",
       )
-    };
+      };
       
 
         -- all_process table and tab value Start here
@@ -408,13 +396,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         FROM ${processViewName}
         WHERE host_identifier = $host_identifier AND $tab = 'all_process'
         LIMIT $limit OFFSET $offset;
-        ${
-      processPagination.renderSimpleMarkdown(
+        ${processPagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='all_process'",
       )
-    };
+      };
       `;
   }
 
@@ -452,9 +439,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             "AWS EC2 instance "  as title,
             'square' as icon,
             'orange'                    as color,
-            ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")
-    } as link;
+            ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")
+      } as link;
         select
             "AWS S3 buckets"  as title,
             "bucket" as icon,
@@ -465,11 +451,16 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             "cloud" as icon,
             'black'                    as color,
             ${this.absoluteURL("/fleetfolio/aws_vpc_list.sql")} as link;
-         select
+        select
             "AWS EC2 Application Load Balancer"  as title,
             "load-balancer" as icon,
             'orange'                    as color,
             ${this.absoluteURL("/fleetfolio/aws_ec2_application_load_balancer.sql")} as link;
+        select
+            "AWS Cost"  as title,
+            "settings-dollar" as icon,
+            'black'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} as link;
 
      `;
   }
@@ -522,9 +513,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as search,
             'title' as markdown;
         SELECT 
-        '[' || title || '](' || ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
-    } || instance_id || ')' as title,
+        '[' || title || '](' || ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
+      } || instance_id || ')' as title,
         architecture,
         platform_details AS platform, 
         root_device_name as "root device name",
@@ -560,9 +550,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${this.absoluteURL("/fleetfolio/aws_ec2_instance_list.sql")} AS link; 
       SELECT
         title,
-        ${
-      this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
-    } || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
+        ${this.absoluteURL("/fleetfolio/aws_ec2_instance_detail.sql?instance_id=")
+      } || instance_id AS link FROM list_aws_ec2_instance WHERE instance_id=$instance_id; 
 
       --- Dsply Page Title
         SELECT
@@ -823,6 +812,63 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ip_address_type as 'ip address type',
         scheme,
         type
+        FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_cost_detail_list.sql"() {
+    const viewName = `list_aws_cost_detail`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS Cost Summary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} AS link; 
+
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS Cost Summary" contents;
+
+         select
+          'text'              as component,
+          'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
+
+
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
+        SELECT 
+        amortized_cost_amount AS "Amortized Cost",
+        blended_cost_amount AS "Blended Cost",
+        region,
+        net_amortized_cost_amount AS "Net Amortized AWS Cost",
+        datetime(substr(period_start, 1, 19)) as "Period Start",
+        datetime(substr(period_end, 1, 19)) as "Period End"
         FROM ${viewName};
          ${pagination.renderSimpleMarkdown()
       };`;
