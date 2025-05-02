@@ -1,0 +1,62 @@
+# Osquery
+{ "osquerySystemInfo": "osqueryi \"SELECT *  from system_info\" --json", "nature": "json" }
+{ "osqueryAllProcesses": "osqueryi \"select pid,name, path from processes\" --json", "nature": "json" }
+# Osquery
+{ "osqueryUpTime":  "osqueryi \"SELECT days, hours, minutes, seconds FROM uptime\" --json", "nature": "json" }
+{ "osqueryAllUsers": "osqueryi \"SELECT * from users\" --json", "nature": "json" }
+{ "osqueryAllGroups": "osqueryi \"SELECT * from groups\" --json", "nature": "json" }
+{ "osqueryWebsiteSslCertificate": "osqueryi \"SELECT valid_to, hostname FROM curl_certificate WHERE hostname in ('www.medigy.com', 'co.medigy.com')\" --json", "nature": "json" }
+
+# Osquery
+{ "osqueryMemoryInfo": "osqueryi \"SELECT * FROM memory_info\" --json", "nature": "json" }
+{ "osqueryMemoryUtilization": "osqueryi \"SELECT CAST(memory_total AS REAL) / 1024 / 1024 / 1024 AS memory_total_gb, CAST(memory_free AS REAL) / 1024 / 1024 / 1024 AS memory_free_gb, (1.0 - CAST(memory_free AS REAL) / CAST(memory_total AS REAL)) * 100 AS memory_percentage_used, (CAST(memory_free AS REAL) / CAST(memory_total AS REAL)) * 100 AS memory_percentage_free FROM memory_info\" --json", "nature": "json" }
+
+//network_configurations
+{"network_interfaces_ipshow": "ip -json addr show", "nature": "json"}
+{"network_connections_netstat": "netstat -tulnp | awk 'NR>2 {print \"{\\\"protocol\\\": \\\"\" $1 \"\\\", \\\"local_address\\\": \\\"\" $4 \"\\\", \\\"pid_process\\\": \\\"\" $7 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"socket_statistics_ss": "ss -tulnp | awk 'NR>1 {split($7, pid_info, \"=\"); pid = (length(pid_info) > 1) ? pid_info[2] : \"N/A\"; gsub(\"[^0-9]\", \"\", pid); printf \"{\\\"protocol\\\": \\\"%s\\\", \\\"local_address\\\": \\\"%s\\\", \\\"pid_process\\\": \\\"%s\\\"}\\n\", $1, $5, pid;}' | jq -s .","nature": "json"}
+{"routing_table": "ip route show | awk '{ gw=\"N/A\"; iface=\"N/A\"; proto=\"N/A\"; for(i=2; i<=NF; i++) { if ($i == \"via\") gw=$(i+1); if ($i == \"dev\") iface=$(i+1); if ($i == \"proto\") proto=$(i+1); } print \"{\\\"destination\\\": \\\"\" $1 \"\\\", \\\"gateway\\\": \\\"\" gw \"\\\", \\\"interface\\\": \\\"\" iface \"\\\", \\\"protocol\\\": \\\"\" proto \"\\\"}\" }' | jq -s .", "nature": "json"}
+{"ufw_status": "sudo ufw status verbose | jq -R -s 'gsub(\"\\n$\"; \"\") | {\"ufw_status\": .}'", "nature": "json"}
+{"iptables_rules": "sudo iptables -L -v -n | jq -R -s '{\"iptables_rules\": .}'", "nature": "json"}
+
+//installed_packages    
+{"installed_softwares_deb": "dpkg --get-selections | grep -v deinstall | awk '{print \"{\\\"package\\\": \\\"\" $1 \"\\\", \\\"status\\\": \\\"\" $2 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"installed_softwares_rpm": "rpm -qa | awk '{print \"{\\\"package\\\": \\\"\" $1 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"installed_softwares_snap": "snap list | awk 'NR>1 {print \"{\\\"package\\\": \\\"\" $1 \"\\\", \\\"version\\\": \\\"\" $2 \"\\\", \\\"rev\\\": \\\"\" $3 \"\\\", \\\"tracking\\\": \\\"\" $4 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"installed_softwares_flatpak": "flatpak list --columns=application,version,branch --system | awk '{print \"{\\\"package\\\": \\\"\" $1 \"\\\", \\\"version\\\": \\\"\" $2 \"\\\", \\\"branch\\\": \\\"\" $3 \"\\\"}\"}' | jq -s .", "nature": "json"}
+
+# Osquery
+{ "osqueryMfaEnabled": "osqueryi \"SELECT  node, value, label, path FROM augeas WHERE path='/etc/pam.d/sshd' AND value like '%pam_google_authenticator.so%'\" --json", "nature": "json" }
+{ "osqueryDenyRootLogin": "osqueryi \"SELECT node, value, label, path FROM augeas WHERE path='/etc/ssh/sshd_config' AND label like 'PermitRootLogin' AND value like 'no'\" --json", "nature": "json" }
+{"osqueryRemovedUserAccounts": "osqueryi \"SELECT * FROM users WHERE shell = 'disabled'\" --json", "nature": "json" }
+{ "osqueryEncryptedPasswords": "osqueryi \"SELECT md5, sha1, sha256 from hash where path = '/etc/passwd'\" --json", "nature": "json" }
+{ "osquerySshdProcess": "osqueryi \"SELECT name, cmdline, path FROM processes WHERE name = 'sshd'\" --json", "nature": "json" }
+{ "osqueryAntivirusStatus": "osqueryi \"SELECT score FROM (SELECT case when COUNT(*) = 2 then 1 ELSE 0 END AS score FROM processes WHERE (name = 'clamd') OR (name = 'freshclam')) WHERE score == 1\" --json", "nature": "json" }
+
+# Asymmetric Cryptography
+{ "AsymmetricCryptography": "osqueryi \"SELECT * FROM file WHERE (path LIKE '/home/%/.ssh/%.pub' OR path LIKE '/home/%/.ssh/authorized_keys')\" --json","nature": "json" }
+
+# Osquery
+{ "osqueryDiskUtilization": "osqueryi \"SELECT (1.0 * blocks * blocks_size / 1073741824) AS total_space_gb,((blocks - blocks_available - 1.0) * blocks_size) / 1073741824 AS used_space_gb, (1.0 * blocks_available * blocks_size / 1073741824) AS space_left_gb, (((blocks - blocks_available - 1.0) * blocks_size) / 1073741824)/(1.0 * blocks * blocks_size / 1073741824) * 100 AS '%_used', (1.0 * blocks_available * blocks_size / 1073741824) / (1.0 * blocks * blocks_size / 1073741824) * 100 AS '%_available' FROM mounts WHERE path = '/'\" --json", "nature": "json" }
+{ "osqueryDiskEncryption": "osqueryi \"SELECT * from disk_encryption\" --json", "nature": "json" }
+
+# Osqueryd
+{"osquerydFileEvents": "grep -E \"file_events.*$(date +\\\"%b %d\\\")\" /var/log/osquery/osqueryd.results.log | sed -e 's/$/,/' | paste -sd '' - | sed 's/\\(.*\\),/\\1/' | sed 's/^/[/' | sed 's/$/]/'", "nature": "json"}
+
+# Authlog
+{"authLogInfo": "grep \"$(date +\\\"%b %d\\\")\" /var/log/auth.log | jq -R -s -c 'split(\"\\n\") | .[:-1] | map(split(\" \") | {date: \"\\(.[0]) \\(.[1]) \\(.[2])\", message: \"\\(.[5:] | join(\" \"))\"})'", "nature": "json"}
+
+# Syslog
+{"sysLogInfo": "grep \"$(date +\\\"%b %d\\\")\" /var/log/syslog | jq -R -s -c 'split(\"\\n\") | .[:-1] | map(split(\" \") | {date: \"\\(.[0]) \\(.[1]) \\(.[2])\", message: \"\\(.[5:] | join(\" \"))\"})'", "nature": "json"}
+
+//user_permissions
+{"all_users": "awk -F: '{printf \"{\\\"username\\\": \\\"%s\\\", \\\"uid\\\": %d, \\\"gid\\\": %d, \\\"home\\\": \\\"%s\\\", \\\"shell\\\": \\\"%s\\\"}\\n\", $1, $3, $4, $6, $7}' /etc/passwd | jq -s .","nature": "json"}
+{"all_groups": "awk -F: '{print \"{\\\"groupname\\\": \\\"\" $1 \"\\\", \\\"gid\\\": \" $3 \"}\"}' /etc/group | jq -s .", "nature": "json"}
+{"sudo_users": "getent group sudo | awk -F: '{print \"{\\\"sudo_users\\\": \\\"\" $4 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"root_users": "awk -F: '$3 == 0 {print \"{\\\"root_user\\\": \\\"\" $1 \"\\\"}\"}' /etc/passwd | jq -s .", "nature": "json"}
+
+//system_vulnerabilities
+{"open_ports": "sudo lsof -i -P -n | grep LISTEN | awk '{print \"{\\\"process\\\": \\\"\" $1 \"\\\", \\\"pid\\\": \" $2 \", \\\"user\\\": \\\"\" $3 \"\\\", \\\"port\\\": \\\"\" $9 \"\\\"}\"}' | jq -s .", "nature": "json"}
+{"running_services": "systemctl list-units --type=service --state=running --no-pager --output=json", "nature": "json"}
+{"system_errors": "sudo journalctl -p err -b | jq -R -s '{\"system_errors\": .}'", "nature": "json"}
+
