@@ -1,5 +1,5 @@
 ##AWS Account Info
-{ "SteampipeawsAccountInfo": "pkgx steampipe query \"select alias.value as alias, a.arn, a.organization_id, a.account_id, a.title, a.partition, a.region, a.organization_master_account_email, a.organization_master_account_id from aws_account as a cross join jsonb_array_elements(a.account_aliases) as alias(value)\" --output json", "nature": "json" }
+{ "SteampipeawsAccountInfo": "steampipe query \"select alias.value as alias, a.arn, a.organization_id, a.account_id, a.title, a.partition, a.region, a.organization_master_account_email, a.organization_master_account_id from aws_account as a cross join jsonb_array_elements(a.account_aliases) as alias(value)\" --output json", "nature": "json" }
 
 ###AWS IAM User Info
 { "SteampipeawsIAMUserInfo": "steampipe query \"SELECT user_id,name,path,arn,create_date,mfa_enabled,password_last_used,permissions_boundary_type,partition,region,account_id FROM aws_iam_user\" --output json", "nature": "json" }
@@ -34,14 +34,19 @@
 #**3. AWS Cognito User Pool:**
 { "SteampipeListAllAwsCognitoUserPools": "steampipe query \"SELECT id, name, arn, status, mfa_configuration, creation_date, last_modified_date, tags FROM aws_cognito_user_pool\" --output json", "nature": "json" }
 
-
 ##AWS Amplify:
 #Query to List All Amplify Applications:
 { "SteampipeListAllAwsAmplifyApps": "steampipe query \"SELECT app_id, name, description, arn, platform, create_time, build_spec FROM aws_amplify_app\" --output json", "nature": "json" }
 
-
 ##AWS Cost Explorer:
-{ "SteampipeListAwsCostDetails": "steampipe query \"SELECT linked_account_id, period_start, blended_cost_amount :: numeric :: money, unblended_cost_amount :: numeric :: money, amortized_cost_amount :: numeric :: money, net_unblended_cost_amount :: numeric :: money, net_amortized_cost_amount :: numeric :: money FROM aws_cost_by_account_monthly ORDER BY linked_account_id, period_start\" --output json", "nature": "json" }
+{ "SteampipeListAwsCostDetails": "steampipe query \"SELECT linked_account_id, period_start, period_end, estimated, blended_cost_amount :: numeric :: money, unblended_cost_amount :: numeric :: money, unblended_cost_unit, net_unblended_cost_amount :: numeric :: money, net_unblended_cost_unit, amortized_cost_amount :: numeric :: money, amortized_cost_unit, net_amortized_cost_amount :: numeric :: money, usage_quantity_amount, usage_quantity_unit, partition, region, account_id FROM aws_cost_by_account_monthly ORDER BY linked_account_id, period_start\" --output json", "nature": "json" }
 { "SteampipeAwsCostStatsByAccount": "steampipe query \"SELECT linked_account_id, min(unblended_cost_amount) :: numeric :: money AS min, max(unblended_cost_amount) :: numeric :: money AS max, avg(unblended_cost_amount) :: numeric :: money AS average FROM aws_cost_by_account_monthly GROUP BY linked_account_id ORDER BY linked_account_id\" --output json", "nature": "json" }
 { "SteampipeAwsCostRankByAccount": "steampipe query \"SELECT linked_account_id, period_start, unblended_cost_amount :: numeric :: money, rank() OVER(PARTITION BY linked_account_id ORDER BY unblended_cost_amount DESC) FROM aws_cost_by_account_monthly\" --output json", "nature": "json" }
 { "SteampipeAwsCostMonthOverMonthChange": "steampipe query \"WITH cost_data AS (SELECT linked_account_id, period_start, unblended_cost_amount AS this_month, lag(unblended_cost_amount, -1) OVER(PARTITION BY linked_account_id ORDER BY period_start DESC) AS previous_month FROM aws_cost_by_account_monthly) SELECT linked_account_id, period_start, this_month :: numeric :: money, previous_month :: numeric :: money, round((100 * ((this_month - previous_month) / previous_month)) :: numeric, 2) AS percent_change FROM cost_data ORDER BY linked_account_id, period_start\" --output json", "nature": "json" }
+{ "SteampipeListAllAwsCostByServiceUsageTypeMonthly": "steampipe query \"select service, usage_type, period_start, blended_cost_amount::numeric::money, unblended_cost_amount::numeric::money, amortized_cost_amount::numeric::money, net_unblended_cost_amount::numeric::money, net_amortized_cost_amount::numeric::money from aws_cost_by_service_usage_type_monthly order by service, period_start\" --output json", "nature": "json" }
+
+
+###AWS Cloudwatch:
+# Steampipe
+{ "SteampipeListAllAwsCloudWatchAlarms": "steampipe query \"select name, state_value, metric_name, actions_enabled, comparison_operator, namespace, statistic from aws_cloudwatch_alarm\" --output json", "nature": "json" }
+{ "SteampipeListAllAwsEbsVolumesNotEncrypted": "steampipe query \"select volume_id, encrypted from aws_ebs_volume where not encrypted\" --output json", "nature": "json" }
