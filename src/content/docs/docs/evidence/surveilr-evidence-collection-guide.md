@@ -92,7 +92,7 @@ sudo installer -pkg AWSCLIV2.pkg -target /
 msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
 ```
 
-### Configure AWS CLI
+#### Configure AWS CLI
 
 After installing AWS CLI, you can configure it by running:
 
@@ -108,6 +108,62 @@ This command will prompt you to enter the following details:
 4. **Default output format** (e.g., `json`)
 
 For more information, please refer to the official AWS documentation on [Configuration and Credential File Settings](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
+
+---
+
+### **IAM User Permissions and Billing Access**:
+
+To ensure that both **Steampipe** and **cnquery** can retrieve usage data (such as the services being used in your AWS account), the IAM user whose access key and secret you provide must have **billing access** and **account information access** enabled.
+
+#### 1. **Enable IAM Access to Billing (Root User Action)**
+
+This step must be done **once per AWS account** by the **root user**:
+
+1. Go to the **AWS Billing Dashboard**.
+2. In the **navigation pane**, choose **Billing preferences**.
+3. Check the box for **Activate IAM access to the Billing and Cost Management console**.
+4. Click **Save preferences**.
+
+This allows IAM users to access billing data.
+
+#### 2. **Enable Billing Access for the IAM User**
+
+After enabling IAM access to billing, you must ensure that the IAM user (whose **access key** and **secret key** you provide to Steampipe) has the correct permissions to access billing and account data.
+
+To grant permissions:
+
+1. In your **AWS account**, go to the **IAM console**.
+2. Select the IAM user that will be used for Steampipe.
+3. Under the **Permissions** tab, attach the necessary permissions for billing:
+
+   * Ensure the IAM user has the **`aws-portal`** permissions (or a policy that grants `aws-portal:ViewBilling` and `aws-portal:ViewAccountInfo`).
+   * You can attach the following permissions directly or use a predefined AWS managed policy `arn:aws:iam::aws:policy/job-function/Billing`.
+
+   Example IAM policy that grants permissions:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+          "Action": [
+        "aws-portal:ViewBilling",
+        "aws-portal:ViewUsage",
+        "aws-portal:ViewAccount",
+        "ce:Get*",
+        "budgets:ViewBudget"
+        ],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+For more details on enabling billing access for IAM users and managing permissions, refer to the official [AWS documentation](https://docs.aws.amazon.com/cost-management/latest/userguide/billing-permissions-ref.html).
+       
+
+   * **Note**: The permission `"aws-portal:ViewAccount"` is necessary for retrieving account-related data from the billing system, such as linked accounts, payer account details, and more.
 
 ---
 
@@ -132,27 +188,35 @@ steampipe plugin install aws
 
 For more information, refer to the [Steampipe Plugin Documentation](https://steampipe.io/docs/managing/plugins#managing-plugins).
 
+
 Plugin details are stored in the following directory:
 ```bash
 ~/.steampipe/config/
 ```
 
 #### Sample AWS Configuration (`aws.spc`):
+
+After the IAM user is set up with the necessary permissions, configure Steampipe to use the **access key** and **secret key** for the IAM user.
+
+Sample configuration file `aws.spc`:
+
 ```bash
 connection "aws" {
   plugin = "aws"
   profile = "mapcollective"  ## Ensure the profile name matches the one in the AWS credentials file
-  regions = ["us-xxxx"]
+  regions = ["us-west-2"]   ## Modify this region or add more regions as needed
   access_key = "AKxxxxxxxxxxxxxxxxxxH"
   secret_key = "fSxxxxxxxxxxxxxxxxxxxx7t"
 }
 ```
 
-To start the Steampipe service:
+This configuration tells Steampipe how to authenticate with AWS and which regions to query.
+
+#### To start the Steampipe service:
+
 ```bash
 steampipe service start
 ```
-
 ---
 
 ### 4. Install CNquery
@@ -197,7 +261,7 @@ For more details, refer to the [core AWS query packs](https://mondoo.com/docs/cn
 
 ---
 
-## Data Collection and Ingestion
+## Data Collection and Ingestion (Cloud)
 
 We will provide you with `.jsonl` files containing specific **Steampipe** and **CNquery** queries.
 
@@ -215,6 +279,8 @@ cat filename.jsonl | surveilr ingest tasks
 cat cloud-steampipe-surveilr.jsonl | surveilr ingest tasks
 ```
 
+**Important**: Replace `filename.jsonl` with the actual name of the **JSONL** file you downloaded and saved. If you saved the file with a different name (e.g., `cloud-query-file.jsonl`), use that file name instead.
+
 This command will produce a **Resource Surveillance State Database (RSSD)** in SQLite format.
 
 ---
@@ -222,6 +288,9 @@ This command will produce a **Resource Surveillance State Database (RSSD)** in S
 ## Optional: Centralized Node Management (Advanced)
 
 If you prefer connecting individual EC2 instances or servers directly to a centralized osquery management server, use **surveilrctl** for automated setup.
+
+#### Centralized Node Management Overview:
+With the centralized node management method, the osquery-ms server runs on a centralized server, and all servers (including droplets, EC2 instances, VMs, etc.) are connected as nodes using surveilrctl. This method allows you to collect server-related evidence from multiple resources efficiently
 
 #### Quick Installation on Nodes:
 
@@ -239,6 +308,39 @@ irm https://surveilr.com/surveilrctl.ps1 | iex
 ```bash
 surveilrctl setup --uri https://osquery-ms.example.com
 ```
+
+## Alternative Method for Server Data Collection Without Centralized Management
+
+If you **do not** want to implement the centralized **osquery-ms** server method, you can still collect server-related evidence by using a local method with **osquery** and **surveilr** installed on each server individually. This alternative is ideal for environments where a centralized management server is not needed or preferred.
+
+#### Steps for Alternative Server Data Collection:
+
+1. **Install osquery and surveilr on Each Server**:
+
+
+   * To use this alternative method, you need to install both **osquery** and **surveilr** on each server (including droplets, EC2 instances, VMs, etc.).
+
+   * **Install osquery**:
+
+     * For installing **osquery**, follow the installation steps outlined in the [surveilrctl-installation](#quick-installation-on-nodes) . 
+
+   * **Install surveilr**:
+
+     * The installation process for **surveilr** is detailed in the [surveilr-installation](#1-install-surveilr).
+
+2. **Execute the Command to Ingest the Data**:
+
+   * Download the server `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
+
+   * Once **osquery** and **surveilr** are installed, and the **server-evidence-surveilr.jsonl** file is saved on each server, run the following command to ingest the data into an SQLite database:
+
+   ```bash
+   cat server-evidence-surveilr.jsonl | surveilr ingest tasks
+   ```
+
+   * **Important**: Replace `server-evidence-surveilr.jsonl` with the actual name of the JSONL file you saved on the server. If you saved it with a different name (e.g., `my-server-evidence.jsonl`), use that file name instead.
+
+   * This command will generate a **Resource Surveillance State Database (RSSD)** in SQLite format, which you can then share with us for analysis.
 
 ---
 
@@ -282,4 +384,3 @@ For more details, refer to the [Opsfolio PenTest Toolkit](https://github.com/ops
 ## Support
 
 Should you encounter any issues during setup or data collection, our technical team is available to assist you.
-
