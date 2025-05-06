@@ -8,7 +8,6 @@ import {
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
 import * as sh from "./custom_shell.ts";
-import * as osQueryMS from "../../pattern/osquery-ms/package.sql.ts";
 
 const WEB_UI_TITLE = "fleetfolio";
 const WE_UI_LOGO = "fleetfolio-logo.png";
@@ -461,7 +460,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             "settings-dollar" as icon,
             'black'                    as color,
             ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} as link;
-
+         select
+            "AWS Monthely Cost Detail"  as title,
+            "settings-dollar" as icon,
+            'black'                    as color,
+            ${this.absoluteURL("/fleetfolio/aws_monthely_cost_detail_list.sql")} as link;
      `;
   }
 
@@ -819,7 +822,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "fleetfolio/aws_cost_detail_list.sql"() {
-    const viewName = `list_aws_cost_detail`;
+    const viewName = `list_aws_service_from_daily_cost`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
       whereSQL: "",
@@ -859,20 +862,135 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
 
       ${pagination.init()} 
+        SELECT 'table' AS component,
+              'Service' as markdown,
+              TRUE as sort,
+              TRUE as search;
+        SELECT 
+          "[" || service || "](aws_cost_report.sql?service="|| replace(service, ' ', '%20') || ")" AS "Service" FROM ${viewName};
+         ${pagination.renderSimpleMarkdown()
+      };`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_cost_report.sql"() {
+    const viewName = `list_aws_daily_service_cost`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE service=$service",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS Cost Summary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} AS link; 
+
+      SELECT
+        $service AS title,
+        ${this.absoluteURL("/fleetfolio/aws_cost_report.sql?service=")} || $service  AS link; 
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          $service contents;
+
+         select
+          'text'              as component,
+          'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
+
+
+      ${pagination.init()} 
      SELECT 'table' AS component,
             TRUE as sort,
             TRUE as search;
         SELECT 
+        datetime(substr(period_start, 1, 19)) as "period start",
+        datetime(substr(period_end, 1, 19)) AS "period end",
+        service,
+        region,
+        amortized_cost_amount AS "amortized cost amount", 
+        usage_quantity_amount AS "usage quantity amount"
+        FROM ${viewName} WHERE service=$service ORDER BY period_start DESC;
+         ${pagination.renderSimpleMarkdown("service")
+
+      };`;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_monthely_cost_detail_list.sql"() {
+    const viewName = `list_aws_monthely_cost_detail`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+     SELECT
+        'breadcrumb' AS component;
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")}    AS link;
+      SELECT
+        'FleetFolio' AS title,
+        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
+      SELECT
+        'Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+
+      SELECT
+        'AWS Trust Boundary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
+
+      SELECT
+        'AWS Monthely Cost Summary' AS title,
+        ${this.absoluteURL("/fleetfolio/aws_monthely_cost_detail_list.sql")} AS link; 
+
+
+      --- Dsply Page Title
+      SELECT
+          'title'   as component,
+          "AWS Monthely Cost Summary" contents;
+
+         select
+          'text'              as component,
+          'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
+
+
+      ${pagination.init()} 
+     SELECT 'table' AS component,
+            TRUE as sort,
+            TRUE as search;
+        SELECT 
+        account,
         amortized_cost_amount AS "Amortized Cost",
         blended_cost_amount AS "Blended Cost",
-        region,
         net_amortized_cost_amount AS "Net Amortized AWS Cost",
-        datetime(substr(period_start, 1, 19)) as "Period Start",
-        datetime(substr(period_end, 1, 19)) as "Period End"
+        net_unblended_cost_amount AS "Net Unblended AWS Cost", 
+        unblended_cost_amount AS "Unblended AWS Cost",
+        datetime(substr(period_start, 1, 19)) as "Period Start"
         FROM ${viewName};
          ${pagination.renderSimpleMarkdown()
       };`;
   }
+
 
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
@@ -919,15 +1037,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
           }
           footer .mt-4 {
               padding-top: 1rem !important;
-          }
-
-          :is(.dark .dark\:bg-gray-900) {
-          --tw-bg-opacity: 1;
-          background-color: rgb(17 24 39 / var(--tw-bg-opacity)) !important;
-          }
-          :is(.dark .dark\:border-gray-600) {
-          --tw-border-opacity: 1;
-          border-color: rgb(75 85 99 / var(--tw-border-opacity)) !important;
           }
           </style>
           
