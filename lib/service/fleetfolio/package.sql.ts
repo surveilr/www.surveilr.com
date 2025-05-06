@@ -867,16 +867,22 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
               TRUE as sort,
               TRUE as search;
         SELECT 
-          "[" || service || "](aws_cost_report.sql?service="|| replace(service, ' ', '%20') || ")" AS "Service" FROM ${viewName};
+          "[" || service || "](aws_cost_report.sql?service="|| replace(service, ' ', '%20') || "&tab=daily_cost)" AS "Service" FROM ${viewName};
          ${pagination.renderSimpleMarkdown()
       };`;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "fleetfolio/aws_cost_report.sql"() {
-    const viewName = `list_aws_daily_service_cost`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
+    const viewNameDailyCost = `list_aws_daily_service_cost`;
+    const paginationDailyCost = this.pagination({
+      tableOrViewName: viewNameDailyCost,
+      whereSQL: "WHERE service=$service",
+    });
+
+    const viewNameMonthlyCost = `list_aws_monthly_service_cost`;
+    const paginationMonthlyCost = this.pagination({
+      tableOrViewName: viewNameMonthlyCost,
       whereSQL: "WHERE service=$service",
     });
     return this.SQL`
@@ -915,11 +921,17 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
           'text'              as component,
           'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
 
+      SELECT 'tab' AS component, TRUE AS center;
+      SELECT 'Daily Cost' AS title, '?tab=daily_cost&service=' || $service AS link, ($tab = 'daily_cost' OR $tab IS NULL) AS active;
+      select 'Monthly Cost' as title, '?tab=monthly_coste&service=' || $service AS link, $tab = 'monthly_coste' as active;
 
-      ${pagination.init()} 
-     SELECT 'table' AS component,
+
+    SELECT 'table' AS component,
             TRUE as sort,
             TRUE as search;
+    -- AWS daily service cost list
+    ${paginationDailyCost.init()} 
+     
         SELECT 
         datetime(substr(period_start, 1, 19)) as "period start",
         datetime(substr(period_end, 1, 19)) AS "period end",
@@ -927,10 +939,22 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         region,
         amortized_cost_amount AS "amortized cost amount", 
         usage_quantity_amount AS "usage quantity amount"
-        FROM ${viewName} WHERE service=$service ORDER BY period_start DESC;
-         ${pagination.renderSimpleMarkdown("service")
+        FROM ${viewNameDailyCost} WHERE service=$service AND ($tab = 'daily_cost' OR $tab IS NULL) ORDER BY period_start DESC;
+         ${paginationDailyCost.renderSimpleMarkdown("tab", "service", "$tab='daily_cost'")};
 
-      };`;
+    -- AWS monthly service cost list    
+    ${paginationMonthlyCost.init()} 
+     
+        SELECT 
+        datetime(substr(period_start, 1, 19)) as "period start",
+        datetime(substr(period_end, 1, 19)) AS "period end",
+        service,
+        region,
+        amortized_cost_amount AS "amortized cost amount", 
+        usage_quantity_amount AS "usage quantity amount"
+        FROM ${viewNameMonthlyCost} WHERE service=$service AND $tab = 'monthly_coste' ORDER BY period_start DESC;
+         ${paginationMonthlyCost.renderSimpleMarkdown("tab", "service", "$tab='monthly_coste'")};
+    `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
