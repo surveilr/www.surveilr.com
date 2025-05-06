@@ -13,6 +13,26 @@
 --     name 
 -- FROM boundary WHERE parent_boundary_id IS NULL;
 
+DROP VIEW IF EXISTS expected_asset_list;
+CREATE VIEW expected_asset_list AS
+SELECT 
+    bnd.boundary_id,
+    bnd.parent_boundary_id,
+    parent.name as parent_boundary,
+    ast.asset_id,
+    bnd.name as boundry,
+    ast.name as host,
+    ast.description,
+    ast.asset_tag,
+    astyp.value as asset_type,
+    assignment.value as assignment
+FROM asset ast 
+INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
+INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+INNER JOIN asset_type astyp ON astyp.asset_type_id = ast.asset_type_id
+INNER JOIN assignment ON assignment.assignment_id = ast.assignment_id
+WHERE ast.asset_tag="ACTIVE";
+
 DROP VIEW IF EXISTS boundary_list;
 CREATE VIEW boundary_list AS
 SELECT 
@@ -241,3 +261,38 @@ usage_quantity_amount,
 usage_quantity_unit,
 unblended_cost_amount
 FROM ur_transform_list_aws_cost_detail;
+
+DROP VIEW IF EXISTS list_aws_monthely_cost_detail;
+CREATE VIEW list_aws_monthely_cost_detail AS
+SELECT 
+acd.amortized_cost_amount,
+acd.blended_cost_amount,
+acd.net_amortized_cost_amount,
+acd.net_unblended_cost_amount,
+acd.period_start,
+acd.period_end,
+acd.unblended_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_monthly_cost_detail AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.linked_account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+
+DROP VIEW IF EXISTS list_aws_service_from_daily_cost;
+CREATE VIEW list_aws_service_from_daily_cost AS
+SELECT 
+service
+FROM ur_transform_list_aws_daily_cost_by_service GROUP BY service;
+
+DROP VIEW IF EXISTS list_aws_daily_service_cost;
+CREATE VIEW list_aws_daily_service_cost AS
+SELECT 
+acd.period_start,
+acd.period_end,
+acd.service,
+acd.region,
+acd.amortized_cost_amount,
+acd.usage_quantity_amount,
+acd.amortized_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_daily_cost_by_service AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;

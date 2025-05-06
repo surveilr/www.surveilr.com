@@ -1,4 +1,96 @@
 -- --------------------------------------------------------------------------------
+-- The following tables are created to ensure compatibility between the RSSD and Aggregate Assurance databases.
+-- Some client environments may not have the Aggregate Assurance schema pre-defined, so these CREATE TABLE IF NOT EXISTS
+-- statements are used to safely initialize the required structures without causing errors.
+-- This approach ensures seamless integration and consistent data references across both systems.
+-- --------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS "boundary" (
+    "boundary_id" TEXT PRIMARY KEY NOT NULL,
+    "parent_boundary_id" TEXT,
+    "graph_id" TEXT NOT NULL,
+    "boundary_nature_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("parent_boundary_id") REFERENCES "boundary"("boundary_id"),
+    FOREIGN KEY("graph_id") REFERENCES "graph"("graph_id"),
+    FOREIGN KEY("boundary_nature_id") REFERENCES "boundary_nature"("boundary_nature_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset" (
+    "asset_id" TEXT PRIMARY KEY NOT NULL,
+    "organization_id" TEXT NOT NULL,
+    "boundary_id" TEXT,
+    "asset_retired_date" DATE,
+    "asset_status_id" TEXT NOT NULL,
+    "asset_tag" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "asset_type_id" TEXT NOT NULL,
+    "asset_workload_category" TEXT NOT NULL,
+    "assignment_id" TEXT NOT NULL,
+    "barcode_or_rfid_tag" TEXT NOT NULL,
+    "installed_date" DATE,
+    "planned_retirement_date" DATE,
+    "purchase_delivery_date" DATE,
+    "purchase_order_date" DATE,
+    "purchase_request_date" DATE,
+    "serial_number" TEXT NOT NULL,
+    "tco_amount" TEXT NOT NULL,
+    "tco_currency" TEXT NOT NULL,
+    "criticality" TEXT,
+    "asymmetric_keys_encryption_enabled" TEXT,
+    "cryptographic_key_encryption_enabled" TEXT,
+    "symmetric_keys_encryption_enabled" TEXT,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("organization_id") REFERENCES "organization"("organization_id"),
+    FOREIGN KEY("boundary_id") REFERENCES "boundary"("boundary_id"),
+    FOREIGN KEY("asset_status_id") REFERENCES "asset_status"("asset_status_id"),
+    FOREIGN KEY("asset_type_id") REFERENCES "asset_type"("asset_type_id"),
+    FOREIGN KEY("assignment_id") REFERENCES "assignment"("assignment_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_type" (
+    "asset_type_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+CREATE TABLE IF NOT EXISTS "assignment" (
+    "assignment_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+-- --------------------------------------------------------------------------------
 -- Script to create a table from uniform_resource.content column
 -- as osqueryms content, ensuring only valid JSON is processed.
 -- --------------------------------------------------------------------------------
@@ -305,3 +397,34 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAwsCostDetails';
+
+-- SteampipeawsMonthlyCostByAccount
+DROP TABLE IF EXISTS ur_transform_list_aws_monthly_cost_detail;
+CREATE TABLE ur_transform_list_aws_monthly_cost_detail AS
+SELECT 
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount, 
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount, 
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount, 
+  json_extract(value, '$.net_unblended_cost_amount') AS net_unblended_cost_amount,
+  json_extract(value, '$.period_start') AS period_start,
+  json_extract(value, '$.period_end') AS period_end,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeawsMonthlyCostByAccount';
+
+-- SteampipeawsDailyCostByService
+DROP TABLE IF EXISTS ur_transform_list_aws_daily_cost_by_service;
+CREATE TABLE ur_transform_list_aws_daily_cost_by_service AS
+SELECT 
+  json_extract(value, '$.period_start') AS period_start, 
+  json_extract(value, '$.period_end') AS period_end, 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.service') AS service, 
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeAwsCostByServiceDaily';
