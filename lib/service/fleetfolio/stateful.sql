@@ -428,3 +428,18 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceDaily';
+
+-- SteampipeAwsCostByServiceMonthly
+DROP TABLE IF EXISTS ur_transform_list_aws_monthly_cost_by_service;
+CREATE TABLE ur_transform_list_aws_monthly_cost_by_service AS
+SELECT 
+  json_extract(value, '$.period_start') AS period_start, 
+  json_extract(value, '$.period_end') AS period_end, 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.service') AS service, 
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeAwsCostByServiceMonthly';
