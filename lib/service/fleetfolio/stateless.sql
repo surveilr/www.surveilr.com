@@ -296,3 +296,17 @@ acd.amortized_cost_amount,
 acc.title as account
 FROM ur_transform_list_aws_daily_cost_by_service AS acd
 INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+DROP VIEW IF EXISTS list_aws_monthly_service_cost;
+CREATE VIEW list_aws_monthly_service_cost AS
+SELECT 
+acd.period_start,
+acd.period_end,
+acd.service,
+acd.region,
+acd.amortized_cost_amount,
+acd.usage_quantity_amount,
+acd.amortized_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_monthly_cost_by_service AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
