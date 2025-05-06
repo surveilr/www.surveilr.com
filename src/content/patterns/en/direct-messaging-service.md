@@ -5,7 +5,7 @@ main:
   id: 4
   content: |
     The Direct Secure Messaging Service Pattern for surveilr ingests clinical data CCDA XML files and allows querying, summarizing episodes of care and exploration of those files.
-  imgCard: "@/images/pattern/direct-secure-messaging-service.avif"
+  imgCard: "@/images/pattern/direct-messaging-card.avif"
   imgMain: "@/images/pattern/direct-message-pattern.png"
   imgAlt: "Direct Secure Messaging Service"
 tabs:

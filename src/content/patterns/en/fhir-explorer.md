@@ -5,7 +5,7 @@ main:
   id: 1
   content: |
     The FHIR Explorer Pattern for surveilr ingests healthcare FHIR JSON files and allows querying, quality metrics, and exploration of those files.
-  imgCard: "@/images/pattern/fhir-explorer.avif"
+  imgCard: "@/images/pattern/fhir-explorer-card.avif"
   imgMain: "@/images/pattern/fhir-explorer-pattern.avif"
   imgAlt: "FHIR Explorer"
 tabs:
