@@ -262,6 +262,98 @@ LEFT JOIN (
 
 
 -- --------------------------------------------------------------------------------
+-- The following tables are created to ensure compatibility between the RSSD and Aggregate Assurance databases.
+-- Some client environments may not have the Aggregate Assurance schema pre-defined, so these CREATE TABLE IF NOT EXISTS
+-- statements are used to safely initialize the required structures without causing errors.
+-- This approach ensures seamless integration and consistent data references across both systems.
+-- --------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS "boundary" (
+    "boundary_id" TEXT PRIMARY KEY NOT NULL,
+    "parent_boundary_id" TEXT,
+    "graph_id" TEXT NOT NULL,
+    "boundary_nature_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("parent_boundary_id") REFERENCES "boundary"("boundary_id"),
+    FOREIGN KEY("graph_id") REFERENCES "graph"("graph_id"),
+    FOREIGN KEY("boundary_nature_id") REFERENCES "boundary_nature"("boundary_nature_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset" (
+    "asset_id" TEXT PRIMARY KEY NOT NULL,
+    "organization_id" TEXT NOT NULL,
+    "boundary_id" TEXT,
+    "asset_retired_date" DATE,
+    "asset_status_id" TEXT NOT NULL,
+    "asset_tag" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "asset_type_id" TEXT NOT NULL,
+    "asset_workload_category" TEXT NOT NULL,
+    "assignment_id" TEXT NOT NULL,
+    "barcode_or_rfid_tag" TEXT NOT NULL,
+    "installed_date" DATE,
+    "planned_retirement_date" DATE,
+    "purchase_delivery_date" DATE,
+    "purchase_order_date" DATE,
+    "purchase_request_date" DATE,
+    "serial_number" TEXT NOT NULL,
+    "tco_amount" TEXT NOT NULL,
+    "tco_currency" TEXT NOT NULL,
+    "criticality" TEXT,
+    "asymmetric_keys_encryption_enabled" TEXT,
+    "cryptographic_key_encryption_enabled" TEXT,
+    "symmetric_keys_encryption_enabled" TEXT,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("organization_id") REFERENCES "organization"("organization_id"),
+    FOREIGN KEY("boundary_id") REFERENCES "boundary"("boundary_id"),
+    FOREIGN KEY("asset_status_id") REFERENCES "asset_status"("asset_status_id"),
+    FOREIGN KEY("asset_type_id") REFERENCES "asset_type"("asset_type_id"),
+    FOREIGN KEY("assignment_id") REFERENCES "assignment"("assignment_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_type" (
+    "asset_type_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+CREATE TABLE IF NOT EXISTS "assignment" (
+    "assignment_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+-- --------------------------------------------------------------------------------
 -- Script to create a table from uniform_resource.content column
 -- as osqueryms content, ensuring only valid JSON is processed.
 -- --------------------------------------------------------------------------------
@@ -568,6 +660,37 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAwsCostDetails';
+
+-- SteampipeawsMonthlyCostByAccount
+DROP TABLE IF EXISTS ur_transform_list_aws_monthly_cost_detail;
+CREATE TABLE ur_transform_list_aws_monthly_cost_detail AS
+SELECT 
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount, 
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount, 
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount, 
+  json_extract(value, '$.net_unblended_cost_amount') AS net_unblended_cost_amount,
+  json_extract(value, '$.period_start') AS period_start,
+  json_extract(value, '$.period_end') AS period_end,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeawsMonthlyCostByAccount';
+
+-- SteampipeawsDailyCostByService
+DROP TABLE IF EXISTS ur_transform_list_aws_daily_cost_by_service;
+CREATE TABLE ur_transform_list_aws_daily_cost_by_service AS
+SELECT 
+  json_extract(value, '$.period_start') AS period_start, 
+  json_extract(value, '$.period_end') AS period_end, 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.service') AS service, 
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeAwsCostByServiceDaily';
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -582,6 +705,26 @@ WHERE uri = 'SteampipeListAwsCostDetails';
 --     boundary_id,
 --     name 
 -- FROM boundary WHERE parent_boundary_id IS NULL;
+
+DROP VIEW IF EXISTS expected_asset_list;
+CREATE VIEW expected_asset_list AS
+SELECT 
+    bnd.boundary_id,
+    bnd.parent_boundary_id,
+    parent.name as parent_boundary,
+    ast.asset_id,
+    bnd.name as boundry,
+    ast.name as host,
+    ast.description,
+    ast.asset_tag,
+    astyp.value as asset_type,
+    assignment.value as assignment
+FROM asset ast 
+INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
+INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+INNER JOIN asset_type astyp ON astyp.asset_type_id = ast.asset_type_id
+INNER JOIN assignment ON assignment.assignment_id = ast.assignment_id
+WHERE ast.asset_tag="ACTIVE";
 
 DROP VIEW IF EXISTS boundary_list;
 CREATE VIEW boundary_list AS
@@ -812,6 +955,40 @@ usage_quantity_unit,
 unblended_cost_amount
 FROM ur_transform_list_aws_cost_detail;
 
+DROP VIEW IF EXISTS list_aws_monthely_cost_detail;
+CREATE VIEW list_aws_monthely_cost_detail AS
+SELECT 
+acd.amortized_cost_amount,
+acd.blended_cost_amount,
+acd.net_amortized_cost_amount,
+acd.net_unblended_cost_amount,
+acd.period_start,
+acd.period_end,
+acd.unblended_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_monthly_cost_detail AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.linked_account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+
+DROP VIEW IF EXISTS list_aws_service_from_daily_cost;
+CREATE VIEW list_aws_service_from_daily_cost AS
+SELECT 
+service
+FROM ur_transform_list_aws_daily_cost_by_service GROUP BY service;
+
+DROP VIEW IF EXISTS list_aws_daily_service_cost;
+CREATE VIEW list_aws_daily_service_cost AS
+SELECT 
+acd.period_start,
+acd.period_end,
+acd.service,
+acd.region,
+acd.amortized_cost_amount,
+acd.usage_quantity_amount,
+acd.amortized_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_daily_cost_by_service AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1906,6 +2083,11 @@ SELECT
        "settings-dollar" as icon,
        ''black''                    as color,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' as link;
+    select
+       "AWS Monthely Cost Detail"  as title,
+       "settings-dollar" as icon,
+       ''black''                    as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_detail_list.sql'' as link;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2356,7 +2538,73 @@ SELECT
      ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
 
 
- SET total_rows = (SELECT COUNT(*) FROM list_aws_cost_detail );
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_service_from_daily_cost );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+   SELECT ''table'' AS component,
+         ''Service'' as markdown,
+         TRUE as sort,
+         TRUE as search;
+   SELECT 
+     "[" || service || "](aws_cost_report.sql?service="|| replace(service, '' '', ''%20'') || ")" AS "Service" FROM list_aws_service_from_daily_cost;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_cost_report.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_cost_report.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS Cost Summary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
+
+ SELECT
+   $service AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_report.sql?service='' || $service  AS link; 
+
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     $service contents;
+
+    select
+     ''text''              as component,
+     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
+
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_daily_service_cost WHERE service=$service);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
@@ -2365,13 +2613,82 @@ SELECT ''table'' AS component,
        TRUE as sort,
        TRUE as search;
    SELECT 
+   datetime(substr(period_start, 1, 19)) as "period start",
+   datetime(substr(period_end, 1, 19)) AS "period end",
+   service,
+   region,
+   amortized_cost_amount AS "amortized cost amount", 
+   usage_quantity_amount AS "usage quantity amount"
+   FROM list_aws_daily_service_cost WHERE service=$service ORDER BY period_start DESC;
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&service='' || $service ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&service='' || $service ||  '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_monthely_cost_detail_list.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_monthely_cost_detail_list.sql/index.sql'') as contents;
+    ;
+   --- Display breadcrumb
+SELECT
+   ''breadcrumb'' AS component;
+ SELECT
+   ''Home'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+ SELECT
+   ''FleetFolio'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+ SELECT
+   ''Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+
+ SELECT
+   ''AWS Trust Boundary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+
+ SELECT
+   ''AWS Monthely Cost Summary'' AS title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_detail_list.sql'' AS link; 
+
+
+ --- Dsply Page Title
+ SELECT
+     ''title''   as component,
+     "AWS Monthely Cost Summary" contents;
+
+    select
+     ''text''              as component,
+     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
+
+
+ SET total_rows = (SELECT COUNT(*) FROM list_aws_monthely_cost_detail );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+SELECT ''table'' AS component,
+       TRUE as sort,
+       TRUE as search;
+   SELECT 
+   account,
    amortized_cost_amount AS "Amortized Cost",
    blended_cost_amount AS "Blended Cost",
-   region,
    net_amortized_cost_amount AS "Net Amortized AWS Cost",
-   datetime(substr(period_start, 1, 19)) as "Period Start",
-   datetime(substr(period_end, 1, 19)) as "Period End"
-   FROM list_aws_cost_detail;
+   net_unblended_cost_amount AS "Net Unblended AWS Cost", 
+   unblended_cost_amount AS "Unblended AWS Cost",
+   datetime(substr(period_start, 1, 19)) as "Period Start"
+   FROM list_aws_monthely_cost_detail;
     SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2427,15 +2744,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     }
     footer .mt-4 {
         padding-top: 1rem !important;
-    }
-
-    :is(.dark .dark:bg-gray-900) {
-    --tw-bg-opacity: 1;
-    background-color: rgb(17 24 39 / var(--tw-bg-opacity)) !important;
-    }
-    :is(.dark .dark:border-gray-600) {
-    --tw-border-opacity: 1;
-    border-color: rgb(75 85 99 / var(--tw-border-opacity)) !important;
     }
     </style>
     
