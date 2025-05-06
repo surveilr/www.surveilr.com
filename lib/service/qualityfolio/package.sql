@@ -1751,9 +1751,9 @@ SET current_page = ($offset / $limit) + 1;
   LIMIT $limit
     OFFSET $offset;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&id='' || $id ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&id='' || replace($id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&id='' || $id ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&id='' || replace($id, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
 ;
             ',
@@ -4718,9 +4718,9 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
 ;
             ',

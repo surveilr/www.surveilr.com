@@ -691,6 +691,21 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceDaily';
+
+-- SteampipeAwsCostByServiceMonthly
+DROP TABLE IF EXISTS ur_transform_list_aws_monthly_cost_by_service;
+CREATE TABLE ur_transform_list_aws_monthly_cost_by_service AS
+SELECT 
+  json_extract(value, '$.period_start') AS period_start, 
+  json_extract(value, '$.period_end') AS period_end, 
+  json_extract(value, '$.account_id') AS account_id,
+  json_extract(value, '$.service') AS service, 
+  json_extract(value, '$.region') AS region,
+  json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+FROM uniform_resource,
+     json_each(content,'$.rows')
+WHERE uri = 'SteampipeAwsCostByServiceMonthly';
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -988,6 +1003,20 @@ acd.usage_quantity_amount,
 acd.amortized_cost_amount,
 acc.title as account
 FROM ur_transform_list_aws_daily_cost_by_service AS acd
+INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+DROP VIEW IF EXISTS list_aws_monthly_service_cost;
+CREATE VIEW list_aws_monthly_service_cost AS
+SELECT 
+acd.period_start,
+acd.period_end,
+acd.service,
+acd.region,
+acd.amortized_cost_amount,
+acd.usage_quantity_amount,
+acd.amortized_cost_amount,
+acc.title as account
+FROM ur_transform_list_aws_monthly_cost_by_service AS acd
 INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
@@ -1921,11 +1950,11 @@ SET current_page = ($offset / $limit) + 1;
   OFFSET $offset;
   -- checking
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''policies'';;
 
@@ -1944,11 +1973,11 @@ SET current_page = ($offset / $limit) + 1;
 
   -- Software pagenation
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''software'';;
 
@@ -1966,11 +1995,11 @@ SET current_page = ($offset / $limit) + 1;
 
   -- User pagenation
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''users'';;
 
@@ -1989,11 +2018,11 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''container''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''container'';;
 
@@ -2011,11 +2040,11 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''all_process''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || $tab ||
-''&host_identifier='' || $host_identifier ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''all_process'';
             ',
@@ -2548,7 +2577,7 @@ SET current_page = ($offset / $limit) + 1;
          TRUE as sort,
          TRUE as search;
    SELECT 
-     "[" || service || "](aws_cost_report.sql?service="|| replace(service, '' '', ''%20'') || ")" AS "Service" FROM list_aws_service_from_daily_cost;
+     "[" || service || "](aws_cost_report.sql?service="|| replace(service, '' '', ''%20'') || "&tab=daily_cost)" AS "Service" FROM list_aws_service_from_daily_cost;
     SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2565,67 +2594,99 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               -- not including page title from sqlpage_aide_navigation
               
 
-               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
    WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_cost_report.sql/index.sql'') as contents;
     ;
-   --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
+    --- Display breadcrumb
  SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''FleetFolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+    ''breadcrumb'' AS component;
+  SELECT
+    ''Home'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''AS link;
+  SELECT
+    ''FleetFolio'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+  SELECT
+    ''Boundary'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
 
- SELECT
-   ''AWS Trust Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
+  SELECT
+    ''AWS Trust Boundary'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
 
- SELECT
-   ''AWS Cost Summary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
+  SELECT
+    ''AWS Cost Summary'' AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
 
- SELECT
-   $service AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_report.sql?service='' || $service  AS link; 
+  SELECT
+    $service AS title,
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_report.sql?service='' || $service  AS link; 
 
- --- Dsply Page Title
- SELECT
-     ''title''   as component,
-     $service contents;
+  --- Dsply Page Title
+  SELECT
+      ''title''   as component,
+      $service contents;
 
-    select
-     ''text''              as component,
-     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
+     select
+      ''text''              as component,
+      ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
+
+  SELECT ''tab'' AS component, TRUE AS center;
+  SELECT ''Daily Cost'' AS title, ''?tab=daily_cost&service='' || $service AS link, ($tab = ''daily_cost'' OR $tab IS NULL) AS active;
+  select ''Monthly Cost'' as title, ''?tab=monthly_coste&service='' || $service AS link, $tab = ''monthly_coste'' as active;
 
 
- SET total_rows = (SELECT COUNT(*) FROM list_aws_daily_service_cost WHERE service=$service);
+SELECT ''table'' AS component,
+        TRUE as sort,
+        TRUE as search;
+-- AWS daily service cost list
+SET total_rows = (SELECT COUNT(*) FROM list_aws_daily_service_cost WHERE service=$service);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-SELECT ''table'' AS component,
-       TRUE as sort,
-       TRUE as search;
-   SELECT 
-   datetime(substr(period_start, 1, 19)) as "period start",
-   datetime(substr(period_end, 1, 19)) AS "period end",
-   service,
-   region,
-   amortized_cost_amount AS "amortized cost amount", 
-   usage_quantity_amount AS "usage quantity amount"
-   FROM list_aws_daily_service_cost WHERE service=$service ORDER BY period_start DESC;
-    SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&service='' || $service ||   '')'' ELSE '''' END) || '' '' ||
+ 
+    SELECT 
+    datetime(substr(period_start, 1, 19)) as "period start",
+    datetime(substr(period_end, 1, 19)) AS "period end",
+    service,
+    region,
+    amortized_cost_amount AS "amortized cost amount", 
+    usage_quantity_amount AS "usage quantity amount"
+    FROM list_aws_daily_service_cost WHERE service=$service AND ($tab = ''daily_cost'' OR $tab IS NULL) ORDER BY period_start DESC;
+     SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&service='' || replace($service, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&service='' || $service ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&service='' || replace($service, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
-;
+ WHERE $tab=''daily_cost'';;
+
+-- AWS monthly service cost list    
+SET total_rows = (SELECT COUNT(*) FROM list_aws_monthly_service_cost WHERE service=$service);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+ 
+    SELECT 
+    datetime(substr(period_start, 1, 19)) as "period start",
+    datetime(substr(period_end, 1, 19)) AS "period end",
+    service,
+    region,
+    amortized_cost_amount AS "amortized cost amount", 
+    usage_quantity_amount AS "usage quantity amount"
+    FROM list_aws_monthly_service_cost WHERE service=$service AND $tab = ''monthly_coste'' ORDER BY period_start DESC;
+     SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&service='' || replace($service, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&service='' || replace($service, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''monthly_coste'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -4884,9 +4945,9 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
 ;
             ',

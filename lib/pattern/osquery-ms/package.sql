@@ -1193,9 +1193,9 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || $folder_id ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || $folder_id ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
 ;
             ',
@@ -2492,13 +2492,13 @@ SET current_page = ($offset / $limit) + 1;
     LIMIT $limit OFFSET $offset;
   
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&key='' || $key ||
-''&host_id='' || $host_id ||
-''&tab='' || $tab ||   '')'' ELSE '''' END) || '' '' ||
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&key='' || replace($key, '' '', ''%20'') ||
+''&host_id='' || replace($host_id, '' '', ''%20'') ||
+''&tab='' || replace($tab, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&key='' || $key ||
-''&host_id='' || $host_id ||
-''&tab='' || $tab ||  '')'' ELSE '''' END)
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&key='' || replace($key, '' '', ''%20'') ||
+''&host_id='' || replace($host_id, '' '', ''%20'') ||
+''&tab='' || replace($tab, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
 ;;
   
