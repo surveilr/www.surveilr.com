@@ -10,8 +10,8 @@ import {
 import * as sh from "./custom_shell.ts";
 
 const WEB_UI_TITLE = "fleetfolio";
-const WE_UI_LOGO = "fleetfolio-logo.png";
-const WE_UI_FAV_ICON = "fleetfolio-favicon.ico";
+const WE_UI_LOGO = "fleetfolio.png";
+const WE_UI_FAV_ICON = "fleetfolio.ico";
 
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
