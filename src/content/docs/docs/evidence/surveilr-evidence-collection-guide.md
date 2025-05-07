@@ -203,7 +203,7 @@ Sample configuration file `aws.spc`:
 ```bash
 connection "aws" {
   plugin = "aws"
-  profile = "mapcollective"  ## Ensure the profile name matches the one in the AWS credentials file
+  profile = "default"  ## Ensure the profile name matches the one in the AWS credentials file
   regions = ["us-west-2"]   ## Modify this region or add more regions as needed
   access_key = "AKxxxxxxxxxxxxxxxxxxH"
   secret_key = "fSxxxxxxxxxxxxxxxxxxxx7t"
@@ -285,12 +285,47 @@ This command will produce a **Resource Surveillance State Database (RSSD)** in S
 
 ---
 
-## Optional: Centralized Node Management (Advanced)
+## Server Data Collection Without Centralized Management
+
+Server-related evidence can be collected using **osquery** and **surveilr**, both of which need to be installed individually on each server. This approach is well-suited for environments where a [centralized management server](#optional-centralized-node-management-advanced) is not required or preferred.
+
+#### Steps for Server Data Collection:
+
+1. **Install osquery and surveilr on Each Server**:
+
+
+   * To use this alternative method, you need to install both **osquery** and **surveilr** on each server (including droplets, EC2 instances, VMs, etc.).
+
+   * **Install osquery**:
+
+     * For installing **osquery**, follow the installation steps outlined in the [surveilrctl-installation](#quick-installation-on-nodes) . 
+
+   * **Install surveilr**:
+
+     * The installation process for `surveilr` is detailed in the [surveilr-installation](#1-install-surveilr).
+
+2. **Execute the Command to Ingest the Data**:
+
+   * Download the server `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
+
+   * Once `osquery` and `surveilr` are installed, and the **server-evidence-surveilr.jsonl** file is saved on each server, run the following command to ingest the data into an SQLite database:
+
+   ```bash
+   cat server-evidence-surveilr.jsonl | surveilr ingest tasks
+   ```
+
+   * **Important**: Replace `server-evidence-surveilr.jsonl` with the actual name of the JSONL file you saved on the server. If you saved it with a different name (e.g., `my-server-evidence.jsonl`), use that file name instead.
+
+   * This command will generate a **Resource Surveillance State Database (RSSD)** in SQLite format, which you can then share with us for analysis.
+
+---
+
+## Centralized Node Management (Advanced)
 
 If you prefer connecting individual EC2 instances or servers directly to a centralized osquery management server, use **surveilrctl** for automated setup.
 
 #### Centralized Node Management Overview:
-With the centralized node management method, the osquery-ms server runs on a centralized server, and all servers (including droplets, EC2 instances, VMs, etc.) are connected as nodes using surveilrctl. This method allows you to collect server-related evidence from multiple resources efficiently
+With the centralized node management method, the osquery-ms server runs on a centralized server, and all servers (including droplets, EC2 instances, VMs, etc.) are connected as nodes using surveilrctl. This method allows you to collect server-related evidence from multiple resources efficiently.
 
 #### Quick Installation on Nodes:
 
@@ -308,51 +343,43 @@ irm https://surveilr.com/surveilrctl.ps1 | iex
 ```bash
 surveilrctl setup --uri https://osquery-ms.example.com
 ```
-
-## Alternative Method for Server Data Collection Without Centralized Management
-
-If you **do not** want to implement the centralized **osquery-ms** server method, you can still collect server-related evidence by using a local method with **osquery** and **surveilr** installed on each server individually. This alternative is ideal for environments where a centralized management server is not needed or preferred.
-
-#### Steps for Alternative Server Data Collection:
-
-1. **Install osquery and surveilr on Each Server**:
-
-
-   * To use this alternative method, you need to install both **osquery** and **surveilr** on each server (including droplets, EC2 instances, VMs, etc.).
-
-   * **Install osquery**:
-
-     * For installing **osquery**, follow the installation steps outlined in the [surveilrctl-installation](#quick-installation-on-nodes) . 
-
-   * **Install surveilr**:
-
-     * The installation process for **surveilr** is detailed in the [surveilr-installation](#1-install-surveilr).
-
-2. **Execute the Command to Ingest the Data**:
-
-   * Download the server `.jsonl` file to your working directory — the same location where you'll be running the `surveilr` ingestion command.
-
-   * Once **osquery** and **surveilr** are installed, and the **server-evidence-surveilr.jsonl** file is saved on each server, run the following command to ingest the data into an SQLite database:
-
-   ```bash
-   cat server-evidence-surveilr.jsonl | surveilr ingest tasks
-   ```
-
-   * **Important**: Replace `server-evidence-surveilr.jsonl` with the actual name of the JSONL file you saved on the server. If you saved it with a different name (e.g., `my-server-evidence.jsonl`), use that file name instead.
-
-   * This command will generate a **Resource Surveillance State Database (RSSD)** in SQLite format, which you can then share with us for analysis.
-
 ---
 
-## Delivering the SQLite Evidence Database
+### Delivering the SQLite Evidence Database
 
 Once evidence collection is complete, securely share the generated `resource-surveillance.sqlite.db` file using one of the following methods:
 
-- **Google Drive**: Shareable link
-- **Dropbox**: Shared folder or link
-- **OneDrive**, **Box**, or other secure file-sharing services
+* **Google Drive**: Shareable link
+* **Dropbox**: Shared folder or link
+* **OneDrive, Box**, or other secure file-sharing services
 
-Ensure that the file permissions allow our team to access the file.
+Ensure that the file permissions are set to allow our team to access the file.
+
+### Dumping and Compressing the SQLite Database
+
+To reduce the size of the SQLite database and share it efficiently, you can dump the database as a text file. This can result in significant disk space savings due to the repetitive nature of the SQL statements. Use the following commands for dumping and reconstructing the database:
+
+* To dump the database as a text file:
+
+  ```bash
+  sqlite3 my_database.db .dump > my_database.db.txt
+  ```
+
+* To reconstruct the database from the text file:
+
+  ```bash
+  cat my_database.db.txt | sqlite3 my_reconstructed_database.db
+  ```
+
+Additionally, to compress the dumped file and save space, you can use gzip:
+
+* Dump and compress the database:
+
+  ```bash
+  sqlite3 explorer.db .dump | gzip -c > explorer.db.txt.gz
+  ```
+
+This approach ensures that the SQLite database is both compact and easy to share, while maintaining integrity for future reconstruction.
 
 ---
 
