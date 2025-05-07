@@ -5,7 +5,7 @@ main:
   id: 3
   content: |
     Fleetfolio brings comprehensive asset and identity intelligence, enabling your security operations to stay ahead of evolving digital threats. With the continuous monitoring and accurate inventory of all your organization's assets—whether devices, users, applications, or networked systems—Fleetfolio ensures no asset is overlooked. Powered by real-time updates and enriched data, Fleetfolio offers complete visibility into your assets, reduces risk exposure, and accelerates threat detection and compliance.
-  imgCard: "@/images/pattern/fleetfolio-card.avif"
+  imgCard: "@/images/pattern/fleetfolio-card-2.avif"
   imgMain: "@/images/pattern/fleetfolio-continuous-asset-and-identity-intelligence.avif"
   imgAlt: "Fleetfolio"
 tabs:

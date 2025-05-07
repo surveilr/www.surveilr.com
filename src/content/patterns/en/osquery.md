@@ -5,7 +5,7 @@ main:
   id: 6
   content: |
     The surveilr osQuery Integration Pattern provides a seamless method to integrate any surveilr-managed database into osQuery using the Automatic Table Construction (ATC) pattern. This allows organizations to query and analyze data from a variety of sources—collected and standardized within surveilr—via osQuery’s SQL interface.
-  imgCard: "@/images/pattern/osquery-pattern.avif"
+  imgCard: "@/images/pattern/osquery-ms-card.avif"
   imgMain: "@/images/pattern/osquery-pattern.avif"
   imgAlt: "osQuery Integration Pattern"
 tabs:
