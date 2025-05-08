@@ -3932,6 +3932,18 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.3'' as title, ''# `surveilr ` v1.8.3 Release Notes
+
+## 🚀 What''''s New
+### **1. Admin Merge Improvements**
+Automatically detects and adds missing columns during database schema merging.
+
+### **2. Markdown Transformation Enhancements**
+Introduced transform-md for parsing Markdown files and converting them into structured JSON.
+Added support for Markdown querying using --md-select with the mdq library.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.2'' as title, ''# `surveilr ` v1.8.2 Release Notes
 
 ---
