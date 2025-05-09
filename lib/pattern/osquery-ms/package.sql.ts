@@ -3,8 +3,13 @@ import { sqlPageNB as spn } from "./deps.ts";
 import {
   console as c,
   orchestration as orch,
+  shell as sh,
   uniformResource as ur,
 } from "../../std/web-ui-content/mod.ts";
+
+const SQE_TITLE = "osQuery Management Server";
+const SQE_LOGO = "osquery-ms.png";
+const SQE_FAV_ICON = "osquery-ms.ico";
 
 export function msNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
@@ -50,19 +55,16 @@ export class OsqueryMsSqlPages extends spn.TypicalSqlPageNotebook {
          WITH navigation_cte AS (
                   SELECT COALESCE(title, caption) as title, description
                       FROM sqlpage_aide_navigation
-                  WHERE namespace = 'prime' AND path = ${
-      this.constructHomePath("ms")
-    }
+                  WHERE namespace = 'prime' AND path = ${this.constructHomePath("ms")
+      }
                   )
                   SELECT 'list' AS component, title, description
                       FROM navigation_cte;
-                  SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+                  SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
                       FROM sqlpage_aide_navigation
-                  WHERE namespace = 'prime' AND parent_path =  ${
-      this.constructHomePath("ms")
-    }
+                  WHERE namespace = 'prime' AND parent_path =  ${this.constructHomePath("ms")
+      }
                   ORDER BY sibling_order;
           `;
   }
@@ -192,6 +194,7 @@ export async function SQL() {
         );
       }
     }(),
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
     new ur.UniformResourceSqlPages(),
     new c.ConsoleSqlPages(),
     new orch.OrchestrationSqlPages(),
