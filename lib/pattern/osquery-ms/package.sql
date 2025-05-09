@@ -878,6 +878,139 @@ VALUES
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'shell/shell.json',
+      '{
+  "component": "shell",
+  "title": "osQuery Management Server",
+  "icon": "",
+  "favicon": "https://www.surveilr.com/assets/brand/osquery-ms.ico",
+  "image": "https://www.surveilr.com/assets/brand/osquery-ms.png",
+  "layout": "fluid",
+  "fixed_top_menu": true,
+  "link": "index.sql",
+  "menu_item": [
+    {
+      "link": "index.sql",
+      "title": "Home"
+    }
+  ],
+  "javascript": [
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js"
+  ],
+  "footer": "Resource Surveillance Web UI"
+};',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'shell/shell.sql',
+      'SELECT ''shell'' AS component,
+       ''osQuery Management Server'' AS title,
+       NULL AS icon,
+       ''https://www.surveilr.com/assets/brand/osquery-ms.ico'' AS favicon,
+       ''https://www.surveilr.com/assets/brand/osquery-ms.png'' AS image,
+       ''fluid'' AS layout,
+       true AS fixed_top_menu,
+       ''index.sql'' AS link,
+       ''{"link":"index.sql","title":"Home"}'' AS menu_item,
+       ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js'' AS javascript,
+       ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js'' AS javascript,
+       ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js'' AS javascript,
+       ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js'' AS javascript,
+       json_object(
+              ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''/docs/index.sql'',
+              ''title'', ''Docs'',
+              ''submenu'', (
+                  SELECT json_group_array(
+                      json_object(
+                          ''title'', title,
+                          ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
+                          ''description'', description
+                      )
+                  )
+                  FROM (
+                      SELECT
+                          COALESCE(abbreviated_caption, caption) as title,
+                          COALESCE(url, path) as link,
+                          description
+                      FROM sqlpage_aide_navigation
+                      WHERE namespace = ''prime'' AND parent_path = ''/docs/index.sql/index.sql''
+                      ORDER BY sibling_order
+                  )
+              )
+          ) as menu_item,
+       json_object(
+              ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''ur'',
+              ''title'', ''Uniform Resource'',
+              ''submenu'', (
+                  SELECT json_group_array(
+                      json_object(
+                          ''title'', title,
+                          ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
+                          ''description'', description
+                      )
+                  )
+                  FROM (
+                      SELECT
+                          COALESCE(abbreviated_caption, caption) as title,
+                          COALESCE(url, path) as link,
+                          description
+                      FROM sqlpage_aide_navigation
+                      WHERE namespace = ''prime'' AND parent_path = ''ur/index.sql''
+                      ORDER BY sibling_order
+                  )
+              )
+          ) as menu_item,
+       json_object(
+              ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''console'',
+              ''title'', ''Console'',
+              ''submenu'', (
+                  SELECT json_group_array(
+                      json_object(
+                          ''title'', title,
+                          ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
+                          ''description'', description
+                      )
+                  )
+                  FROM (
+                      SELECT
+                          COALESCE(abbreviated_caption, caption) as title,
+                          COALESCE(url, path) as link,
+                          description
+                      FROM sqlpage_aide_navigation
+                      WHERE namespace = ''prime'' AND parent_path = ''console/index.sql''
+                      ORDER BY sibling_order
+                  )
+              )
+          ) as menu_item,
+       json_object(
+              ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''orchestration'',
+              ''title'', ''Orchestration'',
+              ''submenu'', (
+                  SELECT json_group_array(
+                      json_object(
+                          ''title'', title,
+                          ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link,
+                          ''description'', description
+                      )
+                  )
+                  FROM (
+                      SELECT
+                          COALESCE(abbreviated_caption, caption) as title,
+                          COALESCE(url, path) as link,
+                          description
+                      FROM sqlpage_aide_navigation
+                      WHERE namespace = ''prime'' AND parent_path = ''orchestration/index.sql''
+                      ORDER BY sibling_order
+                  )
+              )
+          ) as menu_item,
+       ''Surveilr ''|| (SELECT json_extract(session_agent, ''$.version'') AS version FROM ur_ingest_session LIMIT 1) || '' Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer;',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'ur/index.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
