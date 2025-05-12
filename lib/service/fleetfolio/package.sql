@@ -748,6 +748,19 @@ SELECT
     boundary 
 FROM surveilr_osquery_ms_node_boundary GROUP BY boundary;
 
+DROP VIEW IF EXISTS expected_asset_service_list;
+CREATE VIEW expected_asset_service_list AS
+SELECT
+  asser.name,ast.name as server,ast.name as host_identifier,ast.organization_id,astyp.value as asset_type,astyp.asset_service_type_id,bnt.name as boundary,asser.description,asser.port,asser.experimental_version,asser.production_version,asser.latest_vendor_version,asser.resource_utilization,asser.log_file,asser.url,
+  asser.vendor_link,asser.installation_date,asser.criticality,o.name AS owner,sta.value as tag, ast.criticality as asset_criticality,ast.asymmetric_keys_encryption_enabled as asymmetric_keys,
+  ast.cryptographic_key_encryption_enabled as cryptographic_key,ast.symmetric_keys_encryption_enabled as symmetric_keys
+  FROM asset_service asser
+  INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
+  INNER JOIN asset ast ON ast.asset_id = asser.asset_id
+  INNER JOIN organization o ON o.organization_id=ast.organization_id
+  INNER JOIN asset_status sta ON sta.asset_status_id=ast.asset_status_id
+  INNER JOIN boundary bnt ON bnt.boundary_id=ast.boundary_id;
+
 DROP VIEW IF EXISTS host_list;
 CREATE VIEW host_list AS
 SELECT 
@@ -1934,6 +1947,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''Users'' as title, ''?tab=users&host_identifier='' || $host_identifier AS link, $tab = ''users'' as active;
   select ''Containers'' as title, ''?tab=container&host_identifier='' || $host_identifier AS link, $tab = ''container'' as active;
   select ''All Process'' as title, ''?tab=all_process&host_identifier='' || $host_identifier AS link, $tab = ''all_process'' as active;
+  select ''Asset Service'' as title, ''?tab=asset_service&host_identifier='' || $host_identifier AS link, $tab = ''asset_service'' as active;
 
   -- policy table and tab value Start here
   -- policy pagenation
@@ -2046,7 +2060,30 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
- WHERE $tab=''all_process'';
+ WHERE $tab=''all_process'';;
+
+-- asset_service table and tab value Start here
+  -- asset_service pagenation
+  SET total_rows = (SELECT COUNT(*) FROM expected_asset_service_list WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''asset_service'';
+  SELECT name AS "service",
+  server,asset_type as "asset type",boundary, description, port,
+  installation_date as "installation date"
+  FROM expected_asset_service_list
+  WHERE host_identifier = $host_identifier AND $tab = ''asset_service''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''asset_service'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

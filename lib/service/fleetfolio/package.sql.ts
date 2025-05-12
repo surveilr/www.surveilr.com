@@ -200,6 +200,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: processViewName,
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
+    const assetServiceViewName = `expected_asset_service_list`;
+    const assetServicePagination = this.pagination({
+      tableOrViewName: assetServiceViewName,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -318,6 +323,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'Users' as title, '?tab=users&host_identifier=' || $host_identifier AS link, $tab = 'users' as active;
         select 'Containers' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
         select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
+        select 'Asset Service' as title, '?tab=asset_service&host_identifier=' || $host_identifier AS link, $tab = 'asset_service' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -401,6 +407,24 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "$tab='all_process'",
       )
       };
+
+      -- asset_service table and tab value Start here
+        -- asset_service pagenation
+        ${assetServicePagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'asset_service';
+        SELECT name AS "service",
+        server,asset_type as "asset type",boundary, description, port,
+        installation_date as "installation date"
+        FROM ${assetServiceViewName}
+        WHERE host_identifier = $host_identifier AND $tab = 'asset_service'
+        LIMIT $limit OFFSET $offset;
+        ${assetServicePagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='asset_service'",
+      )
+      };
+      
       `;
   }
 

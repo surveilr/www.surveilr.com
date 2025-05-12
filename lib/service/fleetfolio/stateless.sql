@@ -40,6 +40,19 @@ SELECT
     boundary 
 FROM surveilr_osquery_ms_node_boundary GROUP BY boundary;
 
+DROP VIEW IF EXISTS expected_asset_service_list;
+CREATE VIEW expected_asset_service_list AS
+SELECT
+  asser.name,ast.name as server,ast.name as host_identifier,ast.organization_id,astyp.value as asset_type,astyp.asset_service_type_id,bnt.name as boundary,asser.description,asser.port,asser.experimental_version,asser.production_version,asser.latest_vendor_version,asser.resource_utilization,asser.log_file,asser.url,
+  asser.vendor_link,asser.installation_date,asser.criticality,o.name AS owner,sta.value as tag, ast.criticality as asset_criticality,ast.asymmetric_keys_encryption_enabled as asymmetric_keys,
+  ast.cryptographic_key_encryption_enabled as cryptographic_key,ast.symmetric_keys_encryption_enabled as symmetric_keys
+  FROM asset_service asser
+  INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
+  INNER JOIN asset ast ON ast.asset_id = asser.asset_id
+  INNER JOIN organization o ON o.organization_id=ast.organization_id
+  INNER JOIN asset_status sta ON sta.asset_status_id=ast.asset_status_id
+  INNER JOIN boundary bnt ON bnt.boundary_id=ast.boundary_id;
+
 DROP VIEW IF EXISTS host_list;
 CREATE VIEW host_list AS
 SELECT 
