@@ -116,7 +116,8 @@ SELECT
     json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.content, '$.columns.value') AS boundary
+    json_extract(l.content, '$.columns.value') AS boundary,
+    l.uri as query_uri
 FROM uniform_resource AS l
 WHERE l.uri = 'osquery-ms:query-result'
     AND (

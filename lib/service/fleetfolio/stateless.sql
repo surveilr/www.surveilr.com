@@ -94,7 +94,8 @@ SELECT
     sysinfo.hardware_version,
     sysinfo.local_hostname,
     sysinfo.physical_memory,
-    sysinfo.uuid
+    sysinfo.uuid,
+    boundary.query_uri
 FROM surveilr_osquery_ms_node_boundary boundary
 LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=boundary.host_identifier
 LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier;
@@ -108,7 +109,8 @@ SELECT
     pol.host_identifier,
     pol.policy_name,
     pol.policy_result,
-    pol.resolution
+    pol.resolution,
+    host.query_uri
 FROM surveilr_osquery_ms_node_boundary host
 INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=host.host_identifier;
 
