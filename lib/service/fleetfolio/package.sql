@@ -123,7 +123,8 @@ SELECT
     json_extract(l.content, '$.surveilrOsQueryMsNodeKey') AS node_key,
     l.updated_at,
     json_extract(l.content, '$.hostIdentifier') AS host_identifier,
-    json_extract(l.content, '$.columns.value') AS boundary
+    json_extract(l.content, '$.columns.value') AS boundary,
+    l.uri as query_uri
 FROM uniform_resource AS l
 WHERE l.uri = 'osquery-ms:query-result'
     AND (
@@ -377,7 +378,8 @@ SELECT
     json_extract(u.content, '$.hostIdentifier') AS host_identifier, 
     json_extract(u.content, '$.columns.username') AS user_name,
     json_extract(u.content, '$.columns.directory') AS directory,
-    json_extract(u.content, '$.columns.uid') AS uid
+    json_extract(u.content, '$.columns.uid') AS uid,
+    uri as query_uri
 FROM uniform_resource u
 WHERE u.uri="osquery-ms:query-result" AND name = 'Users';
 
@@ -396,7 +398,8 @@ SELECT
     json_extract(content, '$.columns.image_id') as image_id, 
     json_extract(content, '$.columns.status') as status,
     json_extract(content, '$.columns.state') as state,
-    json_extract(content, '$.columns.created') as created
+    json_extract(content, '$.columns.created') as created,
+    uri as query_uri
 FROM uniform_resource WHERE json_valid(content) = 1 AND name="List Containers" AND uri="osquery-ms:query-result";
 
 DROP TABLE IF EXISTS ur_transform_list_container_image;
@@ -407,7 +410,8 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS hostIdentifier,
     json_extract(content, '$.columns.id') as image_id, 
     json_extract(content, '$.columns.size_bytes') as size_bytes,
-    json_extract(content, '$.columns.tags') as tags
+    json_extract(content, '$.columns.tags') as tags,
+    uri as query_uri
 FROM uniform_resource WHERE json_valid(content) = 1 AND name="List Container Images" AND uri="osquery-ms:query-result";
 
 DROP TABLE IF EXISTS ur_transform_list_network_information;
@@ -417,7 +421,8 @@ SELECT
     json_extract(content, '$.name') AS name,
     json_extract(content, '$.hostIdentifier') AS hostIdentifier,
     json_extract(content, '$.columns.id') as id, 
-    json_extract(content, '$.columns.ip_address') as ip_address
+    json_extract(content, '$.columns.ip_address') as ip_address,
+    uri as query_uri
 FROM uniform_resource WHERE json_valid(content) = 1 AND name="Container Network Information" AND uri="osquery-ms:query-result";
 
 DROP TABLE IF EXISTS ur_transform_list_network_volume;
@@ -428,7 +433,8 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS hostIdentifier,
     json_extract(content, '$.columns.id') as id, 
     json_extract(content, '$.columns.mount_point') as mount_point, 
-    json_extract(content, '$.columns.name') as volume_name
+    json_extract(content, '$.columns.name') as volume_name,
+    uri as query_uri
 FROM uniform_resource WHERE json_valid(content) = 1 AND name="list Container Volumes" AND uri="osquery-ms:query-result";
 
 DROP TABLE IF EXISTS ur_transform_list_container_ports;
@@ -441,7 +447,8 @@ SELECT
     json_extract(content, '$.columns.host_ip') as host_ip, 
     json_extract(content, '$.columns.host_port') as host_port,
     json_extract(content, '$.columns.port') as port,
-    json_extract(content, '$.columns.type') as type
+    json_extract(content, '$.columns.type') as type,
+    uri as query_uri
 FROM uniform_resource WHERE json_valid(content) = 1 AND name="Docker Container Ports" AND uri="osquery-ms:query-result";
 
 DROP TABLE IF EXISTS ur_transform_list_container_process;
@@ -452,7 +459,8 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS host,
     json_extract(content, '$.columns.name') as process_name,
     json_extract(content, '$.columns.pid') as pid,
-    json_extract(content, '$.columns.uid') as uid
+    json_extract(content, '$.columns.uid') as uid,
+    uri as query_uri
 FROM uniform_resource 
 WHERE json_valid(content) = 1 AND name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
     json_extract(content, '$.columns.pid'),
@@ -466,7 +474,8 @@ SELECT
     json_extract(content, '$.hostIdentifier') AS host_identifier,
     json_extract(ur.content, '$.name') AS name,
     json_extract(ur.content, '$.hostIdentifier') AS host,
-    json_extract(ur.content, '$.columns.name') as process_name
+    json_extract(ur.content, '$.columns.name') as process_name,
+    uri as query_uri
 FROM uniform_resource as ur
 WHERE json_valid(content) = 1 AND name="Osquery All Processes" AND uri="osquery-ms:query-result";
 
@@ -549,7 +558,8 @@ SELECT
   json_extract(ni.value, '$.SubnetId') AS subnet_id,
   json_extract(ni.value, '$.VpcId') AS vpc_id,
   json_extract(ni.value, '$.MacAddress') AS mac_address,
-  json_extract(ni.value, '$.Status') AS status
+  json_extract(ni.value, '$.Status') AS status,
+  uri as query_uri
 FROM 
   uniform_resource,
   json_each(json_extract(content, '$.rows')) as rowsValue,
@@ -563,7 +573,8 @@ CREATE TABLE ur_transform_aws_buckets AS
 SELECT 
   json_extract(value, '$.name') AS name,
   json_extract(value, '$.region') AS region,
-  json_extract(value, '$.creation_date') AS creation_date
+  json_extract(value, '$.creation_date') AS creation_date,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAllawsS3Buckets';
@@ -581,7 +592,8 @@ SELECT
   json_extract(value, '$.cidr_block') AS cidr_block,
   json_extract(value, '$.dhcp_options_id') AS dhcp_options_id,
   json_extract(value, '$.is_default') AS is_default,
-  json_extract(value, '$.partition') AS partition
+  json_extract(value, '$.partition') AS partition,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content ,'$.rows')
 WHERE uri = 'SteampipeListAllAwsVPCs';
@@ -594,7 +606,8 @@ SELECT
   json_extract(value, '$.name') AS name,
   json_extract(value, '$.create_date') AS create_date,
   json_extract(value, '$.password_last_used') AS password_last_used,
-  json_extract(value, '$.path') AS path
+  json_extract(value, '$.path') AS path,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsIAMUserInfo';
@@ -611,7 +624,8 @@ SELECT
   json_extract(value, '$.organization_master_account_email') AS organization_master_account_email,
   json_extract(value, '$.organization_master_account_id') AS organization_master_account_id,
   json_extract(value, '$.partition') AS partition,
-  json_extract(value, '$.region') AS region
+  json_extract(value, '$.region') AS region,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsAccountInfo';
@@ -631,7 +645,8 @@ SELECT
   json_extract(value, '$.scheme') AS scheme,
   json_extract(value, '$.security_groups') AS security_groups,
   json_extract(value, '$.type') AS type,
-  json_extract(value, '$.vpc_id') AS vpc_id
+  json_extract(value, '$.vpc_id') AS vpc_id,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsEC2ApplicationLoadBalancers';
@@ -656,7 +671,8 @@ SELECT
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
   json_extract(value, '$.usage_quantity_unit') AS usage_quantity_unit,
-  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount 
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeListAwsCostDetails';
@@ -672,7 +688,8 @@ SELECT
   json_extract(value, '$.net_unblended_cost_amount') AS net_unblended_cost_amount,
   json_extract(value, '$.period_start') AS period_start,
   json_extract(value, '$.period_end') AS period_end,
-  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeawsMonthlyCostByAccount';
@@ -687,7 +704,8 @@ SELECT
   json_extract(value, '$.service') AS service, 
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
-  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceDaily';
@@ -702,7 +720,8 @@ SELECT
   json_extract(value, '$.service') AS service, 
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
-  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount
+  json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
+  uri as query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
@@ -802,7 +821,8 @@ SELECT
     sysinfo.hardware_version,
     sysinfo.local_hostname,
     sysinfo.physical_memory,
-    sysinfo.uuid
+    sysinfo.uuid,
+    boundary.query_uri
 FROM surveilr_osquery_ms_node_boundary boundary
 LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=boundary.host_identifier
 LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier;
@@ -816,7 +836,8 @@ SELECT
     pol.host_identifier,
     pol.policy_name,
     pol.policy_result,
-    pol.resolution
+    pol.resolution,
+    host.query_uri
 FROM surveilr_osquery_ms_node_boundary host
 INNER JOIN surveilr_osquery_ms_node_executed_policy pol ON pol.host_identifier=host.host_identifier;
 
