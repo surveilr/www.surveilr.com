@@ -181,35 +181,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Osquery All Container Processes",
   }, ["linux"])
   "Osquery All Container Processes"() {
-    return `SELECT
-  pid,
-  name,
-  path,
-  cmdline,
-  state,
-  uid,
-  gid,
-  euid,
-  egid,
-  parent,
-  start_time AS timestamp
-FROM
-  processes
-WHERE
-  -- Filter for processes that started today
-  strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) = strftime('%Y-%m-%d', 'now')
-  AND 
-  -- Exclude processes with the same `pid`, `uid`, and `name` already recorded today
-  (pid, name) NOT IN (
-    SELECT pid, name
-    FROM processes
-    WHERE strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) = strftime('%Y-%m-%d', 'now')
-  )
-  AND (uid, name) NOT IN (
-    SELECT uid, name
-    FROM processes
-    WHERE strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) = strftime('%Y-%m-%d', 'now')
-  );`;
+    return `SELECT pid,name,path FROM processes`;
   }
 
   @osQueryMsCell({
