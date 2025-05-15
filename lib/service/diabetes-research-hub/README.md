@@ -297,7 +297,10 @@ $ surveilr ingest  files -r RT-CGM-Randomized-Clinical-Trial/ --tenant-id JAEB00
 # Ingest and transform the CSV files in the "illinois-institute/" directory, creating resource-surveillance.sqlite.db
 $ surveilr ingest files -r illinois-institute/ --tenant-id IL0001 --tenant-name "IL0001" && surveilr orchestrate transform-csv
 ```
-
+```bash
+# Ingest and transform the CSV files in the "hupa-cgm-mealfitness/" directory, creating resource-surveillance.sqlite.db
+$ surveilr ingest files -r hupa-cgm-mealfitness --tenant-id SPRA --tenant-name "SPRA"  && surveilr orchestrate transform-csv
+```
 ### Running the SQL Package and Web UI
 
 For each Dataset a custom <packagefilename>.sql.ts will be created that perfoms the custom file transformation SQL generation and sqlpage setup
@@ -357,6 +360,14 @@ $ surveilr shell ./dataset-specific-package/rtccgm-package.sql.ts
 ```bash
 # For (Illionis institute CGM)
 $ surveilr shell ./dataset-specific-package/illinois-package.sql.ts
+```
+
+
+```bash
+# HUPA CGM data(meal and fitness data)
+$ deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts saveJsonCgm
+$ deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts generateMealFitnessJson
+$ surveilr shell ./dataset-specific-package/hupa-cgm-package.sql.ts
 ```
 
 # Start the server
