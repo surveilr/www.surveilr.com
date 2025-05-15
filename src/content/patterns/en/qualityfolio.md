@@ -2,11 +2,11 @@
 title: "Qualityfolio"
 description: "Unified Test and Quality Management System"
 main:
-  id: 7
+  id: 2
   content: |
     Qualityfolio is your comprehensive, code-first solution for quality management and test lifecycle optimization. Built on the principles of "Test Management as Code" (TMaC), Qualityfolio integrates seamlessly with surveilr to provide robust test artifact management, analytics, and reporting.
-  imgCard: "@/images/pattern/qualityfolio-service.avif"
-  imgMain: "@/images/pattern/quality-folio.avif"
+  imgCard: "@/images/pattern/qualityfolio-card-2.avif"
+  imgMain: "@/images/pattern/qualityfolio-pattern.avif"
   imgAlt: "Qualityfolio"
 tabs:
   - id: "tabs-with-card-item-1"

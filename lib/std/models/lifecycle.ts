@@ -1870,6 +1870,7 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osquery_build_platform: gd.text(),
       device_id: device.belongsTo.device_id(),
       behavior_id: behavior.belongsTo.behavior_id().optional(),
+      accelerate: gd.integer().default(60),
       ...gm.housekeeping.columns,
     },
     {
@@ -1950,6 +1951,94 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     },
   );
 
+  const surveilrTableSize = gm.table("surveilr_table_size", {
+    table_name: gm.keys.varCharPrimaryKey(),
+    table_size_mb: gd.integer(),
+  }, { isIdempotent: true });
+
+  const surveilrOsQueryMsDistributedQuery = gm.table(
+    `surveilr_osquery_ms_distributed_query`,
+    {
+      query_id: gm.keys.varCharPrimaryKey(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      query_name: gd.text(),
+      query_sql: gd.text(),
+      discovery_query: gd.textNullable(),
+      status: gd.text(),
+      elaboration: gd.jsonTextNullable(),
+      interval: gd.integer(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    },
+  );
+
+  const surveilrOsQueryMsDistributedResult = gm.textPkTable(
+    `surveilr_osquery_ms_distributed_result`,
+    {
+      surveilr_osquery_ms_distributed_result_id: gm.keys.varCharPrimaryKey(),
+      query_id: surveilrOsQueryMsDistributedQuery.belongsTo.query_id(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      results: gd.jsonText(),
+      status_code: gd.integer(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    },
+  );
+
+  const surveilrOsQueryMsCarve = gm.textPkTable(
+    `surveilr_osquery_ms_carve`,
+    {
+      surveilr_osquery_ms_carve_id: gm.keys.varCharPrimaryKey(),
+      node_key: osQueryMsNode.belongsTo.node_key(),
+      session_id: tcf.unique(gd.text()),
+      carve_guid: tcf.unique(gd.text()),
+      carve_size: gd.integer(),
+      block_count: gd.integer(),
+      block_size: gd.integer(),
+      received_blocks: gd.integer().default(0),
+      carve_path: gd.textNullable(),
+      status: gd.text(),
+      start_time: gd.dateTime(),
+      completion_time: gd.dateTimeNullable(),
+      elaboration: gd.jsonTextNullable(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+    },
+  );
+
+  const surveilrOsQueryMsCarvedExtractedFile = gm.textPkTable(
+    `surveilr_osquery_ms_carved_extracted_file`,
+    {
+      surveilr_osquery_ms_carved_extracted_file_id: gm.keys.varCharPrimaryKey(),
+      carve_guid: surveilrOsQueryMsCarve.belongsTo.carve_guid(),
+      path: gd.text(),
+      size_bytes: gd.integer(),
+      content_digest: gd.text(),
+      nature: gd.textNullable(),
+      extracted_at: gd.dateTime(),
+      ...gm.housekeeping.columns,
+    },
+    {
+      isIdempotent: true,
+      indexes: (props, tableName) => {
+        const tif = SQLa.tableIndexesFactory(tableName, props);
+        return [
+          tif.index(
+            { isIdempotent: true },
+            "path",
+            "carve_guid",
+          ),
+        ];
+      },
+    },
+  );
+
   const informationSchema = {
     tables: [
       partyType,
@@ -2003,6 +2092,11 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       osQueryMsNode,
       urIngestOsQueryMsLog,
       osQueryPolicy,
+      surveilrTableSize,
+      surveilrOsQueryMsDistributedQuery,
+      surveilrOsQueryMsDistributedResult,
+      surveilrOsQueryMsCarve,
+      surveilrOsQueryMsCarvedExtractedFile,
     ],
     tableIndexes: [
       ...party.indexes,
@@ -2050,6 +2144,11 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
       ...osQueryMsNode.indexes,
       ...urIngestOsQueryMsLog.indexes,
       ...osQueryPolicy.indexes,
+      ...surveilrTableSize.indexes,
+      ...surveilrOsQueryMsDistributedQuery.indexes,
+      ...surveilrOsQueryMsDistributedResult.indexes,
+      ...surveilrOsQueryMsCarve.indexes,
+      ...surveilrOsQueryMsCarvedExtractedFile.indexes,
     ],
   };
 
@@ -2106,6 +2205,11 @@ export function serviceModels<EmitContext extends SQLa.SqlEmitContext>() {
     osQueryMsNode,
     urIngestOsQueryMsLog,
     osQueryPolicy,
+    surveilrTableSize,
+    surveilrOsQueryMsDistributedQuery,
+    surveilrOsQueryMsDistributedResult,
+    surveilrOsQueryMsCarve,
+    surveilrOsQueryMsCarvedExtractedFile,
   };
 }
 

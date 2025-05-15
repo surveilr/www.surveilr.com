@@ -6,7 +6,7 @@ author: "Geo V L"
 authorImage: "@/images/blog/geo-vl.avif"
 authorImageAlt: "Geo V L"
 pubDate: 2024-11-04
-cardImage: "@/images/blog/content-assembler-dashboard.avif"
+cardImage: "@/images/blog/content-assembler.avif"
 cardImageAlt: "`surveilr` based data analysis and web UI"
 readTime: 5
 tags: ["Content Aggregation","B2B Marketing" , "RSSD", ]

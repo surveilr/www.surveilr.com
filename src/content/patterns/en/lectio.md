@@ -2,10 +2,10 @@
 title: "Netspective Lectio"
 description: "Team-based reading assignment and content collaboration solution"
 main:
-  id: 3
+  id: 6
   content: |
     Netspective Lectio is a cutting-edge, team-based reading assignment and content collaboration solution designed to address these challenges. By integrating advanced tracking mechanisms, role-based content sharing, and continuous education tools, Lectio ensures that knowledge is not only shared but also understood and acted upon.
-  imgCard: "@/images/pattern/lectio-pattern.avif"
+  imgCard: "@/images/pattern/lectio-card.avif"
   imgMain: "@/images/pattern/lectio-pattern.avif"
   imgAlt: "Mockup boxes of a tap bolts and nuts set"
 tabs:

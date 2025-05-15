@@ -1,0 +1,8 @@
+# cnquery
+{ "cnqueryListAllAwsInstances": "cnquery run aws -c aws.ec2.instances --json", "nature": "json" }
+
+# cnquery-packs
+{ "CnquerypacksAwsInventory": "cnquery scan aws -f $HOME/cnquery-packs/core/mondoo-aws-inventory.mql.yaml  --json", "nature": "json" }
+{ "CnquerypacksLinuxIncident": "cnquery scan -f $HOME/cnquery-packs/core/mondoo-linux-incident-response.mql.yaml  --json", "nature": "json" }
+{ "CnquerypacksLinuxInventory": "cnquery scan -f $HOME/cnquery-packs/core/mondoo-linux-inventory.mql.yaml  --json", "nature": "json" }
+{ "CnquerypacksOpensslIncidentResponse": "cnquery scan -f $HOME/cnquery-packs/core/mondoo-openssl-incident-response.mql.yaml  --json", "nature": "json" }

@@ -6,7 +6,7 @@ author: "Anitha Varghese"
 authorImage: "@/images/blog/user-no-image.avif"
 authorImageAlt: "Anitha Varghese"
 pubDate: 2024-12-05
-cardImage: "@/images/blog/research-hub-explorer.avif"
+cardImage: "@/images/blog/research-explorer.avif"
 cardImageAlt: "Diabetes research data exchange"
 readTime: 3
 tags: ["pattern", "diabetes research", "health data", "secure exchange"]

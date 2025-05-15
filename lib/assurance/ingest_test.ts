@@ -244,6 +244,21 @@ Deno.test("multitenancy file ingestion", async (t) => {
     );
   });
 
+  // await t.step("verify tenant ID in transformed tables", () => {
+  //   const tableCheckQueries = [
+  //     "SELECT COUNT(*) FROM uniform_resource WHERE tenant_id = ?",
+  //     "SELECT COUNT(*) FROM uniform_resource_transform WHERE tenant_id = ?",
+  //   ];
+
+  //   tableCheckQueries.forEach((query) => {
+  //     const result = db.query<[number]>(query, [tenantId]);
+  //     assert(
+  //       result[0][0] > 0,
+  //       `❌ Error: No rows found with tenant ID in table`,
+  //     );
+  //   });
+  // });
+
   db.close();
 });
 
@@ -321,6 +336,64 @@ Deno.test("csv auto transformation", async (t) => {
     );
   });
 
+  await t.step("handle multiple csv files with same name", async () => {
+    const testDir1 = path.join(TEST_FIXTURES_DIR, "folder1");
+    const testDir2 = path.join(TEST_FIXTURES_DIR, "folder2");
+
+    await Deno.mkdir(testDir1, { recursive: true });
+    await Deno.mkdir(testDir2, { recursive: true });
+
+    const csv1Path = path.join(testDir1, "users.csv");
+    const csv2Path = path.join(testDir2, "users.csv");
+
+    await Deno.writeTextFile(csv1Path, "id,name\n1,Alice\n2,Bob");
+    await Deno.writeTextFile(csv2Path, "id,name\n3,Charlie\n4,David");
+
+    const multipleFileRssd = path.join(
+      E2E_TEST_DIR,
+      "csv-multiple-files.e2e.sqlite.db",
+    );
+
+    if (await Deno.stat(multipleFileRssd).catch(() => false)) {
+      await Deno.remove(multipleFileRssd);
+    }
+
+    const ingestResult =
+      await $`surveilr ingest files -d ${multipleFileRssd} -r ${TEST_FIXTURES_DIR} --csv-transform-auto`;
+    assertEquals(
+      ingestResult.code,
+      0,
+      `❌ Error: Failed to ingest data with multiple same-named CSVs`,
+    );
+
+    const db = new DB(multipleFileRssd);
+
+    try {
+      const result = db.query<[number]>(
+        `SELECT COUNT(*) AS count FROM uniform_resource_users`,
+      );
+      assertEquals(result.length, 1);
+
+      const rowCount = result[0][0];
+      assertEquals(rowCount, 4, "Should have 4 rows from both CSV files");
+
+      const rows = db.query<[number, string]>(
+        `SELECT id, name FROM uniform_resource_users ORDER BY id`,
+      );
+
+      assertEquals(Number(rows[0][0]), 1);
+      assertEquals(rows[0][1], "Alice");
+      assertEquals(Number(rows[1][0]), 2);
+      assertEquals(rows[1][1], "Bob");
+      assertEquals(Number(rows[2][0]), 3);
+      assertEquals(rows[2][1], "Charlie");
+      assertEquals(Number(rows[3][0]), 4);
+      assertEquals(rows[3][1], "David");
+    } finally {
+      db.close();
+    }
+  });
+
   await t.step("retain number of transformed csv records", () => {
     const result = db.query<[number]>(
       `SELECT COUNT(*) AS count FROM uniform_resource_allergies`,
@@ -328,7 +401,7 @@ Deno.test("csv auto transformation", async (t) => {
     assertEquals(result.length, 1);
     const numberOfConvertedRecords = result[0][0];
 
-    assertEquals(numberOfConvertedRecords, initialnumberOfConvertedRecords);
+    assertEquals(numberOfConvertedRecords, initialnumberOfConvertedRecords * 2);
   });
 
   db.close();

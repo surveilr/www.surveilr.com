@@ -403,6 +403,7 @@ export class TypicalCodeNotebook
             "osQuery Management Server (Prime)",
             "osQuery Management Server Default Filters (Prime)",
             "osQuery Management Server (Policy)",
+            "osQuery MS File Carve",
           ].includes(String(notebookName));
 
           const ensureKernel = cellOverrides?.ensureKernel;

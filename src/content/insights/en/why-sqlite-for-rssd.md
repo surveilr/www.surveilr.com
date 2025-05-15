@@ -6,7 +6,7 @@ author: "Temiye Akinyemi"
 authorImage: "@/images/insights/temiye-akinyemi.avif"
 authorImageAlt: "Temiye Akinyemi"
 pubDate: 2024-10-16
-cardImage: "@/images/insights/why-sqlite-for-rssd.avif"
+cardImage: "@/images/insights/sqlite-for-rssd.avif"
 cardImageAlt: "SQLite versatility"
 readTime: 5
 tags: [
