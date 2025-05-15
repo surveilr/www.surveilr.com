@@ -51,12 +51,12 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     super("rssd-init");
   }
 
-  @osQueryMsCell({
-    description: "Docker system information.",
-  }, ["macos", "linux"])
-  "Docker System Information"() {
-    return `select * from docker_info;`;
-  }
+  // @osQueryMsCell({
+  //   description: "Docker system information.",
+  // }, ["macos", "linux"])
+  // "Docker System Information"() {
+  //   return `select * from docker_info;`;
+  // }
 
   @osQueryMsCell({
     description: "List Containers.",
@@ -125,7 +125,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Docker Container Ports.",
   }, ["macos", "linux"])
   "Docker Container Ports"() {
-    return `select id,type,port,host_ip,host_port from docker_container_ports;`;
+    return `select id,type,port,host_ip,host_port from docker_container_ports WHERE host_ip != '::';`;
   }
 
   @osQueryMsCell({
@@ -167,7 +167,25 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Asymmetric Cryptography.",
   }, ["linux"])
   "Asymmetric Cryptography"() {
-    return `SELECT * FROM file WHERE (path LIKE '/home/%/.ssh/%.pub' OR path LIKE '/home/%/.ssh/authorized_keys');`;
+    return `SELECT 
+      path,
+      directory,
+      filename,
+      inode,
+      uid,
+      gid,
+      mode,
+      device,
+      size,
+      block_size,
+      atime,
+      mtime,
+      ctime,
+      btime,
+      hard_links,
+      symlink,
+      type
+    FROM file WHERE (path LIKE '/home/%/.ssh/%.pub' OR path LIKE '/home/%/.ssh/authorized_keys');`;
   }
 
   @osQueryMsCell({
@@ -181,7 +199,26 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Osquery All Container Processes",
   }, ["linux"])
   "Osquery All Container Processes"() {
-    return `SELECT pid,name,path FROM processes`;
+    return `SELECT
+              pid,
+              name,
+              path,
+              state,
+              strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) AS start_time
+            FROM
+              processes
+            WHERE
+              (strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')), name, path, start_time) IN (
+                SELECT
+                  strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) AS day,
+                  name,
+                  path,
+                  MAX(start_time)
+                FROM
+                  processes
+                GROUP BY
+                  day, name, path
+              );`;
   }
 
   @osQueryMsCell({
