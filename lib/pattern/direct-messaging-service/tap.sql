@@ -1,9 +1,39 @@
 Error executing pattern/direct-messaging-service/tap.sql: Command failed: lib/pattern/direct-messaging-service/tap.sql.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/record.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/reflect/callable.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/docs/tbls.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/mod.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/pattern/typical/enum-table.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dml/mod.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/mod.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dql/mod.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/domain/domains.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/mod.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/schema.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/type.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/view.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/directive.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/js.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/quality-system.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/namespace.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/sql-notebook.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/polygenix-notebook.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/emit/polygenix.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/column.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/constraint.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/foreign-key.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/pre-process/psql/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/notebook/command.ts
-[0m[1m[31merror[0m: Import 'https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/record.ts' failed: 429 Too Many Requests
-    at [0m[36mhttps://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dml/insert.ts[0m:[0m[33m2[0m:[0m[33m20[0m
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/index.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/lint.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/primary-key.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/record.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/select.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/self-ref.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/ddl/table/table.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/notebook/chain-of-responsibility.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/record.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dml/insert.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dql/criteria.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/dql/select.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/pre-process/psql/set.ts
+[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/graph.ts
+[0m[1m[31merror[0m: Import 'https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/reflect/callable.ts' failed: 429 Too Many Requests
+    at [0m[36mfile:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/deps.ts[0m:[0m[33m7[0m:[0m[33m27[0m

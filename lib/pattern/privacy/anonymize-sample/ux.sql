@@ -1,43 +1,5 @@
 Error executing pattern/privacy/anonymize-sample/ux.sql: Command failed: deno run -A lib/pattern/privacy/anonymize-sample/ux.sql.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/mod.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/sqlpage/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/domain/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/dml/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/ddl/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/dql/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/graph.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/domain/domain.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/domain/domains.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/dml/insert.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/dql/criteria.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/dql/select.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/dialect.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/directive.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/js.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/interpolate.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/quality-system.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/namespace.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/sql-notebook.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/sql.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/polygenix-notebook.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/emit/polygenix.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/deps.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/universal/safety.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/quality-system/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/quality-system.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/universal/zod-aide.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/universal/record.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/universal/whitespace.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/pre-process/psql/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/notebook/chain-of-responsibility.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/notebook/command.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/deps.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/quality-system/governance.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/pre-process/psql/meta-command.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/pre-process/psql/set.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/pre-process/psql/include.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/notebook/deps.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/lib/universal/flexible-text.ts
-[0m[1m[31merror[0m: Import 'https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/quality-system.ts' failed: 429 Too Many Requests
-    at [0m[36mhttps://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/domain/domain.ts[0m:[0m[33m4[0m:[0m[33m21[0m
+[0m[1m[31merror[0m: Import 'https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.13.40/render/mod.ts' failed: 429 Too Many Requests
+    at [0m[36mfile:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/pattern/privacy/anonymize-sample/deps.ts[0m:[0m[33m1[0m:[0m[33m23[0m
