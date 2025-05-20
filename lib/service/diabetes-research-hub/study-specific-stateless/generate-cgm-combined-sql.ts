@@ -1283,7 +1283,7 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       
       for (const mealRow of mealDataRows) {        
         // Determine meal type based on start_time (e.g., hour of day)
-        let mealType = "Other";
+        let mealType = "Dinner";
         if (mealRow.start_time) {
           const hour = (() => {
             // Try to parse hour from time string (supports "HH:mm" or "YYYY-MM-DD HH:mm:ss")
@@ -1354,8 +1354,14 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       ).all() as SensorRow[];
       const heartRateValues = heartRates.map((row) => row.value1); // assuming BPM in value1
 
-      const avgHeartRate = heartRateValues.reduce((sum, v) => sum + v, 0) / heartRateValues.length;
-      const heartRate = avgHeartRate.toFixed(2); 
+      let heartRate;
+
+      if(heartRateValues.length) {  
+          const avgHeartRate = heartRateValues.reduce((sum, v) => sum + Number(v), 0) / heartRateValues.length;
+          heartRate = avgHeartRate.toFixed(2); 
+      } else {
+          heartRate = 0; // Default value if no heart rate data is available
+      }
 
       db.prepare(
         `INSERT INTO uniform_resource_fitness_data (fitness_id, participant_id, date, steps, exercise_minutes, calories_burned, distance, heart_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1412,7 +1418,9 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
             'date', date,
             'steps', steps,
             'exercise_minutes', exercise_minutes,
-            'calories_burned', calories_burned
+            'calories_burned', calories_burned,
+            'distance', distance,
+            'heart_rate', heart_rate
           )) AS fitness_data
           FROM uniform_resource_fitness_data
           WHERE participant_id = ?
