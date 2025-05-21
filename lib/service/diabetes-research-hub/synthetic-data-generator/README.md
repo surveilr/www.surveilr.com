@@ -37,7 +37,7 @@ The script uses an SQLite database (resource-surveillance.sqlite.db) to store th
 ```bash
 deno run -A ./synthetic-data-generator/generate-synthetic-data-per-study.ts 
 deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts saveJsonCgm
-deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts generateMealFitnessMetadataJson
+deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts generateMealFitnessandMetadataJson
 surveilr shell ./synthetic-data-generator/synthetic-package.sql.ts
 SQLPAGE_SITE_PREFIX="" surveilr web-ui --port 9000
 ```
