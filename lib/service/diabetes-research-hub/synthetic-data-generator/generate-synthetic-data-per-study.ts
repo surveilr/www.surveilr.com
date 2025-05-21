@@ -195,6 +195,20 @@ const createTables = () => {
         calories INTEGER,
         meal_type TEXT
       )`,
+      `CREATE TABLE uniform_resource_fitness_file_metadata (
+        fitness_meta_id TEXT PRIMARY KEY,     -- ULID 
+        participant_id TEXT NOT NULL,        -- FK to participant
+        file_name      TEXT NOT NULL,        -- e.g. fitness_data_P-001.csv
+        source         TEXT NOT NULL,        -- e.g. Fitbit, Apple Watch
+        file_format    TEXT NOT NULL         -- e.g. CSV, JSON
+     )`,
+     `CREATE TABLE uniform_resource_meal_file_metadata (
+          meal_meta_id   TEXT PRIMARY KEY,     -- ULID 
+          participant_id TEXT NOT NULL,        -- FK to participant
+          file_name      TEXT NOT NULL,        -- e.g. meal_data_P-001.csv
+          source         TEXT NOT NULL,        -- e.g. MyFitnessPal, Cronometer
+          file_format    TEXT NOT NULL         -- e.g. CSV, JSON
+      )`,    
     ];
 
     // Execute each table creation statement
@@ -300,6 +314,189 @@ const generateStudyMetadata = (
   console.log(`Study metadata generated for studyId: ${studyId}`);
   return studyId;
 };
+
+const fitnessSources = ["Fitbit", "Apple Watch", "Garmin"];
+const fitnessFileFormats = ["csv"];
+
+const generateFitnessDataWithMetadata = (
+  participantId: string,
+  days: number
+) => {
+  let date = new Date();
+  const fitness_meta_id= ulid();
+
+  // Pick random source and file format
+  const source = fitnessSources[Math.floor(Math.random() * fitnessSources.length)];
+  const fileFormat = fitnessFileFormats[Math.floor(Math.random() * fitnessFileFormats.length)];
+  const fileName = `fitness_data_${participantId}_${source.toLowerCase().replace(/\s/g, "_")}.${fileFormat.toLowerCase()}`;
+
+  try {
+    db.exec("BEGIN TRANSACTION;");
+
+    // Prepare statement once
+    // Prepare statement once
+    const stmt = db.prepare(`
+      INSERT INTO uniform_resource_fitness_data VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (let i = 0; i < days; i++) {
+      const fitnessId = ulid();
+      const steps = Math.floor(Math.random() * (15000 - 3000) + 3000);
+      const exerciseMinutes = Math.floor(Math.random() * 90);
+      const caloriesBurned = Math.floor(Math.random() * (700 - 150) + 150);
+      const distance = Math.floor(Math.random() * (10 - 1) + 1); // Distance in km
+      const heartRate = Math.floor(Math.random() * (180 - 60) + 60); // Heart rate in bpm
+
+      stmt.run(
+        fitnessId,
+        participantId,
+        date.toISOString().split("T")[0],
+        steps,
+        exerciseMinutes,
+        caloriesBurned,
+        distance,
+        heartRate,
+      );
+
+      date.setDate(date.getDate() - 1);
+    }
+
+    const insertMetadataStmt = db.prepare(`
+      INSERT INTO uniform_resource_fitness_file_metadata
+      (fitness_meta_id, participant_id, file_name, source, file_format)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    insertMetadataStmt.run(
+      fitness_meta_id,
+      participantId,
+      fileName,
+      source,
+      fileFormat
+    );
+
+    db.exec("COMMIT;");
+    console.log(`Inserted fitness data + metadata for ${participantId} (source: ${source})`);
+  } catch (error) {
+    db.exec("ROLLBACK;");
+    console.error(`Error for ${participantId}:`, error);
+    throw error;
+  }
+};
+
+
+const mealSources = ["MyFitnessPal", "Cronometer"];
+const mealFileFormats = ["csv"];
+
+const generateMealDataWithMetadata = (participantId: string, days: number) => {
+  let date = new Date();
+  const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"];
+  const mealfileId = ulid();
+
+  const source = mealSources[Math.floor(Math.random() * mealSources.length)];
+  const fileFormat = mealFileFormats[Math.floor(Math.random() * mealFileFormats.length)];
+  const fileName = `meal_data_${participantId}_${source.toLowerCase().replace(/\s/g, "_")}.${fileFormat.toLowerCase()}`;
+
+  try {
+    db.exec("BEGIN TRANSACTION;");
+
+    // Prepare statement once
+    const stmt = db.prepare(`
+      INSERT INTO uniform_resource_meal_data VALUES (?, ?, ?, ?, ?)
+    `);
+
+    for (let i = 0; i < days; i++) {
+      mealTypes.forEach((mealType) => {
+        const mealId = ulid();
+        const mealTime = new Date(date);
+        // Distribute meal times throughout the day based on meal type
+        switch (mealType) {
+          case "Breakfast":
+            mealTime.setHours(
+              7 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
+            break;
+          case "Lunch":
+            mealTime.setHours(
+              11 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
+            break;
+          case "Dinner":
+            mealTime.setHours(
+              17 + Math.floor(Math.random() * 3),
+              Math.floor(Math.random() * 60),
+            );
+            break;
+          case "Snack":
+            // Snacks can happen any time
+            mealTime.setHours(
+              Math.floor(Math.random() * 24),
+              Math.floor(Math.random() * 60),
+            );
+            break;
+        }
+
+        // Calories more realistically based on meal type
+        let caloriesMin = 200, caloriesMax = 800;
+        switch (mealType) {
+          case "Breakfast":
+            caloriesMin = 300;
+            caloriesMax = 700;
+            break;
+          case "Lunch":
+            caloriesMin = 400;
+            caloriesMax = 900;
+            break;
+          case "Dinner":
+            caloriesMin = 500;
+            caloriesMax = 1200;
+            break;
+          case "Snack":
+            caloriesMin = 100;
+            caloriesMax = 400;
+            break;
+        }
+        const calories = Math.floor(
+          Math.random() * (caloriesMax - caloriesMin) + caloriesMin,
+        );
+
+        stmt.run(
+          mealId,
+          participantId,
+          mealTime.toISOString().replace("T", " ").replace("Z", ""),
+          calories,
+          mealType,
+        );
+      });
+
+      date.setDate(date.getDate() - 1);
+    }
+
+    const insertMetadataStmt = db.prepare(`
+      INSERT INTO uniform_resource_meal_file_metadata
+      (meal_meta_id, participant_id, file_name, source, file_format)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    insertMetadataStmt.run(
+      mealfileId,
+      participantId,
+      fileName,
+      source,
+      fileFormat
+    );
+
+    db.exec("COMMIT;");
+    console.log(`Inserted meal data + metadata for ${participantId} (source: ${source})`);
+  } catch (error) {
+    db.exec("ROLLBACK;");
+    console.error(`Error for ${participantId}:`, error);
+    throw error;
+  }
+};
+
 
 // Generate random fitness data with batch processing
 const generateFitnessData = (participantId: string, days: number) => {
@@ -866,8 +1063,8 @@ const generateStudy = async () => {
       const startDate = new Date();
 
       // Generate all participant data
-      generateFitnessData(sid, days);
-      generateMealData(sid, days);
+      generateFitnessDataWithMetadata(sid, days);
+      generateMealDataWithMetadata(sid, days);
       generateCGMData(sid, startDate, days);
       generateCGMFileMetadata(sid, studyId, tenantId);
 
