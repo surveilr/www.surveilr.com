@@ -8,7 +8,7 @@ This script generates synthetic data for diabetes research studies. It creates v
 ## Usage
 
 To execute the script, use the following command:
-``` deno run -A ./generate-synthetic-data-per-study.ts ```
+``` deno run -A ./synthetic-data-generator/generate-synthetic-data-per-study.ts ```
 The script will prompt you for the following inputs:
 
 Study Name: Enter the name of the study (e.g., DCLP100).
@@ -32,3 +32,12 @@ If any errors occur during execution, the script will attempt to roll back any o
 
 ## Database
 The script uses an SQLite database (resource-surveillance.sqlite.db) to store the generated data. The database schema includes tables for studies, participants, fitness data, meal data, CGM data, and more.
+
+# synthetic study generation and sqlpage setup steps
+```bash
+deno run -A ./synthetic-data-generator/generate-synthetic-data-per-study.ts 
+deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts saveJsonCgm
+deno run -A ./study-specific-stateless/generate-cgm-combined-sql.ts generateMealFitnessandMetadataJson
+surveilr shell ./synthetic-data-generator/synthetic-package.sql.ts
+SQLPAGE_SITE_PREFIX="" surveilr web-ui --port 9000
+```

@@ -2,7 +2,7 @@
 import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import {
-  generateMealFitnessJson,
+  generateMealFitnessandMetadataJson,
   saveJsonCgm,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 
@@ -15,7 +15,7 @@ export class syntheticSqlPages extends spn.TypicalSqlPageNotebook {
 
   //   async savemealDDL() {
   //       const dbFilePath = "./resource-surveillance.sqlite.db";
-  //       const jsonstmts = generateMealFitnessJson(dbFilePath);
+  //       const jsonstmts = generateMealFitnessandMetadataJson(dbFilePath);
   //       return await jsonstmts;
   //     }
 

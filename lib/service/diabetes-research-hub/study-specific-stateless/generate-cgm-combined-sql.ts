@@ -1021,6 +1021,186 @@ export function generateMealFitnessJson(dbFilePath: string) {
   return mealJson;
 }
 
+export function generateMealFitnessandMetadataJson(dbFilePath: string) {
+  const db = new Database(dbFilePath);
+  let mealJson = "";
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS uniform_resource_fitness_data (
+        fitness_id TEXT PRIMARY KEY,
+        participant_id TEXT,
+        date TEXT,
+        steps INTEGER,
+        exercise_minutes INTEGER,
+        calories_burned INTEGER,
+        distance INTEGER,
+        heart_rate INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS uniform_resource_meal_data (
+        meal_id TEXT PRIMARY KEY,
+        participant_id TEXT,
+        meal_time TEXT,
+        calories INTEGER,
+        meal_type TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS uniform_resource_fitness_file_metadata (
+        fitness_meta_id TEXT PRIMARY KEY,
+        participant_id TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        source TEXT NOT NULL,
+        file_format TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS uniform_resource_meal_file_metadata (
+        meal_meta_id TEXT PRIMARY KEY,
+        participant_id TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        source TEXT NOT NULL,
+        file_format TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS participant_meal_fitness_data (
+        db_file_id TEXT,
+        tenant_id TEXT,
+        study_display_id TEXT,
+        fitness_meal_id TEXT,
+        participant_display_id TEXT,
+        meal_data TEXT DEFAULT '[]',
+        fitness_data TEXT DEFAULT '[]',
+        fitness_file_metadata TEXT DEFAULT '[]',   -- JSON array of fitness file metadata objects
+        meal_file_metadata TEXT DEFAULT '[]'       -- JSON array of meal file metadata objects
+    );
+  `);
+
+  // Get all distinct participant_ids present in meal or fitness data
+  const participantIds = db.prepare(`
+    SELECT participant_id FROM uniform_resource_meal_data
+    UNION
+    SELECT participant_id FROM uniform_resource_fitness_data
+  `).all();
+
+  // Fetch study metadata for insertion
+  const studyMetadata = db.prepare(`
+    SELECT 
+      COALESCE((SELECT db_file_id FROM file_meta_ingest_data LIMIT 1), 'UNKNOWN') AS db_file_id,
+      COALESCE((SELECT party_id FROM party LIMIT 1), 'UNKNOWN') AS tenant_id,
+      COALESCE((SELECT study_id FROM uniform_resource_study LIMIT 1), 'UNKNOWN') AS study_display_id
+  `).get() || {
+    db_file_id: "UNKNOWN",
+    tenant_id: "UNKNOWN",
+    study_display_id: "UNKNOWN",
+  };
+
+  if (!studyMetadata.db_file_id || studyMetadata.db_file_id === "UNKNOWN") {
+    console.error("❌ ERROR: Missing db_file_id. Check database records.");
+    return;
+  }
+
+  db.transaction(() => {
+    for (const { participant_id } of participantIds) {
+      // Get meal data JSON array
+      const meals = db.prepare(`
+        SELECT json_group_array(json_object(
+          'meal_id', meal_id,
+          'meal_time', meal_time,
+          'calories', calories,
+          'meal_type', meal_type
+        )) AS meal_data
+        FROM uniform_resource_meal_data
+        WHERE participant_id = ?
+      `).get(participant_id) as { meal_data: string | null };
+
+      // Get fitness data JSON array
+      const fitness = db.prepare(`
+        SELECT json_group_array(json_object(
+          'fitness_id', fitness_id,
+          'date', date,
+          'steps', steps,
+          'exercise_minutes', exercise_minutes,
+          'calories_burned', calories_burned,
+          'distance', distance,
+          'heart_rate', heart_rate
+        )) AS fitness_data
+        FROM uniform_resource_fitness_data
+        WHERE participant_id = ?
+      `).get(participant_id) as { fitness_data: string | null };
+
+      // Get meal file metadata JSON array (objects)
+      const mealFileMetaRows = db.prepare(`
+        SELECT meal_meta_id, file_name, source, file_format
+        FROM uniform_resource_meal_file_metadata
+        WHERE participant_id = ?
+      `).all(participant_id);
+
+      const mealFileMetadataJson = JSON.stringify(mealFileMetaRows.map(row => ({
+        meal_meta_id: row.meal_meta_id,
+        file_name: row.file_name,
+        source: row.source,
+        file_format: row.file_format
+      })));
+
+      // Get fitness file metadata JSON array (objects)
+      const fitnessFileMetaRows = db.prepare(`
+        SELECT fitness_meta_id, file_name, source, file_format
+        FROM uniform_resource_fitness_file_metadata
+        WHERE participant_id = ?
+      `).all(participant_id);
+
+      const fitnessFileMetadataJson = JSON.stringify(fitnessFileMetaRows.map(row => ({
+        fitness_meta_id: row.fitness_meta_id,
+        file_name: row.file_name,
+        source: row.source,
+        file_format: row.file_format
+      })));
+
+      // Fallback to empty arrays if no data
+      const mealDataJson = meals.meal_data ?? "[]";
+      const fitnessDataJson = fitness.fitness_data ?? "[]";
+
+      // Skip if everything is empty
+      if (
+        mealDataJson === "[]" &&
+        fitnessDataJson === "[]" &&
+        mealFileMetadataJson === "[]" &&
+        fitnessFileMetadataJson === "[]"
+      ) {
+        console.warn(`⚠️ Skipping participant ${participant_id} - No data or metadata found.`);
+        continue;
+      }
+
+      const fitness_meal_id = ulid();
+
+      try {
+        db.prepare(`
+          INSERT INTO participant_meal_fitness_data (
+            db_file_id, tenant_id, study_display_id, fitness_meal_id, participant_display_id, 
+            meal_data, fitness_data, fitness_file_metadata, meal_file_metadata
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `).run(
+          studyMetadata.db_file_id,
+          studyMetadata.tenant_id,
+          studyMetadata.study_display_id,
+          fitness_meal_id,
+          participant_id,
+          mealDataJson,
+          fitnessDataJson,
+          fitnessFileMetadataJson,
+          mealFileMetadataJson
+        );
+        console.log(`✅ Inserted data for participant ${participant_id}`);
+      } catch (error) {
+        console.error(`❌ Error inserting data for participant ${participant_id}:`, error);
+      }
+    }
+  })();
+
+  db.close();
+  return mealJson;
+}
+
+
 
 if (import.meta.main) {
   const dbFilePath = "resource-surveillance.sqlite.db";
@@ -1036,6 +1216,7 @@ if (import.meta.main) {
     saveJsonCgm,
     generateMealFitnessJson,
     transformToMealsAndFitnessJson,    
+    generateMealFitnessandMetadataJson
   };
 
   // Check if the function exists
