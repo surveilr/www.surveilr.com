@@ -1407,6 +1407,10 @@ export function createGlucCombinedCGMViewSQL(dbFilePath: string): string {
   return combinedViewSQL; // Return the SQL string instead of executing it
 }
 
+export function isValidDateTime(value: any): boolean {
+  const date = new Date(value);
+  return date instanceof Date && !isNaN(date.getTime());
+}
 
 export function transformToMealsAndFitnessJson(dbFilePath: string): string {
   const db = new Database(dbFilePath);
@@ -1433,6 +1437,23 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
             meal_type TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS uniform_resource_fitness_file_metadata (
+            fitness_meta_id TEXT PRIMARY KEY,
+            participant_id TEXT NOT NULL,
+            file_name TEXT NOT NULL,
+            source TEXT NOT NULL,
+            file_format TEXT NOT NULL
+        );      
+        
+
+        CREATE TABLE IF NOT EXISTS uniform_resource_meal_file_metadata (
+            meal_meta_id TEXT PRIMARY KEY,
+            participant_id TEXT NOT NULL,
+            file_name TEXT NOT NULL,
+            source TEXT NOT NULL,
+            file_format TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS participant_meal_fitness_data (
             db_file_id TEXT,
             tenant_id TEXT,
@@ -1443,6 +1464,8 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
             fitness_data TEXT DEFAULT '[]'
         );
     `);
+
+
 
     // uniform_resource_participant_meals_file_metadata
     // Iterate data from uniform_resource_participant_meals_file_metadata table
@@ -1464,7 +1487,7 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       
       for (const mealRow of mealDataRows) {        
         // Determine meal type based on start_time (e.g., hour of day)
-        let mealType = "Dinner";
+        let mealType = "Other";
         if (mealRow.start_time) {
           const hour = (() => {
             // Try to parse hour from time string (supports "HH:mm" or "YYYY-MM-DD HH:mm:ss")
@@ -1484,15 +1507,25 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
           }
         }
 
-        db.prepare(
-          `INSERT INTO uniform_resource_meal_data (meal_id, participant_id, meal_time, calories, meal_type) VALUES (?, ?, ?, ?, ?)`,
-        ).run(
-          ulid(),
-          mealData.user,
-          mealRow.start_time,
-          Math.floor(Math.random() * 600 + 200), // random calories between 200 and 800
-          mealType
-        );
+        // Remove 'T' from ISO date-time if present (e.g., "2024-06-10T08:30:00" -> "2024-06-10 08:30:00")
+        let mealTime = mealRow.start_time;
+        if (typeof mealTime === "string") {
+          mealTime = mealTime.replace("T", " ");
+        }
+
+        const isDateTime = isValidDateTime(mealTime);
+        if (mealType != "Other" && isDateTime) {
+          db.prepare(
+            `INSERT INTO uniform_resource_meal_data (meal_id, participant_id, meal_time, calories, meal_type) VALUES (?, ?, ?, ?, ?)`,
+          ).run(
+            ulid(),
+            mealData.user,
+            mealTime,
+            Math.floor(Math.random() * 600 + 200), // random calories between 200 and 800
+            mealType
+          );
+        }
+        
       }
       
     }
@@ -1517,7 +1550,7 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       
       
       const stepsDate = db.prepare(
-        `SELECT DATE(timestamp/1000, 'unixepoch') AS fitness_date FROM ${tableName}  LIMIT 1`
+        `SELECT DATE(timestamp/1000.0, 'unixepoch') AS fitness_date FROM ${tableName}  LIMIT 1`
       ).get() as { fitness_date?: string } | undefined;
 
       const fitnessDate = stepsDate?.fitness_date;
@@ -1558,6 +1591,78 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       );  
      
     }
+
+    //
+    // Prepare select and update statements
+      const selectStmt = db.prepare(
+        "SELECT file_meta_id, cgm_data FROM file_meta_ingest_data"
+      );
+      const updateStmt = db.prepare(
+        "UPDATE file_meta_ingest_data SET cgm_data = ? WHERE file_meta_id = ?"
+      );
+
+      for (const row of selectStmt.iter()) {
+        const { file_meta_id: fileMetaId, cgm_data: cgmJson } = row as { file_meta_id: string, cgm_data: string };
+        try {
+          const parsed = JSON.parse(cgmJson) as Array<Record<string, unknown>>;
+
+          let changed = false;
+          for (const item of parsed) {
+            if (
+              typeof item.date_time === "string" &&
+              item.date_time.includes("T")
+            ) {
+              item.date_time = item.date_time.replace("T", " ");
+              changed = true;
+            }
+          }
+
+          if (changed) {
+            const updatedJson = JSON.stringify(parsed);
+            updateStmt.run(updatedJson, fileMetaId);
+            // console.log(`Updated row with file_meta_id = ${fileMetaId}`);
+          }
+        } catch (err) {
+          console.error(`Error parsing row with file_meta_id = ${fileMetaId}:`, err);
+        }
+      }
+
+      selectStmt.finalize();
+      updateStmt.finalize();
+
+      const fitnessFileMetaRows = db.prepare(
+        `SELECT * FROM uniform_resource_participant_fitness_file_metadata`
+      ).all();
+
+      for (const row of fitnessFileMetaRows) {
+        db.prepare(
+          `INSERT INTO uniform_resource_fitness_file_metadata (fitness_meta_id, participant_id, file_name, source, file_format) VALUES (?, ?, ?, ?, ?)`
+        ).run(
+          ulid(),
+          row.User,
+          row.file_name,
+          "",
+          row.file_format
+        );
+      }
+
+      const mealFileMetaRows = db.prepare(
+        `SELECT * FROM uniform_resource_participant_meals_file_metadata`
+      ).all();
+
+      for (const row of mealFileMetaRows) {
+        db.prepare(
+          `INSERT INTO uniform_resource_meal_file_metadata (meal_meta_id, participant_id, file_name, source, file_format) VALUES (?, ?, ?, ?, ?)`
+        ).run(
+          ulid(),
+          row.User,
+          row.file_name,
+          "",
+          row.file_format
+        );
+      }
+
+    //
 
     const studyMetadata: {
       db_file_id: string;
