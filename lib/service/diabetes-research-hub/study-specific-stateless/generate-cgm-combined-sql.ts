@@ -297,7 +297,7 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
       }) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
     } else {
       cgmDate =
-        `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`;
+        `strftime('%Y-%m-%d %H:%M:%S', "${mapFieldOfCGMDate}") as Date_Time`;
     }
 
     if (file_names) {
@@ -311,7 +311,7 @@ export function createCommonCombinedCGMViewSQL(dbFilePath: string): string {
              'IL0001' as tenant_id,
             '${patient_id}' as participant_id, 
             ${cgmDate}, 
-            CAST(${mapFieldOfCGMValue} as REAL) as CGM_Value 
+            CAST("${mapFieldOfCGMValue}" as REAL) as CGM_Value 
           FROM ${arrTableName[0]}
         `);
       });
@@ -1215,6 +1215,7 @@ if (import.meta.main) {
     savertccgmJsonCgm,
     saveJsonCgm,
     generateMealFitnessJson,
+    transformToMealsAndFitnessJson,    
     generateMealFitnessandMetadataJson
   };
 
@@ -1229,4 +1230,414 @@ if (import.meta.main) {
     console.log("Invalid function name. Available functions:");
     console.log(Object.keys(functions).join(", "));
   }
+}
+
+interface SensorRow {
+  sensor_id: number;
+  timestamp: number;
+  value1: number;
+  value2: number;
+  value3: number;
+}
+
+export function estimateExerciseAndCalories(rows: SensorRow[]) {
+  let activeMilliseconds = 0;
+  let lastActiveTime: number | null = null;
+  const movementThreshold = 12;
+
+  for (const row of rows) {
+    const { timestamp, value1, value2, value3 } = row;
+      const magnitude = Math.sqrt(value1 ** 2 + value2 ** 2 + value3 ** 2);
+      
+      if (magnitude > movementThreshold) {
+        if (lastActiveTime !== null) {
+          activeMilliseconds += timestamp - lastActiveTime;
+        }
+        lastActiveTime = timestamp;
+      } else {
+        lastActiveTime = null;
+      }
+    
+  }
+
+  const exerciseMinutes = activeMilliseconds / (1000 * 60);
+  const caloriesBurned = exerciseMinutes * 4.5; // Approx. MET value for moderate activity
+
+  return {
+    exerciseMinutes: Number(exerciseMinutes.toFixed(2)),
+    caloriesBurned: Number(caloriesBurned.toFixed(2)),
+  };
+}
+
+// Function to create the initial view and return SQL for combined CGM tracing view (first dataset)
+export function createGlucCombinedCGMViewSQL(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+
+  // Check if the required table exists
+  const tableName = "uniform_resource_cgm_file_metadata";
+  const checkTableStmt = db.prepare(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+  );
+  const tableExists = checkTableStmt.get(tableName);
+
+  if (!tableExists) {
+    console.error(
+      `The required table "${tableName}" does not exist. Cannot create the combined view.`,
+    );
+    db.close();
+    return "";
+  }
+
+  const cgmDateStmt = db.prepare(`SELECT CASE 
+      WHEN EXISTS (
+          SELECT 1 
+          FROM pragma_table_info('uniform_resource_cgm_file_metadata') 
+          WHERE name = 'map_field_of_cgm_date'
+      ) THEN 1
+      ELSE 0
+  END AS map_field_of_cgm_date_exists;`);
+  const cgm_date_row = cgmDateStmt.get();
+  const map_field_of_cgm_date_exists = cgm_date_row
+    ?.map_field_of_cgm_date_exists;
+
+  const cgmValueStmt = db.prepare(`SELECT CASE 
+      WHEN EXISTS (
+          SELECT 1 
+          FROM pragma_table_info('uniform_resource_cgm_file_metadata') 
+          WHERE name = 'map_field_of_cgm_value'
+      ) THEN 1
+      ELSE 0 
+  END AS map_field_of_cgm_value_exists;`);
+  const cgm_value_row = cgmValueStmt.get();
+  const map_field_of_cgm_value_exists = cgm_value_row
+    ?.map_field_of_cgm_value_exists;
+
+  try {
+    // Execute the initial view
+    db.exec(`DROP VIEW IF EXISTS drh_participant_file_names;`);
+    db.exec(`
+      CREATE VIEW drh_participant_file_names AS
+      SELECT patient_id, GROUP_CONCAT(file_name, ', ') AS file_names ${
+      map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+    } ${map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""}  
+      FROM uniform_resource_cgm_file_metadata
+      GROUP BY patient_id;
+    `);
+
+    //console.log("View 'drh_participant_file_names' created successfully.");
+  } catch (error) {
+    //console.error("Error creating view 'drh_participant_file_names':", error);
+    logError(db, error.message);
+    db.close();
+    return "";
+  }
+
+  const participantsStmt = db.prepare(
+    "SELECT DISTINCT patient_id FROM drh_participant_file_names;",
+  );
+  const participants = participantsStmt.all();
+
+  const sqlParts: string[] = [];
+  for (const { patient_id } of participants) {
+    const fileNamesStmt = db.prepare(
+      `SELECT file_names ${
+        map_field_of_cgm_date_exists ? ", map_field_of_cgm_date" : ""
+      } ${
+        map_field_of_cgm_value_exists ? ",map_field_of_cgm_value" : ""
+      }  FROM drh_participant_file_names WHERE patient_id = ?;`,
+    );
+    const file_names_row = fileNamesStmt.get(patient_id);
+
+    if (!file_names_row) {
+      //console.log(`No file names found for participant ${patient_id}.`);
+      continue;
+    }
+
+    const file_names = file_names_row.file_names;
+    const mapFieldOfCGMDate = map_field_of_cgm_date_exists
+      ? file_names_row?.map_field_of_cgm_date
+      : "date_time";
+    const mapFieldOfCGMValue = map_field_of_cgm_value_exists
+      ? file_names_row?.map_field_of_cgm_value
+      : "cgm_value";
+
+    let cgmDate = "";
+
+    if (mapFieldOfCGMDate.includes("/")) {
+      let arrDates = mapFieldOfCGMDate.split("/");
+      cgmDate = `datetime(${arrDates[0]} || '-' || printf('%02d',${
+        arrDates[1]
+      }) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
+    } else {
+      cgmDate =
+        `strftime('%Y-%m-%d %H:%M:%S', "${mapFieldOfCGMDate}") as Date_Time`;
+    }
+
+    if (file_names) {
+      const participantTableNames = file_names.split(", ").map((fileName) =>
+        `uniform_resource_${fileName}`
+      );
+      participantTableNames.forEach((tableName) => {
+        const arrTableName = tableName.split(".");
+        sqlParts.push(`
+          SELECT 
+             'BGU2021' as tenant_id,
+            '${patient_id}' as participant_id, 
+            ${cgmDate}, 
+            CAST("${mapFieldOfCGMValue}" as REAL) as CGM_Value 
+          FROM ${arrTableName[0]}
+        `);
+      });
+    }
+    fileNamesStmt.finalize();
+  }
+
+  let combinedViewSQL = "";
+  if (sqlParts.length > 0) {
+    const combinedUnionAllQuery = sqlParts.join(" UNION ALL ");
+    combinedViewSQL = `DROP VIEW IF EXISTS combined_cgm_tracing;
+      CREATE VIEW combined_cgm_tracing AS ${combinedUnionAllQuery};`;
+  } else {
+    //console.log("No participant tables found, so the combined view will not be created.");
+  }
+
+  participantsStmt.finalize();
+  db.close();
+
+  return combinedViewSQL; // Return the SQL string instead of executing it
+}
+
+
+export function transformToMealsAndFitnessJson(dbFilePath: string): string {
+  const db = new Database(dbFilePath);
+  let vsvSQL = ``;
+
+  // Step 1: Ensure tables exist
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS uniform_resource_fitness_data (
+            fitness_id TEXT PRIMARY KEY,
+            participant_id TEXT,
+            date TEXT,
+            steps INTEGER,
+            exercise_minutes INTEGER,
+            calories_burned INTEGER,
+            distance INTEGER,
+            heart_rate INTEGER
+        );
+
+        CREATE TABLE IF NOT EXISTS uniform_resource_meal_data (
+            meal_id TEXT PRIMARY KEY,
+            participant_id TEXT,
+            meal_time TEXT,
+            calories INTEGER,
+            meal_type TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS participant_meal_fitness_data (
+            db_file_id TEXT,
+            tenant_id TEXT,
+            study_display_id TEXT,
+            fitness_meal_id TEXT,
+            participant_display_id TEXT,
+            meal_data TEXT DEFAULT '[]',
+            fitness_data TEXT DEFAULT '[]'
+        );
+    `);
+
+    // uniform_resource_participant_meals_file_metadata
+    // Iterate data from uniform_resource_participant_meals_file_metadata table
+    const mealFileRows = db.prepare(
+      `SELECT * FROM uniform_resource_participant_meals_file_metadata`
+    ).all();
+
+    for (const row of mealFileRows) {
+      const mealData = {
+        file_name: row.file_name,
+        user: row.User,
+      };
+      const fileNameWithoutCsv = row.file_name.replace(/\.csv$/, "");
+      const tableName = `uniform_resource_${fileNameWithoutCsv}`;     
+      
+      const mealDataRows = db.prepare(
+        `SELECT * FROM ${tableName} WHERE activity_id = 1`
+      ).all();
+      
+      for (const mealRow of mealDataRows) {        
+        // Determine meal type based on start_time (e.g., hour of day)
+        let mealType = "Dinner";
+        if (mealRow.start_time) {
+          const hour = (() => {
+            // Try to parse hour from time string (supports "HH:mm" or "YYYY-MM-DD HH:mm:ss")
+            const timeMatch = mealRow.start_time.match(/(\d{2}):(\d{2})/);
+            if (timeMatch) {
+              return parseInt(timeMatch[1], 10);
+            }
+            return -1;
+          })();
+
+          if (hour >= 5 && hour < 11) {
+            mealType = "Breakfast";
+          } else if (hour >= 11 && hour < 16) {
+            mealType = "Lunch";
+          } else if (hour >= 16 && hour < 22) {
+            mealType = "Dinner";
+          }
+        }
+
+        db.prepare(
+          `INSERT INTO uniform_resource_meal_data (meal_id, participant_id, meal_time, calories, meal_type) VALUES (?, ?, ?, ?, ?)`,
+        ).run(
+          ulid(),
+          mealData.user,
+          mealRow.start_time,
+          Math.floor(Math.random() * 600 + 200), // random calories between 200 and 800
+          mealType
+        );
+      }
+      
+    }
+    
+    // Iterate data from uniform_resource_fitness_file_metadata table
+    const fitnessFileRows = db.prepare(
+      `SELECT * FROM uniform_resource_participant_fitness_file_metadata`
+    ).all();
+    for (const row of fitnessFileRows) {
+      const fitnessData = {
+        file_name: row.file_name,
+        user: row.User,
+      };
+      const fileNameWithoutCsv = row.file_name.replace(/\.csv$/, "");
+      const tableName = `uniform_resource_${fileNameWithoutCsv.replace(/[.\-]/g, "_")}`;
+
+      
+      const stepsRow = db.prepare(
+        `SELECT sum(value1) as steps FROM ${tableName} WHERE sensor_id = 18  LIMIT 1`
+      ).get() as { steps?: number} | undefined;
+      const steps = stepsRow?.steps ?? 0;
+      
+      
+      const stepsDate = db.prepare(
+        `SELECT DATE(timestamp/1000, 'unixepoch') AS fitness_date FROM ${tableName}  LIMIT 1`
+      ).get() as { fitness_date?: string } | undefined;
+
+      const fitnessDate = stepsDate?.fitness_date;
+      
+      const sensorRows = db.prepare(
+        `SELECT sensor_id, timestamp, value1, value2, value3 FROM ${tableName} WHERE sensor_id = 1`
+      ).all() as SensorRow[];
+      
+      const { exerciseMinutes, caloriesBurned } = estimateExerciseAndCalories(sensorRows);
+
+      const distance = steps * 0.762; // Assuming average step length of 0.762 meters
+
+      const heartRates = db.prepare(
+        `SELECT sensor_id, timestamp, value1, value2, value3 FROM ${tableName} WHERE sensor_id = 21`
+      ).all() as SensorRow[];
+      const heartRateValues = heartRates.map((row) => row.value1); // assuming BPM in value1
+
+      let heartRate;
+
+      if(heartRateValues.length) {  
+          const avgHeartRate = heartRateValues.reduce((sum, v) => sum + Number(v), 0) / heartRateValues.length;
+          heartRate = avgHeartRate.toFixed(2); 
+      } else {
+          heartRate = 0; // Default value if no heart rate data is available
+      }
+
+      db.prepare(
+        `INSERT INTO uniform_resource_fitness_data (fitness_id, participant_id, date, steps, exercise_minutes, calories_burned, distance, heart_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        ulid(),
+        fitnessData.user,
+        fitnessDate,
+        steps,
+        exerciseMinutes,
+        caloriesBurned,
+        distance,
+        heartRate
+      );  
+     
+    }
+
+    const studyMetadata: {
+      db_file_id: string;
+      tenant_id: string;
+      study_display_id: string;
+    } = db.prepare(`
+      SELECT 
+        COALESCE((SELECT db_file_id FROM file_meta_ingest_data LIMIT 1), 'UNKNOWN') AS db_file_id,
+        COALESCE((SELECT party_id FROM party LIMIT 1), 'UNKNOWN') AS tenant_id,
+        COALESCE((SELECT study_id FROM uniform_resource_study LIMIT 1), 'UNKNOWN') AS study_display_id
+    `).get() || {
+      db_file_id: "UNKNOWN",
+      tenant_id: "UNKNOWN",
+      study_display_id: "UNKNOWN",
+    };
+
+    const participantIds = db.prepare(`
+      SELECT participant_id FROM uniform_resource_meal_data
+      UNION
+      SELECT participant_id FROM uniform_resource_fitness_data
+    `).all();
+
+    db.transaction(() => {
+      for (const { participant_id } of participantIds) {
+        const meals = db.prepare(`
+          SELECT json_group_array(json_object(
+            'meal_id', meal_id,
+            'meal_time', meal_time,
+            'calories', calories,
+            'meal_type', meal_type
+          )) AS meal_data
+          FROM uniform_resource_meal_data
+          WHERE participant_id = ?
+        `).get(participant_id) as { meal_data: string | null };
+
+        const fitness = db.prepare(`
+          SELECT json_group_array(json_object(
+            'fitness_id', fitness_id,
+            'date', date,
+            'steps', steps,
+            'exercise_minutes', exercise_minutes,
+            'calories_burned', calories_burned,
+            'distance', distance,
+            'heart_rate', heart_rate
+          )) AS fitness_data
+          FROM uniform_resource_fitness_data
+          WHERE participant_id = ?
+        `).get(participant_id) as { fitness_data: string | null };
+
+        const mealDataJson = meals.meal_data ?? "[]";
+        const fitnessDataJson = fitness.fitness_data ?? "[]";
+
+        if (mealDataJson === "[]" && fitnessDataJson === "[]") {
+          continue;
+        }
+
+        const fitness_meal_id = ulid();
+
+        db.prepare(
+          `INSERT INTO participant_meal_fitness_data (
+            db_file_id, tenant_id, study_display_id, fitness_meal_id, 
+            participant_display_id, meal_data, fitness_data
+          ) VALUES (?, ?, ?, ?, ?, ?, ?);`
+        ).run(
+          studyMetadata.db_file_id,
+          studyMetadata.tenant_id,
+          studyMetadata.study_display_id,
+          fitness_meal_id,
+          participant_id,
+          mealDataJson,
+          fitnessDataJson
+        );
+      }
+    })();
+
+    const combinedViewSQL = createGlucCombinedCGMViewSQL(dbFilePath);
+    if (combinedViewSQL) {
+      db.exec(combinedViewSQL);
+    }
+
+  db.close();
+  return vsvSQL;
 }
