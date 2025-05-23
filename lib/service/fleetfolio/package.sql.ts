@@ -118,6 +118,52 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             `;
   }
 
+  @fleetfolioNav({
+    caption: "Assets",
+    description:
+      `The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.`,
+    siblingOrder: 1,
+  })
+  "fleetfolio/assets.sql"() {
+    return this.SQL`
+            ${this.activePageTitle()}
+
+            -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+              --- Dsply Page Title
+          SELECT
+              'title'   as component,
+              'Assets ' contents;
+
+             select
+              'text'              as component,
+              'Assets refer to a collection of IT resources such as nodes, servers, virtual machines, and other infrastructure components' as contents;
+
+            -- asset list
+        SELECT 'table' AS component,
+            'host' as markdown,
+            TRUE as sort,
+            TRUE as search;
+        SELECT
+        '[' || host || '](' || ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
+      } || host_identifier || '&path=direct)' as host,
+        boundary,
+        logical_boundary as "logical boundary",
+        CASE 
+            WHEN status = 'Online' THEN '🟢 Online'
+            WHEN status = 'Offline' THEN '🔴 Offline'
+            ELSE '⚠️ Unknown'
+        END AS "Status",
+        osquery_version as "Os query version",
+        available_space AS "Disk space available",
+        operating_system AS "Operating System",
+        osquery_version AS "osQuery Version",
+        ip_address AS "IP Address",
+        last_fetched AS "Last Fetched",
+        last_restarted AS "Last Restarted"
+        FROM host_list;
+            `;
+  }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "fleetfolio/host_list.sql"() {
     return this.SQL`
@@ -155,7 +201,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as search;
         SELECT 
         '[' || host || '](' || ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
-      } || host_identifier || ')' as host,
+      } || host_identifier || '&path=boundary)' as host,
         boundary,
         CASE 
             WHEN status = 'Online' THEN '🟢 Online'
@@ -218,11 +264,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
         SELECT
             'Boundary' AS title,
-            ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
+            ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link WHERE $path='boundary'; 
         SELECT boundary AS title,
             ${this.absoluteURL("/fleetfolio/host_list.sql?boundary_key=")
       } || boundary_key  AS link
-            FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
+            FROM host_list WHERE host_identifier=$host_identifier AND $path='boundary' LIMIT 1;
         SELECT host AS title,
             ${this.absoluteURL("/fleetfolio/host_detail.sql?host_identifier=")
       } || host_identifier  AS link
@@ -237,6 +283,27 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
             'text'              as component,
             description as contents FROM host_list WHERE host_identifier=$host_identifier;
+
+          -- Display sourse lable of data
+          SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM host_list
+            LIMIT 1
+          );
+
+
         --- Display Asset (Host) Details first row
         SELECT 'datagrid' as component;
             -- SELECT 'Parent Boundary' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
@@ -251,6 +318,25 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             SELECT 'Osquery version' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
             SELECT 'Operating system' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
 
+
+           -- Display sourse lable of data
+           SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM host_list
+            LIMIT 1
+          );
             select 
                 'html' as component,
                 '<div style="display: flex; gap: 20px; width: 100%;">
@@ -310,7 +396,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                         </div>
                     </div>
                 </div>
-
             ' as html FROM host_list WHERE host_identifier=$host_identifier;
 
         select 
@@ -325,8 +410,29 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
         select 'Asset Service' as title, '?tab=asset_service&host_identifier=' || $host_identifier AS link, $tab = 'asset_service' as active;
 
+
+
         -- policy table and tab value Start here
         -- policy pagenation
+
+        -- Display sourse lable of data
+        SELECT
+          'html' AS component,
+          contents,
+          '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+          Source : <strong>' || contents || '</strong>
+          </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${policyViewName} WHERE host_identifier = $host_identifier LIMIT 1
+          ) WHERE $tab = 'policies';
+
         ${policyPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE ($tab = 'policies' OR $tab IS NULL);
         SELECT 
@@ -449,10 +555,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'AWS Trust Boundary' AS title,
         ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
 
-      --- Dsply Page Title
+      --- Dsply Page Title 
       SELECT
           'title'   as component,
-          "AWS Trust Boundary" contents;
+          "AWS Trust Boundary" contents; 
 
        -- Dashboard count
         select
