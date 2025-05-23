@@ -1370,7 +1370,7 @@ export function createGlucCombinedCGMViewSQL(dbFilePath: string): string {
       }) || '-' || printf('%02d',${arrDates[2]})) as Date_Time`;
     } else {
       cgmDate =
-        `strftime('%Y-%m-%d %H:%M:%S', "${mapFieldOfCGMDate}") as Date_Time`;
+        `strftime('%Y-%m-%d %H:%M:%S', ${mapFieldOfCGMDate}) as Date_Time`;
     }
 
     if (file_names) {
@@ -1384,7 +1384,7 @@ export function createGlucCombinedCGMViewSQL(dbFilePath: string): string {
              'BGU2021' as tenant_id,
             '${patient_id}' as participant_id, 
             ${cgmDate}, 
-            CAST("${mapFieldOfCGMValue}" as REAL) as CGM_Value 
+            CAST(${mapFieldOfCGMValue} as REAL) as CGM_Value 
           FROM ${arrTableName[0]}
         `);
       });
@@ -1461,7 +1461,9 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
             fitness_meal_id TEXT,
             participant_display_id TEXT,
             meal_data TEXT DEFAULT '[]',
-            fitness_data TEXT DEFAULT '[]'
+            fitness_data TEXT DEFAULT '[]',
+            fitness_file_metadata TEXT DEFAULT '[]',   -- JSON array of fitness file metadata objects
+            meal_file_metadata TEXT DEFAULT '[]'       -- JSON array of meal file metadata objects
         );
     `);
 
@@ -1721,11 +1723,39 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
 
         const fitness_meal_id = ulid();
 
+        const mealFileMetaRows = db.prepare(`
+        SELECT meal_meta_id, file_name, source, file_format
+        FROM uniform_resource_meal_file_metadata
+        WHERE participant_id = ?
+      `).all(participant_id);
+
+      const mealFileMetadataJson = JSON.stringify(mealFileMetaRows.map(row => ({
+        meal_meta_id: row.meal_meta_id,
+        file_name: row.file_name,
+        source: row.source,
+        file_format: row.file_format
+      })));
+
+      // Get fitness file metadata JSON array (objects)
+      const fitnessFileMetaRows = db.prepare(`
+        SELECT fitness_meta_id, file_name, source, file_format
+        FROM uniform_resource_fitness_file_metadata
+        WHERE participant_id = ?
+      `).all(participant_id);
+
+      const fitnessFileMetadataJson = JSON.stringify(fitnessFileMetaRows.map(row => ({
+        fitness_meta_id: row.fitness_meta_id,
+        file_name: row.file_name,
+        source: row.source,
+        file_format: row.file_format
+      })));
+
         db.prepare(
           `INSERT INTO participant_meal_fitness_data (
             db_file_id, tenant_id, study_display_id, fitness_meal_id, 
-            participant_display_id, meal_data, fitness_data
-          ) VALUES (?, ?, ?, ?, ?, ?, ?);`
+            participant_display_id, meal_data, fitness_data,
+            fitness_file_metadata, meal_file_metadata
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
         ).run(
           studyMetadata.db_file_id,
           studyMetadata.tenant_id,
@@ -1733,7 +1763,9 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
           fitness_meal_id,
           participant_id,
           mealDataJson,
-          fitnessDataJson
+          fitnessDataJson,
+          fitnessFileMetadataJson,
+          mealFileMetadataJson
         );
       }
     })();
