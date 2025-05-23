@@ -3705,6 +3705,18 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.4'' as title, ''# `surveilr ` v1.8.4 Release Notes
+
+## 🚀 What''''s New
+### **1. Surveilr ingestion Improvements**
+Automatically detects and adds missing columns during surveilr ingestion.
+
+### **2. Installation Config**
+-The mac archive no longer contains a nested folder — you can now upgrade surveilr by running surveilr upgrade
+-This fixes installation issues with scripts like install.ps1 and allows surveilr.exe to run immediately after extraction.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.3'' as title, ''# `surveilr ` v1.8.3 Release Notes
 
 ## 🚀 What''''s New

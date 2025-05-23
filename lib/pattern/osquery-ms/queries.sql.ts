@@ -36,19 +36,41 @@ function osQueryMsCell(
     notebook_name: osQueryMsNotebookName,
     cell_governance: cellGovernance,
   }, (dc, methodCtx) => {
-    methodCtx.addInitializer(function () {
-      this.migratableCells.set(String(methodCtx.name), dc);
+    // Using arrow function to preserve context
+    methodCtx.addInitializer(() => {
+      // Get access to the instance via closure instead of thisValue
+      // Store in a global registry that can be accessed later
+      const methodName = String(methodCtx.name); // Explicit conversion to string
+      
+      // Access the instance using the global registry approach
+      // This is a workaround since we can't directly access the instance
+      if (globalRegistry.instance) {
+        globalRegistry.instance.migratableCells.set(methodName, dc);
+      } else {
+        console.error(`Error: No instance available for ${methodName}`);
+      }
     });
     // we're not modifying the DecoratedCell
     return dc;
   });
 }
 
+// Create a global registry to store the class instance
+// This is a workaround for the decorator context limitations
+const globalRegistry: { 
+  instance: SurveilrOsqueryMsQueries | null 
+} = { 
+  instance: null 
+};
+
 export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
+  // Initialize this immediately to avoid undefined issues
   readonly migratableCells: Map<string, cnb.DecoratedCell<"SQL">> = new Map();
 
   constructor() {
     super("rssd-init");
+    // Register this instance in the global registry
+    globalRegistry.instance = this;
   }
 
   // @osQueryMsCell({
