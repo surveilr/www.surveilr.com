@@ -13,7 +13,6 @@
     "jsr:@std/path@0.221": "0.221.0",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "npm:@astrojs/check@~0.9.4": "0.9.4_typescript@5.8.3_prettier@3.3.3_prettier-plugin-astro@0.14.1",
-    "npm:@astrojs/sitemap@^3.3.0": "3.3.0",
     "npm:@commitlint/cli@^19.6.1": "19.8.0_typescript@5.8.3",
     "npm:@commitlint/config-conventional@^19.8.0": "19.8.0",
     "npm:@preline/accordion@3": "3.0.0",
@@ -137,8 +136,8 @@
         "@volar/language-service",
         "fast-glob",
         "muggle-string",
-        "prettier@3.3.3",
         "prettier-plugin-astro",
+        "prettier@3.3.3",
         "volar-service-css",
         "volar-service-emmet",
         "volar-service-html",
@@ -148,14 +147,6 @@
         "volar-service-yaml",
         "vscode-html-languageservice",
         "vscode-uri"
-      ]
-    },
-    "@astrojs/sitemap@3.3.0": {
-      "integrity": "sha512-nYE4lKQtk+Kbrw/w0G0TTgT724co0jUsU4tPlHY9au5HmTBKbwiCLwO/15b1/y13aZ4Kr9ZbMeMHlXuwn0ty4Q==",
-      "dependencies": [
-        "sitemap",
-        "stream-replace-string",
-        "zod"
       ]
     },
     "@astrojs/yaml2ts@0.2.2": {
@@ -500,12 +491,12 @@
     "@isaacs/cliui@8.0.2": {
       "integrity": "sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==",
       "dependencies": [
-        "string-width@5.1.2",
         "string-width-cjs@npm:string-width@4.2.3",
-        "strip-ansi@7.1.0",
+        "string-width@5.1.2",
         "strip-ansi-cjs@npm:strip-ansi@6.0.1",
-        "wrap-ansi@8.1.0",
-        "wrap-ansi-cjs@npm:wrap-ansi@7.0.0"
+        "strip-ansi@7.1.0",
+        "wrap-ansi-cjs@npm:wrap-ansi@7.0.0",
+        "wrap-ansi@8.1.0"
       ]
     },
     "@isaacs/fs-minipass@4.0.1": {
@@ -634,9 +625,6 @@
     "@types/estree@1.0.7": {
       "integrity": "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="
     },
-    "@types/node@17.0.45": {
-      "integrity": "sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw=="
-    },
     "@types/node@18.16.19": {
       "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA=="
     },
@@ -650,12 +638,6 @@
       "integrity": "sha512-JHe6vF6x/8Z85nCX4yFdDslN11d+1pr12E526X8WAfhadOeaOTx5AuIkvDKIBopfvlzpzkdMx4YyvSKCM9oqtw==",
       "dependencies": [
         "@types/node@18.16.19"
-      ]
-    },
-    "@types/sax@1.2.7": {
-      "integrity": "sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==",
-      "dependencies": [
-        "@types/node@22.5.4"
       ]
     },
     "@typescript-eslint/parser@6.21.0_eslint@8.57.1_typescript@5.8.3": {
@@ -707,8 +689,8 @@
       "dependencies": [
         "@mapbox/node-pre-gyp",
         "@rollup/pluginutils",
-        "acorn@8.13.0",
         "acorn-import-attributes",
+        "acorn@8.13.0",
         "async-sema",
         "bindings",
         "estree-walker",
@@ -744,9 +726,9 @@
         "@volar/typescript",
         "path-browserify",
         "request-light@0.7.0",
-        "vscode-languageserver@9.0.1",
         "vscode-languageserver-protocol@3.17.5",
         "vscode-languageserver-textdocument",
+        "vscode-languageserver@9.0.1",
         "vscode-uri"
       ]
     },
@@ -1304,8 +1286,8 @@
     "espree@9.6.1_acorn@8.14.1": {
       "integrity": "sha512-oruZaFkjorTpF32kDSI5/75ViwGeZginGGy2NoOSg3Q9bnwlnmDm4HLnkl0RE3n+njDXR037aY1+x58Z/zFdwQ==",
       "dependencies": [
-        "acorn@8.14.1",
         "acorn-jsx",
+        "acorn@8.14.1",
         "eslint-visitor-keys"
       ]
     },
@@ -2137,8 +2119,8 @@
     "prettier-plugin-tailwindcss@0.6.11_prettier@3.3.3_prettier-plugin-astro@0.14.1": {
       "integrity": "sha512-YxaYSIvZPAqhrrEpRtonnrXdghZg1irNg4qrjboCXrpybLWVs55cW2N3juhspVJiO0JBvYJT8SYsJpc8OQSnsA==",
       "dependencies": [
-        "prettier@3.3.3",
-        "prettier-plugin-astro"
+        "prettier-plugin-astro",
+        "prettier@3.3.3"
       ]
     },
     "prettier@2.8.7": {
@@ -2290,9 +2272,6 @@
         "suf-log"
       ]
     },
-    "sax@1.4.1": {
-      "integrity": "sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg=="
-    },
     "scheduler@0.26.0": {
       "integrity": "sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA=="
     },
@@ -2358,15 +2337,6 @@
         "is-arrayish@0.3.2"
       ]
     },
-    "sitemap@8.0.0": {
-      "integrity": "sha512-+AbdxhM9kJsHtruUF39bwS/B0Fytw6Fr1o4ZAIAEqA6cke2xcoO2GleBw9Zw7nRzILVEgz7zBM5GiTJjie1G9A==",
-      "dependencies": [
-        "@types/node@17.0.45",
-        "@types/sax",
-        "arg",
-        "sax"
-      ]
-    },
     "slash@3.0.0": {
       "integrity": "sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q=="
     },
@@ -2388,9 +2358,6 @@
     },
     "split2@4.2.0": {
       "integrity": "sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg=="
-    },
-    "stream-replace-string@2.0.0": {
-      "integrity": "sha512-TlnjJ1C0QrmxRNrON00JvaFFlNh5TTG00APw23j74ET7gkQpTASi6/L2fuiav8pzK715HXtUeClpBTw2NPSn6w=="
     },
     "string-width@4.2.3": {
       "integrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
@@ -2828,9 +2795,9 @@
         "prettier@2.8.7",
         "request-light@0.5.8",
         "vscode-json-languageservice",
-        "vscode-languageserver@7.0.0",
         "vscode-languageserver-textdocument",
         "vscode-languageserver-types@3.17.5",
+        "vscode-languageserver@7.0.0",
         "vscode-nls",
         "vscode-uri",
         "yaml@2.2.2"
@@ -2865,9 +2832,6 @@
     },
     "yocto-queue@1.2.1": {
       "integrity": "sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg=="
-    },
-    "zod@3.24.3": {
-      "integrity": "sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg=="
     }
   },
   "redirects": {
@@ -3587,8 +3551,8 @@
     "packageJson": {
       "dependencies": [
         "npm:@astrojs/check@~0.9.4",
-        "npm:@astrojs/react@^4.2.3",
-        "npm:@astrojs/sitemap@^3.3.0",
+        "npm:@astrojs/react@^4.2.7",
+        "npm:@astrojs/sitemap@^3.3.1",
         "npm:@astrojs/starlight-tailwind@^3.0.1",
         "npm:@astrojs/starlight@~0.32.6",
         "npm:@astrojs/tailwind@6.0.2",
@@ -3604,7 +3568,7 @@
         "npm:astro-breadcrumbs@^3.3.1",
         "npm:astro-compressor@1",
         "npm:astro-vtbot@^2.1.2",
-        "npm:astro@^5.6.1",
+        "npm:astro@^5.7.10",
         "npm:clipboard@^2.0.11",
         "npm:globby@^14.0.2",
         "npm:gsap@^3.12.7",
