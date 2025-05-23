@@ -90,6 +90,63 @@ CREATE TABLE IF NOT EXISTS "assignment" (
     UNIQUE("code")
 );
 
+CREATE TABLE IF NOT EXISTS "asset_service" (
+    "asset_service_id" TEXT PRIMARY KEY NOT NULL,
+    "asset_id" TEXT NOT NULL,
+    "asset_service_type_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "asset_service_status_id" TEXT NOT NULL,
+    "port" TEXT NOT NULL,
+    "experimental_version" TEXT NOT NULL,
+    "production_version" TEXT NOT NULL,
+    "latest_vendor_version" TEXT NOT NULL,
+    "resource_utilization" TEXT NOT NULL,
+    "log_file" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "vendor_link" TEXT NOT NULL,
+    "installation_date" DATE,
+    "criticality" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("asset_id") REFERENCES "asset"("asset_id"),
+    FOREIGN KEY("asset_service_type_id") REFERENCES "asset_service_type"("asset_service_type_id"),
+    FOREIGN KEY("asset_service_status_id") REFERENCES "asset_service_status"("asset_service_status_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_service_type" (
+    "asset_service_type_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_status" (
+    "asset_status_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
 -- --------------------------------------------------------------------------------
 -- Script to create a table from uniform_resource.content column
 -- as osqueryms content, ensuring only valid JSON is processed.

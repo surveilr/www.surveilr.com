@@ -16,22 +16,22 @@
 DROP VIEW IF EXISTS expected_asset_list;
 CREATE VIEW expected_asset_list AS
 SELECT 
-    bnd.boundary_id,
-    bnd.parent_boundary_id,
-    parent.name as parent_boundary,
     ast.asset_id,
-    bnd.name as boundry,
-    ast.name as host,
+    ast.name AS host,
     ast.description,
     ast.asset_tag,
-    astyp.value as asset_type,
-    assignment.value as assignment
-FROM asset ast 
-INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
-INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+    astyp.value AS asset_type,
+    assignment.value AS assignment,
+    GROUP_CONCAT(bnd.name, ', ') AS boundaries,
+    GROUP_CONCAT(parent.name, ', ') AS parent_boundaries
+FROM asset ast
+INNER JOIN asset_boundary ab ON ab.asset_id = ast.asset_id
+INNER JOIN boundary bnd ON bnd.boundary_id = ab.boundary_id
+LEFT JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
 INNER JOIN asset_type astyp ON astyp.asset_type_id = ast.asset_type_id
 INNER JOIN assignment ON assignment.assignment_id = ast.assignment_id
-WHERE ast.asset_tag="ACTIVE";
+WHERE ast.asset_tag = "ACTIVE"
+GROUP BY ast.asset_id;
 
 DROP VIEW IF EXISTS boundary_list;
 CREATE VIEW boundary_list AS
@@ -43,15 +43,38 @@ FROM surveilr_osquery_ms_node_boundary GROUP BY boundary;
 DROP VIEW IF EXISTS expected_asset_service_list;
 CREATE VIEW expected_asset_service_list AS
 SELECT
-  asser.name,ast.name as server,ast.name as host_identifier,ast.organization_id,astyp.value as asset_type,astyp.asset_service_type_id,bnt.name as boundary,asser.description,asser.port,asser.experimental_version,asser.production_version,asser.latest_vendor_version,asser.resource_utilization,asser.log_file,asser.url,
-  asser.vendor_link,asser.installation_date,asser.criticality,o.name AS owner,sta.value as tag, ast.criticality as asset_criticality,ast.asymmetric_keys_encryption_enabled as asymmetric_keys,
-  ast.cryptographic_key_encryption_enabled as cryptographic_key,ast.symmetric_keys_encryption_enabled as symmetric_keys
-  FROM asset_service asser
-  INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
-  INNER JOIN asset ast ON ast.asset_id = asser.asset_id
-  INNER JOIN organization o ON o.organization_id=ast.organization_id
-  INNER JOIN asset_status sta ON sta.asset_status_id=ast.asset_status_id
-  INNER JOIN boundary bnt ON bnt.boundary_id=ast.boundary_id;
+  asser.name,
+  ast.name AS server,
+  ast.name AS host_identifier,
+  ast.organization_id,
+  astyp.value AS asset_type,
+  astyp.asset_service_type_id,
+  GROUP_CONCAT(bnt.name, ', ') AS boundary,
+  asser.description,
+  asser.port,
+  asser.experimental_version,
+  asser.production_version,
+  asser.latest_vendor_version,
+  asser.resource_utilization,
+  asser.log_file,
+  asser.url,
+  asser.vendor_link,
+  asser.installation_date,
+  asser.criticality,
+  o.name AS owner,
+  sta.value AS tag,
+  ast.criticality AS asset_criticality,
+  ast.asymmetric_keys_encryption_enabled AS asymmetric_keys,
+  ast.cryptographic_key_encryption_enabled AS cryptographic_key,
+  ast.symmetric_keys_encryption_enabled AS symmetric_keys
+FROM asset_service asser
+INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
+INNER JOIN asset ast ON ast.asset_id = asser.asset_id
+INNER JOIN organization o ON o.organization_id = ast.organization_id
+INNER JOIN asset_status sta ON sta.asset_status_id = ast.asset_status_id
+INNER JOIN asset_boundary ab ON ab.asset_id = ast.asset_id
+INNER JOIN boundary bnt ON bnt.boundary_id = ab.boundary_id
+GROUP BY asser.asset_service_id;
 
 DROP VIEW IF EXISTS host_list;
 CREATE VIEW host_list AS
@@ -75,7 +98,7 @@ SELECT
     nodeDet.node_status as status,
     nodeDet.last_fetched,
     nodeDet.last_restarted,
-    nodeDet. issues,
+    nodeDet.issues,
     sysinfo.board_model,
     sysinfo.board_serial,
     sysinfo.board_vendor,
@@ -95,10 +118,12 @@ SELECT
     sysinfo.local_hostname,
     sysinfo.physical_memory,
     sysinfo.uuid,
-    boundary.query_uri
+    boundary.query_uri,
+    eal.boundaries as logical_boundary
 FROM surveilr_osquery_ms_node_boundary boundary
 LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=boundary.host_identifier
-LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier;
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier
+LEFT JOIN expected_asset_list eal ON nodeDet.host_identifier= eal.host;
 
 -- policy list of host 
 DROP VIEW IF EXISTS asset_policy_list;
