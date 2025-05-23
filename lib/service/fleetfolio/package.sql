@@ -354,6 +354,63 @@ CREATE TABLE IF NOT EXISTS "assignment" (
     UNIQUE("code")
 );
 
+CREATE TABLE IF NOT EXISTS "asset_service" (
+    "asset_service_id" TEXT PRIMARY KEY NOT NULL,
+    "asset_id" TEXT NOT NULL,
+    "asset_service_type_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "asset_service_status_id" TEXT NOT NULL,
+    "port" TEXT NOT NULL,
+    "experimental_version" TEXT NOT NULL,
+    "production_version" TEXT NOT NULL,
+    "latest_vendor_version" TEXT NOT NULL,
+    "resource_utilization" TEXT NOT NULL,
+    "log_file" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "vendor_link" TEXT NOT NULL,
+    "installation_date" DATE,
+    "criticality" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("asset_id") REFERENCES "asset"("asset_id"),
+    FOREIGN KEY("asset_service_type_id") REFERENCES "asset_service_type"("asset_service_type_id"),
+    FOREIGN KEY("asset_service_status_id") REFERENCES "asset_service_status"("asset_service_status_id")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_service_type" (
+    "asset_service_type_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
+CREATE TABLE IF NOT EXISTS "asset_status" (
+    "asset_status_id" TEXT PRIMARY KEY NOT NULL,
+    "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    UNIQUE("code")
+);
+
 -- --------------------------------------------------------------------------------
 -- Script to create a table from uniform_resource.content column
 -- as osqueryms content, ensuring only valid JSON is processed.
@@ -743,22 +800,22 @@ WHERE uri = 'SteampipeAwsCostByServiceMonthly';
 DROP VIEW IF EXISTS expected_asset_list;
 CREATE VIEW expected_asset_list AS
 SELECT 
-    bnd.boundary_id,
-    bnd.parent_boundary_id,
-    parent.name as parent_boundary,
     ast.asset_id,
-    bnd.name as boundry,
-    ast.name as host,
+    ast.name AS host,
     ast.description,
     ast.asset_tag,
-    astyp.value as asset_type,
-    assignment.value as assignment
-FROM asset ast 
-INNER JOIN boundary bnd ON bnd.boundary_id = ast.boundary_id
-INNER JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
+    astyp.value AS asset_type,
+    assignment.value AS assignment,
+    GROUP_CONCAT(bnd.name, ', ') AS boundaries,
+    GROUP_CONCAT(parent.name, ', ') AS parent_boundaries
+FROM asset ast
+INNER JOIN asset_boundary ab ON ab.asset_id = ast.asset_id
+INNER JOIN boundary bnd ON bnd.boundary_id = ab.boundary_id
+LEFT JOIN boundary parent ON parent.boundary_id = bnd.parent_boundary_id
 INNER JOIN asset_type astyp ON astyp.asset_type_id = ast.asset_type_id
 INNER JOIN assignment ON assignment.assignment_id = ast.assignment_id
-WHERE ast.asset_tag="ACTIVE";
+WHERE ast.asset_tag = "ACTIVE"
+GROUP BY ast.asset_id;
 
 DROP VIEW IF EXISTS boundary_list;
 CREATE VIEW boundary_list AS
@@ -770,15 +827,38 @@ FROM surveilr_osquery_ms_node_boundary GROUP BY boundary;
 DROP VIEW IF EXISTS expected_asset_service_list;
 CREATE VIEW expected_asset_service_list AS
 SELECT
-  asser.name,ast.name as server,ast.name as host_identifier,ast.organization_id,astyp.value as asset_type,astyp.asset_service_type_id,bnt.name as boundary,asser.description,asser.port,asser.experimental_version,asser.production_version,asser.latest_vendor_version,asser.resource_utilization,asser.log_file,asser.url,
-  asser.vendor_link,asser.installation_date,asser.criticality,o.name AS owner,sta.value as tag, ast.criticality as asset_criticality,ast.asymmetric_keys_encryption_enabled as asymmetric_keys,
-  ast.cryptographic_key_encryption_enabled as cryptographic_key,ast.symmetric_keys_encryption_enabled as symmetric_keys
-  FROM asset_service asser
-  INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
-  INNER JOIN asset ast ON ast.asset_id = asser.asset_id
-  INNER JOIN organization o ON o.organization_id=ast.organization_id
-  INNER JOIN asset_status sta ON sta.asset_status_id=ast.asset_status_id
-  INNER JOIN boundary bnt ON bnt.boundary_id=ast.boundary_id;
+  asser.name,
+  ast.name AS server,
+  ast.name AS host_identifier,
+  ast.organization_id,
+  astyp.value AS asset_type,
+  astyp.asset_service_type_id,
+  GROUP_CONCAT(bnt.name, ', ') AS boundary,
+  asser.description,
+  asser.port,
+  asser.experimental_version,
+  asser.production_version,
+  asser.latest_vendor_version,
+  asser.resource_utilization,
+  asser.log_file,
+  asser.url,
+  asser.vendor_link,
+  asser.installation_date,
+  asser.criticality,
+  o.name AS owner,
+  sta.value AS tag,
+  ast.criticality AS asset_criticality,
+  ast.asymmetric_keys_encryption_enabled AS asymmetric_keys,
+  ast.cryptographic_key_encryption_enabled AS cryptographic_key,
+  ast.symmetric_keys_encryption_enabled AS symmetric_keys
+FROM asset_service asser
+INNER JOIN asset_service_type astyp ON astyp.asset_service_type_id = asser.asset_service_type_id
+INNER JOIN asset ast ON ast.asset_id = asser.asset_id
+INNER JOIN organization o ON o.organization_id = ast.organization_id
+INNER JOIN asset_status sta ON sta.asset_status_id = ast.asset_status_id
+INNER JOIN asset_boundary ab ON ab.asset_id = ast.asset_id
+INNER JOIN boundary bnt ON bnt.boundary_id = ab.boundary_id
+GROUP BY asser.asset_service_id;
 
 DROP VIEW IF EXISTS host_list;
 CREATE VIEW host_list AS
@@ -802,7 +882,7 @@ SELECT
     nodeDet.node_status as status,
     nodeDet.last_fetched,
     nodeDet.last_restarted,
-    nodeDet. issues,
+    nodeDet.issues,
     sysinfo.board_model,
     sysinfo.board_serial,
     sysinfo.board_vendor,
@@ -822,10 +902,12 @@ SELECT
     sysinfo.local_hostname,
     sysinfo.physical_memory,
     sysinfo.uuid,
-    boundary.query_uri
+    boundary.query_uri,
+    eal.boundaries as logical_boundary
 FROM surveilr_osquery_ms_node_boundary boundary
 LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=boundary.host_identifier
-LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier;
+LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier
+LEFT JOIN expected_asset_list eal ON nodeDet.host_identifier= eal.host;
 
 -- policy list of host 
 DROP VIEW IF EXISTS asset_policy_list;
@@ -1057,7 +1139,8 @@ DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', 'index.sql', 1, 'fleetfolio/index.sql', 'fleetfolio/index.sql', 'FleetFolio', NULL, NULL, 'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).', NULL),
-    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/boundary.sql', 'fleetfolio/boundary.sql', 'Boundary', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
+    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/boundary.sql', 'fleetfolio/boundary.sql', 'Boundary', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL),
+    ('prime', 'fleetfolio/index.sql', 1, 'fleetfolio/assets.sql', 'fleetfolio/assets.sql', 'Assets', NULL, NULL, 'The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -1784,6 +1867,72 @@ select
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/assets.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''fleetfolio/assets.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+                  SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/assets.sql/index.sql'') as contents;
+    ;
+
+    -- sets up $limit, $offset, and other variables (use pagination.debugVars() to see values in web-ui)
+      --- Dsply Page Title
+  SELECT
+      ''title''   as component,
+      ''Assets '' contents;
+
+     select
+      ''text''              as component,
+      ''Assets refer to a collection of IT resources such as nodes, servers, virtual machines, and other infrastructure components'' as contents;
+
+    -- asset list
+SELECT ''table'' AS component,
+    ''host'' as markdown,
+    TRUE as sort,
+    TRUE as search;
+SELECT
+''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier || ''&path=direct)'' as host,
+boundary,
+logical_boundary as "logical boundary",
+CASE 
+    WHEN status = ''Online'' THEN ''🟢 Online''
+    WHEN status = ''Offline'' THEN ''🔴 Offline''
+    ELSE ''⚠️ Unknown''
+END AS "Status",
+osquery_version as "Os query version",
+available_space AS "Disk space available",
+operating_system AS "Operating System",
+osquery_version AS "osQuery Version",
+ip_address AS "IP Address",
+last_fetched AS "Last Fetched",
+last_restarted AS "Last Restarted"
+FROM host_list;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'fleetfolio/host_list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
@@ -1825,7 +1974,7 @@ SELECT
       TRUE as sort,
       TRUE as search;
   SELECT 
-  ''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier || '')'' as host,
+  ''['' || host || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier || ''&path=boundary)'' as host,
   boundary,
   CASE 
       WHEN status = ''Online'' THEN ''🟢 Online''
@@ -1865,10 +2014,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
   SELECT
       ''Boundary'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link WHERE $path=''boundary''; 
   SELECT boundary AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key  AS link
-      FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
+      FROM host_list WHERE host_identifier=$host_identifier AND $path=''boundary'' LIMIT 1;
   SELECT host AS title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier  AS link
       FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
@@ -1882,6 +2031,27 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT
       ''text''              as component,
       description as contents FROM host_list WHERE host_identifier=$host_identifier;
+
+    -- Display sourse lable of data
+    SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM host_list
+      LIMIT 1
+    );
+
+
   --- Display Asset (Host) Details first row
   SELECT ''datagrid'' as component;
       -- SELECT ''Parent Boundary'' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
@@ -1896,6 +2066,25 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       SELECT ''Osquery version'' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
       SELECT ''Operating system'' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
 
+
+     -- Display sourse lable of data
+     SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM host_list
+      LIMIT 1
+    );
       select 
           ''html'' as component,
           ''<div style="display: flex; gap: 20px; width: 100%;">
@@ -1955,7 +2144,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                   </div>
               </div>
           </div>
-
       '' as html FROM host_list WHERE host_identifier=$host_identifier;
 
   select 
@@ -1970,8 +2158,29 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''All Process'' as title, ''?tab=all_process&host_identifier='' || $host_identifier AS link, $tab = ''all_process'' as active;
   select ''Asset Service'' as title, ''?tab=asset_service&host_identifier='' || $host_identifier AS link, $tab = ''asset_service'' as active;
 
+
+
   -- policy table and tab value Start here
   -- policy pagenation
+
+  -- Display sourse lable of data
+  SELECT
+    ''html'' AS component,
+    contents,
+    ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+    Source : <strong>'' || contents || ''</strong>
+    </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM asset_policy_list WHERE host_identifier = $host_identifier LIMIT 1
+    ) WHERE $tab = ''policies'';
+
   SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
@@ -2136,10 +2345,10 @@ SELECT
    ''AWS Trust Boundary'' AS title,
    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
 
- --- Dsply Page Title
+ --- Dsply Page Title 
  SELECT
      ''title''   as component,
-     "AWS Trust Boundary" contents;
+     "AWS Trust Boundary" contents; 
 
   -- Dashboard count
    select
