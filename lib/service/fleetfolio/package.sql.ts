@@ -138,6 +138,9 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
               'text'              as component,
               'Assets refer to a collection of IT resources such as nodes, servers, virtual machines, and other infrastructure components' as contents;
 
+
+
+
             -- asset list
         SELECT 'table' AS component,
             'host' as markdown,
@@ -241,7 +244,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: containerViewName,
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
-    const processViewName = `ur_transform_list_container_process`;
+    const processViewName = `list_container_process`;
     const processPagination = this.pagination({
       tableOrViewName: processViewName,
       whereSQL: "WHERE host_identifier=$host_identifier",
@@ -308,6 +311,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'datagrid' as component;
             -- SELECT 'Parent Boundary' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
             SELECT 'Boundary' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT 'Logical Boundary' as title, logical_boundary as description FROM host_list WHERE host_identifier=$host_identifier;
             SELECT 'Status' as title,
             CASE 
                 WHEN status = 'Online' THEN '🟢 Online'
@@ -503,7 +507,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         -- all_process pagenation
         ${processPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'all_process';
-        SELECT process_name AS "process name"
+        SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
         FROM ${processViewName}
         WHERE host_identifier = $host_identifier AND $tab = 'all_process'
         LIMIT $limit OFFSET $offset;

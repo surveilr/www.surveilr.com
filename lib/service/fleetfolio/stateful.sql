@@ -253,6 +253,8 @@ SELECT
     json_extract(content, '$.columns.name') as process_name,
     json_extract(content, '$.columns.pid') as pid,
     json_extract(content, '$.columns.uid') as uid,
+    json_extract(content, '$.columns.start_time') as start_time,
+    json_extract(content, '$.columns.state') as state,
     uri as query_uri
 FROM uniform_resource 
 WHERE json_valid(content) = 1 AND name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
