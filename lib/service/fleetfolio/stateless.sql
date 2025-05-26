@@ -350,3 +350,31 @@ acd.amortized_cost_amount,
 acc.title as account
 FROM ur_transform_list_aws_monthly_cost_by_service AS acd
 INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+DROP VIEW IF EXISTS list_container_process;
+CREATE VIEW list_container_process AS
+SELECT 
+host_identifier,
+name,
+host,
+process_name,
+pid,
+uid,
+start_time,
+state,
+CASE state
+  WHEN 'R' THEN 'Running'
+  WHEN 'S' THEN 'Sleeping'
+  WHEN 'D' THEN 'Uninterruptible Sleep'
+  WHEN 'Z' THEN 'Zombie'
+  WHEN 'T' THEN 'Stopped'
+  WHEN 't' THEN 'Tracing Stop'
+  WHEN 'X' THEN 'Dead'
+  WHEN 'x' THEN 'Dead'
+  WHEN 'K' THEN 'Wakekill'
+  WHEN 'W' THEN 'Waking'
+  WHEN 'P' THEN 'Parked'
+  WHEN 'I' THEN 'Idle'
+  ELSE 'Unknown'
+END AS state_description
+FROM ur_transform_list_container_process;

@@ -517,6 +517,8 @@ SELECT
     json_extract(content, '$.columns.name') as process_name,
     json_extract(content, '$.columns.pid') as pid,
     json_extract(content, '$.columns.uid') as uid,
+    json_extract(content, '$.columns.start_time') as start_time,
+    json_extract(content, '$.columns.state') as state,
     uri as query_uri
 FROM uniform_resource 
 WHERE json_valid(content) = 1 AND name="Osquery All Container Processes" AND uri="osquery-ms:query-result" GROUP BY  
@@ -1134,6 +1136,34 @@ acd.amortized_cost_amount,
 acc.title as account
 FROM ur_transform_list_aws_monthly_cost_by_service AS acd
 INNER JOIN ur_transform_aws_account_info AS acc ON acd.account_id = acc.account_id ORDER BY acd.period_start DESC;
+
+DROP VIEW IF EXISTS list_container_process;
+CREATE VIEW list_container_process AS
+SELECT 
+host_identifier,
+name,
+host,
+process_name,
+pid,
+uid,
+start_time,
+state,
+CASE state
+  WHEN 'R' THEN 'Running'
+  WHEN 'S' THEN 'Sleeping'
+  WHEN 'D' THEN 'Uninterruptible Sleep'
+  WHEN 'Z' THEN 'Zombie'
+  WHEN 'T' THEN 'Stopped'
+  WHEN 't' THEN 'Tracing Stop'
+  WHEN 'X' THEN 'Dead'
+  WHEN 'x' THEN 'Dead'
+  WHEN 'K' THEN 'Wakekill'
+  WHEN 'W' THEN 'Waking'
+  WHEN 'P' THEN 'Parked'
+  WHEN 'I' THEN 'Idle'
+  ELSE 'Unknown'
+END AS state_description
+FROM ur_transform_list_container_process;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1907,6 +1937,9 @@ FROM breadcrumbs ORDER BY level DESC;
       ''text''              as component,
       ''Assets refer to a collection of IT resources such as nodes, servers, virtual machines, and other infrastructure components'' as contents;
 
+
+
+
     -- asset list
 SELECT ''table'' AS component,
     ''host'' as markdown,
@@ -2056,6 +2089,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT ''datagrid'' as component;
       -- SELECT ''Parent Boundary'' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
       SELECT ''Boundary'' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
+      SELECT ''Logical Boundary'' as title, logical_boundary as description FROM host_list WHERE host_identifier=$host_identifier;
       SELECT ''Status'' as title,
       CASE 
           WHEN status = ''Online'' THEN ''🟢 Online''
@@ -2273,14 +2307,14 @@ SET current_page = ($offset / $limit) + 1;
 
   -- all_process table and tab value Start here
   -- all_process pagenation
-  SET total_rows = (SELECT COUNT(*) FROM ur_transform_list_container_process WHERE host_identifier=$host_identifier);
+  SET total_rows = (SELECT COUNT(*) FROM list_container_process WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
   SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
-  SELECT process_name AS "process name"
-  FROM ur_transform_list_container_process
+  SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
+  FROM list_container_process
   WHERE host_identifier = $host_identifier AND $tab = ''all_process''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
