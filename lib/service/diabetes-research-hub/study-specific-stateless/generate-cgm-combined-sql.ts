@@ -1563,7 +1563,7 @@ export function transformToMealsAndFitnessJson(dbFilePath: string): string {
       
       const { exerciseMinutes, caloriesBurned } = estimateExerciseAndCalories(sensorRows);
 
-      const distance = steps * 0.762; // Assuming average step length of 0.762 meters
+      const distance = (steps * 0.762) / 1000; // distance in kilometers
 
       const heartRates = db.prepare(
         `SELECT sensor_id, timestamp, value1, value2, value3 FROM ${tableName} WHERE sensor_id = 21`
