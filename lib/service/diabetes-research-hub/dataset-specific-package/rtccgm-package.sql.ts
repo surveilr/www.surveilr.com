@@ -3,7 +3,7 @@ import { sqlPageNB as spn } from "../deps.ts";
 import * as pkg from "../drh-basepackage.sql.ts";
 import {
   generateCombinedRTCCGMSQL,
-  generateMealFitnessJson,
+  generateMealFitnessJson,generateMealFitnessandMetadataJson,
   savertccgmJsonCgm,
 } from "../study-specific-stateless/generate-cgm-combined-sql.ts";
 import { processCgmFiles } from "../study-specific-stateless/rtccgm-cgm-metadata-generator.ts";
@@ -23,7 +23,7 @@ export class rtccgmSqlPages extends spn.TypicalSqlPageNotebook {
 
   // savemealDDL() {
   //         const dbFilePath = "./resource-surveillance.sqlite.db";
-  //         const jsonstmts = generateMealFitnessJson(dbFilePath);
+  //         const jsonstmts = generateMealFitnessandMetadataJson(dbFilePath);
   //         return jsonstmts;
   //       }
 
