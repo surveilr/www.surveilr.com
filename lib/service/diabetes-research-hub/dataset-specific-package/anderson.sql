@@ -11,6 +11,7 @@ Error executing service/diabetes-research-hub/dataset-specific-package/anderson.
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deps.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/src/constants.ts
 [0m[32mDownload[0m https://deno.land/x/sqlite3@0.12.0/deno.json
+[0m[32mDownload[0m https://jsr.io/@std/path/meta.json
 [0m[32mDownload[0m https://jsr.io/@denosaurs/plug/meta.json
 [0m[32mDownload[0m https://jsr.io/@std/path/0.217.0_meta.json
 [0m[32mDownload[0m https://jsr.io/@denosaurs/plug/1.0.6_meta.json

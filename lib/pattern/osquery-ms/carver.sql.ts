@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
-import { fromFileUrl } from "@std/path";
-import { codeNB as cnb, RssdInitSqlNotebook } from "./deps.ts";
+import { fromFileUrl } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { codeNB as cnb, RssdInitSqlNotebook } from "https://surveilr.com/lib/pattern/osquery-ms/deps.ts";
 
 const osQueryMsNotebookName = "osQuery MS File Carve" as const;
 
