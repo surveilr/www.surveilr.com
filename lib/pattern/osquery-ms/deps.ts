@@ -1,3 +1,3 @@
-export * from "../../std/deps.ts";
-export * from "../../std/lifecycle.sql.ts";
-export { codeNB, sqlPageNB } from "../../std/notebook/mod.ts";
+export * from "https://www.surveilr.com/lib/std/deps.ts";
+export * from "https://www.surveilr.com/lib/std/lifecycle.sql.ts";
+export { codeNB, sqlPageNB } from "https://www.surveilr.com/lib/std/notebook/mod.ts";

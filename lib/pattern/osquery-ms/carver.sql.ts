@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
-import { fromFileUrl } from "@std/path";
-import { codeNB as cnb, RssdInitSqlNotebook } from "./deps.ts";
+import { fromFileUrl } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { codeNB as cnb, RssdInitSqlNotebook } from "https://www.surveilr.com/lib/pattern/osquery-ms/deps.ts";
 
 const osQueryMsNotebookName = "osQuery MS File Carve" as const;
 
@@ -35,13 +35,14 @@ function osQueryMsFileCarverQuery(
         // Store in a global registry that can be accessed later
         const methodName = String(methodCtx.name); // Explicit conversion to string
         
-        // Access the instance using the global registry approach
-        // This is a workaround since we can't directly access the instance
-        if (globalRegistry.instance) {
-          globalRegistry.instance.migratableCells.set(methodName, dc);
-        } else {
-          console.error(`Error: No instance available for ${methodName}`);
-        }
+        // Schedule the registration for after the instance is created
+        setTimeout(() => {
+          if (globalRegistry.instance) {
+            globalRegistry.instance.migratableCells.set(methodName, dc);
+          } else {
+            console.error(`Error: No instance available for ${methodName}`);
+          }
+        }, 0);
       });
       // we're not modifying the DecoratedCell
       return dc;
