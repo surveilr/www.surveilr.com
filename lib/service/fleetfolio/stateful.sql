@@ -62,6 +62,21 @@ CREATE TABLE IF NOT EXISTS "asset" (
     FOREIGN KEY("assignment_id") REFERENCES "assignment"("assignment_id")
 );
 
+CREATE TABLE IF NOT EXISTS "asset_boundary" (
+    "asset_boundary_id" TEXT PRIMARY KEY NOT NULL,
+    "asset_id" TEXT NOT NULL,
+    "boundary_id" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT DEFAULT 'UNKNOWN',
+    "updated_at" TIMESTAMPTZ,
+    "updated_by" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+    "activity_log" TEXT,
+    FOREIGN KEY("asset_id") REFERENCES "asset"("asset_id"),
+    FOREIGN KEY("boundary_id") REFERENCES "boundary"("boundary_id")
+);
+
 CREATE TABLE IF NOT EXISTS "asset_type" (
     "asset_type_id" TEXT PRIMARY KEY NOT NULL,
     "code" TEXT /* UNIQUE COLUMN */ NOT NULL,
