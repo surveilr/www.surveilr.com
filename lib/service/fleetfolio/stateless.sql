@@ -125,6 +125,30 @@ LEFT JOIN surveilr_osquery_ms_node_detail nodeDet ON nodeDet.host_identifier=bou
 LEFT JOIN surveilr_osquery_ms_node_system_info sysinfo ON sysinfo.host_identifier=boundary.host_identifier
 LEFT JOIN expected_asset_list eal ON nodeDet.host_identifier= eal.host;
 
+DROP VIEW IF EXISTS boundary_asset_count_list;
+CREATE VIEW boundary_asset_count_list AS
+SELECT 
+    boundary.boundary AS boundary_name,
+    COUNT(DISTINCT boundary.host_identifier) AS host_count
+FROM surveilr_osquery_ms_node_boundary boundary
+LEFT JOIN surveilr_osquery_ms_node_detail nodeDet 
+    ON nodeDet.host_identifier = boundary.host_identifier
+GROUP BY boundary.boundary
+ORDER BY host_count DESC;
+
+DROP VIEW IF EXISTS logical_boundary_asset_count_list;
+CREATE VIEW logical_boundary_asset_count_list AS
+SELECT 
+    bnt.name AS boundary_name,
+    COUNT(ast_bnt.asset_id) AS host_count
+FROM boundary bnt 
+INNER JOIN asset_boundary ast_bnt ON ast_bnt.boundary_id = bnt.boundary_id
+INNER JOIN asset ON asset.asset_id = ast_bnt.asset_id
+INNER JOIN surveilr_osquery_ms_node_detail node ON node.host_identifier=asset.name
+WHERE bnt.parent_boundary_id IS NOT NULL
+GROUP BY bnt.name
+ORDER BY host_count DESC;;
+
 -- policy list of host 
 DROP VIEW IF EXISTS asset_policy_list;
 CREATE VIEW asset_policy_list AS
