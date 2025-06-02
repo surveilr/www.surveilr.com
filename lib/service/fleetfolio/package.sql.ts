@@ -49,15 +49,15 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "FleetFolio",
+    caption: "Fleetfolio",
     description:
-      `FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
+      `Fleetfolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, Fleetfolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).`,
   })
   "fleetfolio/index.sql"() {
     return this.SQL`
     select
         'text'              as component,
-        'FleetFolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, FleetFolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).' as contents;
+        'Fleetfolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, Fleetfolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).' as contents;
       WITH navigation_cte AS (
           SELECT COALESCE(title, caption) as title, description
             FROM sqlpage_aide_navigation
@@ -75,7 +75,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @fleetfolioNav({
-    caption: "Boundary",
+    caption: "Boundaries",
     description:
       `The Server (Host) List ingested via osQuery provides real-time visibility into all discovered infrastructure assets.`,
     siblingOrder: 1,
@@ -133,13 +133,33 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
           SELECT
               'title'   as component,
               'Assets ' contents;
-
-             select
+            select
               'text'              as component,
               'Assets refer to a collection of IT resources such as nodes, servers, virtual machines, and other infrastructure components' as contents;
 
+          -- Display dasboard count of physical boundaries
+          SELECT 
+            'card'                     as component,
+            'Physical boundaries' as title,
+            4                     as columns;
+            select 
+                boundary_name  as title,
+                'assets.sql?physical_boundary='||boundary_name as link,
+                host_count as description
+                FROM boundary_asset_count_list;
 
+          
 
+          -- Display dasboard count of logical boundaries
+          SELECT 
+            'card'                     as component,
+            'Logical boundaries' as title,
+            4                     as columns;
+            select 
+                boundary_name  as title,
+                'assets.sql?logical_boundary='||boundary_name as link,
+                host_count as description
+                FROM logical_boundary_asset_count_list;
 
             -- asset list
         SELECT 'table' AS component,
@@ -163,7 +183,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ip_address AS "IP Address",
         last_fetched AS "Last Fetched",
         last_restarted AS "Last Restarted"
-        FROM host_list;
+        FROM host_list 
+        WHERE
+          CASE
+              WHEN $physical_boundary IS NOT NULL THEN boundary LIKE '%'||$physical_boundary||'%'
+              WHEN $logical_boundary IS NOT NULL THEN logical_boundary LIKE '%'||$logical_boundary||'%'
+              ELSE 1 = 1
+          END;
             `;
   }
 
@@ -178,7 +204,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'FleetFolio' AS title,
+            'Fleetfolio' AS title,
             ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
         SELECT 'Boundary' AS title,
             ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link;
@@ -263,7 +289,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'FleetFolio' AS title,
+            'Fleetfolio' AS title,
             ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
         SELECT
             'Boundary' AS title,
@@ -549,7 +575,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -618,7 +644,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -673,7 +699,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -795,7 +821,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -850,7 +876,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -910,7 +936,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -970,7 +996,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -1028,7 +1054,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
@@ -1107,7 +1133,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'Home' AS title,
         ${this.absoluteURL("/")}    AS link;
       SELECT
-        'FleetFolio' AS title,
+        'Fleetfolio' AS title,
         ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
       SELECT
         'Boundary' AS title,
