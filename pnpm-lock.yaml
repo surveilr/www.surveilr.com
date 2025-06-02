@@ -121,7 +121,7 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.11
+        specifier: ^0.6.12
         version: 0.6.12(prettier-plugin-astro@0.14.1)(prettier@3.5.3)
       sass:
         specifier: ^1.89.0
