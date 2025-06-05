@@ -41,7 +41,7 @@ function osQueryMsCell(
       // Get access to the instance via closure instead of thisValue
       // Store in a global registry that can be accessed later
       const methodName = String(methodCtx.name); // Explicit conversion to string
-      
+
       // Access the instance using the global registry approach
       // This is a workaround since we can't directly access the instance
       if (globalRegistry.instance) {
@@ -57,10 +57,10 @@ function osQueryMsCell(
 
 // Create a global registry to store the class instance
 // This is a workaround for the decorator context limitations
-const globalRegistry: { 
-  instance: SurveilrOsqueryMsQueries | null 
-} = { 
-  instance: null 
+const globalRegistry: {
+  instance: SurveilrOsqueryMsQueries | null
+} = {
+  instance: null
 };
 
 export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
@@ -112,7 +112,33 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     description: "Container Daemon Info.",
   }, ["linux"])
   "Container Daemon Info"() {
-    return `SELECT * FROM processes WHERE name = 'dockerd';`;
+    return `SELECT 
+              cgroup_path,
+              cmdline,
+              cwd,
+              disk_bytes_read,
+              disk_bytes_written,
+              egid,
+              euid,
+              gid,
+              name,
+              nice,
+              on_disk,
+              parent,
+              path,
+              pgroup,
+              pid,
+              resident_size,
+              root,
+              sgid,
+              strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) AS start_time,
+              state,
+              suid,
+              threads,
+              total_size,
+              uid,
+              wired_size
+            FROM processes WHERE name = 'dockerd';`;
   }
 
   @osQueryMsCell({
