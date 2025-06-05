@@ -248,7 +248,6 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   }, ["linux"])
   "Osquery All Container Processes"() {
     return `SELECT
-              pid,
               name,
               path,
               state,
