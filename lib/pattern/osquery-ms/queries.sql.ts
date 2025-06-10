@@ -128,7 +128,6 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
               path,
               pgroup,
               pid,
-              resident_size,
               root,
               sgid,
               strftime('%Y-%m-%d', datetime(start_time, 'unixepoch')) AS start_time,
