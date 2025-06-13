@@ -273,7 +273,23 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   "Osquery Authentication Log"() {
     return `SELECT username, tty, time, status, message FROM authentications;`;
   }
+
+  @osQueryMsCell({
+    description: "Osquery IDS Fail2ban Log",
+  }, ["linux"])
+  "Osquery IDS Fail2ban Log"() {
+    return `SELECT name, type , notnull, dflt_value, pk  FROM file WHERE path LIKE '/var/log/fail2ban.log';`;
+  }
+
+  @osQueryMsCell({
+    description: "Osquery IDS PSAD Log",
+  }, ["linux"])
+  "Osquery IDS PSAD Log"() {
+    return `SELECT name, type , notnull, dflt_value, pk  FROM file WHERE path LIKE '/var/log/fail2ban.log';`;
+  }
 }
+
+
 
 export async function SQL() {
   return await cnb.TypicalCodeNotebook.SQL(
