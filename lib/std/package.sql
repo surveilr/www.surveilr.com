@@ -2299,6 +2299,19 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.5'' as title, ''# `surveilr ` v1.8.5 Release Notes
+
+## 🚀 What''''s New
+### **1. Surveilr ingestion Improvements**
+Prevent Duplication of Records in surveilr ingest files --csv-transform-auto Command
+
+### **2. Changes to Osquery-ms**
+- Platform Consistency: Darwin is the actual kernel name that macOS runs on, making it more technically
+  accurate
+- OSQuery Compatibility: Aligns with osquery''''s internal platform detection which uses "darwin"'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.4'' as title, ''# `surveilr ` v1.8.4 Release Notes
 
 ## 🚀 What''''s New
