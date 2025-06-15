@@ -100,7 +100,7 @@ The `osQueryMsCell` decorator accepts several parameters:
     description: "Description of what this query does",
     // Any other initialization parameters
   },
-  ["macos", "windows"], // Target platforms (default: ["macos", "windows", "linux"])
+  ["darwin", "windows"], // Target platforms (default: ["darwin", "windows", "linux"])
   true, // Singleton (default: false) - If true, only one instance of this query will run
   ["additional.jq.filter"] // Additional JQ filters for processing results
 )
@@ -143,7 +143,7 @@ Here are some common osQuery examples you might want to add:
 @osQueryMsCell({
   description: "Lists installed applications",
   // Only run on macOS and Windows
-}, ["macos", "windows"])
+}, ["darwin", "windows"])
 "Installed Applications"() {
   return `
     SELECT name, bundle_short_version, bundle_version

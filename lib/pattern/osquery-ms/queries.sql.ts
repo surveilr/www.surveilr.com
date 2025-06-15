@@ -17,7 +17,7 @@ function osQueryMsCell(
     Parameters<typeof cnb.sqlCell>[0],
     "notebook_name" | "cell_governance"
   >,
-  targets: string[] = ["macos", "windows", "linux"],
+  targets: string[] = ["darwin", "windows", "linux"],
   singleton: boolean = false,
   extraFilters: string[] = [],
 ) {
@@ -75,7 +75,7 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
 
   // @osQueryMsCell({
   //   description: "Docker system information.",
-  // }, ["macos", "linux"])
+  // }, ["darwin", "linux"])
   // "Docker System Information"() {
   //   return `select * from docker_info;`;
   // }
@@ -163,14 +163,14 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
 
   @osQueryMsCell({
     description: "Docker version information.",
-  }, ["macos", "linux"])
+  }, ["darwin", "linux"])
   "Docker Version Information"() {
     return `select * from docker_version;`;
   }
 
   @osQueryMsCell({
     description: "Docker Container Ports.",
-  }, ["macos", "linux"])
+  }, ["darwin", "linux"])
   "Docker Container Ports"() {
     return `select id,type,port,host_ip,host_port from docker_container_ports WHERE host_ip != '::';`;
   }

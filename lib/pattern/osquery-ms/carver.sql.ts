@@ -9,7 +9,7 @@ function osQueryMsFileCarverQuery(
     Parameters<typeof cnb.sqlCell>[0],
     "notebook_name" | "cell_governance"
   >,
-  targets: string[] = ["macos", "windows", "linux"],
+  targets: string[] = ["darwin", "windows", "linux"],
   osqueryMsInterval: number = 3600,
   postProcessCarved: "sqlite" | "capturable-executable" | "log-typical" =
     "sqlite",
