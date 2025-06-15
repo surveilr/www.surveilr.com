@@ -58,6 +58,9 @@ export function migratableCell(
     notebook_name: surveilrSpecialMigrationNotebookName,
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
+      if (!this.migratableCells) {
+        this.migratableCells = new Map();
+      }
       this.migratableCells.set(String(methodCtx.name), dc);
     });
     // we're not modifying the DecoratedCell
@@ -86,7 +89,7 @@ export function osQueryMsCell(
     Parameters<typeof cnb.sqlCell>[0],
     "notebook_name" | "cell_governance"
   >,
-  targets: string[] = ["macos", "windows", "linux"],
+  targets: string[] = ["darwin", "windows", "linux"],
   singleton: boolean = false,
   extraFilters: string[] = [],
 ) {
@@ -106,6 +109,9 @@ export function osQueryMsCell(
     cell_governance: cellGovernance,
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
+      if (!this.migratableCells) {
+        this.migratableCells = new Map();
+      }
       this.migratableCells.set(String(methodCtx.name), dc);
     });
     // we're not modifying the DecoratedCell
@@ -143,6 +149,9 @@ export function osQueryMsPolicyCell(
     }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
+      if (!this.migratableCells) {
+        this.migratableCells = new Map();
+      }
       this.migratableCells.set(String(methodCtx.name), dc);
     });
     // we're not modifying the DecoratedCell
@@ -182,6 +191,9 @@ export function osQueryMsFilterCell(
     }),
   }, (dc, methodCtx) => {
     methodCtx.addInitializer(function () {
+      if (!this.migratableCells) {
+        this.migratableCells = new Map();
+      }
       this.migratableCells.set(String(methodCtx.name), dc);
     });
     // we're not modifying the DecoratedCell
@@ -279,6 +291,14 @@ export function docsCell(
   );
 }
 
+// Create a global registry to store the class instance
+// This is a workaround for the decorator context limitations
+const globalRegistry: {
+  instance: RssdInitSqlNotebook | null
+} = {
+  instance: null
+};
+
 /**
  * RssdInitSqlNotebook creates all SQL which populates the `bootstrap.sql` file
  * embedded into the surveilr Rust binary during build time. All "minimal" RSSD
@@ -300,12 +320,15 @@ export function docsCell(
  * (migrated) each time an RSSD is opened.
  */
 export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
+  // Initialize this immediately to avoid undefined issues
   readonly migratableCells: Map<string, cnb.DecoratedCell<"SQL">> = new Map();
   readonly codeNbModels = lcm.codeNotebooksModels();
   readonly serviceModels = lcm.serviceModels();
 
   constructor() {
     super("rssd-init");
+    // Register this instance in the global registry
+    globalRegistry.instance = this;
   }
 
   bootstrapDDL() {
@@ -1007,7 +1030,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Contact your IT administrator to ensure your Mac is receiving a profile that disables advertisement tracking.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
-        osquery_platforms: JSON.stringify(["macos"]),
+        osquery_platforms: JSON.stringify(["darwin"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -1020,7 +1043,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Ensure ClamAV and Freshclam are installed and running.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
-        osquery_platforms: JSON.stringify(["linux", "windows", "macos"]),
+        osquery_platforms: JSON.stringify(["linux", "windows", "darwin"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -1033,7 +1056,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "To enable automatic security definition updates, on the failing device, select System Preferences > Software Update > Advanced > Turn on Install system data files and security updates.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
-        osquery_platforms: JSON.stringify(["macos"]),
+        osquery_platforms: JSON.stringify(["darwin"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -1060,7 +1083,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of application updates.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
-        osquery_platforms: JSON.stringify(["macos"]),
+        osquery_platforms: JSON.stringify(["darwin"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -1074,7 +1097,7 @@ export class RssdInitSqlNotebook extends cnb.TypicalCodeNotebook {
           "Contact your IT administrator to ensure your Mac is receiving a profile that enables automatic installation of operating system updates.",
         policy_pass_label: policyPassLabel,
         policy_fail_label: policyFailLabel,
-        osquery_platforms: JSON.stringify(["macos"]),
+        osquery_platforms: JSON.stringify(["darwin"]),
       }, options),
       osQueryPolicy.insertDML({
         osquery_policy_id: this.sqlEngineNewUlid,
@@ -1105,7 +1128,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     {
       description: "Get the boundary for a node.",
     },
-    ["linux", "macos"],
+    ["linux", "darwin"],
     true,
   )
   "osquery-ms Boundary (Linux and Macos)"() {
@@ -1126,7 +1149,7 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "A single row containing the operating system name and version.",
-  }, ["macos", "linux"])
+  }, ["darwin", "linux"])
   "OS Version (Linux and Macos)"() {
     return `SELECT
     os.name,
@@ -1217,7 +1240,7 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "Retrieves information about network interfaces on macOS and Linux devices.",
-  }, ["macos", "linux"])
+  }, ["darwin", "linux"])
   "Network Interfaces (Linux and Macos)"() {
     return `
       SELECT
@@ -1257,7 +1280,7 @@ Ask your system administrator to establish the recommended configuration via GP,
       description:
         "Track time passed since last boot. Some systems track this as calendar time, some as runtime.",
     },
-    ["linux", "macos", "windows"],
+    ["linux", "darwin", "windows"],
     true,
   )
   "Server Uptime"() {
@@ -1287,7 +1310,7 @@ Ask your system administrator to establish the recommended configuration via GP,
     {
       description: "Retrieves total amount of free disk space on a host.",
     },
-    ["macos", "linux"],
+    ["darwin", "linux"],
     true,
   )
   "Available Disk Space (Linux and Macos)"() {
@@ -1320,13 +1343,13 @@ Ask your system administrator to establish the recommended configuration via GP,
   @osQueryMsCell({
     description:
       "Get all software installed on a Macos computer, including browser plugins and installed packages. Note that this does not include other running processes in the processes table.",
-  }, ["macos"])
+  }, ["darwin"])
   "Installed Macos software"() {
     return `SELECT name AS name, bundle_short_version AS version, 'Application (macOS)' AS type, 'apps' AS source FROM apps UNION SELECT name AS name, version AS version, 'Package (Python)' AS type, 'python_packages' AS source FROM python_packages UNION SELECT name AS name, version AS version, 'Browser plugin (Chrome)' AS type, 'chrome_extensions' AS source FROM chrome_extensions UNION SELECT name AS name, version AS version, 'Browser plugin (Firefox)' AS type, 'firefox_addons' AS source FROM firefox_addons UNION SELECT name As name, version AS version, 'Browser plugin (Safari)' AS type, 'safari_extensions' AS source FROM safari_extensions UNION SELECT name AS name, version AS version, 'Package (Homebrew)' AS type, 'homebrew_packages' AS source FROM homebrew_packages;`;
   }
 
   @osQueryMsPolicyCell({
-    targets: ["macos", "windows", "linux"],
+    targets: ["darwin", "windows", "linux"],
     required_note: "osQuery must have Full Disk Access.",
     resolution:
       "Use this command to encrypt existing SSH keys by providing the path to the file: ssh-keygen -o -p -f /path/to/file",
@@ -1394,7 +1417,7 @@ Ask your system administrator to establish the recommended configuration via GP,
   }
 
   @osQueryMsPolicyCell({
-    targets: ["macos"],
+    targets: ["darwin"],
     required_note:
       "Checks to make sure that full disk encryption (FileVault) is enabled on macOS devices.",
     resolution:
