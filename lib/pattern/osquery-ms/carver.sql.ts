@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys --allow-import
 import { fromFileUrl } from "https://deno.land/std@0.224.0/path/mod.ts";
 import { codeNB as cnb, RssdInitSqlNotebook } from "https://surveilr.com/lib/pattern/osquery-ms/deps.ts";
 
