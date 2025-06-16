@@ -287,6 +287,34 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   "Osquery IDS PSAD Log"() {
     return `SELECT name, type , notnull, dflt_value, pk  FROM file WHERE path LIKE '/var/log/fail2ban.log';`;
   }
+
+  @osQueryMsCell({
+    description: "List services listening on port 443 (HTTPS)",
+  }, ["linux"])
+  "Osquery Listening Ports 443"() {
+    return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port = 443;`;
+  }
+
+  @osQueryMsCell({
+    description: "Check for existence of SSL certificate and private key files",
+  }, ["linux"])
+  "Osquery SSL Cert Files"() {
+    return `SELECT path,directory,filename,inode,uid,gid,mode,device,size,block_size,hard_links,type FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Monitor SSL cert and key file modification times",
+  }, ["linux"])
+  "Osquery SSL Cert File MTIME"() {
+    return `SELECT path, mtime FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Check if common VPN service ports (443, 1194, 500, 4500) are listening",
+  }, ["linux"])
+  "Osquery VPN Listening Ports"() {
+    return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port IN (1194, 443, 500, 4500);`;
+  }
 }
 
 
