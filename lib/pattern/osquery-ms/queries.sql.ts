@@ -315,6 +315,171 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
   "Osquery VPN Listening Ports"() {
     return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port IN (1194, 443, 500, 4500);`;
   }
+
+  @osQueryMsCell({
+    description: "Check for cron jobs related to backup tasks",
+  }, ["linux"])
+  "Osquery Cron Backup Jobs"() {
+    return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab WHERE command LIKE '%backup%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Inventory: List MySQL database processes",
+  }, ["linux"])
+  "Osquery MySQL Process Inventory"() {
+    return `SELECT name, pid, path FROM processes WHERE name LIKE 'mysqld%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Inventory: List PostgreSQL database processes",
+  }, ["linux"])
+  "Osquery PostgreSQL Process Inventory"() {
+    return `SELECT name, pid, path FROM processes WHERE name LIKE 'postgres%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Inventory: List all cron jobs (Scheduled Tools and Tasks)",
+  }, ["linux"])
+  "Osquery Cron Job Inventory"() {
+    return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab;`;
+  }
+
+  @osQueryMsCell({
+    description: "Network Inventory: List all listening ports (in-scope services)",
+  }, ["linux"])
+  "Osquery Listening Ports Inventory"() {
+    return `SELECT pid, port, protocol, family, address, path FROM listening_ports;`;
+  }
+
+  @osQueryMsCell({
+    description: "Network Inventory: List of interface addresses",
+  }, ["linux"])
+  "Osquery Interface Addresses Inventory"() {
+    return `SELECT interface,address,mask,broadcast,point_to_point,type FROM interface_addresses;`;
+  }
+
+  @osQueryMsCell({
+    description: "Network Inventory: Detailed interface configuration",
+  }, ["linux"])
+  "Osquery Interface Details Inventory"() {
+    return ` SELECT 
+      interface, 
+      mac, 
+      type, 
+      mtu, 
+      metric, 
+      flags, 
+      ipackets, 
+      opackets, 
+      ibytes, 
+      obytes, 
+      ierrors, 
+      oerrors, 
+      idrops, 
+      odrops, 
+      collisions, 
+      last_change, 
+      link_speed, 
+      pci_slot 
+    FROM interface_details;`;
+  }
+
+  @osQueryMsCell({
+    description: "User-Process Mapping: Get process info with associated user for OS, DB, App, and network services",
+  }, ["linux"])
+  "Osquery User List by IT Layer"() {
+    return `
+      SELECT 
+        p.pid, 
+        p.name, 
+        u.username, 
+        p.path, 
+        p.cmdline 
+      FROM processes p
+      JOIN users u ON p.uid = u.uid
+      WHERE 
+        p.name LIKE '%nginx%' OR 
+        p.name LIKE '%apache%' OR 
+        p.name LIKE '%postgres%' OR 
+        p.name LIKE '%mysqld%' OR 
+        p.name LIKE '%ssh%' OR 
+        p.name LIKE '%vpn%';
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Admin Processes: List processes for network services run by superusers",
+  }, ["linux"])
+  "Osquery Admin Network Services Processes"() {
+    return `
+      SELECT 
+        p.pid, 
+        p.name, 
+        u.username, 
+        p.path, 
+        p.cmdline 
+      FROM processes p
+      JOIN users u ON p.uid = u.uid
+      WHERE 
+        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Admin Processes: Identify apps run by administrator-level users",
+  }, ["linux"])
+  "Osquery Admin Application Processes"() {
+    return `
+      SELECT 
+        p.pid, 
+        p.name, 
+        u.username, 
+        p.path 
+      FROM processes p
+      JOIN users u ON p.uid = u.uid
+      WHERE 
+        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Security Groups: Application-level access by admin or elevated users",
+  }, ["linux"])
+  "Osquery Application Access Rights"() {
+    return `
+      SELECT 
+        p.pid, 
+        p.name, 
+        u.username, 
+        p.path 
+      FROM processes p
+      JOIN users u ON p.uid = u.uid
+      WHERE 
+        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Security Groups: List admin users for operating system layer",
+  }, ["linux"])
+  "Osquery OS Admin Users"() {
+    return `
+      SELECT 
+        username, 
+        uid, 
+        gid, 
+        shell, 
+        directory 
+      FROM users 
+      WHERE 
+        username LIKE 'root%' OR 
+        username LIKE 'admin%' OR 
+        username LIKE '%sudo%';
+    `;
+  }
 }
 
 
