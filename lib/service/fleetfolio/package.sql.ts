@@ -280,6 +280,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: assetServiceViewName,
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
+    const listPorts443ViewName = `list_ports_443`;
+    const listPorts443Pagination = this.pagination({
+      tableOrViewName: listPorts443ViewName,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -430,7 +435,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
         select 
         'divider' as component,
-        'System Environment'   as contents;
+        'System Environment'   as contents; 
 
         SELECT 'tab' AS component, TRUE AS center;
         SELECT 'Policies' AS title, '?tab=policies&host_identifier=' || $host_identifier AS link, ($tab = 'policies' OR $tab IS NULL) AS active;
@@ -439,6 +444,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'Containers' as title, '?tab=container&host_identifier=' || $host_identifier AS link, $tab = 'container' as active;
         select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
         select 'Asset Service' as title, '?tab=asset_service&host_identifier=' || $host_identifier AS link, $tab = 'asset_service' as active;
+        select 'SSL/TLS is enabled' as title, '?tab=ssl_tls_is_enabled&host_identifier=' || $host_identifier AS link, $tab = 'ssl_tls_is_enabled' as active;
 
 
 
@@ -478,6 +484,14 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       )
       };
 
+
+      SELECT
+            'html' AS component,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>osquery</strong>
+            </div>' AS html
+          WHERE $tab = 'software';
+
         -- Software table and tab value Start here
        
         ${softwarePagination.init()} 
@@ -495,6 +509,24 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       )
       };
 
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${userListViewName}
+            LIMIT 1
+          ) WHERE $tab = 'users';
+
         -- User table and tab value Start here
         ${userListPagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'users';
@@ -510,6 +542,24 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "$tab='users'",
       )
       };
+
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${containerViewName}
+            LIMIT 1
+          ) WHERE $tab = 'all_process';
 
       -- Container table and tab value Start here
       -- Container pagenation
@@ -529,6 +579,25 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       };
       
 
+      -- Display sourse lable of data
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${processViewName}
+            LIMIT 1
+          ) WHERE $tab = 'all_process';
+
         -- all_process table and tab value Start here
         -- all_process pagenation
         ${processPagination.init()} 
@@ -546,6 +615,15 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 
       -- asset_service table and tab value Start here
         -- asset_service pagenation
+
+         -- Display sourse lable of data
+         SELECT
+            'html' AS component,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong> Logical Data</strong>
+            </div>' AS html
+          WHERE $tab = 'asset_service';
+
         ${assetServicePagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'asset_service';
         SELECT name AS "service",
@@ -557,8 +635,46 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         ${assetServicePagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
-        "$tab='asset_service'",
-      )
+        "$tab='asset_service'",)
+      };
+
+      -- ssl_tls_is_enabled table and tab value Start here
+        -- ssl_tls_is_enabled pagenation
+        ${listPorts443Pagination.init()} 
+        select 
+        'text'              as component,
+        'This view shows all services listening on port 443 (default for HTTPS), allowing you to verify if SSL/TLS is enabled on your server.' as contents WHERE $tab = 'ssl_tls_is_enabled';
+        
+         -- Display sourse lable of data
+         SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${listPorts443ViewName}
+            LIMIT 1
+          ) WHERE $tab = 'ssl_tls_is_enabled';
+        
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'ssl_tls_is_enabled';
+        SELECT 
+        address,family,fd, net_namespace,path, port,
+        protocol,socket
+        FROM ${listPorts443ViewName}
+        WHERE host_identifier = $host_identifier AND $tab = 'ssl_tls_is_enabled'
+        LIMIT $limit OFFSET $offset;
+        ${listPorts443Pagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='ssl_tls_is_enabled'",)
       };
       
       `;

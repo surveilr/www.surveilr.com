@@ -186,7 +186,8 @@ SELECT
     ss.host_identifier,
     ss.user_name,
     ss.directory,
-    ss.uid
+    ss.uid,
+    ss.query_uri
 FROM surveilr_osquery_ms_node_boundary host
 INNER JOIN ur_transform_list_user ss ON ss.host_identifier=host.host_identifier;
 
@@ -203,7 +204,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -224,7 +226,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -400,5 +403,21 @@ CASE state
   WHEN 'P' THEN 'Parked'
   WHEN 'I' THEN 'Idle'
   ELSE 'Unknown'
-END AS state_description
+END AS state_description,
+query_uri
 FROM ur_transform_list_container_process;
+
+DROP VIEW IF EXISTS list_ports_443;
+CREATE VIEW list_ports_443 AS
+SELECT 
+host_identifier,
+name,
+address,
+family,
+fd,
+net_namespace,
+path,
+port,
+protocol,
+socket,query_uri
+FROM ur_transform_list_ports_443;
