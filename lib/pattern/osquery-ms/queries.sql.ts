@@ -480,6 +480,79 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
         username LIKE '%sudo%';
     `;
   }
+
+  @osQueryMsCell({
+    description: "Password expiry configuration from /etc/shadow",
+  }, ["linux"])
+  "Password Expiry Configurations"() {
+    return `
+      SELECT 
+        username, 
+        last_change, 
+        max, 
+        datetime(last_change + max * 86400, 'unixepoch') AS password_expiry
+      FROM shadow;
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Authentication-related processes (e.g., sshd, pam, login)",
+  }, ["linux"])
+  "Authentication Related Processes"() {
+    return `
+      SELECT 
+        name, 
+        pid, 
+        path
+      FROM processes
+      WHERE 
+        name LIKE '%auth%' 
+        OR path LIKE '%pam%' 
+        OR path LIKE '%sshd%' 
+        OR path LIKE '%login%' 
+        OR path LIKE '%sshd_config%';
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Account lockout configuration files (e.g., pam_tally, faillock, pam_faillock) in /etc/pam.d/",
+  }, ["linux"])
+  "Account Lockout Configurations"() {
+    return `
+      SELECT 
+        path, 
+        mode, 
+        size, 
+        mtime, 
+        atime, 
+        ctime
+      FROM file 
+      WHERE path LIKE '/etc/pam.d/%'
+        AND (
+          path LIKE '%pam_tally%' 
+          OR path LIKE '%faillock%' 
+          OR path LIKE '%pam_faillock%'
+        );
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Audit logging configurations — checks for active syslog processes like syslog, rsyslog, and syslog-ng",
+  }, ["linux"])
+  "Audit Logging Configurations"() {
+    return `
+      SELECT 
+        pid, 
+        name, 
+        path, 
+        cmdline
+      FROM processes
+      WHERE 
+        name LIKE '%syslog%' 
+        OR name LIKE '%rsyslog%' 
+        OR name LIKE '%syslog-ng%';
+    `;
+  }
 }
 
 
