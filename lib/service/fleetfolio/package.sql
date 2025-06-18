@@ -799,6 +799,38 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
+
+-- -- ur_transform_list_ports_443
+-- You can check if your server is listening on port 443 (default for HTTPS) to ensure SSL/TLS is enabled for web services.
+DROP TABLE IF EXISTS ur_transform_list_ports_443;
+CREATE TABLE ur_transform_list_ports_443 AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        WHEN '10' THEN 'IPv6'
+        ELSE 'Unknown'
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace, 
+    json_extract(content, '$.columns.path') AS path, 
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Listening Ports 443" 
+    AND uri = "osquery-ms:query-result"
+    AND json_extract(content, '$.columns.port') = '443';
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -987,7 +1019,8 @@ SELECT
     ss.host_identifier,
     ss.user_name,
     ss.directory,
-    ss.uid
+    ss.uid,
+    ss.query_uri
 FROM surveilr_osquery_ms_node_boundary host
 INNER JOIN ur_transform_list_user ss ON ss.host_identifier=host.host_identifier;
 
@@ -1004,7 +1037,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -1025,7 +1059,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -1201,8 +1236,24 @@ CASE state
   WHEN 'P' THEN 'Parked'
   WHEN 'I' THEN 'Idle'
   ELSE 'Unknown'
-END AS state_description
+END AS state_description,
+query_uri
 FROM ur_transform_list_container_process;
+
+DROP VIEW IF EXISTS list_ports_443;
+CREATE VIEW list_ports_443 AS
+SELECT 
+host_identifier,
+name,
+address,
+family,
+fd,
+net_namespace,
+path,
+port,
+protocol,
+socket,query_uri
+FROM ur_transform_list_ports_443;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2247,7 +2298,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   select 
   ''divider'' as component,
-  ''System Environment''   as contents;
+  ''System Environment''   as contents; 
 
   SELECT ''tab'' AS component, TRUE AS center;
   SELECT ''Policies'' AS title, ''?tab=policies&host_identifier='' || $host_identifier AS link, ($tab = ''policies'' OR $tab IS NULL) AS active;
@@ -2256,6 +2307,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''Containers'' as title, ''?tab=container&host_identifier='' || $host_identifier AS link, $tab = ''container'' as active;
   select ''All Process'' as title, ''?tab=all_process&host_identifier='' || $host_identifier AS link, $tab = ''all_process'' as active;
   select ''Asset Service'' as title, ''?tab=asset_service&host_identifier='' || $host_identifier AS link, $tab = ''asset_service'' as active;
+  select ''SSL/TLS is enabled'' as title, ''?tab=ssl_tls_is_enabled&host_identifier='' || $host_identifier AS link, $tab = ''ssl_tls_is_enabled'' as active;
 
 
 
@@ -2301,6 +2353,14 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''policies'';;
 
+
+SELECT
+      ''html'' AS component,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>osquery</strong>
+      </div>'' AS html
+    WHERE $tab = ''software'';
+
   -- Software table and tab value Start here
  
   SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE host_identifier=$host_identifier);
@@ -2324,6 +2384,24 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''software'';;
 
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM asset_user_list
+      LIMIT 1
+    ) WHERE $tab = ''users'';
+
   -- User table and tab value Start here
   SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
@@ -2345,6 +2423,24 @@ SET current_page = ($offset / $limit) + 1;
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''users'';;
+
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_docker_container
+      LIMIT 1
+    ) WHERE $tab = ''all_process'';
 
 -- Container table and tab value Start here
 -- Container pagenation
@@ -2370,6 +2466,25 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''container'';;
 
 
+-- Display sourse lable of data
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_container_process
+      LIMIT 1
+    ) WHERE $tab = ''all_process'';
+
   -- all_process table and tab value Start here
   -- all_process pagenation
   SET total_rows = (SELECT COUNT(*) FROM list_container_process WHERE host_identifier=$host_identifier);
@@ -2393,6 +2508,15 @@ SET current_page = ($offset / $limit) + 1;
 
 -- asset_service table and tab value Start here
   -- asset_service pagenation
+
+   -- Display sourse lable of data
+   SELECT
+      ''html'' AS component,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong> Logical Data</strong>
+      </div>'' AS html
+    WHERE $tab = ''asset_service'';
+
   SET total_rows = (SELECT COUNT(*) FROM expected_asset_service_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
@@ -2412,7 +2536,53 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
- WHERE $tab=''asset_service'';
+ WHERE $tab=''asset_service'';;
+
+-- ssl_tls_is_enabled table and tab value Start here
+  -- ssl_tls_is_enabled pagenation
+  SET total_rows = (SELECT COUNT(*) FROM list_ports_443 WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  select 
+  ''text''              as component,
+  ''This view shows all services listening on port 443 (default for HTTPS), allowing you to verify if SSL/TLS is enabled on your server.'' as contents WHERE $tab = ''ssl_tls_is_enabled'';
+  
+   -- Display sourse lable of data
+   SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_ports_443
+      LIMIT 1
+    ) WHERE $tab = ''ssl_tls_is_enabled'';
+  
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_tls_is_enabled'';
+  SELECT 
+  address,family,fd, net_namespace,path, port,
+  protocol,socket
+  FROM list_ports_443
+  WHERE host_identifier = $host_identifier AND $tab = ''ssl_tls_is_enabled''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''ssl_tls_is_enabled'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

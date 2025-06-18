@@ -535,3 +535,35 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
+
+-- -- ur_transform_list_ports_443
+-- You can check if your server is listening on port 443 (default for HTTPS) to ensure SSL/TLS is enabled for web services.
+DROP TABLE IF EXISTS ur_transform_list_ports_443;
+CREATE TABLE ur_transform_list_ports_443 AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        WHEN '10' THEN 'IPv6'
+        ELSE 'Unknown'
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace, 
+    json_extract(content, '$.columns.path') AS path, 
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Listening Ports 443" 
+    AND uri = "osquery-ms:query-result"
+    AND json_extract(content, '$.columns.port') = '443';
