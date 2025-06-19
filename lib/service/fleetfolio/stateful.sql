@@ -567,3 +567,30 @@ WHERE
     AND name = "Osquery Listening Ports 443" 
     AND uri = "osquery-ms:query-result"
     AND json_extract(content, '$.columns.port') = '443';
+
+
+-- -- ur_transform_list_ssl_cert_files
+DROP TABLE IF EXISTS ur_transform_list_ssl_cert_files;
+CREATE TABLE ur_transform_list_ssl_cert_files AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.block_size') AS block_size,  
+    json_extract(content, '$.columns.device') AS device,
+    json_extract(content, '$.columns.directory') AS directory, 
+    json_extract(content, '$.columns.filename') AS filename, 
+    json_extract(content, '$.columns.gid') AS gid,
+    json_extract(content, '$.columns.hard_links') AS hard_links,
+    json_extract(content, '$.columns.inode') AS inode,
+    json_extract(content, '$.columns.mode') AS mode,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.size') AS size,
+    json_extract(content, '$.columns.type') AS type,
+    json_extract(content, '$.columns.uid') AS uid,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery SSL Cert Files" 
+    AND uri = "osquery-ms:query-result";
