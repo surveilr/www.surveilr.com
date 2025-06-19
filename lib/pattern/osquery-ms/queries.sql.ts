@@ -553,6 +553,110 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
         OR name LIKE '%syslog-ng%';
     `;
   }
+
+  @osQueryMsCell({
+    description: "Monitor VPN-related processes (e.g., OpenVPN)",
+  }, ["linux"])
+  "Monitor VPN Processes"() {
+    return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%openvpn%';`;
+  }
+
+  @osQueryMsCell({
+    description: "Monitor network-related processes like SSH daemon (sshd)",
+  }, ["linux"])
+  "Monitor SSHD Processes"() {
+    return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%sshd%';`;
+  }
+
+  @osQueryMsCell({
+    description: "List current iptables firewall rules",
+  }, ["linux"])
+  "List Iptables Rules"() {
+    return `SELECT 
+            filter_name,
+            chain,
+            policy,
+            target,
+            protocol,
+            src_port,
+            dst_port,
+            src_ip,
+            src_mask,
+            iniface,
+            iniface_mask,
+            dst_ip,
+            dst_mask,
+            outiface,
+            outiface_mask,
+            match,
+            packets,
+            bytes
+          FROM iptables;`;
+  }
+
+  @osQueryMsCell({
+    description: "List running FTP/SFTP related processes (vsftpd, proftpd, sshd)",
+  }, ["linux"])
+  "Running FTP/SFTP Processes"() {
+    return `
+      SELECT pid, name, cmdline
+      FROM processes
+      WHERE name LIKE '%vsftpd%' OR name LIKE '%proftpd%' OR name LIKE '%sshd%';
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Check if FTPS (port 990) or SFTP (port 22) are listening",
+  }, ["linux"])
+  "FTPS/SFTP Listening Ports"() {
+    return `
+      SELECT port, protocol, pid
+      FROM listening_ports
+      WHERE port IN (22, 990);
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Check for common running antivirus processes (ClamAV, Sophos, chkrootkit)",
+  }, ["linux", "darwin", "windows"])
+  "Basic Antivirus Process Check"() {
+    return `
+      SELECT pid, name, cmdline 
+      FROM processes 
+      WHERE name LIKE '%clamd%' OR name LIKE '%sophos%' OR name LIKE '%chkrootkit%';
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Extended check for antivirus processes (ClamAV, Sophos, Avast, McAfee, Windows Defender)",
+  }, ["linux", "darwin", "windows"])
+  "Extended Antivirus Process Check"() {
+    return `
+      SELECT pid, name, cmdline 
+      FROM processes 
+      WHERE name LIKE '%clamd%' 
+         OR name LIKE '%Sophos%' 
+         OR name LIKE '%avast%' 
+         OR name LIKE '%McAfee%' 
+         OR name LIKE '%defender%';
+    `;
+  }
+
+  @osQueryMsCell({
+    description: "Identify running services (databases/web servers) that may handle confidential data",
+  }, ["linux", "darwin", "windows"])
+  "Confidential Asset Service Check"() {
+    return `
+      SELECT pid, name, cmdline
+      FROM processes
+      WHERE cmdline LIKE '%mysql%'
+         OR cmdline LIKE '%apache%'
+         OR cmdline LIKE '%postgresql%'
+         OR cmdline LIKE '%nginx%'
+         OR cmdline LIKE '%mongodb%';
+    `;
+  }
+
 }
 
 
