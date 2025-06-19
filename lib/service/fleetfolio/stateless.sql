@@ -410,14 +410,36 @@ FROM ur_transform_list_container_process;
 DROP VIEW IF EXISTS list_ports_443;
 CREATE VIEW list_ports_443 AS
 SELECT 
-host_identifier,
-name,
-address,
-family,
-fd,
-net_namespace,
-path,
-port,
-protocol,
-socket,query_uri
+  host_identifier,
+  name,
+  address,
+  family,
+  fd,
+  net_namespace,
+  path,
+  port,
+  protocol,
+  socket,query_uri
 FROM ur_transform_list_ports_443;
+
+DROP VIEW IF EXISTS list_ssl_cert_files;
+CREATE VIEW list_ssl_cert_files AS
+SELECT 
+  lp4.host_identifier,
+  lp4.name,
+  lp4.block_size,
+  lp4.device,
+  lp4.directory,
+  lp4.filename,
+  lp4.gid,
+  lp4.hard_links,
+  lp4.inode,
+  lp4.mode,
+  lp4.path,
+  lp4.size,
+  lp4.type,
+  lp4.uid,
+  user.user_name,
+  lp4.query_uri
+FROM ur_transform_list_ssl_cert_files lp4
+LEFT JOIN ur_transform_list_user user ON user.uid = lp4.uid;
