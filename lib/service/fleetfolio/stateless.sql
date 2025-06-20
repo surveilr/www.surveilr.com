@@ -443,3 +443,14 @@ SELECT
   lp4.query_uri
 FROM ur_transform_list_ssl_cert_files lp4
 LEFT JOIN ur_transform_list_user user ON user.uid = lp4.uid;
+
+
+DROP VIEW IF EXISTS list_ssl_cert_file_mtime;
+CREATE VIEW list_ssl_cert_file_mtime AS
+SELECT 
+  host_identifier,
+  name,
+  datetime(mtime, 'unixepoch') as mtime,
+  path,
+  query_uri
+FROM ur_transform_list_ssl_cert_file_mtime;

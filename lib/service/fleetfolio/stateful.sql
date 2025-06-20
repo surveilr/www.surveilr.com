@@ -594,3 +594,20 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery SSL Cert Files" 
     AND uri = "osquery-ms:query-result";
+
+  -- -- Monitor SSL cert and key file modification times
+  --  ur_transform_list_ssl_cert_file_mtime
+DROP TABLE IF EXISTS ur_transform_list_ssl_cert_file_mtime;
+CREATE TABLE ur_transform_list_ssl_cert_file_mtime AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.mtime') AS mtime,  
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery SSL Cert File MTIME" 
+    AND uri = "osquery-ms:query-result";

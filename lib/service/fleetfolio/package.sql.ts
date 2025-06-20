@@ -285,11 +285,18 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       tableOrViewName: listPorts443ViewName,
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
-    const listListSSSLCertFile = `list_ssl_cert_files`;
-    const listListSSSLCertFilePagination = this.pagination({
-      tableOrViewName: listListSSSLCertFile,
+    const listListSSLCertFile = `list_ssl_cert_files`;
+    const listListSSLCertFilePagination = this.pagination({
+      tableOrViewName: listListSSLCertFile,
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
+
+    const listListSSLCertFileMtime = `list_ssl_cert_file_mtime`;
+    const listListSSLCertFileMtimePagination = this.pagination({
+      tableOrViewName: listListSSLCertFileMtime,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -450,8 +457,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'All Process' as title, '?tab=all_process&host_identifier=' || $host_identifier AS link, $tab = 'all_process' as active;
         select 'Asset Service' as title, '?tab=asset_service&host_identifier=' || $host_identifier AS link, $tab = 'asset_service' as active;
         select 'SSL/TLS is enabled' as title, '?tab=ssl_tls_is_enabled&host_identifier=' || $host_identifier AS link, $tab = 'ssl_tls_is_enabled' as active;
-        select 'Osquery SSL Cert Files' as title, '?tab=osquery_ssl_cert_files&host_identifier=' || $host_identifier AS link, $tab = 'osquery_ssl_cert_files' as active;
-
+        select 'SSL Certificate Files' as title, '?tab=osquery_ssl_cert_files&host_identifier=' || $host_identifier AS link, $tab = 'osquery_ssl_cert_files' as active;
+        select 'SSL Certificate and Key File Modification Times' as title, '?tab=ssl_certificate_and_key_file_modification_times&host_identifier=' || $host_identifier AS link, $tab = 'ssl_certificate_and_key_file_modification_times' as active;
 
 
         -- policy table and tab value Start here
@@ -702,13 +709,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
                 ELSE 'Other'
               END AS contents
-            FROM ${listListSSSLCertFile}
+            FROM ${listListSSLCertFile}
             LIMIT 1
           ) WHERE $tab = 'osquery_ssl_cert_files';
 
         -- osquery_ssl_cert_files table and tab value Start here
         -- osquery_ssl_cert_files pagenation
-        ${listListSSSLCertFilePagination.init()} 
+        ${listListSSLCertFilePagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'osquery_ssl_cert_files';
         SELECT 
           path as "Full Path",
@@ -723,13 +730,54 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
           block_size as "Block Size",
           hard_links as "Hard Links",
           type
-        FROM ${listListSSSLCertFile}
+        FROM ${listListSSLCertFile}
         WHERE host_identifier = $host_identifier AND $tab = 'osquery_ssl_cert_files'
         LIMIT $limit OFFSET $offset;
-        ${listListSSSLCertFilePagination.renderSimpleMarkdown(
+        ${listListSSLCertFilePagination.renderSimpleMarkdown(
         "tab",
         "host_identifier",
         "$tab='osquery_ssl_cert_files'",
+      )
+      };
+
+
+
+       -- ssl_certificate_and_key_file_modification_times table and tab value Start here
+
+       select
+        'text'              as component,
+        'Displays the modification timestamps (mtime) of SSL certificate and private key files on Linux systems to monitor unauthorized or unexpected changes.' as contents WHERE $tab = 'ssl_certificate_and_key_file_modification_times';
+      -- Display sourse lable of data
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${listListSSLCertFileMtime}
+            LIMIT 1
+          ) WHERE $tab = 'ssl_certificate_and_key_file_modification_times';
+        -- ssl_certificate_and_key_file_modification_times pagenation
+        ${listListSSLCertFileMtimePagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'ssl_certificate_and_key_file_modification_times';
+        SELECT 
+          path as "Path",
+          mtime as "Modified Time (mtime)"
+        FROM ${listListSSLCertFileMtime}
+        WHERE host_identifier = $host_identifier AND $tab = 'ssl_certificate_and_key_file_modification_times'
+        LIMIT $limit OFFSET $offset;
+        ${listListSSLCertFileMtimePagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='ssl_certificate_and_key_file_modification_times'",
       )
       };
       
