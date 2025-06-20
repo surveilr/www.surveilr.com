@@ -470,3 +470,29 @@ SELECT
   socket,
   query_uri
 FROM ur_transform_list_osquery_vpn_listening_ports;
+
+DROP VIEW IF EXISTS list_cron_backup_jobs;
+CREATE VIEW list_cron_backup_jobs AS
+SELECT
+    uniform_resource_id,
+    name,
+    host_identifier,
+    command,
+    event,
+    minute,
+    hour,
+    day_of_month,
+    month,
+    day_of_week,
+    path,
+    query_uri,
+    minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week AS cron_schedule,
+
+    CASE
+        WHEN hour GLOB '[0-9]*' AND minute GLOB '[0-9]*' THEN
+            'Runs at ' || printf('%02d', hour) || ':' || printf('%02d', minute)
+        ELSE
+            'Runs on schedule: ' || minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week
+    END AS human_readable_schedule
+
+FROM ur_transform_list_cron_backup_jobs;
