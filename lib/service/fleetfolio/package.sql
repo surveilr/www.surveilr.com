@@ -858,6 +858,23 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery SSL Cert Files" 
     AND uri = "osquery-ms:query-result";
+
+  -- -- Monitor SSL cert and key file modification times
+  --  ur_transform_list_ssl_cert_file_mtime
+DROP TABLE IF EXISTS ur_transform_list_ssl_cert_file_mtime;
+CREATE TABLE ur_transform_list_ssl_cert_file_mtime AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.mtime') AS mtime,  
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery SSL Cert File MTIME" 
+    AND uri = "osquery-ms:query-result";
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -1304,6 +1321,16 @@ SELECT
 FROM ur_transform_list_ssl_cert_files lp4
 LEFT JOIN ur_transform_list_user user ON user.uid = lp4.uid;
 
+
+DROP VIEW IF EXISTS list_ssl_cert_file_mtime;
+CREATE VIEW list_ssl_cert_file_mtime AS
+SELECT 
+  host_identifier,
+  name,
+  datetime(mtime, 'unixepoch') as mtime,
+  path,
+  query_uri
+FROM ur_transform_list_ssl_cert_file_mtime;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2358,8 +2385,8 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''All Process'' as title, ''?tab=all_process&host_identifier='' || $host_identifier AS link, $tab = ''all_process'' as active;
   select ''Asset Service'' as title, ''?tab=asset_service&host_identifier='' || $host_identifier AS link, $tab = ''asset_service'' as active;
   select ''SSL/TLS is enabled'' as title, ''?tab=ssl_tls_is_enabled&host_identifier='' || $host_identifier AS link, $tab = ''ssl_tls_is_enabled'' as active;
-  select ''Osquery SSL Cert Files'' as title, ''?tab=osquery_ssl_cert_files&host_identifier='' || $host_identifier AS link, $tab = ''osquery_ssl_cert_files'' as active;
-
+  select ''SSL Certificate Files'' as title, ''?tab=osquery_ssl_cert_files&host_identifier='' || $host_identifier AS link, $tab = ''osquery_ssl_cert_files'' as active;
+  select ''SSL Certificate and Key File Modification Times'' as title, ''?tab=ssl_certificate_and_key_file_modification_times&host_identifier='' || $host_identifier AS link, $tab = ''ssl_certificate_and_key_file_modification_times'' as active;
 
 
   -- policy table and tab value Start here
@@ -2689,7 +2716,54 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
- WHERE $tab=''osquery_ssl_cert_files'';
+ WHERE $tab=''osquery_ssl_cert_files'';;
+
+
+
+ -- ssl_certificate_and_key_file_modification_times table and tab value Start here
+
+ select
+  ''text''              as component,
+  ''Displays the modification timestamps (mtime) of SSL certificate and private key files on Linux systems to monitor unauthorized or unexpected changes.'' as contents WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+-- Display sourse lable of data
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_ssl_cert_file_mtime
+      LIMIT 1
+    ) WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+  -- ssl_certificate_and_key_file_modification_times pagenation
+  SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_file_mtime WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+  SELECT 
+    path as "Path",
+    mtime as "Modified Time (mtime)"
+  FROM list_ssl_cert_file_mtime
+  WHERE host_identifier = $host_identifier AND $tab = ''ssl_certificate_and_key_file_modification_times''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''ssl_certificate_and_key_file_modification_times'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
