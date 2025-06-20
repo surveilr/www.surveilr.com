@@ -288,374 +288,374 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
     return `SELECT name, type , notnull, dflt_value, pk  FROM file WHERE path LIKE '/var/log/fail2ban.log';`;
   }
 
-  @osQueryMsCell({
-    description: "List services listening on port 443 (HTTPS)",
-  }, ["linux"])
-  "Osquery Listening Ports 443"() {
-    return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port = 443;`;
-  }
+  // @osQueryMsCell({
+  //   description: "List services listening on port 443 (HTTPS)",
+  // }, ["linux"])
+  // "Osquery Listening Ports 443"() {
+  //   return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port = 443;`;
+  // }
 
-  @osQueryMsCell({
-    description: "Check for existence of SSL certificate and private key files",
-  }, ["linux"])
-  "Osquery SSL Cert Files"() {
-    return `SELECT path,directory,filename,inode,uid,gid,mode,device,size,block_size,hard_links,type FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Check for existence of SSL certificate and private key files",
+  // }, ["linux"])
+  // "Osquery SSL Cert Files"() {
+  //   return `SELECT path,directory,filename,inode,uid,gid,mode,device,size,block_size,hard_links,type FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Monitor SSL cert and key file modification times",
-  }, ["linux"])
-  "Osquery SSL Cert File MTIME"() {
-    return `SELECT path, mtime FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Monitor SSL cert and key file modification times",
+  // }, ["linux"])
+  // "Osquery SSL Cert File MTIME"() {
+  //   return `SELECT path, mtime FROM file WHERE path LIKE '/etc/ssl/certs%' OR path LIKE '/etc/ssl/private%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Check if common VPN service ports (443, 1194, 500, 4500) are listening",
-  }, ["linux"])
-  "Osquery VPN Listening Ports"() {
-    return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port IN (1194, 443, 500, 4500);`;
-  }
+  // @osQueryMsCell({
+  //   description: "Check if common VPN service ports (443, 1194, 500, 4500) are listening",
+  // }, ["linux"])
+  // "Osquery VPN Listening Ports"() {
+  //   return `SELECT port,protocol,family,address,fd,socket,path,net_namespace FROM listening_ports WHERE port IN (1194, 443, 500, 4500);`;
+  // }
 
-  @osQueryMsCell({
-    description: "Check for cron jobs related to backup tasks",
-  }, ["linux"])
-  "Osquery Cron Backup Jobs"() {
-    return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab WHERE command LIKE '%backup%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Check for cron jobs related to backup tasks",
+  // }, ["linux"])
+  // "Osquery Cron Backup Jobs"() {
+  //   return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab WHERE command LIKE '%backup%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Inventory: List MySQL database processes",
-  }, ["linux"])
-  "Osquery MySQL Process Inventory"() {
-    return `SELECT name, pid, path FROM processes WHERE name LIKE 'mysqld%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Inventory: List MySQL database processes",
+  // }, ["linux"])
+  // "Osquery MySQL Process Inventory"() {
+  //   return `SELECT name, pid, path FROM processes WHERE name LIKE 'mysqld%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Inventory: List PostgreSQL database processes",
-  }, ["linux"])
-  "Osquery PostgreSQL Process Inventory"() {
-    return `SELECT name, pid, path FROM processes WHERE name LIKE 'postgres%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Inventory: List PostgreSQL database processes",
+  // }, ["linux"])
+  // "Osquery PostgreSQL Process Inventory"() {
+  //   return `SELECT name, pid, path FROM processes WHERE name LIKE 'postgres%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Inventory: List all cron jobs (Scheduled Tools and Tasks)",
-  }, ["linux"])
-  "Osquery Cron Job Inventory"() {
-    return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab;`;
-  }
+  // @osQueryMsCell({
+  //   description: "Inventory: List all cron jobs (Scheduled Tools and Tasks)",
+  // }, ["linux"])
+  // "Osquery Cron Job Inventory"() {
+  //   return `SELECT event, minute, hour, day_of_month, month, day_of_week, command, path FROM crontab;`;
+  // }
 
-  @osQueryMsCell({
-    description: "Network Inventory: List all listening ports (in-scope services)",
-  }, ["linux"])
-  "Osquery Listening Ports Inventory"() {
-    return `SELECT pid, port, protocol, family, address, path FROM listening_ports;`;
-  }
+  // @osQueryMsCell({
+  //   description: "Network Inventory: List all listening ports (in-scope services)",
+  // }, ["linux"])
+  // "Osquery Listening Ports Inventory"() {
+  //   return `SELECT pid, port, protocol, family, address, path FROM listening_ports;`;
+  // }
 
-  @osQueryMsCell({
-    description: "Network Inventory: List of interface addresses",
-  }, ["linux"])
-  "Osquery Interface Addresses Inventory"() {
-    return `SELECT interface,address,mask,broadcast,point_to_point,type FROM interface_addresses;`;
-  }
+  // @osQueryMsCell({
+  //   description: "Network Inventory: List of interface addresses",
+  // }, ["linux"])
+  // "Osquery Interface Addresses Inventory"() {
+  //   return `SELECT interface,address,mask,broadcast,point_to_point,type FROM interface_addresses;`;
+  // }
 
-  @osQueryMsCell({
-    description: "Network Inventory: Detailed interface configuration",
-  }, ["linux"])
-  "Osquery Interface Details Inventory"() {
-    return ` SELECT 
-      interface, 
-      mac, 
-      type, 
-      mtu, 
-      metric, 
-      flags, 
-      ipackets, 
-      opackets, 
-      ibytes, 
-      obytes, 
-      ierrors, 
-      oerrors, 
-      idrops, 
-      odrops, 
-      collisions, 
-      last_change, 
-      link_speed, 
-      pci_slot 
-    FROM interface_details;`;
-  }
+  // @osQueryMsCell({
+  //   description: "Network Inventory: Detailed interface configuration",
+  // }, ["linux"])
+  // "Osquery Interface Details Inventory"() {
+  //   return ` SELECT 
+  //     interface, 
+  //     mac, 
+  //     type, 
+  //     mtu, 
+  //     metric, 
+  //     flags, 
+  //     ipackets, 
+  //     opackets, 
+  //     ibytes, 
+  //     obytes, 
+  //     ierrors, 
+  //     oerrors, 
+  //     idrops, 
+  //     odrops, 
+  //     collisions, 
+  //     last_change, 
+  //     link_speed, 
+  //     pci_slot 
+  //   FROM interface_details;`;
+  // }
 
-  @osQueryMsCell({
-    description: "User-Process Mapping: Get process info with associated user for OS, DB, App, and network services",
-  }, ["linux"])
-  "Osquery User List by IT Layer"() {
-    return `
-      SELECT 
-        p.pid, 
-        p.name, 
-        u.username, 
-        p.path, 
-        p.cmdline 
-      FROM processes p
-      JOIN users u ON p.uid = u.uid
-      WHERE 
-        p.name LIKE '%nginx%' OR 
-        p.name LIKE '%apache%' OR 
-        p.name LIKE '%postgres%' OR 
-        p.name LIKE '%mysqld%' OR 
-        p.name LIKE '%ssh%' OR 
-        p.name LIKE '%vpn%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "User-Process Mapping: Get process info with associated user for OS, DB, App, and network services",
+  // }, ["linux"])
+  // "Osquery User List by IT Layer"() {
+  //   return `
+  //     SELECT 
+  //       p.pid, 
+  //       p.name, 
+  //       u.username, 
+  //       p.path, 
+  //       p.cmdline 
+  //     FROM processes p
+  //     JOIN users u ON p.uid = u.uid
+  //     WHERE 
+  //       p.name LIKE '%nginx%' OR 
+  //       p.name LIKE '%apache%' OR 
+  //       p.name LIKE '%postgres%' OR 
+  //       p.name LIKE '%mysqld%' OR 
+  //       p.name LIKE '%ssh%' OR 
+  //       p.name LIKE '%vpn%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Admin Processes: List processes for network services run by superusers",
-  }, ["linux"])
-  "Osquery Admin Network Services Processes"() {
-    return `
-      SELECT 
-        p.pid, 
-        p.name, 
-        u.username, 
-        p.path, 
-        p.cmdline 
-      FROM processes p
-      JOIN users u ON p.uid = u.uid
-      WHERE 
-        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
-        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Admin Processes: List processes for network services run by superusers",
+  // }, ["linux"])
+  // "Osquery Admin Network Services Processes"() {
+  //   return `
+  //     SELECT 
+  //       p.pid, 
+  //       p.name, 
+  //       u.username, 
+  //       p.path, 
+  //       p.cmdline 
+  //     FROM processes p
+  //     JOIN users u ON p.uid = u.uid
+  //     WHERE 
+  //       (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+  //       AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Admin Processes: Identify apps run by administrator-level users",
-  }, ["linux"])
-  "Osquery Admin Application Processes"() {
-    return `
-      SELECT 
-        p.pid, 
-        p.name, 
-        u.username, 
-        p.path 
-      FROM processes p
-      JOIN users u ON p.uid = u.uid
-      WHERE 
-        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
-        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Admin Processes: Identify apps run by administrator-level users",
+  // }, ["linux"])
+  // "Osquery Admin Application Processes"() {
+  //   return `
+  //     SELECT 
+  //       p.pid, 
+  //       p.name, 
+  //       u.username, 
+  //       p.path 
+  //     FROM processes p
+  //     JOIN users u ON p.uid = u.uid
+  //     WHERE 
+  //       (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+  //       AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Security Groups: Application-level access by admin or elevated users",
-  }, ["linux"])
-  "Osquery Application Access Rights"() {
-    return `
-      SELECT 
-        p.pid, 
-        p.name, 
-        u.username, 
-        p.path 
-      FROM processes p
-      JOIN users u ON p.uid = u.uid
-      WHERE 
-        (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
-        AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Security Groups: Application-level access by admin or elevated users",
+  // }, ["linux"])
+  // "Osquery Application Access Rights"() {
+  //   return `
+  //     SELECT 
+  //       p.pid, 
+  //       p.name, 
+  //       u.username, 
+  //       p.path 
+  //     FROM processes p
+  //     JOIN users u ON p.uid = u.uid
+  //     WHERE 
+  //       (p.name LIKE 'nginx%' OR p.name LIKE 'apache%' OR p.name LIKE 'postgres%' OR p.name LIKE 'mysqld%')
+  //       AND (u.username LIKE 'root%' OR u.username LIKE 'admin%' OR u.username LIKE '%sudo%');
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Security Groups: List admin users for operating system layer",
-  }, ["linux"])
-  "Osquery OS Admin Users"() {
-    return `
-      SELECT 
-        username, 
-        uid, 
-        gid, 
-        shell, 
-        directory 
-      FROM users 
-      WHERE 
-        username LIKE 'root%' OR 
-        username LIKE 'admin%' OR 
-        username LIKE '%sudo%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Security Groups: List admin users for operating system layer",
+  // }, ["linux"])
+  // "Osquery OS Admin Users"() {
+  //   return `
+  //     SELECT 
+  //       username, 
+  //       uid, 
+  //       gid, 
+  //       shell, 
+  //       directory 
+  //     FROM users 
+  //     WHERE 
+  //       username LIKE 'root%' OR 
+  //       username LIKE 'admin%' OR 
+  //       username LIKE '%sudo%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Password expiry configuration from /etc/shadow",
-  }, ["linux"])
-  "Password Expiry Configurations"() {
-    return `
-      SELECT 
-        username, 
-        last_change, 
-        max, 
-        datetime(last_change + max * 86400, 'unixepoch') AS password_expiry
-      FROM shadow;
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Password expiry configuration from /etc/shadow",
+  // }, ["linux"])
+  // "Password Expiry Configurations"() {
+  //   return `
+  //     SELECT 
+  //       username, 
+  //       last_change, 
+  //       max, 
+  //       datetime(last_change + max * 86400, 'unixepoch') AS password_expiry
+  //     FROM shadow;
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Authentication-related processes (e.g., sshd, pam, login)",
-  }, ["linux"])
-  "Authentication Related Processes"() {
-    return `
-      SELECT 
-        name, 
-        pid, 
-        path
-      FROM processes
-      WHERE 
-        name LIKE '%auth%' 
-        OR path LIKE '%pam%' 
-        OR path LIKE '%sshd%' 
-        OR path LIKE '%login%' 
-        OR path LIKE '%sshd_config%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Authentication-related processes (e.g., sshd, pam, login)",
+  // }, ["linux"])
+  // "Authentication Related Processes"() {
+  //   return `
+  //     SELECT 
+  //       name, 
+  //       pid, 
+  //       path
+  //     FROM processes
+  //     WHERE 
+  //       name LIKE '%auth%' 
+  //       OR path LIKE '%pam%' 
+  //       OR path LIKE '%sshd%' 
+  //       OR path LIKE '%login%' 
+  //       OR path LIKE '%sshd_config%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Account lockout configuration files (e.g., pam_tally, faillock, pam_faillock) in /etc/pam.d/",
-  }, ["linux"])
-  "Account Lockout Configurations"() {
-    return `
-      SELECT 
-        path, 
-        mode, 
-        size, 
-        mtime, 
-        atime, 
-        ctime
-      FROM file 
-      WHERE path LIKE '/etc/pam.d/%'
-        AND (
-          path LIKE '%pam_tally%' 
-          OR path LIKE '%faillock%' 
-          OR path LIKE '%pam_faillock%'
-        );
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Account lockout configuration files (e.g., pam_tally, faillock, pam_faillock) in /etc/pam.d/",
+  // }, ["linux"])
+  // "Account Lockout Configurations"() {
+  //   return `
+  //     SELECT 
+  //       path, 
+  //       mode, 
+  //       size, 
+  //       mtime, 
+  //       atime, 
+  //       ctime
+  //     FROM file 
+  //     WHERE path LIKE '/etc/pam.d/%'
+  //       AND (
+  //         path LIKE '%pam_tally%' 
+  //         OR path LIKE '%faillock%' 
+  //         OR path LIKE '%pam_faillock%'
+  //       );
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Audit logging configurations — checks for active syslog processes like syslog, rsyslog, and syslog-ng",
-  }, ["linux"])
-  "Audit Logging Configurations"() {
-    return `
-      SELECT 
-        pid, 
-        name, 
-        path, 
-        cmdline
-      FROM processes
-      WHERE 
-        name LIKE '%syslog%' 
-        OR name LIKE '%rsyslog%' 
-        OR name LIKE '%syslog-ng%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Audit logging configurations — checks for active syslog processes like syslog, rsyslog, and syslog-ng",
+  // }, ["linux"])
+  // "Audit Logging Configurations"() {
+  //   return `
+  //     SELECT 
+  //       pid, 
+  //       name, 
+  //       path, 
+  //       cmdline
+  //     FROM processes
+  //     WHERE 
+  //       name LIKE '%syslog%' 
+  //       OR name LIKE '%rsyslog%' 
+  //       OR name LIKE '%syslog-ng%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Monitor VPN-related processes (e.g., OpenVPN)",
-  }, ["linux"])
-  "Monitor VPN Processes"() {
-    return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%openvpn%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Monitor VPN-related processes (e.g., OpenVPN)",
+  // }, ["linux"])
+  // "Monitor VPN Processes"() {
+  //   return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%openvpn%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "Monitor network-related processes like SSH daemon (sshd)",
-  }, ["linux"])
-  "Monitor SSHD Processes"() {
-    return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%sshd%';`;
-  }
+  // @osQueryMsCell({
+  //   description: "Monitor network-related processes like SSH daemon (sshd)",
+  // }, ["linux"])
+  // "Monitor SSHD Processes"() {
+  //   return `SELECT pid, name, path, cmdline FROM processes WHERE cmdline LIKE '%sshd%';`;
+  // }
 
-  @osQueryMsCell({
-    description: "List current iptables firewall rules",
-  }, ["linux"])
-  "List Iptables Rules"() {
-    return `SELECT 
-            filter_name,
-            chain,
-            policy,
-            target,
-            protocol,
-            src_port,
-            dst_port,
-            src_ip,
-            src_mask,
-            iniface,
-            iniface_mask,
-            dst_ip,
-            dst_mask,
-            outiface,
-            outiface_mask,
-            match,
-            packets,
-            bytes
-          FROM iptables;`;
-  }
+  // @osQueryMsCell({
+  //   description: "List current iptables firewall rules",
+  // }, ["linux"])
+  // "List Iptables Rules"() {
+  //   return `SELECT 
+  //           filter_name,
+  //           chain,
+  //           policy,
+  //           target,
+  //           protocol,
+  //           src_port,
+  //           dst_port,
+  //           src_ip,
+  //           src_mask,
+  //           iniface,
+  //           iniface_mask,
+  //           dst_ip,
+  //           dst_mask,
+  //           outiface,
+  //           outiface_mask,
+  //           match,
+  //           packets,
+  //           bytes
+  //         FROM iptables;`;
+  // }
 
-  @osQueryMsCell({
-    description: "List running FTP/SFTP related processes (vsftpd, proftpd, sshd)",
-  }, ["linux"])
-  "Running FTP/SFTP Processes"() {
-    return `
-      SELECT pid, name, cmdline
-      FROM processes
-      WHERE name LIKE '%vsftpd%' OR name LIKE '%proftpd%' OR name LIKE '%sshd%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "List running FTP/SFTP related processes (vsftpd, proftpd, sshd)",
+  // }, ["linux"])
+  // "Running FTP/SFTP Processes"() {
+  //   return `
+  //     SELECT pid, name, cmdline
+  //     FROM processes
+  //     WHERE name LIKE '%vsftpd%' OR name LIKE '%proftpd%' OR name LIKE '%sshd%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Check if FTPS (port 990) or SFTP (port 22) are listening",
-  }, ["linux"])
-  "FTPS/SFTP Listening Ports"() {
-    return `
-      SELECT port, protocol, pid
-      FROM listening_ports
-      WHERE port IN (22, 990);
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Check if FTPS (port 990) or SFTP (port 22) are listening",
+  // }, ["linux"])
+  // "FTPS/SFTP Listening Ports"() {
+  //   return `
+  //     SELECT port, protocol, pid
+  //     FROM listening_ports
+  //     WHERE port IN (22, 990);
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Check for common running antivirus processes (ClamAV, Sophos, chkrootkit)",
-  }, ["linux", "darwin", "windows"])
-  "Basic Antivirus Process Check"() {
-    return `
-      SELECT pid, name, cmdline 
-      FROM processes 
-      WHERE name LIKE '%clamd%' OR name LIKE '%sophos%' OR name LIKE '%chkrootkit%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Check for common running antivirus processes (ClamAV, Sophos, chkrootkit)",
+  // }, ["linux", "darwin", "windows"])
+  // "Basic Antivirus Process Check"() {
+  //   return `
+  //     SELECT pid, name, cmdline 
+  //     FROM processes 
+  //     WHERE name LIKE '%clamd%' OR name LIKE '%sophos%' OR name LIKE '%chkrootkit%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Extended check for antivirus processes (ClamAV, Sophos, Avast, McAfee, Windows Defender)",
-  }, ["linux", "darwin", "windows"])
-  "Extended Antivirus Process Check"() {
-    return `
-      SELECT pid, name, cmdline 
-      FROM processes 
-      WHERE name LIKE '%clamd%' 
-         OR name LIKE '%Sophos%' 
-         OR name LIKE '%avast%' 
-         OR name LIKE '%McAfee%' 
-         OR name LIKE '%defender%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Extended check for antivirus processes (ClamAV, Sophos, Avast, McAfee, Windows Defender)",
+  // }, ["linux", "darwin", "windows"])
+  // "Extended Antivirus Process Check"() {
+  //   return `
+  //     SELECT pid, name, cmdline 
+  //     FROM processes 
+  //     WHERE name LIKE '%clamd%' 
+  //        OR name LIKE '%Sophos%' 
+  //        OR name LIKE '%avast%' 
+  //        OR name LIKE '%McAfee%' 
+  //        OR name LIKE '%defender%';
+  //   `;
+  // }
 
-  @osQueryMsCell({
-    description: "Identify running services (databases/web servers) that may handle confidential data",
-  }, ["linux", "darwin", "windows"])
-  "Confidential Asset Service Check"() {
-    return `
-      SELECT pid, name, cmdline
-      FROM processes
-      WHERE cmdline LIKE '%mysql%'
-         OR cmdline LIKE '%apache%'
-         OR cmdline LIKE '%postgresql%'
-         OR cmdline LIKE '%nginx%'
-         OR cmdline LIKE '%mongodb%';
-    `;
-  }
+  // @osQueryMsCell({
+  //   description: "Identify running services (databases/web servers) that may handle confidential data",
+  // }, ["linux", "darwin", "windows"])
+  // "Confidential Asset Service Check"() {
+  //   return `
+  //     SELECT pid, name, cmdline
+  //     FROM processes
+  //     WHERE cmdline LIKE '%mysql%'
+  //        OR cmdline LIKE '%apache%'
+  //        OR cmdline LIKE '%postgresql%'
+  //        OR cmdline LIKE '%nginx%'
+  //        OR cmdline LIKE '%mongodb%';
+  //   `;
+  // }
 
 }
 
