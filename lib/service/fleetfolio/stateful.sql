@@ -595,8 +595,8 @@ WHERE
     AND name = "Osquery SSL Cert Files" 
     AND uri = "osquery-ms:query-result";
 
-  -- -- Monitor SSL cert and key file modification times
-  --  ur_transform_list_ssl_cert_file_mtime
+-- -- Monitor SSL cert and key file modification times
+--  ur_transform_list_ssl_cert_file_mtime
 DROP TABLE IF EXISTS ur_transform_list_ssl_cert_file_mtime;
 CREATE TABLE ur_transform_list_ssl_cert_file_mtime AS
 SELECT 
@@ -610,4 +610,35 @@ FROM uniform_resource
 WHERE 
     json_valid(content) = 1 
     AND name = "Osquery SSL Cert File MTIME" 
+    AND uri = "osquery-ms:query-result";
+
+-- -- Check if common VPN service ports (443, 1194, 500, 4500) are listening
+--  ur_transform_list_osquery_vpn_listening_ports
+DROP TABLE IF EXISTS ur_transform_list_osquery_vpn_listening_ports;
+CREATE TABLE ur_transform_list_osquery_vpn_listening_ports AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    json_extract(content, '$.columns.family') AS family,
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        ELSE json_extract(content, '$.columns.family')
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery VPN Listening Ports" 
     AND uri = "osquery-ms:query-result";

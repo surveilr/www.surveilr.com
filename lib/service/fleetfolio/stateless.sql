@@ -454,3 +454,19 @@ SELECT
   path,
   query_uri
 FROM ur_transform_list_ssl_cert_file_mtime;
+
+DROP VIEW IF EXISTS list_vpn_listening_ports;
+CREATE VIEW list_vpn_listening_ports AS
+SELECT 
+  host_identifier,
+  name,
+  address,
+  family,
+  fd,
+  net_namespace,
+  path,
+  port,
+  protocol,
+  socket,
+  query_uri
+FROM ur_transform_list_osquery_vpn_listening_ports;
