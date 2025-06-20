@@ -297,6 +297,13 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
 
+    const listVpnListeningPorts = `list_vpn_listening_ports`;
+    const listVpnListeningPortsPagination = this.pagination({
+      tableOrViewName: listVpnListeningPorts,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+
+
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -459,7 +466,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'SSL/TLS is enabled' as title, '?tab=ssl_tls_is_enabled&host_identifier=' || $host_identifier AS link, $tab = 'ssl_tls_is_enabled' as active;
         select 'SSL Certificate Files' as title, '?tab=osquery_ssl_cert_files&host_identifier=' || $host_identifier AS link, $tab = 'osquery_ssl_cert_files' as active;
         select 'SSL Certificate and Key File Modification Times' as title, '?tab=ssl_certificate_and_key_file_modification_times&host_identifier=' || $host_identifier AS link, $tab = 'ssl_certificate_and_key_file_modification_times' as active;
-
+        select 'VPN Listening Ports' as title, '?tab=vpn_listening_ports&host_identifier=' || $host_identifier AS link, $tab = 'vpn_listening_ports' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -626,7 +633,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       )
       };
 
-      -- asset_service table and tab value Start here
+        -- asset_service table and tab value Start here
         -- asset_service pagenation
 
          -- Display sourse lable of data
@@ -650,6 +657,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "host_identifier",
         "$tab='asset_service'",)
       };
+
+
 
       -- ssl_tls_is_enabled table and tab value Start here
         -- ssl_tls_is_enabled pagenation
@@ -691,6 +700,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       };
 
 
+      -- osquery_ssl_cert_files table and tab value Start here
       select
         'text'              as component,
         'This table displays metadata for files and directories under /etc/ssl/certs and /etc/ssl/private. It helps verify SSL certificate file ownership, permissions, and structural integrity across Linux systems. Use this to detect unauthorized changes or misconfigurations in certificate storage paths.' as contents WHERE $tab = 'osquery_ssl_cert_files';
@@ -713,7 +723,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             LIMIT 1
           ) WHERE $tab = 'osquery_ssl_cert_files';
 
-        -- osquery_ssl_cert_files table and tab value Start here
         -- osquery_ssl_cert_files pagenation
         ${listListSSLCertFilePagination.init()} 
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'osquery_ssl_cert_files';
@@ -778,6 +787,52 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "tab",
         "host_identifier",
         "$tab='ssl_certificate_and_key_file_modification_times'",
+      )
+      };
+
+
+      -- ssl_certificate_and_key_file_modification_times table and tab value Start here
+
+      select
+        'text'              as component,
+        'Displays information about system ports commonly used by VPN services (e.g., 1194, 443, 500, 4500), including protocol, address, file descriptor, and socket details. Useful for validating VPN service bindings and potential security exposure.' as contents WHERE $tab = 'vpn_listening_ports';
+      -- Display sourse lable of data
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${listVpnListeningPorts}
+            LIMIT 1
+          ) WHERE $tab = 'vpn_listening_ports';
+        -- vpn_listening_ports pagenation
+        ${listVpnListeningPortsPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'vpn_listening_ports';
+        SELECT 
+          port,
+          protocol,
+          family,
+          address,
+          fd,
+          socket,
+          path,
+          net_namespace as "Net Namespace"
+        FROM ${listVpnListeningPorts}
+        WHERE host_identifier = $host_identifier AND $tab = 'vpn_listening_ports'
+        LIMIT $limit OFFSET $offset;
+        ${listVpnListeningPortsPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='vpn_listening_ports'",
       )
       };
       
