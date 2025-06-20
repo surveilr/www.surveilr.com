@@ -303,6 +303,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
 
+    const listCronBackupJobs = `list_cron_backup_jobs`;
+    const listCronBackupJobsPagination = this.pagination({
+      tableOrViewName: listCronBackupJobs,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+
 
     return this.SQL`
       ${this.activePageTitle()}
@@ -467,6 +473,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         select 'SSL Certificate Files' as title, '?tab=osquery_ssl_cert_files&host_identifier=' || $host_identifier AS link, $tab = 'osquery_ssl_cert_files' as active;
         select 'SSL Certificate and Key File Modification Times' as title, '?tab=ssl_certificate_and_key_file_modification_times&host_identifier=' || $host_identifier AS link, $tab = 'ssl_certificate_and_key_file_modification_times' as active;
         select 'VPN Listening Ports' as title, '?tab=vpn_listening_ports&host_identifier=' || $host_identifier AS link, $tab = 'vpn_listening_ports' as active;
+        select 'Cron Jobs Related to Backup Tasks' as title, '?tab=cron_backup_jobs&host_identifier=' || $host_identifier AS link, $tab = 'cron_backup_jobs' as active;
 
         -- policy table and tab value Start here
         -- policy pagenation
@@ -833,6 +840,54 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "tab",
         "host_identifier",
         "$tab='vpn_listening_ports'",
+      )
+      };
+
+
+
+       -- list_cron_backup_jobs table and tab value Start here
+       select
+        'text'              as component,
+        'Displays scheduled cron jobs that include the keyword "backup" in their command. Useful for auditing automated backup routines and ensuring critical backup scripts are scheduled properly.' as contents WHERE $tab = 'cron_backup_jobs';
+      -- Display sourse lable of data
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${listCronBackupJobs}
+            LIMIT 1
+          ) WHERE $tab = 'vpn_listening_ports';
+        -- cron_backup_jobs pagenation
+        ${listCronBackupJobsPagination.init()} 
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'cron_backup_jobs';
+        SELECT 
+        command,
+        event,
+        minute,
+        hour,
+        day_of_month,
+        month,
+        day_of_week,
+        path,
+        cron_schedule as "cron schedule",
+        human_readable_schedule as "human readable schedule"
+        FROM ${listCronBackupJobs}
+        WHERE host_identifier = $host_identifier AND $tab = 'cron_backup_jobs'
+        LIMIT $limit OFFSET $offset;
+        ${listCronBackupJobsPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='cron_backup_jobs'",
       )
       };
       
