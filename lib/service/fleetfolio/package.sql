@@ -859,8 +859,8 @@ WHERE
     AND name = "Osquery SSL Cert Files" 
     AND uri = "osquery-ms:query-result";
 
-  -- -- Monitor SSL cert and key file modification times
-  --  ur_transform_list_ssl_cert_file_mtime
+-- -- Monitor SSL cert and key file modification times
+--  ur_transform_list_ssl_cert_file_mtime
 DROP TABLE IF EXISTS ur_transform_list_ssl_cert_file_mtime;
 CREATE TABLE ur_transform_list_ssl_cert_file_mtime AS
 SELECT 
@@ -874,6 +874,37 @@ FROM uniform_resource
 WHERE 
     json_valid(content) = 1 
     AND name = "Osquery SSL Cert File MTIME" 
+    AND uri = "osquery-ms:query-result";
+
+-- -- Check if common VPN service ports (443, 1194, 500, 4500) are listening
+--  ur_transform_list_osquery_vpn_listening_ports
+DROP TABLE IF EXISTS ur_transform_list_osquery_vpn_listening_ports;
+CREATE TABLE ur_transform_list_osquery_vpn_listening_ports AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    json_extract(content, '$.columns.family') AS family,
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        ELSE json_extract(content, '$.columns.family')
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery VPN Listening Ports" 
     AND uri = "osquery-ms:query-result";
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
@@ -1331,6 +1362,22 @@ SELECT
   path,
   query_uri
 FROM ur_transform_list_ssl_cert_file_mtime;
+
+DROP VIEW IF EXISTS list_vpn_listening_ports;
+CREATE VIEW list_vpn_listening_ports AS
+SELECT 
+  host_identifier,
+  name,
+  address,
+  family,
+  fd,
+  net_namespace,
+  path,
+  port,
+  protocol,
+  socket,
+  query_uri
+FROM ur_transform_list_osquery_vpn_listening_ports;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2387,7 +2434,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''SSL/TLS is enabled'' as title, ''?tab=ssl_tls_is_enabled&host_identifier='' || $host_identifier AS link, $tab = ''ssl_tls_is_enabled'' as active;
   select ''SSL Certificate Files'' as title, ''?tab=osquery_ssl_cert_files&host_identifier='' || $host_identifier AS link, $tab = ''osquery_ssl_cert_files'' as active;
   select ''SSL Certificate and Key File Modification Times'' as title, ''?tab=ssl_certificate_and_key_file_modification_times&host_identifier='' || $host_identifier AS link, $tab = ''ssl_certificate_and_key_file_modification_times'' as active;
-
+  select ''VPN Listening Ports'' as title, ''?tab=vpn_listening_ports&host_identifier='' || $host_identifier AS link, $tab = ''vpn_listening_ports'' as active;
 
   -- policy table and tab value Start here
   -- policy pagenation
@@ -2584,7 +2631,7 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''all_process'';;
 
--- asset_service table and tab value Start here
+  -- asset_service table and tab value Start here
   -- asset_service pagenation
 
    -- Display sourse lable of data
@@ -2615,6 +2662,8 @@ SET current_page = ($offset / $limit) + 1;
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''asset_service'';;
+
+
 
 -- ssl_tls_is_enabled table and tab value Start here
   -- ssl_tls_is_enabled pagenation
@@ -2663,6 +2712,7 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''ssl_tls_is_enabled'';;
 
 
+-- osquery_ssl_cert_files table and tab value Start here
 select
   ''text''              as component,
   ''This table displays metadata for files and directories under /etc/ssl/certs and /etc/ssl/private. It helps verify SSL certificate file ownership, permissions, and structural integrity across Linux systems. Use this to detect unauthorized changes or misconfigurations in certificate storage paths.'' as contents WHERE $tab = ''osquery_ssl_cert_files'';
@@ -2685,7 +2735,6 @@ SELECT
       LIMIT 1
     ) WHERE $tab = ''osquery_ssl_cert_files'';
 
-  -- osquery_ssl_cert_files table and tab value Start here
   -- osquery_ssl_cert_files pagenation
   SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_files WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
@@ -2763,7 +2812,59 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
- WHERE $tab=''ssl_certificate_and_key_file_modification_times'';
+ WHERE $tab=''ssl_certificate_and_key_file_modification_times'';;
+
+
+-- ssl_certificate_and_key_file_modification_times table and tab value Start here
+
+select
+  ''text''              as component,
+  ''Displays information about system ports commonly used by VPN services (e.g., 1194, 443, 500, 4500), including protocol, address, file descriptor, and socket details. Useful for validating VPN service bindings and potential security exposure.'' as contents WHERE $tab = ''vpn_listening_ports'';
+-- Display sourse lable of data
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_vpn_listening_ports
+      LIMIT 1
+    ) WHERE $tab = ''vpn_listening_ports'';
+  -- vpn_listening_ports pagenation
+  SET total_rows = (SELECT COUNT(*) FROM list_vpn_listening_ports WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''vpn_listening_ports'';
+  SELECT 
+    port,
+    protocol,
+    family,
+    address,
+    fd,
+    socket,
+    path,
+    net_namespace as "Net Namespace"
+  FROM list_vpn_listening_ports
+  WHERE host_identifier = $host_identifier AND $tab = ''vpn_listening_ports''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''vpn_listening_ports'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
