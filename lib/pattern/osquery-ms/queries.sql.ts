@@ -366,21 +366,12 @@ export class SurveilrOsqueryMsQueries extends cnb.TypicalCodeNotebook {
       interface, 
       mac, 
       type, 
-      mtu, 
-      metric, 
-      flags, 
-      ipackets, 
-      opackets, 
-      ibytes, 
-      obytes, 
-      ierrors, 
-      oerrors, 
-      idrops, 
-      odrops, 
-      collisions, 
-      last_change, 
-      link_speed, 
-      pci_slot 
+      mtu,
+      link_speed,
+      ierrors,
+      oerrors,
+      idrops,
+      odrops
     FROM interface_details;`;
   }
 
