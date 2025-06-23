@@ -1,6 +1,6 @@
 # Osquery
 { "osquerySystemInfo": "osqueryi \"SELECT *  from system_info\" --json", "nature": "json" }
-{ "osqueryAllProcesses": "osqueryi \"select * from processes\" --json", "nature": "json" }
+{ "osqueryAllProcesses": "osqueryi \"select pid,name, path from processes\" --json", "nature": "json" }
 # Osquery
 { "osqueryUpTime":  "osqueryi \"SELECT days, hours, minutes, seconds FROM uptime\" --json", "nature": "json" }
 { "osqueryAllUsers": "osqueryi \"SELECT * from users\" --json", "nature": "json" }
