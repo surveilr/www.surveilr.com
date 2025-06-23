@@ -494,5 +494,14 @@ SELECT
         ELSE
             'Runs on schedule: ' || minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week
     END AS human_readable_schedule
-
 FROM ur_transform_list_cron_backup_jobs;
+
+DROP VIEW IF EXISTS list_mysql_process_inventory;
+CREATE VIEW list_mysql_process_inventory AS
+SELECT 
+  host_identifier,
+  name,
+  process_name,
+  process_path,
+  query_uri
+FROM ur_transform_list_mysql_process_inventory;

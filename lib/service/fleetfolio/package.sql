@@ -961,6 +961,46 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery Cron Backup Jobs" 
     AND uri = "osquery-ms:query-result";
+
+    -- Check for cron jobs related to backup tasks
+-- ur_transform_list_cron_backup_jobs
+DROP TABLE IF EXISTS ur_transform_list_cron_backup_jobs;
+CREATE TABLE ur_transform_list_cron_backup_jobs AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.command') AS command,  
+    json_extract(content, '$.columns.day_of_month') AS day_of_month,
+    json_extract(content, '$.columns.day_of_week') AS day_of_week, 
+    json_extract(content, '$.columns.event') AS event, 
+    json_extract(content, '$.columns.hour') AS hour,  
+    json_extract(content, '$.columns.minute') AS minute,
+    json_extract(content, '$.columns.month') AS month,
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Cron Backup Jobs" 
+    AND uri = "osquery-ms:query-result";
+
+-- Inventory: List MySQL database processes
+-- ur_transform_list_mysql_process_inventory
+DROP TABLE IF EXISTS ur_transform_list_mysql_process_inventory;
+CREATE TABLE ur_transform_list_mysql_process_inventory AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.name') AS process_name,
+    json_extract(content, '$.columns.path') AS process_path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery MySQL Process Inventory" 
+    AND uri = "osquery-ms:query-result";
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -1457,8 +1497,17 @@ SELECT
         ELSE
             'Runs on schedule: ' || minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week
     END AS human_readable_schedule
-
 FROM ur_transform_list_cron_backup_jobs;
+
+DROP VIEW IF EXISTS list_mysql_process_inventory;
+CREATE VIEW list_mysql_process_inventory AS
+SELECT 
+  host_identifier,
+  name,
+  process_name,
+  process_path,
+  query_uri
+FROM ur_transform_list_mysql_process_inventory;
 -- delete all /fleetfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'fleetfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2517,6 +2566,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   select ''SSL Certificate and Key File Modification Times'' as title, ''?tab=ssl_certificate_and_key_file_modification_times&host_identifier='' || $host_identifier AS link, $tab = ''ssl_certificate_and_key_file_modification_times'' as active;
   select ''VPN Listening Ports'' as title, ''?tab=vpn_listening_ports&host_identifier='' || $host_identifier AS link, $tab = ''vpn_listening_ports'' as active;
   select ''Cron Jobs Related to Backup Tasks'' as title, ''?tab=cron_backup_jobs&host_identifier='' || $host_identifier AS link, $tab = ''cron_backup_jobs'' as active;
+  select ''MySQL Process Inventory'' as title, ''?tab=mysql_process_inventory&host_identifier='' || $host_identifier AS link, $tab = ''mysql_process_inventory'' as active;
 
   -- policy table and tab value Start here
   -- policy pagenation
@@ -3000,7 +3050,51 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
- WHERE $tab=''cron_backup_jobs'';
+ WHERE $tab=''cron_backup_jobs'';;
+
+-- mysql_process_inventory table and tab value Start here
+select
+  ''text''              as component,
+  ''Displays active mysql-related processes running on linux systems, including process name and binary path. useful for inventory and service validation.'' as contents WHERE $tab = ''mysql_process_inventory'';
+-- Display sourse lable of data
+SELECT
+      ''html'' AS component,
+      contents,
+      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+      Source: <strong>'' || contents || ''</strong>
+      </div>'' AS html
+    FROM (
+      SELECT
+        query_uri,
+        CASE
+          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+          ELSE ''Other''
+        END AS contents
+      FROM list_mysql_process_inventory
+      LIMIT 1
+    ) WHERE $tab = ''vpn_listening_ports'';
+  -- mysql_process_inventory pagenation
+  SET total_rows = (SELECT COUNT(*) FROM list_mysql_process_inventory WHERE host_identifier=$host_identifier);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1; 
+  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''mysql_process_inventory'';
+  SELECT 
+  process_name as "process name",
+  process_path as "process path"
+  FROM list_mysql_process_inventory
+  WHERE host_identifier = $host_identifier AND $tab = ''mysql_process_inventory''
+  LIMIT $limit OFFSET $offset;
+  SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
+''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+ WHERE $tab=''mysql_process_inventory'';
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
