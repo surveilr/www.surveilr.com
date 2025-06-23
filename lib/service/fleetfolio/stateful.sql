@@ -697,3 +697,43 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery Cron Backup Jobs" 
     AND uri = "osquery-ms:query-result";
+
+    -- Check for cron jobs related to backup tasks
+-- ur_transform_list_cron_backup_jobs
+DROP TABLE IF EXISTS ur_transform_list_cron_backup_jobs;
+CREATE TABLE ur_transform_list_cron_backup_jobs AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.command') AS command,  
+    json_extract(content, '$.columns.day_of_month') AS day_of_month,
+    json_extract(content, '$.columns.day_of_week') AS day_of_week, 
+    json_extract(content, '$.columns.event') AS event, 
+    json_extract(content, '$.columns.hour') AS hour,  
+    json_extract(content, '$.columns.minute') AS minute,
+    json_extract(content, '$.columns.month') AS month,
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Cron Backup Jobs" 
+    AND uri = "osquery-ms:query-result";
+
+-- Inventory: List MySQL database processes
+-- ur_transform_list_mysql_process_inventory
+DROP TABLE IF EXISTS ur_transform_list_mysql_process_inventory;
+CREATE TABLE ur_transform_list_mysql_process_inventory AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.name') AS process_name,
+    json_extract(content, '$.columns.path') AS process_path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery MySQL Process Inventory" 
+    AND uri = "osquery-ms:query-result";
