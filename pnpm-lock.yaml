@@ -94,7 +94,7 @@ importers:
         version: 3.4.17
     devDependencies:
       '@commitlint/cli':
-        specifier: ^19.6.1
+        specifier: ^19.8.1
         version: 19.8.1(@types/node@22.15.30)(typescript@5.8.3)
       '@commitlint/config-conventional':
         specifier: ^19.8.1
