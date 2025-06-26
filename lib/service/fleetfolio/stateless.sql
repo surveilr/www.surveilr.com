@@ -186,7 +186,8 @@ SELECT
     ss.host_identifier,
     ss.user_name,
     ss.directory,
-    ss.uid
+    ss.uid,
+    ss.query_uri
 FROM surveilr_osquery_ms_node_boundary host
 INNER JOIN ur_transform_list_user ss ON ss.host_identifier=host.host_identifier;
 
@@ -203,7 +204,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -224,7 +226,8 @@ port.port,
 ni.ip_address,
 process.process_name as process,
 user.user_name as owenrship,
-datetime(created, 'unixepoch', 'localtime') AS created_date
+datetime(created, 'unixepoch', 'localtime') AS created_date,
+c.query_uri
 FROM ur_transform_list_container AS c
 INNER JOIN ur_transform_list_container_ports AS port ON port.id=c.id
 INNER JOIN ur_transform_list_network_information AS ni ON ni.id=c.id AND ni.hostIdentifier=c.hostIdentifier
@@ -400,5 +403,105 @@ CASE state
   WHEN 'P' THEN 'Parked'
   WHEN 'I' THEN 'Idle'
   ELSE 'Unknown'
-END AS state_description
+END AS state_description,
+query_uri
 FROM ur_transform_list_container_process;
+
+DROP VIEW IF EXISTS list_ports_443;
+CREATE VIEW list_ports_443 AS
+SELECT 
+  host_identifier,
+  name,
+  address,
+  family,
+  fd,
+  net_namespace,
+  path,
+  port,
+  protocol,
+  socket,query_uri
+FROM ur_transform_list_ports_443;
+
+DROP VIEW IF EXISTS list_ssl_cert_files;
+CREATE VIEW list_ssl_cert_files AS
+SELECT 
+  lp4.host_identifier,
+  lp4.name,
+  lp4.block_size,
+  lp4.device,
+  lp4.directory,
+  lp4.filename,
+  lp4.gid,
+  lp4.hard_links,
+  lp4.inode,
+  lp4.mode,
+  lp4.path,
+  lp4.size,
+  lp4.type,
+  lp4.uid,
+  user.user_name,
+  lp4.query_uri
+FROM ur_transform_list_ssl_cert_files lp4
+LEFT JOIN ur_transform_list_user user ON user.uid = lp4.uid;
+
+
+DROP VIEW IF EXISTS list_ssl_cert_file_mtime;
+CREATE VIEW list_ssl_cert_file_mtime AS
+SELECT 
+  host_identifier,
+  name,
+  datetime(mtime, 'unixepoch') as mtime,
+  path,
+  query_uri
+FROM ur_transform_list_ssl_cert_file_mtime;
+
+DROP VIEW IF EXISTS list_vpn_listening_ports;
+CREATE VIEW list_vpn_listening_ports AS
+SELECT 
+  host_identifier,
+  name,
+  address,
+  family,
+  fd,
+  net_namespace,
+  path,
+  port,
+  protocol,
+  socket,
+  query_uri
+FROM ur_transform_list_osquery_vpn_listening_ports;
+
+DROP VIEW IF EXISTS list_cron_backup_jobs;
+CREATE VIEW list_cron_backup_jobs AS
+SELECT
+    uniform_resource_id,
+    name,
+    host_identifier,
+    command,
+    event,
+    minute,
+    hour,
+    day_of_month,
+    month,
+    day_of_week,
+    path,
+    query_uri,
+    minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week AS cron_schedule,
+
+    CASE
+        WHEN hour GLOB '[0-9]*' AND minute GLOB '[0-9]*' THEN
+            'Runs at ' || printf('%02d', hour) || ':' || printf('%02d', minute)
+        ELSE
+            'Runs on schedule: ' || minute || ' ' || hour || ' ' || day_of_month || ' ' || month || ' ' || day_of_week
+    END AS human_readable_schedule
+FROM ur_transform_list_cron_backup_jobs;
+
+DROP VIEW IF EXISTS list_mysql_process_inventory;
+CREATE VIEW list_mysql_process_inventory AS
+SELECT 
+  host_identifier,
+  name,
+  process_name,
+  process_path,
+  query_uri
+FROM ur_transform_list_mysql_process_inventory;

@@ -33,8 +33,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@preline/dropdown':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.1.0
+        version: 3.1.0
       '@preline/overlay':
         specifier: ^3.1.0
         version: 3.1.0
@@ -94,7 +94,7 @@ importers:
         version: 3.4.17
     devDependencies:
       '@commitlint/cli':
-        specifier: ^19.6.1
+        specifier: ^19.8.1
         version: 19.8.1(@types/node@22.15.30)(typescript@5.8.3)
       '@commitlint/config-conventional':
         specifier: ^19.8.1
@@ -599,11 +599,11 @@ packages:
   '@expressive-code/plugin-text-markers@0.40.2':
     resolution: {integrity: sha512-/XoLjD67K9nfM4TgDlXAExzMJp6ewFKxNpfUw4F7q5Ecy+IU3/9zQQG/O70Zy+RxYTwKGw2MA9kd7yelsxnSmw==}
 
-  '@floating-ui/core@1.6.9':
-    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
+  '@floating-ui/core@1.7.1':
+    resolution: {integrity: sha512-azI0DrjMMfIug/ExbBaeDVJXcY0a7EPvPjb2xAJPa4HeimBX+Z18HK8QQR3jb6356SnDDdxx+hinMLcJEDdOjw==}
 
-  '@floating-ui/dom@1.6.13':
-    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+  '@floating-ui/dom@1.7.1':
+    resolution: {integrity: sha512-cwsmW/zyw5ltYTUeeYJ60CnQuPqmGwuGVhG9w0PRaRKkAyi38BT5CKrpIbb+jtahSwUl04cWzSx9ZOIxeS6RsQ==}
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
@@ -1025,8 +1025,8 @@ packages:
   '@preline/collapse@3.0.0':
     resolution: {integrity: sha512-bVNoNPHBfis81f6D1ngFXXMmB6J1mgLBIhTNO9nJJNvJ8ak+cHLU4rcJrzjMZExBUk0VKcs7rknxJ5RwKQzaBw==}
 
-  '@preline/dropdown@3.0.1':
-    resolution: {integrity: sha512-Kh7H8W8Bjbm9HtRaEX6SlYDhyNIEtjUk+pGT69+FVaM/p0fnAZZsb9FfphhHj2F0UvEXYqxr7/kRDtEBV7f/LA==}
+  '@preline/dropdown@3.1.0':
+    resolution: {integrity: sha512-Q7uCZLV+evBYHKz7X224RPZB/UCvZEM/4BuOgvUiD4B+NGwJZpCGBGENbY9VYGSby6TT/27sd9Zu7QZ77jAfcA==}
 
   '@preline/overlay@3.1.0':
     resolution: {integrity: sha512-IfB96T5HVyoAXp0Ly/m/ZxsQ/R4uL/fGdWX9EB/n94c2bjll4Hx/rj7AUJ/HT4eQXntYGVb0ZmAXYQ0vjqARvw==}
@@ -4733,13 +4733,13 @@ snapshots:
     dependencies:
       '@expressive-code/core': 0.40.2
 
-  '@floating-ui/core@1.6.9':
+  '@floating-ui/core@1.7.1':
     dependencies:
       '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/dom@1.6.13':
+  '@floating-ui/dom@1.7.1':
     dependencies:
-      '@floating-ui/core': 1.6.9
+      '@floating-ui/core': 1.7.1
       '@floating-ui/utils': 0.2.9
 
   '@floating-ui/utils@0.2.9': {}
@@ -5101,9 +5101,9 @@ snapshots:
 
   '@preline/collapse@3.0.0': {}
 
-  '@preline/dropdown@3.0.1':
+  '@preline/dropdown@3.1.0':
     dependencies:
-      '@floating-ui/dom': 1.6.13
+      '@floating-ui/dom': 1.7.1
 
   '@preline/overlay@3.1.0': {}
 

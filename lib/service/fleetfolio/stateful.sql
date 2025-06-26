@@ -535,3 +535,205 @@ SELECT
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
+
+-- -- ur_transform_list_ports_443
+-- You can check if your server is listening on port 443 (default for HTTPS) to ensure SSL/TLS is enabled for web services.
+DROP TABLE IF EXISTS ur_transform_list_ports_443;
+CREATE TABLE ur_transform_list_ports_443 AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        WHEN '10' THEN 'IPv6'
+        ELSE 'Unknown'
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace, 
+    json_extract(content, '$.columns.path') AS path, 
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Listening Ports 443" 
+    AND uri = "osquery-ms:query-result"
+    AND json_extract(content, '$.columns.port') = '443';
+
+
+-- -- ur_transform_list_ssl_cert_files
+DROP TABLE IF EXISTS ur_transform_list_ssl_cert_files;
+CREATE TABLE ur_transform_list_ssl_cert_files AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.block_size') AS block_size,  
+    json_extract(content, '$.columns.device') AS device,
+    json_extract(content, '$.columns.directory') AS directory, 
+    json_extract(content, '$.columns.filename') AS filename, 
+    json_extract(content, '$.columns.gid') AS gid,
+    json_extract(content, '$.columns.hard_links') AS hard_links,
+    json_extract(content, '$.columns.inode') AS inode,
+    json_extract(content, '$.columns.mode') AS mode,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.size') AS size,
+    json_extract(content, '$.columns.type') AS type,
+    json_extract(content, '$.columns.uid') AS uid,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery SSL Cert Files" 
+    AND uri = "osquery-ms:query-result";
+
+-- -- Monitor SSL cert and key file modification times
+--  ur_transform_list_ssl_cert_file_mtime
+DROP TABLE IF EXISTS ur_transform_list_ssl_cert_file_mtime;
+CREATE TABLE ur_transform_list_ssl_cert_file_mtime AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.mtime') AS mtime,  
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery SSL Cert File MTIME" 
+    AND uri = "osquery-ms:query-result";
+
+-- -- Check if common VPN service ports (443, 1194, 500, 4500) are listening
+-- ur_transform_list_osquery_vpn_listening_ports
+DROP TABLE IF EXISTS ur_transform_list_osquery_vpn_listening_ports;
+CREATE TABLE ur_transform_list_osquery_vpn_listening_ports AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    json_extract(content, '$.columns.family') AS family,
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        ELSE json_extract(content, '$.columns.family')
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery VPN Listening Ports" 
+    AND uri = "osquery-ms:query-result";
+
+-- Check for cron jobs related to backup tasks
+-- ur_transform_list_osquery_vpn_listening_ports
+DROP TABLE IF EXISTS ur_transform_list_osquery_vpn_listening_ports;
+CREATE TABLE ur_transform_list_osquery_vpn_listening_ports AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.address') AS address,  
+    json_extract(content, '$.columns.family') AS family,
+    CASE json_extract(content, '$.columns.family')
+        WHEN '2' THEN 'IPv4'
+        ELSE json_extract(content, '$.columns.family')
+    END AS family,
+    json_extract(content, '$.columns.fd') AS fd,
+    json_extract(content, '$.columns.net_namespace') AS net_namespace,
+    json_extract(content, '$.columns.path') AS path,
+    json_extract(content, '$.columns.port') AS port,
+    CASE json_extract(content, '$.columns.protocol')
+        WHEN '6' THEN 'TCP'
+        WHEN '17' THEN 'UDP'
+        ELSE json_extract(content, '$.columns.protocol')
+    END AS protocol,
+    json_extract(content, '$.columns.socket') AS socket,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery VPN Listening Ports" 
+    AND uri = "osquery-ms:query-result";
+
+
+-- Check for cron jobs related to backup tasks
+-- ur_transform_list_cron_backup_jobs
+DROP TABLE IF EXISTS ur_transform_list_cron_backup_jobs;
+CREATE TABLE ur_transform_list_cron_backup_jobs AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.command') AS command,  
+    json_extract(content, '$.columns.day_of_month') AS day_of_month,
+    json_extract(content, '$.columns.day_of_week') AS day_of_week, 
+    json_extract(content, '$.columns.event') AS event, 
+    json_extract(content, '$.columns.hour') AS hour,  
+    json_extract(content, '$.columns.minute') AS minute,
+    json_extract(content, '$.columns.month') AS month,
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Cron Backup Jobs" 
+    AND uri = "osquery-ms:query-result";
+
+    -- Check for cron jobs related to backup tasks
+-- ur_transform_list_cron_backup_jobs
+DROP TABLE IF EXISTS ur_transform_list_cron_backup_jobs;
+CREATE TABLE ur_transform_list_cron_backup_jobs AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.command') AS command,  
+    json_extract(content, '$.columns.day_of_month') AS day_of_month,
+    json_extract(content, '$.columns.day_of_week') AS day_of_week, 
+    json_extract(content, '$.columns.event') AS event, 
+    json_extract(content, '$.columns.hour') AS hour,  
+    json_extract(content, '$.columns.minute') AS minute,
+    json_extract(content, '$.columns.month') AS month,
+    json_extract(content, '$.columns.path') AS path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery Cron Backup Jobs" 
+    AND uri = "osquery-ms:query-result";
+
+-- Inventory: List MySQL database processes
+-- ur_transform_list_mysql_process_inventory
+DROP TABLE IF EXISTS ur_transform_list_mysql_process_inventory;
+CREATE TABLE ur_transform_list_mysql_process_inventory AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.name') AS process_name,
+    json_extract(content, '$.columns.path') AS process_path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery MySQL Process Inventory" 
+    AND uri = "osquery-ms:query-result";

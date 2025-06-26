@@ -21,7 +21,7 @@
     "@astrojs/tailwind": "6.0.2",
     "@preline/accordion": "^3.0.0",
     "@preline/collapse": "^3.0.0",
-    "@preline/dropdown": "^3.0.1",
+    "@preline/dropdown": "^3.1.0",
     "@preline/overlay": "^3.1.0",
     "@preline/tabs": "^3.1.0",
     "@vercel/nft": "^0.29.0",
@@ -52,7 +52,7 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
+    "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@tailwindcss/forms": "^0.5.9",
     "astro-vtbot": "^2.1.2",
