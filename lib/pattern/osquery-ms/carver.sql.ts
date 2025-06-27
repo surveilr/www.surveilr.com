@@ -41,10 +41,10 @@ export class SurveilrOsqueryMsCarverQueries extends cnb.TypicalCodeNotebook {
       description: "Get etc file system",
     },
     ["linux"],
-    60,
+    86400,
     "capturable-executable",
   )
-  "/etc/passwd"() {
+  "/var/log/auth.log"() {
     return `
 #!/bin/bash
 
