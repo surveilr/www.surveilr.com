@@ -737,3 +737,20 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery MySQL Process Inventory" 
     AND uri = "osquery-ms:query-result";
+
+-- Inventory: List PostgreSQL database processes
+-- ur_transform_list_postgresql_process_inventory
+DROP TABLE IF EXISTS ur_transform_list_postgresql_process_inventory;
+CREATE TABLE ur_transform_list_postgresql_process_inventory AS
+SELECT 
+    uniform_resource_id,
+    json_extract(content, '$.name') AS name,
+    json_extract(content, '$.hostIdentifier') AS host_identifier,
+    json_extract(content, '$.columns.name') AS process_name,
+    json_extract(content, '$.columns.path') AS process_path,
+    uri AS query_uri
+FROM uniform_resource 
+WHERE 
+    json_valid(content) = 1 
+    AND name = "Osquery PostgreSQL Process Inventory" 
+    AND uri = "osquery-ms:query-result";

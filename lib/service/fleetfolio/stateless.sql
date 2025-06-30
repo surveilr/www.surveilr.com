@@ -498,10 +498,20 @@ FROM ur_transform_list_cron_backup_jobs;
 
 DROP VIEW IF EXISTS list_mysql_process_inventory;
 CREATE VIEW list_mysql_process_inventory AS
-SELECT 
+SELECT
   host_identifier,
   name,
   process_name,
   process_path,
   query_uri
 FROM ur_transform_list_mysql_process_inventory;
+
+DROP VIEW IF EXISTS list_postgresql_process_inventory;
+CREATE VIEW list_postgresql_process_inventory AS
+SELECT
+  host_identifier,
+  name,
+  process_name,
+  process_path,
+  query_uri
+FROM ur_transform_list_postgresql_process_inventory;
