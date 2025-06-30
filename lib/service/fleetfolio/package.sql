@@ -2554,19 +2554,196 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   ''divider'' as component,
   ''System Environment''   as contents; 
 
-  SELECT ''tab'' AS component, TRUE AS center;
-  SELECT ''Policies'' AS title, ''?tab=policies&host_identifier='' || $host_identifier AS link, ($tab = ''policies'' OR $tab IS NULL) AS active;
-  select ''Software'' as title, ''?tab=software&host_identifier='' || $host_identifier AS link, $tab = ''software'' as active;
-  select ''Users'' as title, ''?tab=users&host_identifier='' || $host_identifier AS link, $tab = ''users'' as active;
-  select ''Containers'' as title, ''?tab=container&host_identifier='' || $host_identifier AS link, $tab = ''container'' as active;
-  select ''All Process'' as title, ''?tab=all_process&host_identifier='' || $host_identifier AS link, $tab = ''all_process'' as active;
-  select ''Asset Service'' as title, ''?tab=asset_service&host_identifier='' || $host_identifier AS link, $tab = ''asset_service'' as active;
-  select ''SSL/TLS is enabled'' as title, ''?tab=ssl_tls_is_enabled&host_identifier='' || $host_identifier AS link, $tab = ''ssl_tls_is_enabled'' as active;
-  select ''SSL Certificate Files'' as title, ''?tab=osquery_ssl_cert_files&host_identifier='' || $host_identifier AS link, $tab = ''osquery_ssl_cert_files'' as active;
-  select ''SSL Certificate and Key File Modification Times'' as title, ''?tab=ssl_certificate_and_key_file_modification_times&host_identifier='' || $host_identifier AS link, $tab = ''ssl_certificate_and_key_file_modification_times'' as active;
-  select ''VPN Listening Ports'' as title, ''?tab=vpn_listening_ports&host_identifier='' || $host_identifier AS link, $tab = ''vpn_listening_ports'' as active;
-  select ''Cron Jobs Related to Backup Tasks'' as title, ''?tab=cron_backup_jobs&host_identifier='' || $host_identifier AS link, $tab = ''cron_backup_jobs'' as active;
-  select ''MySQL Process Inventory'' as title, ''?tab=mysql_process_inventory&host_identifier='' || $host_identifier AS link, $tab = ''mysql_process_inventory'' as active;
+  -- Aggressive CSS targeting for SQLPage form horizontal layout
+  SELECT ''html'' AS component,
+      ''<div class="force-horizontal-layout">
+          <style>
+              /* Aggressive targeting of all possible SQLPage form structures */
+              .force-horizontal-layout ~ form,
+              .force-horizontal-layout + form,
+              form:has(select[name="tab"]) {
+                  display: flex !important;
+                  flex-direction: row !important;
+                  align-items: flex-end !important;
+                  gap: 15px !important;
+                  flex-wrap: wrap !important;
+                  max-width: 600px !important;
+                  margin-bottom: 20px !important;
+                  background: #f8f9fa !important;
+                  padding: 15px !important;
+                  border-radius: 6px !important;
+                  border: 1px solid #dee2e6 !important;
+              }
+
+              /* Target all possible container elements */
+              .force-horizontal-layout ~ form > *,
+              .force-horizontal-layout + form > *,
+              form:has(select[name="tab"]) > * {
+                  display: flex !important;
+                  flex-direction: row !important;
+                  align-items: flex-end !important;
+                  gap: 15px !important;
+                  margin: 0 !important;
+                  flex: 0 0 auto !important;
+              }
+
+              /* Target Bootstrap/SQLPage row and col classes */
+              .force-horizontal-layout ~ form .row,
+              .force-horizontal-layout + form .row,
+              .force-horizontal-layout ~ form .col,
+              .force-horizontal-layout + form .col,
+              .force-horizontal-layout ~ form .col-12,
+              .force-horizontal-layout + form .col-12,
+              form:has(select[name="tab"]) .row,
+              form:has(select[name="tab"]) .col,
+              form:has(select[name="tab"]) .col-12 {
+                  display: flex !important;
+                  flex-direction: row !important;
+                  align-items: flex-end !important;
+                  gap: 15px !important;
+                  width: auto !important;
+                  margin: 0 !important;
+                  flex: 0 0 auto !important;
+                  min-width: 500px !important;
+              }
+
+              /* Target form groups */
+              .force-horizontal-layout ~ form .form-group,
+              .force-horizontal-layout + form .form-group,
+              form:has(select[name="tab"]) .form-group {
+                  margin-bottom: 0 !important;
+                  margin-right: 0 !important;
+                  min-width: 730px !important;
+                  flex: 0 0 auto !important;
+              }
+
+              /* Target labels */
+              .force-horizontal-layout ~ form label,
+              .force-horizontal-layout + form label,
+              form:has(select[name="tab"]) label {
+                  margin-bottom: 5px !important;
+                  font-weight: 500 !important;
+                  font-size: 14px !important;
+                  color: #495057 !important;
+                  display: block !important;
+                  width: 100% !important;
+              }
+
+              /* Target select elements */
+              .force-horizontal-layout ~ form select,
+              .force-horizontal-layout + form select,
+              form:has(select[name="tab"]) select {
+                  width: 300px !important;
+                  max-width: 300px !important;
+                  height: 38px !important;
+                  margin-bottom: 0 !important;
+                  flex: 0 0 auto !important;
+              }
+
+              /* Target buttons */
+              .force-horizontal-layout ~ form button,
+              .force-horizontal-layout + form button,
+              form:has(select[name="tab"]) button {
+                  height: 38px !important;
+                  padding: 8px 16px !important;
+                  margin-bottom: 0 !important;
+                  margin-left: 0 !important;
+                  white-space: nowrap !important;
+                  flex: 0 0 auto !important;
+                  align-self: flex-end !important;
+              }
+
+              /* Hide hidden inputs */
+              .force-horizontal-layout ~ form input[type="hidden"],
+              .force-horizontal-layout + form input[type="hidden"],
+              form:has(select[name="tab"]) input[type="hidden"] {
+                  display: none !important;
+              }
+
+              /* Alternative CSS Grid approach */
+              .force-horizontal-layout ~ form,
+              .force-horizontal-layout + form,
+              form:has(select[name="tab"]) {
+                  display: grid !important;
+                  grid-template-columns: 1fr auto !important;
+                  gap: 15px !important;
+                  align-items: end !important;
+              }
+
+              /* Responsive behavior for mobile */
+              @media (max-width: 768px) {
+                  .force-horizontal-layout ~ form,
+                  .force-horizontal-layout + form,
+                  form:has(select[name="tab"]) {
+                      display: flex !important;
+                      flex-direction: column !important;
+                      align-items: stretch !important;
+                      grid-template-columns: none !important;
+                  }
+
+                  .force-horizontal-layout ~ form .form-group,
+                  .force-horizontal-layout + form .form-group,
+                  form:has(select[name="tab"]) .form-group {
+                      min-width: 100% !important;
+                      margin-bottom: 10px !important;
+                  }
+
+                  .force-horizontal-layout ~ form select,
+                  .force-horizontal-layout + form select,
+                  form:has(select[name="tab"]) select {
+                      width: 100% !important;
+                  }
+              }
+          </style>
+      </div>'' AS html;
+
+  -- Searchable SQLPage form component with horizontal layout
+  SELECT ''form'' AS component, ''GET'' AS method;
+
+  -- Hidden field to preserve host_identifier
+  SELECT ''hidden'' AS type, ''host_identifier'' AS name, $host_identifier AS value;
+
+  -- Searchable dropdown select field with all view options
+  SELECT
+      ''select'' AS type,
+      ''tab'' AS name,
+      ''Select View:'' AS label,
+      COALESCE($tab, ''policies'') AS value,
+      ''Search views...'' AS placeholder,
+      TRUE AS searchable,
+      ''onchange="this.form.submit()"'' AS attributes,
+      JSON_ARRAY(
+          JSON_OBJECT(''value'', ''policies'', ''label'', ''Policies''),
+          JSON_OBJECT(''value'', ''software'', ''label'', ''Software''),
+          JSON_OBJECT(''value'', ''users'', ''label'', ''Users''),
+          JSON_OBJECT(''value'', ''container'', ''label'', ''Containers''),
+          JSON_OBJECT(''value'', ''all_process'', ''label'', ''All Process''),
+          JSON_OBJECT(''value'', ''asset_service'', ''label'', ''Asset Service''),
+          JSON_OBJECT(''value'', ''ssl_tls_is_enabled'', ''label'', ''SSL/TLS is enabled''),
+          JSON_OBJECT(''value'', ''osquery_ssl_cert_files'', ''label'', ''SSL Certificate Files''),
+          JSON_OBJECT(''value'', ''ssl_certificate_and_key_file_modification_times'', ''label'', ''SSL Certificate and Key File Modification Times''),
+          JSON_OBJECT(''value'', ''vpn_listening_ports'', ''label'', ''VPN Listening Ports''),
+          JSON_OBJECT(''value'', ''cron_backup_jobs'', ''label'', ''Cron Jobs Related to Backup Tasks''),
+          JSON_OBJECT(''value'', ''mysql_process_inventory'', ''label'', ''MySQL Process Inventory'')
+      ) AS options;
+
+  -- Dynamic title display based on selected view
+  SELECT ''title'' AS component,
+      CASE
+          WHEN $tab = ''policies'' OR $tab IS NULL THEN ''Policies''
+          WHEN $tab = ''software'' THEN ''Software''
+          WHEN $tab = ''users'' THEN ''Users''
+          WHEN $tab = ''container'' THEN ''Containers''
+          WHEN $tab = ''all_process'' THEN ''All Process''
+          WHEN $tab = ''asset_service'' THEN ''Asset Service''
+          WHEN $tab = ''ssl_tls_is_enabled'' THEN ''SSL/TLS is enabled''
+          WHEN $tab = ''osquery_ssl_cert_files'' THEN ''SSL Certificate Files''
+          WHEN $tab = ''ssl_certificate_and_key_file_modification_times'' THEN ''SSL Certificate and Key File Modification Times''
+          WHEN $tab = ''vpn_listening_ports'' THEN ''VPN Listening Ports''
+          WHEN $tab = ''cron_backup_jobs'' THEN ''Cron Jobs Related to Backup Tasks''
+          WHEN $tab = ''mysql_process_inventory'' THEN ''MySQL Process Inventory''
+          ELSE ''Policies''
+      END AS contents;
 
   -- policy table and tab value Start here
   -- policy pagenation
