@@ -468,6 +468,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'divider' as component,
         'System Environment'   as contents; 
 
+        -- Section heading for view selection area
+        SELECT 'text' AS component,
+            'Select Data View' AS title,
+            'Choose from the available data views to explore different aspects of this host''s information.' AS contents;
+
         -- Aggressive CSS targeting for SQLPage form horizontal layout
         SELECT 'html' AS component,
             '<div class="force-horizontal-layout">
@@ -481,7 +486,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                         align-items: flex-end !important;
                         gap: 15px !important;
                         flex-wrap: wrap !important;
-                        max-width: 600px !important;
+                        max-width: 706px !important;
                         margin-bottom: 20px !important;
                         background: #f8f9fa !important;
                         padding: 15px !important;
