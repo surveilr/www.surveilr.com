@@ -44,7 +44,7 @@ export class SurveilrOsqueryMsCarverQueries extends cnb.TypicalCodeNotebook {
     86400,
     "capturable-executable",
   )
-  "/var/log/auth.log"() {
+  "/etc/passwd"() {
     return `
 #!/bin/bash
 
