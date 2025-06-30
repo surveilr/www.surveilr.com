@@ -315,6 +315,12 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       whereSQL: "WHERE host_identifier=$host_identifier",
     });
 
+    const listPostgresqlProcessInventory = `list_postgresql_process_inventory`;
+    const listPostgresqlProcessInventoryPagination = this.pagination({
+      tableOrViewName: listPostgresqlProcessInventory,
+      whereSQL: "WHERE host_identifier=$host_identifier",
+    });
+
     return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -643,7 +649,8 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 JSON_OBJECT('value', 'ssl_certificate_and_key_file_modification_times', 'label', 'SSL Certificate and Key File Modification Times'),
                 JSON_OBJECT('value', 'vpn_listening_ports', 'label', 'VPN Listening Ports'),
                 JSON_OBJECT('value', 'cron_backup_jobs', 'label', 'Cron Jobs Related to Backup Tasks'),
-                JSON_OBJECT('value', 'mysql_process_inventory', 'label', 'MySQL Process Inventory')
+                JSON_OBJECT('value', 'mysql_process_inventory', 'label', 'MySQL Process Inventory'),
+                JSON_OBJECT('value', 'postgresql_process_inventory', 'label', 'PostgreSQL Process Inventory')
             ) AS options;
 
         -- Dynamic title display based on selected view
@@ -661,6 +668,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                 WHEN $tab = 'vpn_listening_ports' THEN 'VPN Listening Ports'
                 WHEN $tab = 'cron_backup_jobs' THEN 'Cron Jobs Related to Backup Tasks'
                 WHEN $tab = 'mysql_process_inventory' THEN 'MySQL Process Inventory'
+                WHEN $tab = 'postgresql_process_inventory' THEN 'PostgreSQL Process Inventory'
                 ELSE 'Policies'
             END AS contents;
 
@@ -1119,7 +1127,45 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         "$tab='mysql_process_inventory'",
       )
       };
-      
+
+      -- postgresql_process_inventory table and tab value Start here
+      select
+        'text'              as component,
+        'Displays active PostgreSQL-related processes running on Linux systems, including process name and binary path. Useful for database inventory and service validation.' as contents WHERE $tab = 'postgresql_process_inventory';
+      -- Display source label of data
+      SELECT
+            'html' AS component,
+            contents,
+            '<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>' || contents || '</strong>
+            </div>' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE '%osquery%' THEN 'osquery'
+                WHEN query_uri LIKE '%Steampipe%' THEN 'Steampipe'
+                ELSE 'Other'
+              END AS contents
+            FROM ${listPostgresqlProcessInventory}
+            LIMIT 1
+          ) WHERE $tab = 'postgresql_process_inventory';
+        -- postgresql_process_inventory pagination
+        ${listPostgresqlProcessInventoryPagination.init()}
+        SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'postgresql_process_inventory';
+        SELECT
+        process_name as "Process Name",
+        process_path as "Process Path"
+        FROM ${listPostgresqlProcessInventory}
+        WHERE host_identifier = $host_identifier AND $tab = 'postgresql_process_inventory'
+        LIMIT $limit OFFSET $offset;
+        ${listPostgresqlProcessInventoryPagination.renderSimpleMarkdown(
+        "tab",
+        "host_identifier",
+        "$tab='postgresql_process_inventory'",
+      )
+      };
+
       `;
   }
 
