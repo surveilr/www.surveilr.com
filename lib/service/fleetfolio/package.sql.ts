@@ -629,29 +629,75 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'hidden' AS type, 'host_identifier' AS name, $host_identifier AS value;
 
         -- Searchable dropdown select field with all view options
-        SELECT
-            'select' AS type,
-            'tab' AS name,
-            'Select View:' AS label,
-            COALESCE($tab, 'policies') AS value,
-            'Search views...' AS placeholder,
-            TRUE AS searchable,
-            'onchange="this.form.submit()"' AS attributes,
-            JSON_ARRAY(
-                JSON_OBJECT('value', 'policies', 'label', 'Policies'),
-                JSON_OBJECT('value', 'software', 'label', 'Software'),
-                JSON_OBJECT('value', 'users', 'label', 'Users'),
-                JSON_OBJECT('value', 'container', 'label', 'Containers'),
-                JSON_OBJECT('value', 'all_process', 'label', 'All Process'),
-                JSON_OBJECT('value', 'asset_service', 'label', 'Asset Service'),
-                JSON_OBJECT('value', 'ssl_tls_is_enabled', 'label', 'SSL/TLS is enabled'),
-                JSON_OBJECT('value', 'osquery_ssl_cert_files', 'label', 'SSL Certificate Files'),
-                JSON_OBJECT('value', 'ssl_certificate_and_key_file_modification_times', 'label', 'SSL Certificate and Key File Modification Times'),
-                JSON_OBJECT('value', 'vpn_listening_ports', 'label', 'VPN Listening Ports'),
-                JSON_OBJECT('value', 'cron_backup_jobs', 'label', 'Cron Jobs Related to Backup Tasks'),
-                JSON_OBJECT('value', 'mysql_process_inventory', 'label', 'MySQL Process Inventory'),
-                JSON_OBJECT('value', 'postgresql_process_inventory', 'label', 'PostgreSQL Process Inventory')
-            ) AS options;
+        WITH
+          policy_count AS (
+              SELECT COUNT(*) AS datacount FROM ${policyViewName} WHERE host_identifier = $host_identifier
+          ),
+          software_count AS (
+              SELECT COUNT(*) AS datacount FROM ${softwareViewName} WHERE host_identifier = $host_identifier
+          ),
+          user_count AS (
+              SELECT COUNT(*) AS datacount FROM ${userListViewName} WHERE host_identifier = $host_identifier
+          ),
+          container_count AS (
+              SELECT COUNT(*) AS datacount FROM ${containerViewName} WHERE host_identifier = $host_identifier
+          ),
+          process_count AS (
+              SELECT COUNT(*) AS datacount FROM ${processViewName} WHERE host_identifier = $host_identifier
+          ),
+          asset_service_count AS (
+              SELECT COUNT(*) AS datacount FROM ${assetServiceViewName} WHERE host_identifier = $host_identifier
+          ),
+          tls_enabled_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listPorts443ViewName} WHERE host_identifier = $host_identifier
+          ),
+          ssl_cert_file_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listListSSLCertFile} WHERE host_identifier = $host_identifier
+          ),
+          ssl_cert_file_mtime_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listListSSLCertFileMtime} WHERE host_identifier = $host_identifier
+          ),
+          vpn_listening_ports_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listVpnListeningPorts} WHERE host_identifier = $host_identifier
+          ),
+          cron_backup_jobs_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listCronBackupJobs} WHERE host_identifier = $host_identifier
+          ),
+          mysql_process_inventory_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listMysqlProcessInventory} WHERE host_identifier = $host_identifier
+          ),
+          postgresql_process_inventory_count AS (
+              SELECT COUNT(*) AS datacount FROM ${listPostgresqlProcessInventory} WHERE host_identifier = $host_identifier
+          ),
+          options AS (
+              SELECT '{"value":"policies","label":"Policies"}' AS option FROM policy_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"software","label":"Software"}' FROM software_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"users","label":"Users"}' FROM user_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"container","label":"Containers"}' FROM container_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"all_process","label":"All Process"}' FROM process_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"asset_service","label":"Asset Service"}' FROM asset_service_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"ssl_tls_is_enabled","label":"SSL/TLS is enabled"}' FROM tls_enabled_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"osquery_ssl_cert_files","label":"SSL Certificate Files"}' FROM ssl_cert_file_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"ssl_certificate_and_key_file_modification_times","label":"SSL Certificate and Key File Modification Times"}' FROM ssl_cert_file_mtime_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"vpn_listening_ports","label":"VPN Listening Ports"}' FROM vpn_listening_ports_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"cron_backup_jobs","label":"Cron Jobs Related to Backup Tasks"}' FROM cron_backup_jobs_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"mysql_process_inventory","label":"MySQL Process Inventory"}' FROM mysql_process_inventory_count WHERE datacount > 0
+              UNION ALL SELECT '{"value":"postgresql_process_inventory","label":"PostgreSQL Process Inventory"}' FROM postgresql_process_inventory_count WHERE datacount > 0
+          )
+
+
+SELECT
+    'select' AS type,
+    'tab' AS name,
+    'Select View:' AS label,
+    COALESCE($tab, 'policies') AS value,
+    'Search views...' AS placeholder,
+    TRUE AS searchable,
+    'onchange="this.form.submit()"' AS attributes,
+    '[' || GROUP_CONCAT(option, ',') || ']' AS options
+FROM options;
+
+
 
         -- Dynamic title display based on selected view
         SELECT 'title' AS component,
