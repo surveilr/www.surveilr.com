@@ -2429,390 +2429,437 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               -- not including page title from sqlpage_aide_navigation
               
 
-              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+              
+      SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
    WHERE namespace = ''prime'' AND path = ''fleetfolio/host_detail.sql/index.sql'') as contents;
     ;
-  --- Display breadcrumb
-  SELECT
-      ''breadcrumb'' AS component;
-  SELECT
-      ''Home'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
-  SELECT
-      ''Fleetfolio'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
-  SELECT
-      ''Boundary'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link WHERE $path=''boundary''; 
-  SELECT boundary AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key  AS link
-      FROM host_list WHERE host_identifier=$host_identifier AND $path=''boundary'' LIMIT 1;
-  SELECT host AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier  AS link
-      FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
+        --- Display breadcrumb
+        SELECT
+            ''breadcrumb'' AS component;
+        SELECT
+            ''Home'' AS title,
+            sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
+        SELECT
+            ''Fleetfolio'' AS title,
+            sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
+        SELECT
+            ''Boundary'' AS title,
+            sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link WHERE $path=''boundary''; 
+        SELECT boundary AS title,
+            sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_list.sql?boundary_key='' || boundary_key  AS link
+            FROM host_list WHERE host_identifier=$host_identifier AND $path=''boundary'' LIMIT 1;
+        SELECT host AS title,
+            sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/host_detail.sql?host_identifier='' || host_identifier  AS link
+            FROM host_list WHERE host_identifier=$host_identifier LIMIT 1;
 
 
-  --- Dsply Page Title
-  SELECT
-      ''title''   as component,
-      host as contents FROM host_list WHERE host_identifier=$host_identifier;
+        --- Dsply Page Title
+        SELECT
+            ''title''   as component,
+            host as contents FROM host_list WHERE host_identifier=$host_identifier;
 
-  SELECT
-      ''text''              as component,
-      description as contents FROM host_list WHERE host_identifier=$host_identifier;
+        SELECT
+            ''text''              as component,
+            description as contents FROM host_list WHERE host_identifier=$host_identifier;
 
-    -- Display sourse lable of data
-    SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
-      SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM host_list
-      LIMIT 1
-    );
-
-
-  --- Display Asset (Host) Details first row
-  SELECT ''datagrid'' as component;
-      -- SELECT ''Parent Boundary'' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
-      SELECT ''Boundary'' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
-      SELECT ''Logical Boundary'' as title, logical_boundary as description FROM host_list WHERE host_identifier=$host_identifier;
-      SELECT ''Status'' as title,
-      CASE 
-          WHEN status = ''Online'' THEN ''🟢 Online''
-          WHEN status = ''Offline'' THEN ''🔴 Offline''
-          ELSE ''⚠️ Unknown''
-      END AS  description FROM host_list WHERE host_identifier=$host_identifier;
-      SELECT ''Issues'' as title, issues as description FROM host_list WHERE host_identifier=$host_identifier;
-      SELECT ''Osquery version'' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
-      SELECT ''Operating system'' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
+          -- Display sourse lable of data
+          SELECT
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM host_list
+            LIMIT 1
+          );
 
 
-     -- Display sourse lable of data
-     SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
-      SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM host_list
-      LIMIT 1
-    );
-      select 
-          ''html'' as component,
-          ''<div style="display: flex; gap: 20px; width: 100%;">
-              <!-- First Column -->
-              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Disk space</div>
-                      <div>'' || available_space || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Memory</div>
-                      <div>'' || ROUND(physical_memory / (1024 * 1024 * 1024), 2) || '' GB'' || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Processor Type</div>
-                      <div>'' || cpu_type || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px;">
-                      <div class="datagrid-title">Added to surveilr</div>
-                      <div>'' || added_to_surveilr_osquery_ms || ''</div>
-                  </div>
-              </div> 
+        --- Display Asset (Host) Details first row
+        SELECT ''datagrid'' as component;
+            -- SELECT ''Parent Boundary'' as title, parent_boundary as description FROM host_list WHERE asset_id=$host_identifier;
+            SELECT ''Boundary'' as title, boundary as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT ''Logical Boundary'' as title, logical_boundary as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT ''Status'' as title,
+            CASE 
+                WHEN status = ''Online'' THEN ''🟢 Online''
+                WHEN status = ''Offline'' THEN ''🔴 Offline''
+                ELSE ''⚠️ Unknown''
+            END AS  description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT ''Issues'' as title, issues as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT ''Osquery version'' as title, osquery_version as description FROM host_list WHERE host_identifier=$host_identifier;
+            SELECT ''Operating system'' as title, operating_system as description FROM host_list WHERE host_identifier=$host_identifier;
 
-              <!-- Second Column -->
-              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Hardware Model</div>
-                      <div>'' || hardware_model || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Board Model</div>
-                      <div>'' || board_model || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Serial Number</div>
-                      <div>'' || hardware_serial || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px;">
-                      <div class="datagrid-title">Last restarted</div>
-                      <div>'' || last_restarted || ''</div>
-                  </div>
-              </div> 
 
-              <!-- Third Column -->
-              <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">IP Address</div>
-                      <div>'' || ip_address || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
-                      <div class="datagrid-title">Mac Address</div>
-                      <div>'' || mac || ''</div>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 4px;">
-                      <div class="datagrid-title">Last Fetched</div>
-                      <div>'' || last_fetched || ''</div>
-                  </div>
-              </div>
-          </div>
-      '' as html FROM host_list WHERE host_identifier=$host_identifier;
+           -- Display sourse lable of data
+           SELECT
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM host_list
+            LIMIT 1
+          );
+            select 
+                ''html'' as component,
+                ''<div style="display: flex; gap: 20px; width: 100%;">
+                    <!-- First Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc;  border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Disk space</div>
+                            <div>'' || available_space || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Memory</div>
+                            <div>'' || ROUND(physical_memory / (1024 * 1024 * 1024), 2) || '' GB'' || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Processor Type</div>
+                            <div>'' || cpu_type || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Added to surveilr</div>
+                            <div>'' || added_to_surveilr_osquery_ms || ''</div>
+                        </div>
+                    </div> 
 
-  select 
-  ''divider'' as component,
-  ''System Environment''   as contents; 
+                    <!-- Second Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Hardware Model</div>
+                            <div>'' || hardware_model || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Board Model</div>
+                            <div>'' || board_model || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Serial Number</div>
+                            <div>'' || hardware_serial || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Last restarted</div>
+                            <div>'' || last_restarted || ''</div>
+                        </div>
+                    </div> 
 
-  -- Section heading for view selection area
-  SELECT ''text'' AS component,
-      ''Select Data View'' AS title,
-      ''Choose from the available data views to explore different aspects of this host''''s information.'' AS contents;
+                    <!-- Third Column -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: .5px solid #ccc; border-radius: 4px; width: 33%; background-color: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">IP Address</div>
+                            <div>'' || ip_address || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #eee;">
+                            <div class="datagrid-title">Mac Address</div>
+                            <div>'' || mac || ''</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px;">
+                            <div class="datagrid-title">Last Fetched</div>
+                            <div>'' || last_fetched || ''</div>
+                        </div>
+                    </div>
+                </div>
+            '' as html FROM host_list WHERE host_identifier=$host_identifier;
 
-  -- Aggressive CSS targeting for SQLPage form horizontal layout
-  SELECT ''html'' AS component,
-      ''<div class="force-horizontal-layout">
-          <style>
-              /* Aggressive targeting of all possible SQLPage form structures */
-              .force-horizontal-layout ~ form,
-              .force-horizontal-layout + form,
-              form:has(select[name="tab"]) {
-                  display: flex !important;
-                  flex-direction: row !important;
-                  align-items: flex-end !important;
-                  gap: 15px !important;
-                  flex-wrap: wrap !important;
-                  max-width: 706px !important;
-                  margin-bottom: 20px !important;
-                  background: #f8f9fa !important;
-                  padding: 15px !important;
-                  border-radius: 6px !important;
-                  border: 1px solid #dee2e6 !important;
-              }
+        select 
+        ''divider'' as component,
+        ''System Environment''   as contents; 
 
-              /* Target all possible container elements */
-              .force-horizontal-layout ~ form > *,
-              .force-horizontal-layout + form > *,
-              form:has(select[name="tab"]) > * {
-                  display: flex !important;
-                  flex-direction: row !important;
-                  align-items: flex-end !important;
-                  gap: 15px !important;
-                  margin: 0 !important;
-                  flex: 0 0 auto !important;
-              }
+        -- Section heading for view selection area
+        SELECT ''text'' AS component,
+            ''Select Data View'' AS title,
+            ''Choose from the available data views to explore different aspects of this host''''s information.'' AS contents;
 
-              /* Target Bootstrap/SQLPage row and col classes */
-              .force-horizontal-layout ~ form .row,
-              .force-horizontal-layout + form .row,
-              .force-horizontal-layout ~ form .col,
-              .force-horizontal-layout + form .col,
-              .force-horizontal-layout ~ form .col-12,
-              .force-horizontal-layout + form .col-12,
-              form:has(select[name="tab"]) .row,
-              form:has(select[name="tab"]) .col,
-              form:has(select[name="tab"]) .col-12 {
-                  display: flex !important;
-                  flex-direction: row !important;
-                  align-items: flex-end !important;
-                  gap: 15px !important;
-                  width: auto !important;
-                  margin: 0 !important;
-                  flex: 0 0 auto !important;
-                  min-width: 500px !important;
-              }
+        -- Aggressive CSS targeting for SQLPage form horizontal layout
+        SELECT ''html'' AS component,
+            ''<div class="force-horizontal-layout">
+                <style>
+                    /* Aggressive targeting of all possible SQLPage form structures */
+                    .force-horizontal-layout ~ form,
+                    .force-horizontal-layout + form,
+                    form:has(select[name="tab"]) {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: flex-end !important;
+                        gap: 15px !important;
+                        flex-wrap: wrap !important;
+                        max-width: 706px !important;
+                        margin-bottom: 20px !important;
+                        background: #f8f9fa !important;
+                        padding: 15px !important;
+                        border-radius: 6px !important;
+                        border: 1px solid #dee2e6 !important;
+                    }
 
-              /* Target form groups */
-              .force-horizontal-layout ~ form .form-group,
-              .force-horizontal-layout + form .form-group,
-              form:has(select[name="tab"]) .form-group {
-                  margin-bottom: 0 !important;
-                  margin-right: 0 !important;
-                  min-width: 730px !important;
-                  flex: 0 0 auto !important;
-              }
+                    /* Target all possible container elements */
+                    .force-horizontal-layout ~ form > *,
+                    .force-horizontal-layout + form > *,
+                    form:has(select[name="tab"]) > * {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: flex-end !important;
+                        gap: 15px !important;
+                        margin: 0 !important;
+                        flex: 0 0 auto !important;
+                    }
 
-              /* Target labels */
-              .force-horizontal-layout ~ form label,
-              .force-horizontal-layout + form label,
-              form:has(select[name="tab"]) label {
-                  margin-bottom: 5px !important;
-                  font-weight: 500 !important;
-                  font-size: 14px !important;
-                  color: #495057 !important;
-                  display: block !important;
-                  width: 100% !important;
-              }
+                    /* Target Bootstrap/SQLPage row and col classes */
+                    .force-horizontal-layout ~ form .row,
+                    .force-horizontal-layout + form .row,
+                    .force-horizontal-layout ~ form .col,
+                    .force-horizontal-layout + form .col,
+                    .force-horizontal-layout ~ form .col-12,
+                    .force-horizontal-layout + form .col-12,
+                    form:has(select[name="tab"]) .row,
+                    form:has(select[name="tab"]) .col,
+                    form:has(select[name="tab"]) .col-12 {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: flex-end !important;
+                        gap: 15px !important;
+                        width: auto !important;
+                        margin: 0 !important;
+                        flex: 0 0 auto !important;
+                        min-width: 500px !important;
+                    }
 
-              /* Target select elements */
-              .force-horizontal-layout ~ form select,
-              .force-horizontal-layout + form select,
-              form:has(select[name="tab"]) select {
-                  width: 300px !important;
-                  max-width: 300px !important;
-                  height: 38px !important;
-                  margin-bottom: 0 !important;
-                  flex: 0 0 auto !important;
-              }
+                    /* Target form groups */
+                    .force-horizontal-layout ~ form .form-group,
+                    .force-horizontal-layout + form .form-group,
+                    form:has(select[name="tab"]) .form-group {
+                        margin-bottom: 0 !important;
+                        margin-right: 0 !important;
+                        min-width: 730px !important;
+                        flex: 0 0 auto !important;
+                    }
 
-              /* Target buttons */
-              .force-horizontal-layout ~ form button,
-              .force-horizontal-layout + form button,
-              form:has(select[name="tab"]) button {
-                  height: 38px !important;
-                  padding: 8px 16px !important;
-                  margin-bottom: 0 !important;
-                  margin-left: 0 !important;
-                  white-space: nowrap !important;
-                  flex: 0 0 auto !important;
-                  align-self: flex-end !important;
-              }
+                    /* Target labels */
+                    .force-horizontal-layout ~ form label,
+                    .force-horizontal-layout + form label,
+                    form:has(select[name="tab"]) label {
+                        margin-bottom: 5px !important;
+                        font-weight: 500 !important;
+                        font-size: 14px !important;
+                        color: #495057 !important;
+                        display: block !important;
+                        width: 100% !important;
+                    }
 
-              /* Hide hidden inputs */
-              .force-horizontal-layout ~ form input[type="hidden"],
-              .force-horizontal-layout + form input[type="hidden"],
-              form:has(select[name="tab"]) input[type="hidden"] {
-                  display: none !important;
-              }
+                    /* Target select elements */
+                    .force-horizontal-layout ~ form select,
+                    .force-horizontal-layout + form select,
+                    form:has(select[name="tab"]) select {
+                        width: 300px !important;
+                        max-width: 300px !important;
+                        height: 38px !important;
+                        margin-bottom: 0 !important;
+                        flex: 0 0 auto !important;
+                    }
 
-              /* Alternative CSS Grid approach */
-              .force-horizontal-layout ~ form,
-              .force-horizontal-layout + form,
-              form:has(select[name="tab"]) {
-                  display: grid !important;
-                  grid-template-columns: 1fr auto !important;
-                  gap: 15px !important;
-                  align-items: end !important;
-              }
+                    /* Target buttons */
+                    .force-horizontal-layout ~ form button,
+                    .force-horizontal-layout + form button,
+                    form:has(select[name="tab"]) button {
+                        height: 38px !important;
+                        padding: 8px 16px !important;
+                        margin-bottom: 0 !important;
+                        margin-left: 0 !important;
+                        white-space: nowrap !important;
+                        flex: 0 0 auto !important;
+                        align-self: flex-end !important;
+                    }
 
-              /* Responsive behavior for mobile */
-              @media (max-width: 768px) {
-                  .force-horizontal-layout ~ form,
-                  .force-horizontal-layout + form,
-                  form:has(select[name="tab"]) {
-                      display: flex !important;
-                      flex-direction: column !important;
-                      align-items: stretch !important;
-                      grid-template-columns: none !important;
-                  }
+                    /* Hide hidden inputs */
+                    .force-horizontal-layout ~ form input[type="hidden"],
+                    .force-horizontal-layout + form input[type="hidden"],
+                    form:has(select[name="tab"]) input[type="hidden"] {
+                        display: none !important;
+                    }
 
-                  .force-horizontal-layout ~ form .form-group,
-                  .force-horizontal-layout + form .form-group,
-                  form:has(select[name="tab"]) .form-group {
-                      min-width: 100% !important;
-                      margin-bottom: 10px !important;
-                  }
+                    /* Alternative CSS Grid approach */
+                    .force-horizontal-layout ~ form,
+                    .force-horizontal-layout + form,
+                    form:has(select[name="tab"]) {
+                        display: grid !important;
+                        grid-template-columns: 1fr auto !important;
+                        gap: 15px !important;
+                        align-items: end !important;
+                    }
 
-                  .force-horizontal-layout ~ form select,
-                  .force-horizontal-layout + form select,
-                  form:has(select[name="tab"]) select {
-                      width: 100% !important;
-                  }
-              }
-          </style>
-      </div>'' AS html;
+                    /* Responsive behavior for mobile */
+                    @media (max-width: 768px) {
+                        .force-horizontal-layout ~ form,
+                        .force-horizontal-layout + form,
+                        form:has(select[name="tab"]) {
+                            display: flex !important;
+                            flex-direction: column !important;
+                            align-items: stretch !important;
+                            grid-template-columns: none !important;
+                        }
 
-  -- Searchable SQLPage form component with horizontal layout
-  SELECT ''form'' AS component, ''GET'' AS method;
+                        .force-horizontal-layout ~ form .form-group,
+                        .force-horizontal-layout + form .form-group,
+                        form:has(select[name="tab"]) .form-group {
+                            min-width: 100% !important;
+                            margin-bottom: 10px !important;
+                        }
 
-  -- Hidden field to preserve host_identifier
-  SELECT ''hidden'' AS type, ''host_identifier'' AS name, $host_identifier AS value;
+                        .force-horizontal-layout ~ form select,
+                        .force-horizontal-layout + form select,
+                        form:has(select[name="tab"]) select {
+                            width: 100% !important;
+                        }
+                    }
+                </style>
+            </div>'' AS html;
 
-  -- Searchable dropdown select field with all view options
-  SELECT
-      ''select'' AS type,
-      ''tab'' AS name,
-      ''Select View:'' AS label,
-      COALESCE($tab, ''policies'') AS value,
-      ''Search views...'' AS placeholder,
-      TRUE AS searchable,
-      ''onchange="this.form.submit()"'' AS attributes,
-      JSON_ARRAY(
-          JSON_OBJECT(''value'', ''policies'', ''label'', ''Policies''),
-          JSON_OBJECT(''value'', ''software'', ''label'', ''Software''),
-          JSON_OBJECT(''value'', ''users'', ''label'', ''Users''),
-          JSON_OBJECT(''value'', ''container'', ''label'', ''Containers''),
-          JSON_OBJECT(''value'', ''all_process'', ''label'', ''All Process''),
-          JSON_OBJECT(''value'', ''asset_service'', ''label'', ''Asset Service''),
-          JSON_OBJECT(''value'', ''ssl_tls_is_enabled'', ''label'', ''SSL/TLS is enabled''),
-          JSON_OBJECT(''value'', ''osquery_ssl_cert_files'', ''label'', ''SSL Certificate Files''),
-          JSON_OBJECT(''value'', ''ssl_certificate_and_key_file_modification_times'', ''label'', ''SSL Certificate and Key File Modification Times''),
-          JSON_OBJECT(''value'', ''vpn_listening_ports'', ''label'', ''VPN Listening Ports''),
-          JSON_OBJECT(''value'', ''cron_backup_jobs'', ''label'', ''Cron Jobs Related to Backup Tasks''),
-          JSON_OBJECT(''value'', ''mysql_process_inventory'', ''label'', ''MySQL Process Inventory''),
-          JSON_OBJECT(''value'', ''postgresql_process_inventory'', ''label'', ''PostgreSQL Process Inventory'')
-      ) AS options;
+        -- Searchable SQLPage form component with horizontal layout
+        SELECT ''form'' AS component, ''GET'' AS method;
 
-  -- Dynamic title display based on selected view
-  SELECT ''title'' AS component,
-      CASE
-          WHEN $tab = ''policies'' OR $tab IS NULL THEN ''Policies''
-          WHEN $tab = ''software'' THEN ''Software''
-          WHEN $tab = ''users'' THEN ''Users''
-          WHEN $tab = ''container'' THEN ''Containers''
-          WHEN $tab = ''all_process'' THEN ''All Process''
-          WHEN $tab = ''asset_service'' THEN ''Asset Service''
-          WHEN $tab = ''ssl_tls_is_enabled'' THEN ''SSL/TLS is enabled''
-          WHEN $tab = ''osquery_ssl_cert_files'' THEN ''SSL Certificate Files''
-          WHEN $tab = ''ssl_certificate_and_key_file_modification_times'' THEN ''SSL Certificate and Key File Modification Times''
-          WHEN $tab = ''vpn_listening_ports'' THEN ''VPN Listening Ports''
-          WHEN $tab = ''cron_backup_jobs'' THEN ''Cron Jobs Related to Backup Tasks''
-          WHEN $tab = ''mysql_process_inventory'' THEN ''MySQL Process Inventory''
-          WHEN $tab = ''postgresql_process_inventory'' THEN ''PostgreSQL Process Inventory''
-          ELSE ''Policies''
-      END AS contents;
+        -- Hidden field to preserve host_identifier
+        SELECT ''hidden'' AS type, ''host_identifier'' AS name, $host_identifier AS value;
 
-  -- policy table and tab value Start here
-  -- policy pagenation
+        -- Searchable dropdown select field with all view options
+        WITH
+          policy_count AS (
+              SELECT COUNT(*) AS datacount FROM asset_policy_list WHERE host_identifier = $host_identifier
+          ),
+          software_count AS (
+              SELECT COUNT(*) AS datacount FROM asset_software_list WHERE host_identifier = $host_identifier
+          ),
+          user_count AS (
+              SELECT COUNT(*) AS datacount FROM asset_user_list WHERE host_identifier = $host_identifier
+          ),
+          container_count AS (
+              SELECT COUNT(*) AS datacount FROM list_docker_container WHERE host_identifier = $host_identifier
+          ),
+          process_count AS (
+              SELECT COUNT(*) AS datacount FROM list_container_process WHERE host_identifier = $host_identifier
+          ),
+          asset_service_count AS (
+              SELECT COUNT(*) AS datacount FROM expected_asset_service_list WHERE host_identifier = $host_identifier
+          ),
+          tls_enabled_count AS (
+              SELECT COUNT(*) AS datacount FROM list_ports_443 WHERE host_identifier = $host_identifier
+          ),
+          ssl_cert_file_count AS (
+              SELECT COUNT(*) AS datacount FROM list_ssl_cert_files WHERE host_identifier = $host_identifier
+          ),
+          ssl_cert_file_mtime_count AS (
+              SELECT COUNT(*) AS datacount FROM list_ssl_cert_file_mtime WHERE host_identifier = $host_identifier
+          ),
+          vpn_listening_ports_count AS (
+              SELECT COUNT(*) AS datacount FROM list_vpn_listening_ports WHERE host_identifier = $host_identifier
+          ),
+          cron_backup_jobs_count AS (
+              SELECT COUNT(*) AS datacount FROM list_cron_backup_jobs WHERE host_identifier = $host_identifier
+          ),
+          mysql_process_inventory_count AS (
+              SELECT COUNT(*) AS datacount FROM list_mysql_process_inventory WHERE host_identifier = $host_identifier
+          ),
+          postgresql_process_inventory_count AS (
+              SELECT COUNT(*) AS datacount FROM list_postgresql_process_inventory WHERE host_identifier = $host_identifier
+          ),
+          options AS (
+              SELECT ''{"value":"policies","label":"Policies"}'' AS option FROM policy_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"software","label":"Software"}'' FROM software_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"users","label":"Users"}'' FROM user_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"container","label":"Containers"}'' FROM container_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"all_process","label":"All Process"}'' FROM process_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"asset_service","label":"Asset Service"}'' FROM asset_service_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"ssl_tls_is_enabled","label":"SSL/TLS is enabled"}'' FROM tls_enabled_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"osquery_ssl_cert_files","label":"SSL Certificate Files"}'' FROM ssl_cert_file_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"ssl_certificate_and_key_file_modification_times","label":"SSL Certificate and Key File Modification Times"}'' FROM ssl_cert_file_mtime_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"vpn_listening_ports","label":"VPN Listening Ports"}'' FROM vpn_listening_ports_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"cron_backup_jobs","label":"Cron Jobs Related to Backup Tasks"}'' FROM cron_backup_jobs_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"mysql_process_inventory","label":"MySQL Process Inventory"}'' FROM mysql_process_inventory_count WHERE datacount > 0
+              UNION ALL SELECT ''{"value":"postgresql_process_inventory","label":"PostgreSQL Process Inventory"}'' FROM postgresql_process_inventory_count WHERE datacount > 0
+          )
 
-  -- Display sourse lable of data
-  SELECT
-    ''html'' AS component,
-    contents,
-    ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-    Source : <strong>'' || contents || ''</strong>
-    </div>'' AS html
-    FROM (
-      SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM asset_policy_list WHERE host_identifier = $host_identifier LIMIT 1
-    ) WHERE $tab = ''policies'';
 
-  SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE host_identifier=$host_identifier);
+SELECT
+    ''select'' AS type,
+    ''tab'' AS name,
+    ''Select View:'' AS label,
+    COALESCE($tab, ''policies'') AS value,
+    ''Search views...'' AS placeholder,
+    TRUE AS searchable,
+    ''onchange="this.form.submit()"'' AS attributes,
+    ''['' || GROUP_CONCAT(option, '','') || '']'' AS options
+FROM options;
+
+
+
+        -- Dynamic title display based on selected view
+        SELECT ''title'' AS component,
+            CASE
+                WHEN $tab = ''policies'' OR $tab IS NULL THEN ''Policies''
+                WHEN $tab = ''software'' THEN ''Software''
+                WHEN $tab = ''users'' THEN ''Users''
+                WHEN $tab = ''container'' THEN ''Containers''
+                WHEN $tab = ''all_process'' THEN ''All Process''
+                WHEN $tab = ''asset_service'' THEN ''Asset Service''
+                WHEN $tab = ''ssl_tls_is_enabled'' THEN ''SSL/TLS is enabled''
+                WHEN $tab = ''osquery_ssl_cert_files'' THEN ''SSL Certificate Files''
+                WHEN $tab = ''ssl_certificate_and_key_file_modification_times'' THEN ''SSL Certificate and Key File Modification Times''
+                WHEN $tab = ''vpn_listening_ports'' THEN ''VPN Listening Ports''
+                WHEN $tab = ''cron_backup_jobs'' THEN ''Cron Jobs Related to Backup Tasks''
+                WHEN $tab = ''mysql_process_inventory'' THEN ''MySQL Process Inventory''
+                WHEN $tab = ''postgresql_process_inventory'' THEN ''PostgreSQL Process Inventory''
+                ELSE ''Policies''
+            END AS contents;
+
+        -- policy table and tab value Start here
+        -- policy pagenation
+
+        -- Display sourse lable of data
+        SELECT
+          ''html'' AS component,
+          contents,
+          ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+          Source : <strong>'' || contents || ''</strong>
+          </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM asset_policy_list WHERE host_identifier = $host_identifier LIMIT 1
+          ) WHERE $tab = ''policies'';
+
+        SET total_rows = (SELECT COUNT(*) FROM asset_policy_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE ($tab = ''policies'' OR $tab IS NULL);
-  SELECT 
-  policy_name AS "Policy", policy_result as "Status", resolution
-  FROM asset_policy_list
-  WHERE host_identifier = $host_identifier AND ($tab = ''policies'' OR $tab IS NULL) LIMIT $limit
-  OFFSET $offset;
-  -- checking
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE ($tab = ''policies'' OR $tab IS NULL);
+        SELECT 
+        policy_name AS "Policy", policy_result as "Status", resolution
+        FROM asset_policy_list
+        WHERE host_identifier = $host_identifier AND ($tab = ''policies'' OR $tab IS NULL) LIMIT $limit
+        OFFSET $offset;
+        -- checking
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2822,28 +2869,28 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''policies'';;
 
 
-SELECT
-      ''html'' AS component,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>osquery</strong>
-      </div>'' AS html
-    WHERE $tab = ''software'';
+      SELECT
+            ''html'' AS component,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>osquery</strong>
+            </div>'' AS html
+          WHERE $tab = ''software'';
 
-  -- Software table and tab value Start here
- 
-  SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE host_identifier=$host_identifier);
+        -- Software table and tab value Start here
+       
+        SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
-  SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
-  FROM asset_software_list
-  WHERE host_identifier = $host_identifier AND $tab = ''software''
-  LIMIT $limit OFFSET $offset;
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
+        SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
+        FROM asset_software_list
+        WHERE host_identifier = $host_identifier AND $tab = ''software''
+        LIMIT $limit OFFSET $offset;
 
-  -- Software pagenation
-  SELECT ''text'' AS component,
+        -- Software pagenation
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2852,38 +2899,38 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''software'';;
 
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM asset_user_list
-      LIMIT 1
-    ) WHERE $tab = ''users'';
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM asset_user_list
+            LIMIT 1
+          ) WHERE $tab = ''users'';
 
-  -- User table and tab value Start here
-  SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE host_identifier=$host_identifier);
+        -- User table and tab value Start here
+        SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''users'';
-  SELECT user_name as "User Name", directory as "Directory"
-  FROM asset_user_list
-  WHERE host_identifier = $host_identifier AND $tab = ''users''
-  LIMIT $limit OFFSET $offset;
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''users'';
+        SELECT user_name as "User Name", directory as "Directory"
+        FROM asset_user_list
+        WHERE host_identifier = $host_identifier AND $tab = ''users''
+        LIMIT $limit OFFSET $offset;
 
-  -- User pagenation
-  SELECT ''text'' AS component,
+        -- User pagenation
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2892,39 +2939,39 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''users'';;
 
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_docker_container
-      LIMIT 1
-    ) WHERE $tab = ''all_process'';
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_docker_container
+            LIMIT 1
+          ) WHERE $tab = ''all_process'';
 
--- Container table and tab value Start here
--- Container pagenation
-SET total_rows = (SELECT COUNT(*) FROM list_docker_container WHERE host_identifier=$host_identifier);
+      -- Container table and tab value Start here
+      -- Container pagenation
+      SET total_rows = (SELECT COUNT(*) FROM list_docker_container WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search,TRUE    as hover
-   WHERE $tab = ''container'';
-  SELECT LTRIM(container_name, ''/'') AS name, image,host_port AS "host Port",
-  port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
-  FROM list_docker_container
-  WHERE host_identifier = $host_identifier AND $tab = ''container''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search,TRUE    as hover
+         WHERE $tab = ''container'';
+        SELECT LTRIM(container_name, ''/'') AS name, image,host_port AS "host Port",
+        port, ip_address as "IP Address", owenrship, process, state, status,created_date as created
+        FROM list_docker_container
+        WHERE host_identifier = $host_identifier AND $tab = ''container''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2932,40 +2979,40 @@ SET current_page = ($offset / $limit) + 1;
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
     AS contents_md 
  WHERE $tab=''container'';;
+      
 
-
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_container_process
-      LIMIT 1
-    ) WHERE $tab = ''all_process'';
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_container_process
+            LIMIT 1
+          ) WHERE $tab = ''all_process'';
 
-  -- all_process table and tab value Start here
-  -- all_process pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_container_process WHERE host_identifier=$host_identifier);
+        -- all_process table and tab value Start here
+        -- all_process pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_container_process WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
-  SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
-  FROM list_container_process
-  WHERE host_identifier = $host_identifier AND $tab = ''all_process''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
+        SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
+        FROM list_container_process
+        WHERE host_identifier = $host_identifier AND $tab = ''all_process''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -2974,30 +3021,30 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''all_process'';;
 
-  -- asset_service table and tab value Start here
-  -- asset_service pagenation
+        -- asset_service table and tab value Start here
+        -- asset_service pagenation
 
-   -- Display sourse lable of data
-   SELECT
-      ''html'' AS component,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong> Logical Data</strong>
-      </div>'' AS html
-    WHERE $tab = ''asset_service'';
+         -- Display sourse lable of data
+         SELECT
+            ''html'' AS component,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong> Logical Data</strong>
+            </div>'' AS html
+          WHERE $tab = ''asset_service'';
 
-  SET total_rows = (SELECT COUNT(*) FROM expected_asset_service_list WHERE host_identifier=$host_identifier);
+        SET total_rows = (SELECT COUNT(*) FROM expected_asset_service_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''asset_service'';
-  SELECT name AS "service",
-  server,asset_type as "asset type",boundary, description, port,
-  installation_date as "installation date"
-  FROM expected_asset_service_list
-  WHERE host_identifier = $host_identifier AND $tab = ''asset_service''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''asset_service'';
+        SELECT name AS "service",
+        server,asset_type as "asset type",boundary, description, port,
+        installation_date as "installation date"
+        FROM expected_asset_service_list
+        WHERE host_identifier = $host_identifier AND $tab = ''asset_service''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3008,44 +3055,44 @@ SET current_page = ($offset / $limit) + 1;
 
 
 
--- ssl_tls_is_enabled table and tab value Start here
-  -- ssl_tls_is_enabled pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_ports_443 WHERE host_identifier=$host_identifier);
+      -- ssl_tls_is_enabled table and tab value Start here
+        -- ssl_tls_is_enabled pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_ports_443 WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  select 
-  ''text''              as component,
-  ''This view shows all services listening on port 443 (default for HTTPS), allowing you to verify if SSL/TLS is enabled on your server.'' as contents WHERE $tab = ''ssl_tls_is_enabled'';
-  
-   -- Display sourse lable of data
-   SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
-      SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_ports_443
-      LIMIT 1
-    ) WHERE $tab = ''ssl_tls_is_enabled'';
-  
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_tls_is_enabled'';
-  SELECT 
-  address,family,fd, net_namespace,path, port,
-  protocol,socket
-  FROM list_ports_443
-  WHERE host_identifier = $host_identifier AND $tab = ''ssl_tls_is_enabled''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        select 
+        ''text''              as component,
+        ''This view shows all services listening on port 443 (default for HTTPS), allowing you to verify if SSL/TLS is enabled on your server.'' as contents WHERE $tab = ''ssl_tls_is_enabled'';
+        
+         -- Display sourse lable of data
+         SELECT
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_ports_443
+            LIMIT 1
+          ) WHERE $tab = ''ssl_tls_is_enabled'';
+        
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_tls_is_enabled'';
+        SELECT 
+        address,family,fd, net_namespace,path, port,
+        protocol,socket
+        FROM list_ports_443
+        WHERE host_identifier = $host_identifier AND $tab = ''ssl_tls_is_enabled''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3055,53 +3102,53 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''ssl_tls_is_enabled'';;
 
 
--- osquery_ssl_cert_files table and tab value Start here
-select
-  ''text''              as component,
-  ''This table displays metadata for files and directories under /etc/ssl/certs and /etc/ssl/private. It helps verify SSL certificate file ownership, permissions, and structural integrity across Linux systems. Use this to detect unauthorized changes or misconfigurations in certificate storage paths.'' as contents WHERE $tab = ''osquery_ssl_cert_files'';
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+      -- osquery_ssl_cert_files table and tab value Start here
+      select
+        ''text''              as component,
+        ''This table displays metadata for files and directories under /etc/ssl/certs and /etc/ssl/private. It helps verify SSL certificate file ownership, permissions, and structural integrity across Linux systems. Use this to detect unauthorized changes or misconfigurations in certificate storage paths.'' as contents WHERE $tab = ''osquery_ssl_cert_files'';
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_ssl_cert_files
-      LIMIT 1
-    ) WHERE $tab = ''osquery_ssl_cert_files'';
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_ssl_cert_files
+            LIMIT 1
+          ) WHERE $tab = ''osquery_ssl_cert_files'';
 
-  -- osquery_ssl_cert_files pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_files WHERE host_identifier=$host_identifier);
+        -- osquery_ssl_cert_files pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_files WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''osquery_ssl_cert_files'';
-  SELECT 
-    path as "Full Path",
-    directory as "Parent Directory",
-    filename as "File/Directory Name",
-    inode,
-    user_name as user,
-    gid,
-    mode as Permissions,
-    device,
-    size,
-    block_size as "Block Size",
-    hard_links as "Hard Links",
-    type
-  FROM list_ssl_cert_files
-  WHERE host_identifier = $host_identifier AND $tab = ''osquery_ssl_cert_files''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''osquery_ssl_cert_files'';
+        SELECT 
+          path as "Full Path",
+          directory as "Parent Directory",
+          filename as "File/Directory Name",
+          inode,
+          user_name as user,
+          gid,
+          mode as Permissions,
+          device,
+          size,
+          block_size as "Block Size",
+          hard_links as "Hard Links",
+          type
+        FROM list_ssl_cert_files
+        WHERE host_identifier = $host_identifier AND $tab = ''osquery_ssl_cert_files''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3112,43 +3159,43 @@ SET current_page = ($offset / $limit) + 1;
 
 
 
- -- ssl_certificate_and_key_file_modification_times table and tab value Start here
+       -- ssl_certificate_and_key_file_modification_times table and tab value Start here
 
- select
-  ''text''              as component,
-  ''Displays the modification timestamps (mtime) of SSL certificate and private key files on Linux systems to monitor unauthorized or unexpected changes.'' as contents WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+       select
+        ''text''              as component,
+        ''Displays the modification timestamps (mtime) of SSL certificate and private key files on Linux systems to monitor unauthorized or unexpected changes.'' as contents WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_ssl_cert_file_mtime
-      LIMIT 1
-    ) WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
-  -- ssl_certificate_and_key_file_modification_times pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_file_mtime WHERE host_identifier=$host_identifier);
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_ssl_cert_file_mtime
+            LIMIT 1
+          ) WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+        -- ssl_certificate_and_key_file_modification_times pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_ssl_cert_file_mtime WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
-  SELECT 
-    path as "Path",
-    mtime as "Modified Time (mtime)"
-  FROM list_ssl_cert_file_mtime
-  WHERE host_identifier = $host_identifier AND $tab = ''ssl_certificate_and_key_file_modification_times''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''ssl_certificate_and_key_file_modification_times'';
+        SELECT 
+          path as "Path",
+          mtime as "Modified Time (mtime)"
+        FROM list_ssl_cert_file_mtime
+        WHERE host_identifier = $host_identifier AND $tab = ''ssl_certificate_and_key_file_modification_times''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3158,49 +3205,49 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''ssl_certificate_and_key_file_modification_times'';;
 
 
--- ssl_certificate_and_key_file_modification_times table and tab value Start here
+      -- ssl_certificate_and_key_file_modification_times table and tab value Start here
 
-select
-  ''text''              as component,
-  ''Displays information about system ports commonly used by VPN services (e.g., 1194, 443, 500, 4500), including protocol, address, file descriptor, and socket details. Useful for validating VPN service bindings and potential security exposure.'' as contents WHERE $tab = ''vpn_listening_ports'';
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+      select
+        ''text''              as component,
+        ''Displays information about system ports commonly used by VPN services (e.g., 1194, 443, 500, 4500), including protocol, address, file descriptor, and socket details. Useful for validating VPN service bindings and potential security exposure.'' as contents WHERE $tab = ''vpn_listening_ports'';
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_vpn_listening_ports
-      LIMIT 1
-    ) WHERE $tab = ''vpn_listening_ports'';
-  -- vpn_listening_ports pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_vpn_listening_ports WHERE host_identifier=$host_identifier);
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_vpn_listening_ports
+            LIMIT 1
+          ) WHERE $tab = ''vpn_listening_ports'';
+        -- vpn_listening_ports pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_vpn_listening_ports WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''vpn_listening_ports'';
-  SELECT 
-    port,
-    protocol,
-    family,
-    address,
-    fd,
-    socket,
-    path,
-    net_namespace as "Net Namespace"
-  FROM list_vpn_listening_ports
-  WHERE host_identifier = $host_identifier AND $tab = ''vpn_listening_ports''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''vpn_listening_ports'';
+        SELECT 
+          port,
+          protocol,
+          family,
+          address,
+          fd,
+          socket,
+          path,
+          net_namespace as "Net Namespace"
+        FROM list_vpn_listening_ports
+        WHERE host_identifier = $host_identifier AND $tab = ''vpn_listening_ports''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3211,50 +3258,50 @@ SET current_page = ($offset / $limit) + 1;
 
 
 
- -- list_cron_backup_jobs table and tab value Start here
- select
-  ''text''              as component,
-  ''Displays scheduled cron jobs that include the keyword "backup" in their command. Useful for auditing automated backup routines and ensuring critical backup scripts are scheduled properly.'' as contents WHERE $tab = ''cron_backup_jobs'';
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+       -- list_cron_backup_jobs table and tab value Start here
+       select
+        ''text''              as component,
+        ''Displays scheduled cron jobs that include the keyword "backup" in their command. Useful for auditing automated backup routines and ensuring critical backup scripts are scheduled properly.'' as contents WHERE $tab = ''cron_backup_jobs'';
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_cron_backup_jobs
-      LIMIT 1
-    ) WHERE $tab = ''vpn_listening_ports'';
-  -- cron_backup_jobs pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_cron_backup_jobs WHERE host_identifier=$host_identifier);
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_cron_backup_jobs
+            LIMIT 1
+          ) WHERE $tab = ''vpn_listening_ports'';
+        -- cron_backup_jobs pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_cron_backup_jobs WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''cron_backup_jobs'';
-  SELECT 
-  command,
-  event,
-  minute,
-  hour,
-  day_of_month,
-  month,
-  day_of_week,
-  path,
-  cron_schedule as "cron schedule",
-  human_readable_schedule as "human readable schedule"
-  FROM list_cron_backup_jobs
-  WHERE host_identifier = $host_identifier AND $tab = ''cron_backup_jobs''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''cron_backup_jobs'';
+        SELECT 
+        command,
+        event,
+        minute,
+        hour,
+        day_of_month,
+        month,
+        day_of_week,
+        path,
+        cron_schedule as "cron schedule",
+        human_readable_schedule as "human readable schedule"
+        FROM list_cron_backup_jobs
+        WHERE host_identifier = $host_identifier AND $tab = ''cron_backup_jobs''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3263,42 +3310,42 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''cron_backup_jobs'';;
 
--- mysql_process_inventory table and tab value Start here
-select
-  ''text''              as component,
-  ''Displays active mysql-related processes running on linux systems, including process name and binary path. useful for inventory and service validation.'' as contents WHERE $tab = ''mysql_process_inventory'';
--- Display sourse lable of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+      -- mysql_process_inventory table and tab value Start here
+      select
+        ''text''              as component,
+        ''Displays active mysql-related processes running on linux systems, including process name and binary path. useful for inventory and service validation.'' as contents WHERE $tab = ''mysql_process_inventory'';
+      -- Display sourse lable of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_mysql_process_inventory
-      LIMIT 1
-    ) WHERE $tab = ''vpn_listening_ports'';
-  -- mysql_process_inventory pagenation
-  SET total_rows = (SELECT COUNT(*) FROM list_mysql_process_inventory WHERE host_identifier=$host_identifier);
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_mysql_process_inventory
+            LIMIT 1
+          ) WHERE $tab = ''vpn_listening_ports'';
+        -- mysql_process_inventory pagenation
+        SET total_rows = (SELECT COUNT(*) FROM list_mysql_process_inventory WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1; 
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''mysql_process_inventory'';
-  SELECT 
-  process_name as "process name",
-  process_path as "process path"
-  FROM list_mysql_process_inventory
-  WHERE host_identifier = $host_identifier AND $tab = ''mysql_process_inventory''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''mysql_process_inventory'';
+        SELECT 
+        process_name as "process name",
+        process_path as "process path"
+        FROM list_mysql_process_inventory
+        WHERE host_identifier = $host_identifier AND $tab = ''mysql_process_inventory''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
@@ -3307,42 +3354,42 @@ SET current_page = ($offset / $limit) + 1;
     AS contents_md 
  WHERE $tab=''mysql_process_inventory'';;
 
--- postgresql_process_inventory table and tab value Start here
-select
-  ''text''              as component,
-  ''Displays active PostgreSQL-related processes running on Linux systems, including process name and binary path. Useful for database inventory and service validation.'' as contents WHERE $tab = ''postgresql_process_inventory'';
--- Display source label of data
-SELECT
-      ''html'' AS component,
-      contents,
-      ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
-      Source: <strong>'' || contents || ''</strong>
-      </div>'' AS html
-    FROM (
+      -- postgresql_process_inventory table and tab value Start here
+      select
+        ''text''              as component,
+        ''Displays active PostgreSQL-related processes running on Linux systems, including process name and binary path. Useful for database inventory and service validation.'' as contents WHERE $tab = ''postgresql_process_inventory'';
+      -- Display source label of data
       SELECT
-        query_uri,
-        CASE
-          WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
-          WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
-          ELSE ''Other''
-        END AS contents
-      FROM list_postgresql_process_inventory
-      LIMIT 1
-    ) WHERE $tab = ''postgresql_process_inventory'';
-  -- postgresql_process_inventory pagination
-  SET total_rows = (SELECT COUNT(*) FROM list_postgresql_process_inventory WHERE host_identifier=$host_identifier);
+            ''html'' AS component,
+            contents,
+            ''<div style="width: 100%; padding-top: 20px; text-align: right; font-size: 14px; color: #666;">
+            Source: <strong>'' || contents || ''</strong>
+            </div>'' AS html
+          FROM (
+            SELECT
+              query_uri,
+              CASE
+                WHEN query_uri LIKE ''%osquery%'' THEN ''osquery''
+                WHEN query_uri LIKE ''%Steampipe%'' THEN ''Steampipe''
+                ELSE ''Other''
+              END AS contents
+            FROM list_postgresql_process_inventory
+            LIMIT 1
+          ) WHERE $tab = ''postgresql_process_inventory'';
+        -- postgresql_process_inventory pagination
+        SET total_rows = (SELECT COUNT(*) FROM list_postgresql_process_inventory WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1;
-  SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''postgresql_process_inventory'';
-  SELECT
-  process_name as "Process Name",
-  process_path as "Process Path"
-  FROM list_postgresql_process_inventory
-  WHERE host_identifier = $host_identifier AND $tab = ''postgresql_process_inventory''
-  LIMIT $limit OFFSET $offset;
-  SELECT ''text'' AS component,
+        SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''postgresql_process_inventory'';
+        SELECT
+        process_name as "Process Name",
+        process_path as "Process Path"
+        FROM list_postgresql_process_inventory
+        WHERE host_identifier = $host_identifier AND $tab = ''postgresql_process_inventory''
+        LIMIT $limit OFFSET $offset;
+        SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
 ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
