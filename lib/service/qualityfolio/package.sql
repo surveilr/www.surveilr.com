@@ -437,12 +437,12 @@ CREATE view bug_list AS
  SELECT test_case_id, 
  value as bug_id
     FROM test_cases, json_each(test_cases.bug_list);
--- delete all /qltyfolio-related entries and recreate them in case routes are changed
-DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qltyfolio'||'/index.sql';
+-- delete all /qualityfolio-related entries and recreate them in case routes are changed
+DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', 'index.sql', 1, 'qltyfolio/index.sql', 'qltyfolio/index.sql', 'Test Management System', NULL, NULL, 'Test management system', NULL),
-    ('prime', 'qltyfolio/index.sql', 1, 'qltyfolio/test-management.sql', 'qltyfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL)
+    ('prime', 'index.sql', 1, 'qualityfolio/index.sql', 'qualityfolio/index.sql', 'Test Management System', NULL, NULL, 'Test management system', NULL),
+    ('prime', 'qualityfolio/index.sql', 1, 'qualityfolio/test-management.sql', 'qualityfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -1063,7 +1063,7 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
  JOIN orchestration_session_log osl ON ose.orchestration_session_exec_id = osl.parent_exec_id
  GROUP BY os.orchestration_session_id, onature.nature, osl.category;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-suites-common.sql',
+      'qualityfolio/test-suites-common.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1102,7 +1102,7 @@ SELECT ''table'' as component,
        ''id'' as markdown,
        ''Success Rate'' as markdown;
      SELECT
-     ''[''||suite_id||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql''||''?id=''||suite_id||'')'' as id,
+     ''[''||suite_id||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql''||''?id=''||suite_id||'')'' as id,
      
      suite_name,
      created_by_user as "Created By",
@@ -1136,7 +1136,7 @@ SELECT ''table'' as component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-suites.sql',
+      'qualityfolio/test-suites.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1150,7 +1150,7 @@ select
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
 select
 ''Test Management System'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
 select
 ''Test Suites'' as title;
 
@@ -1160,12 +1160,12 @@ SELECT ''title''AS component,
     SELECT ''text'' as component,
     ''Test suite is a collection of test cases designed to verify the functionality, performance, and security of a software application. It ensures that the application meets the specified requirements by executing predefined tests across various scenarios, identifying defects, and validating that the system works as intended.'' as contents;
 
- select ''dynamic'' as component, sqlpage.run_sql(''qltyfolio/test-suites-common.sql'') as properties;
+ select ''dynamic'' as component, sqlpage.run_sql(''qualityfolio/test-suites-common.sql'') as properties;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-plan.sql',
+      'qualityfolio/test-plan.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -1175,7 +1175,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''qltyfolio/test-plan.sql''
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test-plan.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -1197,7 +1197,7 @@ select
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
 select
 ''Test Management System'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
 select
 ''Test Plans'' as title;
 
@@ -1215,9 +1215,9 @@ SELECT ''title''AS component,
     ''id'' as markdown,
     ''test case count'' as markdown;
   SELECT 
-  ''[''||id||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/plan-overview.sql''||''?id=''||id||'')'' as id,      
+  ''[''||id||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/plan-overview.sql''||''?id=''||id||'')'' as id,      
   name,
-  ''[''||test_case_count||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-cases-list.sql''||''?id=''||id||'')'' as "test case count",   
+  ''[''||test_case_count||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-cases-list.sql''||''?id=''||id||'')'' as "test case count",   
   created_by as "Created By",
   created_at as "Created On"
   FROM test_plan_list  order by id asc;
@@ -1225,7 +1225,7 @@ SELECT ''title''AS component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/index.sql',
+      'qualityfolio/index.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -1235,7 +1235,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''qltyfolio/index.sql''
+    WHERE namespace = ''prime'' AND path=''qualityfolio/index.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -1295,7 +1295,7 @@ select
     ''12'' as width,
      ''red'' as color,
     ''brand-speedtest''       as icon,
-     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-cases-full-list.sql'' as link
+     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-cases-full-list.sql'' as link
     
     FROM test_cases ;
 
@@ -1305,7 +1305,7 @@ select
     ''## ''||count(id) as description_md,
     ''12'' as width,
     ''sum''       as icon,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-suites.sql'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-suites.sql'' as link
     FROM test_suites ; 
 
   select
@@ -1317,7 +1317,7 @@ select
      ''pink'' as color,
     ''timeline-event''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-plan.sql'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-plan.sql'' as link
     FROM test_plan ; 
 
     select
@@ -1365,7 +1365,7 @@ LEFT JOIN
      ''red'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql'' as link
     FROM 
     jira_issues t ;
     select
@@ -1377,7 +1377,7 @@ LEFT JOIN
      ''orange'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=To Do'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=To Do'' as link
     FROM 
     jira_issues t  where status=''To Do'';
 
@@ -1391,7 +1391,7 @@ LEFT JOIN
      ''purple'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=Completed'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=Completed'' as link
     FROM 
     jira_issues t where status=''Completed'';
 
@@ -1405,7 +1405,7 @@ LEFT JOIN
      ''cyan'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=Rejected'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=Rejected'' as link
     FROM 
     jira_issues t where status=''Rejected'';
 
@@ -1426,16 +1426,16 @@ select
     ''card'' as component,
     2      as columns;
 select 
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/chart1.sql?_sqlpage_embed'' as embed;
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/chart1.sql?_sqlpage_embed'' as embed;
 select 
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/chart2.sql?_sqlpage_embed'' as embed;
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/chart2.sql?_sqlpage_embed'' as embed;
     
  SELECT ''title''AS component, 
      ''Test Suite List'' as contents; 
         SELECT ''text'' as component;
 
         
-select ''dynamic'' as component, sqlpage.run_sql(''qltyfolio/test-suites-common.sql'') as properties;
+select ''dynamic'' as component, sqlpage.run_sql(''qualityfolio/test-suites-common.sql'') as properties;
 
 -- select 
 --     ''chart''             as component,
@@ -1457,7 +1457,7 @@ select ''dynamic'' as component, sqlpage.run_sql(''qltyfolio/test-suites-common.
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/download-test-suites.sql',
+      'qualityfolio/download-test-suites.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1469,7 +1469,7 @@ SELECT * FROM test_suites;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/chart1.sql',
+      'qualityfolio/chart1.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1521,7 +1521,7 @@ LEFT JOIN
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/progress-bar.sql',
+      'qualityfolio/progress-bar.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1560,7 +1560,7 @@ select
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/chart2.sql',
+      'qualityfolio/chart2.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1592,7 +1592,7 @@ SELECT
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/suite-data.sql',
+      'qualityfolio/suite-data.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1606,7 +1606,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
     select
     ''Test Management System'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
     select
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT ''title''AS component,
@@ -1642,9 +1642,9 @@ SELECT ''table'' as component,
               ''id'' as markdown,
               ''Test Cases'' as markdown;
     SELECT
-    ''['' || group_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/group-detail.sql?id=''|| group_id || '')'' as id,
+    ''['' || group_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| group_id || '')'' as id,
       group_name AS "title",
-        ''['' || test_case_count || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-cases.sql?id=''|| group_id || '')'' AS ''Test Cases'',
+        ''['' || test_case_count || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-cases.sql?id=''|| group_id || '')'' AS ''Test Cases'',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -1654,7 +1654,7 @@ SELECT ''table'' as component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-cases.sql',
+      'qualityfolio/test-cases.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1667,14 +1667,14 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
   SELECT
   ''Test Management System'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
 
   SELECT name as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id=''|| id as link
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| id as link
   FROM test_suites where id=(select suite_id from test_cases where group_id = $id) ;
 
   SELECT group_name as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id=''|| suite_id as link
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| suite_id as link
   FROM test_cases WHERE  group_id = $id group by group_name;
   
   SELECT ''list''  AS component,
@@ -1737,7 +1737,7 @@ SET current_page = ($offset / $limit) + 1;
             "status_new" as markdown,
             ''count'' as markdown;
   SELECT
-  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
+  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
     test_case_title AS "title",
       group_name AS "group",
       case when test_status is not null then test_status
@@ -1760,7 +1760,7 @@ SET current_page = ($offset / $limit) + 1;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/download-test-case.sql',
+      'qualityfolio/download-test-case.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1781,7 +1781,7 @@ WHERE  group_id = $group_id;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/download-full_list.sql',
+      'qualityfolio/download-full_list.sql',
       '              -- not including shell
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1801,7 +1801,7 @@ FROM test_cases t;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/bug-list.sql',
+      'qualityfolio/bug-list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1835,7 +1835,7 @@ select
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
 select
 ''Test Management System'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link; 
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link; 
 select ''bug list'' as title;  
 
  SELECT ''table'' as component,
@@ -1848,7 +1848,7 @@ select ''bug list'' as title;
           "status_new" as markdown,
           ''count'' as markdown;
 SELECT
-''['' || bug_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-detail.sql?id=''|| bug_id || '')'' as id,
+''['' || bug_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-detail.sql?id=''|| bug_id || '')'' as id,
   title,
   reporter as ''Reporter'',
   strftime(''%d-%m-%Y'', created) as "Created At",
@@ -1863,7 +1863,7 @@ FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status I
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/suite-group.sql',
+      'qualityfolio/suite-group.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -1879,14 +1879,14 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     --Tab 1: Test Suite list
     SELECT
     ''Test Plan List'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-group?tab=test_suites'' AS link,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-group?tab=test_suites'' AS link,
         $tab = ''test_suites'' AS active;
 
 
     --Tab 2: Test case list
     SELECT
     ''Test Case List'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-group?tab=test_cases'' AS link,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-group?tab=test_cases'' AS link,
         $tab = ''test_cases'' AS active;
 
     --Tab 3: Meta Tags Missing URLs
@@ -1934,7 +1934,7 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
+      ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -1956,7 +1956,7 @@ FROM test_suites rn WHERE id = $id;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-management.sql',
+      'qualityfolio/test-management.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -1966,7 +1966,7 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''qltyfolio/test-management.sql''
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test-management.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -1983,7 +1983,7 @@ FROM breadcrumbs ORDER BY level DESC;
 
                 SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''qltyfolio/test-management.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test-management.sql/index.sql'') as contents;
     ;
 
   SELECT ''list'' AS component,
@@ -1994,13 +1994,13 @@ FROM breadcrumbs ORDER BY level DESC;
 
 
 SELECT
-''['' || project_name || ''](/qltyfolio/detail.sql?name='' || project || '')'' as description_md
+''['' || project_name || ''](/qualityfolio/detail.sql?name='' || project || '')'' as description_md
   from projects;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-detail.sql',
+      'qualityfolio/test-detail.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2009,7 +2009,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''qltyfolio/test-detail.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test-detail.sql/index.sql'') as contents;
     ;
 
     select
@@ -2019,16 +2019,16 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
     select
     ''Test Management System'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link; 
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link; 
     select s.name as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id='' || s.id as link
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id='' || s.id as link
          FROM test_cases r
          INNER JOIN groups g on g.id = r.group_id 
          INNER JOIN test_suites s on s.id = g.suite_id
          where test_case_id = $id
          group by title;  
     select g.name as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-cases.sql?id='' || g.id as link
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-cases.sql?id='' || g.id as link
          FROM test_cases r
          INNER JOIN groups g on g.id = r.group_id 
          where test_case_id = $id
@@ -2096,7 +2096,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 1: Actual Result
     SELECT
     ''Actual Result'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| $id || ''#actual-result-content''  AS link,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| $id || ''#actual-result-content''  AS link,
       $tab = ''actual-result'' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -2104,14 +2104,14 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 2: Test Run
     SELECT
     ''Test Run'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=test-run&id=''|| $id || ''#test-run-content''  AS link,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=test-run&id=''|| $id || ''#test-run-content''  AS link,
       $tab = ''test-run'' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
 
 --Tab 3: Bug Report
     SELECT
     ''Bug Report'' AS title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=bug-report&id=''|| $id || ''#bug-report-content''  AS link,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=bug-report&id=''|| $id || ''#bug-report-content''  AS link,
       $tab = ''bug-report'' AS active
          FROM bug_list  where test_case_id = $id;
 
@@ -2215,7 +2215,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/bug-detail.sql',
+      'qualityfolio/bug-detail.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2224,7 +2224,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''qltyfolio/bug-detail.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/bug-detail.sql/index.sql'') as contents;
     ;
 
     select
@@ -2234,9 +2234,9 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
     select
     ''Test Management System'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link; 
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link; 
     select ''bug list'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql'' as link;  
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql'' as link;  
       
     SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
          
@@ -2295,7 +2295,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/group-detail.sql',
+      'qualityfolio/group-detail.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2304,7 +2304,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               
       SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''qltyfolio/group-detail.sql/index.sql'') as contents;
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/group-detail.sql/index.sql'') as contents;
     ;
 
     select
@@ -2314,10 +2314,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
     select
     ''Test Management System'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
     select
     s."name" as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/suite-data.sql?id='' || s.id as link
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id='' || s.id as link
          from groups g
         inner join  test_suites s on s.id = g.suite_id where g.id = $id;
     select
@@ -2349,7 +2349,7 @@ WHERE rn.id = $id;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/plan-overview.sql',
+      'qualityfolio/plan-overview.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2363,10 +2363,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
     select
     ''Test Management System'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
     select
     ''Plan List'' as title,
-      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-plan.sql'' as link;
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-plan.sql'' as link;
 
     select
     "name" as title from test_plan where id = $id;
@@ -2395,7 +2395,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-cases-list.sql',
+      'qualityfolio/test-cases-list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2408,10 +2408,10 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''as link;
    select
    ''Test Management System'' as title,
-     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql''as link;
+     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql''as link;
    select
    ''Plan List'' as title,
-     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-plan.sql''as link;
+     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-plan.sql''as link;
    select
    "name" as title from test_plan where id = $id;
    SELECT ''list''  AS component,
@@ -2449,7 +2449,7 @@ SELECT ''html'' as component,
              ''id'' as markdown,
              ''count'' as markdown;
    SELECT
-   ''['' || t.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| t.test_case_id || '')'' as id,
+   ''['' || t.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| t.test_case_id || '')'' as id,
      t.title,
       case when t.test_status is not null then t.test_status
        else ''TODO'' END AS "test_status",
@@ -2465,18 +2465,18 @@ SELECT ''html'' as component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/jsonviewer.sql',
+      'qualityfolio/jsonviewer.sql',
       '-- not including shell
 -- not including breadcrumbs from sqlpage_aide_navigation
 -- not including page title from sqlpage_aide_navigation
 
 
-select "dynamic" as component,sqlpage.run_sql(''qltyfolio/progress-bar.sql'') as properties;
+select "dynamic" as component,sqlpage.run_sql(''qualityfolio/progress-bar.sql'') as properties;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'qltyfolio/test-cases-full-list.sql',
+      'qualityfolio/test-cases-full-list.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
               -- not including page title from sqlpage_aide_navigation
@@ -2489,7 +2489,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
   select
   ''Test Management System'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/index.sql'' as link;
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
    select
   ''Test Cases'' as title;  
   
@@ -2544,7 +2544,7 @@ SET current_page = ($offset / $limit) + 1;
             "status_new" as markdown,
             ''count'' as markdown;
   SELECT
-  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
+  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
     test_case_title AS "title",
       group_name AS "group",
       case when test_status is not null then test_status

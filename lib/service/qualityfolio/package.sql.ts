@@ -29,7 +29,7 @@ const WE_UI_FAV_ICON = "qf-favicon.ico";
 function qltyfolioNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "qltyfolio/index.sql",
+    parentPath: "qualityfolio/index.sql",
   });
 }
 
@@ -41,10 +41,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   // or `DDL` as general SQL before doing any upserts into sqlpage_files.
   navigationDML() {
     return this.SQL`
-      -- delete all /qltyfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
-      this.constructHomePath("qltyfolio")
-    };
+      -- delete all /qualityfolio-related entries and recreate them in case routes are changed
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qualityfolio")
+      };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -52,7 +51,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/test-suites-common.sql"() {
+  "qualityfolio/test-suites-common.sql"() {
     return this.SQL`
     
       SELECT 'html' as component,
@@ -87,9 +86,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${
-      this.absoluteURL("/qltyfolio/suite-data.sql")
-    }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${this.absoluteURL("/qualityfolio/suite-data.sql")
+      }||'?id='||suite_id||')' as id,
       
       suite_name,
       created_by_user as "Created By",
@@ -125,7 +123,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/test-suites.sql"() {
+  "qualityfolio/test-suites.sql"() {
     return this.SQL`
 
      select
@@ -135,7 +133,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     'Test Suites' as title;
 
@@ -145,11 +143,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'text' as component,
         'Test suite is a collection of test cases designed to verify the functionality, performance, and security of a software application. It ensures that the application meets the specified requirements by executing predefined tests across various scenarios, identifying defects, and validating that the system works as intended.' as contents;
 
-     select 'dynamic' as component, sqlpage.run_sql('qltyfolio/test-suites-common.sql') as properties;
+     select 'dynamic' as component, sqlpage.run_sql('qualityfolio/test-suites-common.sql') as properties;
     `;
   }
 
-  "qltyfolio/test-plan.sql"() {
+  "qualityfolio/test-plan.sql"() {
     return this.SQL`
     select
     'breadcrumb' as component;
@@ -158,7 +156,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     'Test Plans' as title;
 
@@ -176,13 +174,11 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${
-      this.absoluteURL("/qltyfolio/plan-overview.sql")
-    }||'?id='||id||')' as id,      
+      '['||id||']('||${this.absoluteURL("/qualityfolio/plan-overview.sql")
+      }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${
-      this.absoluteURL("/qltyfolio/test-cases-list.sql")
-    }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${this.absoluteURL("/qualityfolio/test-cases-list.sql")
+      }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -192,7 +188,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     caption: "Test Management System",
     description: "Test management system",
   })
-  "qltyfolio/index.sql"() {
+  "qualityfolio/index.sql"() {
     return this.SQL`
     
     SELECT 'text' as component,
@@ -238,7 +234,7 @@ select
     '12' as width,
      'red' as color,
     'brand-speedtest'       as icon,
-     ${this.absoluteURL("/qltyfolio/test-cases-full-list.sql")} as link
+     ${this.absoluteURL("/qualityfolio/test-cases-full-list.sql")} as link
     
     FROM test_cases ;
 
@@ -248,7 +244,7 @@ select
     '## '||count(id) as description_md,
     '12' as width,
     'sum'       as icon,
-    ${this.absoluteURL("/qltyfolio/test-suites.sql")} as link
+    ${this.absoluteURL("/qualityfolio/test-suites.sql")} as link
     FROM test_suites ; 
 
   select
@@ -260,7 +256,7 @@ select
      'pink' as color,
     'timeline-event'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link
+    ${this.absoluteURL("/qualityfolio/test-plan.sql")} as link
     FROM test_plan ; 
 
     select
@@ -308,7 +304,7 @@ LEFT JOIN
      'red' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql")} as link
     FROM 
     jira_issues t ;
     select
@@ -320,7 +316,7 @@ LEFT JOIN
      'orange' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=To Do")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=To Do")} as link
     FROM 
     jira_issues t  where status='To Do';
 
@@ -334,7 +330,7 @@ LEFT JOIN
      'purple' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=Completed")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Completed")} as link
     FROM 
     jira_issues t where status='Completed';
 
@@ -348,7 +344,7 @@ LEFT JOIN
      'cyan' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=Rejected")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Rejected")} as link
     FROM 
     jira_issues t where status='Rejected';
 
@@ -369,16 +365,16 @@ select
     'card' as component,
     2      as columns;
 select 
-    ${this.absoluteURL("/qltyfolio/chart1.sql?_sqlpage_embed")} as embed;
+    ${this.absoluteURL("/qualityfolio/chart1.sql?_sqlpage_embed")} as embed;
 select 
-    ${this.absoluteURL("/qltyfolio/chart2.sql?_sqlpage_embed")} as embed;
+    ${this.absoluteURL("/qualityfolio/chart2.sql?_sqlpage_embed")} as embed;
     
  SELECT 'title'AS component, 
      'Test Suite List' as contents; 
         SELECT 'text' as component;
 
         
-select 'dynamic' as component, sqlpage.run_sql('qltyfolio/test-suites-common.sql') as properties;
+select 'dynamic' as component, sqlpage.run_sql('qualityfolio/test-suites-common.sql') as properties;
 
 -- select 
 --     'chart'             as component,
@@ -404,7 +400,7 @@ select 'dynamic' as component, sqlpage.run_sql('qltyfolio/test-suites-common.sql
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/download-test-suites.sql"() {
+  "qualityfolio/download-test-suites.sql"() {
     return this.SQL`
     select 'csv' as component, 'test_suites.csv' as filename;
     SELECT * FROM test_suites;
@@ -414,7 +410,7 @@ select 'dynamic' as component, sqlpage.run_sql('qltyfolio/test-suites-common.sql
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/chart1.sql"() {
+  "qualityfolio/chart1.sql"() {
     return this.SQL`
     --First Chart: Test Case Status Distribution
     SELECT
@@ -466,7 +462,7 @@ LEFT JOIN
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/progress-bar.sql"() {
+  "qualityfolio/progress-bar.sql"() {
     return this.SQL`
     select
     'chart' as component,
@@ -500,7 +496,7 @@ LEFT JOIN
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
-  "qltyfolio/chart2.sql"() {
+  "qualityfolio/chart2.sql"() {
     return this.SQL`
     SELECT
     'chart' AS component,
@@ -526,7 +522,7 @@ SELECT
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no", pageTitleFromNavStmts: "no" })
-  "qltyfolio/suite-data.sql"() {
+  "qualityfolio/suite-data.sql"() {
     return this.SQL`
     select
     'breadcrumb' as component;
@@ -535,7 +531,7 @@ SELECT
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT 'title'AS component,
@@ -566,13 +562,11 @@ SELECT 'table' as component,
               'id' as markdown,
               'Test Cases' as markdown;
     SELECT
-    '[' || group_id || '](' || ${
-      this.absoluteURL("/qltyfolio/group-detail.sql?id=")
-    }|| group_id || ')' as id,
+    '[' || group_id || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+      }|| group_id || ')' as id,
       group_name AS "title",
-        '[' || test_case_count || '](' || ${
-      this.absoluteURL("/qltyfolio/test-cases.sql?id=")
-    }|| group_id || ')' AS 'Test Cases',
+        '[' || test_case_count || '](' || ${this.absoluteURL("/qualityfolio/test-cases.sql?id=")
+      }|| group_id || ')' AS 'Test Cases',
       
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
@@ -583,7 +577,7 @@ SELECT 'table' as component,
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/test-cases.sql"() {
+  "qualityfolio/test-cases.sql"() {
     const viewName = `test_cases`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
@@ -599,14 +593,14 @@ SELECT 'table' as component,
       ${this.absoluteURL("/")} as link;
     SELECT
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
 
     SELECT name as title,
-    ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| id as link
+    ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")}|| id as link
     FROM test_suites where id=(select suite_id from test_cases where group_id = $id) ;
 
     SELECT group_name as title,
-    ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")}|| suite_id as link
+    ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")}|| suite_id as link
     FROM test_cases WHERE  group_id = $id group by group_name;
     
     SELECT 'list'  AS component,
@@ -665,9 +659,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
@@ -689,7 +682,7 @@ SELECT 'table' as component,
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/download-test-case.sql"() {
+  "qualityfolio/download-test-case.sql"() {
     return this.SQL`
     select 'csv' as component, 'test_suites_'||$group_id||'.csv' as filename;
      SELECT
@@ -710,7 +703,7 @@ SELECT 'table' as component,
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qltyfolio/download-full_list.sql"() {
+  "qualityfolio/download-full_list.sql"() {
     return this.SQL`
     select 'csv' as component, 'test_cases.csv' as filename;
      SELECT
@@ -729,13 +722,9 @@ SELECT 'table' as component,
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
   })
-  "qltyfolio/bug-list.sql"() {
+  "qualityfolio/bug-list.sql"() {
     const viewName = `jira_issues`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
-      whereSQL:
-        "WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL",
-    });
+
     return this.SQL`
     SELECT 'html' as component,
     '<style>
@@ -765,7 +754,7 @@ SELECT 'table' as component,
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
     select 'bug list' as title;  
     
      SELECT 'table' as component,
@@ -778,9 +767,8 @@ SELECT 'table' as component,
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || bug_id || '](' || ${
-      this.absoluteURL("/qltyfolio/bug-detail.sql?id=")
-    }|| bug_id || ')' as id,
+    '[' || bug_id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
+      }|| bug_id || ')' as id,
       title,
       reporter as 'Reporter',
       strftime('%d-%m-%Y', created) as "Created At",
@@ -796,7 +784,7 @@ SELECT 'table' as component,
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/suite-group.sql"() {
+  "qualityfolio/suite-group.sql"() {
     return this.SQL`
 
     --Define tabs
@@ -807,14 +795,14 @@ SELECT 'table' as component,
     --Tab 1: Test Suite list
     SELECT
     'Test Plan List' AS title,
-      ${this.absoluteURL("/qltyfolio/suite-group?tab=test_suites")} AS link,
+      ${this.absoluteURL("/qualityfolio/suite-group?tab=test_suites")} AS link,
         $tab = 'test_suites' AS active;
 
 
     --Tab 2: Test case list
     SELECT
     'Test Case List' AS title,
-      ${this.absoluteURL("/qltyfolio/suite-group?tab=test_cases")} AS link,
+      ${this.absoluteURL("/qualityfolio/suite-group?tab=test_cases")} AS link,
         $tab = 'test_cases' AS active;
 
     --Tab 3: Meta Tags Missing URLs
@@ -857,9 +845,8 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -886,7 +873,7 @@ FROM test_suites rn WHERE id = $id;
     description: ``,
     siblingOrder: 1,
   })
-  "qltyfolio/test-management.sql"() {
+  "qualityfolio/test-management.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
 
@@ -898,13 +885,13 @@ FROM test_suites rn WHERE id = $id;
 
 
     SELECT
-    '[' || project_name || '](/qltyfolio/detail.sql?name=' || project || ')' as description_md
+    '[' || project_name || '](/qualityfolio/detail.sql?name=' || project || ')' as description_md
       from projects
 
       `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/test-detail.sql"() {
+  "qualityfolio/test-detail.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
 
@@ -915,16 +902,16 @@ FROM test_suites rn WHERE id = $id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
     select s.name as title,
-      ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")} || s.id as link
+      ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")} || s.id as link
          FROM test_cases r
          INNER JOIN groups g on g.id = r.group_id 
          INNER JOIN test_suites s on s.id = g.suite_id
          where test_case_id = $id
          group by title;  
     select g.name as title,
-      ${this.absoluteURL("/qltyfolio/test-cases.sql?id=")} || g.id as link
+      ${this.absoluteURL("/qualityfolio/test-cases.sql?id=")} || g.id as link
          FROM test_cases r
          INNER JOIN groups g on g.id = r.group_id 
          where test_case_id = $id
@@ -986,9 +973,8 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| $id || '#actual-result-content'  AS link,
+      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -996,18 +982,16 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=test-run&id=")
-    }|| $id || '#test-run-content'  AS link,
+      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=test-run&id=")
+      }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
 
 --Tab 3: Bug Report
     SELECT
     'Bug Report' AS title,
-      ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=bug-report&id=")
-    }|| $id || '#bug-report-content'  AS link,
+      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=bug-report&id=")
+      }|| $id || '#bug-report-content'  AS link,
       $tab = 'bug-report' AS active
          FROM bug_list  where test_case_id = $id;
 
@@ -1099,7 +1083,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/bug-detail.sql"() {
+  "qualityfolio/bug-detail.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
 
@@ -1110,9 +1094,9 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link; 
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
     select 'bug list' as title,
-      ${this.absoluteURL("/qltyfolio/bug-list.sql")} as link;  
+      ${this.absoluteURL("/qualityfolio/bug-list.sql")} as link;  
       
     SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
          
@@ -1154,7 +1138,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/group-detail.sql"() {
+  "qualityfolio/group-detail.sql"() {
     return this.SQL`
       ${this.activePageTitle()}
 
@@ -1165,10 +1149,10 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     s."name" as title,
-      ${this.absoluteURL("/qltyfolio/suite-data.sql?id=")} || s.id as link
+      ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")} || s.id as link
          from groups g
         inner join  test_suites s on s.id = g.suite_id where g.id = $id;
     select
@@ -1196,7 +1180,7 @@ WHERE rn.id = $id;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/plan-overview.sql"() {
+  "qualityfolio/plan-overview.sql"() {
     return this.SQL`
     select
     'breadcrumb' as component;
@@ -1205,10 +1189,10 @@ WHERE rn.id = $id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     'Plan List' as title,
-      ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/test-plan.sql")} as link;
 
     select
     "name" as title from test_plan where id = $id;
@@ -1231,7 +1215,7 @@ WHERE rn.id = $id;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/test-cases-list.sql"() {
+  "qualityfolio/test-cases-list.sql"() {
     return this.SQL`
     select
     'breadcrumb' as component;
@@ -1240,10 +1224,10 @@ WHERE rn.id = $id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     'Plan List' as title,
-      ${this.absoluteURL("/qltyfolio/test-plan.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/test-plan.sql")} as link;
     select
     "name" as title from test_plan where id = $id;
     SELECT 'list'  AS component,
@@ -1281,9 +1265,8 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| t.test_case_id || ')' as id,
       t.title,
        case when t.test_status is not null then t.test_status
         else 'TODO' END AS "test_status",
@@ -1300,13 +1283,13 @@ WHERE rn.id = $id;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
-  "qltyfolio/jsonviewer.sql"() {
+  "qualityfolio/jsonviewer.sql"() {
     return this.SQL`
-   select "dynamic" as component,sqlpage.run_sql('qltyfolio/progress-bar.sql') as properties;
+   select "dynamic" as component,sqlpage.run_sql('qualityfolio/progress-bar.sql') as properties;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "qltyfolio/test-cases-full-list.sql"() {
+  "qualityfolio/test-cases-full-list.sql"() {
     const viewName = `test_cases`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
@@ -1319,7 +1302,7 @@ WHERE rn.id = $id;
       ${this.absoluteURL("/")} as link;
     select
     'Test Management System' as title,
-      ${this.absoluteURL("/qltyfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
      select
     'Test Cases' as title;  
     
@@ -1370,9 +1353,8 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${
-      this.absoluteURL("/qltyfolio/test-detail.sql?tab=actual-result&id=")
-    }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
