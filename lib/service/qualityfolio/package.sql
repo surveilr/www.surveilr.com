@@ -4924,7 +4924,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
   "component": "case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END",
-  "title": "Qualityfolio",
+  "title": "",
   "icon": "",
   "favicon": "https://www.surveilr.com/assets/brand/qf-favicon.ico",
   "image": "https://www.surveilr.com/assets/brand/qf-logo.png",
@@ -4941,16 +4941,18 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
-    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js"
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+    "data:text/javascript,document.addEventListener(''DOMContentLoaded'',function(){document.title=''Qualityfolio'';});"
   ],
-  "footer": "Resource Surveillance Web UI"
+  "footer": "Resource Surveillance Web UI",
+  "css": "\n        /* Hide all text content in navbar-brand except images */\n        .navbar-brand {\n          font-size: 0 !important;\n        }\n        .navbar-brand img {\n          font-size: initial !important;\n          display: inline-block !important;\n        }\n        /* Alternative approach - hide text nodes */\n        .navbar-brand > *:not(img) {\n          display: none !important;\n        }\n        /* Hide any span or text elements in navbar */\n        .navbar-brand span,\n        .navbar-brand .navbar-text {\n          display: none !important;\n        }\n      "
 };',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
       'SELECT case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END AS component,
-       ''Qualityfolio'' AS title,
+       NULL AS title,
        NULL AS icon,
        ''https://www.surveilr.com/assets/brand/qf-favicon.ico'' AS favicon,
        ''https://www.surveilr.com/assets/brand/qf-logo.png'' AS image,
@@ -4962,6 +4964,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js'' AS javascript,
+       ''data:text/javascript,document.addEventListener(''''DOMContentLoaded'''',function(){document.title=''''Qualityfolio'''';});'' AS javascript,
        json_object(
               ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''/docs/index.sql'',
               ''title'', ''Docs'',
@@ -5050,6 +5053,25 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                   )
               )
           ) as menu_item,
-       ''Surveilr ''|| (SELECT json_extract(session_agent, ''$.version'') AS version FROM ur_ingest_session LIMIT 1) || '' Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer;',
+       ''Surveilr ''|| (SELECT json_extract(session_agent, ''$.version'') AS version FROM ur_ingest_session LIMIT 1) || '' Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'')) + 2 ) || '')'' as footer,
+       ''
+        /* Hide all text content in navbar-brand except images */
+        .navbar-brand {
+          font-size: 0 !important;
+        }
+        .navbar-brand img {
+          font-size: initial !important;
+          display: inline-block !important;
+        }
+        /* Alternative approach - hide text nodes */
+        .navbar-brand > *:not(img) {
+          display: none !important;
+        }
+        /* Hide any span or text elements in navbar */
+        .navbar-brand span,
+        .navbar-brand .navbar-text {
+          display: none !important;
+        }
+      '' AS css;',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
