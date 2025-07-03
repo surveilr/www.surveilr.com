@@ -3,23 +3,26 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
   private title: string;
   private logoImage: string;
   private favIcon: string;
+  private hideHeaderTitle: boolean;
 
   constructor(
     title: string = "Resource Surveillance State Database (RSSD)",
     logoImage: string = "surveilr-icon.png",
     favIcon: string = "favicon.ico",
+    hideHeaderTitle: boolean = false,
   ) {
     super();
     this.title = title;
     this.logoImage = logoImage;
     this.favIcon = favIcon;
+    this.hideHeaderTitle = hideHeaderTitle;
   }
 
   defaultShell() {
-    return {
+    const shellConfig: Record<string, unknown> = {
       component:
         "case when sqlpage.environment_variable('EOH_INSTANCE')=1 then 'shell-custom' else 'shell' END",
-      title: this.title,
+      title: this.hideHeaderTitle ? "" : this.title,
       icon: "",
       favicon: `https://www.surveilr.com/assets/brand/${this.favIcon}`,
       image: `https://www.surveilr.com/assets/brand/${this.logoImage}`,
@@ -29,14 +32,48 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       menu_item: [
         { link: "index.sql", title: "Home" },
       ],
-      javascript: [
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
-      ],
+      javascript: this.hideHeaderTitle
+        ? [
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+          // Inline script to set browser tab title
+          `data:text/javascript,document.addEventListener('DOMContentLoaded',function(){document.title='${this.title}';});`,
+        ]
+        : [
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+        ],
       footer: `Resource Surveillance Web UI`,
     };
+
+    // When hiding header title, add custom CSS to hide navbar title text
+    if (this.hideHeaderTitle) {
+      shellConfig.css = `
+        /* Hide all text content in navbar-brand except images */
+        .navbar-brand {
+          font-size: 0 !important;
+        }
+        .navbar-brand img {
+          font-size: initial !important;
+          display: inline-block !important;
+        }
+        /* Alternative approach - hide text nodes */
+        .navbar-brand > *:not(img) {
+          display: none !important;
+        }
+        /* Hide any span or text elements in navbar */
+        .navbar-brand span,
+        .navbar-brand .navbar-text {
+          display: none !important;
+        }
+      `;
+    }
+
+    return shellConfig;
   }
 
   @spn.shell({ eliminate: true })

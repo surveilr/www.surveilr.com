@@ -12,6 +12,7 @@ import * as sh from "./custom_shell.ts";
 const WEB_UI_TITLE = "Qualityfolio";
 const WE_UI_LOGO = "qf-logo.png";
 const WE_UI_FAV_ICON = "qf-favicon.ico";
+const HIDE_HEADER_TITLE = true; // Hide header title text since logo contains "QualityFolio" text
 
 /**
  * These pages depend on ../../std/package.sql.ts being loaded into RSSD (for nav).
@@ -1468,7 +1469,7 @@ export async function SQL() {
     new d.DocsSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
-    new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON),
+    new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON, HIDE_HEADER_TITLE),
   );
 }
 
