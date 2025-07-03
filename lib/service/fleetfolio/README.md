@@ -174,7 +174,8 @@ file system access and network permissions.
 
 ## Code Formatting and Linting
 
-To maintain consistent code quality and formatting across the FleetFolio codebase:
+To maintain consistent code quality and formatting across the FleetFolio
+codebase:
 
 ### Format Code
 
@@ -188,4 +189,6 @@ deno fmt  # Formats all TypeScript and JavaScript files
 deno lint  # Checks for code quality issues and potential bugs
 ```
 
-**Note:** You may see warnings about unsupported compiler options (`baseUrl`, `paths`) when running `deno lint`. These warnings are expected and can be safely ignored as Deno uses its own module resolution system.
+**Note:** You may see warnings about unsupported compiler options (`baseUrl`,
+`paths`) when running `deno lint`. These warnings are expected and can be safely
+ignored as Deno uses its own module resolution system.
