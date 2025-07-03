@@ -6501,7 +6501,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.json',
       '{
   "component": "case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END",
-  "title": "fleetfolio",
+  "title": "Fleetfolio",
   "icon": "",
   "favicon": "https://www.surveilr.com/assets/brand/fleetfolio.ico",
   "image": "https://www.surveilr.com/assets/brand/fleetfolio.png",
@@ -6527,7 +6527,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'shell/shell.sql',
       'SELECT case when sqlpage.environment_variable(''EOH_INSTANCE'')=1 then ''shell-custom'' else ''shell'' END AS component,
-       ''fleetfolio'' AS title,
+       ''Fleetfolio'' AS title,
        NULL AS icon,
        ''https://www.surveilr.com/assets/brand/fleetfolio.ico'' AS favicon,
        ''https://www.surveilr.com/assets/brand/fleetfolio.png'' AS image,
