@@ -2632,7 +2632,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
         <!-- Page Wrapper -->
         <div class="page-wrapper">
-            <main class="page-body w-full container-xl flex-grow-1 px-md-5 px-sm-3 {{#if fixed_top_menu}}mt-5{{#unless (eq layout ''boxed'')}} pt-5{{/unless}}{{else}} mt-3{{/if}}" id="sqlpage_main_wrapper">
+            <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
                 {{~#each_row~}}{{~/each_row~}}
             </main>
         </div>
