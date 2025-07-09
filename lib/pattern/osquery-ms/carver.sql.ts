@@ -40,8 +40,8 @@ export class SurveilrOsqueryMsCarverQueries extends cnb.TypicalCodeNotebook {
     {
       description: "Get etc file system",
     },
-    ["linux"],
-    86400,
+    ["darwin"],
+    60,
     "capturable-executable",
   )
   "/etc/passwd"() {
