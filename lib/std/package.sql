@@ -2304,14 +2304,13 @@ FROM breadcrumbs ORDER BY level DESC;
 ## 🚀 What''''s New
 
 ### **1. Bug-fixes**
-## TLS/Crypto Provider Issues (#320, #318)
+## Ingestion & PLM Issues (#320)
   - Fixed TLS crypto provider initialization issues
-## CSV Transform Issues (#309, #308)
+  - Fixed ingestion PLM issues with github
+## CSV Transform Issues (#194)
   - Fixed CSV transform duplicate detection issues
-## File Carving (#244)
-  - Fixed file carving functionality
-## Ingestion & PLM Issues
-  - Fixed ingestion PLM issues with github'' as description_md;
+## File Carving (#299)
+  - Fixed file carving functionality'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
