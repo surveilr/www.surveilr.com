@@ -2299,6 +2299,22 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.8'' as title, ''# `surveilr ` v1.8.8 Release Notes
+
+## 🚀 What''''s New
+
+### **1. Bug-fixes**
+## TLS/Crypto Provider Issues (#320, #318)
+  - Fixed TLS crypto provider initialization issues
+## CSV Transform Issues (#309, #308)
+  - Fixed CSV transform duplicate detection issues
+## File Carving (#244)
+  - Fixed file carving functionality
+## Ingestion & PLM Issues
+  - Fixed ingestion PLM issues with github'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.5'' as title, ''# `surveilr ` v1.8.5 Release Notes
 
 ## 🚀 What''''s New
