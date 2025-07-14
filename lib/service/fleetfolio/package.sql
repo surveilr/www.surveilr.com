@@ -2822,6 +2822,10 @@ FROM options;
             END AS contents;
 
         -- policy table and tab value Start here
+        select
+        ''text''              as component,
+        ''Displays security policies and compliance rules configured on the system, including policy names, descriptions, and enforcement status. Useful for auditing security configurations and ensuring compliance requirements are met.'' as contents WHERE $tab = ''policies'';
+
         -- policy pagenation
 
         -- Display sourse lable of data
@@ -2872,12 +2876,15 @@ SET current_page = ($offset / $limit) + 1;
           WHERE $tab = ''software'';
 
         -- Software table and tab value Start here
-       
+        select
+        ''text''              as component,
+        ''Displays installed software packages and applications on the system, including names, versions, types, and platforms. Essential for software inventory management, vulnerability assessment, and license compliance tracking.'' as contents WHERE $tab = ''software'';
+
         SET total_rows = (SELECT COUNT(*) FROM asset_software_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
+SET current_page = ($offset / $limit) + 1;
         SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''software'';
         SELECT name, version, type, platform, ''-'' AS "Vulnerabilities"
         FROM asset_software_list
@@ -2913,11 +2920,15 @@ SET current_page = ($offset / $limit) + 1;
           ) WHERE $tab = ''users'';
 
         -- User table and tab value Start here
+        select
+        ''text''              as component,
+        ''Displays user accounts configured on the system, including usernames and home directories. Useful for user access auditing, account management, and security compliance verification.'' as contents WHERE $tab = ''users'';
+
         SET total_rows = (SELECT COUNT(*) FROM asset_user_list WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
+SET current_page = ($offset / $limit) + 1;
         SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''users'';
         SELECT user_name as "User Name", directory as "Directory"
         FROM asset_user_list
@@ -2953,12 +2964,16 @@ SET current_page = ($offset / $limit) + 1;
           ) WHERE $tab = ''all_process'';
 
       -- Container table and tab value Start here
+      select
+        ''text''              as component,
+        ''Displays running containers and their configurations, including container names, images, port mappings, IP addresses, and status information. Essential for container orchestration monitoring and security assessment.'' as contents WHERE $tab = ''container'';
+
       -- Container pagenation
       SET total_rows = (SELECT COUNT(*) FROM list_docker_container WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
+SET current_page = ($offset / $limit) + 1;
         SELECT ''table'' AS component, TRUE as sort, TRUE as search,TRUE    as hover
          WHERE $tab = ''container'';
         SELECT LTRIM(container_name, ''/'') AS name, image,host_port AS "host Port",
@@ -2996,12 +3011,16 @@ SET current_page = ($offset / $limit) + 1;
           ) WHERE $tab = ''all_process'';
 
         -- all_process table and tab value Start here
+        select
+        ''text''              as component,
+        ''Displays all active processes running on the system, including process names, start times, states, and descriptions. Critical for system monitoring, performance analysis, and security incident investigation.'' as contents WHERE $tab = ''all_process'';
+
         -- all_process pagenation
         SET total_rows = (SELECT COUNT(*) FROM list_container_process WHERE host_identifier=$host_identifier);
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
+SET current_page = ($offset / $limit) + 1;
         SELECT ''table'' AS component, TRUE as sort, TRUE as search WHERE $tab = ''all_process'';
         SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
         FROM list_container_process
@@ -3017,6 +3036,10 @@ SET current_page = ($offset / $limit) + 1;
  WHERE $tab=''all_process'';;
 
         -- asset_service table and tab value Start here
+        select
+        ''text''              as component,
+        ''Displays network services and assets running on the system, including service names, ports, protocols, and operational status. Valuable for network security assessment and service inventory management.'' as contents WHERE $tab = ''asset_service'';
+
         -- asset_service pagenation
 
          -- Display sourse lable of data
