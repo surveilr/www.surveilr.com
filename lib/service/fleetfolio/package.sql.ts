@@ -715,6 +715,10 @@ FROM options;
             END AS contents;
 
         -- policy table and tab value Start here
+        select
+        'text'              as component,
+        'Displays security policies and compliance rules configured on the system, including policy names, descriptions, and enforcement status. Useful for auditing security configurations and ensuring compliance requirements are met.' as contents WHERE $tab = 'policies';
+
         -- policy pagenation
 
         -- Display sourse lable of data
@@ -759,8 +763,11 @@ FROM options;
           WHERE $tab = 'software';
 
         -- Software table and tab value Start here
-       
-        ${softwarePagination.init()} 
+        select
+        'text'              as component,
+        'Displays installed software packages and applications on the system, including names, versions, types, and platforms. Essential for software inventory management, vulnerability assessment, and license compliance tracking.' as contents WHERE $tab = 'software';
+
+        ${softwarePagination.init()}
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'software';
         SELECT name, version, type, platform, '-' AS "Vulnerabilities"
         FROM ${softwareViewName}
@@ -794,7 +801,11 @@ FROM options;
           ) WHERE $tab = 'users';
 
         -- User table and tab value Start here
-        ${userListPagination.init()} 
+        select
+        'text'              as component,
+        'Displays user accounts configured on the system, including usernames and home directories. Useful for user access auditing, account management, and security compliance verification.' as contents WHERE $tab = 'users';
+
+        ${userListPagination.init()}
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'users';
         SELECT user_name as "User Name", directory as "Directory"
         FROM ${userListViewName}
@@ -828,8 +839,12 @@ FROM options;
           ) WHERE $tab = 'all_process';
 
       -- Container table and tab value Start here
+      select
+        'text'              as component,
+        'Displays running containers and their configurations, including container names, images, port mappings, IP addresses, and status information. Essential for container orchestration monitoring and security assessment.' as contents WHERE $tab = 'container';
+
       -- Container pagenation
-      ${containerPagination.init()} 
+      ${containerPagination.init()}
         SELECT 'table' AS component, TRUE as sort, TRUE as search,TRUE    as hover
          WHERE $tab = 'container';
         SELECT LTRIM(container_name, '/') AS name, image,host_port AS "host Port",
@@ -865,8 +880,12 @@ FROM options;
           ) WHERE $tab = 'all_process';
 
         -- all_process table and tab value Start here
+        select
+        'text'              as component,
+        'Displays all active processes running on the system, including process names, start times, states, and descriptions. Critical for system monitoring, performance analysis, and security incident investigation.' as contents WHERE $tab = 'all_process';
+
         -- all_process pagenation
-        ${processPagination.init()} 
+        ${processPagination.init()}
         SELECT 'table' AS component, TRUE as sort, TRUE as search WHERE $tab = 'all_process';
         SELECT process_name AS "process name",start_time as "start time", state, state_description as "state description"
         FROM ${processViewName}
@@ -880,6 +899,10 @@ FROM options;
       };
 
         -- asset_service table and tab value Start here
+        select
+        'text'              as component,
+        'Displays network services and assets running on the system, including service names, ports, protocols, and operational status. Valuable for network security assessment and service inventory management.' as contents WHERE $tab = 'asset_service';
+
         -- asset_service pagenation
 
          -- Display sourse lable of data
