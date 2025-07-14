@@ -24,7 +24,7 @@
     "@preline/dropdown": "^3.1.0",
     "@preline/overlay": "^3.1.0",
     "@preline/tabs": "^3.1.0",
-    "@vercel/nft": "^0.29.0",
+    "@vercel/nft": "^0.29.4",
     "astro": "^5.8.1",
     "astro-breadcrumbs": "^3.3.1",
     "astro-compressor": "^1.0.0",
@@ -61,8 +61,8 @@
     "prettier": "^3.4.1",
     "prettier-eslint": "^16.3.0",
     "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.6.12",
-    "sass": "^1.89.0",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "sass": "^1.89.2",
     "typescript": "^5.8.3"
   }
 }
