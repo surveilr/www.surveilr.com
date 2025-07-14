@@ -475,16 +475,11 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
         'divider' as component,
         'System Environment'   as contents; 
 
-        -- Section heading for view selection area
-        SELECT 'text' AS component,
-            'Select Data View' AS title,
-            'Choose from the available data views to explore different aspects of this host''s information.' AS contents;
-
         -- Aggressive CSS targeting for SQLPage form horizontal layout
         SELECT 'html' AS component,
             '<div class="force-horizontal-layout">
                 <style>
-                    /* Aggressive targeting of all possible SQLPage form structures */
+                    /* Clean form layout without container decoration */
                     .force-horizontal-layout ~ form,
                     .force-horizontal-layout + form,
                     form:has(select[name="tab"]) {
@@ -495,10 +490,10 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
                         flex-wrap: wrap !important;
                         max-width: 706px !important;
                         margin-bottom: 20px !important;
-                        background: #f8f9fa !important;
-                        padding: 15px !important;
-                        border-radius: 6px !important;
-                        border: 1px solid #dee2e6 !important;
+                        background: none !important;
+                        padding: 0 !important;
+                        border-radius: 0 !important;
+                        border: none !important;
                     }
 
                     /* Target all possible container elements */
@@ -690,7 +685,7 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
 SELECT
     'select' AS type,
     'tab' AS name,
-    'Select View:' AS label,
+    '' AS label,
     COALESCE($tab, 'policies') AS value,
     'Search views...' AS placeholder,
     TRUE AS searchable,
