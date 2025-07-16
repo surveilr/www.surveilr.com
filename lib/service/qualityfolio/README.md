@@ -1,14 +1,54 @@
-The `Qualityfolio` specification introduces a structured, Markdown-driven
-approach to organizing, managing, and auditing test management artifacts. It is
-designed to integrate seamlessly with `surveilr`, allowing ingested content to
-be queried, tracked, and audited, while providing a web-based UI for dashboards
-and reporting similar to industry-standard test management systems.
+# Qualityfolio: Test Management as Code Platform
 
-- Qualityfolio is code-first ("test management as code" or TMaC)
-- Qualityfolio supports GitOps and doing test management via CI/CD-based test
-  automation
-- Qualityfolio also supports manual executions of test cases
-- Qualityfolio uses `surveilr` for RSSD-based content storage and Web UI
+Qualityfolio is a modern test management platform built on surveilr that transforms traditional test management into a code-first, GitOps-enabled approach. Instead of using proprietary test management tools with complex interfaces, Qualityfolio uses structured Markdown files stored in Git repositories to manage test cases, execution results, and compliance reporting.
+
+## What Qualityfolio Does
+
+Qualityfolio enables organizations to:
+
+- ✅ **Manage test cases as code** using Markdown files in version control systems
+- ✅ **Execute tests via CI/CD pipelines** with automated result capture and reporting
+- ✅ **Track test execution history** with full audit trails and traceability
+- ✅ **Generate compliance reports** for quality assurance and regulatory requirements
+
+## Key Benefits
+
+🔹 **Version Control Integration**: Test cases live alongside your code in Git repositories
+🔹 **CI/CD Automation**: Execute tests automatically through existing CI/CD pipelines
+🔹 **Real-time Dashboards**: Track quality metrics and compliance with web-based reporting
+🔹 **Audit & Compliance**: Maintain complete audit trails for regulatory and quality standards
+🔹 **Developer-Friendly**: Uses familiar tools (Markdown, Git, SQL) that development teams already know
+
+## Core Features
+
+- **Code-First Approach**: "Test Management as Code" (TMaC) using structured Markdown files
+- **GitOps Integration**: Full support for Git-based workflows and CI/CD automation
+- **Flexible Execution**: Supports both manual test case execution and automated testing
+- **surveilr Integration**: Uses surveilr for RSSD-based content storage and web UI
+- **Complete Traceability**: Full audit trails and evidence collection for quality standards
+
+## Getting Started
+
+### Step 1: Set Up Example Test Structure
+
+Before creating your own test cases, run the preparation script to see example structures and templates:
+
+```bash
+# Generate example Qualityfolio directory structure and test cases
+deno run -A eg.surveilr.com-prepare.ts
+```
+
+**What this script creates:**
+
+- Example `/qualityfolio` directory with proper structure
+- Sample test cases in Markdown format (`.case.md` files)
+- Example projects, test suites, and test case groups
+- Templates for test runs and result files
+- Demonstration of different test case complexity levels
+
+### Step 2: Understand the Structure
+
+After running the preparation script, explore the generated structure to understand how Qualityfolio organizes test content.
 
 ### Content Hierarchy
 
@@ -74,6 +114,7 @@ projects, suites, and test case groups.
    - **Purpose**: Defines a single test case, including test steps, expected
      outcomes, and metadata.
    - **Structure**:
+
      ```markdown
      ---
      FII: "TC-001"
@@ -109,6 +150,7 @@ The `<query-result>` assumes that test runs and results are ingested via
 2. **Test Run Summary**: `<test-case>.run.md`
    - **Purpose**: Captures the summary of all runs for a test case.
    - **Structure**:
+
      ```markdown
      ---
      FII: "TR-001"
@@ -128,6 +170,7 @@ The `<query-result>` assumes that test runs and results are ingested via
    - **Formats**: JSON, TAP (Test Anything Protocol), or other structured
      formats.
    - **Example (JSON)**:
+
      ```json
      {
        "test_case_fii": "TC-001",
@@ -219,39 +262,98 @@ depth)
         test-login.run-1.result.json
 ```
 
-## Commands
+### Step 3: Ingest Test Content into Database
 
-### Ingest Markdown Content
-
-```bash
-surveilr ingest files -r synthetic-asset-tracking
-```
-
-Post-ingestion, `surveilr` is no longer required, the `synthetic-asset-tracking`
-directory can be ignored, only `sqlite3` is required because all content is in
-the `resource-surveillance.sqlite.db` SQLite database which does not require any
-other dependencies.
-
-## Start surveilr Web UI
-
-Post-ingestion, `surveilr` is no longer required, the `ingest` directory can be
-ignored, only `sqlite3` is required because all content is in the
-`resource-surveillance.sqlite.db` SQLite database which does not require any
-other dependencies.
+Once you understand the structure, ingest your test content into the surveilr database:
 
 ```bash
-# load the "Console" and other menu/routing utilities plus FHIR Web UI (both are same, just run one)
-$ deno run -A ./package.sql.ts | surveilr shell   # option 1 (same as option 2)
-$ surveilr shell ./package.sql.ts                 # option 2 (same as option 1)
-
-# start surveilr web-ui in "watch" mode to re-load package.sql.ts automatically
-$ SQLPAGE_SITE_PREFIX="" ../../std/surveilrctl.ts dev
-# browse http://localhost:9000/ to see surveilr web UI
-# browse http://localhost:9000/qltyfolio/info-schema.sql to see DMS-specific schema
+# Ingest all Qualityfolio test content into surveilr database
+surveilr ingest files -r qualityfolio
 ```
 
-Once you apply `stateless.sql` you can ignore that files and all content will be
-accessed through views or `*.cached` tables in
-`resource-surveillance.sqlite.db`. At this point you can rename the SQLite
-database file, archive it, use in reporting tools, DBeaver, DataGrip, or any
-other SQLite data access tools.
+**What happens during ingestion:**
+
+- Markdown test files are parsed and structured data extracted
+- Test cases, suites, and projects are stored in the RSSD database
+- Metadata and relationships between test components are established
+- Content becomes queryable via SQL and accessible through the web UI
+
+### Step 4: Launch Qualityfolio Web UI
+
+After ingestion, start the web interface to manage and monitor your test cases:
+
+```bash
+# Load the Console and Qualityfolio Web UI components
+deno run -A ./package.sql.ts | surveilr shell
+
+# Alternative method (equivalent to above)
+surveilr shell ./package.sql.ts
+
+# Start surveilr web UI in development mode with auto-reload
+SQLPAGE_SITE_PREFIX="" ../../std/surveilrctl.ts dev
+
+# Access the web interface
+# Main UI: http://localhost:9000/
+# Qualityfolio Schema: http://localhost:9000/qltyfolio/info-schema.sql
+```
+
+## Web UI Features
+
+The Qualityfolio web interface provides comprehensive test management capabilities:
+
+### 📊 Dashboard
+
+- **Test Metrics**: Pass/fail rates, defect counts, and test case coverage
+- **Project Overview**: Status across projects, suites, and individual test cases
+- **Trend Analysis**: Charts showing testing progress and defect discovery over time
+- **Custom Filters**: Filter by tags, priorities, environments, or custom fields
+
+### 🔍 Test Case Explorer
+
+- **Hierarchical Navigation**: Browse through projects, suites, groups, and test cases
+- **Detailed Views**: Complete test case information including steps, results, and history
+- **Search & Filter**: Find specific test cases using various criteria
+- **Execution History**: Track all test runs and results for each test case
+
+### 📋 Test Execution Reports
+
+- **Run Summaries**: Execution status for specific test runs
+- **Failure Analysis**: Detailed information about failed, blocked, or skipped tests
+- **Defect Tracking**: Link test results to defects and issues
+- **Environment Comparison**: Compare test results across different environments
+
+### 🔒 Auditing and Traceability
+
+- **Complete Audit Trails**: Full traceability using FII (Functional Identifier Index) codes
+- **Historical Data**: Query and analyze historical test data for compliance
+- **Evidence Collection**: Maintain evidence for regulatory and quality standards
+- **Change Tracking**: Monitor changes to test cases and execution results
+
+## Quick Start Commands
+
+### Complete Setup Workflow
+
+```bash
+# 1. Generate example test structure and templates
+deno run -A eg.surveilr.com-prepare.ts
+
+# 2. Ingest test content into database
+surveilr ingest files -r qualityfolio
+
+# 3. Load web UI components
+deno run -A ./package.sql.ts | surveilr shell
+
+# 4. Start web interface
+SQLPAGE_SITE_PREFIX="" ../../std/surveilrctl.ts dev
+
+# 5. Access Qualityfolio at http://localhost:9000/
+```
+
+## Database Access
+
+After ingestion, all test management data is stored in `resource-surveillance.sqlite.db`. You can:
+
+- **Use external tools**: Access with DBeaver, DataGrip, or any SQLite-compatible tool
+- **Run SQL queries**: Query test data directly for custom reports and analysis
+- **Archive databases**: Create timestamped backups for historical records
+- **Export data**: Generate reports for external compliance and quality systems
