@@ -159,7 +159,8 @@ VALUES
     ('prime', 'console/index.sql', 2, 'console/notebooks/index.sql', 'console/notebooks/index.sql', 'RSSD Code Notebooks', 'Code Notebooks', NULL, 'Explore RSSD Code Notebooks which contain reusable SQL and other code blocks', NULL),
     ('prime', 'console/index.sql', 2, 'console/migrations/index.sql', 'console/migrations/index.sql', 'RSSD Lifecycle (migrations)', 'Migrations', NULL, 'Explore RSSD Migrations to determine what was executed and not', NULL),
     ('prime', 'console/index.sql', 2, 'console/about.sql', 'console/about.sql', 'Resource Surveillance Details', 'About', NULL, 'Detailed information about the underlying surveilr binary', NULL),
-    ('prime', 'console/index.sql', 1, 'console/statistics/index.sql', 'console/statistics/index.sql', 'RSSD Statistics', 'Statistics', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL)
+    ('prime', 'console/index.sql', 1, 'console/statistics/index.sql', 'console/statistics/index.sql', 'RSSD Statistics', 'Statistics', NULL, 'Explore RSSD tables, columns, views, and other information schema documentation', NULL),
+    ('prime', 'console/index.sql', 5, 'console/behavior/index.sql', 'console/behavior/index.sql', 'Behavior Configuration', 'Behavior', NULL, 'Explore behavior configurations and presets used to drive application operations at runtime', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 
@@ -1814,10 +1815,206 @@ SELECT ''Indexes'' as title, "total_indexes" as description FROM rssd_statistics
 SELECT ''Rows'' as title, "total_rows" as description FROM rssd_statistics_overview;
 SELECT ''Page Size'' as title, "page_size" as description FROM rssd_statistics_overview;
 SELECT ''Total Pages'' as title, "total_pages" as description FROM rssd_statistics_overview;
-    
+
 select ''text'' as component, ''Tables'' as title;
 SELECT ''table'' AS component, TRUE as sort, TRUE as search;
 SELECT * FROM rssd_table_statistic ORDER BY table_size_mb DESC;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'console/behavior/index.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''console/behavior/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, ''Behavior Configuration'' AS contents;
+
+SELECT ''text'' AS component,
+  ''Behaviors are configuration presets that drive application operations at runtime, including ingest behaviors, file scanning configurations, and device-specific settings.'' AS contents;
+
+-- Summary cards
+SELECT ''card'' AS component, 3 AS columns;
+SELECT
+    ''Total Behaviors'' AS title,
+    COUNT(*) AS description,
+    ''blue'' AS color
+FROM behavior
+WHERE deleted_at IS NULL;
+
+SELECT
+    ''Active Devices'' AS title,
+    COUNT(DISTINCT device_id) AS description,
+    ''green'' AS color
+FROM behavior
+WHERE deleted_at IS NULL;
+
+SELECT
+    ''Unique Behavior Types'' AS title,
+    COUNT(DISTINCT behavior_name) AS description,
+    ''orange'' AS color
+FROM behavior
+WHERE deleted_at IS NULL;
+
+-- Initialize pagination
+SET total_rows = (SELECT COUNT(*) FROM behavior );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Behavior table with pagination
+SELECT ''title'' AS component, ''Behavior Configurations'' AS contents, 2 AS level;
+SELECT ''table'' AS component,
+       ''Behavior Name'' as markdown,
+       ''Device'' as markdown,
+       TRUE as sort,
+       TRUE as search;
+SELECT
+    ''['' || b.behavior_name || ''](behavior-detail.sql?behavior_id='' || b.behavior_id || '')'' AS "Behavior Name",
+    ''['' || d.name || ''](/console/info-schema/table.sql?name=device)'' AS "Device",
+    CASE
+        WHEN LENGTH(b.behavior_conf_json) > 100
+        THEN SUBSTR(b.behavior_conf_json, 1, 100) || ''...''
+        ELSE b.behavior_conf_json
+    END AS "Configuration Preview",
+    b.created_at AS "Created",
+    CASE
+        WHEN b.updated_at IS NOT NULL THEN b.updated_at
+        ELSE b.created_at
+    END AS "Last Modified"
+FROM behavior b
+LEFT JOIN device d ON b.device_id = d.device_id
+WHERE b.deleted_at IS NULL
+ORDER BY b.created_at DESC
+LIMIT $limit
+OFFSET $offset;
+
+-- Pagination controls
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
+    AS contents_md 
+;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'console/behavior/behavior-detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              -- Breadcrumbs
+SELECT ''breadcrumb'' as component;
+SELECT ''Home'' as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+SELECT ''Console'' as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/index.sql'' as link;
+SELECT ''Behavior'' as title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/behavior/index.sql'' as link;
+SELECT behavior_name as title FROM behavior WHERE behavior_id = $behavior_id;
+
+SELECT ''title'' AS component,
+       (SELECT behavior_name FROM behavior WHERE behavior_id = $behavior_id) AS contents;
+
+SELECT ''text'' AS component,
+  ''Detailed view of behavior configuration including JSON configuration, governance settings, and associated device information.'' AS contents;
+
+-- Behavior details card
+SELECT ''card'' AS component, 2 AS columns;
+SELECT
+    ''Behavior ID'' AS title,
+    behavior_id AS description,
+    ''blue'' AS color
+FROM behavior
+WHERE behavior_id = $behavior_id;
+
+SELECT
+    ''Device'' AS title,
+    (SELECT name FROM device WHERE device_id = b.device_id) AS description,
+    ''green'' AS color
+FROM behavior b
+WHERE behavior_id = $behavior_id;
+
+-- Configuration details
+SELECT ''title'' AS component, ''Configuration Details'' AS contents, 2 AS level;
+SELECT ''table'' AS component;
+SELECT
+    ''Behavior Name'' AS "Property",
+    behavior_name AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id
+UNION ALL
+SELECT
+    ''Device ID'' AS "Property",
+    device_id AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id
+UNION ALL
+SELECT
+    ''Created At'' AS "Property",
+    created_at AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id
+UNION ALL
+SELECT
+    ''Created By'' AS "Property",
+    created_by AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id
+UNION ALL
+SELECT
+    ''Updated At'' AS "Property",
+    COALESCE(updated_at, ''Never'') AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id
+UNION ALL
+SELECT
+    ''Updated By'' AS "Property",
+    COALESCE(updated_by, ''N/A'') AS "Value"
+FROM behavior WHERE behavior_id = $behavior_id;
+
+-- JSON Configuration
+SELECT ''title'' AS component, ''JSON Configuration'' AS contents, 2 AS level;
+SELECT ''code'' AS component;
+SELECT
+    ''json'' as language,
+    behavior_conf_json as contents
+FROM behavior
+WHERE behavior_id = $behavior_id;
+
+-- Governance (if available)
+SELECT ''title'' AS component, ''Governance'' AS contents, 2 AS level
+WHERE EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
+
+SELECT ''code'' AS component
+WHERE EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
+
+SELECT
+    ''json'' as language,
+    governance as contents
+FROM behavior
+WHERE behavior_id = $behavior_id AND governance IS NOT NULL;
+
+-- Show message if no governance
+SELECT ''text'' AS component,
+       ''No governance configuration available for this behavior.'' AS contents
+WHERE NOT EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
