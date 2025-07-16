@@ -275,19 +275,16 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       WITH console_navigation_cte AS (
           SELECT title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path =${
-      this.constructHomePath("console")
-    }
+           WHERE namespace = 'prime' AND path =${this.constructHomePath("console")
+      }
       )
       SELECT 'list' AS component, title, description
         FROM console_navigation_cte;
-      SELECT caption as title, ${
-      this.absoluteURL("/")
-    } || COALESCE(url, path) as link, description
+      SELECT caption as title, ${this.absoluteURL("/")
+      } || COALESCE(url, path) as link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${
-      this.constructHomePath("console")
-    }
+       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("console")
+      }
        ORDER BY sibling_order;`;
   }
 
@@ -310,9 +307,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || table_name || '](table.sql?name=' || table_name || ')' AS "Table",
           COUNT(column_name) AS "Column Count",
-          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${
-      this.absoluteURL("")
-    }) as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL("")
+      }) as "Content"
       FROM console_information_schema_table
       GROUP BY table_name;
 
@@ -326,9 +322,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
           '[' || view_name || '](view.sql?name=' || view_name || ')' AS "View",
           COUNT(column_name) AS "Column Count",
-          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${
-      this.absoluteURL("")
-    }) as "Content"
+          REPLACE(content_web_ui_link_abbrev_md,'$SITE_PREFIX_URL',${this.absoluteURL("")
+      }) as "Content"
       FROM console_information_schema_view
       GROUP BY view_name;
 
@@ -417,9 +412,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
          SELECT
-        '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
          LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
       ORDER BY path;`;
@@ -449,17 +443,15 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'text' AS component, '
         - \`*.auto.sql\` pages are auto-generated "default" content pages for each table and view defined in the database.
         - The \`*.sql\` companions may be auto-generated redirects to their \`*.auto.sql\` pair or an app/service might override the \`*.sql\` to not redirect and supply custom content for any table or view.
-        - [View regenerate-auto.sql](' || ${
-      this.absoluteURL(
-        "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
-      )
-    } || ')
+        - [View regenerate-auto.sql](' || ${this.absoluteURL(
+      "/console/sqlpage-files/sqlpage-file.sql?path=console/content/action/regenerate-auto.sql",
+    )
+      } || ')
         ' AS contents_md;
 
       SELECT 'button' AS component, 'center' AS justify;
-      SELECT ${
-      this.absoluteURL("/console/content/action/regenerate-auto.sql")
-    } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
+      SELECT ${this.absoluteURL("/console/content/action/regenerate-auto.sql")
+      } AS link, 'info' AS color, 'Regenerate all "default" table/view content pages' AS title;
 
       SELECT 'title' AS component, 'Redirected or overriden content pages' as contents;
       SELECT 'table' AS component,
@@ -468,9 +460,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
             SELECT
-        '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+        '[🚀](' || ${this.absoluteURL("/")
+      } || path || ')[📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
 
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -486,9 +477,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
             TRUE as sort,
             TRUE as search;
           SELECT
-            '[🚀](' || ${
-      this.absoluteURL("/")
-    } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
+            '[🚀](' || ${this.absoluteURL("/")
+      } || path || ') [📄 ' || path || '](sqlpage-file.sql?path=' || path || ')' AS "Path",
 
         LENGTH(contents) as "Size", last_modified
       FROM sqlpage_files
@@ -535,9 +525,8 @@ export class ConsoleSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'table' as component, 'Cell' as markdown, 1 as search, 1 as sort;
       SELECT c.notebook_name,
           '[' || c.cell_name || '](' ||
-          ${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } ||
+          ${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } ||
           replace(c.notebook_name, ' ', '%20') ||
           '&cell=' ||
           replace(c.cell_name, ' ', '%20') ||
@@ -746,9 +735,8 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
               c.code_notebook_cell_id,
               c.notebook_name,
               c.cell_name,
-              '[' || c.cell_name || ']('||${
-      this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
-    } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
+              '[' || c.cell_name || ']('||${this.absoluteURL("/console/notebooks/notebook-cell.sql?notebook=")
+      } || replace(c.notebook_name, ' ', '%20') || '&cell=' || replace(c.cell_name, ' ', '%20') || ')' as Cell,
               c.interpretable_code_hash,
               c.is_idempotent,
               c.version_timestamp
@@ -925,11 +913,183 @@ After a successful migration session, \`\`surveilr\`\` concludes by recording de
       SELECT 'Rows' as title, "total_rows" as description FROM rssd_statistics_overview;
       SELECT 'Page Size' as title, "page_size" as description FROM rssd_statistics_overview;
       SELECT 'Total Pages' as title, "total_pages" as description FROM rssd_statistics_overview;
-    
+
       select 'text' as component, 'Tables' as title;
       SELECT 'table' AS component, TRUE as sort, TRUE as search;
       SELECT * FROM rssd_table_statistic ORDER BY table_size_mb DESC;
 
+    `;
+  }
+
+  @consoleNav({
+    caption: "Behavior Configuration",
+    abbreviatedCaption: "Behavior",
+    description:
+      "Explore behavior configurations and presets used to drive application operations at runtime",
+    siblingOrder: 5,
+  })
+  "console/behavior/index.sql"() {
+    const viewName = `behavior`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+    });
+
+    return this.SQL`
+      SELECT 'title' AS component, 'Behavior Configuration' AS contents;
+
+      SELECT 'text' AS component,
+        'Behaviors are configuration presets that drive application operations at runtime, including ingest behaviors, file scanning configurations, and device-specific settings.' AS contents;
+
+      -- Summary cards
+      SELECT 'card' AS component, 3 AS columns;
+      SELECT
+          'Total Behaviors' AS title,
+          COUNT(*) AS description,
+          'blue' AS color
+      FROM behavior
+      WHERE deleted_at IS NULL;
+
+      SELECT
+          'Active Devices' AS title,
+          COUNT(DISTINCT device_id) AS description,
+          'green' AS color
+      FROM behavior
+      WHERE deleted_at IS NULL;
+
+      SELECT
+          'Unique Behavior Types' AS title,
+          COUNT(DISTINCT behavior_name) AS description,
+          'orange' AS color
+      FROM behavior
+      WHERE deleted_at IS NULL;
+
+      -- Initialize pagination
+      ${pagination.init()}
+
+      -- Behavior table with pagination
+      SELECT 'title' AS component, 'Behavior Configurations' AS contents, 2 AS level;
+      SELECT 'table' AS component,
+             'Behavior Name' as markdown,
+             'Device' as markdown,
+             TRUE as sort,
+             TRUE as search;
+      SELECT
+          '[' || b.behavior_name || '](behavior-detail.sql?behavior_id=' || b.behavior_id || ')' AS "Behavior Name",
+          '[' || d.name || '](/console/info-schema/table.sql?name=device)' AS "Device",
+          CASE
+              WHEN LENGTH(b.behavior_conf_json) > 100
+              THEN SUBSTR(b.behavior_conf_json, 1, 100) || '...'
+              ELSE b.behavior_conf_json
+          END AS "Configuration Preview",
+          b.created_at AS "Created",
+          CASE
+              WHEN b.updated_at IS NOT NULL THEN b.updated_at
+              ELSE b.created_at
+          END AS "Last Modified"
+      FROM behavior b
+      LEFT JOIN device d ON b.device_id = d.device_id
+      WHERE b.deleted_at IS NULL
+      ORDER BY b.created_at DESC
+      LIMIT $limit
+      OFFSET $offset;
+
+      -- Pagination controls
+      ${pagination.renderSimpleMarkdown()}
+    `;
+  }
+
+  // no @consoleNav since this is a detail page
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "console/behavior/behavior-detail.sql"() {
+    return this.SQL`
+      -- Breadcrumbs
+      SELECT 'breadcrumb' as component;
+      SELECT 'Home' as title, ${this.absoluteURL("/")} as link;
+      SELECT 'Console' as title, ${this.absoluteURL("/console/index.sql")} as link;
+      SELECT 'Behavior' as title, ${this.absoluteURL("/console/behavior/index.sql")} as link;
+      SELECT behavior_name as title FROM behavior WHERE behavior_id = $behavior_id;
+
+      SELECT 'title' AS component,
+             (SELECT behavior_name FROM behavior WHERE behavior_id = $behavior_id) AS contents;
+
+      SELECT 'text' AS component,
+        'Detailed view of behavior configuration including JSON configuration, governance settings, and associated device information.' AS contents;
+
+      -- Behavior details card
+      SELECT 'card' AS component, 2 AS columns;
+      SELECT
+          'Behavior ID' AS title,
+          behavior_id AS description,
+          'blue' AS color
+      FROM behavior
+      WHERE behavior_id = $behavior_id;
+
+      SELECT
+          'Device' AS title,
+          (SELECT name FROM device WHERE device_id = b.device_id) AS description,
+          'green' AS color
+      FROM behavior b
+      WHERE behavior_id = $behavior_id;
+
+      -- Configuration details
+      SELECT 'title' AS component, 'Configuration Details' AS contents, 2 AS level;
+      SELECT 'table' AS component;
+      SELECT
+          'Behavior Name' AS "Property",
+          behavior_name AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id
+      UNION ALL
+      SELECT
+          'Device ID' AS "Property",
+          device_id AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id
+      UNION ALL
+      SELECT
+          'Created At' AS "Property",
+          created_at AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id
+      UNION ALL
+      SELECT
+          'Created By' AS "Property",
+          created_by AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id
+      UNION ALL
+      SELECT
+          'Updated At' AS "Property",
+          COALESCE(updated_at, 'Never') AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id
+      UNION ALL
+      SELECT
+          'Updated By' AS "Property",
+          COALESCE(updated_by, 'N/A') AS "Value"
+      FROM behavior WHERE behavior_id = $behavior_id;
+
+      -- JSON Configuration
+      SELECT 'title' AS component, 'JSON Configuration' AS contents, 2 AS level;
+      SELECT 'code' AS component;
+      SELECT
+          'json' as language,
+          behavior_conf_json as contents
+      FROM behavior
+      WHERE behavior_id = $behavior_id;
+
+      -- Governance (if available)
+      SELECT 'title' AS component, 'Governance' AS contents, 2 AS level
+      WHERE EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
+
+      SELECT 'code' AS component
+      WHERE EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
+
+      SELECT
+          'json' as language,
+          governance as contents
+      FROM behavior
+      WHERE behavior_id = $behavior_id AND governance IS NOT NULL;
+
+      -- Show message if no governance
+      SELECT 'text' AS component,
+             'No governance configuration available for this behavior.' AS contents
+      WHERE NOT EXISTS (SELECT 1 FROM behavior WHERE behavior_id = $behavior_id AND governance IS NOT NULL);
     `;
   }
 }
