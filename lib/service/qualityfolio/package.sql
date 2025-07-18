@@ -442,6 +442,7 @@ DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/ind
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
     ('prime', 'index.sql', 1, 'qualityfolio/index.sql', 'qualityfolio/index.sql', 'Test Management System', NULL, NULL, 'Test management system', NULL),
+    ('prime', 'qualityfolio/index.sql', 3, 'qualityfolio/test-cases.sql', 'qualityfolio/test-cases.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL),
     ('prime', 'qualityfolio/index.sql', 1, 'qualityfolio/test-management.sql', 'qualityfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
@@ -1611,147 +1612,277 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     select
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT ''title''AS component,
-      name as contents FROM test_suites  WHERE id = $id; 
-    SELECT ''card''  AS component,
-    1                          as columns;
-    
+      name as contents FROM test_suites  WHERE id = $id;
+
+    -- Custom CSS for accordion styling
+    SELECT ''html'' AS component,
+      ''<style>
+        .custom-accordion {
+          margin: 20px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .custom-accordion details {
+          border: none;
+          margin: 0;
+        }
+        .custom-accordion details + details {
+          border-top: 1px solid #ddd;
+        }
+        .custom-accordion summary {
+          background-color: #f5f5f5;
+          padding: 15px 20px;
+          cursor: pointer;
+          font-weight: 500;
+          color: #333;
+          border: none;
+          outline: none;
+          position: relative;
+          user-select: none;
+          list-style: none;
+        }
+        .custom-accordion summary::-webkit-details-marker {
+          display: none;
+        }
+        .custom-accordion summary::after {
+          content: "+";
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: bold;
+          color: #666;
+        }
+        .custom-accordion details[open] summary::after {
+          content: "−";
+        }
+        .custom-accordion summary:hover {
+          background-color: #ebebeb;
+        }
+        .custom-accordion .content {
+          padding: 20px;
+          background-color: white;
+          border-top: 1px solid #ddd;
+        }
+      </style>'' AS html;
+
+    -- Accordion container
+    SELECT ''html'' AS component,
+      ''<div class="custom-accordion">'' AS html;
+
+    -- Suite Details Section (open by default)
+    SELECT ''html'' AS component,
+      ''<details open>
+        <summary>Suite Details</summary>
+        <div class="content">'' AS html;
+
+    SELECT ''card'' AS component,
+           1 AS columns;
+
     SELECT
+    ''**Description:** '' || COALESCE(rn."description", ''No description available'') ||
     ''
- **Description**  :  '' || rn."description" AS description_md,
-    ''
- **Created By**  :  '' || rn.created_by_user AS description_md,
-    ''
- **Created At**  :  '' || strftime(''%d-%m-%Y'', rn.created_at)  AS description_md,
-    ''
- **Priority**  :  '' || rn.linked_requirements AS description_md,
-    ''
-'' || rn.body AS description_md
-FROM test_suites rn WHERE id = $id;
 
-SELECT ''title''  AS component,
-      ''Test Case Group'' as contents;
-    --SELECT
-    -- ''A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
-    -- '' as empty_description;
+**Created By:** '' || COALESCE(rn.created_by_user, ''Unknown'') ||
+    ''
 
-SELECT ''table'' as component,
+**Created At:** '' || strftime(''%d-%m-%Y'', rn.created_at) ||
+    ''
+
+**Linked Requirements:** '' || COALESCE(rn.linked_requirements, ''None specified'') ||
+    CASE
+      WHEN rn.body IS NOT NULL AND rn.body != ''''
+      THEN ''
+
+**Additional Details:**
+'' || rn.body
+      ELSE ''''
+    END AS description_md
+    FROM test_suites rn WHERE id = $id;
+
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+    -- Test Case Groups Section (closed by default)
+    SELECT ''html'' AS component,
+      ''<details>
+        <summary>Test Case Groups ('' || COUNT(*) || '')</summary>
+        <div class="content">'' AS html
+    FROM (SELECT DISTINCT group_id FROM test_cases_run_status WHERE suite_id = $id);
+
+    SELECT ''text'' AS component,
+      ''This section contains all test case groups within this test suite. Each group represents a collection of related test cases organized by functionality or testing scope.'' AS contents;
+
+    SELECT ''table'' as component,
       TRUE AS sort,
-        --TRUE AS search,
-          ''URL'' AS align_left,
-            ''title'' AS align_left,
-              ''group'' as markdown,
-              ''id'' as markdown,
-              ''Test Cases'' as markdown;
+      TRUE AS search,
+      ''Group ID'' AS markdown,
+      ''Group Name'' AS markdown;
+
     SELECT
-    ''['' || group_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| group_id || '')'' as id,
-      group_name AS "title",
-        ''['' || test_case_count || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-cases.sql?id=''|| group_id || '')'' AS ''Test Cases'',
-      
+    ''['' || group_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| group_id || '')'' as "Group ID",
+      group_name AS "Group Name",
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
     FROM test_cases_run_status
-    WHERE suite_id = $id order by group_id asc;
+    WHERE suite_id = $id
+    ORDER BY group_id ASC;
+
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+    -- Close accordion container
+    SELECT ''html'' AS component,
+      ''</div>'' AS html;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'qualityfolio/test-cases.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test-cases.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
               
 
-                SELECT
-  ''breadcrumb'' as component;
-  SELECT
-  ''Home'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
-  SELECT
-  ''Test Management System'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test-cases.sql/index.sql'') as contents;
+    ;
 
-  SELECT name as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| id as link
-  FROM test_suites where id=(select suite_id from test_cases where group_id = $id) ;
+-- Page description based on context
+SELECT ''text'' AS component,
+  CASE
+    WHEN $id IS NOT NULL THEN
+      ''This page displays test cases for the selected group: '' || (SELECT group_name FROM test_cases WHERE group_id = $id LIMIT 1) || ''. Use the search and filter functionality to find specific test cases.''
+    ELSE
+      ''This page displays a comprehensive list of all test cases across all projects and test suites. Use the search and filter functionality to find specific test cases by name, status, group, or priority.''
+  END AS contents;
 
-  SELECT group_name as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| suite_id as link
-  FROM test_cases WHERE  group_id = $id group by group_name;
-  
-  SELECT ''list''  AS component,
-    group_name as title FROM test_cases
-  WHERE  group_id = $id group by group_name;
-  SELECT
-  ''A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
-  '' as description;
+-- Status overview based on context
+SELECT ''alert'' AS component,
+       ''info'' AS color,
+       CASE
+         WHEN $id IS NOT NULL THEN ''Group Test Case Overview''
+         ELSE ''Test Case Overview''
+       END AS title,
+       ''Total test cases: '' ||
+       CASE
+         WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id)
+         ELSE (SELECT COUNT(*) FROM test_cases)
+       END ||
+       '' | Passed: '' ||
+       CASE
+         WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND test_status = ''passed'')
+         ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status = ''passed'')
+       END ||
+       '' | Failed: '' ||
+       CASE
+         WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND test_status = ''failed'')
+         ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status = ''failed'')
+       END ||
+       '' | Pending: '' ||
+       CASE
+         WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND (test_status IS NULL OR test_status = ''TODO''))
+         ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status IS NULL OR test_status = ''TODO'')
+       END AS description;
 
- SELECT ''html'' as component,
+SELECT ''html'' as component,
   ''<style>
      tr td.test_status {
-          color: blue !important; /* Default to blue */
+          color: blue !important;
       }
       tr.rowClass-passed td.test_status {
-          color: green !important; /* Default to red */
+          color: green !important;
       }
        tr.rowClass-failed td.test_status {
-          color: red !important; /* Default to red */
+          color: red !important;
       }
-
-       tr td.test_statusalign-middle {
-          color: blue !important; /* Default to blue */
+      tr.rowClass-TODO td.test_status {
+          color: orange !important;
       }
-
-       tr.rowClass-passed td.test_statusalign-middle {
-          color: green !important; /* Default to red */
-      }
-       tr.rowClass-failed td.test_statusalign-middle {
-          color: red !important; /* Default to red */
-      }
-
-      
       .btn-list {
       display: flex;
       justify-content: flex-end;
   }
-  </style>
-  
-  '' as html;
-  select 
-  ''button'' as component;
-select 
-  ''Generate Report''           as title,
-  ''download-test-case.sql?group_id=''||$id as link;
+  </style>'' as html;
 
- SET total_rows = (SELECT COUNT(*) FROM test_cases WHERE group_id=$id);
+SELECT ''button'' as component;
+
+-- Show "View All Test Cases" button when filtering by group
+SELECT ''View All Test Cases'' as title,
+       ''test-cases.sql'' as link,
+       ''list'' as icon
+WHERE $id IS NOT NULL
+UNION ALL
+-- Show "Export Group Test Cases" button when filtering by group
+SELECT ''Export Group Test Cases'' as title,
+       ''download-test-case.sql?group_id='' || $id as link,
+       ''download'' as icon
+WHERE $id IS NOT NULL
+UNION ALL
+-- Show "Export All Test Cases" button when showing all test cases
+SELECT ''Export All Test Cases'' as title,
+       ''download-full_list.sql'' as link,
+       ''download'' as icon
+WHERE $id IS NULL;
+
+SET total_rows = (SELECT COUNT(*) FROM test_cases WHERE ($id IS NULL OR group_id = $id));
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1;
 
-  SELECT ''table'' as component,
-    TRUE AS sort,
-      TRUE AS search,
-        ''URL'' AS align_left,
-          ''title'' AS align_left,
-            ''group'' as markdown,
-            ''id'' as markdown,
-            "status_new" as markdown,
-            ''count'' as markdown;
-  SELECT
-  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
-    test_case_title AS "title",
-      group_name AS "group",
-      case when test_status is not null then test_status
-      else ''TODO'' END AS "test_status",
-    ''rowClass-''||test_status as _sqlpage_css_class,
-    created_by as "Created By",
-    formatted_test_case_created_at as "Created On",
-    priority as "Priority"
-  FROM test_cases t
-  WHERE  group_id = $id
-  LIMIT $limit
-    OFFSET $offset;
-    SELECT ''text'' AS component,
+SELECT ''table'' as component,
+       TRUE AS sort,
+       TRUE AS search,
+       ''Test Case ID'' as markdown,
+       ''Title'' as markdown,
+       ''Group'' as markdown,
+       ''Suite'' as markdown,
+       ''Status'' as markdown;
+
+SELECT
+  ''['' || tc.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| tc.test_case_id || '')'' as "Test Case ID",
+  tc.test_case_title AS "Title",
+  ''['' || tc.group_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| tc.group_id || '')'' AS "Group",
+  ''['' || ts.name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| ts.id || '')'' AS "Suite",
+  CASE
+    WHEN tc.test_status IS NOT NULL THEN tc.test_status
+    ELSE ''TODO''
+  END AS "Status",
+  ''rowClass-'' || COALESCE(tc.test_status, ''TODO'') as _sqlpage_css_class,
+  tc.test_type AS "Type",
+  tc.priority AS "Priority",
+  tc.created_by AS "Created By",
+  tc.formatted_test_case_created_at AS "Created On"
+FROM test_cases tc
+LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+WHERE ($id IS NULL OR tc.group_id = $id)
+ORDER BY tc.test_case_id
+LIMIT $limit OFFSET $offset;
+
+SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&id='' || replace($id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&id='' || replace($id, '' '', ''%20'') ||  '')'' ELSE '''' END)
@@ -2324,28 +2455,167 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     select
     g."name" as title from groups g
         inner join  test_suites s on s.id = g.suite_id where g.id = $id;
-        
+
 
     SELECT ''title''AS component,
-      name as contents FROM groups where id = $id; 
+      name as contents FROM groups where id = $id;
+
+    -- Custom CSS for accordion styling (same as suite-data)
+    SELECT ''html'' AS component,
+      ''<style>
+        .custom-accordion {
+          margin: 20px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .custom-accordion details {
+          border: none;
+          margin: 0;
+        }
+        .custom-accordion details + details {
+          border-top: 1px solid #ddd;
+        }
+        .custom-accordion summary {
+          background-color: #f5f5f5;
+          padding: 15px 20px;
+          cursor: pointer;
+          font-weight: 500;
+          color: #333;
+          border: none;
+          outline: none;
+          position: relative;
+          user-select: none;
+          list-style: none;
+        }
+        .custom-accordion summary::-webkit-details-marker {
+          display: none;
+        }
+        .custom-accordion summary::after {
+          content: "+";
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: bold;
+          color: #666;
+        }
+        .custom-accordion details[open] summary::after {
+          content: "−";
+        }
+        .custom-accordion summary:hover {
+          background-color: #ebebeb;
+        }
+        .custom-accordion .content {
+          padding: 20px;
+          background-color: white;
+          border-top: 1px solid #ddd;
+        }
+        tr td.test_status {
+             color: blue !important;
+         }
+         tr.rowClass-passed td.test_status {
+             color: green !important;
+         }
+          tr.rowClass-failed td.test_status {
+             color: red !important;
+         }
+         tr.rowClass-TODO td.test_status {
+             color: orange !important;
+         }
+      </style>'' AS html;
+
+    -- Accordion container
+    SELECT ''html'' AS component,
+      ''<div class="custom-accordion">'' AS html;
+
+    -- Group Details Section (open by default)
+    SELECT ''html'' AS component,
+      ''<details open>
+        <summary>Group Details</summary>
+        <div class="content">'' AS html;
 
     SELECT ''card''  AS component,
     1                          as columns;
     SELECT
-    '' **Id**  :  '' || rn.id AS description_md,
-      ''
- **name**  :  '' || rn."name" AS description_md,
-        ''
- **Description**  :  '' || rn."description" AS description_md,
-          ''
- **Created By**  :  '' || rn."created_by" AS description_md,
-            ''
- **Created On**  :  '' || strftime(''%d-%m-%Y'', rn."created_at") AS description_md,
-              ''
-'' || rn.body AS description_md
+    ''**Group ID:** '' || rn.id ||
+    ''
+
+**Name:** '' || rn."name" ||
+    ''
+
+**Description:** '' || COALESCE(rn."description", ''No description available'') ||
+    ''
+
+**Created By:** '' || COALESCE(rn."created_by", ''Unknown'') ||
+    ''
+
+**Created On:** '' || strftime(''%d-%m-%Y'', rn."created_at") ||
+    CASE
+      WHEN rn.body IS NOT NULL AND rn.body != ''''
+      THEN ''
+
+**Additional Details:**
+'' || rn.body
+      ELSE ''''
+    END AS description_md
 FROM groups rn
 INNER JOIN test_suites st ON st.id = rn.suite_id
 WHERE rn.id = $id;
+
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+    -- Test Cases Section (closed by default)
+    SELECT ''html'' AS component,
+      ''<details>
+        <summary>Test Cases ('' || COUNT(*) || '')</summary>
+        <div class="content">'' AS html
+    FROM test_cases WHERE group_id = $id;
+
+    SELECT ''text'' AS component,
+      ''This section displays all test cases associated with this group, including their current status and execution details.'' AS contents;
+
+    -- Show test case count for this group
+    SELECT ''alert'' AS component,
+           ''info'' AS color,
+           ''Test Cases Summary'' AS title,
+           ''Total: '' || COUNT(*) ||
+           '' | Passed: '' || SUM(CASE WHEN test_status = ''passed'' THEN 1 ELSE 0 END) ||
+           '' | Failed: '' || SUM(CASE WHEN test_status = ''failed'' THEN 1 ELSE 0 END) ||
+           '' | Pending: '' || SUM(CASE WHEN test_status IS NULL OR test_status = ''TODO'' THEN 1 ELSE 0 END) AS description
+    FROM test_cases WHERE group_id = $id;
+
+    SELECT ''table'' as component,
+           TRUE AS sort,
+           TRUE AS search,
+           ''Test Case ID'' as markdown,
+           ''Title'' as markdown,
+           ''Status'' as markdown;
+
+    SELECT
+      ''['' || tc.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| tc.test_case_id || '')'' as "Test Case ID",
+      tc.test_case_title AS "Title",
+      CASE
+        WHEN tc.test_status IS NOT NULL THEN tc.test_status
+        ELSE ''TODO''
+      END AS "Status",
+      ''rowClass-'' || COALESCE(tc.test_status, ''TODO'') as _sqlpage_css_class,
+      tc.test_type AS "Type",
+      tc.priority AS "Priority",
+      tc.created_by AS "Created By",
+      tc.formatted_test_case_created_at AS "Created On"
+    FROM test_cases tc
+    WHERE tc.group_id = $id
+    ORDER BY tc.test_case_id;
+
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+    -- Close accordion container
+    SELECT ''html'' AS component,
+      ''</div>'' AS html;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2377,7 +2647,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       name as contents FROM groups where id = $id; 
 
           SELECT ''card''  AS component,
-    1                          as columns;
+      1 as columns;
     SELECT
     '' **Id**  :  '' || id AS description_md,
       ''
@@ -2423,22 +2693,22 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
    '' as description;
 
 SELECT ''html'' as component,
-   ''<style>
+     ''<style>
     tr td.test_status {
-           color: blue !important; /* Default to blue */
-       }
-       tr.rowClass-passed td.test_status {
-           color: green !important; /* Default to blue */
-       }
-        tr.rowClass-failed td.test_status {
-           color: red !important; /* Default to blue */
-       }
-       .btn-list {
-       display: flex;
-       justify-content: flex-end;
+     color: blue!important; /* Default to blue */
+   }
+   tr.rowClass - passed td.test_status {
+     color: green!important; /* Default to blue */
+   }
+   tr.rowClass - failed td.test_status {
+     color: red!important; /* Default to blue */
+   }
+       .btn - list {
+     display: flex;
+     justify - content: flex - end;
    }
    </style>
-   
+
    '' as html;
 
    SELECT ''table'' as component,
@@ -2457,10 +2727,10 @@ SELECT ''html'' as component,
      t.created_by as "Created By",
      strftime(''%d-%m-%Y'', t.created_at) as "Created On",
      t.priority,
-     ''rowClass-''||p.status as _sqlpage_css_class
+     ''rowClass-'' || p.status as _sqlpage_css_class
    FROM test_cases t
    inner join groups g on t.group_id = g.id
-   left join test_case_run_results p on p.test_case_id=t.test_case_id
+   left join test_case_run_results p on p.test_case_id = t.test_case_id
    WHERE  g.plan_id like ''%'' || $id || ''%'';
             ',
       CURRENT_TIMESTAMP)
@@ -2472,7 +2742,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 -- not including page title from sqlpage_aide_navigation
 
 
-select "dynamic" as component,sqlpage.run_sql(''qualityfolio/progress-bar.sql'') as properties;
+select "dynamic" as component, sqlpage.run_sql(''qualityfolio/progress-bar.sql'') as properties;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2483,81 +2753,81 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               -- not including page title from sqlpage_aide_navigation
               
 
-                select
-  ''breadcrumb'' as component;
-  select
-  ''Home'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
-  select
-  ''Test Management System'' as title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
-   select
-  ''Test Cases'' as title;  
-  
+               select
+ ''breadcrumb'' as component;
+ select
+ ''Home'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+ select
+ ''Test Management System'' as title,
+   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
+ select
+ ''Test Cases'' as title;  
+ 
 
- SELECT ''html'' as component,
-  ''<style>
-     tr td.State {
-          color: blue !important; /* Default to blue */
-      }
-      tr.rowClass-passed td.State {
-          color: green !important; /* Default to red */
-      }
-       tr.rowClass-failed td.State {
-          color: red !important; /* Default to red */
-      }
+SELECT ''html'' as component,
+   ''<style>
+    tr td.State {
+   color: blue!important; /* Default to blue */
+ }
+ tr.rowClass - passed td.State {
+   color: green!important; /* Default to red */
+ }
+ tr.rowClass - failed td.State {
+   color: red!important; /* Default to red */
+ }
 
-      tr td.Statealign-middle {
-          color: blue !important; /* Default to blue */
-      }
-      tr.rowClass-passed td.Statealign-middle {
-          color: green !important; /* Default to red */
-      }
-       tr.rowClass-failed td.Statealign-middle {
-          color: red !important; /* Default to red */
-      }
+     tr td.Statealign - middle {
+   color: blue!important; /* Default to blue */
+ }
+ tr.rowClass - passed td.Statealign - middle {
+   color: green!important; /* Default to red */
+ }
+ tr.rowClass - failed td.Statealign - middle {
+   color: red!important; /* Default to red */
+ }
 
-      
-      .btn-list {
-      display: flex;
-      justify-content: flex-end;
-  }
-  </style>
-  
-  '' as html;
-  select 
-  ''button'' as component;
-select 
-  ''Generate Report''           as title,
-  ''download-full_list.sql'' as link;
- SET total_rows = (SELECT COUNT(*) FROM test_cases );
+     
+     .btn - list {
+   display: flex;
+   justify - content: flex - end;
+ }
+ </style>
+
+ '' as html;
+ select
+ ''button'' as component;
+ select
+ ''Generate Report'' as title,
+   ''download-full_list.sql'' as link;
+SET total_rows = (SELECT COUNT(*) FROM test_cases );
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1;
-  SELECT ''table'' as component,
-    TRUE AS sort,
-      TRUE AS search,
-        ''URL'' AS align_left,
-          ''title'' AS align_left,
-            ''group'' as markdown,
-            ''id'' as markdown,
-            "status_new" as markdown,
-            ''count'' as markdown;
-  SELECT
-  ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
-    test_case_title AS "title",
-      group_name AS "group",
-      case when test_status is not null then test_status
-      else ''TODO'' END AS "State",
-    ''rowClass-''||test_status as _sqlpage_css_class,
-    created_by as "Created By",
-    formatted_test_case_created_at as "Created On",
-    priority as "Priority"
-  FROM test_cases t
-   LIMIT $limit
-    OFFSET $offset;
-    SELECT ''text'' AS component,
+ SELECT ''table'' as component,
+   TRUE AS sort,
+     TRUE AS search,
+       ''URL'' AS align_left,
+         ''title'' AS align_left,
+           ''group'' as markdown,
+           ''id'' as markdown,
+           "status_new" as markdown,
+           ''count'' as markdown;
+ SELECT
+ ''['' || test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| test_case_id || '')'' as id,
+   test_case_title AS "title",
+     group_name AS "group",
+     case when test_status is not null then test_status
+     else ''TODO'' END AS "State",
+   ''rowClass-'' || test_status as _sqlpage_css_class,
+   created_by as "Created By",
+   formatted_test_case_created_at as "Created On",
+   priority as "Priority"
+ FROM test_cases t
+  LIMIT $limit
+   OFFSET $offset;
+   SELECT ''text'' AS component,
     (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
     ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
     (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
@@ -2568,79 +2838,80 @@ SET current_page = ($offset / $limit) + 1;
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'sqlpage/templates/shell-custom.handlebars',
-      '        
-        
-        
-        
+      '              
+              
+              
+              
 
-        <!DOCTYPE html>
-<html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
-<head>
-    <meta charset="utf-8" />
+              < !DOCTYPE html >
+      <html lang="{{language}}" style = "font-size: {{default font_size 18}}px" { { #if class} } class="{{class}}" { {/if } }>
+        <head>
+        <meta charset="utf-8" />
 
-    <!-- Base CSS -->
-    <link rel="stylesheet" href="{{static_path ''sqlpage.css''}}">
-    {{#each (to_array css)}}
-        {{#if this}}
-            <link rel="stylesheet" href="{{this}}">
-        {{/if}}
-    {{/each}}
+          <!--Base CSS-- >
+            <link rel="stylesheet" href = "{{static_path ''sqlpage.css''}}" >
+              {{ #each(to_array css) }
+  }
+              { { #if this } }
+<link rel="stylesheet" href = "{{this}}" >
+  {{/if }}
+{ {/each } }
 
-    <!-- Font Setup -->
-    {{#if font}}
-        {{#if (starts_with font "/")}}
-            <style>
-                @font-face {
-                    font-family: ''LocalFont'';
-                    src: url(''{{font}}'') format(''woff2'');
-                    font-weight: normal;
-                    font-style: normal;
-                }
-                :root {
-                    --tblr-font-sans-serif: ''LocalFont'', Arial, sans-serif;
-                }
-            </style>
-        {{else}}
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
-            <style>
-                :root {
-                    --tblr-font-sans-serif: ''{{font}}'', Arial, sans-serif;
-                }
-            </style>
-        {{/if}}
-    {{/if}}
+<!--Font Setup-- >
+  {{ #if font }}
+{ { #if(starts_with font "/") } }
+<style>
+  @font - face {
+  font - family: ''LocalFont'';
+  src: url(''{{font}}'') format(''woff2'');
+  font - weight: normal;
+  font - style: normal;
+}
+                      :root {
+  --tblr - font - sans - serif: ''LocalFont'', Arial, sans - serif;
+}
+</style>
+{ {else } }
+<link rel="preconnect" href = "https://fonts.googleapis.com" >
+  <link rel="preconnect" href = "https://fonts.gstatic.com" crossorigin >
+    <link rel="stylesheet" href = "https://fonts.googleapis.com/css2?family={{font}}&display=fallback" >
+      <style>
+                      :root {
+  --tblr - font - sans - serif: ''{{font}}'', Arial, sans - serif;
+}
+</style>
+{ {/if } }
+{ {/if } }
 
-    <!-- JavaScript -->
-    <script src="{{static_path ''sqlpage.js''}}" defer nonce="{{@csp_nonce}}"></script>
-    {{#each (to_array javascript)}}
-        {{#if this}}
-            <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
-        {{/if}}
-    {{/each}}
-    {{#each (to_array javascript_module)}}
-        {{#if this}}
-            <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
-        {{/if}}
-    {{/each}}
+<!--JavaScript -->
+  <script src="{{static_path ''sqlpage.js''}}" defer nonce = "{{@csp_nonce}}" > </script>
+{ { #each(to_array javascript) } }
+{ { #if this } }
+<script src="{{this}}" defer nonce = "{{@../csp_nonce}}" > </script>
+{ {/if } }
+{ {/each } }
+{ { #each(to_array javascript_module) } }
+{ { #if this } }
+<script src="{{this}}" type = "module" defer nonce = "{{@../csp_nonce}}" > </script>
+{ {/if } }
+{ {/each } }
 </head>
 
-<body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
-    <div class="page">
-        <!-- Header -->
-        
+  < body class="layout-{{#if sidebar}}fluid{{else}}{{default layout ''boxed''}}{{/if}}" { { #if theme } } data - bs - theme="{{theme}}" { {/if } }>
+    <div class="page" >
+      <!--Header -->
 
-        <!-- Page Wrapper -->
-        <div class="page-wrapper">
-            <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
-                {{~#each_row~}}{{~/each_row~}}
-            </main>
-        </div>
-    </div>
-</body>
-</html>;
-      ',
+
+        <!--Page Wrapper-- >
+          <div class="page-wrapper" >
+            <main class="page-body w-full flex-grow-1 px-0" id = "sqlpage_main_wrapper" >
+              {{ ~#each_row~}}{ { ~/each_row~ } }
+</main>
+  </div>
+  </div>
+  </body>
+  </html>;
+            ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
