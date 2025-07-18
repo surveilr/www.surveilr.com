@@ -536,147 +536,254 @@ SELECT
     select
     "name" as title from test_suites where CAST(id AS TEXT) = CAST($id AS TEXT);
     SELECT 'title'AS component,
-      name as contents FROM test_suites  WHERE id = $id; 
-    SELECT 'card'  AS component,
-    1                          as columns;
-    
+      name as contents FROM test_suites  WHERE id = $id;
+
+    -- Custom CSS for accordion styling
+    SELECT 'html' AS component,
+      '<style>
+        .custom-accordion {
+          margin: 20px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .custom-accordion details {
+          border: none;
+          margin: 0;
+        }
+        .custom-accordion details + details {
+          border-top: 1px solid #ddd;
+        }
+        .custom-accordion summary {
+          background-color: #f5f5f5;
+          padding: 15px 20px;
+          cursor: pointer;
+          font-weight: 500;
+          color: #333;
+          border: none;
+          outline: none;
+          position: relative;
+          user-select: none;
+          list-style: none;
+        }
+        .custom-accordion summary::-webkit-details-marker {
+          display: none;
+        }
+        .custom-accordion summary::after {
+          content: "+";
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: bold;
+          color: #666;
+        }
+        .custom-accordion details[open] summary::after {
+          content: "−";
+        }
+        .custom-accordion summary:hover {
+          background-color: #ebebeb;
+        }
+        .custom-accordion .content {
+          padding: 20px;
+          background-color: white;
+          border-top: 1px solid #ddd;
+        }
+      </style>' AS html;
+
+    -- Accordion container
+    SELECT 'html' AS component,
+      '<div class="custom-accordion">' AS html;
+
+    -- Suite Details Section (open by default)
+    SELECT 'html' AS component,
+      '<details open>
+        <summary>Suite Details</summary>
+        <div class="content">' AS html;
+
+    SELECT 'card' AS component,
+           1 AS columns;
+
     SELECT
-    '\n **Description**  :  ' || rn."description" AS description_md,
-    '\n **Created By**  :  ' || rn.created_by_user AS description_md,
-    '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at)  AS description_md,
-    '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
-    '\n' || rn.body AS description_md
-FROM test_suites rn WHERE id = $id;
+    '**Description:** ' || COALESCE(rn."description", 'No description available') ||
+    '\n\n**Created By:** ' || COALESCE(rn.created_by_user, 'Unknown') ||
+    '\n\n**Created At:** ' || strftime('%d-%m-%Y', rn.created_at) ||
+    '\n\n**Linked Requirements:** ' || COALESCE(rn.linked_requirements, 'None specified') ||
+    CASE
+      WHEN rn.body IS NOT NULL AND rn.body != ''
+      THEN '\n\n**Additional Details:**\n' || rn.body
+      ELSE ''
+    END AS description_md
+    FROM test_suites rn WHERE id = $id;
 
-SELECT 'title'  AS component,
-      'Test Case Group' as contents;
-    --SELECT
-    -- 'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
-    -- ' as empty_description;
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
 
-SELECT 'table' as component,
+    -- Test Case Groups Section (closed by default)
+    SELECT 'html' AS component,
+      '<details>
+        <summary>Test Case Groups (' || COUNT(*) || ')</summary>
+        <div class="content">' AS html
+    FROM (SELECT DISTINCT group_id FROM test_cases_run_status WHERE suite_id = $id);
+
+    SELECT 'text' AS component,
+      'This section contains all test case groups within this test suite. Each group represents a collection of related test cases organized by functionality or testing scope.' AS contents;
+
+    SELECT 'table' as component,
       TRUE AS sort,
-        --TRUE AS search,
-          'URL' AS align_left,
-            'title' AS align_left,
-              'group' as markdown,
-              'id' as markdown,
-              'Test Cases' as markdown;
+      TRUE AS search,
+      'Group ID' AS markdown,
+      'Group Name' AS markdown;
+
     SELECT
     '[' || group_id || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
-      }|| group_id || ')' as id,
-      group_name AS "title",
-        '[' || test_case_count || '](' || ${this.absoluteURL("/qualityfolio/test-cases.sql?id=")
-      }|| group_id || ')' AS 'Test Cases',
-      
+      }|| group_id || ')' as "Group ID",
+      group_name AS "Group Name",
       created_by as "Created By",
       formatted_test_case_created_at as "Created On"
     FROM test_cases_run_status
-    WHERE suite_id = $id order by group_id asc;
+    WHERE suite_id = $id
+    ORDER BY group_id ASC;
+
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+    -- Close accordion container
+    SELECT 'html' AS component,
+      '</div>' AS html;
 
 
     `;
   }
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  @qltyfolioNav({
+    caption: "Test Cases",
+    description: "Complete list of all test cases across all projects and suites",
+    siblingOrder: 3,
+  })
   "qualityfolio/test-cases.sql"() {
     const viewName = `test_cases`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
-      whereSQL: "WHERE group_id=$id",
+      whereSQL: "WHERE ($id IS NULL OR group_id = $id)",
     });
-    // check pagination
 
     return this.SQL`
-    SELECT
-    'breadcrumb' as component;
-    SELECT
-    'Home' as title,
-      ${this.absoluteURL("/")} as link;
-    SELECT
-    'Test Management System' as title,
-      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+    ${this.activePageTitle()}
 
-    SELECT name as title,
-    ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")}|| id as link
-    FROM test_suites where id=(select suite_id from test_cases where group_id = $id) ;
+    -- Page description based on context
+    SELECT 'text' AS component,
+      CASE
+        WHEN $id IS NOT NULL THEN
+          'This page displays test cases for the selected group: ' || (SELECT group_name FROM test_cases WHERE group_id = $id LIMIT 1) || '. Use the search and filter functionality to find specific test cases.'
+        ELSE
+          'This page displays a comprehensive list of all test cases across all projects and test suites. Use the search and filter functionality to find specific test cases by name, status, group, or priority.'
+      END AS contents;
 
-    SELECT group_name as title,
-    ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")}|| suite_id as link
-    FROM test_cases WHERE  group_id = $id group by group_name;
-    
-    SELECT 'list'  AS component,
-      group_name as title FROM test_cases
-    WHERE  group_id = $id group by group_name;
-    SELECT
-    'A structured summary of a specific test scenario, detailing its purpose, preconditions, test data, steps, and expected results. The description ensures clarity on the tests objective, enabling accurate validation of functionality or compliance. It aligns with defined requirements, identifies edge cases, and facilitates efficient defect detection during execution.
-    ' as description;
+    -- Status overview based on context
+    SELECT 'alert' AS component,
+           'info' AS color,
+           CASE
+             WHEN $id IS NOT NULL THEN 'Group Test Case Overview'
+             ELSE 'Test Case Overview'
+           END AS title,
+           'Total test cases: ' ||
+           CASE
+             WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id)
+             ELSE (SELECT COUNT(*) FROM test_cases)
+           END ||
+           ' | Passed: ' ||
+           CASE
+             WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND test_status = 'passed')
+             ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status = 'passed')
+           END ||
+           ' | Failed: ' ||
+           CASE
+             WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND test_status = 'failed')
+             ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status = 'failed')
+           END ||
+           ' | Pending: ' ||
+           CASE
+             WHEN $id IS NOT NULL THEN (SELECT COUNT(*) FROM test_cases WHERE group_id = $id AND (test_status IS NULL OR test_status = 'TODO'))
+             ELSE (SELECT COUNT(*) FROM test_cases WHERE test_status IS NULL OR test_status = 'TODO')
+           END AS description;
 
-   SELECT 'html' as component,
-    '<style>
-       tr td.test_status {
-            color: blue !important; /* Default to blue */
-        }
-        tr.rowClass-passed td.test_status {
-            color: green !important; /* Default to red */
-        }
-         tr.rowClass-failed td.test_status {
-            color: red !important; /* Default to red */
-        }
+    SELECT 'html' as component,
+      '<style>
+         tr td.test_status {
+              color: blue !important;
+          }
+          tr.rowClass-passed td.test_status {
+              color: green !important;
+          }
+           tr.rowClass-failed td.test_status {
+              color: red !important;
+          }
+          tr.rowClass-TODO td.test_status {
+              color: orange !important;
+          }
+          .btn-list {
+          display: flex;
+          justify-content: flex-end;
+      }
+      </style>' as html;
 
-         tr td.test_statusalign-middle {
-            color: blue !important; /* Default to blue */
-        }
+    SELECT 'button' as component;
 
-         tr.rowClass-passed td.test_statusalign-middle {
-            color: green !important; /* Default to red */
-        }
-         tr.rowClass-failed td.test_statusalign-middle {
-            color: red !important; /* Default to red */
-        }
+    -- Show "View All Test Cases" button when filtering by group
+    SELECT 'View All Test Cases' as title,
+           'test-cases.sql' as link,
+           'list' as icon
+    WHERE $id IS NOT NULL
+    UNION ALL
+    -- Show "Export Group Test Cases" button when filtering by group
+    SELECT 'Export Group Test Cases' as title,
+           'download-test-case.sql?group_id=' || $id as link,
+           'download' as icon
+    WHERE $id IS NOT NULL
+    UNION ALL
+    -- Show "Export All Test Cases" button when showing all test cases
+    SELECT 'Export All Test Cases' as title,
+           'download-full_list.sql' as link,
+           'download' as icon
+    WHERE $id IS NULL;
 
-        
-        .btn-list {
-        display: flex;
-        justify-content: flex-end;
-    }
-    </style>
-    
-    ' as html;
-    select 
-    'button' as component;
-  select 
-    'Generate Report'           as title,
-    'download-test-case.sql?group_id='||$id as link;
+    ${pagination.init()}
 
-   ${pagination.init()}
-  
     SELECT 'table' as component,
-      TRUE AS sort,
-        TRUE AS search,
-          'URL' AS align_left,
-            'title' AS align_left,
-              'group' as markdown,
-              'id' as markdown,
-              "status_new" as markdown,
-              'count' as markdown;
-    SELECT
-    '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
-      test_case_title AS "title",
-        group_name AS "group",
-        case when test_status is not null then test_status
-        else 'TODO' END AS "test_status",
-      'rowClass-'||test_status as _sqlpage_css_class,
-      created_by as "Created By",
-      formatted_test_case_created_at as "Created On",
-      priority as "Priority"
-    FROM ${viewName} t
-    WHERE  group_id = $id
-    LIMIT $limit
-      OFFSET $offset;
-      ${pagination.renderSimpleMarkdown("id")};
+           TRUE AS sort,
+           TRUE AS search,
+           'Test Case ID' as markdown,
+           'Title' as markdown,
+           'Group' as markdown,
+           'Suite' as markdown,
+           'Status' as markdown;
 
-      `;
+    SELECT
+      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| tc.test_case_id || ')' as "Test Case ID",
+      tc.test_case_title AS "Title",
+      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+      }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+      }|| ts.id || ')' AS "Suite",
+      CASE
+        WHEN tc.test_status IS NOT NULL THEN tc.test_status
+        ELSE 'TODO'
+      END AS "Status",
+      'rowClass-' || COALESCE(tc.test_status, 'TODO') as _sqlpage_css_class,
+      tc.test_type AS "Type",
+      tc.priority AS "Priority",
+      tc.created_by AS "Created By",
+      tc.formatted_test_case_created_at AS "Created On"
+    FROM ${viewName} tc
+    LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+    WHERE ($id IS NULL OR tc.group_id = $id)
+    ORDER BY tc.test_case_id
+    LIMIT $limit OFFSET $offset;
+
+    ${pagination.renderSimpleMarkdown("id")};
+    `;
   }
 
   @spn.shell({
@@ -1159,26 +1266,162 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     select
     g."name" as title from groups g
         inner join  test_suites s on s.id = g.suite_id where g.id = $id;
-        
+
 
     SELECT 'title'AS component,
-      name as contents FROM groups where id = $id; 
+      name as contents FROM groups where id = $id;
+
+    -- Custom CSS for accordion styling (same as suite-data)
+    SELECT 'html' AS component,
+      '<style>
+        .custom-accordion {
+          margin: 20px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .custom-accordion details {
+          border: none;
+          margin: 0;
+        }
+        .custom-accordion details + details {
+          border-top: 1px solid #ddd;
+        }
+        .custom-accordion summary {
+          background-color: #f5f5f5;
+          padding: 15px 20px;
+          cursor: pointer;
+          font-weight: 500;
+          color: #333;
+          border: none;
+          outline: none;
+          position: relative;
+          user-select: none;
+          list-style: none;
+        }
+        .custom-accordion summary::-webkit-details-marker {
+          display: none;
+        }
+        .custom-accordion summary::after {
+          content: "+";
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: bold;
+          color: #666;
+        }
+        .custom-accordion details[open] summary::after {
+          content: "−";
+        }
+        .custom-accordion summary:hover {
+          background-color: #ebebeb;
+        }
+        .custom-accordion .content {
+          padding: 20px;
+          background-color: white;
+          border-top: 1px solid #ddd;
+        }
+        tr td.test_status {
+             color: blue !important;
+         }
+         tr.rowClass-passed td.test_status {
+             color: green !important;
+         }
+          tr.rowClass-failed td.test_status {
+             color: red !important;
+         }
+         tr.rowClass-TODO td.test_status {
+             color: orange !important;
+         }
+      </style>' AS html;
+
+    -- Accordion container
+    SELECT 'html' AS component,
+      '<div class="custom-accordion">' AS html;
+
+    -- Group Details Section (open by default)
+    SELECT 'html' AS component,
+      '<details open>
+        <summary>Group Details</summary>
+        <div class="content">' AS html;
 
     SELECT 'card'  AS component,
     1                          as columns;
     SELECT
-    ' **Id**  :  ' || rn.id AS description_md,
-      '\n **name**  :  ' || rn."name" AS description_md,
-        '\n **Description**  :  ' || rn."description" AS description_md,
-          '\n **Created By**  :  ' || rn."created_by" AS description_md,
-            '\n **Created On**  :  ' || strftime('%d-%m-%Y', rn."created_at") AS description_md,
-              '\n' || rn.body AS description_md
+    '**Group ID:** ' || rn.id ||
+    '\n\n**Name:** ' || rn."name" ||
+    '\n\n**Description:** ' || COALESCE(rn."description", 'No description available') ||
+    '\n\n**Created By:** ' || COALESCE(rn."created_by", 'Unknown') ||
+    '\n\n**Created On:** ' || strftime('%d-%m-%Y', rn."created_at") ||
+    CASE
+      WHEN rn.body IS NOT NULL AND rn.body != ''
+      THEN '\n\n**Additional Details:**\n' || rn.body
+      ELSE ''
+    END AS description_md
 FROM groups rn
 INNER JOIN test_suites st ON st.id = rn.suite_id
 WHERE rn.id = $id;
 
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+    -- Test Cases Section (closed by default)
+    SELECT 'html' AS component,
+      '<details>
+        <summary>Test Cases (' || COUNT(*) || ')</summary>
+        <div class="content">' AS html
+    FROM test_cases WHERE group_id = $id;
+
+    SELECT 'text' AS component,
+      'This section displays all test cases associated with this group, including their current status and execution details.' AS contents;
+
+    -- Show test case count for this group
+    SELECT 'alert' AS component,
+           'info' AS color,
+           'Test Cases Summary' AS title,
+           'Total: ' || COUNT(*) ||
+           ' | Passed: ' || SUM(CASE WHEN test_status = 'passed' THEN 1 ELSE 0 END) ||
+           ' | Failed: ' || SUM(CASE WHEN test_status = 'failed' THEN 1 ELSE 0 END) ||
+           ' | Pending: ' || SUM(CASE WHEN test_status IS NULL OR test_status = 'TODO' THEN 1 ELSE 0 END) AS description
+    FROM test_cases WHERE group_id = $id;
+
+    SELECT 'table' as component,
+           TRUE AS sort,
+           TRUE AS search,
+           'Test Case ID' as markdown,
+           'Title' as markdown,
+           'Status' as markdown;
+
+    SELECT
+      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| tc.test_case_id || ')' as "Test Case ID",
+      tc.test_case_title AS "Title",
+      CASE
+        WHEN tc.test_status IS NOT NULL THEN tc.test_status
+        ELSE 'TODO'
+      END AS "Status",
+      'rowClass-' || COALESCE(tc.test_status, 'TODO') as _sqlpage_css_class,
+      tc.test_type AS "Type",
+      tc.priority AS "Priority",
+      tc.created_by AS "Created By",
+      tc.formatted_test_case_created_at AS "Created On"
+    FROM test_cases tc
+    WHERE tc.group_id = $id
+    ORDER BY tc.test_case_id;
+
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+    -- Close accordion container
+    SELECT 'html' AS component,
+      '</div>' AS html;
+
     `;
   }
+
+
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/plan-overview.sql"() {
@@ -1203,7 +1446,7 @@ WHERE rn.id = $id;
       name as contents FROM groups where id = $id; 
 
           SELECT 'card'  AS component,
-    1                          as columns;
+      1 as columns;
     SELECT
     ' **Id**  :  ' || id AS description_md,
       '\n **name**  :  ' || "name" AS description_md,
@@ -1239,22 +1482,22 @@ WHERE rn.id = $id;
     ' as description;
 
  SELECT 'html' as component,
-    '<style>
+      '<style>
      tr td.test_status {
-            color: blue !important; /* Default to blue */
-        }
-        tr.rowClass-passed td.test_status {
-            color: green !important; /* Default to blue */
-        }
-         tr.rowClass-failed td.test_status {
-            color: red !important; /* Default to blue */
-        }
-        .btn-list {
-        display: flex;
-        justify-content: flex-end;
+      color: blue!important; /* Default to blue */
+    }
+    tr.rowClass - passed td.test_status {
+      color: green!important; /* Default to blue */
+    }
+    tr.rowClass - failed td.test_status {
+      color: red!important; /* Default to blue */
+    }
+        .btn - list {
+      display: flex;
+      justify - content: flex - end;
     }
     </style>
-    
+
     ' as html;
 
     SELECT 'table' as component,
@@ -1274,10 +1517,10 @@ WHERE rn.id = $id;
       t.created_by as "Created By",
       strftime('%d-%m-%Y', t.created_at) as "Created On",
       t.priority,
-      'rowClass-'||p.status as _sqlpage_css_class
+      'rowClass-' || p.status as _sqlpage_css_class
     FROM test_cases t
     inner join groups g on t.group_id = g.id
-    left join test_case_run_results p on p.test_case_id=t.test_case_id
+    left join test_case_run_results p on p.test_case_id = t.test_case_id
     WHERE  g.plan_id like '%' || $id || '%'
 
       `;
@@ -1286,7 +1529,7 @@ WHERE rn.id = $id;
   @spn.shell({ breadcrumbsFromNavStmts: "no", shellStmts: "do-not-include" })
   "qualityfolio/jsonviewer.sql"() {
     return this.SQL`
-   select "dynamic" as component,sqlpage.run_sql('qualityfolio/progress-bar.sql') as properties;
+   select "dynamic" as component, sqlpage.run_sql('qualityfolio/progress-bar.sql') as properties;
     `;
   }
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -1304,45 +1547,45 @@ WHERE rn.id = $id;
     select
     'Test Management System' as title,
       ${this.absoluteURL("/qualityfolio/index.sql")} as link;
-     select
+    select
     'Test Cases' as title;  
     
 
    SELECT 'html' as component,
-    '<style>
+      '<style>
        tr td.State {
-            color: blue !important; /* Default to blue */
-        }
-        tr.rowClass-passed td.State {
-            color: green !important; /* Default to red */
-        }
-         tr.rowClass-failed td.State {
-            color: red !important; /* Default to red */
-        }
+      color: blue!important; /* Default to blue */
+    }
+    tr.rowClass - passed td.State {
+      color: green!important; /* Default to red */
+    }
+    tr.rowClass - failed td.State {
+      color: red!important; /* Default to red */
+    }
 
-        tr td.Statealign-middle {
-            color: blue !important; /* Default to blue */
-        }
-        tr.rowClass-passed td.Statealign-middle {
-            color: green !important; /* Default to red */
-        }
-         tr.rowClass-failed td.Statealign-middle {
-            color: red !important; /* Default to red */
-        }
+        tr td.Statealign - middle {
+      color: blue!important; /* Default to blue */
+    }
+    tr.rowClass - passed td.Statealign - middle {
+      color: green!important; /* Default to red */
+    }
+    tr.rowClass - failed td.Statealign - middle {
+      color: red!important; /* Default to red */
+    }
 
         
-        .btn-list {
-        display: flex;
-        justify-content: flex-end;
+        .btn - list {
+      display: flex;
+      justify - content: flex - end;
     }
     </style>
-    
+
     ' as html;
-    select 
+    select
     'button' as component;
-  select 
-    'Generate Report'           as title,
-    'download-full_list.sql' as link;
+    select
+    'Generate Report' as title,
+      'download-full_list.sql' as link;
    ${pagination.init()}
     SELECT 'table' as component,
       TRUE AS sort,
@@ -1360,7 +1603,7 @@ WHERE rn.id = $id;
         group_name AS "group",
         case when test_status is not null then test_status
         else 'TODO' END AS "State",
-      'rowClass-'||test_status as _sqlpage_css_class,
+      'rowClass-' || test_status as _sqlpage_css_class,
       created_by as "Created By",
       formatted_test_case_created_at as "Created On",
       priority as "Priority"
@@ -1369,7 +1612,7 @@ WHERE rn.id = $id;
       OFFSET $offset;
       ${pagination.renderSimpleMarkdown()};
 
-      `;
+    `;
   }
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
@@ -1377,74 +1620,75 @@ WHERE rn.id = $id;
     pageTitleFromNavStmts: "no",
   })
   "sqlpage/templates/shell-custom.handlebars"() {
-    return this.SQL`<!DOCTYPE html>
-      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
-      <head>
-          <meta charset="utf-8" />
+    return this.SQL`< !DOCTYPE html >
+      <html lang="{{language}}" style = "font-size: {{default font_size 18}}px" { { #if class} } class="{{class}}" { {/if } }>
+        <head>
+        <meta charset="utf-8" />
 
-          <!-- Base CSS -->
-          <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
-          {{#each (to_array css)}}
-              {{#if this}}
-                  <link rel="stylesheet" href="{{this}}">
-              {{/if}}
-          {{/each}}
+          <!--Base CSS-- >
+            <link rel="stylesheet" href = "{{static_path 'sqlpage.css'}}" >
+              {{ #each(to_array css) }
+  }
+              { { #if this } }
+<link rel="stylesheet" href = "{{this}}" >
+  {{/if }}
+{ {/each } }
 
-          <!-- Font Setup -->
-          {{#if font}}
-              {{#if (starts_with font "/")}}
-                  <style>
-                      @font-face {
-                          font-family: 'LocalFont';
-                          src: url('{{font}}') format('woff2');
-                          font-weight: normal;
-                          font-style: normal;
-                      }
+<!--Font Setup-- >
+  {{ #if font }}
+{ { #if(starts_with font "/") } }
+<style>
+  @font - face {
+  font - family: 'LocalFont';
+  src: url('{{font}}') format('woff2');
+  font - weight: normal;
+  font - style: normal;
+}
                       :root {
-                          --tblr-font-sans-serif: 'LocalFont', Arial, sans-serif;
-                      }
-                  </style>
-              {{else}}
-                  <link rel="preconnect" href="https://fonts.googleapis.com">
-                  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
-                  <style>
+  --tblr - font - sans - serif: 'LocalFont', Arial, sans - serif;
+}
+</style>
+{ {else } }
+<link rel="preconnect" href = "https://fonts.googleapis.com" >
+  <link rel="preconnect" href = "https://fonts.gstatic.com" crossorigin >
+    <link rel="stylesheet" href = "https://fonts.googleapis.com/css2?family={{font}}&display=fallback" >
+      <style>
                       :root {
-                          --tblr-font-sans-serif: '{{font}}', Arial, sans-serif;
-                      }
-                  </style>
-              {{/if}}
-          {{/if}}
+  --tblr - font - sans - serif: '{{font}}', Arial, sans - serif;
+}
+</style>
+{ {/if } }
+{ {/if } }
 
-          <!-- JavaScript -->
-          <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
-          {{#each (to_array javascript)}}
-              {{#if this}}
-                  <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
-              {{/if}}
-          {{/each}}
-          {{#each (to_array javascript_module)}}
-              {{#if this}}
-                  <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
-              {{/if}}
-          {{/each}}
-      </head>
+<!--JavaScript -->
+  <script src="{{static_path 'sqlpage.js'}}" defer nonce = "{{@csp_nonce}}" > </script>
+{ { #each(to_array javascript) } }
+{ { #if this } }
+<script src="{{this}}" defer nonce = "{{@../csp_nonce}}" > </script>
+{ {/if } }
+{ {/each } }
+{ { #each(to_array javascript_module) } }
+{ { #if this } }
+<script src="{{this}}" type = "module" defer nonce = "{{@../csp_nonce}}" > </script>
+{ {/if } }
+{ {/each } }
+</head>
 
-      <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
-          <div class="page">
-              <!-- Header -->
-              
+  < body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" { { #if theme } } data - bs - theme="{{theme}}" { {/if } }>
+    <div class="page" >
+      <!--Header -->
 
-              <!-- Page Wrapper -->
-              <div class="page-wrapper">
-                  <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
-                      {{~#each_row~}}{{~/each_row~}}
-                  </main>
-              </div>
-          </div>
-      </body>
-      </html>
-`;
+
+        <!--Page Wrapper-- >
+          <div class="page-wrapper" >
+            <main class="page-body w-full flex-grow-1 px-0" id = "sqlpage_main_wrapper" >
+              {{ ~#each_row~}}{ { ~/each_row~ } }
+</main>
+  </div>
+  </div>
+  </body>
+  </html>
+    `;
   }
 }
 
