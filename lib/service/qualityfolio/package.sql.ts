@@ -1620,69 +1620,68 @@ WHERE rn.id = $id;
     pageTitleFromNavStmts: "no",
   })
   "sqlpage/templates/shell-custom.handlebars"() {
-    return this.SQL`< !DOCTYPE html >
-      <html lang="{{language}}" style = "font-size: {{default font_size 18}}px" { { #if class} } class="{{class}}" { {/if } }>
+    return this.SQL`<!DOCTYPE html>
+      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}} class="{{class}}" {{/if}}>
         <head>
         <meta charset="utf-8" />
 
-          <!--Base CSS-- >
-            <link rel="stylesheet" href = "{{static_path 'sqlpage.css'}}" >
-              {{ #each(to_array css) }
-  }
-              { { #if this } }
-<link rel="stylesheet" href = "{{this}}" >
-  {{/if }}
-{ {/each } }
+          <!--Base CSS-->
+            <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
+              {{#each (to_array css)}}
+              {{#if this}}
+<link rel="stylesheet" href="{{this}}">
+  {{/if}}
+{{/each}}
 
-<!--Font Setup-- >
-  {{ #if font }}
-{ { #if(starts_with font "/") } }
+<!--Font Setup-->
+  {{#if font}}
+{{#if (starts_with font "/")}}
 <style>
-  @font - face {
-  font - family: 'LocalFont';
+  @font-face {
+  font-family: 'LocalFont';
   src: url('{{font}}') format('woff2');
-  font - weight: normal;
-  font - style: normal;
+  font-weight: normal;
+  font-style: normal;
 }
                       :root {
-  --tblr - font - sans - serif: 'LocalFont', Arial, sans - serif;
+  --tblr-font-sans-serif: 'LocalFont', Arial, sans-serif;
 }
 </style>
-{ {else } }
-<link rel="preconnect" href = "https://fonts.googleapis.com" >
-  <link rel="preconnect" href = "https://fonts.gstatic.com" crossorigin >
-    <link rel="stylesheet" href = "https://fonts.googleapis.com/css2?family={{font}}&display=fallback" >
+{{else}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
       <style>
                       :root {
-  --tblr - font - sans - serif: '{{font}}', Arial, sans - serif;
+  --tblr-font-sans-serif: '{{font}}', Arial, sans-serif;
 }
 </style>
-{ {/if } }
-{ {/if } }
+{{/if}}
+{{/if}}
 
-<!--JavaScript -->
-  <script src="{{static_path 'sqlpage.js'}}" defer nonce = "{{@csp_nonce}}" > </script>
-{ { #each(to_array javascript) } }
-{ { #if this } }
-<script src="{{this}}" defer nonce = "{{@../csp_nonce}}" > </script>
-{ {/if } }
-{ {/each } }
-{ { #each(to_array javascript_module) } }
-{ { #if this } }
-<script src="{{this}}" type = "module" defer nonce = "{{@../csp_nonce}}" > </script>
-{ {/if } }
-{ {/each } }
+<!--JavaScript-->
+  <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
+{{#each (to_array javascript)}}
+{{#if this}}
+<script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+{{/if}}
+{{/each}}
+{{#each (to_array javascript_module)}}
+{{#if this}}
+<script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+{{/if}}
+{{/each}}
 </head>
 
-  < body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" { { #if theme } } data - bs - theme="{{theme}}" { {/if } }>
-    <div class="page" >
-      <!--Header -->
+  <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}} data-bs-theme="{{theme}}" {{/if}}>
+    <div class="page">
+      <!--Header-->
 
 
-        <!--Page Wrapper-- >
-          <div class="page-wrapper" >
-            <main class="page-body w-full flex-grow-1 px-0" id = "sqlpage_main_wrapper" >
-              {{ ~#each_row~}}{ { ~/each_row~ } }
+        <!--Page Wrapper-->
+          <div class="page-wrapper">
+            <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
+              {{~#each_row~}}{{~/each_row~}}
 </main>
   </div>
   </div>
