@@ -30,8 +30,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@preline/collapse':
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.0
       '@preline/dropdown':
         specifier: ^3.1.0
         version: 3.1.0
@@ -1028,8 +1028,8 @@ packages:
   '@preline/accordion@3.0.0':
     resolution: {integrity: sha512-FaA+cwrzakIqWmaLoiguAajWKbWPzpQ4YnalKWWskW7WmxDuLYJlfYdsAbDeJP/RDURbt3wSjGeTcdWyfEe6Ig==}
 
-  '@preline/collapse@3.0.0':
-    resolution: {integrity: sha512-bVNoNPHBfis81f6D1ngFXXMmB6J1mgLBIhTNO9nJJNvJ8ak+cHLU4rcJrzjMZExBUk0VKcs7rknxJ5RwKQzaBw==}
+  '@preline/collapse@3.1.0':
+    resolution: {integrity: sha512-xIb/aQ20bQTbBxfbXd5AYD0mybnCykq0dijkE5fRsOYCrsKIwJhurHzCkJ/uMTdKsqkZGQG1hOScrpNaHVyXLQ==}
 
   '@preline/dropdown@3.1.0':
     resolution: {integrity: sha512-Q7uCZLV+evBYHKz7X224RPZB/UCvZEM/4BuOgvUiD4B+NGwJZpCGBGENbY9VYGSby6TT/27sd9Zu7QZ77jAfcA==}
@@ -5127,7 +5127,7 @@ snapshots:
 
   '@preline/accordion@3.0.0': {}
 
-  '@preline/collapse@3.0.0': {}
+  '@preline/collapse@3.1.0': {}
 
   '@preline/dropdown@3.1.0':
     dependencies:
