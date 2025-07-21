@@ -1227,6 +1227,12 @@ FROM test_suites rn WHERE id = $id;
     SELECT 'title'AS component,
       title as contents FROM test_cases where test_case_id = $id order by created_at desc limit 1;
 
+    -- Test Case Details Accordion Container
+    SELECT 'html' AS component,
+      '<details class="test-detail-outer-accordion" open>
+        <summary class="test-detail-outer-summary">Test Case Details</summary>
+        <div class="test-detail-outer-content">' AS html;
+
      SELECT 'card'  AS component,
     1                          as columns;
     SELECT
@@ -1237,6 +1243,10 @@ FROM test_suites rn WHERE id = $id;
     '\n **Priority**  :  ' || bd.priority AS description_md,
     '\n' || bd.body AS description_md
 FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
+
+    -- Close Test Case Details Accordion
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
 
 
   SELECT 'html' as component,
@@ -1261,10 +1271,66 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
        h2.accordion-header button {
         font-weight: 700;
       }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
     </style>
 
     ' as html FROM test_case_run_results where test_case_id = $id group by group_id;
 
+    -- Test Execution Data Accordion Container
+    SELECT 'html' AS component,
+      '<details class="test-detail-outer-accordion" open>
+        <summary class="test-detail-outer-summary">Test Execution Data</summary>
+        <div class="test-detail-outer-content">' AS html;
 
     --Define tabs
     SELECT
@@ -1381,6 +1447,10 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     inner join
     jira_issues j on l.bug_id=j.bug_id
     where l.test_case_id=$id;
+
+    -- Close Test Execution Data Accordion
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
 
     `;
   }
