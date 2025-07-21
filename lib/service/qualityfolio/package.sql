@@ -1715,20 +1715,215 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     SELECT ''text'' AS component,
       ''This section contains all test case groups within this test suite. Each group represents a collection of related test cases organized by functionality or testing scope.'' AS contents;
 
-    SELECT ''table'' as component,
-      TRUE AS sort,
-      TRUE AS search,
-      ''Group ID'' AS markdown,
-      ''Group Name'' AS markdown;
+    -- Create individual accordion for each group
+    SELECT ''html'' AS component,
+      ''<div class="groups-accordion-container">'' AS html;
 
-    SELECT
-    ''['' || group_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| group_id || '')'' as "Group ID",
-      group_name AS "Group Name",
-      created_by as "Created By",
-      formatted_test_case_created_at as "Created On"
-    FROM test_cases_run_status
-    WHERE suite_id = $id
-    ORDER BY group_id ASC;
+    -- Generate accordion for each group
+    SELECT ''html'' AS component,
+      ''<details class="group-accordion">
+        <summary class="group-summary">'' || tcrs.group_id || '' - '' || tcrs.group_name || ''</summary>
+        <div class="group-content">
+          <div class="group-info-card">
+            <h4>Group Information</h4>
+            <p><strong>Description:</strong> '' || COALESCE(g.description, ''No description available for this group.'') || ''</p>
+            <p><strong>Created by:</strong> '' || tcrs.created_by || ''</p>
+            <p><strong>Created on:</strong> '' || tcrs.formatted_test_case_created_at || ''</p>
+
+            <h4>Test Case Statistics</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">Total Test Cases:</span>
+                <span class="stat-value stat-total">'' ||
+                COALESCE((SELECT COUNT(*) FROM test_cases WHERE group_id = tcrs.group_id), 0) || ''</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Passed:</span>
+                <span class="stat-value stat-passed">'' ||
+                COALESCE((SELECT COUNT(*) FROM test_cases WHERE group_id = tcrs.group_id AND test_status = "passed"), 0) || ''</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Failed:</span>
+                <span class="stat-value stat-failed">'' ||
+                COALESCE((SELECT COUNT(*) FROM test_cases WHERE group_id = tcrs.group_id AND test_status = "failed"), 0) || ''</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Pending:</span>
+                <span class="stat-value stat-pending">'' ||
+                COALESCE((SELECT COUNT(*) FROM test_cases WHERE group_id = tcrs.group_id AND (test_status IS NULL OR test_status = "TODO")), 0) || ''</span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <a href="'' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id='' || tcrs.group_id || ''" class="view-details-btn">View Full Details</a>
+            </div>
+          </div>
+        </div>
+      </details>'' AS html
+    FROM test_cases_run_status tcrs
+    LEFT JOIN groups g ON g.id = tcrs.group_id
+    WHERE tcrs.suite_id = $id
+    ORDER BY tcrs.group_id ASC;
+
+    SELECT ''html'' AS component,
+      ''</div>'' AS html;
+
+    -- Add custom CSS for the accordion styling
+    SELECT ''html'' AS component,
+      ''<style>
+        .groups-accordion-container {
+          margin: 20px 0;
+        }
+
+        .group-accordion {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          margin-bottom: 10px;
+          overflow: hidden;
+        }
+
+        .group-summary {
+          background-color: #f5f5f5;
+          padding: 15px 20px;
+          cursor: pointer;
+          font-weight: 600;
+          color: #333;
+          border: none;
+          outline: none;
+          user-select: none;
+          list-style: none;
+          position: relative;
+          transition: background-color 0.2s;
+        }
+
+        .group-summary::-webkit-details-marker {
+          display: none;
+        }
+
+        .group-summary::after {
+          content: "+";
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: bold;
+          color: #666;
+        }
+
+        .group-accordion[open] .group-summary::after {
+          content: "−";
+        }
+
+        .group-summary:hover {
+          background-color: #ebebeb;
+        }
+
+        .group-content {
+          padding: 0;
+          background-color: white;
+          border-top: 1px solid #ddd;
+        }
+
+        .group-info-card {
+          padding: 20px;
+        }
+
+        .group-info-card h4 {
+          margin: 0 0 15px 0;
+          color: #333;
+          font-size: 16px;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 8px;
+        }
+
+        .group-info-card p {
+          margin: 8px 0;
+          line-height: 1.5;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin: 15px 0;
+        }
+
+        .stat-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 12px;
+          background-color: #f8f9fa;
+          border-radius: 4px;
+          border-left: 3px solid #dee2e6;
+        }
+
+        .stat-label {
+          color: #666;
+          font-weight: 500;
+        }
+
+        .stat-value {
+          font-weight: bold;
+        }
+
+        .stat-total {
+          color: #333;
+        }
+
+        .stat-passed {
+          color: #28a745;
+        }
+
+        .stat-item:has(.stat-passed) {
+          border-left-color: #28a745;
+        }
+
+        .stat-failed {
+          color: #dc3545;
+        }
+
+        .stat-item:has(.stat-failed) {
+          border-left-color: #dc3545;
+        }
+
+        .stat-pending {
+          color: #ffc107;
+        }
+
+        .stat-item:has(.stat-pending) {
+          border-left-color: #ffc107;
+        }
+
+        .action-buttons {
+          margin-top: 20px;
+          padding-top: 15px;
+          border-top: 1px solid #eee;
+        }
+
+        .view-details-btn {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: 500;
+          transition: background-color 0.2s;
+        }
+
+        .view-details-btn:hover {
+          background-color: #0056b3;
+          color: white;
+          text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      </style>'' AS html;
 
     SELECT ''html'' AS component,
       ''</div></details>'' AS html;
@@ -2215,7 +2410,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
         font-weight: 700;
       }
     </style>
-    
+
     '' as html FROM test_case_run_results where test_case_id = $id group by group_id;
 
 
@@ -2253,7 +2448,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     CASE
         WHEN $tab = ''actual-result'' THEN ''title''
     END AS component,
-      ''Actual Result'' as contents   
+      ''Actual Result'' as contents
     FROM test_case_run_results WHERE test_case_id = $id group by group_id;
 
     SELECT
@@ -2268,9 +2463,9 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
         FROM test_case_run_results  where test_case_id = $id group by group_id;
 
 
-    --Tab - specific content for "actual-result"  
+    --Tab - specific content for "actual-result"
 
-      
+
     SELECT
     step_name as ''Activity'',
       step_status as ''State'',
@@ -2308,8 +2503,8 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
    
 
     --Tab - specific content for "bug-report"
-    
-     
+
+
     select
     title         as title,
      ''
