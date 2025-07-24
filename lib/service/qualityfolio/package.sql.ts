@@ -79,7 +79,8 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     'button' as component;
     select
       'Generate Report'           as title,
-      'download-test-suites.sql' as link;
+      'download-test-suites.sql' as link,
+      '_blank'                   as target;
  SELECT 'table' as component,
         'Column Count' as align_right,
         TRUE as sort,
