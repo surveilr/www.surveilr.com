@@ -1656,6 +1656,153 @@ select ''dynamic'' as component, sqlpage.run_sql(''qualityfolio/test-suites-comm
     
 --     suite_name as series
 --     FROM test_suite_success_and_failed_rate;
+
+-- TAP Test Results Section
+SELECT ''title'' AS component,
+''TAP Test Results'' as contents;
+
+SELECT ''text'' as component,
+''Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results.'' as contents;
+
+SELECT ''table'' as component,
+       ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
+       TRUE as sort,
+       TRUE as search,
+       ''File Name'' as markdown;
+
+SELECT
+    ''[''||name||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/tap-details.sql''||''?file=''||REPLACE(REPLACE(name, '' '', ''%20''), ''&'', ''%26'')||'')'' as "File Name",
+    COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
+    COALESCE(passed_tests, 0) as "Passed",
+    COALESCE(failed_tests, 0) as "Failed",
+    CASE
+        WHEN total_test_lines > 0
+        THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || ''%''
+        ELSE ''0%''
+    END as "Pass Rate",
+    CASE
+        WHEN overall_status = ''passed'' THEN ''✅ Passed''
+        WHEN overall_status = ''mixed'' THEN ''⚠️ Mixed''
+        WHEN overall_status = ''failed'' THEN ''❌ Failed''
+        ELSE ''❓ Unknown''
+    END as "Status",
+    strftime(''%d-%m-%Y %H:%M'', tap_file_created_at) as "Created",
+    CASE
+        WHEN total_test_lines > 0
+        THEN ''rowClass-''||CAST((passed_tests * 100) / total_test_lines AS INTEGER)
+        ELSE ''rowClass-0''
+    END as _sqlpage_css_class
+FROM tap_test_results
+ORDER BY tap_file_created_at DESC;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/tap-details.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              select
+''breadcrumb'' as component;
+select
+''Home'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' as link;
+select
+''Test Management System'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
+select
+''TAP Test Results'' as title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
+select
+COALESCE($file, ''TAP File Details'') as title;
+
+SELECT ''title'' AS component,
+  ''TAP File: '' || COALESCE($file, ''Unknown'') as contents;
+
+SELECT ''text'' as component,
+''Individual test case details from the selected TAP file. Each row represents a single test case with its execution status and description.'' as contents;
+
+-- TAP File Summary Cards
+select
+''card'' as component,
+4 as columns;
+
+SELECT
+''## Total Tests'' AS description_md,
+''white'' AS background_color,
+''## '' || COALESCE(total_test_lines, 0) AS description_md,
+''blue'' AS color,
+''check-circle'' AS icon
+FROM tap_test_results WHERE name = $file;
+
+SELECT
+''## Passed Tests'' AS description_md,
+''white'' AS background_color,
+''## '' || COALESCE(passed_tests, 0) AS description_md,
+''green'' AS color,
+''circle-check'' AS icon
+FROM tap_test_results WHERE name = $file;
+
+SELECT
+''## Failed Tests'' AS description_md,
+''white'' AS background_color,
+''## '' || COALESCE(failed_tests, 0) AS description_md,
+''red'' AS color,
+''circle-x'' AS icon
+FROM tap_test_results WHERE name = $file;
+
+SELECT
+''## Pass Rate'' AS description_md,
+''white'' AS background_color,
+''## '' || CASE
+    WHEN total_test_lines > 0
+    THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || ''%''
+    ELSE ''0%''
+END AS description_md,
+''lime'' AS color,
+''percentage'' AS icon
+FROM tap_test_results WHERE name = $file;
+
+-- Pagination Controls (Top)
+SET total_rows = (SELECT COUNT(*) FROM tap_test_results_detail WHERE tap_file_name = $file);
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+-- Individual Test Cases Table
+SELECT ''table'' as component,
+       TRUE as sort,
+       TRUE as search;
+
+SELECT
+    COALESCE(ttrd.test_case_id, ''N/A'') as "Test Case ID",
+    CASE
+        WHEN ttrd.test_status = ''passed'' THEN ''✅ Passed''
+        WHEN ttrd.test_status = ''failed'' THEN ''❌ Failed''
+        ELSE ''❓ Unknown''
+    END as "Status",
+    COALESCE(ttrd.test_description, ''No description'') as "Test Description",
+    ttrd.original_tap_line as "Original TAP Line",
+    CASE
+        WHEN ttrd.test_status = ''passed'' THEN ''rowClass-100''
+        WHEN ttrd.test_status = ''failed'' THEN ''rowClass-0''
+        ELSE ''rowClass-50''
+    END as _sqlpage_css_class
+FROM tap_test_results_detail ttrd
+WHERE ttrd.tap_file_name = $file
+ORDER BY ttrd.test_number ASC
+LIMIT $limit OFFSET $offset;
+
+-- Pagination Controls (Bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&file='' || replace($file, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
+    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
+    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&file='' || replace($file, '' '', ''%20'') ||  '')'' ELSE '''' END)
+    AS contents_md 
+;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
