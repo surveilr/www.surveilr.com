@@ -395,9 +395,149 @@ select 'dynamic' as component, sqlpage.run_sql('qualityfolio/test-suites-common.
 --     suite_name as series
 --     FROM test_suite_success_and_failed_rate;
 
+-- TAP Test Results Section
+SELECT 'title' AS component,
+'TAP Test Results' as contents;
+
+SELECT 'text' as component,
+'Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results.' as contents;
+
+SELECT 'table' as component,
+       'Total Tests,Passed,Failed,Pass Rate' as align_right,
+       TRUE as sort,
+       TRUE as search,
+       'File Name' as markdown;
+
+SELECT
+    '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")}||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+    COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
+    COALESCE(passed_tests, 0) as "Passed",
+    COALESCE(failed_tests, 0) as "Failed",
+    CASE
+        WHEN total_test_lines > 0
+        THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || '%'
+        ELSE '0%'
+    END as "Pass Rate",
+    CASE
+        WHEN overall_status = 'passed' THEN '✅ Passed'
+        WHEN overall_status = 'mixed' THEN '⚠️ Mixed'
+        WHEN overall_status = 'failed' THEN '❌ Failed'
+        ELSE '❓ Unknown'
+    END as "Status",
+    strftime('%d-%m-%Y %H:%M', tap_file_created_at) as "Created",
+    CASE
+        WHEN total_test_lines > 0
+        THEN 'rowClass-'||CAST((passed_tests * 100) / total_test_lines AS INTEGER)
+        ELSE 'rowClass-0'
+    END as _sqlpage_css_class
+FROM tap_test_results
+ORDER BY tap_file_created_at DESC;
 
     `;
   }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qualityfolio/tap-details.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "tap_test_results_detail",
+      whereSQL: "WHERE tap_file_name = $file"
+    });
+
+    return this.SQL`
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+    select
+    'TAP Test Results' as title,
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+    select
+    COALESCE($file, 'TAP File Details') as title;
+
+    SELECT 'title' AS component,
+      'TAP File: ' || COALESCE($file, 'Unknown') as contents;
+
+    SELECT 'text' as component,
+    'Individual test case details from the selected TAP file. Each row represents a single test case with its execution status and description.' as contents;
+
+    -- TAP File Summary Cards
+    select
+    'card' as component,
+    4 as columns;
+
+    SELECT
+    '## Total Tests' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(total_test_lines, 0) AS description_md,
+    'blue' AS color,
+    'check-circle' AS icon
+    FROM tap_test_results WHERE name = $file;
+
+    SELECT
+    '## Passed Tests' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(passed_tests, 0) AS description_md,
+    'green' AS color,
+    'circle-check' AS icon
+    FROM tap_test_results WHERE name = $file;
+
+    SELECT
+    '## Failed Tests' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(failed_tests, 0) AS description_md,
+    'red' AS color,
+    'circle-x' AS icon
+    FROM tap_test_results WHERE name = $file;
+
+    SELECT
+    '## Pass Rate' AS description_md,
+    'white' AS background_color,
+    '## ' || CASE
+        WHEN total_test_lines > 0
+        THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || '%'
+        ELSE '0%'
+    END AS description_md,
+    'lime' AS color,
+    'percentage' AS icon
+    FROM tap_test_results WHERE name = $file;
+
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+
+    -- Individual Test Cases Table
+    SELECT 'table' as component,
+           TRUE as sort,
+           TRUE as search;
+
+    SELECT
+        COALESCE(ttrd.test_case_id, 'N/A') as "Test Case ID",
+        CASE
+            WHEN ttrd.test_status = 'passed' THEN '✅ Passed'
+            WHEN ttrd.test_status = 'failed' THEN '❌ Failed'
+            ELSE '❓ Unknown'
+        END as "Status",
+        COALESCE(ttrd.test_description, 'No description') as "Test Description",
+        ttrd.original_tap_line as "Original TAP Line",
+        CASE
+            WHEN ttrd.test_status = 'passed' THEN 'rowClass-100'
+            WHEN ttrd.test_status = 'failed' THEN 'rowClass-0'
+            ELSE 'rowClass-50'
+        END as _sqlpage_css_class
+    FROM tap_test_results_detail ttrd
+    WHERE ttrd.tap_file_name = $file
+    ORDER BY ttrd.test_number ASC
+    LIMIT $limit OFFSET $offset;
+
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown("file")};
+
+    `;
+  }
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
