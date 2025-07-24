@@ -2496,6 +2496,20 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.9'' as title, ''# `surveilr ` v1.8.9 Release Notes
+
+## 🚀 What''''s New
+
+### **1. Surveilr ingestion Improvements**
+- Image Ingestion Support - Fixed issues with image format ingestion during file processing
+- GitHub API Rate Limiting - Enhanced rate limiting handling for GitHub PLM integration
+
+### **2. Dependencies Update**
+- OIDC/SSO Support - Added OpenID Connect and Single Sign-On support for surveilr web UI
+- SQLPage Upgrade - Updated to latest SQLPage version'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.8'' as title, ''# `surveilr ` v1.8.8 Release Notes
 
 ## 🚀 What''''s New
