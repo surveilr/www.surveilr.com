@@ -490,3 +490,979 @@ FROM parsed_test_lines
 WHERE test_number IS NOT NULL
 ORDER BY uniform_resource_id, test_number;
 
+-- HTML Test Execution Results View
+-- Extracts test execution data from ingested HTML content stored in uniform_resource table
+-- Parses HTML test reports to provide structured test execution information for QualityFolio display
+-- Supports various HTML test execution report formats with dynamic parsing capabilities
+DROP VIEW IF EXISTS html_test_execution_results;
+CREATE VIEW html_test_execution_results AS
+SELECT
+    ur.uniform_resource_id,
+    ur.created_at,
+    -- Extract test report name from HTML title or filename
+    COALESCE(
+        -- Try to extract from HTML title tag
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%<title>%</title>%' THEN
+                TRIM(
+                    SUBSTR(
+                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<title>') + 7),
+                        1,
+                        CASE
+                            WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<title>') + 7), '</title>') > 0
+                            THEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<title>') + 7), '</title>') - 1
+                            ELSE 50
+                        END
+                    )
+                )
+            ELSE NULL
+        END,
+        -- Fallback to filename extraction from URI
+        CASE
+            WHEN INSTR(ur.uri, '/') > 0
+            THEN REPLACE(ur.uri, RTRIM(ur.uri, REPLACE(ur.uri, '/', '')), '')
+            ELSE ur.uri
+        END,
+        'Unknown Report'
+    ) AS test_report_name,
+
+    -- Extract run ID from HTML content (look for common patterns) with comprehensive HTML tag removal
+    COALESCE(
+        -- Pattern 1: data-run-id="value"
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%data-run-id="%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-run-id="') + 13), '"') > 0 THEN
+                        -- Remove ALL HTML tags using regex-like pattern replacement
+                        TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-run-id="') + 13),
+                                                                        1,
+                                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-run-id="') + 13), '"') - 1
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Pattern 2: Run ID: value (handle various terminators and remove ALL HTML tags)
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%Run ID:%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), CHAR(10)) > 0 THEN
+                        -- Remove ALL HTML tags from extracted value
+                        TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7),
+                                                                        1,
+                                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), CHAR(10)) - 1
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), '</') > 0 THEN
+                        -- Remove ALL HTML tags from extracted value
+                        TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7),
+                                                                        1,
+                                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), '</') - 1
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), '<br') > 0 THEN
+                        -- Remove ALL HTML tags from extracted value
+                        TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7),
+                                                                        1,
+                                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7), '<br') - 1
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                    ELSE
+                        -- Remove ALL HTML tags from extracted value (fallback case)
+                        TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Run ID:') + 7),
+                                                                        1,
+                                                                        50
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                END
+            ELSE NULL
+        END,
+        -- Pattern 3: id="run-value" or similar
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%id="run-%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'id="run-') + 8), '"') > 0 THEN
+                        'run-' || TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(
+                                                                    SUBSTR(
+                                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'id="run-') + 8),
+                                                                        1,
+                                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'id="run-') + 8), '"') - 1
+                                                                    ),
+                                                                    '</b>', ''
+                                                                ),
+                                                                '<b>', ''
+                                                            ),
+                                                            '</p>', ''
+                                                        ),
+                                                        '<p>', ''
+                                                    ),
+                                                    '</div>', ''
+                                                ),
+                                                '<div>', ''
+                                            ),
+                                            '</span>', ''
+                                        ),
+                                        '<span>', ''
+                                    ),
+                                    '</strong>', ''
+                                ),
+                                '<strong>', ''
+                            )
+                        )
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Fallback: generate from uniform_resource_id
+        'run-' || ur.uniform_resource_id
+    ) AS run_id,
+
+    -- Extract execution title from HTML content
+    COALESCE(
+        -- Pattern 1: <h1> or <h2> containing "test" or "execution"
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%<h1>%test%</h1>%' OR CAST(ur.content AS TEXT) LIKE '%<h1>%execution%</h1>%' THEN
+                TRIM(
+                    SUBSTR(
+                        SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h1>') + 4),
+                        1,
+                        CASE
+                            WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h1>') + 4), '</h1>') > 0
+                            THEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h1>') + 4), '</h1>') - 1
+                            ELSE 100
+                        END
+                    )
+                )
+            WHEN CAST(ur.content AS TEXT) LIKE '%<h2>%test%</h2>%' OR CAST(ur.content AS TEXT) LIKE '%<h2>%execution%</h2>%' THEN
+                TRIM(
+                    SUBSTR(
+                        SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h2>') + 4),
+                        1,
+                        CASE
+                            WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h2>') + 4), '</h2>') > 0
+                            THEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(LOWER(CAST(ur.content AS TEXT)), '<h2>') + 4), '</h2>') - 1
+                            ELSE 100
+                        END
+                    )
+                )
+            ELSE NULL
+        END,
+        -- Fallback to test report name
+        CASE
+            WHEN INSTR(ur.uri, '/') > 0
+            THEN REPLACE(ur.uri, RTRIM(ur.uri, REPLACE(ur.uri, '/', '')), '')
+            ELSE ur.uri
+        END
+    ) AS execution_title,
+
+    -- Extract execution status from HTML content
+    COALESCE(
+        -- Pattern 1: class="status-passed" or similar
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%class="status-passed"%' OR CAST(ur.content AS TEXT) LIKE '%status: passed%' THEN 'passed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%class="status-failed"%' OR CAST(ur.content AS TEXT) LIKE '%status: failed%' THEN 'failed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%class="status-running"%' OR CAST(ur.content AS TEXT) LIKE '%status: running%' THEN 'running'
+            WHEN CAST(ur.content AS TEXT) LIKE '%class="status-completed"%' OR CAST(ur.content AS TEXT) LIKE '%status: completed%' THEN 'completed'
+            ELSE NULL
+        END,
+        -- Pattern 2: Status: followed by value
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%Status:%passed%' OR CAST(ur.content AS TEXT) LIKE '%Status: passed%' THEN 'passed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%Status:%failed%' OR CAST(ur.content AS TEXT) LIKE '%Status: failed%' THEN 'failed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%Status:%running%' OR CAST(ur.content AS TEXT) LIKE '%Status: running%' THEN 'running'
+            WHEN CAST(ur.content AS TEXT) LIKE '%Status:%completed%' OR CAST(ur.content AS TEXT) LIKE '%Status: completed%' THEN 'completed'
+            ELSE NULL
+        END,
+        -- Pattern 3: Look for common result indicators
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%✓%' OR CAST(ur.content AS TEXT) LIKE '%PASS%' THEN 'passed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%✗%' OR CAST(ur.content AS TEXT) LIKE '%FAIL%' THEN 'failed'
+            WHEN CAST(ur.content AS TEXT) LIKE '%⏳%' OR CAST(ur.content AS TEXT) LIKE '%RUNNING%' THEN 'running'
+            ELSE 'unknown'
+        END
+    ) AS execution_status,
+
+    -- Extract start time from HTML content with broader pattern matching and guaranteed fallback
+    COALESCE(
+        -- Pattern 1: start-time="value" attribute
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%start-time="%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12), '"') > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12), '"') - 1
+                                )
+                            ) LIKE '____-__-__T__:__:__%' OR
+                            TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12), '"') - 1
+                                )
+                            ) LIKE '____-__-__ __:__:__%' THEN
+                                DATETIME(
+                                    TRIM(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'start-time="') + 12), '"') - 1
+                                        )
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Pattern 2: data-start-time="value" attribute
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%data-start-time="%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17), '"') > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17), '"') - 1
+                                )
+                            ) LIKE '____-__-__T__:__:__%' OR
+                            TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17), '"') - 1
+                                )
+                            ) LIKE '____-__-__ __:__:__%' THEN
+                                DATETIME(
+                                    TRIM(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-start-time="') + 17), '"') - 1
+                                        )
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Pattern 3: Start Time: text pattern (handles <p><b>Start Time:</b> datetime</p>)
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%Start Time:%' THEN
+                CASE
+                    -- Handle <p><b>Start Time:</b> datetime</p> pattern
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</p>') > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</p>') - 1
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    ' ', ' '
+                                )
+                            ) LIKE '____-__-__T__:__:__%' THEN
+                                DATETIME(
+                                    SUBSTR(
+                                        TRIM(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        SUBSTR(
+                                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                                            1,
+                                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</p>') - 1
+                                                        ),
+                                                        '</b>', ''
+                                                    ),
+                                                    '<b>', ''
+                                                ),
+                                                ' ', ' '
+                                            )
+                                        ),
+                                        1, 19
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    -- Handle newline termination
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), CHAR(10)) > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), CHAR(10)) - 1
+                                )
+                            ) LIKE '____-__-__T__:__:__%' OR
+                            TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), CHAR(10)) - 1
+                                )
+                            ) LIKE '____-__-__ __:__:__%' THEN
+                                DATETIME(
+                                    SUBSTR(
+                                        TRIM(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), CHAR(10)) - 1
+                                            )
+                                        ),
+                                        1, 19
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    -- Handle closing tag termination
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</') > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</') - 1
+                                )
+                            ) LIKE '____-__-__T__:__:__%' OR
+                            TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</') - 1
+                                )
+                            ) LIKE '____-__-__ __:__:__%' THEN
+                                DATETIME(
+                                    SUBSTR(
+                                        TRIM(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Start Time:') + 11), '</') - 1
+                                            )
+                                        ),
+                                        1, 19
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Pattern 4: Started: text pattern
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%Started:%' THEN
+                CASE
+                    WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8), CHAR(10)) > 0 THEN
+                        CASE
+                            WHEN TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8), CHAR(10)) - 1
+                                )
+                            ) LIKE '____-__-__T__:__:__%' OR
+                            TRIM(
+                                SUBSTR(
+                                    SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8),
+                                    1,
+                                    INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8), CHAR(10)) - 1
+                                )
+                            ) LIKE '____-__-__ __:__:__%' THEN
+                                DATETIME(
+                                    TRIM(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Started:') + 8), CHAR(10)) - 1
+                                        )
+                                    )
+                                )
+                            ELSE NULL
+                        END
+                    ELSE NULL
+                END
+            ELSE NULL
+        END,
+        -- Guaranteed fallback: Use file creation time if no start time found
+        ur.created_at
+    ) AS start_time,
+
+    -- Extract end time from HTML content with broader pattern matching
+    CASE
+        -- Pattern 1: end-time="value" attribute
+        WHEN CAST(ur.content AS TEXT) LIKE '%end-time="%' THEN
+            CASE
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10), '"') > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10), '"') - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10), '"') - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                TRIM(
+                                    SUBSTR(
+                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10),
+                                        1,
+                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'end-time="') + 10), '"') - 1
+                                    )
+                                )
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        -- Pattern 2: data-end-time="value" attribute
+        WHEN CAST(ur.content AS TEXT) LIKE '%data-end-time="%' THEN
+            CASE
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15), '"') > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15), '"') - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15), '"') - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                TRIM(
+                                    SUBSTR(
+                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15),
+                                        1,
+                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-end-time="') + 15), '"') - 1
+                                    )
+                                )
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        -- Pattern 3: End Time: text pattern (handles <p><b>End Time:</b> datetime</p>)
+        WHEN CAST(ur.content AS TEXT) LIKE '%End Time:%' THEN
+            CASE
+                -- Handle <p><b>End Time:</b> datetime</p> pattern
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</p>') > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</p>') - 1
+                                        ),
+                                        '</b>', ''
+                                    ),
+                                    '<b>', ''
+                                ),
+                                ' ', ' '
+                            )
+                        ) LIKE '____-__-__T__:__:__%' THEN
+                            DATETIME(
+                                SUBSTR(
+                                    TRIM(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    SUBSTR(
+                                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                                        1,
+                                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</p>') - 1
+                                                    ),
+                                                    '</b>', ''
+                                                ),
+                                                '<b>', ''
+                                            ),
+                                            ' ', ' '
+                                        )
+                                    ),
+                                    1, 19
+                                )
+                            )
+                        ELSE NULL
+                    END
+                -- Handle newline termination
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), CHAR(10)) > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                SUBSTR(
+                                    TRIM(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), CHAR(10)) - 1
+                                        )
+                                    ),
+                                    1, 19
+                                )
+                            )
+                        ELSE NULL
+                    END
+                -- Handle closing tag termination
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</') > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</') - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</') - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                SUBSTR(
+                                    TRIM(
+                                        SUBSTR(
+                                            SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9),
+                                            1,
+                                            INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'End Time:') + 9), '</') - 1
+                                        )
+                                    ),
+                                    1, 19
+                                )
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        -- Pattern 4: Finished: text pattern
+        WHEN CAST(ur.content AS TEXT) LIKE '%Finished:%' THEN
+            CASE
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9), CHAR(10)) > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                TRIM(
+                                    SUBSTR(
+                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9),
+                                        1,
+                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Finished:') + 9), CHAR(10)) - 1
+                                    )
+                                )
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        -- Pattern 5: Completed: text pattern
+        WHEN CAST(ur.content AS TEXT) LIKE '%Completed:%' THEN
+            CASE
+                WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10), CHAR(10)) > 0 THEN
+                    CASE
+                        WHEN TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__T__:__:__%' OR
+                        TRIM(
+                            SUBSTR(
+                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10),
+                                1,
+                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10), CHAR(10)) - 1
+                            )
+                        ) LIKE '____-__-__ __:__:__%' THEN
+                            DATETIME(
+                                TRIM(
+                                    SUBSTR(
+                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10),
+                                        1,
+                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Completed:') + 10), CHAR(10)) - 1
+                                    )
+                                )
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        ELSE NULL
+    END AS end_time,
+
+    -- Extract total duration text exactly as it appears in HTML (without HTML tags)
+    CASE
+        WHEN CAST(ur.content AS TEXT) LIKE '%duration%' THEN
+            -- Try to extract duration directly from HTML content
+            CASE
+                -- Pattern 1: <p><b>Total Duration:</b> X.XX seconds</p>
+                WHEN CAST(ur.content AS TEXT) LIKE '%Total Duration:%' THEN
+                    CASE
+                        -- Extract complete duration text including unit (e.g., "8.10 seconds")
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), '</p>') > 0 THEN
+                            TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), '</p>') - 1
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    '  ', ' '
+                                )
+                            )
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), 'seconds') > 0 THEN
+                            TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), 'seconds') + 6
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    '  ', ' '
+                                )
+                            )
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), 'minutes') > 0 THEN
+                            TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Total Duration:') + 15), 'minutes') + 6
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    '  ', ' '
+                                )
+                            )
+                        ELSE NULL
+                    END
+                -- Pattern 2: Duration: X.XX seconds (without "Total")
+                WHEN CAST(ur.content AS TEXT) LIKE '%Duration:%' THEN
+                    CASE
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9), 'seconds') > 0 THEN
+                            TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9), 'seconds') + 6
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    '  ', ' '
+                                )
+                            )
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9), 'minutes') > 0 THEN
+                            TRIM(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            SUBSTR(
+                                                SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9),
+                                                1,
+                                                INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'Duration:') + 9), 'minutes') + 6
+                                            ),
+                                            '</b>', ''
+                                        ),
+                                        '<b>', ''
+                                    ),
+                                    '  ', ' '
+                                )
+                            )
+                        ELSE NULL
+                    END
+                WHEN CAST(ur.content AS TEXT) LIKE '%data-duration="%' THEN
+                    CASE
+                        WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-duration="') + 15), '"') > 0 THEN
+                            CAST(
+                                TRIM(
+                                    SUBSTR(
+                                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-duration="') + 15),
+                                        1,
+                                        INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), 'data-duration="') + 15), '"') - 1
+                                    )
+                                ) AS INTEGER
+                            )
+                        ELSE NULL
+                    END
+                ELSE NULL
+            END
+        ELSE NULL
+    END AS total_duration,
+
+    -- Reference to original HTML content
+    ur.content AS html_content
+
+FROM uniform_resource ur
+WHERE
+    -- Filter for HTML content containing test execution markers
+    ur.content IS NOT NULL
+    AND nature = 'html'
+    AND (
+        -- HTML content type indicators
+        CAST(ur.content AS TEXT) LIKE '%<html%'
+        OR CAST(ur.content AS TEXT) LIKE '%<!DOCTYPE html%'
+        OR ur.uri LIKE '%.html'
+        OR ur.uri LIKE '%.htm'
+    )
+    AND (
+        -- Test execution content indicators
+        LOWER(CAST(ur.content AS TEXT)) LIKE '%test%execution%'
+        OR LOWER(CAST(ur.content AS TEXT)) LIKE '%test%report%'
+        OR LOWER(CAST(ur.content AS TEXT)) LIKE '%test%result%'
+        OR LOWER(CAST(ur.content AS TEXT)) LIKE '%execution%report%'
+        OR LOWER(CAST(ur.content AS TEXT)) LIKE '%test%run%'
+        OR CAST(ur.content AS TEXT) LIKE '%data-run-id%'
+        OR CAST(ur.content AS TEXT) LIKE '%Run ID:%'
+        OR CAST(ur.content AS TEXT) LIKE '%start-time%'
+        OR CAST(ur.content AS TEXT) LIKE '%Status:%'
+    )
+ORDER BY ur.created_at DESC;
