@@ -433,6 +433,47 @@ SELECT
 FROM tap_test_results
 ORDER BY tap_file_created_at DESC;
 
+-- HTML Test Execution Results Section
+SELECT 'title' AS component,
+'HTML Test Execution Results' as contents;
+
+SELECT 'text' as component,
+'Summary statistics for HTML test execution results from automated test runs. View detailed results in the HTML Test Results section.' as contents;
+
+SELECT 'table' as component,
+       'Total Tests,Passed,Failed,Pass Rate' as align_right,
+       'Test Type' as markdown;
+
+WITH html_stats AS (
+    SELECT
+        COUNT(*) as total_tests,
+        SUM(CASE WHEN execution_status LIKE '%pass%' THEN 1 ELSE 0 END) as passed_tests,
+        SUM(CASE WHEN execution_status LIKE '%fail%' OR execution_status LIKE '%error%' THEN 1 ELSE 0 END) as failed_tests
+    FROM html_test_execution_results
+)
+SELECT
+    '[HTML Test Executions]('||${this.absoluteURL("/qualityfolio/html-test-results.sql")}||')' as "Test Type",
+    total_tests as "Total Tests",
+    passed_tests as "Passed",
+    failed_tests as "Failed",
+    CASE
+        WHEN total_tests > 0
+        THEN ROUND((passed_tests * 100.0) / total_tests, 1) || '%'
+        ELSE '0%'
+    END as "Pass Rate",
+    CASE
+        WHEN total_tests = 0 THEN '❓ No Data'
+        WHEN passed_tests = total_tests THEN '✅ All Passed'
+        WHEN failed_tests = total_tests THEN '❌ All Failed'
+        ELSE '⚠️ Mixed Results'
+    END as "Status",
+    CASE
+        WHEN total_tests > 0
+        THEN 'rowClass-'||CAST((passed_tests * 100) / total_tests AS INTEGER)
+        ELSE 'rowClass-0'
+    END as _sqlpage_css_class
+FROM html_stats;
+
     `;
   }
 
@@ -534,6 +575,187 @@ ORDER BY tap_file_created_at DESC;
 
     -- Pagination Controls (Bottom)
     ${pagination.renderSimpleMarkdown("file")};
+
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "qualityfolio/html-details.sql"() {
+    return this.SQL`
+    select
+    'breadcrumb' as component;
+    select
+    'Home' as title,
+      ${this.absoluteURL("/")} as link;
+    select
+    'Test Management System' as title,
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+    select
+    'HTML Test Results' as title,
+      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+    select
+    COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), 'HTML Test Details') as title;
+
+    SELECT 'title' AS component,
+      'HTML Test Execution: ' || COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), 'Unknown') as contents;
+
+    SELECT 'text' as component,
+    'Detailed information for the selected HTML test execution result including execution status, timing, and raw HTML content.' as contents;
+
+    -- Test Execution Summary Cards
+    select
+    'card' as component,
+    4 as columns;
+
+    SELECT
+    '## Run ID' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(run_id, 'N/A') AS description_md,
+    'blue' AS color,
+    'id' AS icon
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
+
+    SELECT
+    '## Status' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(execution_status, 'Unknown') AS description_md,
+    CASE
+        WHEN execution_status LIKE '%pass%' THEN 'green'
+        WHEN execution_status LIKE '%fail%' THEN 'red'
+        WHEN execution_status LIKE '%error%' THEN 'red'
+        ELSE 'orange'
+    END AS color,
+    CASE
+        WHEN execution_status LIKE '%pass%' THEN 'circle-check'
+        WHEN execution_status LIKE '%fail%' THEN 'circle-x'
+        WHEN execution_status LIKE '%error%' THEN 'alert-circle'
+        ELSE 'help-circle'
+    END AS icon
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
+
+    SELECT
+    '## Start Time' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(start_time, 'N/A') AS description_md,
+    'cyan' AS color,
+    'clock' AS icon
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
+
+    SELECT
+    '## Duration' AS description_md,
+    'white' AS background_color,
+    '## ' || COALESCE(total_duration, 'N/A') AS description_md,
+    'purple' AS color,
+    'hourglass' AS icon
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
+
+    -- Test Execution Details Table
+    SELECT 'table' as component,
+           'Test Execution Details' as title;
+
+    WITH test_details AS (
+        SELECT
+            test_report_name,
+            run_id,
+            execution_title,
+            execution_status,
+            start_time,
+            end_time,
+            total_duration,
+            created_at
+        FROM html_test_execution_results
+        WHERE run_id = $run_id
+        LIMIT 1
+    )
+    SELECT 'Test Report Name' as "Property", COALESCE(test_report_name, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'Run ID' as "Property", COALESCE(run_id, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'Execution Title' as "Property", COALESCE(execution_title, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'Execution Status' as "Property", COALESCE(execution_status, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'Start Time' as "Property", COALESCE(start_time, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'End Time' as "Property", COALESCE(end_time, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'Total Duration' as "Property", COALESCE(total_duration, 'N/A') as "Value" FROM test_details
+    UNION ALL
+    SELECT 'File Created' as "Property", strftime('%d-%m-%Y %H:%M:%S', created_at) as "Value" FROM test_details;
+
+    -- Raw HTML Content Section
+    SELECT 'title' AS component,
+      'Raw HTML Content' as contents;
+
+    SELECT 'text' as component,
+    'The rendered HTML content from the test execution result file as it would appear in a browser with enhanced table styling.' as contents;
+
+    SELECT 'html' as component,
+        COALESCE(
+            '<style>
+                .html-content-container {
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 20px;
+                    background-color: #fafafa;
+                    margin: 10px 0;
+                }
+                .html-content-container table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 10px 0;
+                    font-size: 14px;
+                    background-color: white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .html-content-container table th,
+                .html-content-container table td {
+                    border: 1px solid #ddd;
+                    padding: 12px 8px;
+                    text-align: left;
+                    vertical-align: top;
+                }
+                .html-content-container table th {
+                    background-color: #f8f9fa;
+                    font-weight: bold;
+                    color: #495057;
+                    border-bottom: 2px solid #dee2e6;
+                }
+                .html-content-container table tr:nth-child(even) {
+                    background-color: #f8f9fa;
+                }
+                .html-content-container table tr:hover {
+                    background-color: #e9ecef;
+                }
+                .html-content-container h1,
+                .html-content-container h2,
+                .html-content-container h3 {
+                    color: #495057;
+                    margin: 15px 0 10px 0;
+                    padding-bottom: 5px;
+                    border-bottom: 1px solid #dee2e6;
+                }
+                .html-content-container p {
+                    margin: 8px 0;
+                    line-height: 1.5;
+                }
+                .html-content-container .status-passed {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .html-content-container .status-failed {
+                    color: #dc3545;
+                    font-weight: bold;
+                }
+                .html-content-container .status-error {
+                    color: #fd7e14;
+                    font-weight: bold;
+                }
+            </style>
+            <div class="html-content-container">' || html_content || '</div>',
+            '<div class="html-content-container"><p style="color: #666; font-style: italic;">No HTML content available</p></div>'
+        ) as html
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
 
     `;
   }
@@ -992,9 +1214,62 @@ SELECT
     `;
   }
   @qltyfolioNav({
+    caption: "HTML Test Results",
+    description: "HTML test execution results from automated test runs with detailed execution information",
+    siblingOrder: 3,
+  })
+  "qualityfolio/html-test-results.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "html_test_execution_results",
+    });
+
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    SELECT 'text' as component,
+    'HTML test execution results from automated test runs. Displays test execution data extracted from HTML reports including run IDs, execution status, timing information, and duration. Click on any test report name to view detailed execution information and raw HTML content.' as contents;
+
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+
+    SELECT 'table' as component,
+           TRUE as sort,
+           TRUE as search,
+           'Test Report' as markdown;
+
+    SELECT
+        '['||test_report_name||']('||${this.absoluteURL("/qualityfolio/html-details.sql")}||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
+        run_id as "Run ID",
+        CASE
+            WHEN execution_status LIKE '%pass%' THEN '✅ Passed'
+            WHEN execution_status LIKE '%fail%' THEN '❌ Failed'
+            WHEN execution_status LIKE '%error%' THEN '🔴 Error'
+            WHEN execution_status LIKE '%skip%' THEN '⏭️ Skipped'
+            ELSE '❓ ' || COALESCE(execution_status, 'Unknown')
+        END as "Status",
+        COALESCE(start_time, 'N/A') as "Start Time",
+        COALESCE(total_duration, 'N/A') as "Duration",
+        strftime('%d-%m-%Y %H:%M', created_at) as "Created",
+        CASE
+            WHEN execution_status LIKE '%pass%' THEN 'rowClass-100'
+            WHEN execution_status LIKE '%fail%' THEN 'rowClass-0'
+            WHEN execution_status LIKE '%error%' THEN 'rowClass-0'
+            ELSE 'rowClass-50'
+        END as _sqlpage_css_class
+    FROM html_test_execution_results
+    ORDER BY created_at DESC
+    LIMIT $limit OFFSET $offset;
+
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
+
+    `;
+  }
+
+  @qltyfolioNav({
     caption: "Test Cases",
     description: "Complete list of all test cases across all projects and suites",
-    siblingOrder: 3,
+    siblingOrder: 4,
   })
   "qualityfolio/test-cases.sql"() {
     const viewName = `test_cases`;
@@ -1311,6 +1586,63 @@ FROM test_suites rn WHERE id = $id;
 
     `;
   }
+  @qltyfolioNav({
+    caption: "TAP Test Results",
+    description: "Test Anything Protocol (TAP) results from automated test runs",
+    siblingOrder: 2,
+  })
+  "qualityfolio/tap-test-results.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "tap_test_results",
+    });
+
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    SELECT 'text' as component,
+    'Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results.' as contents;
+
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+
+    SELECT 'table' as component,
+           'Total Tests,Passed,Failed,Pass Rate' as align_right,
+           TRUE as sort,
+           TRUE as search,
+           'File Name' as markdown;
+
+    SELECT
+        '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")}||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+        COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
+        COALESCE(passed_tests, 0) as "Passed",
+        COALESCE(failed_tests, 0) as "Failed",
+        CASE
+            WHEN total_test_lines > 0
+            THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || '%'
+            ELSE '0%'
+        END as "Pass Rate",
+        CASE
+            WHEN overall_status = 'passed' THEN '✅ Passed'
+            WHEN overall_status = 'mixed' THEN '⚠️ Mixed'
+            WHEN overall_status = 'failed' THEN '❌ Failed'
+            ELSE '❓ Unknown'
+        END as "Status",
+        strftime('%d-%m-%Y %H:%M', tap_file_created_at) as "Created",
+        CASE
+            WHEN total_test_lines > 0
+            THEN 'rowClass-'||CAST((passed_tests * 100) / total_test_lines AS INTEGER)
+            ELSE 'rowClass-0'
+        END as _sqlpage_css_class
+    FROM tap_test_results
+    ORDER BY tap_file_created_at DESC
+    LIMIT $limit OFFSET $offset;
+
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
+
+    `;
+  }
+
   @qltyfolioNav({
     caption: "Projects",
     description: ``,
