@@ -60,7 +60,7 @@ importers:
         specifier: ^14.0.2
         version: 14.1.0
       gsap:
-        specifier: ^3.12.7
+        specifier: ^3.13.0
         version: 3.13.0
       html-minifier-terser:
         specifier: ^7.2.0
