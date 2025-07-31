@@ -232,7 +232,7 @@ select
     '## Total Test Cases Count' as description_md,
  
     'white' as background_color,
-    '## '||count(DISTINCT test_case_id) as description_md,
+    '## '||count(test_case_id) as description_md,
     '12' as width,
      'red' as color,
     'brand-speedtest'       as icon,
@@ -409,7 +409,8 @@ SELECT 'table' as component,
        'File Name' as markdown;
 
 SELECT
-    '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")}||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+    '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")
+      }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
     COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
     COALESCE(passed_tests, 0) as "Passed",
     COALESCE(failed_tests, 0) as "Failed",
@@ -418,12 +419,6 @@ SELECT
         THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || '%'
         ELSE '0%'
     END as "Pass Rate",
-    CASE
-        WHEN overall_status = 'passed' THEN '✅ Passed'
-        WHEN overall_status = 'mixed' THEN '⚠️ Mixed'
-        WHEN overall_status = 'failed' THEN '❌ Failed'
-        ELSE '❓ Unknown'
-    END as "Status",
     strftime('%d-%m-%Y %H:%M', tap_file_created_at) as "Created",
     CASE
         WHEN total_test_lines > 0
@@ -452,7 +447,8 @@ WITH html_stats AS (
     FROM html_test_execution_results
 )
 SELECT
-    '[HTML Test Executions]('||${this.absoluteURL("/qualityfolio/html-test-results.sql")}||')' as "Test Type",
+    '[HTML Test Executions]('||${this.absoluteURL("/qualityfolio/html-test-results.sql")
+      }||')' as "Test Type",
     total_tests as "Total Tests",
     passed_tests as "Passed",
     failed_tests as "Failed",
@@ -461,12 +457,6 @@ SELECT
         THEN ROUND((passed_tests * 100.0) / total_tests, 1) || '%'
         ELSE '0%'
     END as "Pass Rate",
-    CASE
-        WHEN total_tests = 0 THEN '❓ No Data'
-        WHEN passed_tests = total_tests THEN '✅ All Passed'
-        WHEN failed_tests = total_tests THEN '❌ All Failed'
-        ELSE '⚠️ Mixed Results'
-    END as "Status",
     CASE
         WHEN total_tests > 0
         THEN 'rowClass-'||CAST((passed_tests * 100) / total_tests AS INTEGER)
@@ -481,7 +471,7 @@ FROM html_stats;
   "qualityfolio/tap-details.sql"() {
     const pagination = this.pagination({
       tableOrViewName: "tap_test_results_detail",
-      whereSQL: "WHERE tap_file_name = $file"
+      whereSQL: "WHERE tap_file_name = $file",
     });
 
     return this.SQL`
@@ -1033,7 +1023,8 @@ SELECT
             </div>
 
             <div class="action-buttons">
-              <a href="' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")} || tcrs.group_id || '" class="view-details-btn">View Full Details</a>
+              <a href="' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+      } || tcrs.group_id || '" class="view-details-btn">View Full Details</a>
             </div>
           </div>
         </div>
@@ -1215,7 +1206,8 @@ SELECT
   }
   @qltyfolioNav({
     caption: "HTML Test Results",
-    description: "HTML test execution results from automated test runs with detailed execution information",
+    description:
+      "HTML test execution results from automated test runs with detailed execution information",
     siblingOrder: 3,
   })
   "qualityfolio/html-test-results.sql"() {
@@ -1238,7 +1230,8 @@ SELECT
            'Test Report' as markdown;
 
     SELECT
-        '['||test_report_name||']('||${this.absoluteURL("/qualityfolio/html-details.sql")}||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
+        '['||test_report_name||']('||${this.absoluteURL("/qualityfolio/html-details.sql")
+      }||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
         run_id as "Run ID",
         CASE
             WHEN execution_status LIKE '%pass%' THEN '✅ Passed'
@@ -1268,7 +1261,8 @@ SELECT
 
   @qltyfolioNav({
     caption: "Test Cases",
-    description: "Complete list of all test cases across all projects and suites",
+    description:
+      "Complete list of all test cases across all projects and suites",
     siblingOrder: 4,
   })
   "qualityfolio/test-cases.sql"() {
@@ -1588,7 +1582,8 @@ FROM test_suites rn WHERE id = $id;
   }
   @qltyfolioNav({
     caption: "TAP Test Results",
-    description: "Test Anything Protocol (TAP) results from automated test runs",
+    description:
+      "Test Anything Protocol (TAP) results from automated test runs",
     siblingOrder: 2,
   })
   "qualityfolio/tap-test-results.sql"() {
@@ -1612,7 +1607,8 @@ FROM test_suites rn WHERE id = $id;
            'File Name' as markdown;
 
     SELECT
-        '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")}||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+        '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")
+      }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
         COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
         COALESCE(passed_tests, 0) as "Passed",
         COALESCE(failed_tests, 0) as "Failed",
@@ -2311,7 +2307,8 @@ WHERE rn.id = $id;
             </div>
 
             <div class="action-buttons">
-              <a href="' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")} || tc.test_case_id || '" class="view-details-btn">View Full Details</a>
+              <a href="' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      } || tc.test_case_id || '" class="view-details-btn">View Full Details</a>
             </div>
           </div>
         </div>
@@ -2332,8 +2329,6 @@ WHERE rn.id = $id;
 
     `;
   }
-
-
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/plan-overview.sql"() {
@@ -2624,7 +2619,12 @@ export async function SQL() {
     new d.DocsSqlPages(),
     new ur.UniformResourceSqlPages(),
     new orch.OrchestrationSqlPages(),
-    new sh.ShellSqlPages(WEB_UI_TITLE, WE_UI_LOGO, WE_UI_FAV_ICON, HIDE_HEADER_TITLE),
+    new sh.ShellSqlPages(
+      WEB_UI_TITLE,
+      WE_UI_LOGO,
+      WE_UI_FAV_ICON,
+      HIDE_HEADER_TITLE,
+    ),
   );
 }
 
