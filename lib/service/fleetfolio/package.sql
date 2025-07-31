@@ -2860,13 +2860,13 @@ SET current_page = ($offset / $limit) + 1;
         OFFSET $offset;
         -- checking
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''policies'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''policies'';
+        ;;
 
 
       SELECT
@@ -2894,13 +2894,13 @@ SET current_page = ($offset / $limit) + 1;
 
         -- Software pagenation
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''software'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''software'';
+        ;;
 
       SELECT
             ''html'' AS component,
@@ -2938,13 +2938,13 @@ SET current_page = ($offset / $limit) + 1;
 
         -- User pagenation
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''users'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''users'';
+        ;;
 
       SELECT
             ''html'' AS component,
@@ -2983,13 +2983,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''container''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''container'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''container'';
+        ;;
       
 
       -- Display sourse lable of data
@@ -3028,13 +3028,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''all_process''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''all_process'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''all_process'';
+        ;;
 
         -- asset_service table and tab value Start here
         select
@@ -3064,13 +3064,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''asset_service''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''asset_service'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''asset_service'';
+        ;;
 
 
 
@@ -3112,13 +3112,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''ssl_tls_is_enabled''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''ssl_tls_is_enabled'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''ssl_tls_is_enabled'';
+        ;;
 
 
       -- osquery_ssl_cert_files table and tab value Start here
@@ -3168,13 +3168,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''osquery_ssl_cert_files''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''osquery_ssl_cert_files'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''osquery_ssl_cert_files'';
+        ;;
 
 
 
@@ -3215,13 +3215,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''ssl_certificate_and_key_file_modification_times''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''ssl_certificate_and_key_file_modification_times'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''ssl_certificate_and_key_file_modification_times'';
+        ;;
 
 
       -- ssl_certificate_and_key_file_modification_times table and tab value Start here
@@ -3267,13 +3267,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''vpn_listening_ports''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''vpn_listening_ports'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''vpn_listening_ports'';
+        ;;
 
 
 
@@ -3321,13 +3321,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''cron_backup_jobs''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''cron_backup_jobs'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''cron_backup_jobs'';
+        ;;
 
       -- mysql_process_inventory table and tab value Start here
       select
@@ -3365,13 +3365,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''mysql_process_inventory''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''mysql_process_inventory'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''mysql_process_inventory'';
+        ;;
 
       -- postgresql_process_inventory table and tab value Start here
       select
@@ -3409,13 +3409,13 @@ SET current_page = ($offset / $limit) + 1;
         WHERE host_identifier = $host_identifier AND $tab = ''postgresql_process_inventory''
         LIMIT $limit OFFSET $offset;
         SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&host_identifier='' || replace($host_identifier, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
  WHERE $tab=''postgresql_process_inventory'';
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3552,11 +3552,13 @@ SELECT ''table'' AS component,
    datetime(substr(launch_time, 1, 19)) as "launch time"
    FROM list_aws_ec2_instance;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3742,11 +3744,13 @@ SELECT ''table'' AS component,
    datetime(substr(creation_date, 1, 19)) as "Creation date"
    FROM list_aws_s3_bucket;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3814,11 +3818,13 @@ SELECT ''table'' AS component,
    partition
    FROM list_aws_vpc;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3885,11 +3891,13 @@ SELECT ''table'' AS component,
    type
    FROM list_aws_ec2_application_load_balancer;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3948,11 +3956,13 @@ SET current_page = ($offset / $limit) + 1;
    SELECT 
      "[" || service || "](aws_cost_report.sql?service="|| replace(service, '' '', ''%20'') || "&tab=daily_cost)" AS "Service" FROM list_aws_service_from_daily_cost;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -4025,13 +4035,13 @@ SET current_page = ($offset / $limit) + 1;
     usage_quantity_amount AS "usage quantity amount"
     FROM list_aws_daily_service_cost WHERE service=$service AND ($tab = ''daily_cost'' OR $tab IS NULL) ORDER BY period_start DESC;
      SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&service='' || replace($service, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&service='' || replace($service, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
- WHERE $tab=''daily_cost'';;
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
+ WHERE $tab=''daily_cost'';
+        ;;
 
 -- AWS monthly service cost list    
 SET total_rows = (SELECT COUNT(*) FROM list_aws_monthly_service_cost WHERE service=$service);
@@ -4049,13 +4059,13 @@ SET current_page = ($offset / $limit) + 1;
     usage_quantity_amount AS "usage quantity amount"
     FROM list_aws_monthly_service_cost WHERE service=$service AND $tab = ''monthly_coste'' ORDER BY period_start DESC;
      SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&service='' || replace($service, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&tab='' || replace($tab, '' '', ''%20'') ||
-''&service='' || replace($service, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
  WHERE $tab=''monthly_coste'';
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -4120,11 +4130,13 @@ SELECT ''table'' AS component,
    datetime(substr(period_start, 1, 19)) as "Period Start"
    FROM list_aws_monthely_cost_detail;
     SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -5322,11 +5334,13 @@ OFFSET $offset;
 
 -- Pagination controls
 SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -6405,11 +6419,13 @@ SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
   OFFSET $offset;
 
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||     '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||     '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -6576,11 +6592,13 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN $current_page > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) ||  ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||   '')'' ELSE '''' END) || '' '' ||
-    ''(Page '' || $current_page || '' of '' || $total_pages || ") " ||
-    (SELECT CASE WHEN $current_page < $total_pages THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) ||   ''&folder_id='' || replace($folder_id, '' '', ''%20'') ||  '')'' ELSE '''' END)
-    AS contents_md 
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    AS contents_md
 ;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
