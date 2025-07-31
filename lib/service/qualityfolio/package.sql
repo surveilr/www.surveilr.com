@@ -2471,7 +2471,7 @@ select
     ''## Total Test Cases Count'' as description_md,
  
     ''white'' as background_color,
-    ''## ''||count(DISTINCT test_case_id) as description_md,
+    ''## ''||count(test_case_id) as description_md,
     ''12'' as width,
      ''red'' as color,
     ''brand-speedtest''       as icon,
@@ -2657,12 +2657,6 @@ SELECT
         THEN ROUND((passed_tests * 100.0) / total_test_lines, 1) || ''%''
         ELSE ''0%''
     END as "Pass Rate",
-    CASE
-        WHEN overall_status = ''passed'' THEN ''✅ Passed''
-        WHEN overall_status = ''mixed'' THEN ''⚠️ Mixed''
-        WHEN overall_status = ''failed'' THEN ''❌ Failed''
-        ELSE ''❓ Unknown''
-    END as "Status",
     strftime(''%d-%m-%Y %H:%M'', tap_file_created_at) as "Created",
     CASE
         WHEN total_test_lines > 0
@@ -2700,12 +2694,6 @@ SELECT
         THEN ROUND((passed_tests * 100.0) / total_tests, 1) || ''%''
         ELSE ''0%''
     END as "Pass Rate",
-    CASE
-        WHEN total_tests = 0 THEN ''❓ No Data''
-        WHEN passed_tests = total_tests THEN ''✅ All Passed''
-        WHEN failed_tests = total_tests THEN ''❌ All Failed''
-        ELSE ''⚠️ Mixed Results''
-    END as "Status",
     CASE
         WHEN total_tests > 0
         THEN ''rowClass-''||CAST((passed_tests * 100) / total_tests AS INTEGER)
