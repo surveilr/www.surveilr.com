@@ -419,18 +419,13 @@ export class TypicalSqlPageNotebook
         );
         return this.SQL`
           SELECT 'text' AS component,
-              (SELECT CASE WHEN ${$("current_page")
-          } > 1 THEN '[Previous](?limit=' || ${$("limit")} || '&offset=' || (${$("offset")
-          } - ${$("limit")}) ||  ${filteredParams.map((qp) => `'&${n(qp)}=' || replace(${$(qp)}, ' ', '%20') ||`)
-          }   ')' ELSE '' END) || ' ' ||
-              '(Page ' || ${$("current_page")} || ' of ' || ${$("total_pages")
-          } || ") " ||
-              (SELECT CASE WHEN ${$("current_page")} < ${$("total_pages")
-          } THEN '[Next](?limit=' || ${$("limit")} || '&offset=' || (${$("offset")
-          } + ${$("limit")}) ||   ${filteredParams.map((qp) => `'&${n(qp)}=' || replace(${$(qp)}, ' ', '%20') ||`)
-          }  ')' ELSE '' END)
-              AS contents_md 
-          ${whereTabvalue ? ` WHERE ${whereTabvalue}` : ""};`;
+              (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length ? ' || ' + filteredParams.map((qp) => `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`).join(' || ') : ''} || ')' ELSE '' END)
+              || ' '
+              || '(Page ' || $current_page || ' of ' || $total_pages || ") "
+              || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length ? ' || ' + filteredParams.map((qp) => `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`).join(' || ') : ''} || ')' ELSE 'xxxxxxx' END)
+              AS contents_md
+          ${whereTabvalue ? ` WHERE ${whereTabvalue}` : ""};
+        `;
       },
     };
   }
