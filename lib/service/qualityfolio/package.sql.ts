@@ -1250,7 +1250,7 @@ SELECT
             ELSE 'rowClass-50'
         END as _sqlpage_css_class
     FROM html_test_execution_results
-    ORDER BY created_at DESC
+    ORDER BY test_report_name ASC
     LIMIT $limit OFFSET $offset;
 
     -- Pagination Controls (Bottom)
