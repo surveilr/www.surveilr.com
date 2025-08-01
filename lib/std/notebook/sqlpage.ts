@@ -419,10 +419,20 @@ export class TypicalSqlPageNotebook
         );
         return this.SQL`
           SELECT 'text' AS component,
-              (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length ? ' || ' + filteredParams.map((qp) => `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`).join(' || ') : ''} || ')' ELSE '' END)
+              (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length
+            ? " || " + filteredParams.map((qp) =>
+              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+            ).join(" || ")
+            : ""
+          } || ')' ELSE '' END)
               || ' '
               || '(Page ' || $current_page || ' of ' || $total_pages || ") "
-              || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length ? ' || ' + filteredParams.map((qp) => `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`).join(' || ') : ''} || ')' ELSE 'xxxxxxx' END)
+              || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length
+            ? " || " + filteredParams.map((qp) =>
+              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+            ).join(" || ")
+            : ""
+          } || ')' ELSE '' END)
               AS contents_md
           ${whereTabvalue ? ` WHERE ${whereTabvalue}` : ""};
         `;

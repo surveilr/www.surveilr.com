@@ -2807,7 +2807,7 @@ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&file='' || replace($file, '' '', ''%20'') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&file='' || replace($file, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&file='' || replace($file, '' '', ''%20'') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3548,7 +3548,7 @@ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3702,7 +3702,7 @@ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&id='' || replace($id, '' '', ''%20'') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&id='' || replace($id, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&id='' || replace($id, '' '', ''%20'') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3983,7 +3983,7 @@ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -4980,7 +4980,7 @@ SET current_page = ($offset / $limit) + 1;
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -6151,7 +6151,7 @@ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -7236,7 +7236,7 @@ SELECT * FROM uniform_resource_file ORDER BY uniform_resource_id
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -7409,7 +7409,7 @@ SELECT
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE ''xxxxxxx'' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
