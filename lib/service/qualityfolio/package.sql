@@ -563,7 +563,7 @@ WITH RECURSIVE tap_lines AS (
             ELSE ''
         END AS remaining_content
     FROM tap_lines
-    WHERE remaining_content != '' AND line_number < 300  -- Limit to prevent infinite recursion
+    WHERE remaining_content != ''
 ),
 parsed_test_lines AS (
     -- Parse TAP test lines to extract test components
