@@ -582,12 +582,14 @@ FROM html_stats;
       ${this.absoluteURL("/qualityfolio/index.sql")} as link;
     select
     'HTML Test Results' as title,
-      ${this.absoluteURL("/qualityfolio/index.sql")} as link;
+      ${this.absoluteURL("/qualityfolio/html-test-results.sql")} as link;
     select
-    COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), 'HTML Test Details') as title;
+    COALESCE((SELECT execution_title FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), 'HTML Test Details') as title,
+    '#' as link;
 
     SELECT 'title' AS component,
-      'HTML Test Execution: ' || COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), 'Unknown') as contents;
+    execution_title as contents
+    FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
 
     SELECT 'text' as component,
     'Detailed information for the selected HTML test execution result including execution status, timing, and raw HTML content.' as contents;
@@ -1230,7 +1232,7 @@ SELECT
            'Test Report' as markdown;
 
     SELECT
-        '['||test_report_name||']('||${this.absoluteURL("/qualityfolio/html-details.sql")
+        '['||execution_title||']('||${this.absoluteURL("/qualityfolio/html-details.sql")
       }||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
         run_id as "Run ID",
         CASE
