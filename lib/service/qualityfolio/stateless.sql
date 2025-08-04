@@ -788,7 +788,7 @@ SELECT
         'run-' || ur.uniform_resource_id
     ) AS run_id,
 
-    -- Extract execution title from HTML content
+    -- Rename old execution_title to execution_id (preserve logic)
     COALESCE(
         -- Pattern 1: <h1> or <h2> containing "test" or "execution"
         CASE
@@ -824,6 +824,26 @@ SELECT
             THEN REPLACE(ur.uri, RTRIM(ur.uri, REPLACE(ur.uri, '/', '')), '')
             ELSE ur.uri
         END
+    ) AS execution_id,
+
+    -- New: Extract execution_title from <p><b>Title:</b> ...</p>
+    COALESCE(
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%<p><b>Title:</b>%' THEN
+                TRIM(
+                    SUBSTR(
+                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16),
+                        1,
+                        CASE
+                            WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16), '</p>') > 0
+                            THEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16), '</p>') - 1
+                            ELSE 100
+                        END
+                    )
+                )
+            ELSE NULL
+        END,
+        NULL
     ) AS execution_title,
 
     -- Extract execution status from HTML content
