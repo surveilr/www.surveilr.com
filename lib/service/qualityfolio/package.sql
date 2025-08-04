@@ -934,7 +934,7 @@ SELECT
         'run-' || ur.uniform_resource_id
     ) AS run_id,
 
-    -- Extract execution title from HTML content
+    -- Rename old execution_title to execution_id (preserve logic)
     COALESCE(
         -- Pattern 1: <h1> or <h2> containing "test" or "execution"
         CASE
@@ -970,6 +970,26 @@ SELECT
             THEN REPLACE(ur.uri, RTRIM(ur.uri, REPLACE(ur.uri, '/', '')), '')
             ELSE ur.uri
         END
+    ) AS execution_id,
+
+    -- New: Extract execution_title from <p><b>Title:</b> ...</p>
+    COALESCE(
+        CASE
+            WHEN CAST(ur.content AS TEXT) LIKE '%<p><b>Title:</b>%' THEN
+                TRIM(
+                    SUBSTR(
+                        SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16),
+                        1,
+                        CASE
+                            WHEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16), '</p>') > 0
+                            THEN INSTR(SUBSTR(CAST(ur.content AS TEXT), INSTR(CAST(ur.content AS TEXT), '<p><b>Title:</b>') + 16), '</p>') - 1
+                            ELSE 100
+                        END
+                    )
+                )
+            ELSE NULL
+        END,
+        NULL
     ) AS execution_title,
 
     -- Extract execution status from HTML content
@@ -2831,12 +2851,14 @@ select
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
 select
 ''HTML Test Results'' as title,
-  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link;
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/html-test-results.sql'' as link;
 select
-COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), ''HTML Test Details'') as title;
+COALESCE((SELECT execution_title FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), ''HTML Test Details'') as title,
+''#'' as link;
 
 SELECT ''title'' AS component,
-  ''HTML Test Execution: '' || COALESCE((SELECT test_report_name FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1), ''Unknown'') as contents;
+execution_title as contents
+FROM html_test_execution_results WHERE run_id = $run_id LIMIT 1;
 
 SELECT ''text'' as component,
 ''Detailed information for the selected HTML test execution result including execution status, timing, and raw HTML content.'' as contents;
@@ -3521,7 +3543,7 @@ SELECT ''table'' as component,
        ''Test Report'' as markdown;
 
 SELECT
-    ''[''||test_report_name||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/html-details.sql''||''?run_id=''||REPLACE(REPLACE(run_id, '' '', ''%20''), ''&'', ''%26'')||'')'' as "Test Report",
+    ''[''||execution_title||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/html-details.sql''||''?run_id=''||REPLACE(REPLACE(run_id, '' '', ''%20''), ''&'', ''%26'')||'')'' as "Test Report",
     run_id as "Run ID",
     CASE
         WHEN execution_status LIKE ''%pass%'' THEN ''✅ Passed''
