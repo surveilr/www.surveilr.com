@@ -795,7 +795,20 @@ SELECT
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
   json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
-  uri as query_uri
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount,
+  json_extract(value, '$.blended_cost_unit') AS blended_cost_unit,
+  json_extract(value, '$.estimated') AS estimated,
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount,
+  json_extract(value, '$.net_amortized_cost_unit') AS net_amortized_cost_unit,
+  json_extract(value, '$.normalized_usage_amount') AS normalized_usage_amount,
+  json_extract(value, '$.normalized_usage_unit') AS normalized_usage_unit,
+  json_extract(value, '$.partition') AS partition,
+  json_extract(value, '$.sp_connection_name') AS sp_connection_name,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount,
+  json_extract(value, '$.unblended_cost_unit') AS unblended_cost_unit,
+  json_extract(value, '$.usage_quantity_unit') AS usage_quantity_unit,
+  uri AS query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
@@ -1018,6 +1031,29 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery PostgreSQL Process Inventory" 
     AND uri = "osquery-ms:query-result";
+
+-- FOCUS 1.2 Cost Data Table: Populated from Steampipe uniform_resource
+-- Reference: https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS-Sample-Data/blob/main/FOCUS-1.0/README.md
+-- Reference: https://focus.finops.org/focus-columns/?_gl=1*1r5kka6*_ga*MjEyNjcwMDk4My4xNzU0Mjg5MzM1*_ga_GMZRP0N4XX*czE3NTQ0NTMyMDMkbzkkZzEkdDE3NTQ0NTMyNzEkajYwJGwwJGgw#billing-account-name
+DROP TABLE IF EXISTS ur_transform_focus_data_table_aws_monthly_cost_by_service;
+CREATE TABLE ur_transform_focus_data_table_aws_monthly_cost_by_service AS
+SELECT
+ mntCst.service AS service_name,
+ mntCst.period_start AS billing_period_start,
+ mntCst.period_end AS billing_period_end,
+ mntCst.account_id AS billing_account_id,
+ accInf.title AS billing_account_name,
+ mntCst.region AS region_id,
+ mntCst.amortized_cost_amount AS contracted_cost,
+ mntCst.usage_quantity_amount AS consumed_quantity,
+ mntCst.net_amortized_cost_amount AS billed_cost,
+ mntCst.net_amortized_cost_unit AS billing_currency, 
+ mntCst.partition AS provider_name, 
+ mntCst.unblended_cost_amount AS list_cost
+FROM ur_transform_list_aws_monthly_cost_by_service mntCst
+INNER JOIN ur_transform_aws_account_info accInf
+ ON mntCst.account_id = accInf.account_id;
+
 -- DROP VIEW IF EXISTS all_boundary;
 -- CREATE VIEW all_boundary AS
 -- SELECT 
@@ -3437,15 +3473,74 @@ SELECT
        ''orange''                    as color,
        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_ec2_application_load_balancer.sql'' as link;
    select
-       "AWS Cost"  as title,
-       "settings-dollar" as icon,
-       ''black''                    as color,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' as link;
-    select
-       "AWS Monthely Cost Detail"  as title,
-       "settings-dollar" as icon,
-       ''black''                    as color,
-       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_detail_list.sql'' as link;
+       "AWS Monthely Cost Report"  as title,
+       "chart-bar" as icon,
+       ''green'' as color,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_report.sql'' as link;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'fleetfolio/aws_monthely_cost_report.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_monthely_cost_report.sql/index.sql'') as contents;
+    ;
+--- Display breadcrumb
+SELECT ''breadcrumb'' AS component;
+SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+SELECT ''Fleetfolio'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;
+SELECT ''Boundary'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link;
+SELECT ''AWS Trust Boundary'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link;
+SELECT ''AWS Monthely Cost Report'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_report.sql'' AS link;
+
+SELECT ''title'' AS component, ''AWS Monthely Cost Report'' AS contents;
+SELECT ''text'' AS component, ''This page lists monthly AWS cost details using the FOCUS standard schema.'' AS contents;
+
+SET total_rows = (SELECT COUNT(*) FROM ur_transform_focus_data_table_aws_monthly_cost_by_service );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+SELECT ''table'' AS component,
+  ''Service Name'' as ''service_name'',
+  ''Billing Period Start'' as ''billing_period_start'',
+  ''Billing Period End'' as ''billing_period_end'',
+  ''Billing Account Name'' as ''billing_account_name'',
+  ''Region'' as ''region_id'',
+  ''Contracted Cost'' as ''contracted_cost'',
+  ''Consumed Quantity'' as ''consumed_quantity'',
+  ''Billed Cost'' as ''billed_cost'',
+  ''Provider Name'' as ''provider_name'',
+  ''List Cost'' as ''list_cost'';
+
+SELECT 
+  service_name AS "Service Name",
+  substr(billing_period_start, 1, 10) AS "Billing Period Start",
+  substr(billing_period_end, 1, 10) AS "Billing Period End",
+  billing_account_name AS "Billing Account Name",
+  region_id AS "Region",
+  ROUND(contracted_cost, 2) || '' ('' || billing_currency || '')'' AS "Contracted Cost",
+  ROUND(consumed_quantity, 2) AS "Consumed Quantity",
+  ROUND(billed_cost, 2) || '' ('' || billing_currency || '')'' AS "Billed Cost",
+  provider_name AS "Provider Name",
+  ROUND(list_cost, 2) || '' ('' || billing_currency || '')'' AS "List Cost"
+FROM ur_transform_focus_data_table_aws_monthly_cost_by_service
+ORDER BY billing_period_start DESC, service_name ASC
+LIMIT $limit OFFSET $offset;
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3862,71 +3957,6 @@ SELECT ''table'' AS component,
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/aws_cost_detail_list.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_cost_detail_list.sql/index.sql'') as contents;
-    ;
-   --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''Fleetfolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
-
- SELECT
-   ''AWS Trust Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
-
- SELECT
-   ''AWS Cost Summary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
-
-
- --- Dsply Page Title
- SELECT
-     ''title''   as component,
-     "AWS Cost Summary" contents;
-
-    select
-     ''text''              as component,
-     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
-
-
- SET total_rows = (SELECT COUNT(*) FROM list_aws_service_from_daily_cost );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
-   SELECT ''table'' AS component,
-         ''Service'' as markdown,
-         TRUE as sort,
-         TRUE as search;
-   SELECT 
-     "[" || service || "](aws_cost_report.sql?service="|| replace(service, '' '', ''%20'') || "&tab=daily_cost)" AS "Service" FROM list_aws_service_from_daily_cost;
-    SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
-    || '' ''
-    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
-    AS contents_md
-;
-        ;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'fleetfolio/aws_cost_report.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               -- not including breadcrumbs from sqlpage_aide_navigation
@@ -3953,10 +3983,6 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   SELECT
     ''AWS Trust Boundary'' AS title,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
-
-  SELECT
-    ''AWS Cost Summary'' AS title,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_cost_detail_list.sql'' AS link; 
 
   SELECT
     $service AS title,
@@ -4025,77 +4051,6 @@ SET current_page = ($offset / $limit) + 1;
     || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''monthly_coste'';
-        ;
-            ',
-      CURRENT_TIMESTAMP)
-  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
-INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'fleetfolio/aws_monthely_cost_detail_list.sql',
-      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
-              -- not including breadcrumbs from sqlpage_aide_navigation
-              -- not including page title from sqlpage_aide_navigation
-              
-
-               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
-    FROM sqlpage_aide_navigation
-   WHERE namespace = ''prime'' AND path = ''fleetfolio/aws_monthely_cost_detail_list.sql/index.sql'') as contents;
-    ;
-   --- Display breadcrumb
-SELECT
-   ''breadcrumb'' AS component;
- SELECT
-   ''Home'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''    AS link;
- SELECT
-   ''Fleetfolio'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/index.sql'' AS link;  
- SELECT
-   ''Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/boundary.sql'' AS link; 
-
- SELECT
-   ''AWS Trust Boundary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_trust_boundary_list.sql'' AS link; 
-
- SELECT
-   ''AWS Monthely Cost Summary'' AS title,
-   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/fleetfolio/aws_monthely_cost_detail_list.sql'' AS link; 
-
-
- --- Dsply Page Title
- SELECT
-     ''title''   as component,
-     "AWS Monthely Cost Summary" contents;
-
-    select
-     ''text''              as component,
-     ''View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.'' as contents;
-
-
- SET total_rows = (SELECT COUNT(*) FROM list_aws_monthely_cost_detail );
-SET limit = COALESCE($limit, 50);
-SET offset = COALESCE($offset, 0);
-SET total_pages = ($total_rows + $limit - 1) / $limit;
-SET current_page = ($offset / $limit) + 1; 
-SELECT ''table'' AS component,
-       TRUE as sort,
-       TRUE as search;
-   SELECT 
-   account,
-   amortized_cost_amount AS "Amortized Cost",
-   blended_cost_amount AS "Blended Cost",
-   net_amortized_cost_amount AS "Net Amortized AWS Cost",
-   net_unblended_cost_amount AS "Net Unblended AWS Cost", 
-   unblended_cost_amount AS "Unblended AWS Cost",
-   datetime(substr(period_start, 1, 19)) as "Period Start"
-   FROM list_aws_monthely_cost_detail;
-    SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
-    || '' ''
-    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
-    AS contents_md
-;
         ;
             ',
       CURRENT_TIMESTAMP)

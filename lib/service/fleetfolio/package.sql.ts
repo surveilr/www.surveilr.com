@@ -1248,17 +1248,67 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/fleetfolio/aws_ec2_application_load_balancer.sql")
       } as link;
         select
-            "AWS Cost"  as title,
-            "settings-dollar" as icon,
-            'black'                    as color,
-            ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} as link;
-         select
-            "AWS Monthely Cost Detail"  as title,
-            "settings-dollar" as icon,
-            'black'                    as color,
-            ${this.absoluteURL("/fleetfolio/aws_monthely_cost_detail_list.sql")
+            "AWS Monthely Cost Report"  as title,
+            "chart-bar" as icon,
+            'green' as color,
+            ${this.absoluteURL("/fleetfolio/aws_monthely_cost_report.sql")
       } as link;
      `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "fleetfolio/aws_monthely_cost_report.sql"() {
+    const viewName = "ur_transform_focus_data_table_aws_monthly_cost_by_service";
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+      --- Display breadcrumb
+      SELECT 'breadcrumb' AS component;
+      SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+      SELECT 'Fleetfolio' AS title, ${this.absoluteURL("/fleetfolio/index.sql")
+      } AS link;
+      SELECT 'Boundary' AS title, ${this.absoluteURL("/fleetfolio/boundary.sql")
+      } AS link;
+      SELECT 'AWS Trust Boundary' AS title, ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")
+      } AS link;
+      SELECT 'AWS Monthely Cost Report' AS title, ${this.absoluteURL("/fleetfolio/aws_monthely_cost_report.sql")
+      } AS link;
+
+      SELECT 'title' AS component, 'AWS Monthely Cost Report' AS contents;
+      SELECT 'text' AS component, 'This page lists monthly AWS cost details using the FOCUS standard schema.' AS contents;
+
+      ${pagination.init()}
+      SELECT 'table' AS component,
+        'Service Name' as 'service_name',
+        'Billing Period Start' as 'billing_period_start',
+        'Billing Period End' as 'billing_period_end',
+        'Billing Account Name' as 'billing_account_name',
+        'Region' as 'region_id',
+        'Contracted Cost' as 'contracted_cost',
+        'Consumed Quantity' as 'consumed_quantity',
+        'Billed Cost' as 'billed_cost',
+        'Provider Name' as 'provider_name',
+        'List Cost' as 'list_cost';
+
+      SELECT 
+        service_name AS "Service Name",
+        substr(billing_period_start, 1, 10) AS "Billing Period Start",
+        substr(billing_period_end, 1, 10) AS "Billing Period End",
+        billing_account_name AS "Billing Account Name",
+        region_id AS "Region",
+        ROUND(contracted_cost, 2) || ' (' || billing_currency || ')' AS "Contracted Cost",
+        ROUND(consumed_quantity, 2) AS "Consumed Quantity",
+        ROUND(billed_cost, 2) || ' (' || billing_currency || ')' AS "Billed Cost",
+        provider_name AS "Provider Name",
+        ROUND(list_cost, 2) || ' (' || billing_currency || ')' AS "List Cost"
+      FROM ${viewName}
+      ORDER BY billing_period_start DESC, service_name ASC
+      LIMIT $limit OFFSET $offset;
+      ${pagination.renderSimpleMarkdown()}
+    `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -1613,56 +1663,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
          ${pagination.renderSimpleMarkdown()};`;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/aws_cost_detail_list.sql"() {
-    const viewName = `list_aws_service_from_daily_cost`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
-      whereSQL: "",
-    });
-    return this.SQL`
-      ${this.activePageTitle()}
-        --- Display breadcrumb
-     SELECT
-        'breadcrumb' AS component;
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")}    AS link;
-      SELECT
-        'Fleetfolio' AS title,
-        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
-      SELECT
-        'Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
-
-      SELECT
-        'AWS Trust Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
-
-      SELECT
-        'AWS Cost Summary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} AS link; 
-
-
-      --- Dsply Page Title
-      SELECT
-          'title'   as component,
-          "AWS Cost Summary" contents;
-
-         select
-          'text'              as component,
-          'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
-
-
-      ${pagination.init()} 
-        SELECT 'table' AS component,
-              'Service' as markdown,
-              TRUE as sort,
-              TRUE as search;
-        SELECT 
-          "[" || service || "](aws_cost_report.sql?service="|| replace(service, ' ', '%20') || "&tab=daily_cost)" AS "Service" FROM ${viewName};
-         ${pagination.renderSimpleMarkdown()};`;
-  }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "fleetfolio/aws_cost_report.sql"() {
@@ -1695,10 +1695,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT
         'AWS Trust Boundary' AS title,
         ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
-
-      SELECT
-        'AWS Cost Summary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_cost_detail_list.sql")} AS link; 
 
       SELECT
         $service AS title,
@@ -1760,63 +1756,6 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
     `;
   }
 
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "fleetfolio/aws_monthely_cost_detail_list.sql"() {
-    const viewName = `list_aws_monthely_cost_detail`;
-    const pagination = this.pagination({
-      tableOrViewName: viewName,
-      whereSQL: "",
-    });
-    return this.SQL`
-      ${this.activePageTitle()}
-        --- Display breadcrumb
-     SELECT
-        'breadcrumb' AS component;
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")}    AS link;
-      SELECT
-        'Fleetfolio' AS title,
-        ${this.absoluteURL("/fleetfolio/index.sql")} AS link;  
-      SELECT
-        'Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/boundary.sql")} AS link; 
-
-      SELECT
-        'AWS Trust Boundary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_trust_boundary_list.sql")} AS link; 
-
-      SELECT
-        'AWS Monthely Cost Summary' AS title,
-        ${this.absoluteURL("/fleetfolio/aws_monthely_cost_detail_list.sql")
-      } AS link; 
-
-
-      --- Dsply Page Title
-      SELECT
-          'title'   as component,
-          "AWS Monthely Cost Summary" contents;
-
-         select
-          'text'              as component,
-          'View a consolidated summary of your AWS spending, broken down by account and month. Monitor trends, compare costs, and gain insights to optimize your cloud expenses.' as contents;
-
-
-      ${pagination.init()} 
-     SELECT 'table' AS component,
-            TRUE as sort,
-            TRUE as search;
-        SELECT 
-        account,
-        amortized_cost_amount AS "Amortized Cost",
-        blended_cost_amount AS "Blended Cost",
-        net_amortized_cost_amount AS "Net Amortized AWS Cost",
-        net_unblended_cost_amount AS "Net Unblended AWS Cost", 
-        unblended_cost_amount AS "Unblended AWS Cost",
-        datetime(substr(period_start, 1, 19)) as "Period Start"
-        FROM ${viewName};
-         ${pagination.renderSimpleMarkdown()};`;
-  }
 
   @spn.shell({
     breadcrumbsFromNavStmts: "no",

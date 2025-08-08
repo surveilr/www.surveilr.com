@@ -1,6 +1,11 @@
 # Fleetfolio: Next-Generation Infrastructure Assurance
 
-Fleetfolio is a powerful infrastructure assurance platform built on surveilr that helps organizations achieve continuous compliance, security, and operational reliability. Unlike traditional asset management tools that simply list discovered assets, Fleetfolio takes a proactive approach by defining expected infrastructure assets and verifying them against actual assets found using osQuery Management Server (MS).
+Fleetfolio is a powerful infrastructure assurance platform built on surveilr
+that helps organizations achieve continuous compliance, security, and
+operational reliability. Unlike traditional asset management tools that simply
+list discovered assets, Fleetfolio takes a proactive approach by defining
+expected infrastructure assets and verifying them against actual assets found
+using osQuery Management Server (MS).
 
 ## What Fleetfolio Does
 
@@ -10,17 +15,23 @@ Fleetfolio ensures that organizations know:
 - ✅ **What assets actually exist** (Discovery)
 - ✅ **Where gaps exist** (Compliance & Security Analysis)
 
-Fleetfolio is the missing link between infrastructure monitoring, security, and compliance. Instead of relying on guesswork, it provides a data-driven, evidence-based approach to asset assurance.
+Fleetfolio is the missing link between infrastructure monitoring, security, and
+compliance. Instead of relying on guesswork, it provides a data-driven,
+evidence-based approach to asset assurance.
 
-🔹 Ensure your infrastructure is exactly what it should be
-🔹 Detect security risks before they cause damage
-🔹 Stay compliant with industry standards automatically
+🔹 Ensure your infrastructure is exactly what it should be 🔹 Detect security
+risks before they cause damage 🔹 Stay compliant with industry standards
+automatically
 
-Many organizations struggle with shadow IT, compliance violations, and operational blind spots due to a lack of infrastructure assurance. Fleetfolio helps by providing comprehensive infrastructure assurance through three integrated database types.
+Many organizations struggle with shadow IT, compliance violations, and
+operational blind spots due to a lack of infrastructure assurance. Fleetfolio
+helps by providing comprehensive infrastructure assurance through three
+integrated database types.
 
 ## Database Architecture
 
-Fleetfolio operates using three main database types that work together to provide complete infrastructure visibility and compliance monitoring:
+Fleetfolio operates using three main database types that work together to
+provide complete infrastructure visibility and compliance monitoring:
 
 ### 1. 🔍 osQuery Databases
 
@@ -55,9 +66,12 @@ Contains **expected evidence and compliance data** (when available):
 
 ### Step 1: Generate Evidence Databases
 
-Before using Fleetfolio, you need to generate the required databases containing your infrastructure evidence. Follow the comprehensive guide for evidence collection:
+Before using Fleetfolio, you need to generate the required databases containing
+your infrastructure evidence. Follow the comprehensive guide for evidence
+collection:
 
-📖 **Official Evidence Collection Guide**: <https://www.surveilr.com/docs/evidence/surveilr-evidence-collection-guide/>
+📖 **Official Evidence Collection Guide**:
+<https://www.surveilr.com/docs/evidence/surveilr-evidence-collection-guide/>
 
 This guide covers:
 
@@ -68,7 +82,9 @@ This guide covers:
 
 ### Step 2: Merge Multiple Databases
 
-Once you have generated separate databases (osQuery, cloud, infrastructure assurance), you need to merge them into a single unified database for Fleetfolio analysis.
+Once you have generated separate databases (osQuery, cloud, infrastructure
+assurance), you need to merge them into a single unified database for Fleetfolio
+analysis.
 
 #### Merge Command
 
@@ -80,19 +96,27 @@ surveilr admin merge -p "asset%" -p "boundary%" -p "assignment%" -p "graph%"
 
 These patterns match table names that start with the specified prefixes:
 
-- **`asset%`** - Merges all tables starting with "asset" (e.g., asset_inventory, asset_config, asset_metadata)
-- **`boundary%`** - Merges all tables starting with "boundary" (e.g., boundary_network, boundary_zones)
-- **`assignment%`** - Merges all tables starting with "assignment" (e.g., assignment_ownership, assignment_responsibility)
-- **`graph%`** - Merges all tables starting with "graph" (e.g., graph_relationships, graph_dependencies)
+- **`asset%`** - Merges all tables starting with "asset" (e.g., asset_inventory,
+  asset_config, asset_metadata)
+- **`boundary%`** - Merges all tables starting with "boundary" (e.g.,
+  boundary_network, boundary_zones)
+- **`assignment%`** - Merges all tables starting with "assignment" (e.g.,
+  assignment_ownership, assignment_responsibility)
+- **`graph%`** - Merges all tables starting with "graph" (e.g.,
+  graph_relationships, graph_dependencies)
 
 #### Prerequisites
 
 Before running the merge command:
 
-1. **Ensure all source databases are accessible** in the current directory or provide full paths
-2. **Backup your databases** before merging (the operation modifies the target database)
-3. **Verify database integrity** by running basic queries on each source database
-4. **Check available disk space** as merged databases can be significantly larger
+1. **Ensure all source databases are accessible** in the current directory or
+   provide full paths
+2. **Backup your databases** before merging (the operation modifies the target
+   database)
+3. **Verify database integrity** by running basic queries on each source
+   database
+4. **Check available disk space** as merged databases can be significantly
+   larger
 
 #### Example Merge Workflow
 
@@ -117,11 +141,15 @@ mv resource-surveillance-aggregated.sqlite.db resource-surveillance.sqlite.db
 surveilr shell -c "SELECT COUNT(*) FROM sqlite_master WHERE type='table';"
 ```
 
-**Important Note**: After running the merge command, the merged database is created as `resource-surveillance-aggregated.sqlite.db`. You should rename this to `resource-surveillance.sqlite.db` to ensure Fleetfolio can access it properly.
+**Important Note**: After running the merge command, the merged database is
+created as `resource-surveillance-aggregated.sqlite.db`. You should rename this
+to `resource-surveillance.sqlite.db` to ensure Fleetfolio can access it
+properly.
 
 ### Step 3: Launch Fleetfolio Web UI
 
-After merging your databases, you can launch the Fleetfolio web interface to analyze your infrastructure assurance data.
+After merging your databases, you can launch the Fleetfolio web interface to
+analyze your infrastructure assurance data.
 
 ## Key Benefits
 
@@ -139,9 +167,9 @@ detects unauthorized assets in real time.
 
 ### ✅ Ensuring Compliance & Governance
 
-Regulatory frameworks (e.g., SOC 2 Type I, SOC 2 Type II) require organizations to
-track and validate infrastructure components. Fleetfolio ensures compliance by
-verifying that only approved assets exist and that nothing is missing.
+Regulatory frameworks (e.g., SOC 2 Type I, SOC 2 Type II) require organizations
+to track and validate infrastructure components. Fleetfolio ensures compliance
+by verifying that only approved assets exist and that nothing is missing.
 
 ### 🚀 Automating Infrastructure Audits
 
@@ -256,12 +284,15 @@ SQLPAGE_SITE_PREFIX=/lib/service ../../std/surveilrctl.ts dev
 
 ### Database Access
 
-Once you apply `stateless.sql`, all content will be accessed through views or `*.cached` tables in `resource-surveillance.sqlite.db`. At this point you can:
+Once you apply `stateless.sql`, all content will be accessed through views or
+`*.cached` tables in `resource-surveillance.sqlite.db`. At this point you can:
 
-- **Archive the database**: Rename the SQLite database file for long-term storage
+- **Archive the database**: Rename the SQLite database file for long-term
+  storage
 - **External tools**: Use in reporting tools (DBeaver, DataGrip, etc.)
 - **Data analysis**: Access with any SQLite-compatible data analysis tools
-- **Compliance reporting**: Export data for external compliance and audit reporting
+- **Compliance reporting**: Export data for external compliance and audit
+  reporting
 
 **Database File Management:**
 
