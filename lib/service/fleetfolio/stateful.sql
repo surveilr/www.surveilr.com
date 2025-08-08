@@ -531,7 +531,20 @@ SELECT
   json_extract(value, '$.region') AS region,
   json_extract(value, '$.amortized_cost_amount') AS amortized_cost_amount,
   json_extract(value, '$.usage_quantity_amount') AS usage_quantity_amount,
-  uri as query_uri
+  json_extract(value, '$.blended_cost_amount') AS blended_cost_amount,
+  json_extract(value, '$.blended_cost_unit') AS blended_cost_unit,
+  json_extract(value, '$.estimated') AS estimated,
+  json_extract(value, '$.linked_account_id') AS linked_account_id,
+  json_extract(value, '$.net_amortized_cost_amount') AS net_amortized_cost_amount,
+  json_extract(value, '$.net_amortized_cost_unit') AS net_amortized_cost_unit,
+  json_extract(value, '$.normalized_usage_amount') AS normalized_usage_amount,
+  json_extract(value, '$.normalized_usage_unit') AS normalized_usage_unit,
+  json_extract(value, '$.partition') AS partition,
+  json_extract(value, '$.sp_connection_name') AS sp_connection_name,
+  json_extract(value, '$.unblended_cost_amount') AS unblended_cost_amount,
+  json_extract(value, '$.unblended_cost_unit') AS unblended_cost_unit,
+  json_extract(value, '$.usage_quantity_unit') AS usage_quantity_unit,
+  uri AS query_uri
 FROM uniform_resource,
      json_each(content,'$.rows')
 WHERE uri = 'SteampipeAwsCostByServiceMonthly';
@@ -754,3 +767,25 @@ WHERE
     json_valid(content) = 1 
     AND name = "Osquery PostgreSQL Process Inventory" 
     AND uri = "osquery-ms:query-result";
+
+-- FOCUS 1.2 Cost Data Table: Populated from Steampipe uniform_resource
+-- Reference: https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS-Sample-Data/blob/main/FOCUS-1.0/README.md
+-- Reference: https://focus.finops.org/focus-columns/?_gl=1*1r5kka6*_ga*MjEyNjcwMDk4My4xNzU0Mjg5MzM1*_ga_GMZRP0N4XX*czE3NTQ0NTMyMDMkbzkkZzEkdDE3NTQ0NTMyNzEkajYwJGwwJGgw#billing-account-name
+DROP TABLE IF EXISTS ur_transform_focus_data_table_aws_monthly_cost_by_service;
+CREATE TABLE ur_transform_focus_data_table_aws_monthly_cost_by_service AS
+SELECT
+ mntCst.service AS service_name,
+ mntCst.period_start AS billing_period_start,
+ mntCst.period_end AS billing_period_end,
+ mntCst.account_id AS billing_account_id,
+ accInf.title AS billing_account_name,
+ mntCst.region AS region_id,
+ mntCst.amortized_cost_amount AS contracted_cost,
+ mntCst.usage_quantity_amount AS consumed_quantity,
+ mntCst.net_amortized_cost_amount AS billed_cost,
+ mntCst.net_amortized_cost_unit AS billing_currency, 
+ mntCst.partition AS provider_name, 
+ mntCst.unblended_cost_amount AS list_cost
+FROM ur_transform_list_aws_monthly_cost_by_service mntCst
+INNER JOIN ur_transform_aws_account_info accInf
+ ON mntCst.account_id = accInf.account_id;
