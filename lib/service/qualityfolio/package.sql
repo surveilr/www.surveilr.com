@@ -6347,6 +6347,24 @@ FROM breadcrumbs ORDER BY level DESC;
               SELECT ''title'' AS component, ''Release Notes for surveilr Versions'' as contents;
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.8.11'' as title, ''# `surveilr ` v1.8.11 Release Notes
+
+
+##  🎉 New Feature: Automatic Document Processing & Metadata Extraction
+
+## 🚀 What''''s New
+
+Surveilr now automatically extracts metadata and converts documents to markdown during ingestion - no configuration
+required!
+
+Supported File Types
+
+- PDF files: Full metadata extraction + markdown conversion
+- DOCX files: Full metadata extraction + markdown conversion
+- Images (PNG, JPEG, GIF, etc.): Metadata extraction (dimensions, format, file size)'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.8.9'' as title, ''# `surveilr ` v1.8.9 Release Notes
 
 ## 🚀 What''''s New
@@ -6962,6 +6980,20 @@ The foundational framework for tracking `uniform_resource` content using graph r
 
 This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
 '' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v2.0.0'' as title, ''# `surveilr ` v2.0.0 Release Notes
+
+## 🚀 What''''s New
+
+### **1. Enhanced Markdown Transformation Workflow**
+- Improved mdq Integration: Fixed mdq selector syntax and added comprehensive selector support
+- Content Preservation: Markdown transforms no longer null out original content by default 
+- Better URI Tracking: Transform results now preserve source file paths (e.g., document.pdf/md-select:headers)
+
+### **2. Dependencies Update**
+- Upgraded to SQLPage 0.36.1.'' as description_md;
                 
 
                     SELECT ''foldable'' as component;

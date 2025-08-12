@@ -1,0 +1,1 @@
+Error executing assurance/test-fixtures/markdown-transform/Free_Test_Data_3MB_PDF.pdf: spawnSync /bin/sh ENOBUFS
