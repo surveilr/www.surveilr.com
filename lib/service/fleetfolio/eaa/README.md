@@ -84,20 +84,19 @@ eaa/
 
 ### docker-compose with usage docs
 
-* docker-compose.yml
+* `docker-compose.yml`
   * Builds the image, mounts `./evidence` → `/var/fleetfolio` for artifacts.
   * Reads environment from local `.env` (optional).
   * Extensive in-file docs showing how to pass domains, IPs/CIDRs, key URLs, excludes, and rate/concurrency.
   * Example overrides and bind-mounting the runbook for live edits.
 
-* .env.sample
-
+* `.env.sample`
   * Example values for domains, ranges, key URLs, excludes, and tool controls.
   * Copy to `.env` and adjust for each assessment.
 
 ### Runme runbook (narrative + runnable)
 
-* fleetfolio-eaa-pentest-lite.runme.md (see [Runme](https://runme.dev/))
+* `fleetfolio-eaa-pentest-lite.runme.md` (see [Runme](https://runme.dev/))
   * Clear documentation at the top on purpose, usage, and artifact model.
   * Snapshots all `FLEETFOLIO_EAA_*` env vars to `$FLEETFOLIO_EAA_HOME/arguments.env`.
   * Stores a master log at `$FLEETFOLIO_EAA_HOME/runbook.log`.
@@ -148,7 +147,7 @@ docker compose up
 Typical variables to set (via `.env` or compose `environment:`):
 
 ```
-FLEETFOLIO_EAA_DOMAINS="netspective.com citrus.example"
+FLEETFOLIO_EAA_DOMAINS="xyz.com abc.example"
 FLEETFOLIO_EAA_IP_RANGES="203.0.113.0/24"
 FLEETFOLIO_EAA_KEY_URLS="https://api.netspective.com/health"
 FLEETFOLIO_EAA_EXCLUDES="dev.netspective.com 10.0.0.0/8"
@@ -158,6 +157,5 @@ FLEETFOLIO_EAA_NAABU_PORTS=top-100
 FLEETFOLIO_EAA_NUCLEI_TEMPLATES="cves,default"
 ```
 
-Artifacts will be written under the container path `/var/fleetfolio/eaa/...` (mounted to `./evidence` on the host by default).
-
-- [ ] TODO explain how to run `surveilr files ingest` in a Fleetfolio instance and create a package for visualizing reports, logs, etc.
+Artifacts will be written under the container path `/var/fleetfolio/eaa/...` (mounted to `./evidence` volume on the host by default).
+`surveilr files ingest` can be used to import all session details from `./evidence` mount into a Fleetfolio instance for visualizing reports, logs, etc.
