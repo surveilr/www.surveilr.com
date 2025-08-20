@@ -1,0 +1,296 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "fleetfolio-eaa-intake",
+    "url": "https://opsfolio.com/fhir/Questionnaire/fleetfolio-eaa-intake",
+    "name": "FleetfolioLESAIntake",
+    "title": "Fleetfolio External Assets Assessment (EAA) Intake",
+    "status": "active",
+    "version": "1.0.0",
+    "publisher": "Netspective Communications LLC",
+    "date": "2025-08-19",
+    "description": "Collects minimal details required to run an automated, safe, usually lightweight external assessment of public-facing assets.",
+    "item": [
+        {
+            "linkId": "about",
+            "text": "About your organization and point of contact",
+            "type": "group",
+            "required": true,
+            "item": [
+                {
+                    "linkId": "about.companyName",
+                    "text": "Company or organization name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "about.contactName",
+                    "text": "Primary contact full name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "about.contactEmail",
+                    "text": "Primary contact email",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "name@domain.tld"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "about.contactPhone",
+                    "text": "Primary contact phone (optional)",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "linkId": "assets",
+            "text": "Assets to assess (public only)",
+            "type": "group",
+            "required": true,
+            "item": [
+                {
+                    "linkId": "assets.primaryDomain",
+                    "text": "Primary internet domain",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "example.com"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "assets.additionalDomains",
+                    "text": "Additional domains (optional, repeat)",
+                    "type": "string",
+                    "repeats": true
+                },
+                {
+                    "linkId": "assets.publicIPs",
+                    "text": "Public IPs or CIDR ranges (optional, repeat)",
+                    "type": "string",
+                    "repeats": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "1.2.3.4 or 203.0.113.0/24"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "assets.urls",
+                    "text": "Key URLs/APIs to evaluate (optional, repeat)",
+                    "type": "url",
+                    "repeats": true
+                },
+                {
+                    "linkId": "assets.excludeTargets",
+                    "text": "Targets to exclude (optional, repeat; subdomains, paths, IPs, or regex-like patterns)",
+                    "type": "string",
+                    "repeats": true
+                }
+            ]
+        },
+        {
+            "linkId": "scope",
+            "text": "Scope and scan profile",
+            "type": "group",
+            "required": true,
+            "item": [
+                {
+                    "linkId": "scope.profile",
+                    "text": "Assessment profile",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "basic",
+                                "display": "Basic (non-intrusive; headers, TLS, DNS, open TCP port touch, HTTP metadata)"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "standard",
+                                "display": "Standard (basic + lightweight service fingerprinting and default vuln checks)"
+                            }
+                        }
+                    ],
+                    "initial": [
+                        {
+                            "valueCoding": {
+                                "code": "basic"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "scope.rateLimit",
+                    "text": "Safe request rate",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "conservative",
+                                "display": "Conservative (lowest traffic)"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "balanced",
+                                "display": "Balanced (default)"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "fast",
+                                "display": "Faster (may create brief traffic spikes)"
+                            }
+                        }
+                    ],
+                    "initial": [
+                        {
+                            "valueCoding": {
+                                "code": "balanced"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "scope.window",
+                    "text": "Preferred execution window (optional)",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "scope.window.start",
+                            "text": "Earliest start (UTC)",
+                            "type": "dateTime"
+                        },
+                        {
+                            "linkId": "scope.window.end",
+                            "text": "Latest end (UTC)",
+                            "type": "dateTime"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "notifications",
+            "text": "Notifications and delivery",
+            "type": "group",
+            "required": true,
+            "item": [
+                {
+                    "linkId": "notifications.recipients",
+                    "text": "Email(s) to receive results (repeat)",
+                    "type": "string",
+                    "repeats": true,
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "name@domain.tld"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "notifications.deliveryFormat",
+                    "text": "Preferred delivery format",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "dashboard",
+                                "display": "Fleetfolio dashboard only"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "dashboard+pdf",
+                                "display": "Dashboard + PDF summary"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "dashboard+zip",
+                                "display": "Dashboard + ZIP of raw artifacts"
+                            }
+                        }
+                    ],
+                    "initial": [
+                        {
+                            "valueCoding": {
+                                "code": "dashboard+zip"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "attest",
+            "text": "Authorization and rules of engagement",
+            "type": "group",
+            "required": true,
+            "item": [
+                {
+                    "linkId": "attest.authz",
+                    "text": "I am authorized to request assessment of the assets listed and confirm they are owned/controlled by my organization.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "attest.publicOnly",
+                    "text": "I confirm all assets are public-facing and no credentials are required or provided.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "attest.roE",
+                    "text": "I agree to the LESA Rules of Engagement: non-intrusive tests only; no exploitation; respect robots.txt and explicit exclusions; conservative rate limits as selected; immediate stop upon request.",
+                    "type": "boolean",
+                    "required": "true"
+                },
+                {
+                    "linkId": "attest.name",
+                    "text": "Authorized requester name (signature equivalent)",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "attest.date",
+                    "text": "Date",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "linkId": "context",
+            "text": "Optional context to improve findings",
+            "type": "group",
+            "item": [
+                {
+                    "linkId": "context.env",
+                    "text": "Environment descriptors (optional, repeat; e.g., prod, marketing site, api gateway)",
+                    "type": "string",
+                    "repeats": true
+                },
+                {
+                    "linkId": "context.contactSec",
+                    "text": "Security/IT escalation email (optional)",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}

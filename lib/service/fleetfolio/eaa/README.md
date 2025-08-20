@@ -8,6 +8,7 @@ Fleetfolio EAA is not a one-off penetration testing toolkit—it is a reusable, 
 
 - [ ] TODO: Talk with Shahid about how to integrate results from EAA into `surveilr` for full integration into Fleetfolio and larger Opsfolio ecosystem.
 - [ ] TODO: Talk with Shahid about how to present the details of pen tests in Fleetfolio UI via SQLPage
+- [ ] TODO: Talk with Shahid about whether/how to integrate with [Dagger](https://github.com/dagger/dagger)
 
 ## Usage Instructions
 
