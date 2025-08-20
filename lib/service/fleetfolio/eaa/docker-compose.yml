@@ -1,0 +1,76 @@
+version: "3.9"
+
+# Fleetfolio EAA - docker-compose
+#
+# This stack runs the Nightingale-based Fleetfolio EAA container, preloaded with Runme and the
+# fleetfolio-eaa-pentest-lite.runme.md runbook. Artifacts are stored under /var/fleetfolio inside
+# the container and are volume-mounted to ./evidence on the host.
+#
+# Usage:
+#   1) Build the image:
+#        docker compose build
+#   2) (Optional) Create a .env file next to this compose with your variables.
+#      A sample is created as .env.sample. You can copy it to .env and edit.
+#   3) Run the stack:
+#        docker compose up
+#      The runbook will execute automatically and write artifacts to ./evidence.
+#
+# Passing parameters:
+#   - You can set environment variables in the 'environment:' section below, or use a .env file.
+#   - Compose automatically reads a local .env file (key=value per line).
+#   - Variables honored by the runbook:
+#       FLEETFOLIO_EAA_HOME            # Defaults to ./.fleetfolio/eaa inside container CWD; override if desired
+#       FLEETFOLIO_EAA_DOMAINS         # Comma/space-separated domains, e.g., "example.com example.org"
+#       FLEETFOLIO_EAA_IP_RANGES       # Comma/space-separated IPs/CIDRs, e.g., "203.0.113.0/24 198.51.100.10"
+#       FLEETFOLIO_EAA_KEY_URLS        # Comma/space-separated URLs/APIs, e.g., "https://api.example.com/health"
+#       FLEETFOLIO_EAA_EXCLUDES        # Comma/space-separated excludes (hosts/IPs/CIDRs)
+#       FLEETFOLIO_EAA_RATE_LIMIT      # Default 200 (applies to ProjectDiscovery tools where supported)
+#       FLEETFOLIO_EAA_CONCURRENCY     # Default 50
+#       FLEETFOLIO_EAA_NAABU_PORTS     # Default 'top-100' (supports 'top-N' or explicit lists like '80,443,8080')
+#       FLEETFOLIO_EAA_NUCLEI_TEMPLATES# Default 'cves,default' (comma-separated nuclei tags)
+#
+# Examples:
+#   - Set values inline:
+#       environment:
+#         - FLEETFOLIO_EAA_DOMAINS=example.com example.org
+#         - FLEETFOLIO_EAA_EXCLUDES=dev.example.com 10.0.0.0/8
+#   - Or use a .env file:
+#       FLEETFOLIO_EAA_DOMAINS=example.com example.org
+#       FLEETFOLIO_EAA_KEY_URLS=https://api.example.com/health https://portal.example.org/login
+#       FLEETFOLIO_EAA_EXCLUDES=dev.example.com 10.0.0.0/8
+#
+# Overriding the base image:
+#   docker compose build --build-arg NIGHTINGALE_IMAGE=ghcr.io/rajanagori/nightingale:latest
+
+services:
+  fleetfolio-eaa:
+    build:
+      context: .
+      args:
+        NIGHTINGALE_IMAGE: ${NIGHTINGALE_IMAGE:-ghcr.io/rajanagori/nightingale:latest}
+    image: fleetfolio-eaa:latest
+    container_name: fleetfolio-eaa
+    # Mount host ./evidence to /var/fleetfolio for artifacts persistence
+    volumes:
+      - ./evidence:/var/fleetfolio
+    # Uncomment to mount the runbook for live editing instead of baking it into the image:
+    #   - ./fleetfolio-eaa-pentest-lite.runme.md:/opt/fleetfolio/eaa-pentest-lite.runme.md:ro
+    environment:
+      # You can define these here OR in a .env file. Values here are examples/placeholders.
+      # Important: if you use commas, spaces, or quotes, ensure YAML escapes properly.
+      FLEETFOLIO_EAA_HOME: ""                 # optional; default is ./.fleetfolio/eaa (within container CWD)
+      FLEETFOLIO_EAA_DOMAINS: ${FLEETFOLIO_EAA_DOMAINS:-}
+      FLEETFOLIO_EAA_IP_RANGES: ${FLEETFOLIO_EAA_IP_RANGES:-}
+      FLEETFOLIO_EAA_KEY_URLS: ${FLEETFOLIO_EAA_KEY_URLS:-}
+      FLEETFOLIO_EAA_EXCLUDES: ${FLEETFOLIO_EAA_EXCLUDES:-}
+      FLEETFOLIO_EAA_RATE_LIMIT: ${FLEETFOLIO_EAA_RATE_LIMIT:-200}
+      FLEETFOLIO_EAA_CONCURRENCY: ${FLEETFOLIO_EAA_CONCURRENCY:-50}
+      FLEETFOLIO_EAA_NAABU_PORTS: ${FLEETFOLIO_EAA_NAABU_PORTS:-top-100}
+      FLEETFOLIO_EAA_NUCLEI_TEMPLATES: ${FLEETFOLIO_EAA_NUCLEI_TEMPLATES:-cves,default}
+    # The container runs the runbook and then exits. To open a shell after execution:
+    # command: ["/bin/bash", "-lc", "runme run $${RUNBOOK_PATH} && bash"]
+    # For non-interactive CI runs, you may want to fail on error:
+    # command: ["/bin/bash", "-lc", "set -e; runme run $${RUNBOOK_PATH}"]
+    tty: true
+    stdin_open: true
+    restart: "no"
