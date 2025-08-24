@@ -36,7 +36,47 @@ You should use Mangle when your problem is about deductive reasoning, security a
 
 When analyzing evidence, you would use SQL for direct, well-defined queries and Mangle for deeper, logical reasoning across interconnected data.
 
-### Mangle Integration with SQL Databases
+## Technology Architecture for Threat Assessment with `surveilr`, SQLite, and Mangle 📊
+
+The system operates in three primary layers: Data Ingestion, Data Transformation, and Logical Reasoning.
+
+### 1. Data Ingestion Layer: From Disparate Sources to a Uniform Database
+
+This layer is responsible for collecting raw output from various security tools and centralizing it into a structured format.
+
+* Many Data Sources: Your pen-testing tools (`Subfinder`, `dnsx`, `httpx`, `WhatWeb`, `Naabu`, `Nmap`, `OpenSSL`, `Nuclei`, `Katana`, `tlsx`) generate diverse data types (JSONL, per-target JSON, XML, plain text). Each tool's output often has unique schemas and parsing requirements.
+* `surveilr` Ingestion Engine: The `surveilr` service acts as a specialized ingestion engine. It is designed to understand the specific output format of each pen-test tool. `surveilr` performs the crucial task of:
+    * Parsing: Reading and interpreting the raw output files (e.g., parsing JSONL lines, iterating through JSON files, extracting data from XML, or applying regular expressions to text logs).
+    * Schema Mapping: Translating the extracted data into a predefined, standardized relational schema.
+    * Loading: Inserting the standardized data into the central SQLite database.
+* Central SQLite Database: A single, robust SQLite database serves as the repository for all ingested security findings. Each tool's data is stored in a dedicated table (e.g., `subfinder_results`, `nuclei_findings`, `nmap_scans`), with standardized column names and data types. This creates a unified "source of truth" for all raw evidence, making it consistently queryable via SQL.
+
+### 2. Data Transformation Layer: From SQL Tables to Mangle Facts
+
+This layer bridges the gap between the relational world of SQL and the logical world of Mangle/Datalog.
+
+* SQLite Database (Source of Truth): The standardized data within SQLite is now ready for transformation.
+* SQL `SELECT` Queries with String Concatenation: Instead of using Python or Go scripts, the SQLite database itself is used to generate Mangle facts. For each relevant table, specific SQL `SELECT` statements are executed. These queries leverage SQLite's powerful string concatenation operator (`||`) to construct Mangle fact strings directly.
+    * Example: A row in the `subfinder_results` table with `host = 'example.com'` and `ip_address = '192.168.1.1'` is transformed by SQL into the Mangle fact: `'subdomain_resolution("example.com", "192.168.1.1").'`.
+* Mangle Fact Files (`.mangle` / `.txt`): The output of these SQL queries is redirected to one or more text files (e.g., `generated_facts.mangle`). These files contain thousands or millions of simple, atomic Mangle facts, representing all the collected evidence in a machine-readable logical format.
+
+### 3. Logical Reasoning Layer: From Facts & Rules to Actionable Intelligence
+
+This final layer applies deductive logic to the facts, uncovering threats and insights that are not explicitly present in the raw data.
+
+* Mangle Rules (`rules.mangle`): This is a separate file containing your logical definitions of threats and patterns. These rules are written in Mangle syntax (e.g., `vulnerable_service(Host, Port) :- open_port(Host, Port, "tcp"), has_known_cve(Port, CVE_ID).`). These rules can involve recursive definitions (e.g., `depends_on(A, C) :- depends_on(A, B), depends_on(B, C).`), which is where Datalog's power truly shines, especially for dependency analysis or access control graphs.
+* Mangle / Datalog Engine: The Mangle engine ingests both the `generated_facts.mangle` file and your `rules.mangle` file. It then applies the rules to the facts through a process called deductive inference. The engine systematically checks all possible derivations, deducing every new fact that can be logically concluded from the initial set of facts and rules.
+* Actionable Threat Intelligence: The output of the Mangle engine is a set of newly derived facts that represent identified threats, misconfigurations, or important correlations. This might include facts like `exposed_critical_asset("prod-db.example.com", "CVE-2023-1234")` or `shadow_it_detection("internal-dev-server", "public-dns-record")`. These derived facts are the actionable intelligence that security analysts can use for prioritization, reporting, and remediation.
+
+### Key Strengths of This Architecture
+
+* Unified Data View: All raw data is in one place (SQLite), making basic querying and auditing straightforward.
+* Separation of Concerns: Data ingestion and initial structuring are handled by `surveilr` and SQL, leveraging their strengths. Complex logical reasoning is offloaded to Mangle.
+* Expressive Threat Definitions: Mangle allows security engineers to define complex threat patterns using clear, declarative rules, which are far more readable and maintainable than equivalent procedural code or overly complex SQL.
+* Discovery of Hidden Relationships: Mangle's deductive capabilities, especially its native recursion, enable the discovery of non-obvious connections and transitive relationships (e.g., a vulnerable component deep within a dependency tree) that are challenging for SQL.
+* Flexibility and Iteration: Security rules (in Mangle) can be easily updated and re-run against the existing fact base without altering the underlying database schema or `surveilr`'s ingestion logic.
+
+## Elaboration of Mangle Integration with SQL Databases
 
 To use data from an SQLite database with Mangle, you must first extract the relevant information into a format Mangle can understand: facts. A fact is a simple statement of a relationship. For example, `file_size(‘C:\\Users\\Bob\\report.docx’, 1024)`.
 approach is to write a script in a language like Python or Go that connects to the SQLite database, runs queries, and writes the results to a text file that Mangle can ingest.
