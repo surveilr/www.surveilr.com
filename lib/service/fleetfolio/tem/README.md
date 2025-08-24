@@ -13,6 +13,8 @@ Together, they feed directly into Opsfolio CaaS POA\&M workflows, ensuring every
 
 With TEM and EAA, Opsfolio customers can move from static reports to continuous threat exposure management — improving security posture, reducing remediation delays, and achieving audit readiness faster.
 
+> Read [SQL vs. Mangle (Datalog) for Threat Exposure Querying](tem-queries.md) for advanced deductive reasoning ideas.
+
 ## The Opsfolio Suite
 
 Opsfolio TEM and Opsfolio EAA are part of the Opsfolio Suite, which underpins Opsfolio Compliance-as-a-Service (CaaS) offerings.
