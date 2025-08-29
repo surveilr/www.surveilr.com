@@ -204,7 +204,7 @@ def process_files_to_sql(files: List[Path], device_id: str = "01K3HP14NN7H947E2W
         # Add JSON transform (always available)
         json_content = json.dumps(extraction_result["doc_data"], indent=2, ensure_ascii=False)
         transforms.append({
-            "uri": f"{file_path.stem}.docling.json", 
+            "uri": f"{file_path.absolute()}.docling.json", 
             "content": json_content,
             "nature": "application/json",
             "elaboration": {
@@ -217,7 +217,7 @@ def process_files_to_sql(files: List[Path], device_id: str = "01K3HP14NN7H947E2W
         # Add markdown transform if available
         if extraction_result.get("markdown"):
             transforms.append({
-                "uri": f"{file_path.stem}.docling.md",
+                "uri": f"{file_path.absolute()}.docling.md",
                 "content": extraction_result["markdown"], 
                 "nature": "text/markdown",
                 "elaboration": {
