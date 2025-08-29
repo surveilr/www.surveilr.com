@@ -6062,17 +6062,62 @@ This release marks an important step towards enhancing data tracking capabilitie
                 
 
                     SELECT ''foldable'' as component;
-                    SELECT ''v2.0.0'' as title, ''# `surveilr ` v2.0.0 Release Notes
+                    SELECT ''v2.1.0'' as title, ''# `surveilr ` v2.1.0 Release Notes
 
 ## 🚀 What''''s New
 
-### **1. Enhanced Markdown Transformation Workflow**
-- Improved mdq Integration: Fixed mdq selector syntax and added comprehensive selector support
-- Content Preservation: Markdown transforms no longer null out original content by default 
-- Better URI Tracking: Transform results now preserve source file paths (e.g., document.pdf/md-select:headers)
+### **1. AI-Powered Natural Language to SQL (ask-ai)**
+- New Command: surveilr ask-ai sql converts natural language queries into SQL and executes them against your RSSD
+- Smart Context Integration: Automatically retrieves relevant AI context from Surveilr notebook cells for
+domain-specific knowledge
+- Multiple Output Formats: Support for table, JSON, CSV, and markdown output formats
+- Flexible LLM Support: Works with OpenAI-compatible endpoints including local models (Ollama, etc.)
 
-### **2. Dependencies Update**
-- Upgraded to SQLPage 0.36.1.'' as description_md;
+### Basic natural language queries
+`surveilr` ask-ai sql "show me all files ingested in the last week"
+`surveilr` ask-ai sql "what devices have been scanned?"
+`surveilr` ask-ai sql "find all JSON files larger than 1MB"
+
+### Different output formats
+`surveilr` ask-ai sql "show device information" --output json
+`surveilr` ask-ai sql "list recent sessions" --output csv
+`surveilr` ask-ai sql "security audit summary" --output markdown
+
+### Development and debugging
+`surveilr` ask-ai sql "show database tables" --show-query
+`surveilr` ask-ai sql "count all records" --sql-only
+
+🔧 Configuration
+
+## 🤖 AI Engine Compatibility
+
+The new `ask-ai` feature supports a wide range of AI engines through OpenAI-compatible APIs:
+
+### Supported AI Engines
+- **OpenAI**: GPT-4, GPT-3.5-turbo, GPT-4-turbo
+- **Local AI Servers**: Ollama, LM Studio, text-generation-webui
+- **Cloud Providers**: Azure OpenAI, Anthropic Claude (via compatible proxies)
+- **Open Source Models**: Any model served via vLLM, LocalAI, or other OpenAI-compatible servers
+
+### Technical Implementation
+Surveilr uses the [ureq HTTP client](https://crates.io/crates/ureq) to communicate with any OpenAI-compatible API
+endpoint. For a comprehensive list of supported providers and configuration examples, see the [OpenAI-compatible 
+providers documentation](https://docs.litellm.ai/docs/providers/openai_compatible).
+
+### Quick Configuration Examples
+```bash
+# OpenAI (default)
+export SURVEILR_LLM_API_KEY="sk-your-key"
+
+# Ollama (local)
+export SURVEILR_LLM_ENDPOINT="http://localhost:11434/v1/chat/completions"
+
+# LM Studio (local)
+export SURVEILR_LLM_ENDPOINT="http://localhost:1234/v1/chat/completions"
+
+# Azure OpenAI
+export SURVEILR_LLM_ENDPOINT="https://your-resource.openai.azure.com/openai/deployments/your-deployment/chat/completi
+ons?api-version=2023-05-15"'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
@@ -6102,6 +6147,20 @@ The surveilr executable now starts the Web UI as the default command when no spe
 
 - **Automatic Web UI Startup**: By default, running surveilr without additional commands launches the surveilr Web UI.
 - **Auto-Browser Launch**: Opens the default browser on the workstation, pointing to the Web UI’s URL and port, providing a user-friendly experience right from the first run.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v2.0.0'' as title, ''# `surveilr ` v2.0.0 Release Notes
+
+## 🚀 What''''s New
+
+### **1. Enhanced Markdown Transformation Workflow**
+- Improved mdq Integration: Fixed mdq selector syntax and added comprehensive selector support
+- Content Preservation: Markdown transforms no longer null out original content by default 
+- Better URI Tracking: Transform results now preserve source file paths (e.g., document.pdf/md-select:headers)
+
+### **2. Dependencies Update**
+- Upgraded to SQLPage 0.36.1.'' as description_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
