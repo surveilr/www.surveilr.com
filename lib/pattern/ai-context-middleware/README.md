@@ -11,6 +11,8 @@ $ cd www.opsfolio.com/src/ai-context-engineering
 $ surveilr ingest files
 ```
 
+Refer to the README.md file in the directory www.opsfolio.com\src\scripts\denosrc\scripts\deno to generate the RSSD.
+
 The **uniform_resource** and **uniform_resource_transform** tables will contain the ingested prompts along with markdown frontmatter.
 
 ### To run the SQLPage Web-UI with the resource-surveillance DB.
