@@ -228,6 +228,21 @@ Opsfolio TEM supports CTEM with compliance traceability at each step:
 
 ---
 
+## ⚙️ Mapping to CTEM Phases
+
+| TEM Phase      | Example Tools                                   |
+| -------------- | ----------------------------------------------- |
+| **Scope**      | Amass, Shodan, cnquery, steampipe, ScoutSuite   |
+| **Discover**   | Nuclei, OpenVAS, Trivy, osquery, SSLyze         |
+| **Prioritize** | DefectDojo, Opsfolio risk scoring engine        |
+| **Validate**   | Mitre Caldera, Atomic Red Team, Nuclei re-tests |
+| **Mobilize**   | Opsfolio workflows → Jira, ServiceNow, Slack    |
+
+**Opsfolio + Surveilr Advantage**: While these tools collect _raw technical
+evidence_, Opsfolio **normalizes findings, maps them to compliance frameworks,
+scores risks, and ensures full auditability**—delivering what PlexTrac and
+others lack.
+
 ## 7. Roadmap
 
 ### Phase 1 – Foundations (0–6 months)
@@ -279,8 +294,3 @@ current TEM/CTEM competitors** by:
 This integration of **risk + compliance** offers customers both **security
 resilience** and **audit readiness**—a combination unmatched in the current
 TEM/CTEM market.
-
----
-
-```
-```
