@@ -185,6 +185,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
            '[DNSX Scan Results]('||${this.absoluteURL("/tem/dnsx.sql")
             }||')' as Asset;
+        SELECT
+           '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/nuclei.sql")
+            }||')' as Asset;
     `;
     }
 
@@ -297,6 +300,57 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         ${pagination.renderSimpleMarkdown()};`;
     }
 
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/nuclei.sql"() {
+        const viewName = `list_nuclei_data`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'Nuclei Scan Findings' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'Nuclei Scan Findings' as contents;
+
+        SELECT
+          'text'              as component,
+          'Comprehensive overview of detected vulnerabilities and exposures from Nuclei scans. Displays host, URL, template details, severity levels, matched paths, and timestamps for quick analysis and remediation planning.' as contents;
+        
+
+        SELECT 'table' AS component,
+       TRUE AS sort,
+       TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            host,
+            url,
+            template_id AS "Template ID",
+            name AS "Description",
+            severity AS "Severity",
+            ip AS "IP Address",
+            matched_path  AS "Matched Path",
+            datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
+        FROM ${viewName};
+        ${pagination.renderSimpleMarkdown()};`;
+    }
 
 }
 
