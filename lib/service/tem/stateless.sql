@@ -114,3 +114,22 @@ SELECT
 FROM uniform_resource
 WHERE nature = 'jsonl'
   AND uri LIKE '%/dnsx/%';
+
+-- View: list_nuclei_data
+-- Purpose: Extracts essential fields from Nuclei scan JSONL data stored in the uniform_resource table.
+-- Includes host, URL, template details, description, severity, IP, matched path, and timestamp.
+-- Filters only JSONL records under URIs containing "/nuclei/".
+DROP VIEW IF EXISTS list_nuclei_data;
+CREATE VIEW list_nuclei_data AS
+SELECT
+  json_extract(content, '$.host') AS host,
+  json_extract(content, '$.url') AS url,
+  json_extract(content, '$.template-id') AS template_id,
+  json_extract(content, '$.info.name') AS name,
+  json_extract(content, '$.info.description') AS description,
+  json_extract(content, '$.info.severity') AS severity,
+  json_extract(content, '$.ip') AS ip,
+  json_extract(content, '$.meta.paths') AS matched_path,
+  json_extract(content, '$.timestamp') AS timestamp
+FROM uniform_resource
+WHERE nature = 'jsonl' AND uri LIKE '%/nuclei/%';
