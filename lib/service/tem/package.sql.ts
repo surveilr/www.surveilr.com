@@ -142,7 +142,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
             asset 
-        FROM list_eaa_asset;
+        FROM tem_eaa_asset_uri;
     `;
     }
 
@@ -198,7 +198,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/what_web.sql"() {
-        const viewName = `list_what_web_data`;
+        const viewName = `tem_what_web_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
             whereSQL: "",
@@ -256,7 +256,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/dnsx.sql"() {
-        const viewName = `list_dnsx_data`;
+        const viewName = `tem_dnsx_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
             whereSQL: "",
@@ -306,7 +306,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/nuclei.sql"() {
-        const viewName = `list_nuclei_data`;
+        const viewName = `tem_nuclei_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
             whereSQL: "",
@@ -357,7 +357,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/naabu.sql"() {
-        const viewName = `list_naabu_data`;
+        const viewName = `tem_naabu_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
             whereSQL: "",
