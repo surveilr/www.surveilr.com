@@ -133,3 +133,20 @@ SELECT
   json_extract(content, '$.timestamp') AS timestamp
 FROM uniform_resource
 WHERE nature = 'jsonl' AND uri LIKE '%/nuclei/%';
+
+-- View: list_naabu_data
+-- Purpose:
+--   This view extracts and normalizes Naabu scan results stored as JSONL
+--   in the 'uniform_resource' table. It helps visualize open ports and
+--   related network information discovered during port scanning.
+DROP VIEW IF EXISTS list_naabu_data;
+CREATE VIEW list_naabu_data AS
+SELECT
+  json_extract(content, '$.host') AS host,
+  json_extract(content, '$.ip') AS ip,
+  json_extract(content, '$.timestamp') AS timestamp,
+  json_extract(content, '$.port') AS port,
+  json_extract(content, '$.protocol') AS protocol,
+  json_extract(content, '$.tls') AS tls
+FROM uniform_resource
+WHERE nature = 'jsonl' AND uri LIKE '%/naabu/%';
