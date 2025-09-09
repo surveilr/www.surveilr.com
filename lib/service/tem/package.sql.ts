@@ -188,6 +188,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
            '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/nuclei.sql")
             }||')' as Asset;
+        SELECT
+           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql")
+            }||')' as Asset;
     `;
     }
 
@@ -352,6 +355,54 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         ${pagination.renderSimpleMarkdown()};`;
     }
 
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/naabu.sql"() {
+        const viewName = `list_naabu_data`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'Naabu Port Scan Results' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'Naabu Port Scan Results' as contents;
+
+        SELECT
+          'text'              as component,
+          'This page displays the results from Naabu port scanning, showing open ports, associated hosts, and key network details. It helps in identifying exposed services and potential network entry points by providing real-time visibility into IPs, protocols, and TLS status discovered during the scan.' as contents;
+        
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            host,
+            port,
+            ip AS "IP Address",
+            protocol,
+            tls,
+            datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
+        FROM ${viewName};
+        ${pagination.renderSimpleMarkdown()};`;
+    }
 }
 
 export async function SQL() {
