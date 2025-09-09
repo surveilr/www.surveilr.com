@@ -6,8 +6,8 @@
 --   4. Selects one representative URI (the lexicographically smallest via MIN(uri)) for each unique asset.
 --
 -- The result provides a deduplicated list of assets with a sample URI for each.
-DROP VIEW IF EXISTS list_eaa_asset;
-CREATE VIEW list_eaa_asset AS 
+DROP VIEW IF EXISTS tem_eaa_asset_uri;
+CREATE VIEW tem_eaa_asset_uri AS 
 WITH parts AS (
   SELECT
     uri,
@@ -57,8 +57,8 @@ ORDER BY asset;
 -- The query filters rows where:
 --   - `nature` is "json"
 --   - `uri` matches the pattern "%whatweb/https___qa-sec-adminapp.pocn.com_443.json%"
-DROP VIEW IF EXISTS list_what_web_data_json;
-CREATE VIEW list_what_web_data_json AS
+DROP VIEW IF EXISTS tem_what_web_result_original_json;
+CREATE VIEW tem_what_web_result_original_json AS
 WITH cleaned AS (
   SELECT
     uniform_resource_id,
@@ -79,9 +79,9 @@ WHERE json_valid(c.c) = 1;
 
 -- Description:
 -- This view extracts key web metadata from JSON objects stored in 
--- `list_what_web_data_json`.
-DROP VIEW IF EXISTS list_what_web_data;
-CREATE VIEW list_what_web_data AS
+-- `tem_what_web_result`.
+DROP VIEW IF EXISTS tem_what_web_result;
+CREATE VIEW tem_what_web_result AS
 SELECT
     uniform_resource_id,
     json_extract(object, '$.target') AS target_url,
@@ -94,15 +94,15 @@ SELECT
     json_extract(object, '$.plugins.Country.module[0]') AS module,
     json_extract(object, '$.plugins.Strict-Transport-Security.string[0]') AS strict_transport_security,
     json_extract(object, '$.plugins.X-Frame-Options.string[0]') AS x_frame_options
-FROM list_what_web_data_json;
+FROM tem_what_web_result_original_json;
 
--- View: list_dnsx_data
+-- View: tem_dnsx_result
 -- This view extracts DNS resolution details from the `uniform_resource` table for records
 -- collected via DNSx scans. It filters JSONL data (`nature = 'jsonl'`) where the URI path
--- includes '/dnsx/'. Extracted fields include hostnames, TTL values, resolvers, IP addresses,
+-- includes '/tem_dnsx_result/'. Extracted fields include hostnames, TTL values, resolvers, IP addresses,
 -- status codes, and timestamps.
-DROP VIEW IF EXISTS list_dnsx_data;
-CREATE VIEW list_dnsx_data AS
+DROP VIEW IF EXISTS tem_dnsx_result;
+CREATE VIEW tem_dnsx_result AS
 SELECT
     uniform_resource_id,
     json_extract(content, '$.host') AS host,
@@ -115,12 +115,12 @@ FROM uniform_resource
 WHERE nature = 'jsonl'
   AND uri LIKE '%/dnsx/%';
 
--- View: list_nuclei_data
+-- View: tem_nuclei_result
 -- Purpose: Extracts essential fields from Nuclei scan JSONL data stored in the uniform_resource table.
 -- Includes host, URL, template details, description, severity, IP, matched path, and timestamp.
 -- Filters only JSONL records under URIs containing "/nuclei/".
-DROP VIEW IF EXISTS list_nuclei_data;
-CREATE VIEW list_nuclei_data AS
+DROP VIEW IF EXISTS tem_nuclei_result;
+CREATE VIEW tem_nuclei_result AS
 SELECT
   json_extract(content, '$.host') AS host,
   json_extract(content, '$.url') AS url,
@@ -134,13 +134,13 @@ SELECT
 FROM uniform_resource
 WHERE nature = 'jsonl' AND uri LIKE '%/nuclei/%';
 
--- View: list_naabu_data
+-- View: tem_naabu_result
 -- Purpose:
 --   This view extracts and normalizes Naabu scan results stored as JSONL
 --   in the 'uniform_resource' table. It helps visualize open ports and
 --   related network information discovered during port scanning.
-DROP VIEW IF EXISTS list_naabu_data;
-CREATE VIEW list_naabu_data AS
+DROP VIEW IF EXISTS tem_naabu_result;
+CREATE VIEW tem_naabu_result AS
 SELECT
   json_extract(content, '$.host') AS host,
   json_extract(content, '$.ip') AS ip,
