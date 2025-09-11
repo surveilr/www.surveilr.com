@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-env --allow-net --allow-read --allow-write compose-scf-prompts-llamaindex.ts"
+  },
+  "imports": {
+    "dotenv": "https://deno.land/std@0.224.0/dotenv/mod.ts",
+    "sqlite": "https://deno.land/x/sqlite/mod.ts",
+    "std/": "https://deno.land/std@0.224.0/"
+  }
+}

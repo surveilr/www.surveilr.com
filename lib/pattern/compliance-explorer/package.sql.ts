@@ -118,6 +118,15 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**SCF Control:** ' || scf_control AS description_md
     FROM compliance_regime_control
     WHERE control_code = $id::TEXT AND control_type = $regimeType::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+   
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+     
+      WHERE p.satisfies = $id
+      ;
     `;
   }
 }
