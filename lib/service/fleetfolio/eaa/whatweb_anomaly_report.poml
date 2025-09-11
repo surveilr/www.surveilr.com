@@ -1,0 +1,86 @@
+{
+  "poml_schema": "com.microsoft.poml.v1",
+  "name": "WhatWeb_AnomalyDetection_PentestReport",
+  "version": "1.0.0",
+  "description": "POML orchestration to analyze WhatWeb scan output, detect anomalies, classify risk, and generate pentest-ready report sections (structured JSON + human-readable).",
+  "inputs": {
+    "whatweb_raw": {
+      "type": "string",
+      "description": "Raw WhatWeb scan output (paste full terminal output or machine-readable WhatWeb results)."
+    },
+    "target_hostname": {
+      "type": "string",
+      "description": "Target hostname or URL that was scanned (for evidence and report context).",
+      "default": ""
+    },
+    "include_cve_check": {
+      "type": "boolean",
+      "description": "If true, the assistant should attempt to include known CVEs for detected versions (best-effort).",
+      "default": true
+    },
+    "report_format": {
+      "type": "string",
+      "description": "Requested report output format: 'json' (structured) or 'markdown' (human readable).",
+      "enum": ["json", "markdown"],
+      "default": "json"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Timezone to render absolute timestamps in the report (e.g., 'Asia/Kolkata').",
+      "default": "UTC"
+    }
+  },
+  "outputs": {
+    "structured_findings_json": {
+      "type": "object",
+      "description": "Machine-readable array of findings with metadata: title, description, evidence, risk, impact, recommendations, and references (CVE links or advisories if available)."
+    },
+    "human_readable_report": {
+      "type": "string",
+      "description": "A human-friendly pentest report section (Markdown) suitable for inclusion in a penetration test deliverable."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Short executive summary with top 3 remediation priorities."
+    }
+  },
+  "pipeline": [
+    {
+      "id": "parse_and_normalize",
+      "type": "prompt",
+      "name": "ParseWhatWeb",
+      "description": "Normalize WhatWeb output into key-value detection lines. Extract server, CMS, frameworks, languages, headers, cookies, error pages, plugins (if present), and fingerprint lines.",
+      "template": "You are an automated parser. Input: {{{whatweb_raw}}}\n\nTask: Produce a normalized JSON array called `detections`. For each detection, include: `type` (server|cms|framework|library|header|cookie|page|other), `name`, `version` (if present), `raw_line` (original WhatWeb line), and `confidence` (low|medium|high). If the line contains evidence of an admin panel, error page, or unusual header, set `flags` accordingly. Return only JSON with top-level key `detections`."
+    },
+    {
+      "id": "analysis_and_anomaly_detection",
+      "type": "prompt",
+      "name": "AnalyzeDetections",
+      "depends_on": ["parse_and_normalize"],
+      "description": "Analyze normalized detections for anomalies, misconfigurations, and likely attack surface. Attempt mapping to likely CVE classes if include_cve_check is true (best-effort).",
+      "template": "You are a senior security engineer assistant. Input variables: `detections` (from previous step), `target_hostname` = {{{target_hostname}}}, `include_cve_check` = {{{include_cve_check}}}.\n\nTasks:\n1. For each detection, evaluate security relevance and list likely issues (ex: exposed version, EOL, default config, leaked internal paths).  \n2. Detect anomalies: unusual technology combos (e.g., 'IIS + mod_php'), presence of legacy/unused CMS components, admin pages exposed, error page stacktraces, banner mismatch (server header doesn't match typical platform), cookie/header misconfigurations (missing HttpOnly/Secure/SameSite), or indicators of shadow IT.\n3. For detections with versions or identifiable components, if include_cve_check is true, provide up to 3 high-confidence example CVE IDs or advisories (with short explanation) relevant to that component or a suggested search string (e.g., 'CVE + Apache 2.2.15 remote code execution'). Do not invent CVEs; if you are not certain, provide a suggested search query rather than fabricating an ID.\n4. For each item produce a `finding` object with fields: `finding_id`, `title`, `description`, `evidence` (array of raw_lines), `risk` (High|Medium|Low|Informational), `impact` (short), `recommendation` (short), `references` (urls or search queries), and `confidence` (High|Medium|Low).\n\nReturn JSON with top-level key `analysis_findings` containing the list of findings and a top-level `anomaly_summary` describing the most suspicious 3 items."
+    },
+    {
+      "id": "prioritize_and_format",
+      "type": "prompt",
+      "name": "PrioritizeAndFormat",
+      "depends_on": ["analysis_and_anomaly_detection"],
+      "description": "Prioritize findings, produce structured JSON and a markdown report section suitable for pentest deliverables.",
+      "template": "You are a technical writer and pentest lead. Input: `analysis_findings` and `anomaly_summary`. Also respect `report_format` = {{{report_format}}} and `timezone` = {{{timezone}}}.\n\nTasks:\n1. Sort findings by risk (High -> Low) and confidence.\n2. Produce `structured_findings_json`: the sorted array of finding objects.\n3. Produce `human_readable_report` in Markdown with:\n   - Title including target hostname and scan timestamp (use current date in the provided timezone).\n   - Executive Summary (3 lines).\n   - For each finding: Finding Title, Description, Evidence (quote raw WhatWeb lines), Risk, Impact, Recommendation, References (CVE or search queries).\n4. Produce `summary`: top 3 remediation priorities (bullet list).\n\nReturn a JSON object containing the three outputs: `structured_findings_json`, `human_readable_report`, and `summary`."
+    }
+  ],
+  "examples": [
+    {
+      "name": "example_invocation",
+      "description": "Example how to call with WhatWeb raw output pasted.",
+      "inputs": {
+        "whatweb_raw": "WhatWeb 0.5.4 -- https://example.com\n  [+] Server: Apache/2.2.15 (CentOS)\n  [+] X-Powered-By: PHP/5.4.16\n  [+] CMS: WordPress 4.9.8\n  [+] robots.txt: Found\n  [+] Favicon MD5: abcdef123456\n  [+] /wp-admin/ : HTTP 200 (admin panel found)\n  [+] Set-Cookie: PHPSESSID=; HttpOnly\n  [+] Error page: /index.php?debug=1 -> PHP Warning: include(): Failed opening 'config.php' in /var/www/html/index.php on line 42",
+        "target_hostname": "example.com",
+        "include_cve_check": true,
+        "report_format": "markdown",
+        "timezone": "Asia/Kolkata"
+      }
+    }
+  ],
+  "notes": "This POML is an orchestration template. Implementations should map each pipeline `prompt` node to an LLM call or a local parser step. The `parse_and_normalize` step can optionally be implemented with a small regex parser before invoking the LLM to improve reliability. The orchestration intentionally asks the assistant not to invent CVE IDs; if uncertain, return a safe search query instead (e.g., 'search for CVE Apache 2.2.15')."
+}
