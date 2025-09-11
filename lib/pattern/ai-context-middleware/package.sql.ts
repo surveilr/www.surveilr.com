@@ -38,6 +38,54 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
     return this.SQL`
       select
       'card' as component,
+      2 as columns;
+      select
+      '## Opsfolio' as description_md,
+      'white' as background_color,
+     
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/opsfolio.sql")} as link
+      ;
+
+      select
+      '## Compliance Explorer' as description_md,
+      'white' as background_color,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/compliance.sql")} as link
+    
+
+
+    `;
+  }
+  //display all cards in suite opsfolio
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/opsfolio.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+      select
+      'Opsfolio' as title,
+      '#' as link;
+     
+     
+
+     
+     select
+      'card' as component,
       4 as columns;
      
       select
@@ -96,6 +144,43 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       FROM uniform_resource_build_anythingllm;
     `;
   }
+
+  //complaince explorer
+  
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/compliance.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+      select
+      'card' as component,
+      2 as columns;
+
+      select
+      '## Total Counts of HIPAA Prompt Modules' as description_md,
+      'white' as background_color,
+      '## ' || count(DISTINCT uniform_resource_id) as description_md,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_fii;
+     
+      
+
+     
+      
+    `;
+  }
  
   // Displays merge groups available.
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -133,7 +218,7 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
      
       FROM ai_ctxe_uniform_resource_prompts
       WHERE merge_group IS NOT NULL
-      GROUP BY merge_group
+     
       ORDER BY merge_group;
     `;
   }
@@ -309,7 +394,7 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       FROM ai_ctxe_uniform_resource_prompts p
      
       WHERE p.uniform_resource_id = $uniform_resource_id
-      GROUP BY p.uniform_resource_id
+    GROUP BY p.uniform_resource_id
       ORDER BY p.ord, p.uniform_resource_id;
     `;
   }
@@ -395,6 +480,56 @@ FROM ai_ctxe_uniform_resource_frontmatter_view
  
     `;
   }
+
+
+  //complaince explorer prompts
+
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/prompts-complaince.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+     
+      select
+      'Prompt' as title;
+      SELECT 'title'AS component, 
+     'Prompt' as contents; 
+       SELECT 'text' as component,
+'This page provides an overview of compliance-focused AI context engineering prompts, including those related to US HIPAA Controls prompts. Use the table below to review individual prompts along with their summaries and source details.' as contents;
+
+   
+     
+
+ 
+SELECT
+  'table' as component,
+  TRUE AS sort,
+  TRUE AS search,
+  "title" as markdown
+ ;
+     
+SELECT
+  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
+  
+
+  frontmatter_summary as "Summary",
+  uri as "URI"
+
+ 
+FROM ai_ctxe_uniform_resource_frontmatter_view_fii
+;
+ 
+    `;
+  }
  
   //prompt details
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -416,13 +551,13 @@ FROM ai_ctxe_uniform_resource_frontmatter_view
       ${this.absoluteURL("/ai-context-engineering/prompts.sql")} as link;
      
       select
-      "title" as title,
-      "#" as link
-      from ai_ctxe_uniform_resource_prompts
-      where uniform_resource_id = $uniform_resource_id;
+      "Prompt data" as title,
+      "#" as link;
      
       SELECT 'title' AS component, 'Prompt Details' AS contents;
-     
+      SELECT 'text' as component,
+     'This page displays comprehensive details about the selected AI Context Engineering prompt, including its frontmatter metadata (such as title, summary, lifecycle, and provenance), reviewers, product features, and the full prompt content. Use the sections below to explore the prompt’s information and related resources.' as contents;
+
       -- First card for accordion (frontmatter details)
       SELECT 'html' AS component,
       '<details open>
@@ -1434,7 +1569,81 @@ FROM ai_ctxe_uniform_resource_frontmatter_view
      
       `;
   }
-  
+//complaince prompt details
+@spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/prompt-detail-complaince.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+     
+      select
+      'Complaince Prompt' as title,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince.sql")} as link;
+     
+      select
+      "title" as title,
+      "#" as link
+      from ai_ctxe_uniform_resource_prompts
+      where uniform_resource_id = $uniform_resource_id;
+     
+      SELECT 'title' AS component, 'Prompt Details' AS contents;
+      SELECT 'text' as component,
+     'This page provides detailed compliance prompt information from AI Context Engineering. 
+ It displays the selected prompt’s metadata (including title, control question, control ID, 
+ domain, SCF mapping, summary, publish date, category, satisfies frameworks, and provenance dependencies), 
+ along with its merge group reference and full prompt content.' as contents;
+
+      -- First card for accordion (frontmatter details)
+      SELECT 'html' AS component,
+      '<details open>
+      <summary>Frontmatter details</summary>
+      <div>' AS html;
+     
+      SELECT 'card' AS component, 1 as columns;
+     
+      SELECT
+      '\n **Title** : ' || a.title AS description_md,
+       '\n **Control question** : ' || a.frontmatter_control_question AS description_md,
+       '\n **Control id** : ' || a.frontmatter_control_id AS description_md,
+         '\n **Control domain** : ' || a.frontmatter_control_domain AS description_md,
+           '\n **SCF control** : ' || a.SCF_control AS description_md,
+
+      '\n **Summary** : ' || a.frontmatter_summary AS description_md,
+      '\n **publishDate** : ' || a.publishDate AS description_md,
+      '\n **category** : ' || a.frontmatter_category AS description_md,
+      '\n **Satisfies** : ' || a.frontmatter_satisfies AS description_md,
+       '\n**Provenance dependencies**:\n' ||
+  ifnull((
+    SELECT group_concat('- ' || value, char(10))
+    FROM json_each(a.frontmatter_provenance_dependencies)
+  ), 'None')
+  AS description_md,
+
+        '\nMerge group: [' || a.frontmatter_merge_group || '](' || 
+  ${this.absoluteURL("/ai-context-engineering/merge-group-detail.sql")} || 
+  '?uniform_resource_id=' || uniform_resource_id || ')' 
+  AS description_md
+      FROM ai_ctxe_uniform_resource_frontmatter_view_fii a
+      WHERE a.uniform_resource_id = $uniform_resource_id;
+     
+      SELECT 'html' AS component, '</div></details>' AS html;
+     
+      SELECT 'card' AS component, 1 as columns;
+     
+      SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_view_uniform_resource_fii p
+      WHERE p.uniform_resource_id = $uniform_resource_id;
+    `;
+  }
  
 }
  

@@ -59,23 +59,27 @@ SELECT
     urf.size_bytes
 
 FROM uniform_resource ur
-LEFT JOIN uniform_resource_file urf 
+INNER JOIN uniform_resource_file urf 
     ON ur.uniform_resource_id = urf.uniform_resource_id
-LEFT JOIN   ur_ingest_session_fs_path_entry fs
+INNER JOIN   ur_ingest_session_fs_path_entry fs
   ON fs.uniform_resource_id = ur.uniform_resource_id AND fs.uniform_resource_id=urf.uniform_resource_id
 WHERE ur.deleted_at IS NULL AND 
-  (fs.file_basename LIKE '%.prompt.md' OR fs.file_basename LIKE '%.prompt-snippet.md');
+  (fs.file_basename LIKE '%.prompt.md' OR fs.file_basename LIKE '%.prompt-snippet.md'
+  OR fs.file_basename LIKE '%-prompt-meta.md');
 
 -- Drop and create view for uniform_resource frontmatter
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view;
 CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view AS
 
-SELECT
+SELECT distinct
     ur.uniform_resource_id,
     ur.uri,
     -- Extracting only important keys from the frontmatter column
     json_extract(frontmatter, '$.id') AS frontmatter_id,
-    json_extract(frontmatter, '$.title') AS title,
+   COALESCE(
+    json_extract(frontmatter, '$.title'),
+    ur.filename
+) AS title,
     json_extract(frontmatter, '$.summary') AS frontmatter_summary,
   json_extract(frontmatter, '$.merge-group') AS frontmatter_merge_group,
     json_extract(frontmatter, '$.artifact-nature') AS frontmatter_artifact_nature,
@@ -106,9 +110,10 @@ SELECT
       json_extract(urt.elaboration, '$.validation.status') AS validation_status,
       json_extract(urt.elaboration, '$.warnings[0]') AS elaboration_warning
 
-FROM uniform_resource ur
+FROM ai_ctxe_uniform_resource_prompts ur
 LEFT JOIN uniform_resource_transform urt
-  ON ur.uniform_resource_id = urt.uniform_resource_id;
+  ON ur.uniform_resource_id = urt.uniform_resource_id
+  ;
     
 
 -- Drop and create view for files with content
@@ -116,7 +121,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_with_content;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_with_content AS
 
-SELECT 
+SELECT distinct
     ur.uniform_resource_id,
     ur.uri,
     
@@ -492,7 +497,7 @@ AND ur.uri LIKE '%.build/anythingllm%';
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view_anythingllm;
 CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view_anythingllm AS
 
-SELECT
+SELECT distinct
     uniform_resource_id,
     uri,
     -- Extracting only important keys from the frontmatter column
@@ -531,7 +536,7 @@ FROM uniform_resource_build_anythingllm;
 -- Drop and create view for transformed resources cleaned
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_transformed_resources_cleaned;
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_transformed_resources_cleaned AS
-SELECT
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     ur.nature,
@@ -549,9 +554,9 @@ SELECT
     json_extract(urt.elaboration, '$.validation.status') AS validation_status,
     json_extract(urt.elaboration, '$.warnings') AS warnings
 FROM uniform_resource ur
-JOIN uniform_resource_transform urt
+LEFT JOIN uniform_resource_transform urt
   ON ur.uniform_resource_id = urt.uniform_resource_id
-  JOIN
+  LEFT JOIN
   ur_ingest_session_fs_path_entry fs
   ON fs.uniform_resource_id = ur.uniform_resource_id AND fs.uniform_resource_id=urt.uniform_resource_id
 WHERE ur.deleted_at IS NULL
@@ -592,3 +597,99 @@ WHERE ur.deleted_at IS NULL
     
       json_extract(urt.elaboration, '$.validation.status') = 'success'
   );
+
+
+DROP VIEW IF EXISTS ai_ctxe_view_uniform_resource_fii;
+CREATE VIEW ai_ctxe_view_uniform_resource_fii AS
+SELECT distinct
+    ur.uniform_resource_id,
+    ur.uri,
+    
+    -- Extract filename from file_path_rel
+    CASE 
+        WHEN urf.file_path_rel LIKE '%/%' THEN 
+            substr(urf.file_path_rel, length(rtrim(urf.file_path_rel, replace(urf.file_path_rel, '/', ''))) + 1)
+        ELSE 
+            urf.file_path_rel
+    END AS filename,
+    
+    ur.created_at,
+    ur.created_by,
+    ur.content,
+    ur.frontmatter,
+    
+    -- Extract title and summary from frontmatter JSON
+    json_extract(ur.frontmatter, '$.title') AS title,
+    json_extract(ur.frontmatter, '$.description') AS summary,
+    json_extract(ur.frontmatter, '$.merge-group') AS merge_group,
+  COALESCE(json_extract(ur.frontmatter, '$.order'), 999999) AS ord,
+
+    -- content with frontmatter stripped
+    TRIM(
+    CASE
+      WHEN instr(ur.content, '---') = 1
+        THEN substr(
+          ur.content,
+          instr(ur.content, '---') + 3 + instr(substr(ur.content, instr(ur.content, '---') + 3), '---') + 3
+        )
+      ELSE ur.content
+    END
+  ) AS body_text,
+
+    -- Additional useful fields from uniform_resource_file
+    urf.nature,
+    urf.source_path,
+    urf.file_path_rel,
+    urf.size_bytes
+
+FROM uniform_resource ur
+LEFT JOIN uniform_resource_file urf 
+    ON ur.uniform_resource_id = urf.uniform_resource_id
+LEFT JOIN   ur_ingest_session_fs_path_entry fs
+  ON fs.uniform_resource_id = ur.uniform_resource_id AND fs.uniform_resource_id=urf.uniform_resource_id
+WHERE ur.deleted_at IS NULL AND 
+ur.uri LIKE '%/hipaa/%' AND 
+  (fs.file_basename LIKE '%.prompt.md' OR fs.file_basename LIKE '%.prompt-snippet.md' OR fs.file_basename LIKE '%-prompt-meta.md');
+
+   
+
+
+DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view_fii;
+CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view_fii AS
+
+SELECT distinct
+    uniform_resource_id,
+    uri,
+    -- Extracting only important keys from the frontmatter column
+    json_extract(frontmatter, '$.id') AS frontmatter_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.description') AS frontmatter_summary,
+    json_extract(frontmatter, '$.merge-group') AS frontmatter_merge_group,
+    json_extract(frontmatter, '$.control-question') AS frontmatter_control_question,
+    json_extract(frontmatter, '$.control-id') AS frontmatter_control_id,
+    json_extract(frontmatter, '$.control-domain') AS frontmatter_control_domain,
+    json_extract(frontmatter, '$.SCF-control') AS SCF_control,
+    json_extract(frontmatter, '$.publishDate') AS publishDate,
+    json_extract(frontmatter, '$.provenance.dependencies') AS frontmatter_provenance_dependencies,
+
+    json_extract(frontmatter, '$.id') AS frontmatter_id,
+   trim(
+        json_extract(frontmatter, '$.category[0]') || ',' ||
+        json_extract(frontmatter, '$.category[1]') || ',' ||
+        json_extract(frontmatter, '$.category[2]') || ',' ||
+        json_extract(frontmatter, '$.category[3]') || ',' ||
+        json_extract(frontmatter, '$.category[4]')
+    ) AS frontmatter_category,
+    
+    -- Extracting features dynamically (up to the first 5 features)
+    trim(
+        json_extract(frontmatter, '$.satisfies[0]') || ',' ||
+        json_extract(frontmatter, '$.satisfies[1]') || ',' ||
+        json_extract(frontmatter, '$.satisfies[2]') || ',' ||
+        json_extract(frontmatter, '$.satisfies[3]') || ',' ||
+        json_extract(frontmatter, '$.satisfies[4]')
+    ) AS frontmatter_satisfies
+    
+
+
+FROM ai_ctxe_view_uniform_resource_fii ;
