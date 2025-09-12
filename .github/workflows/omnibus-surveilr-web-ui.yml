@@ -22,7 +22,7 @@ jobs:
         
       - name: Execute variables
         env:
-          OPSFOLIO_PAT: ${{ vars.OPSFOLIO_PAT }}
+          OPSFOLIO_PAT: ${{ secrets.OPSFOLIO_PAT }}
           
         run: |
           bash -x support/ci-cd-prod.sh      
@@ -44,7 +44,7 @@ jobs:
              --build-arg EG_SURVEILR_COM_IMAP_USER_NAME=${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }} \
              --build-arg EG_SURVEILR_COM_IMAP_PASS=${{ secrets.EG_SURVEILR_COM_IMAP_PASS }} \
              --build-arg EG_SURVEILR_COM_IMAP_HOST=${{ secrets.EG_SURVEILR_COM_IMAP_HOST }} \
-             --build-arg OPSFOLIO_PAT=${{ vars.OPSFOLIO_PAT }} \
+             --build-arg OPSFOLIO_PAT=${{ secrets.OPSFOLIO_PAT }} \
              -t ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest \
              -f support/deploy/omnibus-rssd-nginx.dockerfile .
 
