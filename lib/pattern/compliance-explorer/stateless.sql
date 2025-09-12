@@ -21,7 +21,7 @@ FROM uniform_resource_scf_2024_2 WHERE `NIST 800-171A rev 3` !='';
 
 DROP VIEW IF EXISTS ai_ctxe_policy;
 CREATE VIEW ai_ctxe_policy AS
-SELECT distinct 
+SELECT DISTINCT
   ur.uniform_resource_id,
   json_extract(ur.frontmatter, '$.title') AS title,
   json_extract(ur.frontmatter, '$.description') AS description,
