@@ -9,14 +9,14 @@ if (!repo) {
   Deno.exit(1);
 }
 
-const GITHUB_TOKEN = Deno.env.get("GITHUB_TOKEN");
-if (!GITHUB_TOKEN) {
-  console.error("GITHUB_TOKEN not set in environment");
+const OPSFOLIO_PAT = Deno.env.get("OPSFOLIO_PAT");
+if (!OPSFOLIO_PAT) {
+  console.error("OPSFOLIO_PAT not set in environment");
   Deno.exit(1);
 }
 
 async function fetchFromGitHub(url: string, acceptRaw = false) {
-  const headers: Record<string, string> = { Authorization: `token ${GITHUB_TOKEN}` };
+  const headers: Record<string, string> = { Authorization: `token ${OPSFOLIO_PAT}` };
   if (acceptRaw) headers["Accept"] = "application/vnd.github.v3.raw";
   const res = await fetch(url, { headers });
   if (!res.ok) {
