@@ -20,15 +20,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      # Set environment variables
       - name: Execute variables
         env:
           OPSFOLIO_PAT: ${{ secrets.OPSFOLIO_PAT }}
-
-      # Run the ci-cd-prod.sh script
-      - name: Run ci-cd-prod.sh script
+          
         run: |
-          bash -x support/ci-cd-prod.sh    
+          bash -x support/ci-cd-prod.sh      
            
       # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
