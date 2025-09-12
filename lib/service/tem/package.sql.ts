@@ -78,12 +78,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     }
 
     @temNav({
-        caption: "Attack Surface Mapping",
+        caption: "Attack Surface Mapping By Tenant",
         description:
-            `This data represents the information footprint of an application, domain, or infrastructure, typically gathered during reconnaissance, vulnerability assessment, or penetration testing.`,
+            `This page provides a comprehensive view of the attack surface mapped for each tenant. It aggregates results from multiple reconnaissance and scanning tools, including HTTP/HTTPS endpoints, subdomains, open ports, and TLS/SSL information. Users can explore discovered hosts, services, protocols, and vulnerabilities, helping teams assess network exposure and prioritize security remediation for each tenant environment.`,
         siblingOrder: 1,
     })
-    "tem/attack_surface_mapping.sql"() {
+    "tem/attack_surface_mapping_tenant.sql"() {
         return this.SQL`
         ${this.activePageTitle()}
 
@@ -99,6 +99,34 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
             'card' as component,
             4      as columns;
+        SELECT tanent_name as title,
+          ${this.absoluteURL("/tem/attack_surface_mapping_tenant_inner.sql?tenant_id=")} || tenant_id as link
+         FROM tem_tenant;
+        `;
+    }
+
+    @temNav({
+        caption: "Attack Surface Mapping By Session",
+        description:
+            `This data represents the information footprint of an application, domain, or infrastructure, typically gathered during reconnaissance, vulnerability assessment, or penetration testing.`,
+        siblingOrder: 1,
+    })
+    "tem/attack_surface_mapping_session.sql"() {
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Dsply Page Title
+        SELECT
+            'title'   as component,
+            'Attack Surface Mapping By Session' contents;
+
+        SELECT
+            'text'              as component,
+            "This page presents the attack surface data collected during a specific session. It consolidates results from scanning and reconnaissance tools, showing discovered hosts, services, protocols, and exposed endpoints. This allows users to analyze session-specific findings, track changes over time, and prioritize security actions based on session-based activities." as contents;
+
+        SELECT
+            'card' as component,
+            4      as columns;
         SELECT
             "Assets"  as title,
             ${this.absoluteURL("/tem/eaa_asset.sql")}  as link;
@@ -106,6 +134,46 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT "Findings" as title,
             ${this.absoluteURL("/tem/eaa_finding.sql")}  as link;
         `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/attack_surface_mapping_tenant_inner.sql"() {
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'Assets' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'Assets' as contents;
+
+        SELECT
+          'text'              as component,
+          'Collection of reconnaissance and security assessment tools used for subdomain discovery, port scanning, DNS probing, web technology fingerprinting, TLS analysis, and vulnerability detection.' as contents;
+        
+
+       SELECT
+            'card' as component,
+            4      as columns;
+        SELECT
+            "Assets"  as title,
+            ${this.absoluteURL("/tem/eaa_asset.sql?tenant_id=")} || $tenant_id as link;
+
+        SELECT "Findings" as title,
+            ${this.absoluteURL("/tem/eaa_finding.sql?tenant_id=")} || $tenant_id as link;
+    `;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -142,7 +210,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
             asset 
-        FROM list_eaa_asset;
+        FROM tem_eaa_asset_uri;
     `;
     }
 
@@ -180,23 +248,26 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         'Asset' as markdown;
 
         SELECT
-             '[What web data]('||${this.absoluteURL("/tem/what_web.sql")
-            }||')' as Asset;
+             '[What web data]('||${this.absoluteURL("/tem/what_web.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
         SELECT
-           '[DNSX Scan Results]('||${this.absoluteURL("/tem/dnsx.sql")
-            }||')' as Asset;
+           '[DNSX Scan Results]('||${this.absoluteURL("/tem/dnsx.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
         SELECT
-           '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/nuclei.sql")
-            }||')' as Asset;
+           '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/nuclei.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
         SELECT
-           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql")
-            }||')' as Asset;
+           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
         SELECT
-           '[Subfinder Results]('||${this.absoluteURL("/tem/subfinder.sql")
-            }||')' as Asset;
+           '[Subfinder Results]('||${this.absoluteURL("/tem/subfinder.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
          SELECT
-           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/httpx-toolkit.sql")
-            }||')' as Asset;
+           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/httpx-toolkit.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
+         SELECT
+           '[Nmap Scan Results]('||${this.absoluteURL("/tem/nmap.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset;
     `;
     }
 
@@ -204,6 +275,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/what_web.sql"() {
+        const viewName = `tem_what_web_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -227,37 +303,49 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
           'text'              as component,
-          'Identifies and profiles technologies used by web applications, including servers, frameworks, and plugins, to assess potential attack vectors and improve security visibility.' as contents;
+          'This page displays the results of automated web technology fingerprinting using WhatWeb. It includes details about detected servers, technologies, HTTP responses, geolocation, and key headers for each scanned endpoint.' as contents;
         
 
         SELECT 'table' AS component,
        TRUE AS sort,
        'http_status' AS markdown,
        TRUE AS search;
-
-        SELECT
-            target_url AS "URL",
-        CASE
-                WHEN http_status BETWEEN 200 AND 299 THEN '🟢 ' || http_status
-                WHEN http_status BETWEEN 300 AND 399 THEN '🟠 ' || http_status
-                WHEN http_status BETWEEN 400 AND 599 THEN '🔴 ' || http_status
-            ELSE CAST(http_status AS TEXT)
-            END AS http_status,
-            ip_address AS "IP Address",
-            country AS "Country",
-            http_server AS "HTTP Server",
-            page_title AS "Page Title",
-            x_frame_options AS "X-Frame-Options",
-            uncommon_headers AS "Uncommon Headers",
-            strict_transport_security AS "Strict Transport Decurity",
-            module AS "Module"
-        FROM list_what_web_data;
+       
+        ${pagination.init()} 
+       SELECT
+    CASE
+        WHEN length(q.target_url) > 60 THEN substr(q.target_url, 1, 60) || '...'
+        ELSE q.target_url
+    END AS "Target URL",
+    q.tanent_name AS "Tanent",
+    CASE
+        WHEN q.http_status BETWEEN 200 AND 299 THEN '🟢 ' || q.http_status
+        WHEN q.http_status BETWEEN 300 AND 399 THEN '🟠 ' || q.http_status
+        WHEN q.http_status BETWEEN 400 AND 599 THEN '🔴 ' || q.http_status
+        ELSE CAST(q.http_status AS TEXT)
+    END AS "HTTP Status",
+    q.ip_address AS "IP Address",
+    q.country AS "Country",
+    q.http_server AS "Web Server",
+    q.page_title AS "Detected Technologies",
+    q.uncommon_headers AS "Key HTTP Headers"
+FROM (
+    SELECT *
+    FROM ${viewName}
+    WHERE tenant_id = $tenant_id
+) q
+${pagination.renderSimpleMarkdown("tenant_id")};
     `;
     }
 
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/dnsx.sql"() {
+        const viewName = `tem_dnsx_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -271,32 +359,86 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
-        SELECT 'DNSx Scan Results' AS title,
+        SELECT 'DNS Enumeration Results' AS title,
             '#' AS link;
 
         --- Dsply Page Title
         SELECT
           'title'   as component,
-          'DNSx Scan Results' as contents;
+          'DNS Enumeration Results' as contents;
 
         SELECT
           'text'              as component,
-          'View DNS resolution details captured via DNSx, including host, IP addresses, record types, TTL, and status codes for mapped assets.' as contents;
+          'This page lists the discovered DNS records using dnsx. It provides information about resolved subdomains, their IP addresses, DNS servers queried, response status, and timestamps for when the enumeration was performed.' as contents;
         
 
         SELECT 'table' AS component,
        TRUE AS sort,
        TRUE AS search;
 
+        ${pagination.init()} 
         SELECT
+            tanent_name AS "Tanent",
             host,
             ttl,
             resolver,
-            ip_address,
+            ip_address as "ip address",
             status_code AS "status code",
             datetime(substr(timestamp, 1, 19), '-4 hours') AS time
-        FROM list_dnsx_data;
-    `;
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/nuclei.sql"() {
+        const viewName = `tem_nuclei_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'Nuclei Scan Findings' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'Nuclei Scan Findings' as contents;
+
+        SELECT
+          'text'              as component,
+          'Comprehensive overview of detected vulnerabilities and exposures from Nuclei scans. Displays host, URL, template details, severity levels, matched paths, and timestamps for quick analysis and remediation planning.' as contents;
+        
+
+        SELECT 'table' AS component,
+       TRUE AS sort,
+       TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            tanent_name AS "Tanent",
+            host,
+            url,
+            template_id AS "Template ID",
+            name AS "Description",
+            severity AS "Severity",
+            ip AS "IP Address",
+            matched_path  AS "Matched Path",
+            datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -304,7 +446,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         const viewName = `tem_naabu_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
-            whereSQL: "",
+            whereSQL: "WHERE tenant_id = $tenant_id",
         });
         return this.SQL`
       ${this.activePageTitle()}
@@ -338,14 +480,15 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
+            tanent_name AS "Tanent",
             host,
             port,
             ip AS "IP Address",
             protocol,
             tls,
             datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};`;
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -353,7 +496,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         const viewName = `tem_subfinder`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
-            whereSQL: "",
+            whereSQL: "WHERE tenant_id = $tenant_id",
         });
         return this.SQL`
       ${this.activePageTitle()}
@@ -386,12 +529,13 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
+            tanent_name           AS  "Tanent",
             domain                AS "Domain",
             raw_records           AS "Discovered Host",
             source                AS "Source",
             tool_name             AS "Tool"
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};`;
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -399,7 +543,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         const viewName = `tem_httpx_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
-            whereSQL: "",
+            whereSQL: "WHERE tenant_id = $tenant_id",
         });
         return this.SQL`
       ${this.activePageTitle()}
@@ -432,6 +576,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
+            tanent_name        AS  "Tanent",
             domain             AS "Domain",
             url                AS "URL",
             scheme             AS "Scheme",
@@ -445,13 +590,61 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             response_time      AS "Response Time",
             http_method        AS "HTTP Method",
             resolved_host      AS "Resolved Host",
-            body_sha256        AS "Body SHA256",
-            header_sha256      AS "Header SHA256",
-            request_failed     AS "Request Failed",
-            ingest_timestamp   AS "Ingested At",
-            uri                AS "URI"
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};`;
+            ingest_timestamp   AS "Ingested At"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/nmap.sql"() {
+        const viewName = `tem_nmap`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+  ${this.activePageTitle()}
+    --- Display breadcrumb
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title,
+           ${this.absoluteURL("/")} AS link;
+    SELECT 'Tem' AS title,
+           ${this.absoluteURL("/tem/index.sql")} AS link;
+    SELECT 'Attack Surface Mapping' AS title,
+           ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+    SELECT 'Nmap Scan Results' AS title,
+           '#' AS link;
+
+    --- Display Page Title
+    SELECT 'title' AS component,
+           'Nmap Scan Results' AS contents;
+
+    --- Page description
+    SELECT 'text' AS component,
+           'This page displays parsed Nmap scan results extracted from XML stored in uniform_resource.content. 
+            It includes host IP, port, protocol, state, and detected service details to help assess open services and network exposure.' AS contents;
+
+    --- Table setup
+    SELECT 'table' AS component,
+           TRUE AS sort,
+           TRUE AS search;
+
+    ${pagination.init()}
+    SELECT
+        tanent_name       AS  "Tanent",
+        host_ip           AS "Host IP",
+        protocol          AS "Protocol",
+        port              AS "Port",
+        state             AS "State",
+        service_name      AS "Service",
+        service_product   AS "Product",
+        service_version   AS "Version",
+        service_extrainfo AS "Extra Info",
+        tool_name         AS "Tool"
+    FROM ${viewName} WHERE tenant_id = $tenant_id;;
+
+    ${pagination.renderSimpleMarkdown("tenant_id")};
+`;
     }
 
 
