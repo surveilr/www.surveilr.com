@@ -43,7 +43,7 @@ RUN mkdir -p /rssd && \
     echo "git_repo\tfull_clone_url" > /rssd/provenance.tsv && \
     echo "git_repo\thttps://github.com/surveilr/www.surveilr.com.git" >> /rssd/provenance.tsv
 
-COPY .env .
+
 # Create an index tsv file with a header for RSSDs
 RUN /bin/bash -c 'echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv'
 
@@ -195,6 +195,17 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
 
 # Update index.html for improved footer styling
 RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</html>" >> /rssd/index.html'
+
+# **NEW STEP: Merge the SQLite Databases with Separate Commands**
+RUN mkdir -p /tmp/rssd_merge && \
+    cp /rssd/lib-pattern-ai-context-middleware.sqlite.db /tmp/rssd_merge/ && \
+    cp /rssd/lib-pattern-compliance-explorer.sqlite.db /tmp/rssd_merge/ && \
+    cd /tmp/rssd_merge && \
+    # Run the merge command
+    surveilr admin merge  && \
+    # Move the merged file back to /rssd with the desired name
+    mv resource-surveillance-aggregated.sqlite.db /rssd/lib-pattern-compliance-explorer.sqlite.db
+
 
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
