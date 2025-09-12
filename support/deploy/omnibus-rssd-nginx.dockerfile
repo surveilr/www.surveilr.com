@@ -64,7 +64,7 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
          echo -e \"IMAP_FOLDER=\${EG_SURVEILR_COM_IMAP_FOLDER}\\nIMAP_USER_NAME=\${EG_SURVEILR_COM_IMAP_USER_NAME}\\nIMAP_PASS=\${EG_SURVEILR_COM_IMAP_PASS}\\nIMAP_HOST=\${EG_SURVEILR_COM_IMAP_HOST}\" > .env; \
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       elif [ \"\$basename_path\" == \"ai-context-middleware\" ]; then \
-         echo -e \"\nOPSFOLIO_PAT=\${OPSFOLIO_PAT}\\n" > .env;\
+         echo -e \"OPSFOLIO_PAT=\${OPSFOLIO_PAT}" > .env;\
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       else \
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
