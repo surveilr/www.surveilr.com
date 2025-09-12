@@ -5,6 +5,7 @@ ARG EG_SURVEILR_COM_IMAP_FOLDER
 ARG EG_SURVEILR_COM_IMAP_USER_NAME
 ARG EG_SURVEILR_COM_IMAP_PASS
 ARG EG_SURVEILR_COM_IMAP_HOST
+ARG OPSFOLIO_PAT
 
 # Install necessary build tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -42,6 +43,7 @@ RUN mkdir -p /rssd && \
     echo "git_repo\tfull_clone_url" > /rssd/provenance.tsv && \
     echo "git_repo\thttps://github.com/surveilr/www.surveilr.com.git" >> /rssd/provenance.tsv
 
+COPY .env .
 # Create an index tsv file with a header for RSSDs
 RUN /bin/bash -c 'echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv'
 
