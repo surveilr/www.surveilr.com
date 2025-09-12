@@ -27,7 +27,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+          
+        # Run the ci-cd-prod.sh script
+      - name: Run ci-cd-prod.sh script
+        run: |
+          bash -x support/ci-cd-prod.sh
+          
       # Build the Docker image
       - name: Build Docker image
         run: |
