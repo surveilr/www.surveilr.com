@@ -27,7 +27,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+          
+        # Run the ci-cd-prod.sh script
+      - name: Run ci-cd-prod.sh script
+        run: |
+          bash -x support/ci-cd-prod.sh
+          
       # Build the Docker image
       - name: Build Docker image
         run: |
@@ -37,6 +42,7 @@ jobs:
              --build-arg EG_SURVEILR_COM_IMAP_USER_NAME=${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }} \
              --build-arg EG_SURVEILR_COM_IMAP_PASS=${{ secrets.EG_SURVEILR_COM_IMAP_PASS }} \
              --build-arg EG_SURVEILR_COM_IMAP_HOST=${{ secrets.EG_SURVEILR_COM_IMAP_HOST }} \
+             --build-arg OPSFOLIO_PAT=${{ secrets.OPSFOLIO_PAT }} \
              -t ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest \
              -f support/deploy/omnibus-rssd-nginx.dockerfile .
 

@@ -353,7 +353,10 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       "frontmatter_merge_group" as title,
       "#" as link from ai_ctxe_uniform_resource_frontmatter_view where uniform_resource_id = $uniform_resource_id;
 ;
- 
+SELECT 'title' AS component, 'Merge Group Details' AS contents;
+ SELECT 'text' as component,
+'This page provides a detailed view of a specific merge group in the AI Context Engineering system. It structured frontmatter details (title, summary, lifecycle, product metadata, provenance, reviewers, and features), and the list of prompts associated with the selected resource.' as contents;
+
       -- First card for accordion (frontmatter details)
       SELECT 'html' AS component,
       '<details open>
@@ -551,8 +554,10 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
       ${this.absoluteURL("/ai-context-engineering/prompts.sql")} as link;
      
       select
-      "Prompt data" as title,
-      "#" as link;
+      "title" as title,
+      "#" as link
+      from ai_ctxe_uniform_resource_prompts
+      where uniform_resource_id = $uniform_resource_id;
      
       SELECT 'title' AS component, 'Prompt Details' AS contents;
       SELECT 'text' as component,

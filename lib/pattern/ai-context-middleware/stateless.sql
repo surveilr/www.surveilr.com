@@ -17,7 +17,7 @@ WHERE uri IS NOT NULL;
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_prompts;
 CREATE VIEW ai_ctxe_uniform_resource_prompts AS
 
-SELECT 
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -71,7 +71,7 @@ WHERE ur.deleted_at IS NULL AND
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view;
 CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view AS
 
-SELECT distinct
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     -- Extracting only important keys from the frontmatter column
@@ -121,7 +121,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_with_content;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_with_content AS
 
-SELECT distinct
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -170,7 +170,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_with_frontmatter;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_with_frontmatter AS
 
-SELECT 
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
    
@@ -221,7 +221,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_all_files;
 
 CREATE VIEW  ai_ctxe_uniform_resource_all_files AS
 
-SELECT 
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -299,7 +299,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_without_frontmatter;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_without_frontmatter AS
 
-SELECT 
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -322,7 +322,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_oversized_list;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_oversized_list AS
 
-SELECT 
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -345,7 +345,7 @@ DROP VIEW IF EXISTS ai_ctxe_uniform_resource_merge_group_risks;
 
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_merge_group_risks AS
 
-SELECT
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     ur.created_at,
@@ -446,7 +446,7 @@ WHERE ur.deleted_at IS NULL
 -- Drop and create view for anythingllm
 DROP VIEW IF EXISTS uniform_resource_build_anythingllm;
 CREATE VIEW uniform_resource_build_anythingllm AS
-SELECT 
+SELECT DISTINCT
  ur.uniform_resource_id,
     ur.uri,
     
@@ -497,7 +497,7 @@ AND ur.uri LIKE '%.build/anythingllm%';
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view_anythingllm;
 CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view_anythingllm AS
 
-SELECT distinct
+SELECT DISTINCT
     uniform_resource_id,
     uri,
     -- Extracting only important keys from the frontmatter column
@@ -568,7 +568,7 @@ WHERE ur.deleted_at IS NULL
 -- Drop and create view for transformed resources valid
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_transformed_resources_valid;
 CREATE VIEW IF NOT EXISTS ai_ctxe_uniform_resource_transformed_resources_valid AS
-SELECT
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     ur.nature,
@@ -601,7 +601,7 @@ WHERE ur.deleted_at IS NULL
 
 DROP VIEW IF EXISTS ai_ctxe_view_uniform_resource_fii;
 CREATE VIEW ai_ctxe_view_uniform_resource_fii AS
-SELECT distinct
+SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
     
@@ -657,7 +657,7 @@ ur.uri LIKE '%/hipaa/%' AND
 DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view_fii;
 CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view_fii AS
 
-SELECT distinct
+SELECT DISTINCT
     uniform_resource_id,
     uri,
     -- Extracting only important keys from the frontmatter column

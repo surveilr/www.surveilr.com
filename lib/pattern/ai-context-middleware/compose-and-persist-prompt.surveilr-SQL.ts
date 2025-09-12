@@ -250,9 +250,9 @@ async function composeForMergeGroup(
 }
 
 async function processAllMergeGroups(): Promise<void> {
-  const databasePath = Deno.env.get("SURVEILR_DB_PATH");
+  const databasePath = Deno.args[0];
   if (!databasePath) {
-    errlog("SURVEILR_DB_PATH is not defined.");
+    errlog("Database path must be provided as the first CLI argument, e.g. deno run -A compose-and-persist-prompt.surveilr-SQL.ts resource-surveillance.sqlite.db");
     Deno.exit(1);
   }
 
