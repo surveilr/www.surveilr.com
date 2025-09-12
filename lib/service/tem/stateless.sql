@@ -1,3 +1,16 @@
+-- The `tem_tenant` view represents tenants within TEM.
+-- Each record is derived from the `organization` table.
+-- - `organization_id` keeps the unique identifier of the organization.
+-- - `party_id` is exposed as `tenant_id`.
+-- - `name` is exposed as `tanent_name` (tenant’s display name).
+DROP VIEW IF EXISTS tem_tenant;
+CREATE VIEW tem_tenant AS
+SELECT
+  organization_id,
+  party_id AS tenant_id,
+  name AS tanent_name
+FROM organization;
+
 -- This query extracts unique asset names from the `uniform_resource` table for URIs under `/var/`.
 -- It breaks down each URI into its path segments and applies the following rules:
 --   1. Identifies the base asset folder (e.g., ".session", "dnsx", "tls").
@@ -61,16 +74,19 @@ DROP VIEW IF EXISTS tem_what_web_result_original_json;
 CREATE VIEW tem_what_web_result_original_json AS
 WITH cleaned AS (
   SELECT
-    uniform_resource_id,
-    uri,
+    ur.uniform_resource_id,
+    ur.uri,
+    dpr.party_id,
     TRIM(REPLACE(REPLACE(content, char(13), ''), char(10), '')) AS c
-  FROM uniform_resource
+  FROM uniform_resource ur
+  INNER JOIN device_party_relationship dpr ON dpr.device_id=ur.device_id
   WHERE nature = 'json'
     AND uri LIKE '%whatweb/%'
     AND content LIKE '[%' -- ensure it starts with [
 )
 SELECT
   c.uniform_resource_id,
+  c.party_id AS tenant_id,
   c.uri,
   json_each.value AS object
 FROM cleaned c,
@@ -84,6 +100,7 @@ DROP VIEW IF EXISTS tem_what_web_result;
 CREATE VIEW tem_what_web_result AS
 SELECT
     uniform_resource_id,
+    tenant_id,
     json_extract(object, '$.target') AS target_url,
     json_extract(object, '$.http_status') AS http_status,
     json_extract(object, '$.plugins.IP.string[0]') AS ip_address,
@@ -150,3 +167,54 @@ SELECT
   json_extract(content, '$.tls') AS tls
 FROM uniform_resource
 WHERE nature = 'jsonl' AND uri LIKE '%/naabu/%';
+
+-- View: tem_subfinder
+-- Purpose: Normalize subfinder JSON results stored in uniform_resource.content 
+-- into structured columns. Extracts domain (input), discovered host (raw_records), 
+-- and source, along with metadata such as ingest timestamp and tool name. 
+-- Filters rows where uri indicates ingestion from subfinder.
+DROP VIEW IF EXISTS tem_subfinder;
+CREATE VIEW tem_subfinder AS
+SELECT
+    ur.uniform_resource_id,
+    ur.device_id,
+    ur.ingest_session_id,
+    ur.uri,
+    json_extract(ur.content, '$.input')   AS domain,
+    json_extract(ur.content, '$.host')    AS raw_records,
+    json_extract(ur.content, '$.source')  AS source,
+    ur.created_at                         AS ingest_timestamp,
+    'subfinder'                           AS tool_name
+FROM uniform_resource ur
+WHERE ur.uri LIKE '%subfinder%';
+
+-- View: tem_httpx_result
+-- Purpose:
+--   Normalize httpx-toolkit JSON results stored in uniform_resource.content
+--   into structured columns. Provides details on domains, IPs, URLs,
+--   HTTP metadata, response status, and timing. Filters only rows
+--   where the uri indicates ingestion from httpx-toolkit.
+DROP VIEW IF EXISTS tem_httpx_result;
+CREATE VIEW tem_httpx_result AS
+SELECT
+    ur.uniform_resource_id,
+    ur.device_id,
+    ur.ingest_session_id,
+    ur.uri,
+    json_extract(ur.content, '$.input')          AS domain,
+    json_extract(ur.content, '$.url')            AS url,
+    json_extract(ur.content, '$.scheme')         AS scheme,
+    json_extract(ur.content, '$.port')           AS port,
+    json_extract(ur.content, '$.a')              AS ip_addresses,
+    json_extract(ur.content, '$.status-code')    AS status_code,
+    json_extract(ur.content, '$.content-type')   AS content_type,
+    json_extract(ur.content, '$.response-time')  AS response_time,
+    json_extract(ur.content, '$.method')         AS http_method,
+    json_extract(ur.content, '$.host')           AS resolved_host,
+    json_extract(ur.content, '$.body-sha256')    AS body_sha256,
+    json_extract(ur.content, '$.header-sha256')  AS header_sha256,
+    json_extract(ur.content, '$.failed')         AS request_failed,
+    ur.created_at                                AS ingest_timestamp,
+    'httpx-toolkit'                              AS tool_name
+FROM uniform_resource ur
+WHERE ur.uri LIKE '%httpx-toolkit%';

@@ -142,7 +142,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
             asset 
-        FROM tem_eaa_asset_uri;
+        FROM list_eaa_asset;
     `;
     }
 
@@ -191,6 +191,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
            '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql")
             }||')' as Asset;
+        SELECT
+           '[Subfinder Results]('||${this.absoluteURL("/tem/subfinder.sql")
+            }||')' as Asset;
+         SELECT
+           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/httpx-toolkit.sql")
+            }||')' as Asset;
     `;
     }
 
@@ -198,11 +204,6 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/what_web.sql"() {
-        const viewName = `tem_what_web_result`;
-        const pagination = this.pagination({
-            tableOrViewName: viewName,
-            whereSQL: "",
-        });
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -226,41 +227,37 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
           'text'              as component,
-          'This page displays the results of automated web technology fingerprinting using WhatWeb. It includes details about detected servers, technologies, HTTP responses, geolocation, and key headers for each scanned endpoint.' as contents;
+          'Identifies and profiles technologies used by web applications, including servers, frameworks, and plugins, to assess potential attack vectors and improve security visibility.' as contents;
         
 
         SELECT 'table' AS component,
        TRUE AS sort,
        'http_status' AS markdown,
        TRUE AS search;
-       
-        ${pagination.init()} 
+
         SELECT
-            target_url AS "Target URL",
+            target_url AS "URL",
         CASE
                 WHEN http_status BETWEEN 200 AND 299 THEN '🟢 ' || http_status
                 WHEN http_status BETWEEN 300 AND 399 THEN '🟠 ' || http_status
                 WHEN http_status BETWEEN 400 AND 599 THEN '🔴 ' || http_status
             ELSE CAST(http_status AS TEXT)
-            END AS "HTTP Status",
+            END AS http_status,
             ip_address AS "IP Address",
             country AS "Country",
-            http_server AS "Web Server",
-            page_title AS "Detected Technologies",
-            uncommon_headers AS "Key HTTP Headers"
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};
+            http_server AS "HTTP Server",
+            page_title AS "Page Title",
+            x_frame_options AS "X-Frame-Options",
+            uncommon_headers AS "Uncommon Headers",
+            strict_transport_security AS "Strict Transport Decurity",
+            module AS "Module"
+        FROM list_what_web_data;
     `;
     }
 
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/dnsx.sql"() {
-        const viewName = `tem_dnsx_result`;
-        const pagination = this.pagination({
-            tableOrViewName: viewName,
-            whereSQL: "",
-        });
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -274,85 +271,32 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
-        SELECT 'DNS Enumeration Results' AS title,
+        SELECT 'DNSx Scan Results' AS title,
             '#' AS link;
 
         --- Dsply Page Title
         SELECT
           'title'   as component,
-          'DNS Enumeration Results' as contents;
+          'DNSx Scan Results' as contents;
 
         SELECT
           'text'              as component,
-          'This page lists the discovered DNS records using dnsx. It provides information about resolved subdomains, their IP addresses, DNS servers queried, response status, and timestamps for when the enumeration was performed.' as contents;
+          'View DNS resolution details captured via DNSx, including host, IP addresses, record types, TTL, and status codes for mapped assets.' as contents;
         
 
         SELECT 'table' AS component,
        TRUE AS sort,
        TRUE AS search;
 
-        ${pagination.init()} 
         SELECT
             host,
             ttl,
             resolver,
-            ip_address as "ip address",
+            ip_address,
             status_code AS "status code",
             datetime(substr(timestamp, 1, 19), '-4 hours') AS time
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};`;
-    }
-
-
-    @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/nuclei.sql"() {
-        const viewName = `tem_nuclei_result`;
-        const pagination = this.pagination({
-            tableOrViewName: viewName,
-            whereSQL: "",
-        });
-        return this.SQL`
-      ${this.activePageTitle()}
-        --- Display breadcrumb
-        SELECT
-            'breadcrumb' AS component;
-        SELECT
-            'Home' AS title,
-            ${this.absoluteURL("/")}    AS link;
-        SELECT
-            'Tem' AS title,
-            ${this.absoluteURL("/tem/index.sql")} AS link;  
-        SELECT 'Attack Surface Mapping' AS title,
-            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
-        SELECT 'Nuclei Scan Findings' AS title,
-            '#' AS link;
-
-        --- Dsply Page Title
-        SELECT
-          'title'   as component,
-          'Nuclei Scan Findings' as contents;
-
-        SELECT
-          'text'              as component,
-          'Comprehensive overview of detected vulnerabilities and exposures from Nuclei scans. Displays host, URL, template details, severity levels, matched paths, and timestamps for quick analysis and remediation planning.' as contents;
-        
-
-        SELECT 'table' AS component,
-       TRUE AS sort,
-       TRUE AS search;
-
-        ${pagination.init()} 
-        SELECT
-            host,
-            url,
-            template_id AS "Template ID",
-            name AS "Description",
-            severity AS "Severity",
-            ip AS "IP Address",
-            matched_path  AS "Matched Path",
-            datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
-        FROM ${viewName};
-        ${pagination.renderSimpleMarkdown()};`;
+        FROM list_dnsx_data;
+    `;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -403,6 +347,114 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         FROM ${viewName};
         ${pagination.renderSimpleMarkdown()};`;
     }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/subfinder.sql"() {
+        const viewName = `tem_subfinder`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")} AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'Subfinder Results' AS title,
+            '#' AS link;
+
+        --- Display Page Title
+        SELECT
+          'title'   as component,
+          'Subfinder Results' as contents;
+
+        SELECT
+          'text' as component,
+          'This page displays results from the Subfinder tool. It shows discovered subdomains, their source, and ingestion metadata. This helps in expanding the attack surface by enumerating subdomains associated with target domains and providing visibility into where they were found.' as contents;
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            domain                AS "Domain",
+            raw_records           AS "Discovered Host",
+            source                AS "Source",
+            tool_name             AS "Tool"
+        FROM ${viewName};
+        ${pagination.renderSimpleMarkdown()};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/httpx-toolkit.sql"() {
+        const viewName = `tem_httpx_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")} AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping.sql")} AS link;
+        SELECT 'HTTPX Toolkit Results' AS title,
+            '#' AS link;
+
+        --- Display Page Title
+        SELECT
+          'title'   as component,
+          'HTTPX Toolkit Results' as contents;
+
+        SELECT
+          'text' as component,
+          'This page displays results from the httpx-toolkit. It provides insights into HTTP/HTTPS endpoints, including status codes, response times, content type, IP resolution, and digests. This helps identify live services, exposed endpoints, and potential security issues.' as contents;
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            domain             AS "Domain",
+            url                AS "URL",
+            scheme             AS "Scheme",
+            port               AS "Port",
+            (
+                SELECT group_concat(value, ', ')
+                FROM json_each(ip_addresses)
+            )                 AS "IP Addresses",
+            status_code        AS "Status Code",
+            content_type       AS "Content Type",
+            response_time      AS "Response Time",
+            http_method        AS "HTTP Method",
+            resolved_host      AS "Resolved Host",
+            body_sha256        AS "Body SHA256",
+            header_sha256      AS "Header SHA256",
+            request_failed     AS "Request Failed",
+            ingest_timestamp   AS "Ingested At",
+            uri                AS "URI"
+        FROM ${viewName};
+        ${pagination.renderSimpleMarkdown()};`;
+    }
+
+
 }
 
 export async function SQL() {
