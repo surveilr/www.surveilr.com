@@ -19,7 +19,17 @@ jobs:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
+        
+      # Set environment variables
+      - name: Execute variables
+        env:
+          OPSFOLIO_PAT: ${{ secrets.OPSFOLIO_PAT }}
 
+      # Run the ci-cd-prod.sh script
+      - name: Run ci-cd-prod.sh script
+        run: |
+          bash -x support/ci-cd-prod.sh    
+           
       # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
@@ -27,11 +37,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
-        # Run the ci-cd-prod.sh script
-      - name: Run ci-cd-prod.sh script
-        run: |
-          bash -x support/ci-cd-prod.sh
           
       # Build the Docker image
       - name: Build Docker image
