@@ -34,13 +34,45 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.navigationPrimeTopLevel({
-    caption: "SCF Controls",
+    caption: "Controls",
     description:
       "SCF (Secure Controls Framework) controls are a set of cybersecurity and privacy requirements designed to help organizations manage and comply with various regulatory, statutory, and contractual frameworks.",
   })
   "ce/index.sql"() {
     return this.SQL`
     SELECT
+      'text' AS component,
+      'Compliance Explorer' AS title;
+
+    SELECT
+      'The compliance explorer covers a wide range of standards and guidelines across different areas of cybersecurity and data protection. They include industry-specific standards, privacy regulations, and cybersecurity frameworks. Complying with these frameworks supports a strong cybersecurity stance and alignment with data protection laws.' AS contents;
+
+    SELECT
+      'card' AS component,
+      '' AS title,
+      2 AS columns;
+
+    SELECT
+      'Secure Controls Framework (SCF)' AS title,
+      'Explore SCF Controls' AS description_md,
+      '/ce/regime/scf.sql' AS link
+    UNION
+    SELECT
+      'AICPA SOC 2' AS title,
+      'Explore SOC 2 Controls' AS description_md,
+      '/ce/regime/soc2.sql' AS link;
+  `;
+  }
+
+  @ceNav({
+    caption: " ",
+    description: ``,
+    siblingOrder: 2,
+  })
+  "ce/regime/scf.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+      SELECT
     'text' AS component,
     'Compliance Explorer ' AS title;
     SELECT
@@ -56,8 +88,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Health Insurance Portability and Accountability Act (HIPAA)**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL("/ce/regime/controls.sql?regimeType=US%20HIPAA")
-      }|| ')' AS description_md
+      '[**Detail View**](' || ${
+      this.absoluteURL(
+        "/ce/regime/controls.sql?regimeType=US%20HIPAA",
+      )
+    }|| ')' AS description_md
     FROM compliance_regime
     WHERE title = 'US HIPAA';
 
@@ -68,10 +103,45 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Standard 800-53 rev4**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL("/ce/regime/controls.sql?regimeType=NIST")
-      } || ')' AS description_md
+      '[**Detail View**](' || ${
+      this.absoluteURL(
+        "/ce/regime/controls.sql?regimeType=NIST",
+      )
+    } || ')' AS description_md
     FROM compliance_regime
     WHERE title = 'NIST';`;
+  }
+
+  @ceNav({
+    caption: "SOC 2",
+    description: "AICPA SOC 2 trust services criteria controls.",
+    siblingOrder: 3,
+  })
+  "ce/regime/soc2.sql"() {
+    return this.SQL`
+      ${this.activePageTitle()}
+      SELECT
+        'text' AS component,
+        'SOC 2 Controls' AS title;
+
+      SELECT
+        'The SOC 2 controls are based on the AICPA Trust Services Criteria, focusing on security, availability, processing integrity, confidentiality, and privacy.' AS contents;
+
+      SELECT
+        'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+      SELECT
+        control_id AS "Control Identifier",
+        control_name AS "Control Name",
+        common_criteria AS "Common Criteria",
+        criteria_type AS "Criteria Type",
+        control_question AS "Control Question",
+        control_code AS "SCF Reference",
+        tenant_name AS "Tenant"
+      FROM compliance_regime_control_soc2;
+    `;
   }
 
   @ceNav({
@@ -92,8 +162,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       TRUE AS sort,
       TRUE AS search,
       "Control Code" AS markdown;
-      SELECT '[' || control_code || ']('|| ${this.absoluteURL("/ce/regime/control/control_detail.sql?id=")
-      } || control_code || '&regimeType='|| replace($regimeType,
+      SELECT '[' || control_code || ']('|| ${
+      this.absoluteURL(
+        "/ce/regime/control/control_detail.sql?id=",
+      )
+    } || control_code || '&regimeType='|| replace($regimeType,
     " ", "%20")||')' AS "Control Code",
       scf_control AS "Title",
       scf_domain AS "Domain",
@@ -121,10 +194,10 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT 'card' as component, 1 as columns;
     SELECT
-   
+
       '\n' || p.body_text AS description_md
       FROM ai_ctxe_policy p
-     
+
       WHERE p.satisfies = $id
       ;
     `;
