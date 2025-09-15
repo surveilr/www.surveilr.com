@@ -5,7 +5,7 @@ ARG EG_SURVEILR_COM_IMAP_FOLDER
 ARG EG_SURVEILR_COM_IMAP_USER_NAME
 ARG EG_SURVEILR_COM_IMAP_PASS
 ARG EG_SURVEILR_COM_IMAP_HOST
-ARG OPSFOLIO_PAT
+#ARG OPSFOLIO_PAT
 
 # Install necessary build tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -48,8 +48,8 @@ RUN mkdir -p /rssd && \
 # Create an index tsv file with a header for RSSDs
 RUN /bin/bash -c 'echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv'
 
-ENV OPSFOLIO_PAT=${OPSFOLIO_PAT}
-RUN echo $OPSFOLIO_PAT
+#ENV OPSFOLIO_PAT=${OPSFOLIO_PAT}
+#RUN echo $OPSFOLIO_PAT
 
 # Find directories containing `eg.surveilr.com-prepare.ts`, prepare RSSDs dependencies
 RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg.surveilr.com-prepare.ts' -exec dirname {} \;)) && \
@@ -61,9 +61,9 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
       mkdir -p /rssd/logs && \
       if [ \"\$basename_path\" == \"site-quality-explorer\" ]; then \
          deno run -A ./eg.surveilr.com-prepare.ts resourceName=surveilr.com rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
-      elif [ \"\$basename_path\" == \"ai-context-middleware\" ]; then \
-         echo -e \"OPSFOLIO_PAT=\${OPSFOLIO_PAT}\" > .env; \
-         deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
+      #elif [ \"\$basename_path\" == \"ai-context-middleware\" ]; then \
+        # echo -e \"OPSFOLIO_PAT=\${OPSFOLIO_PAT}\" > .env; \
+        # deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       elif [ \"\$basename_path\" == \"content-assembler\" ]; then \
          echo -e \"IMAP_FOLDER=\${EG_SURVEILR_COM_IMAP_FOLDER}\\nIMAP_USER_NAME=\${EG_SURVEILR_COM_IMAP_USER_NAME}\\nIMAP_PASS=\${EG_SURVEILR_COM_IMAP_PASS}\\nIMAP_HOST=\${EG_SURVEILR_COM_IMAP_HOST}\" > .env; \
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
