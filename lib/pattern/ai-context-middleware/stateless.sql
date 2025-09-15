@@ -599,12 +599,21 @@ WHERE ur.deleted_at IS NULL
   );
 
 
-DROP VIEW IF EXISTS ai_ctxe_view_uniform_resource_fii;
-CREATE VIEW ai_ctxe_view_uniform_resource_fii AS
+DROP VIEW IF EXISTS ai_ctxe_view_uniform_resource_complaince;
+CREATE VIEW ai_ctxe_view_uniform_resource_complaince AS
+
 SELECT DISTINCT
     ur.uniform_resource_id,
     ur.uri,
-    
+
+    -- Extract regime from URI
+    CASE
+        WHEN ur.uri LIKE '%/regime/hipaa/%' THEN 'HIPAA'
+        WHEN ur.uri LIKE '%/regime/soc2/%' THEN 'SOC2'
+        WHEN ur.uri LIKE '%/regime/nist/%' THEN 'NIST'
+        ELSE 'Other'
+    END AS regime,
+
     -- Extract filename from file_path_rel
     CASE 
         WHEN urf.file_path_rel LIKE '%/%' THEN 
@@ -612,55 +621,35 @@ SELECT DISTINCT
         ELSE 
             urf.file_path_rel
     END AS filename,
-    
+
     ur.created_at,
     ur.created_by,
     ur.content,
     ur.frontmatter,
-    
+
     -- Extract title and summary from frontmatter JSON
     json_extract(ur.frontmatter, '$.title') AS title,
     json_extract(ur.frontmatter, '$.description') AS summary,
     json_extract(ur.frontmatter, '$.merge-group') AS merge_group,
-  COALESCE(json_extract(ur.frontmatter, '$.order'), 999999) AS ord,
+    COALESCE(json_extract(ur.frontmatter, '$.order'), 999999) AS ord,
 
     -- content with frontmatter stripped
     TRIM(
-    CASE
-      WHEN instr(ur.content, '---') = 1
-        THEN substr(
-          ur.content,
-          instr(ur.content, '---') + 3 + instr(substr(ur.content, instr(ur.content, '---') + 3), '---') + 3
-        )
-      ELSE ur.content
-    END
-  ) AS body_text,
+        CASE
+            WHEN instr(ur.content, '---') = 1
+                THEN substr(
+                    ur.content,
+                    instr(ur.content, '---') + 3 + instr(substr(ur.content, instr(ur.content, '---') + 3), '---') + 3
+                )
+            ELSE ur.content
+        END
+    ) AS body_text,
 
     -- Additional useful fields from uniform_resource_file
     urf.nature,
     urf.source_path,
     urf.file_path_rel,
-    urf.size_bytes
-
-FROM uniform_resource ur
-LEFT JOIN uniform_resource_file urf 
-    ON ur.uniform_resource_id = urf.uniform_resource_id
-LEFT JOIN   ur_ingest_session_fs_path_entry fs
-  ON fs.uniform_resource_id = ur.uniform_resource_id AND fs.uniform_resource_id=urf.uniform_resource_id
-WHERE ur.deleted_at IS NULL AND 
-ur.uri LIKE '%/hipaa/%' AND 
-  (fs.file_basename LIKE '%.prompt.md' OR fs.file_basename LIKE '%.prompt-snippet.md' OR fs.file_basename LIKE '%-prompt-meta.md');
-
-   
-
-
-DROP VIEW IF EXISTS ai_ctxe_uniform_resource_frontmatter_view_fii;
-CREATE VIEW ai_ctxe_uniform_resource_frontmatter_view_fii AS
-
-SELECT DISTINCT
-    uniform_resource_id,
-    uri,
-    -- Extracting only important keys from the frontmatter column
+    urf.size_bytes,
     json_extract(frontmatter, '$.id') AS frontmatter_id,
     json_extract(frontmatter, '$.title') AS title,
     json_extract(frontmatter, '$.description') AS frontmatter_summary,
@@ -692,4 +681,17 @@ SELECT DISTINCT
     
 
 
-FROM ai_ctxe_view_uniform_resource_fii ;
+FROM uniform_resource ur
+LEFT JOIN uniform_resource_file urf 
+    ON ur.uniform_resource_id = urf.uniform_resource_id
+LEFT JOIN ur_ingest_session_fs_path_entry fs
+    ON fs.uniform_resource_id = ur.uniform_resource_id AND fs.uniform_resource_id = urf.uniform_resource_id
+WHERE ur.deleted_at IS NULL
+  AND (
+    ur.uri LIKE '%/regime/hipaa/%'
+    OR ur.uri LIKE '%/regime/soc2/%'
+    OR ur.uri LIKE '%/regime/nist/%'
+  )
+  AND (fs.file_basename LIKE '%.prompt.md' OR fs.file_basename LIKE '%.prompt-snippet.md' OR fs.file_basename LIKE '%-prompt-meta.md');
+
+
