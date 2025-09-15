@@ -36,8 +36,8 @@ importers:
         specifier: ^3.2.3
         version: 3.2.3
       '@preline/overlay':
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.2.3
+        version: 3.2.3
       '@preline/tabs':
         specifier: ^3.1.0
         version: 3.1.0
@@ -1040,8 +1040,8 @@ packages:
   '@preline/dropdown@3.2.3':
     resolution: {integrity: sha512-cvTJQ8rPdb6QP9tfPwdCgjhif3+/UR1b6edDETURSaTCBzGtfQhoiSCFZAn1fNBwJEE0yYH007vcp+VOEDTJYw==}
 
-  '@preline/overlay@3.1.0':
-    resolution: {integrity: sha512-IfB96T5HVyoAXp0Ly/m/ZxsQ/R4uL/fGdWX9EB/n94c2bjll4Hx/rj7AUJ/HT4eQXntYGVb0ZmAXYQ0vjqARvw==}
+  '@preline/overlay@3.2.3':
+    resolution: {integrity: sha512-/MI5++XAezbVFReVw65KxLeiDJL62lWDywPxvWmH/EHMyOQ/N3d9SXC/VBQ/nyozQOwckv1ym2vw0wGbTfI+5w==}
 
   '@preline/tabs@3.1.0':
     resolution: {integrity: sha512-TbwSAAGeLydaI6nu1j9XPVzcr7LkZVWKgGZPH6DkEdWXpDOeDA1mCQ8raEBGDk354Nf5a6z/Y61fN7wzuYkG0w==}
@@ -5134,7 +5134,7 @@ snapshots:
     dependencies:
       '@floating-ui/dom': 1.7.3
 
-  '@preline/overlay@3.1.0': {}
+  '@preline/overlay@3.2.3': {}
 
   '@preline/tabs@3.1.0': {}
 
