@@ -5,7 +5,7 @@ ARG EG_SURVEILR_COM_IMAP_FOLDER
 ARG EG_SURVEILR_COM_IMAP_USER_NAME
 ARG EG_SURVEILR_COM_IMAP_PASS
 ARG EG_SURVEILR_COM_IMAP_HOST
-#ARG OPSFOLIO_PAT
+ARG OPSFOLIO_PAT
 
 # Install necessary build tools and dependencies
 RUN apt-get update && apt-get install -y \
@@ -34,7 +34,6 @@ ENV SURVEILR_SQLPKG=/root/.sqlpkg
 RUN ln -s /root/.local/bin/sqlpkg /usr/bin/sqlpkg
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 
-
 # Clone the www.surveilr.com repository
 WORKDIR /app
 RUN git clone https://github.com/surveilr/www.surveilr.com.git
@@ -44,12 +43,9 @@ RUN mkdir -p /rssd && \
     echo "git_repo\tfull_clone_url" > /rssd/provenance.tsv && \
     echo "git_repo\thttps://github.com/surveilr/www.surveilr.com.git" >> /rssd/provenance.tsv
 
-
+#COPY .env .
 # Create an index tsv file with a header for RSSDs
 RUN /bin/bash -c 'echo -e "expose_endpoint\trelative_path\trssd_name\tport\tpackage_sql" > /rssd/index.tsv'
-
-#ENV OPSFOLIO_PAT=${OPSFOLIO_PAT}
-#RUN echo $OPSFOLIO_PAT
 
 # Find directories containing `eg.surveilr.com-prepare.ts`, prepare RSSDs dependencies
 RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg.surveilr.com-prepare.ts' -exec dirname {} \;)) && \
@@ -61,9 +57,6 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'eg
       mkdir -p /rssd/logs && \
       if [ \"\$basename_path\" == \"site-quality-explorer\" ]; then \
          deno run -A ./eg.surveilr.com-prepare.ts resourceName=surveilr.com rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
-      #elif [ \"\$basename_path\" == \"ai-context-middleware\" ]; then \
-        # echo -e \"OPSFOLIO_PAT=\${OPSFOLIO_PAT}\" > .env; \
-        # deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
       elif [ \"\$basename_path\" == \"content-assembler\" ]; then \
          echo -e \"IMAP_FOLDER=\${EG_SURVEILR_COM_IMAP_FOLDER}\\nIMAP_USER_NAME=\${EG_SURVEILR_COM_IMAP_USER_NAME}\\nIMAP_PASS=\${EG_SURVEILR_COM_IMAP_PASS}\\nIMAP_HOST=\${EG_SURVEILR_COM_IMAP_HOST}\" > .env; \
          deno run -A ./eg.surveilr.com-prepare.ts rssdPath=/rssd/\$rssd_name > /rssd/logs/\$rssd_name.log 2>&1; \
@@ -202,17 +195,6 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
 
 # Update index.html for improved footer styling
 RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</html>" >> /rssd/index.html'
-
-# **NEW STEP: Merge the SQLite Databases with Separate Commands**
-#RUN mkdir -p /tmp/rssd_merge && \
-  #  cp /rssd/lib-pattern-ai-context-middleware.sqlite.db /tmp/rssd_merge/ && \
-   # cp /rssd/lib-pattern-compliance-explorer.sqlite.db /tmp/rssd_merge/ && \
-  #  cd /tmp/rssd_merge && \
-    # Run the merge command
- #   surveilr admin merge  && \
-    # Move the merged file back to /rssd with the desired name
- #   mv resource-surveillance-aggregated.sqlite.db /rssd/lib-pattern-compliance-explorer.sqlite.db
-
 
 # CMD to run the start_application.sh script
 CMD ["/start_application.sh"]
