@@ -204,14 +204,14 @@ RUN echo '#!/bin/bash' > /start_application.sh && \
 RUN /bin/bash -c 'echo -e "    </main>\n    <footer>\n   </footer>\n</body>\n</html>" >> /rssd/index.html'
 
 # **NEW STEP: Merge the SQLite Databases with Separate Commands**
-RUN mkdir -p /tmp/rssd_merge && \
-    cp /rssd/lib-pattern-ai-context-middleware.sqlite.db /tmp/rssd_merge/ && \
-    cp /rssd/lib-pattern-compliance-explorer.sqlite.db /tmp/rssd_merge/ && \
-    cd /tmp/rssd_merge && \
+#RUN mkdir -p /tmp/rssd_merge && \
+  #  cp /rssd/lib-pattern-ai-context-middleware.sqlite.db /tmp/rssd_merge/ && \
+   # cp /rssd/lib-pattern-compliance-explorer.sqlite.db /tmp/rssd_merge/ && \
+  #  cd /tmp/rssd_merge && \
     # Run the merge command
-    surveilr admin merge  && \
+ #   surveilr admin merge  && \
     # Move the merged file back to /rssd with the desired name
-    mv resource-surveillance-aggregated.sqlite.db /rssd/lib-pattern-compliance-explorer.sqlite.db
+ #   mv resource-surveillance-aggregated.sqlite.db /rssd/lib-pattern-compliance-explorer.sqlite.db
 
 
 # CMD to run the start_application.sh script
