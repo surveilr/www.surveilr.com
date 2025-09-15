@@ -31,7 +31,7 @@ resource-surveillance.sqlite.db
 resource-surveillance-aggregated.sqlite.db
 
 # when testing in this repo, we might have ingest samples / exemplars
-#ingest/
+ingest/
 study-files/
 ctr-study-files/
 de-trended-analysis-files/
