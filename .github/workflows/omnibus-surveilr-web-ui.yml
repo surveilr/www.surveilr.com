@@ -27,13 +27,13 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.DEPLOY_TOKEN }}
           
       # Build the Docker image
       - name: Build Docker image
         run: |
           docker build \
-             --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+             --build-arg GITHUB_TOKEN=${{ secrets.DEPLOY_TOKEN }} \
              --build-arg EG_SURVEILR_COM_IMAP_FOLDER=${{ secrets.EG_SURVEILR_COM_IMAP_FOLDER }} \
              --build-arg EG_SURVEILR_COM_IMAP_USER_NAME=${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }} \
              --build-arg EG_SURVEILR_COM_IMAP_PASS=${{ secrets.EG_SURVEILR_COM_IMAP_PASS }} \
