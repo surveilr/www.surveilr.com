@@ -543,7 +543,7 @@ SELECT
   uri as "URI"
 
  
-FROM ai_ctxe_view_uniform_resource_complaince
+FROM ai_ctxe_view_uniform_resource_complaince where regime='HIPAA'
 ;
  
     `;
