@@ -61,6 +61,27 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       'AICPA SOC 2' AS title,
       'Explore SOC 2 Controls' AS description_md,
       ${this.absoluteURL("/ce/regime/soc2.sql")} as link
+    UNION
+    SELECT
+      'HiTRUST e1 Assessment' AS title,
+      'Explore HiTRUST e1 Assessment  Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/hitrust.sql")} as link
+    UNION
+    SELECT
+      'ISO 27001:2022' AS title,
+      'Explore ISO 27001:2022  Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/iso-27001.sql")} as link
+    UNION
+    SELECT
+      'HIPAA' AS title,
+      'Explore HIPAA Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link
+    UNION
+    SELECT
+      'Together.Health Security Assessment (THSA)' AS title,
+      'Explore THSA Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/thsa.sql")} AS link;
+ 
   `;
   }
 
@@ -170,6 +191,138 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       control_description AS "Control Description",
       control_id AS "Requirements"
       FROM compliance_regime_control WHERE control_type=$regimeType::TEXT;`;
+  }
+
+  @ceNav({
+    caption: "HiTRUST e1 Assessment",
+    description: "HiTRUST e1 Assessment services criteria controls.",
+    siblingOrder: 3,
+  })
+  "ce/regime/hitrust.sql"() {
+    return this.SQL`
+     ${this.activePageTitle()}
+     SELECT
+      'text' AS component,
+      'HiTRUST e1 Assessment Controls' AS title;
+
+     SELECT
+      'The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.' AS contents;
+
+     SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+
+     SELECT
+      control_code AS "ID",
+      control_id AS "Control Identifier",
+      fii_id AS "Fii ID",
+      common_criteria AS "Common Criteria",
+      control_name AS "Control Name",
+      control_question AS "Control Description",
+      tenant_name AS "Tenant"
+     FROM compliance_regime_control_hitrust_e1;
+    `;
+  }
+
+  @ceNav({
+    caption: "ISO 27001 v3",
+    description: "ISO 27001 v3 controls mapped with SCF.",
+    siblingOrder: 4,
+  })
+  "ce/regime/iso-27001.sql"() {
+    return this.SQL`
+     ${this.activePageTitle()}
+     SELECT
+      'text' AS component,
+      'ISO 27001 v3 Controls' AS title;
+
+     SELECT
+      'The ISO 27001 v3 controls are aligned with the Secure Controls Framework (SCF) to provide a comprehensive mapping of security requirements.' AS contents;
+
+     SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+
+     SELECT
+      control_code AS "Control Code",
+      scf_domain AS "SCF Domain",
+      scf_control AS "SCF Control",
+      control_description AS "Control Description",
+      control_question AS "Control Question",
+      evidence AS "Evidence",
+      tenant_name AS "Tenant"
+     FROM compliance_iso_27001_control;
+    `;
+  }
+
+  @ceNav({
+    caption: "HIPAA Security Rule Safeguards",
+    description:
+      "HIPAA Security Rule safeguards and their mapping with SCF and FII IDs.",
+    siblingOrder: 5,
+  })
+  "ce/regime/hipaa_security_rule.sql"() {
+    return this.SQL`
+     ${this.activePageTitle()}
+     SELECT
+      'text' AS component,
+      'HIPAA Security Rule Safeguards' AS title;
+
+     SELECT
+      'The HIPAA Security Rule safeguards define administrative, physical, and technical measures required to ensure the confidentiality, integrity, and availability of electronic protected health information (ePHI).' AS contents;
+
+     SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+
+     SELECT
+      id AS "ID",
+      common_criteria AS "Common Criteria",
+      hipaa_security_rule_reference AS "HIPAA Security Rule Reference",
+      safeguard AS "Safeguard",
+      handled_by_nq AS "Handled by nQ",
+      fii_id AS "FII ID",
+      tenant_name AS "Tenant"
+     FROM hipaa_security_rule_safeguards;
+    `;
+  }
+
+  @ceNav({
+    caption: "THSA Controls",
+    description:
+      "Texas Health Services Authority (THSA) control mappings with SCF.",
+    siblingOrder: 6,
+  })
+  "ce/regime/thsa.sql"() {
+    return this.SQL`
+     ${this.activePageTitle()}
+     SELECT
+      'text' AS component,
+      'THSA Controls' AS title;
+ 
+     SELECT
+      'The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).' AS contents;
+ 
+     SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+ 
+    SELECT
+      id,
+      scf_domain,
+      scf_control,
+      scf_control_question,
+      scf_code,
+      your_answer,
+      tenant_id,
+      tenant_name
+    FROM
+      compliance_regime_thsa;
+    `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
