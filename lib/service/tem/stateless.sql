@@ -214,6 +214,7 @@ SELECT
   ur.uniform_resource_id,
   t.tenant_id,
   t.tanent_name,
+  ts.ur_ingest_session_id,
   json_extract(ur.content, '$.host') AS host,
   json_extract(ur.content, '$.ip') AS ip,
   json_extract(ur.content, '$.timestamp') AS timestamp,
@@ -222,6 +223,7 @@ SELECT
   json_extract(ur.content, '$.tls') AS tls
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.nature = 'jsonl'
   AND ur.uri LIKE '%/naabu/%';
 
@@ -237,6 +239,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')   AS domain,
     json_extract(ur.content, '$.host')    AS raw_records,
     json_extract(ur.content, '$.source')  AS source,
@@ -245,6 +248,7 @@ SELECT
     ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%subfinder%';
 
 -- View: tem_httpx_result
@@ -260,6 +264,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')          AS domain,
     json_extract(ur.content, '$.url')            AS url,
     json_extract(ur.content, '$.scheme')         AS scheme,
@@ -278,6 +283,7 @@ SELECT
      ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%httpx-toolkit%';
 
 
@@ -301,7 +307,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
-
+    ts.ur_ingest_session_id,
     -- Host IP
     substr(
       ur.content,
@@ -362,5 +368,6 @@ SELECT
      ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%nmap%'
-  AND ur.uri NOT LIKE '%nmap_targets%';
+AND ur.uri NOT LIKE '%nmap_targets%';

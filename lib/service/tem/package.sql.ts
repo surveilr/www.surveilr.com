@@ -100,7 +100,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'card' as component,
             4      as columns;
         SELECT tanent_name as title,
-          ${this.absoluteURL("/tem/attack_surface_mapping_tenant_inner.sql?tenant_id=")} || tenant_id as link
+          ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || tenant_id as link
          FROM tem_tenant;
         `;
     }
@@ -129,13 +129,13 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             4      as columns;
         SELECT
             session_date  as title,
-            ${this.absoluteURL("/tem/session_finding.sql?session_id=")} || ur_ingest_session_id  as link
+            ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || ur_ingest_session_id  as link
             FROM tem_session;
         `;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/attack_surface_mapping_tenant_inner.sql"() {
+    "tem/tenant/attack_surface_mapping_inner.sql"() {
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -171,7 +171,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/tenant_asset.sql?tenant_id=")} || $tenant_id as link;
 
         SELECT "Findings" as title,
-            ${this.absoluteURL("/tem/tenant_finding.sql?tenant_id=")} || $tenant_id as link;
+            ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id as link;
     `;
     }
 
@@ -191,7 +191,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
          SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            'tenant/attack_surface_mapping_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Assets' AS title,
             '#' AS link;
 
@@ -216,7 +216,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/session_finding.sql"() {
+    "tem/session/finding.sql"() {
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -231,7 +231,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            'tenant/attack_surface_mapping_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
             '#' AS link;
 
@@ -260,23 +260,23 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
            '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/session/nuclei.sql?session_id=")
             } || $session_id || ')' as Asset;
         SELECT
-           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql?session_id=")
+           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/session/naabu.sql?session_id=")
             } || $session_id || ')' as Asset;
         SELECT
-           '[Subfinder Results]('||${this.absoluteURL("/tem/subfinder.sql?session_id=")
+           '[Subfinder Results]('||${this.absoluteURL("/tem/session/subfinder.sql?session_id=")
             } || $session_id || ')' as Asset;
          SELECT
-           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/httpx-toolkit.sql?session_id=")
+           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/session/httpx-toolkit.sql?session_id=")
             } || $session_id || ')' as Asset;
          SELECT
-           '[Nmap Scan Results]('||${this.absoluteURL("/tem/nmap.sql?session_id=")
+           '[Nmap Scan Results]('||${this.absoluteURL("/tem/session/nmap.sql?session_id=")
             } || $session_id || ')' as Asset;
     `;
     }
 
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/tenant_finding.sql"() {
+    "tem/tenant/finding.sql"() {
         return this.SQL`
       ${this.activePageTitle()}
         --- Display breadcrumb
@@ -290,8 +290,8 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
-        SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+         SELECT tanent_name AS title,
+                ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
             '#' AS link;
 
@@ -320,16 +320,16 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
            '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/tenant/nuclei.sql?tenant_id=")
             } || $tenant_id || ')' as Asset;
         SELECT
-           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/naabu.sql?tenant_id=")
+           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/tenant/naabu.sql?tenant_id=")
             } || $tenant_id || ')' as Asset;
         SELECT
-           '[Subfinder Results]('||${this.absoluteURL("/tem/subfinder.sql?tenant_id=")
+           '[Subfinder Results]('||${this.absoluteURL("/tem/tenant/subfinder.sql?tenant_id=")
             } || $tenant_id || ')' as Asset;
          SELECT
-           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/httpx-toolkit.sql?tenant_id=")
+           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/tenant/httpx-toolkit.sql?tenant_id=")
             } || $tenant_id || ')' as Asset;
          SELECT
-           '[Nmap Scan Results]('||${this.absoluteURL("/tem/nmap.sql?tenant_id=")
+           '[Nmap Scan Results]('||${this.absoluteURL("/tem/tenant/nmap.sql?tenant_id=")
             } || $tenant_id || ')' as Asset;
     `;
     }
@@ -357,9 +357,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
         SELECT 'Web Technology Fingerprinting' AS title,
             '#' AS link;
 
@@ -426,7 +426,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'Findings' AS title,
-               ${this.absoluteURL("/tem/session_finding.sql?session_id=")}|| $session_id AS link;
+               ${this.absoluteURL("/tem/session/finding.sql?session_id=")}|| $session_id AS link;
         SELECT 'Web Technology Fingerprinting' AS title,
             '#' AS link;
 
@@ -493,9 +493,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
         SELECT 'DNS Enumeration Results' AS title,
             '#' AS link;
 
@@ -546,7 +546,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'Findings' AS title,
-               ${this.absoluteURL("/tem/session_finding.sql?session_id=")}|| $session_id AS link;
+               ${this.absoluteURL("/tem/session/finding.sql?session_id=")}|| $session_id AS link;
         SELECT 'DNS Enumeration Results' AS title,
             '#' AS link;
 
@@ -598,9 +598,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
         SELECT 'Nuclei Scan Findings' AS title,
             '#' AS link;
 
@@ -653,7 +653,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'Findings' AS title,
-               ${this.absoluteURL("/tem/session_finding.sql?session_id=")}|| $session_id AS link;
+               ${this.absoluteURL("/tem/session/finding.sql?session_id=")}|| $session_id AS link;
         SELECT 'Nuclei Scan Findings' AS title,
             '#' AS link;
 
@@ -687,7 +687,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/naabu.sql"() {
+    "tem/tenant/naabu.sql"() {
         const viewName = `tem_naabu_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
@@ -707,9 +707,58 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT 'Naabu Port Scan Results' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'Naabu Port Scan Results' as contents;
+
+        SELECT
+          'text'              as component,
+          'This page displays the results from Naabu port scanning, showing open ports, associated hosts, and key network details. It helps in identifying exposed services and potential network entry points by providing real-time visibility into IPs, protocols, and TLS status discovered during the scan.' as contents;
+        
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            host,
+            port,
+            ip AS "IP Address",
+            protocol,
+            tls,
+            datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/naabu.sql"() {
+        const viewName = `tem_naabu_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Session' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'Naabu Port Scan Results' AS title,
             '#' AS link;
 
@@ -736,12 +785,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             protocol,
             tls,
             datetime(substr(timestamp, 1, 19), '-4 hours') AS "Scan Time"
-        FROM ${viewName} WHERE tenant_id = $tenant_id;
-        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+        FROM ${viewName} WHERE ur_ingest_session_id = $session_id;
+        ${pagination.renderSimpleMarkdown("session_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/subfinder.sql"() {
+    "tem/tenant/subfinder.sql"() {
         const viewName = `tem_subfinder`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
@@ -754,16 +803,62 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'breadcrumb' AS component;
         SELECT
             'Home' AS title,
-            ${this.absoluteURL("/")} AS link;
+            ${this.absoluteURL("/")}    AS link;
         SELECT
             'Tem' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT 'Subfinder Results' AS title,
+            '#' AS link;
+
+        --- Display Page Title
+        SELECT
+          'title'   as component,
+          'Subfinder Results' as contents;
+
+        SELECT
+          'text' as component,
+          'This page displays results from the Subfinder tool. It shows discovered subdomains, their source, and ingestion metadata. This helps in expanding the attack surface by enumerating subdomains associated with target domains and providing visibility into where they were found.' as contents;
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            domain                AS "Domain",
+            raw_records           AS "Discovered Host",
+            source                AS "Source",
+            tool_name             AS "Tool"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/subfinder.sql"() {
+        const viewName = `tem_subfinder`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+         SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Session' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'Subfinder Results' AS title,
             '#' AS link;
 
@@ -787,12 +882,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             raw_records           AS "Discovered Host",
             source                AS "Source",
             tool_name             AS "Tool"
-        FROM ${viewName} WHERE tenant_id = $tenant_id;
-        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+        FROM ${viewName} WHERE ur_ingest_session_id = $session_id;
+        ${pagination.renderSimpleMarkdown("session_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/httpx-toolkit.sql"() {
+    "tem/tenant/httpx-toolkit.sql"() {
         const viewName = `tem_httpx_result`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
@@ -805,16 +900,72 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'breadcrumb' AS component;
         SELECT
             'Home' AS title,
-            ${this.absoluteURL("/")} AS link;
+            ${this.absoluteURL("/")}    AS link;
         SELECT
             'Tem' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
         SELECT tanent_name AS title,
-            'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
-               'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT 'HTTPX Toolkit Results' AS title,
+            '#' AS link;
+
+        --- Display Page Title
+        SELECT
+          'title'   as component,
+          'HTTPX Toolkit Results' as contents;
+
+        SELECT
+          'text' as component,
+          'This page displays results from the httpx-toolkit. It provides insights into HTTP/HTTPS endpoints, including status codes, response times, content type, IP resolution, and digests. This helps identify live services, exposed endpoints, and potential security issues.' as contents;
+
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search;
+
+        ${pagination.init()} 
+        SELECT
+            domain             AS "Domain",
+            url                AS "URL",
+            scheme             AS "Scheme",
+            port               AS "Port",
+            (
+                SELECT group_concat(value, ', ')
+                FROM json_each(ip_addresses)
+            )                 AS "IP Addresses",
+            status_code        AS "Status Code",
+            content_type       AS "Content Type",
+            response_time      AS "Response Time",
+            http_method        AS "HTTP Method",
+            resolved_host      AS "Resolved Host",
+            ingest_timestamp   AS "Ingested At"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;
+        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/httpx-toolkit.sql"() {
+        const viewName = `tem_httpx_result`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Tem' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Session' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
         SELECT 'HTTPX Toolkit Results' AS title,
             '#' AS link;
 
@@ -848,12 +999,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             http_method        AS "HTTP Method",
             resolved_host      AS "Resolved Host",
             ingest_timestamp   AS "Ingested At"
-        FROM ${viewName} WHERE tenant_id = $tenant_id;
-        ${pagination.renderSimpleMarkdown("tenant_id")};`;
+        FROM ${viewName} WHERE ur_ingest_session_id = $session_id;
+        ${pagination.renderSimpleMarkdown("session_id")};`;
     }
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/nmap.sql"() {
+    "tem/tenant/nmap.sql"() {
         const viewName = `tem_nmap`;
         const pagination = this.pagination({
             tableOrViewName: viewName,
@@ -862,24 +1013,77 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         return this.SQL`
         ${this.activePageTitle()}
         --- Display breadcrumb
-        SELECT 'breadcrumb' AS component;
-            SELECT 'Home' AS title,
-                ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title,
-                ${this.absoluteURL("/tem/index.sql")} AS link;
+        SELECT
+                'breadcrumb' AS component;
+            SELECT
+                'Home' AS title,
+                ${this.absoluteURL("/")}    AS link;
+            SELECT
+                'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
-            -- SELECT tanent_name AS title,
-            --     'attack_surface_mapping_tenant_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
-            SELECT 
-                tenant_name AS title,
-                'attack_surface_mapping_tenant_inner.sql?tenant_id=' || $tenant_id AS link
-            FROM tem_tenant
-            WHERE $tenant_id IS NOT NULL 
-            AND $tenant_id != '' 
-            AND tenant_id = $tenant_id;
-                SELECT 'Findings' AS title,
-                    'tenant_finding.sql?tenant_id=' || $tenant_id AS link;
+            SELECT tanent_name AS title,
+                ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+            SELECT 'Findings' AS title,
+                    ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+            SELECT 'Nmap Scan Results' AS title,
+           '#' AS link;
+
+        --- Display Page Title
+        SELECT 'title' AS component,
+            'Nmap Scan Results' AS contents;
+
+        --- Page description
+        SELECT 'text' AS component,
+            'This page displays parsed Nmap scan results extracted from XML stored in uniform_resource.content. 
+                It includes host IP, port, protocol, state, and detected service details to help assess open services and network exposure.' AS contents;
+
+        --- Table setup
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+            host_ip           AS "Host IP",
+            protocol          AS "Protocol",
+            port              AS "Port",
+            state             AS "State",
+            service_name      AS "Service",
+            service_product   AS "Product",
+            service_version   AS "Version",
+            service_extrainfo AS "Extra Info",
+            tool_name         AS "Tool"
+        FROM ${viewName} WHERE tenant_id = $tenant_id;;
+
+        ${pagination.renderSimpleMarkdown("tenant_id")};
+`;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/nmap.sql"() {
+        const viewName = `tem_nmap`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+        ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT 'breadcrumb' AS component;
+            SELECT
+            'breadcrumb' AS component;
+            SELECT
+                'Home' AS title,
+                ${this.absoluteURL("/")}    AS link;
+            SELECT
+                'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
+            SELECT 'Attack Surface Mapping By Session' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+            SELECT 'Findings' AS title,
+             ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
             SELECT 'Nmap Scan Results' AS title,
            '#' AS link;
 
@@ -909,12 +1113,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             service_version   AS "Version",
             service_extrainfo AS "Extra Info",
             tool_name         AS "Tool"
-        FROM ${viewName} WHERE tenant_id = $tenant_id;;
+        FROM ${viewName} WHERE ur_ingest_session_id = $session_id;;
 
         ${pagination.renderSimpleMarkdown("tenant_id")};
 `;
     }
-
 
 }
 
