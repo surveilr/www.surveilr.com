@@ -19,6 +19,23 @@ SELECT `SCF Domain` AS scf_domain,
 FROM uniform_resource_scf_2024_2 WHERE `NIST 800-171A rev 3` !='';
 
 
+DROP VIEW IF EXISTS scf_view;
+
+DROP VIEW IF EXISTS scf_view;
+
+CREATE VIEW scf_view AS
+SELECT 
+    'SCF-' || ROWID AS control_identifier,
+    "SCF Domain" AS scf_domain,
+    "SCF Control" AS scf_control,
+    "SCF #" AS control_code,
+    "Secure Controls Framework (SCF) Control Description" AS control_description,
+    "SCF Control Question" AS control_question,
+    "US CMMC 2.0 Level 1" AS cmmc_level_1,
+    "US CMMC 2.0 Level 2" AS cmmc_level_2,
+    "US CMMC 2.0 Level 3" AS cmmc_level_3
+FROM uniform_resource_scf_2024_2;
+
 DROP VIEW IF EXISTS ai_ctxe_policy;
 CREATE VIEW ai_ctxe_policy AS
 SELECT DISTINCT
@@ -129,3 +146,16 @@ SELECT
   tenant_id,
   tenant_name
 FROM uniform_resource_thsa;
+
+CREATE VIEW aicpa_soc2_type2_controls AS
+SELECT
+    "#" AS id,
+    "Control Identifier" AS control_id,
+    "Fii ID" AS fii_id,
+    "Common Criteria" AS common_criteria,
+    "Common Criteria type" AS criteria_type,
+    Name AS control_name,
+    "Questions Descriptions" AS control_question,
+    tenant_id,
+    tenant_name
+FROM uniform_resource_aicpa_soc2_type2_controls;

@@ -58,9 +58,14 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/ce/regime/scf.sql")} as link
     UNION
     SELECT
-      'AICPA SOC 2' AS title,
-      'Explore SOC 2 Controls' AS description_md,
-      ${this.absoluteURL("/ce/regime/soc2.sql")} as link
+      'CMMC' AS title,
+      'Explore CMMC Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/cmmc.sql")} as link
+    UNION
+    SELECT
+      'AICPA' AS title,
+      'Explore AICPA Controls' AS description_md,
+      ${this.absoluteURL("/ce/regime/aicpa.sql")} as link
     UNION
     SELECT
       'HiTRUST e1 Assessment' AS title,
@@ -125,33 +130,86 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
       '[**Detail View**](' || ${this.absoluteURL(
         "/ce/regime/controls.sql?regimeType=NIST",
-      )
-      } || ')' AS description_md
+      )} || ')' AS description_md
     FROM compliance_regime
     WHERE title = 'NIST';`;
   }
 
-  @ceNav({
-    caption: "SOC 2",
-    description: "AICPA SOC 2 trust services criteria controls.",
-    siblingOrder: 3,
-  })
-  "ce/regime/soc2.sql"() {
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/aicpa.sql"() {
     return this.SQL`
-      ${this.activePageTitle()}
-      SELECT
-        'text' AS component,
-        'SOC 2 Controls' AS title;
+    --- Display breadcrumb
+    SELECT
+      'breadcrumb' AS component;
+    SELECT
+      'Home' AS title,
+      ${this.absoluteURL("/")} AS link;
+    SELECT
+      'Controls' AS title,
+      ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT
+      'AICPA' AS title,
+      ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+ 
+    ${this.activePageTitle()}
+   
+    SELECT
+      'text' AS component,
+      'AICPA' AS title;
+ 
+    SELECT
+      'The American Institute of Certified Public Accountants (AICPA) is the national professional organization for Certified Public Accountants (CPAs) in the United States. Established in 1887, the AICPA sets ethical standards for the profession and U.S. auditing standards for private companies, nonprofit organizations, federal, state, and local governments. It also develops and grades the Uniform CPA Examination and offers specialty credentials for CPAs who concentrate on personal financial planning; forensic accounting; business valuation; and information technology.' AS contents;
+ 
+    -- Cards for SOC 2 Type I & Type II
+    SELECT
+      'card' AS component;
+ 
+    SELECT
+      'SOC 2 Type I' AS title,
+      'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
+      '/ce/regime/aicpa/soc2.sql' AS link
+    UNION ALL
+    SELECT
+      'SOC 2 Type II' AS title,
+      'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
+      '/ce/regime/aicpa/soc2_type2.sql' AS link;
+  `;
+  }
 
-      SELECT
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/aicpa/soc2.sql"() {
+    return this.SQL`
+    --- Display breadcrumb
+    SELECT
+      'breadcrumb' AS component;
+    SELECT
+      'Home' AS title,
+      ${this.absoluteURL("/")} AS link;
+    SELECT
+      'Controls' AS title,
+      ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT
+      'AICPA' AS title,
+      ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+    SELECT
+      'SOC 2 Type I' AS title,
+      ${this.absoluteURL("/ce/regime/aicpa/soc2.sql")} AS link;
+ 
+    ${this.activePageTitle()}
+ 
+    SELECT
+      'text' AS component,
+      'SOC 2 Type I Controls' AS title;
+ 
+    SELECT
         'The SOC 2 controls are based on the AICPA Trust Services Criteria, focusing on security, availability, processing integrity, confidentiality, and privacy.' AS contents;
-
-      SELECT
-        'table' AS component,
-        TRUE AS sort,
-        TRUE AS search;
-
-      SELECT
+ 
+    SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+ 
+    SELECT
         control_id AS "Control Identifier",
         control_name AS "Control Name",
         common_criteria AS "Common Criteria",
@@ -159,8 +217,56 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
         control_question AS "Control Question",
         control_code AS "SCF Reference",
         tenant_name AS "Tenant"
-      FROM compliance_regime_control_soc2;
-    `;
+    FROM compliance_regime_control_soc2;
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/aicpa/soc2_type2.sql"() {
+    return this.SQL`
+    --- Display breadcrumb
+    SELECT
+      'breadcrumb' AS component;
+    SELECT
+      'Home' AS title,
+      ${this.absoluteURL("/")} AS link;
+    SELECT
+      'Controls' AS title,
+      ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT
+      'AICPA' AS title,
+      ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+    SELECT
+      'SOC 2 Type II' AS title,
+      ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
+ 
+    --- Display page title
+    SELECT
+      'title' AS component,
+      'SOC 2 Type II Controls' AS contents;
+ 
+    --- Display description
+    SELECT
+      'text' AS component,
+      'SOC 2 Type II reports evaluate not just the design, but also the operating effectiveness of controls over a defined review period.' AS contents;
+ 
+    --- Table
+    SELECT
+      'table' AS component,
+      TRUE AS sort,
+      TRUE AS search;
+ 
+    SELECT
+      control_id AS "Control Identifier",
+      fii_id AS "FII Id",
+      common_criteria AS "Common Criteria",
+      criteria_type AS "Criteria Type",
+      control_name AS "Control Name",
+      control_question AS "Control Question",
+      tenant_id AS "Tenant Id",
+      tenant_name AS "Tenant"
+    FROM aicpa_soc2_type2_controls;
+  `;
   }
 
   @ceNav({
@@ -323,6 +429,76 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     FROM
       compliance_regime_thsa;
     `;
+  }
+
+  @ceNav({
+    caption: "CMMC",
+    description:
+      "Cybersecurity Maturity Model Certification (CMMC) Levels 1–3.",
+    siblingOrder: 6,
+  })
+  "ce/regime/cmmc.sql"() {
+    return this.SQL`
+    ${this.activePageTitle()}
+    SELECT 'text' AS component, 'CMMC Framework' AS title;
+
+    SELECT
+      'The Cybersecurity Maturity Model Certification (CMMC) includes Levels 1, 2, and 3. Each level defines a set of practices and processes aligned with NIST standards.' AS contents;
+
+    SELECT 'card' AS component, '' AS title, 3 AS columns;
+
+    SELECT
+      'CMMC Level 1' AS title,
+      'Basic safeguarding of Federal Contract Information (FCI).' AS description_md,
+      ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=1")} AS link
+    UNION
+    SELECT
+      'CMMC Level 2',
+      'Intermediate cyber hygiene aligned with NIST SP 800-171.',
+      ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=2")}
+    UNION
+    SELECT
+      'CMMC Level 3',
+      'Expert level practices with enhanced NIST SP 800-171A requirements.',
+      ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=3")};
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/cmmc_level.sql"() {
+    return this.SQL`
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc_index.sql")} AS link;
+    SELECT 'CMMC Level ' || level AS title
+    FROM (SELECT :level AS level) AS t;
+
+
+    --- Description text
+    SELECT 'text' AS component,
+           'The Cybersecurity Maturity Model Certification (CMMC) defines cybersecurity practices across Levels 1–3. Below are the mapped SCF controls for the selected level.' AS contents;
+
+    --- Table
+    SELECT 'table' AS component, TRUE AS sort, TRUE AS search;
+    SELECT 
+        scf_domain,
+        scf_control,
+        control_code,
+        CASE 
+          WHEN @level = 1 THEN cmmc_level_1
+          WHEN @level = 2 THEN cmmc_level_2
+          WHEN @level = 3 THEN cmmc_level_3
+        END AS cmmc_code,
+        control_description,
+        control_question
+    FROM scf_view
+    WHERE 
+        (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '')
+     OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '')
+     OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '');
+  `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
