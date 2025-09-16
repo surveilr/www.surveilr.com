@@ -1,27 +1,19 @@
 import { $ } from "https://deno.land/x/dax/mod.ts";
-import { load } from "jsr:@std/dotenv";
-
 
 /**
- * Main Application Class orchestrates the fetch and ingest workflow.
+ * Minimal Application Class for RSSD ingest workflow.
  */
 class App {
-  private repo: string;
-  private branch: string;
-  private subdir: string;
-  private ingestDir: string;
   private rssdPath: string;
+  private ingestCommand: string[];
 
-  constructor(repo: string, branch: string, subdir: string, ingestDir: string, rssdPath: string) {
-    this.repo = repo;
-    this.branch = branch;
-    this.subdir = subdir;
-    this.ingestDir = ingestDir;
+  constructor(rssdPath: string, ingestCommand: string[]) {
     this.rssdPath = rssdPath;
+    this.ingestCommand = ingestCommand;
   }
 
   /**
-   * Executes the fetch-and-ingest and surveilr ingest workflow.
+   * Executes the ingest command for the application workflow.
    */
   async run(): Promise<void> {
     try {
@@ -42,22 +34,14 @@ class App {
       await $`grep -v -E '^(BEGIN;|COMMIT;)$' output.sql | surveilr shell --state-db-fs-path ${this.rssdPath}`;
       console.log("Composed prompts ingested into DB.");
     } catch (error) {
-      console.error("Workflow failed.", error);
+      console.error("Failed to execute the command.");
+      console.error(`Error: ${error instanceof Error ? error.message : error}`);
       Deno.exit(1);
     }
   }
 }
 
 if (import.meta.main) {
-  // Load .env variables
-  await load({ export: true });
-
-  // Use env vars, fallback to hardcoded defaults (except rssdPath)
-  const repo = Deno.env.get("SURVEILR_REPO") || "opsfolio/www.opsfolio.com";
-  const branch = Deno.env.get("SURVEILR_BRANCH") || "main";
-  const subdir = Deno.env.get("SURVEILR_SUBDIR") || "src/ai-context-engineering";
-  const ingestDir = Deno.env.get("SURVEILR_INGEST_DIR") || "ingest";
-
   // Parse command-line arguments with a default for rssdPath
   const args = Object.fromEntries(
     Deno.args.map((arg) => {
@@ -67,7 +51,18 @@ if (import.meta.main) {
   );
   const rssdPath = args.rssdPath ?? "resource-surveillance.sqlite.db";
 
+  // Define the ingest command
+  const ingestCommand = [
+    "surveilr",
+    "ingest",
+    "files",
+    "-d",
+    rssdPath,
+    "-r",
+    "ingest",
+  ];
+
   // Initialize and run the application
-  const app = new App(repo, branch, subdir, ingestDir, rssdPath);
+  const app = new App(rssdPath, ingestCommand);
   await app.run();
 }
