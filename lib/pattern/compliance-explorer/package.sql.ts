@@ -55,12 +55,12 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'Secure Controls Framework (SCF)' AS title,
       'Explore SCF Controls' AS description_md,
-       ${this.absoluteURL("/ce/regime/scf.sql",)} AS link
+      ${this.absoluteURL("/ce/regime/scf.sql")} as link
     UNION
     SELECT
       'AICPA SOC 2' AS title,
       'Explore SOC 2 Controls' AS description_md,
-       ${this.absoluteURL("/ce/regime/soc2.sql",)} AS link
+      ${this.absoluteURL("/ce/regime/soc2.sql")} as link
   `;
   }
 
