@@ -1,0 +1,7 @@
+# But do NOT ignore the ingest directory (force add)
+!ingest/
+!ingest/**
+
+# Always track the ingest/.build directory
+!ingest/.build/
+!ingest/.build/**

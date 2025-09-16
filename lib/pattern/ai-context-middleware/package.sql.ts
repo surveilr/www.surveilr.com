@@ -97,7 +97,10 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       'timeline-event' as icon,
       'background-color: #FFFFFF' as style,
       ${this.absoluteURL("/ai-context-engineering/prompts.sql")} as link
-      FROM ai_ctxe_uniform_resource_prompts;
+      FROM ai_ctxe_uniform_resource_prompts WHERE uri NOT LIKE '%/.build/anythingllm/%'
+  AND uri NOT LIKE '%/regime/hipaa/%'
+  AND uri NOT LIKE '%/regime/soc2/%'
+  AND uri NOT LIKE '%/regime/nist/%';
      
       select
       '## Total counts of Merge Group' as description_md,
@@ -162,7 +165,7 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
       select
       'card' as component,
-      2 as columns;
+      3 as columns;
 
       select
       '## Total Counts of HIPAA Prompt Modules' as description_md,
@@ -172,10 +175,19 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       'pink' as color,
       'timeline-event' as icon,
       'background-color: #FFFFFF' as style,
-      ${this.absoluteURL("/ai-context-engineering/prompts-complaince.sql")} as link
-      FROM ai_ctxe_view_uniform_resource_fii;
-     
-      
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-hipaa.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='HIPAA';
+
+      select
+      '## Total Counts of SOC2 Prompt Modules' as description_md,
+      'white' as background_color,
+      '## ' || count(DISTINCT uniform_resource_id) as description_md,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='SOC2';
 
      
       
@@ -218,8 +230,8 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
      
       FROM ai_ctxe_uniform_resource_prompts
       WHERE merge_group IS NOT NULL
-     
-      ORDER BY merge_group;
+     AND uri NOT LIKE '%/.build/anythingllm/%'
+     ORDER BY merge_group;
     `;
   }
  
@@ -478,7 +490,10 @@ SELECT
     ELSE NULL
   END as _sqlpage_css_class
  
-FROM ai_ctxe_uniform_resource_frontmatter_view
+FROM ai_ctxe_uniform_resource_frontmatter_view WHERE uri NOT LIKE '%/.build/anythingllm/%'
+  AND uri NOT LIKE '%/regime/hipaa/%'
+  AND uri NOT LIKE '%/regime/soc2/%'
+  AND uri NOT LIKE '%/regime/nist/%'
 ;
  
     `;
@@ -489,7 +504,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view
 
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ai-context-engineering/prompts-complaince.sql"() {
+  "ai-context-engineering/prompts-complaince-hipaa.sql"() {
     return this.SQL`
       select
       'breadcrumb' as component;
@@ -521,14 +536,14 @@ SELECT
  ;
      
 SELECT
-  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
+  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince-hipaa.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
   
 
   frontmatter_summary as "Summary",
   uri as "URI"
 
  
-FROM ai_ctxe_uniform_resource_frontmatter_view_fii
+FROM ai_ctxe_view_uniform_resource_complaince where regime='HIPAA'
 ;
  
     `;
@@ -1539,6 +1554,93 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
       WHERE p.uniform_resource_id = $uniform_resource_id;
     `;
   }
+
+//soc2 type and type 2 cards
+@spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/prompts-complaince-soc.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+      select
+      'SOC2 Type I' as title,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc.sql")} as link;
+      select
+      'card' as component,
+      3 as columns;
+
+      select
+      '## Total Counts of SOC2 Type I Prompt Modules' as description_md,
+      'white' as background_color,
+      '## ' || count(DISTINCT uniform_resource_id) as description_md,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc2-typeI.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='SOC2'; 
+    `;
+  }
+
+  //soc type i prompt details
+  
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/prompts-complaince-soc2-typeI.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+      select
+      'SOC2 Type I' as title,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc.sql")} as link;
+     
+      select
+      'Prompt' as title,
+      '#' as link;
+      SELECT 'title'AS component, 
+     'Prompt' as contents; 
+       SELECT 'text' as component,
+'This page provides an overview of SOC2 Type I compliance-focused AI context engineering prompts. It includes a summary of each prompt, and a searchable, sortable table with links to detailed prompt pages. Each entry highlights the prompt’s title, a short description, and its source URI, enabling quick access to compliance-related resources.' as contents;
+
+   
+     
+
+ 
+SELECT
+  'table' as component,
+  TRUE AS sort,
+  TRUE AS search,
+  "title" as markdown
+ ;
+     
+SELECT
+  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince-soc2I.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
+  
+
+  frontmatter_summary as "Summary",
+  uri as "URI"
+
+ 
+FROM ai_ctxe_view_uniform_resource_complaince where regime='SOC2'
+;
+ 
+    `;
+  }
+ 
 //validation error details
 @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ai-context-engineering/validation-detail.sql"() {
@@ -1576,7 +1678,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
   }
 //complaince prompt details
 @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ai-context-engineering/prompt-detail-complaince.sql"() {
+  "ai-context-engineering/prompt-detail-complaince-hipaa.sql"() {
     return this.SQL`
       select
       'breadcrumb' as component;
@@ -1591,7 +1693,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
      
       select
       'Complaince Prompt' as title,
-      ${this.absoluteURL("/ai-context-engineering/prompts-complaince.sql")} as link;
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-hipaa.sql")} as link;
      
       select
       "title" as title,
@@ -1636,7 +1738,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
   ${this.absoluteURL("/ai-context-engineering/merge-group-detail.sql")} || 
   '?uniform_resource_id=' || uniform_resource_id || ')' 
   AS description_md
-      FROM ai_ctxe_uniform_resource_frontmatter_view_fii a
+      FROM ai_ctxe_view_uniform_resource_complaince a
       WHERE a.uniform_resource_id = $uniform_resource_id;
      
       SELECT 'html' AS component, '</div></details>' AS html;
@@ -1645,12 +1747,101 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
      
       SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_view_uniform_resource_fii p
+      FROM ai_ctxe_view_uniform_resource_complaince p
       WHERE p.uniform_resource_id = $uniform_resource_id;
     `;
   }
+
+  //soc2 type I drill in 
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ai-context-engineering/prompt-detail-complaince-soc2I.sql"() {
+    return this.SQL`
+      select
+      'breadcrumb' as component;
+     
+      select
+      'Home' as title,
+      ${this.absoluteURL("/")} as link;
+     
+      select
+      'AI Context Engineering Overview' as title,
+      ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
+      select
+      'SOC2 Type I' as title,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc.sql")} as link;
+     
+      select
+      'Prompt' as title,
+       ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc2-typeI.sql")} as link;
+
+     
+
+     
+      select
+      "title" as title,
+      "#" as link
+      from ai_ctxe_uniform_resource_prompts
+      where uniform_resource_id = $uniform_resource_id;
+     
+      SELECT 'title' AS component, 'Prompt Details' AS contents;
+      SELECT 'text' as component,
+     'This page provides detailed SOC2 TypeI compliance prompt information from AI Context Engineering. 
+ It displays the selected prompt’s metadata (including title, control question, control ID, 
+ domain, SCF mapping, summary, publish date, category, satisfies frameworks, and provenance dependencies), 
+ along with its merge group reference and full prompt content.' as contents;
+
+      -- First card for accordion (frontmatter details)
+      SELECT 'html' AS component,
+      '<details open>
+      <summary>Frontmatter details</summary>
+      <div>' AS html;
+     
+      SELECT 'card' AS component, 1 as columns;
+     
+      SELECT
+      '\n **Title** : ' || a.title AS description_md,
+       '\n **Control question** : ' || a.frontmatter_control_question AS description_md,
+       '\n **Control id** : ' || a.frontmatter_control_id AS description_md,
+         '\n **Control domain** : ' || a.frontmatter_control_domain AS description_md,
+           '\n **SCF control** : ' || a.SCF_control AS description_md,
+
+      '\n **Summary** : ' || a.frontmatter_summary AS description_md,
+      '\n **publishDate** : ' || a.publishDate AS description_md,
+      '\n **category** : ' || a.frontmatter_category AS description_md,
+      '\n **Satisfies** : ' || a.frontmatter_satisfies AS description_md,
+       '\n**Provenance dependencies**:\n' ||
+  ifnull((
+    SELECT group_concat('- ' || value, char(10))
+    FROM json_each(a.frontmatter_provenance_dependencies)
+  ), 'None')
+  AS description_md,
+
+        '\nMerge group: [' || a.frontmatter_merge_group || '](' || 
+  ${this.absoluteURL("/ai-context-engineering/merge-group-detail.sql")} || 
+  '?uniform_resource_id=' || uniform_resource_id || ')' 
+  AS description_md
+      FROM ai_ctxe_view_uniform_resource_complaince a
+      WHERE a.uniform_resource_id = $uniform_resource_id;
+     
+      SELECT 'html' AS component, '</div></details>' AS html;
+     
+      SELECT 'card' AS component, 1 as columns;
+     
+      SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_view_uniform_resource_complaince p
+      WHERE p.uniform_resource_id = $uniform_resource_id;
+    `;
+  }
+
+  
  
 }
+
+
+//soc2 prompt drill in
+
+
  
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
