@@ -1,38 +1,142 @@
-# syntax=docker/dockerfile:1.7
-#
-# Fleetfolio EAA - Nightingale + Runme
-# Builds a container that runs the Fleetfolio EAA "Pentest Lite" Runme runbook
-# and writes artifacts to /var/fleetfolio (mount this as a volume).
-#
-# Base image can be overridden at build time:
-#   docker build --build-arg NIGHTINGALE_IMAGE=ghcr.io/rajanagori/nightingale:latest -t fleetfolio-eaa:latest .
+# syntax=docker/dockerfile:1
+FROM kalilinux/kali-last-release
 
-ARG NIGHTINGALE_IMAGE=ghcr.io/rajanagori/nightingale:latest
-FROM ${NIGHTINGALE_IMAGE}
+ARG DEBIAN_FRONTEND=noninteractive
 
-LABEL org.opencontainers.image.title="Fleetfolio EAA - Pentest Lite"
-LABEL org.opencontainers.image.description="OWASP Nightingale with Runme preinstalled, executing the Fleetfolio EAA runbook."
-LABEL org.opencontainers.image.source="https://github.com/RAJANAGORI/Nightingale"
+# ------------------------------------------------------------------------------
+# 0) Make HTTPS work for apt: install ca-certificates via HTTP, then switch to HTTPS
+# ------------------------------------------------------------------------------
+RUN set -eux; \
+    sed -i 's|https://http.kali.org|http://http.kali.org|' /etc/apt/sources.list || true; \
+    apt-get clean; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates; \
+    sed -i 's|http://http.kali.org|https://http.kali.org|' /etc/apt/sources.list; \
+    apt-get update --fix-missing; \
+    apt-get -y full-upgrade
 
-SHELL ["/bin/bash", "-lc"]
+# ------------------------------------------------------------------------------
+# 1) Base packages, Kali/Debian tools, and common deps
+# ------------------------------------------------------------------------------
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+      sudo ca-certificates curl git zsh bash coreutils \
+      build-essential gcc jq python3 \
+      whatweb nmap openssl \
+      subfinder dnsx httpx-toolkit naabu nuclei dirsearch \
+      wafw00f testssl.sh \
+      golang-go \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Runme using the official script
-RUN set -euo pipefail &&     curl -fsSL https://raw.githubusercontent.com/stateful/runme/main/install.sh | bash -s -- -b /usr/local/bin &&     runme version || true
+# ------------------------------------------------------------------------------
+# 2) Create non-root user (for Homebrew) with passwordless sudo
+# ------------------------------------------------------------------------------
+RUN set -eux; \
+    useradd -ms /bin/zsh -u 1000 kali; \
+    echo "kali ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-kali; \
+    chmod 0440 /etc/sudoers.d/90-kali
 
-# Default environment (can be overridden at runtime via docker-compose or docker run -e ...)
-ENV RUNBOOK_PATH="/opt/fleetfolio/eaa-pentest-lite.runme.md"     FLEETFOLIO_EAA_HOME=""     FLEETFOLIO_EAA_DOMAINS=""     FLEETFOLIO_EAA_IP_RANGES=""     FLEETFOLIO_EAA_KEY_URLS=""     FLEETFOLIO_EAA_EXCLUDES=""     FLEETFOLIO_EAA_RATE_LIMIT="200"     FLEETFOLIO_EAA_CONCURRENCY="50"     FLEETFOLIO_EAA_NAABU_PORTS="top-100"     FLEETFOLIO_EAA_NUCLEI_TEMPLATES="cves,default"
+USER kali
+ENV HOME=/home/kali
+WORKDIR /home/kali
 
-# Copy the runbook into the image
-# Ensure fleetfolio-eaa-pentest-lite.runme.md exists in the build context (same folder as Dockerfile)
-COPY fleetfolio-eaa-pentest-lite.runme.md ${RUNBOOK_PATH}
+# ------------------------------------------------------------------------------
+# 3) Bootstrap Homebrew manually (avoids installer’s sudo/git ref locking issues)
+# ------------------------------------------------------------------------------
+ENV HOMEBREW_NO_INSTALL_CLEANUP=1 \
+    HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_COLOR=1 \
+    NONINTERACTIVE=1
 
-# Ensure evidence root exists and is declared as a volume for persistence
-RUN mkdir -p /var/fleetfolio
-VOLUME ["/var/fleetfolio"]
+# Prepare linuxbrew home owned by kali
+USER root
+RUN set -eux; \
+    mkdir -p /home/linuxbrew/.linuxbrew; \
+    chown -R kali:kali /home/linuxbrew
+USER kali
 
-# Helpful working dir for interactive use
-WORKDIR /workspace
+# Clone Homebrew repo and wire up brew
+RUN set -eux; \
+    git clone --depth 1 https://github.com/Homebrew/brew /home/linuxbrew/.linuxbrew/Homebrew; \
+    mkdir -p /home/linuxbrew/.linuxbrew/bin; \
+    ln -sf ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; \
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"; \
+    /home/linuxbrew/.linuxbrew/bin/brew update --force --quiet; \
+    /home/linuxbrew/.linuxbrew/bin/brew --version
 
-# Default command: run the runbook on container start
-# - If you prefer to drop into a shell after execution, append '&& bash' or override the command in compose.
-CMD ["/bin/bash", "-lc", "runme run ${RUNBOOK_PATH}"]
+# Make brew available in PATH for subsequent layers
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
+
+# Basic brew health (gcc used by some formulae)
+RUN set -eux; brew install gcc
+
+# ------------------------------------------------------------------------------
+# 4) Install Runme via Homebrew
+# ------------------------------------------------------------------------------
+RUN set -eux; brew install runme 
+
+# ------------------------------------------------------------------------------
+# 5) Go-based tools (latest) to /usr/local/bin
+# ------------------------------------------------------------------------------
+USER root
+ENV GOBIN=/usr/local/bin
+RUN set -eux; \
+    go install github.com/projectdiscovery/katana/cmd/katana@latest; \
+    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest
+
+# Make Homebrew available to root shells too (nice for interactive sessions)
+RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
+
+# ------------------------------------------------------------------------------
+# 6) Defaults for the runbook (override with --build-arg)
+# ------------------------------------------------------------------------------
+ARG OPSFOLIO_EAA_HOME=/opt/eaa
+ARG OPSFOLIO_EAA_DOMAINS=citrusinformatics.com
+ARG OPSFOLIO_EAA_SUBDOMAINS=
+ARG OPSFOLIO_EAA_IP_RANGES=
+ARG OPSFOLIO_EAA_KEY_URLS=https://citrusinformatics.com
+ARG OPSFOLIO_EAA_EXCLUDES=
+ARG OPSFOLIO_EAA_RATE_LIMIT=200
+ARG OPSFOLIO_EAA_CONCURRENCY=50
+ARG OPSFOLIO_EAA_NAABU_PORTS=top-100
+ARG OPSFOLIO_EAA_NUCLEI_TEMPLATES="cves,default"
+
+ENV OPSFOLIO_EAA_HOME=${OPSFOLIO_EAA_HOME} \
+    OPSFOLIO_EAA_DOMAINS=${OPSFOLIO_EAA_DOMAINS} \
+    OPSFOLIO_EAA_SUBDOMAINS=${OPSFOLIO_EAA_SUBDOMAINS} \
+    OPSFOLIO_EAA_IP_RANGES=${OPSFOLIO_EAA_IP_RANGES} \
+    OPSFOLIO_EAA_KEY_URLS=${OPSFOLIO_EAA_KEY_URLS} \
+    OPSFOLIO_EAA_EXCLUDES=${OPSFOLIO_EAA_EXCLUDES} \
+    OPSFOLIO_EAA_RATE_LIMIT=${OPSFOLIO_EAA_RATE_LIMIT} \
+    OPSFOLIO_EAA_CONCURRENCY=${OPSFOLIO_EAA_CONCURRENCY} \
+    OPSFOLIO_EAA_NAABU_PORTS=${OPSFOLIO_EAA_NAABU_PORTS} \
+    OPSFOLIO_EAA_NUCLEI_TEMPLATES=${OPSFOLIO_EAA_NUCLEI_TEMPLATES}
+
+# ------------------------------------------------------------------------------
+# 7) Add the runbook and prep nuclei templates
+# ------------------------------------------------------------------------------
+WORKDIR /opt/eaa/
+
+# Ensure the sessions directory exists in the container
+RUN mkdir -p /opt/eaa/sessions
+
+COPY fleetfolio-eaa-pentest-lite.runme.md /opt/eaa/
+RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent || true
+
+# ------------------------------------------------------------------------------
+# 8) Copy .env file from build context into /opt/eaa
+# ------------------------------------------------------------------------------
+COPY .env /opt/eaa/.env
+
+# ------------------------------------------------------------------------------
+# 9) Check the contents of /opt/eaa directory during build
+# ------------------------------------------------------------------------------
+RUN ls -al /opt/eaa/
+
+
+# ------------------------------------------------------------------------------
+# 10) Default Command to run on container start (explicitly use bash)
+# ------------------------------------------------------------------------------
+WORKDIR /opt/eaa/
+CMD [ "bash", "-c", "runme run --filename='fleetfolio-eaa-pentest-lite.runme.md' --all -y" ]

@@ -21,7 +21,7 @@ FROM uniform_resource_scf_2024_2 WHERE `NIST 800-171A rev 3` !='';
 
 DROP VIEW IF EXISTS ai_ctxe_policy;
 CREATE VIEW ai_ctxe_policy AS
-SELECT distinct 
+SELECT DISTINCT
   ur.uniform_resource_id,
   json_extract(ur.frontmatter, '$.title') AS title,
   json_extract(ur.frontmatter, '$.description') AS description,
@@ -51,3 +51,20 @@ LEFT JOIN
   json_each(json_extract(ur.frontmatter, '$.satisfies')) je
 WHERE
   fs.file_basename LIKE '%.policy.md';
+
+DROP VIEW IF EXISTS compliance_regime_control_soc2;
+
+CREATE VIEW compliance_regime_control_soc2 AS
+SELECT
+  "#" AS control_code,
+  "Control Identifier" AS control_id,
+  "Fii ID" AS fii_id,
+  "Common Criteria" AS common_criteria,
+  "Common Criteria type" AS criteria_type,
+  Name AS control_name,
+  "Questions Descriptions" AS control_question,
+  'AICPA SOC 2' AS control_type,
+  tenant_id,
+  tenant_name
+FROM uniform_resource_aicpa_soc2_controls
+WHERE "Control Identifier" IS NOT NULL AND "Control Identifier" != '';

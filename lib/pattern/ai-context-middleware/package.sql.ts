@@ -97,7 +97,10 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       'timeline-event' as icon,
       'background-color: #FFFFFF' as style,
       ${this.absoluteURL("/ai-context-engineering/prompts.sql")} as link
-      FROM ai_ctxe_uniform_resource_prompts;
+      FROM ai_ctxe_uniform_resource_prompts WHERE uri NOT LIKE '%/.build/anythingllm/%'
+  AND uri NOT LIKE '%/regime/hipaa/%'
+  AND uri NOT LIKE '%/regime/soc2/%'
+  AND uri NOT LIKE '%/regime/nist/%';
      
       select
       '## Total counts of Merge Group' as description_md,
@@ -162,7 +165,7 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/ai-context-engineering/index.sql")} as link;
       select
       'card' as component,
-      2 as columns;
+      3 as columns;
 
       select
       '## Total Counts of HIPAA Prompt Modules' as description_md,
@@ -172,8 +175,30 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       'pink' as color,
       'timeline-event' as icon,
       'background-color: #FFFFFF' as style,
-      ${this.absoluteURL("/ai-context-engineering/prompts-complaince.sql")} as link
-      FROM ai_ctxe_view_uniform_resource_fii;
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-hipaa.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='HIPAA';
+
+      select
+      '## Total Counts of SOC2 Prompt Modules' as description_md,
+      'white' as background_color,
+      '## ' || count(DISTINCT uniform_resource_id) as description_md,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-soc.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='SOC2';
+
+      select
+      '## Total Counts of NIST Prompt Modules' as description_md,
+      'white' as background_color,
+      '## ' || count(DISTINCT uniform_resource_id) as description_md,
+      '12' as width,
+      'pink' as color,
+      'timeline-event' as icon,
+      'background-color: #FFFFFF' as style,
+      ${this.absoluteURL("/ai-context-engineering/prompts-complaince-nist.sql")} as link
+      FROM ai_ctxe_view_uniform_resource_complaince where regime='NIST';
      
       
 
@@ -218,8 +243,8 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
      
       FROM ai_ctxe_uniform_resource_prompts
       WHERE merge_group IS NOT NULL
-     
-      ORDER BY merge_group;
+     AND uri NOT LIKE '%/.build/anythingllm/%'
+     ORDER BY merge_group;
     `;
   }
  
@@ -353,7 +378,10 @@ export class AIContextSqlPages extends spn.TypicalSqlPageNotebook {
       "frontmatter_merge_group" as title,
       "#" as link from ai_ctxe_uniform_resource_frontmatter_view where uniform_resource_id = $uniform_resource_id;
 ;
- 
+SELECT 'title' AS component, 'Merge Group Details' AS contents;
+ SELECT 'text' as component,
+'This page provides a detailed view of a specific merge group in the AI Context Engineering system. It structured frontmatter details (title, summary, lifecycle, product metadata, provenance, reviewers, and features), and the list of prompts associated with the selected resource.' as contents;
+
       -- First card for accordion (frontmatter details)
       SELECT 'html' AS component,
       '<details open>
@@ -475,7 +503,10 @@ SELECT
     ELSE NULL
   END as _sqlpage_css_class
  
-FROM ai_ctxe_uniform_resource_frontmatter_view
+FROM ai_ctxe_uniform_resource_frontmatter_view WHERE uri NOT LIKE '%/.build/anythingllm/%'
+  AND uri NOT LIKE '%/regime/hipaa/%'
+  AND uri NOT LIKE '%/regime/soc2/%'
+  AND uri NOT LIKE '%/regime/nist/%'
 ;
  
     `;
@@ -486,7 +517,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view
 
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ai-context-engineering/prompts-complaince.sql"() {
+  "ai-context-engineering/prompts-complaince-hipaa.sql"() {
     return this.SQL`
       select
       'breadcrumb' as component;
@@ -518,14 +549,14 @@ SELECT
  ;
      
 SELECT
-  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
+  '[' || title || '](' || ${this.absoluteURL("/ai-context-engineering/prompt-detail-complaince-hipaa.sql")} || '?uniform_resource_id=' || uniform_resource_id || ')' as "title",
   
 
   frontmatter_summary as "Summary",
   uri as "URI"
 
  
-FROM ai_ctxe_uniform_resource_frontmatter_view_fii
+FROM ai_ctxe_view_uniform_resource_complaince
 ;
  
     `;
@@ -551,8 +582,10 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
       ${this.absoluteURL("/ai-context-engineering/prompts.sql")} as link;
      
       select
-      "Prompt data" as title,
-      "#" as link;
+      "title" as title,
+      "#" as link
+      from ai_ctxe_uniform_resource_prompts
+      where uniform_resource_id = $uniform_resource_id;
      
       SELECT 'title' AS component, 'Prompt Details' AS contents;
       SELECT 'text' as component,
@@ -1571,7 +1604,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
   }
 //complaince prompt details
 @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ai-context-engineering/prompt-detail-complaince.sql"() {
+  "ai-context-engineering/prompt-detail-complaince-hipaa.sql"() {
     return this.SQL`
       select
       'breadcrumb' as component;
@@ -1631,7 +1664,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
   ${this.absoluteURL("/ai-context-engineering/merge-group-detail.sql")} || 
   '?uniform_resource_id=' || uniform_resource_id || ')' 
   AS description_md
-      FROM ai_ctxe_uniform_resource_frontmatter_view_fii a
+      FROM ai_ctxe_view_uniform_resource_complaince a
       WHERE a.uniform_resource_id = $uniform_resource_id;
      
       SELECT 'html' AS component, '</div></details>' AS html;
@@ -1640,7 +1673,7 @@ FROM ai_ctxe_uniform_resource_frontmatter_view_fii
      
       SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_view_uniform_resource_fii p
+      FROM ai_ctxe_view_uniform_resource_complaince p
       WHERE p.uniform_resource_id = $uniform_resource_id;
     `;
   }
