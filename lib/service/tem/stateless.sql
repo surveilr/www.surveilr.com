@@ -12,6 +12,31 @@ SELECT
   org.name AS tanent_name
 FROM organization org INNER JOIN device_party_relationship dpr ON dpr.party_id=org.party_id;
 
+-- View: tem_ur_ingest_session
+-- ------------------------------------------------------------
+-- This view provides a simplified listing of ingest sessions.
+-- It selects the essential session metadata:
+--   - ur_ingest_session_id : unique session identifier
+--   - device_id            : device on which ingestion ran
+--   - session_date         : start time of the ingest session
+--   - ingest_finished_at   : end time of the ingest session
+--   - session_agent        : JSON describing the ingest agent
+--   - behavior_json        : JSON configuration/behavior details
+-- Only active (non-deleted) sessions are included.
+-- ------------------------------------------------------------
+DROP VIEW IF EXISTS tem_ur_ingest_session;
+DROP VIEW IF EXISTS tem_session;
+CREATE VIEW tem_session AS
+SELECT
+    ur_ingest_session_id,
+    device_id,
+    ingest_started_at session_date,
+    ingest_finished_at,
+    session_agent,
+    behavior_json
+FROM ur_ingest_session
+WHERE deleted_at IS NULL;
+
 -- This query extracts unique asset names from the `uniform_resource` table for URIs under `/var/`.
 -- It breaks down each URI into its path segments and applies the following rules:
 --   1. Identifies the base asset folder (e.g., ".session", "dnsx", "tls").
@@ -110,6 +135,7 @@ SELECT
     uw.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(uw.object, '$.target') AS target_url,
     json_extract(uw.object, '$.http_status') AS http_status,
     json_extract(uw.object, '$.plugins.IP.string[0]') AS ip_address,
@@ -122,7 +148,8 @@ SELECT
     json_extract(uw.object, '$.plugins.X-Frame-Options.string[0]') AS x_frame_options
 FROM tem_what_web_result_original_json uw
 INNER JOIN uniform_resource ur ON ur.uniform_resource_id = uw.uniform_resource_id
-INNER JOIN tem_tenant t ON t.device_id = ur.device_id;
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id;
 
 -- View: tem_dnsx_result
 -- This view extracts DNS resolution details from the `uniform_resource` table for records
@@ -135,6 +162,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(ur.content, '$.host') AS host,
     json_extract(ur.content, '$.ttl') AS ttl,
     json_extract(ur.content, '$.resolver[0]') AS resolver,
@@ -143,8 +171,9 @@ SELECT
     json_extract(ur.content, '$.timestamp') AS timestamp
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.nature = 'jsonl'
-  AND ur.uri LIKE '%/dnsx/%';;
+AND ur.uri LIKE '%/dnsx/%';
 
 -- View: tem_nuclei_result
 -- Purpose: Extracts essential fields from Nuclei scan JSONL data stored in the uniform_resource table.
@@ -157,6 +186,7 @@ SELECT
   ur.uniform_resource_id,
   t.tenant_id,
   t.tanent_name,
+  ts.ur_ingest_session_id,
   json_extract(ur.content, '$.host') AS host,
   json_extract(ur.content, '$.url') AS url,
   json_extract(ur.content, '$.template-id') AS template_id,
@@ -168,6 +198,7 @@ SELECT
   json_extract(ur.content, '$.timestamp') AS timestamp
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.nature = 'jsonl'
   AND ur.uri LIKE '%/nuclei/%';
 
@@ -183,6 +214,7 @@ SELECT
   ur.uniform_resource_id,
   t.tenant_id,
   t.tanent_name,
+  ts.ur_ingest_session_id,
   json_extract(ur.content, '$.host') AS host,
   json_extract(ur.content, '$.ip') AS ip,
   json_extract(ur.content, '$.timestamp') AS timestamp,
@@ -191,6 +223,7 @@ SELECT
   json_extract(ur.content, '$.tls') AS tls
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.nature = 'jsonl'
   AND ur.uri LIKE '%/naabu/%';
 
@@ -206,6 +239,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')   AS domain,
     json_extract(ur.content, '$.host')    AS raw_records,
     json_extract(ur.content, '$.source')  AS source,
@@ -214,6 +248,7 @@ SELECT
     ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%subfinder%';
 
 -- View: tem_httpx_result
@@ -229,6 +264,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
+    ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')          AS domain,
     json_extract(ur.content, '$.url')            AS url,
     json_extract(ur.content, '$.scheme')         AS scheme,
@@ -247,6 +283,7 @@ SELECT
      ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%httpx-toolkit%';
 
 
@@ -270,7 +307,7 @@ SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
-
+    ts.ur_ingest_session_id,
     -- Host IP
     substr(
       ur.content,
@@ -331,5 +368,6 @@ SELECT
      ur.uri
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
 WHERE ur.uri LIKE '%nmap%'
-  AND ur.uri NOT LIKE '%nmap_targets%';
+AND ur.uri NOT LIKE '%nmap_targets%';

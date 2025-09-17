@@ -21,7 +21,7 @@ RUN set -eux; \
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-      sudo ca-certificates curl git zsh bash coreutils \
+      sudo ca-certificates curl wget git zsh bash coreutils \
       build-essential gcc jq python3 \
       whatweb nmap openssl \
       subfinder dnsx httpx-toolkit naabu nuclei dirsearch \
@@ -89,54 +89,36 @@ RUN set -eux; \
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
 
 # ------------------------------------------------------------------------------
-# 6) Defaults for the runbook (override with --build-arg)
+# 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
-ARG OPSFOLIO_EAA_HOME=/opt/eaa
-ARG OPSFOLIO_EAA_DOMAINS=citrusinformatics.com
-ARG OPSFOLIO_EAA_SUBDOMAINS=
-ARG OPSFOLIO_EAA_IP_RANGES=
-ARG OPSFOLIO_EAA_KEY_URLS=https://citrusinformatics.com
-ARG OPSFOLIO_EAA_EXCLUDES=
-ARG OPSFOLIO_EAA_RATE_LIMIT=200
-ARG OPSFOLIO_EAA_CONCURRENCY=50
-ARG OPSFOLIO_EAA_NAABU_PORTS=top-100
-ARG OPSFOLIO_EAA_NUCLEI_TEMPLATES="cves,default"
-
-ENV OPSFOLIO_EAA_HOME=${OPSFOLIO_EAA_HOME} \
-    OPSFOLIO_EAA_DOMAINS=${OPSFOLIO_EAA_DOMAINS} \
-    OPSFOLIO_EAA_SUBDOMAINS=${OPSFOLIO_EAA_SUBDOMAINS} \
-    OPSFOLIO_EAA_IP_RANGES=${OPSFOLIO_EAA_IP_RANGES} \
-    OPSFOLIO_EAA_KEY_URLS=${OPSFOLIO_EAA_KEY_URLS} \
-    OPSFOLIO_EAA_EXCLUDES=${OPSFOLIO_EAA_EXCLUDES} \
-    OPSFOLIO_EAA_RATE_LIMIT=${OPSFOLIO_EAA_RATE_LIMIT} \
-    OPSFOLIO_EAA_CONCURRENCY=${OPSFOLIO_EAA_CONCURRENCY} \
-    OPSFOLIO_EAA_NAABU_PORTS=${OPSFOLIO_EAA_NAABU_PORTS} \
-    OPSFOLIO_EAA_NUCLEI_TEMPLATES=${OPSFOLIO_EAA_NUCLEI_TEMPLATES}
+RUN set -eux; \
+    wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/2.2.0/resource-surveillance_2.2.0_x86_64-unknown-linux-gnu.tar.gz && \
+    tar -xvf resource-surveillance_2.2.0_x86_64-unknown-linux-gnu.tar.gz && \
+    mv surveilr /usr/local/bin
 
 # ------------------------------------------------------------------------------
-# 7) Add the runbook and prep nuclei templates
+# 7) Copy .env file from build context into /opt/eaa
+# ------------------------------------------------------------------------------
+COPY .env /opt/eaa/.env
+
+# ------------------------------------------------------------------------------
+# 8) Add the runbook and prep nuclei templates
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
 
 # Ensure the sessions directory exists in the container
-RUN mkdir -p /opt/eaa/sessions
+RUN mkdir -p /opt/eaa/sessions/opsfolio
 
 COPY fleetfolio-eaa-pentest-lite.runme.md /opt/eaa/
 RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent || true
-
-# ------------------------------------------------------------------------------
-# 8) Copy .env file from build context into /opt/eaa
-# ------------------------------------------------------------------------------
-COPY .env /opt/eaa/.env
 
 # ------------------------------------------------------------------------------
 # 9) Check the contents of /opt/eaa directory during build
 # ------------------------------------------------------------------------------
 RUN ls -al /opt/eaa/
 
-
 # ------------------------------------------------------------------------------
 # 10) Default Command to run on container start (explicitly use bash)
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
-CMD [ "bash", "-c", "runme run --filename='fleetfolio-eaa-pentest-lite.runme.md' --all -y" ]
+CMD [ "bash", "-c", "source /opt/eaa/.env && runme run --filename='fleetfolio-eaa-pentest-lite.runme.md' --all -y" ]
