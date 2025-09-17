@@ -167,12 +167,13 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'SOC 2 Type I' AS title,
       'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
-      '/ce/regime/aicpa/soc2.sql' AS link
+      ${this.absoluteURL('/ce/regime/aicpa/soc2.sql')} AS link
     UNION ALL
     SELECT
       'SOC 2 Type II' AS title,
       'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
-      '/ce/regime/aicpa/soc2_type2.sql' AS link;
+      ${this.absoluteURL('/ce/regime/aicpa/soc2_type2.sql')} AS link;
+ 
   `;
   }
 
