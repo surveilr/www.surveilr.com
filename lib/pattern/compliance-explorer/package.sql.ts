@@ -54,34 +54,54 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
       'CMMC' AS title,
-      'Explore CMMC Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/cmmc.sql")} as link
     UNION
     SELECT
       'AICPA' AS title,
-      'Explore AICPA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: American Institute of Certified Public Accountants (AICPA) \n
+      **Version**: N/A \n
+      **Published/Last Reviewed Date/Year**: 2023-10-01 00:00:00+00' AS description_md,
       ${this.absoluteURL("/ce/regime/aicpa.sql")} as link
     UNION
     SELECT
       'HiTRUST e1 Assessment' AS title,
-      'Explore HiTRUST e1 Assessment  Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: HITRUST Alliance \n
+      **HITRUST Essentials, 1-Year (e1) Assessment** \n
+      **Version**: e1 \n
+      **Published/Last Reviewed Date/Year**: 2021-09-13 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/hitrust.sql")} as link
     UNION
     SELECT
       'ISO 27001:2022' AS title,
-      'Explore ISO 27001:2022  Controls' AS description_md,
+      '**Geography**: International \n
+      **Source**: International Organization for Standardization (ISO) \n
+      **Version**: 2022 \n
+      **Published/Last Reviewed Date/Year**: 2022-10-25 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/iso-27001.sql")} as link
     UNION
     SELECT
       'HIPAA' AS title,
-      'Explore HIPAA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Federal \n
+      **Health Insurance Portability and Accountability Act (HIPAA)** \n
+      **Version**: N/A \n
+      **Published/Last Reviewed Date/Year**: 2024-01-06 00:00:00+00' AS description_md,
       ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link
     UNION
     SELECT
       'Together.Health Security Assessment (THSA)' AS title,
-      'Explore THSA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Together.Health (health innovation collaborative) \n
+      **Together.Health Security Assessment (THSA)** \n
+      **Version**: v2019.1 \n
+      **Published/Last Reviewed Date/Year**: 2019-10-26 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/thsa.sql")} AS link;
- 
   `;
   }
 
@@ -498,17 +518,29 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
 
     SELECT
       'CMMC Model 2.0 LEVEL 1' AS title,
-      '15 requirements; Annual self-assessment & annual affirmation. The Department views Level 1 as an opportunity to engage its contractors in developing and strengthening their approach to cybersecurity. Self-assessments will suffice to meet CMMC Level 1 requirements. Contractors will be required to conduct self-assessment on an annual basis, accompanied by an annual affirmation from a senior company official that the company is meeting requirements. The Department intends to require companies to register self-assessments and affirmations in the Supplier Performance Risk System (SPRS).' AS description_md,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 1 (Foundational)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=1")} AS link
     UNION
     SELECT
-      'CMMC Model 2.0 LEVEL 2',
-      '110 requirements aligned with NIST SP 800-171; Triennial third-party assessment & annual affirmation; Triennial self-assessment & annual affirmation for select programs. A subset of programs with Level 2 requirements do not involve information critical to national security, and associated contractors will be permitted to meet the requirement through self-assessments. Contractors will be required to conduct self-assessment on an annual basis, accompanied by an annual affirmation from a senior company official that the company is meeting requirements. The Department intends to require companies to register self-assessments and affirmations in the Supplier Performance Risk System (SPRS).',
+      'CMMC Model 2.0 LEVEL 2' AS title,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 2 (Advanced)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=2")}
     UNION
     SELECT
-      'CMMC Model 2.0 LEVEL 3',
-      '110+ requirements based on NIST SP 800-171 & 800-172; Triennial government-led assessment & annual affirmation. The Department intends for Level 3 cybersecurity requirements to be assessed by government officials. Assessment requirements are currently under development. Level 3 information will likewise be posted as it becomes available.',
+      'CMMC Model 2.0 LEVEL 3' AS title,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 3 (Expert)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=3")};
   `;
   }
