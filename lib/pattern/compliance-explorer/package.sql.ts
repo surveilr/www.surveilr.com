@@ -313,36 +313,95 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       FROM compliance_regime_control WHERE control_type=$regimeType::TEXT;`;
   }
 
-  @ceNav({
-    caption: "HiTRUST e1 Assessment",
-    description: "HiTRUST e1 Assessment services criteria controls.",
-    siblingOrder: 3,
-  })
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/hitrust.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_regime_control_hitrust_e1",
+  });
     return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
-      'text' AS component,
-      'HiTRUST e1 Assessment Controls' AS title;
+    ${this.activePageTitle()}
 
-     SELECT
-      'The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.' AS contents;
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'HiTRUST e1 Assessment' AS title, '#' AS link;
 
-     SELECT
-      'table' AS component,
-      TRUE AS sort,
-      TRUE AS search;
+    --- Description text
+    SELECT 'text' AS component,
+          'The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.' AS contents;
 
-     SELECT
-      control_code AS "ID",
-      control_id AS "Control Identifier",
+    --- Pagination Controls (Top)
+    ${pagination.init()}
+
+    --- Table (markdown column)
+    SELECT 'table' AS component, TRUE AS sort, TRUE AS search, "Control Code" AS markdown;
+
+    --- Table data
+    SELECT
+      '[' || control_id || '](' || ${this.absoluteURL("/ce/regime/hitrust_detail.sql?code=")} || replace(control_id, ' ', '%20') || ')' AS "Control Code",
       fii_id AS "Fii ID",
       common_criteria AS "Common Criteria",
       control_name AS "Control Name",
       control_question AS "Control Description",
       tenant_name AS "Tenant"
-     FROM compliance_regime_control_hitrust_e1;
+    FROM compliance_regime_control_hitrust_e1
+    ORDER BY control_code ASC
+    LIMIT $limit OFFSET $offset;
+
+    --- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
     `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/hitrust_detail.sql"() {
+    return this.SQL`
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'HiTRUST e1 Assessment' AS title, ${this.absoluteURL("/ce/regime/hitrust.sql")} AS link;
+    SELECT COALESCE($code, '') AS title, '#' AS link;
+
+    --- Primary details card
+    SELECT 'card' AS component, 'HiTRUST Control Details' AS title, 1 AS columns;
+    SELECT
+        COALESCE(control_id, '(unknown)') AS title,
+        '**Common Criteria:** ' || COALESCE(common_criteria,'') || '  \n\n' ||
+        '**Control Name:** ' || COALESCE(control_name,'') || '  \n\n' ||
+        '**Control Description:** ' || COALESCE(control_question,'') || '  \n\n' ||
+        '**Fii ID:** ' || COALESCE(fii_id,'') AS description_md
+    FROM compliance_regime_control_hitrust_e1
+    WHERE control_id = $code
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+
+
+    --- Fallback if no exact match
+    SELECT 'text' AS component,
+          'No exact control found for code: ' || COALESCE($code,'(empty)') AS contents
+    WHERE NOT EXISTS (
+      SELECT 1 FROM compliance_regime_control_hitrust_e1 WHERE control_id = $code
+    );
+  `;
   }
 
   @ceNav({
@@ -428,6 +487,125 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/hipaa_security_rule_detail.sql"() {
     return this.SQL`
+      SELECT
+        'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'HIPAA' AS title,
+        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+ 
+      -- Dynamic last breadcrumb using the reference from the DB
+      SELECT
+        hipaa_security_rule_reference AS title,
+        '#' AS link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+  
+      SELECT
+        'card' AS component,
+        'HIPAA Security Rule Detail' AS title,
+        1 AS columns;
+  
+      SELECT
+        common_criteria AS title,
+        '**Control Code:** ' || hipaa_security_rule_reference || '  \n\n' ||
+        '**Control Question:** ' || safeguard || '  \n\n' ||
+        '**FII ID:** ' || fii_id || '  \n\n'  AS description_md
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/thsa.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_regime_thsa",
+    });
+    return this.SQL`
+      ${this.activePageTitle()}
+  
+      -- Breadcrumbs
+      SELECT 'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'Together.Health Security Assessment (THSA)' AS title,
+        '#' AS link;  
+  
+      -- Page Heading
+      SELECT
+        'text' AS component,
+        'Together.Health Security Assessment (THSA)' AS title;
+  
+      SELECT
+        'The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).' AS contents;
+  
+      -- Pagination controls (top)
+      ${pagination.init()}
+  
+      -- Table
+      SELECT
+        'table' AS component,
+        TRUE AS sort,
+        TRUE AS search,
+        "Control Code" AS markdown;
+  
+      SELECT
+        '[' || scf_code || '](' ||
+          ${this.absoluteURL(
+            "/ce/regime/thsa_detail.sql?id=",
+          )} || scf_code || ')' AS "Control Code",
+        scf_domain AS "Domain",
+        scf_control AS "Control",
+        scf_control_question AS "Control Question",
+        your_answer AS "Your Answer",
+        tenant_id AS "Tenant ID",
+        tenant_name AS "Tenant"
+      FROM compliance_regime_thsa
+      ORDER BY scf_code
+      LIMIT $limit OFFSET $offset;
+  
+      -- Pagination controls (bottom)
+      ${pagination.renderSimpleMarkdown()}
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/thsa_detail.sql"() {
+    return this.SQL`
     SELECT
       'breadcrumb' AS component;
  
@@ -440,64 +618,47 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/ce/index.sql")} AS link;
  
     SELECT
-      'HIPAA' AS title,
-      ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+      'Together.Health Security Assessment (THSA)' AS title,
+      ${this.absoluteURL("/ce/regime/thsa.sql")} AS link;
  
     -- Dynamic last breadcrumb using the reference from the DB
     SELECT
-      hipaa_security_rule_reference AS title,
+      scf_code AS title,
       '#' AS link
-    FROM hipaa_security_rule_safeguards
-    WHERE hipaa_security_rule_reference = $id::TEXT;
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
  
+    -- Main Control Detail Card
     SELECT
       'card' AS component,
-      'HIPAA Security Rule Detail' AS title,
+      'Together.Health Security Assessment (THSA) Detail' AS title,
       1 AS columns;
  
     SELECT
-      common_criteria AS title,
-      '**Control Code:** ' || hipaa_security_rule_reference || '  \n\n' ||
-      '**Control Question:** ' || safeguard || '  \n\n' ||
-      '**FII ID:** ' || fii_id || '  \n\n'  AS description_md
-    FROM hipaa_security_rule_safeguards
-    WHERE hipaa_security_rule_reference = $id::TEXT;
-  `;
-  }
-
-  @ceNav({
-    caption: "THSA Controls",
-    description:
-      "Texas Health Services Authority (THSA) control mappings with SCF.",
-    siblingOrder: 6,
-  })
-  "ce/regime/thsa.sql"() {
-    return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
-      'text' AS component,
-      'THSA Controls' AS title;
+      scf_domain AS title,
+      '**Control Code:** ' || scf_code || '  \n\n' ||
+      '**Control Question:** ' || scf_control_question || '  \n\n'  AS description_md
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
  
-     SELECT
-      'The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).' AS contents;
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
  
-     SELECT
-      'table' AS component,
-      TRUE AS sort,
-      TRUE AS search;
  
     SELECT
-      id,
-      scf_domain,
-      scf_control,
-      scf_control_question,
-      scf_code,
-      your_answer,
-      tenant_id,
-      tenant_name
-    FROM
-      compliance_regime_thsa;
-    `;
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+  `;
   }
 
   @ceNav({
@@ -646,6 +807,25 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
       OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
     LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+
 
     --- Fallback if no exact match
     SELECT 'text' AS component,
