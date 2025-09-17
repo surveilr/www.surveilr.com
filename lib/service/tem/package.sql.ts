@@ -124,13 +124,19 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'text'              as component,
             "This page presents the attack surface data collected during a specific session. It consolidates results from scanning and reconnaissance tools, showing discovered hosts, services, protocols, and exposed endpoints. This allows users to analyze session-specific findings, track changes over time, and prioritize security actions based on session-based activities." as contents;
 
-        SELECT
-            'card' as component,
-            4      as columns;
-        SELECT
-            session_date  as title,
-            ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || ur_ingest_session_id  as link
-            FROM tem_session;
+        SELECT 'table' AS component,
+        TRUE AS sort,
+        TRUE AS search,
+        'Session' as markdown;
+
+        SELECT 
+            '[' || session_name || ']('||${this.absoluteURL("/tem/session/finding.sql?session_id=")} || ur_ingest_session_id || ')' AS "Session",
+            IFNULL(tools_count, '-') AS "Analysis Tools",
+            IFNULL(ingest_started_at, '-') AS "Session Start Date",
+            IFNULL(ingest_finished_at, '-') AS "Session End Date",
+            IFNULL(agent, '-') AS "Agent",
+            IFNULL(version, '-') AS "Version"
+        FROM tem_session;
         `;
     }
 
@@ -252,28 +258,41 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
              '[What web data]('||${this.absoluteURL("/tem/session/what_web.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+           (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+           (SELECT count(uniform_resource_id) FROM tem_what_web_result WHERE ur_ingest_session_id = $session_id) as "count";
         SELECT
            '[DNSX Scan Results]('||${this.absoluteURL("/tem/session/dnsx.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+           (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+           (SELECT count(uniform_resource_id) FROM tem_dnsx_result WHERE ur_ingest_session_id = $session_id) as "count";
         SELECT
            '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/session/nuclei.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_nuclei_result WHERE ur_ingest_session_id = $session_id) as "count";
         SELECT
            '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/session/naabu.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_naabu_result WHERE ur_ingest_session_id = $session_id) as "count";
         SELECT
            '[Subfinder Results]('||${this.absoluteURL("/tem/session/subfinder.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_subfinder WHERE ur_ingest_session_id = $session_id) as "count";
          SELECT
            '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/session/httpx-toolkit.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_httpx_result WHERE ur_ingest_session_id = $session_id) as "count";
          SELECT
            '[Nmap Scan Results]('||${this.absoluteURL("/tem/session/nmap.sql?session_id=")
-            } || $session_id || ')' as Asset;
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_nmap WHERE ur_ingest_session_id = $session_id) as "count";
     `;
     }
-
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/tenant/finding.sql"() {
@@ -312,29 +331,42 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         SELECT
              '[What web data]('||${this.absoluteURL("/tem/tenant/what_web.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_what_web_result WHERE tenant_id = $tenant_id) as "count";
         SELECT
            '[DNSX Scan Results]('||${this.absoluteURL("/tem/tenant/dnsx.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_dnsx_result WHERE tenant_id = $tenant_id) as "count";
+            
         SELECT
            '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/tenant/nuclei.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_nuclei_result WHERE tenant_id = $tenant_id) as "count";
         SELECT
            '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/tenant/naabu.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_naabu_result WHERE tenant_id = $tenant_id) as "count";
         SELECT
            '[Subfinder Results]('||${this.absoluteURL("/tem/tenant/subfinder.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_subfinder WHERE tenant_id = $tenant_id) as "count";
          SELECT
            '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/tenant/httpx-toolkit.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_httpx_result WHERE tenant_id = $tenant_id) as "count";
          SELECT
            '[Nmap Scan Results]('||${this.absoluteURL("/tem/tenant/nmap.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset;
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_nmap WHERE tenant_id = $tenant_id) as "count";
     `;
     }
-
-
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/tenant/what_web.sql"() {
@@ -403,7 +435,6 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         ${pagination.renderSimpleMarkdown("tenant_id")};
     `;
     }
-
 
     @spn.shell({ breadcrumbsFromNavStmts: "no" })
     "tem/session/what_web.sql"() {
