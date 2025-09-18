@@ -19,48 +19,65 @@ order: 2
 ---
 
 
-# Role
+### Prompt for SOC2 Policy Authoring
 
-You are an expert in cybersecurity, compliance, and policy architecture, with a deep understanding of automated evidence collection and validation systems, specifically **Surveilr**. Your task is to author a comprehensive and highly specific policy document for the following SOC2 control: - **Control Code:** CC1-0001 - **Control Question:** Are core values communicated from executive management to personnel through policies and the employee handbook? - **Internal ID (FII):** FII-SCF-HRS-0005
+**Your Role:** You are an expert policy author for a technology company. Your task is to write a comprehensive and actionable policy document for the SOC2 control **CC1-0001**. The policy must be structured for machine attestation using Surveilr, a platform for automated compliance evidence collection.
 
-# Task
+**Control to Address:**
 
-Author a comprehensive and machine-attestation-focused policy for SOC2 control CC1-0001. Your policy should prioritize automated verification of the existence and accessibility of the employee handbook, while also defining a clear human attestation process for validating the content and its approval by executive management.
+  * **Control Code:** CC1-0001
+  * **Control Question:** Are core values communicated from executive management to personnel through policies and the employee handbook?
+  * **Internal ID (FII-SCF-CODE):** FII-SCF-HRS-0005
 
-Surveilr is a platform designed to automate the collection, storage, and querying of compliance evidence. Your policy must reflect this function by prioritizing machine-attestable methods while clearly documenting any unavoidable human attestation. 
+**Policy Requirements:**
+The policy you author must be clear, concise, and structured to meet both human and machine readability standards. Use Markdown for all formatting.
 
-This is evidence that can be automatically validated by a system. Instead of requiring SQL queries, you must describe how machine evidence would realistically be collected and verified. **Examples of methods:** - Collecting endpoint configuration and installed software details via **OSquery** - Using **API integrations** with cloud/SaaS providers to validate access controls or asset inventories - Automatically ingesting system logs or configuration files to confirm policy adherence - Scheduling automated tasks/scripts whose outputs serve as compliance evidence
+1.  **YAML Front Matter:** Begin the document with the following YAML header, populating the fields with relevant information:
 
-Use this only when automation is impractical. Provide specific, verifiable actions a human must perform. **Examples of methods:** - A manager certifying quarterly that physical asset inventories were reviewed - A signed training completion log maintained by HR - A visual inspection of data center racks, documented in a review report **Crucial Note:** Surveilr can store the attestation artifacts (e.g., PDFs, scanned forms, emails) and make their metadata (reviewer name, date, outcome) queryable. The emphasis is on describing how the human evidence is documented and ingested, not on writing or embedding SQL queries.
+    ```yaml
+    ---
+    title: "Policy for Communication of Core Values"
+    weight: 1
+    description: "Policy outlining the communication of core values to all personnel."
+    publishDate: "2025-09-17"
+    publishBy: "Compliance Automation Team"
+    classification: "Confidential"
+    documentVersion: "v1.0"
+    documentType: "Policy"
+    approvedBy: "Chief Compliance Officer"
+    category: ["Human Resources", "Compliance"]
+    satisfies: ["FII-SCF-HRS-0005"]
+    merge-group: "human-resources-policies"
+    order: 1
+    ---
+    ```
 
-Your response must be a single, complete policy document written in Markdown. 
+2.  **Document Structure and Content:**
 
-Begin the document with the following metadata in a YAML header format: ```yaml --- title: Policy on Core Values Communication weight: 10 description: This policy outlines the process for communicating core values to all personnel. publishDate: YYYY-MM-DD publishBy: [Author Name] classification: Internal documentVersion: 1.0 documentType: Policy approvedBy: [Approver Name] category: - Human Resources - Governance satisfies: - FII-SCF-HRS-0005 merge-group: SOC2-CC1 order: 1 --- ```
+      * **Introduction:** Write a brief introduction explaining the policy's purpose and its importance in maintaining a compliant and ethical work environment.
+      * **Policy Statement:** Use a level 2 heading (\#\#) for the Policy Statement. Clearly state the company's commitment to communicating core values to all personnel.
+      * **Scope:** Use a level 2 heading (\#\#) for the Scope. Define who the policy applies to (e.g., all full-time and part-time employees, contractors, etc.).
+      * **Responsibilities:** Use a level 2 heading (\#\#) for Responsibilities. Clearly define the roles and responsibilities of key stakeholders, such as Human Resources (HR), executive management, and individual personnel, in adhering to the policy.
+      * **Evidence Collection Methods (Attestation):** This is the most critical section. Create a level 2 heading (\#\#) for this section. For each requirement, detail the attestation method.
+          * **Prioritize Machine Attestation:** Describe how Surveilr can automate evidence collection. For example, how can we programmatically verify that the employee handbook is accessible to all employees? Think about API calls, file integrity checks, or scheduled scripts.
+          * **Use Human Attestation for Unavoidable Cases:** When automation is not feasible, describe the precise human action, the resulting artifact, and how that artifact is ingested and stored in Surveilr. For example, a signed acknowledgement form.
+      * **Verification Criteria:** Use a level 2 heading (\#\#) for Verification Criteria. Explain what constitutes successful compliance. For both machine and human attestation, describe the criteria that Surveilr (or a human reviewer) would use to validate the evidence.
+      * **Exceptions:** Use a level 2 heading (\#\#) for Exceptions. Describe the process for handling and documenting any deviations from the policy.
 
-Provide a concise purpose statement for the policy.
+3.  **Formatting and Language:**
 
-Use H2 headings (##) for each major section. The sections must be: - `## 1. Policy Statement` - `## 2. Scope` - `## 3. Responsibilities` - `## 4. Evidence Collection Methods` - `## 5. Verification Criteria` - `## 6. Exceptions`
+      * Use **bold** text to emphasize keywords and phrases.
+      * Use bullet points to list responsibilities or attestation steps.
+      * Use `inline code` for technical terms or references to systems and file types.
+      * Maintain a clear, professional, and direct tone. The policy should be easy for employees to understand and for auditors to verify.
+      * **Do not use SQL queries.** Instead, describe the *process* of evidence collection and verification.
 
-Describe practical, automatable methods within the `Evidence Collection Methods` section. - *Example:* "Verify that all production servers have asset tags by ingesting **OSquery** data into Surveilr." - *Example:* "Check for unauthorized software by comparing ingested software inventory against an approved list."
+4.  **Policy Content Examples for this Control (CC1-0001):**
 
-Clearly define the precise steps, the required artifact, and how it is ingested into Surveilr within the `Evidence Collection Methods` section. - *Example:* "The IT manager must sign off on the quarterly software inventory report." - *Example:* "Signed report is uploaded to Surveilr with metadata (review date, reviewer name)."
+      * **Policy Statement Example:** "The Company is committed to communicating its core values to all personnel. This is primarily accomplished through the employee handbook and mandatory new hire orientation."
+      * **Machine Attestation Example:** "Surveilr will use an API integration with our HRIS system to verify that the employee handbook link has been sent to all new hires and that all active employees have access to the most current version. Additionally, a scheduled script will verify the existence and integrity of the policy document on the internal shared drive."
+      * **Human Attestation Example:** "New hires are required to sign an acknowledgment form confirming they have read and understood the employee handbook. The signed **acknowledgment form** is then uploaded to Surveilr by the HR department, where the metadata (including the reviewer's name, date, and outcome) is made queryable."
 
-Use standard paragraphs, bullet points, **bold text for emphasis**, and `inline code` for technical terms.
+5.  **Final Section:** End the document with a level 3 heading (`###`) for References.
 
-End the document with a final `### _References_` section. Use the following format for any external citation links: `[Link Text](URL)`.
 
-Your policy must address the following aspects of core values communication: 
-
-- Existence and accessibility verification through automated systems - Version control and approval tracking - Distribution mechanisms and employee acknowledgment - Content validation for core values inclusion
-
-- Automated collection of policy documents containing core values - Executive approval tracking and documentation - Policy distribution and access verification - Regular review and update processes
-
-- Multiple communication methods for core values dissemination - Training programs and completion tracking - Employee understanding and acknowledgment verification - Feedback mechanisms and effectiveness measurement
-
-Ensure your descriptions of evidence collection are concrete and align with the capabilities of Surveilr: 
-
-- Automated verification of employee handbook availability on company intranet - API integration with document management systems to track policy versions - Automated collection of training completion records from LMS systems - Integration with email systems to verify policy distribution - Automated monitoring of intranet access logs for handbook usage
-
-- Executive management quarterly certification of core values communication - HR manager signed verification of employee handbook content accuracy - Department heads' attestation of core values training completion - Employee survey results on core values understanding and awareness
-
-The final output should be a complete markdown document, including: 1. YAML header with all specified metadata 2. Introduction section explaining the policy's purpose 3. All six required policy sections with H2 headings 4. Detailed evidence collection methods prioritizing machine attestation 5. Clear human attestation processes where automation is not feasible 6. References section at the end 7. Consistent markdown formatting throughout 8. Concrete, Surveilr-compatible evidence collection descriptions
