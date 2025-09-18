@@ -53,40 +53,55 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       2 AS columns;
 
     SELECT
-      'Secure Controls Framework (SCF)' AS title,
-      'Explore SCF Controls' AS description_md,
-      ${this.absoluteURL("/ce/regime/scf.sql")} as link
-    UNION
-    SELECT
       'CMMC' AS title,
-      'Explore CMMC Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/cmmc.sql")} as link
     UNION
     SELECT
       'AICPA' AS title,
-      'Explore AICPA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: American Institute of Certified Public Accountants (AICPA) \n
+      **Version**: N/A \n
+      **Published/Last Reviewed Date/Year**: 2023-10-01 00:00:00+00' AS description_md,
       ${this.absoluteURL("/ce/regime/aicpa.sql")} as link
     UNION
     SELECT
       'HiTRUST e1 Assessment' AS title,
-      'Explore HiTRUST e1 Assessment  Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: HITRUST Alliance \n
+      **HITRUST Essentials, 1-Year (e1) Assessment** \n
+      **Version**: e1 \n
+      **Published/Last Reviewed Date/Year**: 2021-09-13 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/hitrust.sql")} as link
     UNION
     SELECT
       'ISO 27001:2022' AS title,
-      'Explore ISO 27001:2022  Controls' AS description_md,
+      '**Geography**: International \n
+      **Source**: International Organization for Standardization (ISO) \n
+      **Version**: 2022 \n
+      **Published/Last Reviewed Date/Year**: 2022-10-25 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/iso-27001.sql")} as link
     UNION
     SELECT
       'HIPAA' AS title,
-      'Explore HIPAA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Federal \n
+      **Health Insurance Portability and Accountability Act (HIPAA)** \n
+      **Version**: N/A \n
+      **Published/Last Reviewed Date/Year**: 2024-01-06 00:00:00+00' AS description_md,
       ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link
     UNION
     SELECT
       'Together.Health Security Assessment (THSA)' AS title,
-      'Explore THSA Controls' AS description_md,
+      '**Geography**: US \n
+      **Source**: Together.Health (health innovation collaborative) \n
+      **Together.Health Security Assessment (THSA)** \n
+      **Version**: v2019.1 \n
+      **Published/Last Reviewed Date/Year**: 2019-10-26 00:00:00+00' AS description_md,      
       ${this.absoluteURL("/ce/regime/thsa.sql")} AS link;
- 
   `;
   }
 
@@ -115,9 +130,8 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
       '[**Detail View**](' || ${this.absoluteURL(
-      "/ce/regime/controls.sql?regimeType=US%20HIPAA",
-    )
-      }|| ')' AS description_md
+        "/ce/regime/controls.sql?regimeType=US%20HIPAA",
+      )}|| ')' AS description_md
     FROM compliance_regime
     WHERE title = 'US HIPAA';
 
@@ -167,12 +181,12 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'SOC 2 Type I' AS title,
       'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
-      ${this.absoluteURL('/ce/regime/aicpa/soc2.sql')} AS link
+      ${this.absoluteURL("/ce/regime/aicpa/soc2.sql")} AS link
     UNION ALL
     SELECT
       'SOC 2 Type II' AS title,
       'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
-      ${this.absoluteURL('/ce/regime/aicpa/soc2_type2.sql')} AS link;
+      ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
  
   `;
   }
@@ -289,9 +303,8 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       TRUE AS search,
       "Control Code" AS markdown;
       SELECT '[' || control_code || ']('|| ${this.absoluteURL(
-      "/ce/regime/control/control_detail.sql?id=",
-    )
-      } || control_code || '&regimeType='|| replace($regimeType,
+        "/ce/regime/control/control_detail.sql?id=",
+      )} || control_code || '&regimeType='|| replace($regimeType,
     " ", "%20")||')' AS "Control Code",
       scf_control AS "Title",
       scf_domain AS "Domain",
@@ -300,36 +313,95 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       FROM compliance_regime_control WHERE control_type=$regimeType::TEXT;`;
   }
 
-  @ceNav({
-    caption: "HiTRUST e1 Assessment",
-    description: "HiTRUST e1 Assessment services criteria controls.",
-    siblingOrder: 3,
-  })
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/hitrust.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_regime_control_hitrust_e1",
+  });
     return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
-      'text' AS component,
-      'HiTRUST e1 Assessment Controls' AS title;
+    ${this.activePageTitle()}
 
-     SELECT
-      'The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.' AS contents;
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'HiTRUST e1 Assessment' AS title, '#' AS link;
 
-     SELECT
-      'table' AS component,
-      TRUE AS sort,
-      TRUE AS search;
+    --- Description text
+    SELECT 'text' AS component,
+          'The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.' AS contents;
 
-     SELECT
-      control_code AS "ID",
-      control_id AS "Control Identifier",
+    --- Pagination Controls (Top)
+    ${pagination.init()}
+
+    --- Table (markdown column)
+    SELECT 'table' AS component, TRUE AS sort, TRUE AS search, "Control Code" AS markdown;
+
+    --- Table data
+    SELECT
+      '[' || control_id || '](' || ${this.absoluteURL("/ce/regime/hitrust_detail.sql?code=")} || replace(control_id, ' ', '%20') || ')' AS "Control Code",
       fii_id AS "Fii ID",
       common_criteria AS "Common Criteria",
       control_name AS "Control Name",
       control_question AS "Control Description",
       tenant_name AS "Tenant"
-     FROM compliance_regime_control_hitrust_e1;
+    FROM compliance_regime_control_hitrust_e1
+    ORDER BY control_code ASC
+    LIMIT $limit OFFSET $offset;
+
+    --- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
     `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/hitrust_detail.sql"() {
+    return this.SQL`
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'HiTRUST e1 Assessment' AS title, ${this.absoluteURL("/ce/regime/hitrust.sql")} AS link;
+    SELECT COALESCE($code, '') AS title, '#' AS link;
+
+    --- Primary details card
+    SELECT 'card' AS component, 'HiTRUST Control Details' AS title, 1 AS columns;
+    SELECT
+        COALESCE(control_id, '(unknown)') AS title,
+        '**Common Criteria:** ' || COALESCE(common_criteria,'') || '  \n\n' ||
+        '**Control Name:** ' || COALESCE(control_name,'') || '  \n\n' ||
+        '**Control Description:** ' || COALESCE(control_question,'') || '  \n\n' ||
+        '**Fii ID:** ' || COALESCE(fii_id,'') AS description_md
+    FROM compliance_regime_control_hitrust_e1
+    WHERE control_id = $code
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+
+
+    --- Fallback if no exact match
+    SELECT 'text' AS component,
+          'No exact control found for code: ' || COALESCE($code,'(empty)') AS contents
+    WHERE NOT EXISTS (
+      SELECT 1 FROM compliance_regime_control_hitrust_e1 WHERE control_id = $code
+    );
+  `;
   }
 
   @ceNav({
@@ -365,141 +437,417 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @ceNav({
-    caption: "HIPAA Security Rule Safeguards",
-    description:
-      "HIPAA Security Rule safeguards and their mapping with SCF and FII IDs.",
+    caption: "HIPAA",
+    description: "HIPAA and their mapping with SCF and FII IDs.",
     siblingOrder: 5,
   })
   "ce/regime/hipaa_security_rule.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "hipaa_security_rule_safeguards",
+    });
+
     return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
+    ${this.activePageTitle()}
+ 
+    SELECT
       'text' AS component,
-      'HIPAA Security Rule Safeguards' AS title;
-
-     SELECT
-      'The HIPAA Security Rule safeguards define administrative, physical, and technical measures required to ensure the confidentiality, integrity, and availability of electronic protected health information (ePHI).' AS contents;
-
-     SELECT
+      'HIPAA' AS title;
+ 
+    SELECT
+      'The HIPAA define administrative, physical, and technical measures required to ensure the confidentiality, integrity, and availability of electronic protected health information (ePHI).' AS contents;
+ 
+    -- Pagination controls (top)
+    ${pagination.init()}
+ 
+    SELECT
       'table' AS component,
       TRUE AS sort,
-      TRUE AS search;
-
-     SELECT
-      id AS "ID",
+      TRUE AS search,
+      "Control Code" AS markdown;
+ 
+    SELECT
+      '[' || hipaa_security_rule_reference || '](' ||
+        ${this.absoluteURL(
+          "/ce/regime/hipaa_security_rule_detail.sql?id=",
+        )} || hipaa_security_rule_reference || ')' AS "Control Code",
       common_criteria AS "Common Criteria",
-      hipaa_security_rule_reference AS "HIPAA Security Rule Reference",
-      safeguard AS "Safeguard",
+      safeguard AS "Control Question",
       handled_by_nq AS "Handled by nQ",
       fii_id AS "FII ID",
       tenant_name AS "Tenant"
-     FROM hipaa_security_rule_safeguards;
+    FROM hipaa_security_rule_safeguards
+    ORDER BY hipaa_security_rule_reference
+    LIMIT $limit OFFSET $offset;
+ 
+    -- Pagination controls (bottom)
+    ${pagination.renderSimpleMarkdown()}
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/hipaa_security_rule_detail.sql"() {
+    return this.SQL`
+      SELECT
+        'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'HIPAA' AS title,
+        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+ 
+      -- Dynamic last breadcrumb using the reference from the DB
+      SELECT
+        hipaa_security_rule_reference AS title,
+        '#' AS link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+  
+      SELECT
+        'card' AS component,
+        'HIPAA Security Rule Detail' AS title,
+        1 AS columns;
+  
+      SELECT
+        common_criteria AS title,
+        '**Control Code:** ' || hipaa_security_rule_reference || '  \n\n' ||
+        '**Control Question:** ' || safeguard || '  \n\n' ||
+        '**FII ID:** ' || fii_id || '  \n\n'  AS description_md
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
     `;
   }
 
-  @ceNav({
-    caption: "THSA Controls",
-    description:
-      "Texas Health Services Authority (THSA) control mappings with SCF.",
-    siblingOrder: 6,
-  })
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/thsa.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_regime_thsa",
+    });
     return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
-      'text' AS component,
-      'THSA Controls' AS title;
- 
-     SELECT
-      'The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).' AS contents;
- 
-     SELECT
-      'table' AS component,
-      TRUE AS sort,
-      TRUE AS search;
+      ${this.activePageTitle()}
+  
+      -- Breadcrumbs
+      SELECT 'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'Together.Health Security Assessment (THSA)' AS title,
+        '#' AS link;  
+  
+      -- Page Heading
+      SELECT
+        'text' AS component,
+        'Together.Health Security Assessment (THSA)' AS title;
+  
+      SELECT
+        'The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).' AS contents;
+  
+      -- Pagination controls (top)
+      ${pagination.init()}
+  
+      -- Table
+      SELECT
+        'table' AS component,
+        TRUE AS sort,
+        TRUE AS search,
+        "Control Code" AS markdown;
+  
+      SELECT
+        '[' || scf_code || '](' ||
+          ${this.absoluteURL(
+            "/ce/regime/thsa_detail.sql?id=",
+          )} || scf_code || ')' AS "Control Code",
+        scf_domain AS "Domain",
+        scf_control AS "Control",
+        scf_control_question AS "Control Question",
+        your_answer AS "Your Answer",
+        tenant_id AS "Tenant ID",
+        tenant_name AS "Tenant"
+      FROM compliance_regime_thsa
+      ORDER BY scf_code
+      LIMIT $limit OFFSET $offset;
+  
+      -- Pagination controls (bottom)
+      ${pagination.renderSimpleMarkdown()}
+    `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/thsa_detail.sql"() {
+    return this.SQL`
+    SELECT
+      'breadcrumb' AS component;
  
     SELECT
-      id,
-      scf_domain,
-      scf_control,
-      scf_control_question,
-      scf_code,
-      your_answer,
-      tenant_id,
-      tenant_name
-    FROM
-      compliance_regime_thsa;
-    `;
+      'Home' AS title,
+      ${this.absoluteURL("/")} AS link;
+ 
+    SELECT
+      'Controls' AS title,
+      ${this.absoluteURL("/ce/index.sql")} AS link;
+ 
+    SELECT
+      'Together.Health Security Assessment (THSA)' AS title,
+      ${this.absoluteURL("/ce/regime/thsa.sql")} AS link;
+ 
+    -- Dynamic last breadcrumb using the reference from the DB
+    SELECT
+      scf_code AS title,
+      '#' AS link
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
+ 
+    -- Main Control Detail Card
+    SELECT
+      'card' AS component,
+      'Together.Health Security Assessment (THSA) Detail' AS title,
+      1 AS columns;
+ 
+    SELECT
+      scf_domain AS title,
+      '**Control Code:** ' || scf_code || '  \n\n' ||
+      '**Control Question:** ' || scf_control_question || '  \n\n'  AS description_md
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
+ 
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+  `;
   }
 
   @ceNav({
     caption: "CMMC",
     description:
-      "Cybersecurity Maturity Model Certification (CMMC) Levels 1–3.",
+      "Cybersecurity Maturity Model Certification (CMMC) Levels 1-3.",
     siblingOrder: 6,
   })
   "ce/regime/cmmc.sql"() {
     return this.SQL`
     ${this.activePageTitle()}
-    SELECT 'text' AS component, 'CMMC Framework' AS title;
+    SELECT 'text' AS component, 'Cybersecurity Maturity Model Certification (CMMC)' AS title;
 
     SELECT
-      'The Cybersecurity Maturity Model Certification (CMMC) includes Levels 1, 2, and 3. Each level defines a set of practices and processes aligned with NIST standards.' AS contents;
+      "The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners. The DoD has mandated that all organizations engaged in business with them, irrespective of size, industry, or level of involvement, undergo a cybersecurity maturity assessment based on the CMMC framework. This initiative aims to ensure the protection of sensitive unclassified information shared between the Department and its contractors and subcontractors. The program enhances the Department's confidence that contractors and subcontractors adhere to cybersecurity requirements applicable to acquisition programs and systems handling controlled unclassified information" AS contents;
 
     SELECT 'card' AS component, '' AS title, 3 AS columns;
 
     SELECT
-      'CMMC Level 1' AS title,
-      'Basic safeguarding of Federal Contract Information (FCI).' AS description_md,
+      'CMMC Model 2.0 LEVEL 1' AS title,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 1 (Foundational)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=1")} AS link
     UNION
     SELECT
-      'CMMC Level 2',
-      'Intermediate cyber hygiene aligned with NIST SP 800-171.',
+      'CMMC Model 2.0 LEVEL 2' AS title,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 2 (Advanced)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=2")}
     UNION
     SELECT
-      'CMMC Level 3',
-      'Expert level practices with enhanced NIST SP 800-171A requirements.',
+      'CMMC Model 2.0 LEVEL 3' AS title,
+      '**Geography**: US \n
+      **Source**: Department of Defense (DoD) \n
+      **Cybersecurity Maturity Model Certification (CMMC) - Level 3 (Expert)** \n
+      **Version**: 2.0 \n
+      **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00' AS description_md, 
       ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=3")};
   `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/cmmc_level.sql"() {
+    // Define pagination
+    const pagination = this.pagination({
+      tableOrViewName: "scf_view",
+      // Only fetch rows for the selected CMMC level
+      whereSQL: `
+      WHERE 
+        (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '')
+     OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '')
+     OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '')
+    `,
+    });
+
     return this.SQL`
+    ${this.activePageTitle()}
+
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
     SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
-    SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc_index.sql")} AS link;
-    SELECT 'CMMC Level ' || level AS title
-    FROM (SELECT :level AS level) AS t;
-
+    SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
+    SELECT 'CMMC Level ' || COALESCE(@level::TEXT,'') AS title, '#' AS link;
 
     --- Description text
     SELECT 'text' AS component,
-           'The Cybersecurity Maturity Model Certification (CMMC) defines cybersecurity practices across Levels 1–3. Below are the mapped SCF controls for the selected level.' AS contents;
+       "The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners. The DoD has mandated that all organizations engaged in business with them, irrespective of size, industry, or level of involvement, undergo a cybersecurity maturity assessment based on the CMMC framework. This initiative aims to ensure the protection of sensitive unclassified information shared between the Department and its contractors and subcontractors. The program enhances the Department's confidence that contractors and subcontractors adhere to cybersecurity requirements applicable to acquisition programs and systems handling controlled unclassified information" AS contents;
 
-    --- Table
-    SELECT 'table' AS component, TRUE AS sort, TRUE AS search;
-    SELECT 
-        scf_domain,
-        scf_control,
-        control_code,
-        CASE 
-          WHEN @level = 1 THEN cmmc_level_1
-          WHEN @level = 2 THEN cmmc_level_2
-          WHEN @level = 3 THEN cmmc_level_3
-        END AS cmmc_code,
-        control_description,
-        control_question
+
+    --- Table (markdown column)
+    SELECT 'table' AS component, TRUE AS sort, TRUE AS search, "Control Code" AS markdown;
+
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+
+    --- Table data
+    SELECT
+      '[' || replace(replace(
+          CASE 
+            WHEN @level = 1 THEN cmmc_level_1
+            WHEN @level = 2 THEN cmmc_level_2
+            ELSE cmmc_level_3
+          END,
+          '\n', ' '),
+          '\r', ' ')
+      || '](' || ${this.absoluteURL("/ce/regime/cmmc_detail.sql?code=")}
+      || replace(replace(
+          CASE 
+            WHEN @level = 1 THEN cmmc_level_1
+            WHEN @level = 2 THEN cmmc_level_2
+            ELSE cmmc_level_3
+          END,
+          '\n', ' '), ' ', '%20')
+      || '&level=' || @level || ')' AS "Control Code",
+
+      scf_domain       AS "Domain",
+      scf_control      AS "Title",
+      control_code     AS "SCF Code",
+      control_description AS "Control Description",
+      control_question AS "Question"
+
     FROM scf_view
     WHERE 
-        (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '')
-     OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '')
-     OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '');
+          (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '')
+      OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '')
+      OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '')
+    ORDER BY control_code
+    LIMIT $limit OFFSET $offset;
+
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown("level")};
   `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/cmmc_detail.sql"() {
+    return this.SQL`
+    ${this.activePageTitle()}
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
+    SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
+    SELECT COALESCE($code, '') AS title, '#' AS link;;
+
+    --- Primary details card
+    SELECT 'card' AS component, 'CMMC Control Details' AS title, 1 AS columns;
+    SELECT
+        COALESCE($code, '(unknown)') AS title,
+        '**Control Question:** ' || COALESCE(control_question, '') || '  \n\n' ||
+        '**Control Description:** ' || COALESCE(control_description, '') || '  \n\n' ||
+        '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
+        '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
+        '**SCF / FII IDs:** ' || COALESCE(control_code, '') AS description_md
+    FROM scf_view
+    WHERE
+          ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+      OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+      OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+
+
+    --- Fallback if no exact match
+    SELECT 'text' AS component,
+          'No exact control found for code: ' || COALESCE($code,'(empty)') || '. Showing a fallback example for Level ' || COALESCE($level::TEXT,'1') || '.' AS contents
+    WHERE NOT EXISTS (
+        SELECT 1 FROM scf_view
+        WHERE
+              ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+          OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+          OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+    );
+
+    --- Example fallback card (optional)
+    SELECT 'card' AS component, 'Fallback control' AS title, 1 AS columns
+    WHERE NOT EXISTS (
+        SELECT 1 FROM scf_view
+        WHERE
+              ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+          OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+          OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+    );
+      `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })

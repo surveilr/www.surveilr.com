@@ -83,7 +83,9 @@ USER root
 ENV GOBIN=/usr/local/bin
 RUN set -eux; \
     go install github.com/projectdiscovery/katana/cmd/katana@latest; \
-    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest
+    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest; \
+    go install -v github.com/PentestPad/subzy@latest:
+    
 
 # Make Homebrew available to root shells too (nice for interactive sessions)
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
