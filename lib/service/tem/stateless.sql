@@ -34,7 +34,7 @@ SELECT
     strftime('%m-%d-%Y %H:%M:%S', ingest_finished_at) AS ingest_finished_at,
     json_extract(session_agent, '$.agent') AS agent,
     json_extract(session_agent, '$.version') AS version,
-    7 AS tools_count
+    10 AS tools_count
 FROM ur_ingest_session
 WHERE deleted_at IS NULL;
 
@@ -289,86 +289,186 @@ WHERE ur.uri LIKE '%httpx-toolkit%';
 
 
 -- View: tem_nmap
--- --------------------------------------------
+-- --------------------------------------------------------------------
 -- This view extracts structured Nmap scan data
--- from the raw XML stored in uniform_resource.content.
--- It uses substr + instr functions to pull out the
--- first occurrence of key attributes:
+-- from the JSON stored in uniform_resource_transform.content.
+-- It uses SQLite JSON functions (json_extract) to pull out attributes:
 --   - host_ip, protocol, port, state
 --   - service_name, service_product, service_version, service_extrainfo
 -- The tool name ("nmap") is added for identification.
--- NOTE: This approach only captures the first match of
--- each attribute from the XML. To expand all <port>
--- entries into multiple rows, parsing at ingestion is recommended.
+-- NOTE: The JSON structure allows capturing multiple <port> entries.
+--       For this view, only the first element of arrays is selected
+--       (json_extract with [0]). For full expansion, consider json_each.
 -- Enriched with tenant information (tenant_id, tanent_name)
 -- via join with tem_tenant.
-DROP VIEW IF EXISTS tem_nmap; 
-CREATE VIEW tem_nmap AS 
+DROP VIEW IF EXISTS tem_nmap;
+CREATE VIEW tem_nmap AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
     t.tanent_name,
     ts.ur_ingest_session_id,
-    -- Host IP
-    substr(
-      ur.content,
-      instr(ur.content, 'addr="') + 6,
-      instr(substr(ur.content, instr(ur.content, 'addr="')+6), '"') - 1
-    ) AS host_ip,
-
-    -- Protocol
-    substr(
-      ur.content,
-      instr(ur.content, 'protocol="') + 10,
-      instr(substr(ur.content, instr(ur.content, 'protocol="')+10), '"') - 1
-    ) AS protocol,
-
-    -- Port ID
-    substr(
-      ur.content,
-      instr(ur.content, 'portid="') + 8,
-      instr(substr(ur.content, instr(ur.content, 'portid="')+8), '"') - 1
-    ) AS port,
-
-    -- Port state
-    substr(
-      ur.content,
-      instr(ur.content, 'state="') + 7,
-      instr(substr(ur.content, instr(ur.content, 'state="')+7), '"') - 1
-    ) AS state,
-
-    -- Service name
-    substr(
-      ur.content,
-      instr(ur.content, 'service name="') + 14,
-      instr(substr(ur.content, instr(ur.content, 'service name="')+14), '"') - 1
-    ) AS service_name,
-
-    -- Service product
-    substr(
-      ur.content,
-      instr(ur.content, 'product="') + 9,
-      instr(substr(ur.content, instr(ur.content, 'product="')+9), '"') - 1
-    ) AS service_product,
-
-    -- Service version
-    substr(
-      ur.content,
-      instr(ur.content, 'version="') + 9,
-      instr(substr(ur.content, instr(ur.content, 'version="')+9), '"') - 1
-    ) AS service_version,
-
-    -- Service extra info
-    substr(
-      ur.content,
-      instr(ur.content, 'extrainfo="') + 11,
-      instr(substr(ur.content, instr(ur.content, 'extrainfo="')+11), '"') - 1
-    ) AS service_extrainfo,
-
+    json_extract(urt.content, '$.nmaprun.host[0].address.@addr') AS host_ip,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].@protocol') AS protocol,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].@portid') AS port,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].state.@state') AS state,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].service.@name') AS service_name,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].service.@product') AS service_product,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].service.@version') AS service_version,
+    json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].service.@extrainfo') AS service_extrainfo,
     'nmap' AS tool_name,
-     ur.uri
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN uniform_resource_transform urt
+       ON ur.uniform_resource_id = urt.uniform_resource_id
+INNER JOIN tem_tenant t
+       ON t.device_id = ur.device_id
+INNER JOIN tem_session ts
+       ON ur.device_id = ts.device_id
+WHERE ur.uri LIKE '%nmap%'
+  AND ur.uri NOT LIKE '%nmap_targets%';
+
+-- View: tem_katana
+-- ------------------------------------------------------------
+-- This view extracts structured Katana scan results from
+-- the raw JSONL stored in uniform_resource.content.
+-- Each JSON object is expanded into a row using json_each().
+-- 
+-- Columns:
+--   uniform_resource_id : Reference to the ingested record
+--   uri                 : Path of the source JSONL file
+--   target              : Extracted URL scanned
+--   status              : HTTP status code of the response
+--   type                : Content type of the response
+--   observed_at         : Timestamp when the scan was observed
+--   device_id           : Device on which the scan was ingested
+--   ingest_session_id   : Session under which ingestion occurred
+--
+-- Filter:
+--   Includes only rows where uri contains "katana", so it
+--   only returns Katana tool results.
+DROP VIEW IF EXISTS tem_katana;
+CREATE VIEW tem_katana AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(ur.content, '$.timestamp') AS timestamp,
+    json_extract(ur.content, '$.request.method') AS method,
+    json_extract(ur.content, '$.request.endpoint') AS endpoint,
+    json_extract(ur.content, '$.response.status_code') AS status_code
 FROM uniform_resource ur
 INNER JOIN tem_tenant t ON t.device_id = ur.device_id
 INNER JOIN tem_session ts ON ur.device_id = ts.device_id
-WHERE ur.uri LIKE '%nmap%'
-AND ur.uri NOT LIKE '%nmap_targets%';
+WHERE ur.nature = 'jsonl'
+AND ur.uri LIKE '%/katana/%';
+
+
+-- View: tem_tlsx_certificate
+-- --------------------------------------------------------------------
+-- This view extracts structured TLS certificate metadata
+-- from JSONL data ingested by the "tlsx" tool into the
+-- uniform_resource table.
+--
+-- Key Points:
+--   - The `content` field stores JSON lines with TLS scan results.
+--   - Extracted fields include host, IP, port, TLS version,
+--     cipher suite, validity period, subject/issuer details,
+--     and certificate fingerprints.
+--   - The `uri` field is retained for traceability, so you can
+--     locate the exact ingestion path (e.g.,
+--     /opt/sessions/2025-09-17-05-38-21/tlsx/tlsx.jsonl#L1).
+--   - Only rows with `nature='jsonl'` and `uri LIKE '%tlsx%'`
+--     are included in this view.
+--
+-- Suggested usage:
+--   SELECT * FROM tem_tlsx_certificate WHERE ip_address = 'x.x.x.x';
+--
+-- This view provides a normalized structure for analyzing TLS
+-- exposure and certificate metadata discovered during scans.
+-- --------------------------------------------------------------------
+DROP VIEW IF EXISTS tem_tlsx_certificate;
+CREATE VIEW tem_tlsx_certificate AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    ur.uri,
+    json_extract(ur.content, '$.timestamp')                 AS observed_at,
+    json_extract(ur.content, '$.host')                      AS host,
+    json_extract(ur.content, '$.ip')                        AS ip_address,
+    json_extract(ur.content, '$.port')                      AS port,
+    json_extract(ur.content, '$.probe_status')              AS probe_status,
+    json_extract(ur.content, '$.tls_version')               AS tls_version,
+    json_extract(ur.content, '$.cipher')                    AS cipher_suite,
+    json_extract(ur.content, '$.self_signed')               AS is_self_signed,
+    json_extract(ur.content, '$.mismatched')                AS is_mismatched,
+    json_extract(ur.content, '$.not_before')                AS valid_from,
+    json_extract(ur.content, '$.not_after')                 AS valid_until,
+    json_extract(ur.content, '$.subject_dn')                AS subject_dn,
+    json_extract(ur.content, '$.subject_cn')                AS subject_cn,
+    json_extract(ur.content, '$.subject_an')                AS subject_alt_names,
+    json_extract(ur.content, '$.serial')                    AS serial_number,
+    json_extract(ur.content, '$.issuer_dn')                 AS issuer_dn,
+    json_extract(ur.content, '$.issuer_cn')                 AS issuer_cn,
+    json_extract(ur.content, '$.fingerprint_hash.md5')      AS fingerprint_md5,
+    json_extract(ur.content, '$.fingerprint_hash.sha1')     AS fingerprint_sha1,
+    json_extract(ur.content, '$.fingerprint_hash.sha256')   AS fingerprint_sha256,
+    json_extract(ur.content, '$.tls_connection')            AS tls_connection,
+    json_extract(ur.content, '$.sni')                       AS sni
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+WHERE ur.uri LIKE '%tlsx%'
+  AND ur.nature = 'jsonl';
+
+
+-- View: tem_dirsearch
+-- -------------------------------------------------------------
+-- This view extracts structured results from dirsearch JSON data
+-- ingested into the `uniform_resource` table. The raw JSON stored
+-- in `uniform_resource.content` is parsed into normalized columns.
+--
+-- Each row represents one URL result returned by the dirsearch tool.
+-- Fields captured include:
+--   - status (HTTP status code)
+--   - content_type (MIME type of the response)
+--   - content_length (size of the response body)
+--   - redirect (if any redirection occurred)
+--   - url (discovered endpoint)
+--
+-- The `uri` field contains the ingestion file path
+-- (e.g. /opt/sessions/.../dirsearch/dirsearch.json),
+-- which also encodes the tool name (`dirsearch`).
+--
+-- This view filters only JSON-based dirsearch results by applying:
+--   WHERE uri LIKE '%dirsearch%' AND nature = 'json'
+--
+-- Usage:
+--   SELECT * FROM tem_dirsearch WHERE ingest_session_id = ?;
+-- -------------------------------------------------------------
+
+DROP VIEW IF EXISTS tem_dirsearch;
+CREATE VIEW tem_dirsearch AS
+SELECT
+    ur.uniform_resource_id,
+    ur.device_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    ur.uri,
+    json_extract(ur.content,   '$.info.time')      AS observed_at,
+    json_extract(result.value, '$.status')         AS status_code,
+    json_extract(result.value, '$.content-type')   AS content_type,
+    json_extract(result.value, '$.content-length') AS content_length,
+    json_extract(result.value, '$.redirect')       AS redirect_url,
+    json_extract(result.value, '$.url')            AS discovered_url
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+     -- Expand `results` array into individual rows
+     JOIN json_each(json_extract(ur.content, '$.results')) AS result
+WHERE ur.uri LIKE '%dirsearch%'
+  AND ur.nature = 'json';
