@@ -19,50 +19,111 @@ order: 2
 ---
 
 
-# Role
+Here is a **highly effective AI prompt** tailored to generate SOC 2 policy content for **Control CC2-0002**, optimized for use in **Surveilr** and aligned with your outlined requirements:
 
-You are an expert in cybersecurity, compliance, and policy architecture, with a deep understanding of automated evidence collection and validation systems, specifically **Surveilr**. Your task is to author a comprehensive and highly specific policy document for a given SOC2 security control.
+---
 
-Surveilr is a platform designed to automate the collection, storage, and querying of compliance evidence in a structured way. Policies you write should be architected to leverage this automation wherever possible.
+### ✅ AI PROMPT: Generate SOC 2 Policy for Organizational Structure Documentation (Control CC2-0002)
 
-This refers to evidence that can be automatically validated by a system. Your policy should not require SQL queries, but instead describe the practical methods for how evidence is collected and verified. Examples include: - Collecting endpoint configuration and installed software details via **OSquery** - Using **API integrations** with cloud/SaaS providers to validate access controls or asset inventories - Automatically ingesting system logs or configuration files to confirm policy adherence - Scheduling automated tasks or scripts whose outputs serve as compliance evidence
+You are an AI writing assistant helping draft SOC 2 policy documentation that complies with **Trust Services Criteria** and is optimized for **automated compliance evidence collection** using **Surveilr**.
 
-This is used only when automation is impractical. Your policy must provide specific, verifiable actions a human must perform. Examples include: - A manager certifying quarterly that physical asset inventories were reviewed - A signed training completion log maintained by HR - A visual inspection of data center racks, documented in a review report
+Please write a **comprehensive, structured SOC 2 policy** in **Markdown** format based on the following control requirement:
 
-Surveilr can store attestation artifacts (e.g., PDFs, scanned forms, emails) and make their metadata (reviewer name, date, outcome) queryable. The policy should emphasize how this human evidence is documented and ingested, not how it is verified with a query.
+---
 
-The policy must prioritize machine attestability while explicitly documenting where human attestation is unavoidable, along with the required method and its limitations.
+> **Control Code**: CC2-0002
+> **Control Question**: Is management's organizational structure with relevant reporting lines documented in an organization chart?
+> **Internal ID (FII)**: FII-SCF-HRS-0003
 
-The final output must be a policy document in MDX format, adhering to the following structure: 
+---
 
-The very first part of the document must be a YAML header with the following fields. Populate them based on the policy content: ```yaml --- title: "" weight: 1 description: "" publishDate: "" publishBy: "Compliance Automation Team" classification: "Confidential" documentVersion: "v1.0" documentType: "Policy" approvedBy: "" category: ["Policy", "Human Resources", "Organizational Structure"] satisfies: ["FII-SCF-HRS-0003"] merge-group: "policy-human-resources" order: 1 --- ```
+### 📌 Policy Requirements & Structure
 
-- **Introduction:** A concise purpose of the policy - **Policy Sections:** Use H2 headings (`##`) for each major requirement. Each section should: - Explain the control requirement - Suggest specific **machine attestation methods** - Suggest specific **human attestation methods** where unavoidable - **References:** End the document with an H3 heading `### _References_`
+The resulting policy **must** follow this **exact structure** and content guidance:
 
-- Use standard paragraphs, bullet points, and bold text for emphasis - Use inline code for technical terms (e.g., `OSquery`) - Use the standard markdown format for external reference links: `[Link Text](URL)`
+---
 
-- **Control Code:** `CC1-0002` - **Control Question:** Is management's organizational structure with relevant reporting lines documented in an organization chart? - **Internal ID (Foreign Integration Identifier as FII):** `FII-SCF-HRS-0003`
+#### 🟨 YAML Front Matter (at the top of the file)
 
-1. **Format:** The policy must have the following sections, in order: `Policy Statement`, `Scope`, `Responsibilities`, `Evidence Collection Methods`, `Verification Criteria`, and `Exceptions`. 2. **Prioritize Machine Attestation:** For each requirement, provide concrete examples of automated evidence collection/validation that would be performed by Surveilr. 3. **Explicit Human Attestation (When Needed):** Define the exact action, the artifact that will be created (e.g., a signed report), and how that artifact is ingested into Surveilr. 4. **Attestation Descriptions Only:** Focus on describing the attestation methods; do not write or embed SQL queries or any other code.
+Include the following metadata as a YAML header:
 
-# Task
+```yaml
+title: "Organizational Structure and Reporting Lines Policy"
+weight: 10
+description: "This policy defines how the organizational structure and reporting lines are documented, maintained, and verified."
+publishDate: 2025-09-17
+publishBy: "Security Compliance Team"
+classification: "Internal"
+documentVersion: "1.0"
+documentType: "Policy"
+approvedBy: "Chief Compliance Officer"
+category:
+  - "Human Resources"
+  - "Governance"
+satisfies:
+  - "FII-SCF-HRS-0003"
+merge-group: "organization-structure"
+order: 2
+```
+---
+## SOC2 Policy Authoring Prompt
 
-Generate a comprehensive policy document for SOC2 control CC1-0002 that addresses management's organizational structure documentation. The policy must: 
+### **Role:**
 
-Provide a clear statement about the organization's commitment to maintaining documented organizational structure with reporting lines.
+You are an expert in cybersecurity and compliance automation, specializing in authoring SOC2 policy documents. Your goal is to generate robust, clear, and machine-attestable policy content.
 
-Define which organizational levels, departments, and roles are covered by this policy.
+### **Core Task:**
 
-Specify who is responsible for maintaining, updating, and reviewing the organizational chart and reporting structure documentation.
+Generate a comprehensive SOC2 policy document for the control `CC2-0002` (Organizational Structure and Reporting Lines). This document must be structured for maximum automated attestation via the **Surveilr** platform, while also clearly documenting necessary human attestation methods. The final output must be a complete policy document, not a set of instructions.
 
-Detail both machine and human attestation methods for collecting evidence of organizational structure documentation: 
+### **Surveilr's Core Function:**
 
-- Automated collection of organizational chart files from document management systems - API integrations with HR systems to validate reporting relationships - Automated ingestion of organizational data from Active Directory or LDAP systems - Scheduled collection of employee hierarchy data from HRIS systems
+**Surveilr** is an automation platform for collecting, storing, and querying compliance evidence. Machine-attestable evidence is collected through API integrations, system log ingestion, OSquery, and automated scripts. Human-attestable evidence is stored as artifacts (e.g., PDFs, scanned documents), with metadata (reviewer name, date, outcome) made queryable.
 
-- HR manager quarterly certification of organizational chart accuracy - Department heads' signed verification of their team structure - Annual executive review and approval of complete organizational structure
+### **Policy Content Requirements:**
 
-Define what constitutes adequate evidence that the organizational structure is properly documented and maintained.
+1.  **YAML Front Matter:** Include the following required metadata at the top of the document:
+    * `title`: A clear, descriptive title.
+    * `weight`: A numerical value for ordering, e.g., `100`.
+    * `description`: A brief summary of the policy's purpose.
+    * `publishDate`: The date of publication in `YYYY-MM-DD` format.
+    * `publishBy`: The name of the author.
+    * `classification`: `Confidential` or `Public`.
+    * `documentVersion`: A version number, e.g., `1.0`.
+    * `documentType`: `Policy`.
+    * `approvedBy`: The name of the approving authority.
+    * `category`: An array with the value `['Organizational Structure']`.
+    * `satisfies`: An array with the value `['FII-SCF-HRS-0003']`.
+    * `merge-group`: `policy-documents`.
+    * `order`: A numerical value, e.g., `100`.
 
-Provide process for documenting and approving any exceptions to the organizational structure documentation requirements.
+2.  **Document Structure:**
+    * **Introduction:** Start with a concise section outlining the policy's purpose.
+    * **Policy Sections:** Use `##` headings for each major requirement. For this control, include the following sections:
+        * **Policy Statement:** The core requirement of the policy.
+        * **Scope:** Who and what the policy applies to.
+        * **Responsibilities:** Key roles and their duties.
+        * **Evidence Collection Methods:** Detail the attestation process. This is the most critical section.
+            * Sub-section `### Machine Attestation`: Describe how automated systems will collect evidence.
+            * Sub-section `### Human Attestation`: Describe the precise actions, artifacts, and ingestion methods for human-based evidence.
+        * **Verification Criteria:** How compliance is determined.
+        * **Exceptions:** The process for handling deviations.
+    * **References:** Conclude the document with a `### _References_` section.
 
-Address the following aspects of organizational structure documentation: - Maintenance of current organization chart with clear reporting lines - Documentation of management hierarchy and authority levels - Regular updates to reflect organizational changes - Accessibility of organizational structure information to relevant personnel - Version control and approval processes for organizational charts
+3.  **Attestation Guidance:**
+    * **Maximize Machine Attestation:** Prioritize automated methods. For this control, consider how an organization chart can be represented and verified via an API or structured data source. Examples:
+        * "Verify the organizational chart's existence and last-modified date via an API call to a Human Resources Information System (HRIS) like Workday or BambooHR."
+        * "Check for user accounts that are not assigned to a manager by querying the HRIS API for reporting line data."
+        * "Confirm job titles and reporting structures are consistent across multiple systems by ingesting data from HRIS and Active Directory/LDAP and cross-referencing."
+    * **Document Human Attestation:** Clearly define the unavoidable human tasks. For this control, consider the formal approval and review process of the organizational chart. Examples:
+        * "Management must review and approve the organizational chart at least annually."
+        * "The approved organizational chart must be signed by the Chief Information Officer (CIO) or a designated manager."
+        * "The signed organizational chart (as a PDF) is uploaded to **Surveilr**. The metadata—including the reviewer's name, review date, and a confirmation of approval—is recorded within the platform."
+        * "A signed attestation from a manager confirming the accuracy of the organizational structure is uploaded to **Surveilr** on a quarterly basis."
+
+### **Markdown and Formatting:**
+
+* Use standard markdown (`**bold**`, `*italics*`, `[Link Text](URL)`, `##` headings, `*` for bullet points, and inline code `like this`).
+* Do not use verbose explanations or conversational filler. Be direct and clear.
+* The final output should be the policy itself, not a set of instructions on how to write it. Start immediately with the YAML header.
+
