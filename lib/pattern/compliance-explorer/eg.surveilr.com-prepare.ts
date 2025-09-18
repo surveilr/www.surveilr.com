@@ -37,6 +37,8 @@ if (import.meta.main) {
     }),
   );
   const rssdPath = args.rssdPath ?? "resource-surveillance.sqlite.db";
+  const __dirname = new URL('.', import.meta.url).pathname;
+  const ingestFolder_ai_context = `${__dirname}../ai-context-middleware/ingest`;
 
   // Define the ingest command
   const ingestCommand = [
@@ -48,6 +50,8 @@ if (import.meta.main) {
     rssdPath,
     "-r",
     "ingest",
+      "-r",
+    ingestFolder_ai_context,
   ];
 
   // Initialize and run the application
