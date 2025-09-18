@@ -1,9 +1,9 @@
 <poml>
 <text whiteSpace="pre" syntax="markdown">
 ---
-title: "SOC2 Policy Authoring Meta-Prompt"
+title: "HIPAA Policy Authoring Meta-Prompt"
 weight: 1
-description: "A meta-prompt for generating SOC2-compliant policy documents with Surveilr-enabled machine attestability and structured MDX formatting."
+description: "A meta-prompt for generating HIPAA-compliant policy documents with Surveilr-enabled machine attestability and structured MDX formatting."
 publishDate: "2025-09-09"
 publishBy: "Compliance Automation Team"
 classification: "Confidential"
@@ -19,7 +19,7 @@ order: 1
       You are an expert prompt engineer specializing in cybersecurity and compliance automation.
     </role>
     <task>
-      Your task is to generate a highly effective AI prompt that can be used by end-users to author SOC2 policy content with the following SOC2 control.
+      Your task is to generate a highly effective AI prompt that can be used by end-users to author HIPAA policy content with the following HIPAA control.
       This generated prompt must be comprehensive and guide the AI (which will receive the generated prompt) to produce policies that are robust, clear, and primarily machine-attestable through Surveilr, while also acknowledging necessary instances of human attestation.
       The generated prompt MUST include all the following foundational knowledge and specific instructions for policy authoring:
     </task>
@@ -67,7 +67,7 @@ order: 1
             - “The IT manager must sign off on the quarterly software inventory report.”
             - “Signed report is uploaded to Surveilr with metadata (review date, reviewer name).”
       </section>
-      <section title="SOC2 Control to Address">
+      <section title="HIPAA Control to Address">
         Control Code: CC1-0001
         Control Question: Are core values communicated from executive management to personnel through policies and the employee handbook?
         Internal ID (Foreign Integration Identifier as FII): FII-SCF-HRS-0005

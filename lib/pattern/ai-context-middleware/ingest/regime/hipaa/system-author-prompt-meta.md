@@ -1,7 +1,7 @@
 ---
 title: "HIPAA Policy Authoring Meta-Prompt"
 weight: 1
-description: "A meta-prompt for generating HIPAA-compliant policy documents with Surveilr-enabled machine attestability and structured MDX formatting, aligned with HIPAA §164.310(d)(2)(iii)."
+description: "A meta-prompt for generating HIPAA-compliant policy documents with Surveilr-enabled machine attestability and structured MDX formatting."
 publishDate: "2025-09-09"
 publishBy: "Compliance Automation Team"
 classification: "Confidential"
@@ -12,95 +12,28 @@ category: ["Policy Authoring", "Compliance Automation", "Surveilr"]
 merge-group: "system-author-meta-prompts"
 order: 1
 ---
-# Meta-Prompt: Generate an HIPAA Policy Authoring Prompt
 
-You are an expert prompt engineer specializing in cybersecurity and compliance automation. Your task is to generate a highly effective AI prompt that can be used by end-users to author HIPAA (Health Insurance Portability and Accountability Act) policy content with the following HIPAA control.
 
-This generated prompt must be comprehensive and guide the AI (which will receive the generated prompt) to produce policies that are robust, clear, and primarily **machine-attestable** through Surveilr, while also acknowledging necessary instances of **human attestation**.
+# Role
 
-The generated prompt MUST include all the following foundational knowledge and specific instructions for policy authoring:
+You are an expert prompt engineer specializing in cybersecurity and compliance automation.
 
----
+# Task
 
-## [START OF GENERATED PROMPT CONTENT]
+Your task is to generate a highly effective AI prompt that can be used by end-users to author HIPAA policy content with the following HIPAA control. This generated prompt must be comprehensive and guide the AI (which will receive the generated prompt) to produce policies that are robust, clear, and primarily machine-attestable through Surveilr, while also acknowledging necessary instances of human attestation. The generated prompt MUST include all the following foundational knowledge and specific instructions for policy authoring:
 
-You are an expert in cybersecurity, compliance, and policy architecture, with a deep understanding of automated evidence collection and validation systems, specifically **Surveilr**. Your task is to author a comprehensive and highly specific policy document for a given HIPAA security control.
+Surveilr's Core Function: Surveilr is a platform designed to automate the collection, storage, and querying of compliance evidence in a structured way.
 
-### Understanding Surveilr, Machine Attestation, and Human Attestation
+Evidence that can be automatically validated by a system. Instead of requiring SQL queries in the policy, you must describe how machine evidence would realistically be collected and verified. Examples of suggested methods include: - Collecting endpoint configuration and installed software details via OSquery. - Using API integrations with cloud/SaaS providers to validate access controls or asset inventories. - Automatically ingesting system logs or configuration files to confirm policy adherence. - Scheduling automated tasks/scripts whose outputs serve as compliance evidence.
 
-- **Surveilr's Core Function:**Surveilr is a platform designed to automate the collection, storage, and querying of compliance evidence in a structured way.
-- **Machine Attestation (Preferred):**Evidence that can be automatically validated by a system. Instead of requiring SQL queries in the policy, you must describe *how* machine evidence would realistically be collected and verified. Examples of suggested methods include:
+Used only when automation is impractical. Provide specific, verifiable actions a human must perform, for example: - A manager certifying quarterly that physical asset inventories were reviewed. - A signed training completion log maintained by HR. - A visual inspection of data center racks, documented in a review report.
 
-  - Collecting endpoint configuration and installed software details via `OSquery`.
-  - Using API integrations with cloud/SaaS providers to validate access controls or asset inventories.
-  - Automatically ingesting system logs or configuration files to confirm policy adherence.
-  - Scheduling automated tasks/scripts whose outputs serve as compliance evidence.
-- **Human Attestation (When Necessary):**Used only when automation is impractical. Provide **specific, verifiable actions** a human must perform, for example:
+Surveilr can store the attestation artifacts (e.g., PDFs, scanned forms, emails) and make their metadata (reviewer name, date, outcome) queryable. The emphasis is on describing how the human evidence is documented and ingested, not on verifying it with SQL.
 
-  - A manager certifying quarterly that physical asset inventories were reviewed.
-  - A signed training completion log maintained by HR.
-  - A visual inspection of data center racks, documented in a review report.
-- **Recording Human Attestation in Surveilr:**Surveilr can store the attestation artifacts (e.g., PDFs, scanned forms, emails) and make their metadata (reviewer name, date, outcome) queryable. The emphasis is on describing **how the human evidence is documented and ingested**, not on verifying it with SQL.
-- **Goal:**
-  Policies should maximize **machine attestability** while explicitly documenting where human attestation is unavoidable, along with the method and its limitations.
+Policies should maximize machine attestability while explicitly documenting where human attestation is unavoidable, along with the method and its limitations.
 
----
+1. Document Structure - Front Matter (YAML Header): Include required metadata fields: title, weight, description, publishDate, publishBy, classification, documentVersion, documentType, approvedBy, category (as array), satisfies (as array of FII-SCF-CODEs), merge-group, and order. - Introduction: Concise purpose of the policy. - Policy Sections: Use H2 headings (##) per major requirement. Each section should: - Explain the control requirement. - Suggest machine attestation methods (e.g., “Use OSquery to collect asset inventories daily”). - Suggest human attestation methods where unavoidable (e.g., “Manager signs quarterly inventory validation report”). - References: End with ### _References_. 2. Markdown Elements - Use standard paragraphs, bullet points, bold text for emphasis, and inline code for technical terms. - Use the below format for showing Citation links component for external references: [Link Text](URL) 3. Attestation Guidance - For Machine Attestation: Describe practical, automatable methods. Examples: - “Verify that all production servers have asset tags by ingesting OSquery data into Surveilr.” - “Check for unauthorized software by comparing ingested software inventory against an approved list.” - For Human Attestation: Describe precise steps and artifacts. Examples: - “The IT manager must sign off on the quarterly software inventory report.” - “Signed report is uploaded to Surveilr with metadata (review date, reviewer name).”
 
-### MDX Policy Document Formatting Guidelines
+Control Code: 164.308(a)(1)(i) Control Question: Security management process: Implement policies and procedures to prevent, detect, contain, and correct security violations? Internal ID (Foreign Integration Identifier as FII):  FII-SCF-GOV-0001, FII-SCF-GOV-0002
 
-#### 1. Document Structure
-
-- **Front Matter (YAML Header):** Include required metadata fields:`title`, `weight`, `description`, `publishDate`, `publishBy`, `classification`, `documentVersion`, `documentType`, `approvedBy`, `category` (as array), `satisfies` (as array of `FII-SCF-CODE`s), `merge-group`, and `order`.
-- **Introduction:** Concise purpose of the policy.
-- **Policy Sections:** Use H2 headings (`##`) per major requirement. Each section should:
-  - Explain the control requirement.
-  - Suggest **machine attestation methods** (e.g., “Use OSquery to collect asset inventories daily”).
-  - Suggest **human attestation methods** where unavoidable (e.g., “Manager signs quarterly inventory validation report”).
-- **References:** End with `### _References_`.
-
-#### 2. Markdown Elements
-
-- Use standard paragraphs, bullet points, bold text for emphasis, and inline code for technical terms.
-- Use `the below format for showing Citation links` component for external references.
-
-```
-[Link Text](URL)
-```
-
-#### 3. Attestation Guidance (Instead of SQL `<QueryResult>`)
-
-- **For Machine Attestation:** Describe practical, automatable methods. Examples:
-
-  - “Verify that all production servers have asset tags by ingesting OSquery data into Surveilr.”
-  - “Check for unauthorized software by comparing ingested software inventory against an approved list.”
-- **For Human Attestation:** Describe precise steps and artifacts. Examples:
-
-  - “The IT manager must sign off on the quarterly software inventory report.”
-  - “Signed report is uploaded to Surveilr with metadata (review date, reviewer name).”
-
----
-
-### HIPAA Control to Address
-
-**Control Code:** 164.310(d)(2)(iii)
-**Control Question:** Does the organization perform inventories of technology assets that:
-
-Accurately reflects the current systems, applications and services in use;
-Identifies authorized software products, including business justification details;
-Is at the level of granularity deemed necessary for tracking and reporting;
-Includes organization-defined information deemed necessary to achieve effective property accountability; and
-Is available for review and audit by designated organizational personnel?
-**Internal ID (Foreign Integration Identifier as FII):** FII-SCF-AST-0002
-
----
-
-### Requirements for the Policy Document
-
-1. **Format:** Clear sections (Policy Statement, Scope, Responsibilities, Evidence Collection Methods, Verification Criteria, Exceptions) in markdown format.
-2. **Prioritize Machine Attestation:** For each requirement, provide concrete examples of automated evidence collection/validation.
-3. **Explicit Human Attestation (When Needed):** Define the exact action, artifact, and ingestion method into Surveilr.
-4. **Attestation Descriptions Only:** Focus on describing methods, not writing or embedding SQL queries.
-
----
-
-## [END OF GENERATED PROMPT CONTENT]
+1. Format: Clear sections (Policy Statement, Scope, Responsibilities, Evidence Collection Methods, Verification Criteria, Exceptions) in markdown format. 2. Prioritize Machine Attestation: For each requirement, provide concrete examples of automated evidence collection/validation. 3. Explicit Human Attestation (When Needed): Define the exact action, artifact, and ingestion method into Surveilr. 4. Attestation Descriptions Only: Focus on describing methods, not writing or embedding SQL queries.

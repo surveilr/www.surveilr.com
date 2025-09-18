@@ -705,15 +705,18 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
  
  
     SELECT
-      'TODO: Policy Generator Prompt' AS title,
+      'Policy Generator Prompt' AS title,
+       ${this.absoluteURL("/ce/regime/author_prompt.sql?id=") } || $id::TEXT as link,
       'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
     UNION ALL
     SELECT
-      'TODO: Policy Audit Prompt' AS title,
+      'Policy Audit Prompt' AS title,
+     ${this.absoluteURL("/ce/regime/audit_prompt.sql?id=") } || $id::TEXT as link,
       'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
     UNION ALL
     SELECT
-      'TODO: Generated Policies' AS title,
+      'Generated Policies' AS title,
+     ${this.absoluteURL("/ce/regime/policy.sql?id=") } || $id::TEXT as link,
       'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
     `;
   }
@@ -1040,13 +1043,150 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     FROM compliance_regime_control
     WHERE control_code = $id::TEXT AND control_type = $regimeType::TEXT;
 
+    `;
+  }
+
+  
+
+  //hippa author prompt
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/author_prompt.sql"() {
+    return this.SQL`
+     SELECT
+        'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'HIPAA' AS title,
+        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+        SELECT
+        hipaa_security_rule_reference AS title,
+         '#' as link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      SELECT
+        'Policy' AS title,
+        '#' AS link
+      
+
+      
+
+      SELECT
+      'text' AS component,
+      'Policy Author Prompt for: ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference  = $id;
+      SELECT 'This page provides detailed information about a specific control policy author prompt.' AS contents;
+
     SELECT 'card' as component, 1 as columns;
     SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Author-Prompt'
+      ;
+    `;
+  }
 
+  //audit prompt
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/audit_prompt.sql"() {
+    return this.SQL`
+     SELECT
+        'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'HIPAA' AS title,
+        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+        SELECT
+        hipaa_security_rule_reference AS title,
+         '#' as link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      SELECT
+        'audit Prompt' AS title,
+        '#' AS link
+      
+
+      
+
+      SELECT
+      'text' AS component,
+      'Policy Audit Prompt for: ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference  = $id;
+      SELECT 'This page provides detailed information about a specific control policy audit prompt.' AS contents;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Audit-Prompt'
+      ;
+    `;
+  }
+
+  //Policy data
+
+   @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/policy.sql"() {
+    return this.SQL`
+     SELECT
+        'breadcrumb' AS component;
+  
+      SELECT
+        'Home' AS title,
+        ${this.absoluteURL("/")} AS link;
+  
+      SELECT
+        'Controls' AS title,
+        ${this.absoluteURL("/ce/index.sql")} AS link;
+  
+      SELECT
+        'HIPAA' AS title,
+        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
+        SELECT
+        hipaa_security_rule_reference AS title,
+         '#' as link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      SELECT
+        'Policy' AS title,
+        '#' AS link
+      
+
+      
+
+      SELECT
+      'text' AS component,
+      'Policy for : ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference  = $id;
+      SELECT 'This page provides detailed information about a specific control policy.' AS contents;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
       '\n' || p.body_text AS description_md
       FROM ai_ctxe_policy p
-
-      WHERE p.satisfies = $id
+      WHERE p.control_id = $id
       ;
     `;
   }

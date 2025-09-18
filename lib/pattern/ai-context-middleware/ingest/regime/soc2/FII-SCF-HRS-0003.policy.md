@@ -19,59 +19,121 @@ order: 2
 
 ---
 
-### Policy Statement
+```yaml
+title: Organizational Structure and Reporting Lines Policy
+weight: 100
+description: Defines how the organization maintains, verifies, and approves its organizational structure and reporting lines.
+publishDate: 2025-09-17
+publishBy: Cybersecurity Compliance Team
+classification: Confidential
+documentVersion: 1.0
+documentType: Policy
+approvedBy: Chief Compliance Officer
+category: ['Organizational Structure']
+satisfies: ['FII-SCF-HRS-0003']
+merge-group: policy-documents
+order: 100
+```
 
-The organization shall maintain a documented organizational chart that accurately depicts the management structure and relevant reporting lines. This documentation is essential for ensuring clear accountability, effective communication, and compliance with SOC2 Trust Services Criteria. The organizational chart must be reviewed and attested to on a regular basis to ensure its accuracy and relevance.
+# Organizational Structure and Reporting Lines Policy
 
-### Scope
+## Introduction
 
-This policy applies to all management, human resources, and compliance teams responsible for maintaining and reviewing the company's organizational structure. It covers the documentation of all full-time employees, contractors, and their reporting relationships within the management hierarchy.
+This policy establishes requirements for maintaining and verifying the organizational structure and reporting lines. It ensures that reporting hierarchies are accurate, up-to-date, and consistently applied across systems to support operational clarity, accountability, and compliance with SOC 2 requirements.
 
-### Responsibilities
+## Policy Statement
 
-* **Human Resources (HR):** HR is responsible for maintaining the official organizational chart and ensuring it reflects current employee and management data.
-* **Managers:** Managers are responsible for validating the accuracy of their team's reporting lines as part of the periodic review process.
-* **Compliance Automation Team:** The Compliance Automation Team, leveraging **Surveilr**, is responsible for automating the collection of evidence and facilitating the attestation process to verify adherence to this policy.
+The organization must define, maintain, and regularly validate a formal organizational structure, including reporting lines. This structure must be accessible, approved by management, and kept consistent across relevant systems (e.g., HRIS, Active Directory).
 
-### Evidence Collection Methods
+## Scope
 
-Evidence for this policy will be collected using a combination of machine and human attestation methods, prioritizing automation wherever feasible.
+This policy applies to:
 
-#### Machine Attestation
+* All departments, business units, and subsidiaries.
+* All employees, contractors, and personnel with defined reporting relationships.
+* All systems maintaining organizational structure data (e.g., HRIS, Identity Providers).
 
-Where systems of record for employee data are available via API, **Surveilr** will automatically collect evidence to support the policy.
+## Responsibilities
 
-* **HRIS API Integration:** An automated job in **Surveilr** will connect to the company's Human Resources Information System (HRIS) via a secure API. This process will pull a list of all active employees, their job titles, and their designated manager or reporting hierarchy. The system will collect a timestamped snapshot of this data on a scheduled basis (e.g., quarterly). This snapshot serves as the machine-attested version of the organizational structure.
-* **Active Directory/LDAP Synchronization:** Where reporting lines are maintained in a corporate directory, **Surveilr** will use an API integration to query the user records. This will automatically confirm the `manager` attribute for each user object and cross-reference it with the data from the HRIS, providing a multi-source validation of the reporting structure.
+* **HR Department**: Maintain accurate organizational chart and reporting line data in the HRIS.
+* **IT Department**: Ensure synchronization of organizational data across identity and directory services.
+* **Compliance Team**: Facilitate reviews, evidence collection, and ensure timely attestation.
+* **Executive Leadership**: Approve organizational chart annually or upon major structural changes.
 
-#### Human Attestation
+## Evidence Collection Methods
 
-Human attestation is required to formally approve the machine-generated data and to account for any data not available via API.
+### Machine Attestation
 
-* **Quarterly Manager Review and Attestation:** On a quarterly basis, each manager is required to review a pre-generated report of their direct reports and their own manager, derived from the machine-attested data.
-    * **Required Artifact:** The manager must digitally sign or acknowledge a compliance checklist confirming that the report is accurate and up-to-date. This can be done via a dedicated workflow tool that generates a verifiable artifact.
-    * **Ingestion into Surveilr:** The signed attestation artifact (e.g., a PDF or an email from the workflow system) will be automatically ingested into **Surveilr**. The system will record the reviewer's name, the date of review, and the outcome of the attestation (e.g., "Approved").
-* **Annual HR Certification:** The Head of Human Resources must conduct an annual review of the entire organizational chart document.
-    * **Required Artifact:** The HR Head will sign a formal review document or letter, certifying that the organization chart is accurate and has been reviewed in its entirety.
-    * **Ingestion into Surveilr:** The signed and dated review document will be uploaded as a human attestation artifact in **Surveilr**, with metadata linking it to this policy.
+* **Existence and Timestamp Validation**:
 
-### Verification Criteria
+  * Verify the organizational chart's presence via API integration with HRIS (e.g., Workday, BambooHR).
+  * Query metadata for `lastModifiedDate` and ensure updates occurred within the past 365 days.
 
-The following criteria must be met for a successful attestation:
+* **Reporting Line Consistency**:
 
-* **Machine Attestation:**
-    * A timestamped, complete dataset of all employees and their assigned managers must be collected from the HRIS API at least quarterly.
-    * The `manager` attribute in the corporate directory (e.g., Active Directory) must be consistent with the HRIS data for a predefined percentage of users (e.g., 99%).
-* **Human Attestation:**
-    * Quarterly attestations from all relevant managers must be present in **Surveilr**, with a verifiable artifact for each attestation.
-    * An annual attestation from the Head of HR, in the form of a signed document, must be ingested and stored in **Surveilr**.
+  * Use API calls to fetch employee-manager relationships from HRIS.
+  * Cross-reference with directory services (e.g., Active Directory/LDAP) to ensure manager attributes align.
+  * Alert on any user accounts lacking a valid manager assignment.
 
-### Exceptions
+* **Title and Hierarchy Validation**:
 
-Any discrepancies between the machine-attested data and the actual organizational structure must be reported to HR for correction. All corrections must be made in the official HRIS system, which will then be reflected in subsequent machine attestations. An exception is not granted for failure to complete a required human attestation. Failure to complete a required attestation will be flagged as a policy violation.
+  * Confirm job titles and roles match predefined schemas.
+  * Validate that direct reports do not exceed logical thresholds (e.g., no more than 20 direct reports unless exempted).
 
-### _References_
+* **Organizational Unit Mapping**:
 
-* SOC2 Trust Services Criteria, Common Criteria, CC1.1
-* [Company Human Resources Information System (HRIS) Documentation](https://internal-hris.example.com/api-docs)
-* [Surveilr Automation Playbooks](https://surveilr.example.com/playbooks/soc2-hr-org-chart)
+  * Validate that each employee belongs to a defined organizational unit within HRIS.
+  * Check for orphaned units or inactive managers.
+
+### Human Attestation
+
+* **Annual Organizational Chart Approval**:
+
+  * Executive Leadership must review and formally approve the organizational chart annually.
+  * Approved version must be exported as PDF and signed by the Chief Information Officer (CIO) or designated executive.
+  * The signed PDF is uploaded to **Surveilr** with metadata:
+
+    * `reviewer_name`: Full name of the signing executive.
+    * `review_date`: Date of approval.
+    * `approval_status`: Confirmed or Rejected.
+
+* **Quarterly Accuracy Attestation**:
+
+  * Department heads submit a signed quarterly statement confirming the accuracy of their teams’ reporting lines.
+  * Artifacts are uploaded to **Surveilr** in PDF format with the following metadata:
+
+    * `department_name`
+    * `attester_name`
+    * `attestation_date`
+    * `confirmation_statement`: Yes/No
+
+* **Exception Documentation**:
+
+  * Any deviations from standard reporting structures must be documented and approved by HR and Compliance.
+  * Upload exception memos as PDFs with metadata:
+
+    * `exception_type`
+    * `approved_by`
+    * `justification`
+    * `effective_date`
+
+## Verification Criteria
+
+Compliance is met when:
+
+* A current organizational chart exists in the HRIS with a modification date within the last 12 months.
+* All employees have a valid manager assigned in both HRIS and identity systems.
+* A signed PDF of the approved org chart is stored in **Surveilr** with complete metadata.
+* Quarterly departmental attestations are collected and archived.
+* All exceptions are documented and approved.
+
+## Exceptions
+
+Requests for exceptions must be submitted to the Compliance Team in writing. All approved exceptions must be documented in **Surveilr** with proper justification, approval, and expiration date.
+
+### *References*
+
+* SOC 2 Trust Services Criteria – CC2.0: Communication and Information
+* FII-SCF-HRS-0003: Human Resource Structure Control
+* [Workday API Documentation](https://community.workday.com)
+* [BambooHR API Documentation](https://documentation.bamboohr.com)

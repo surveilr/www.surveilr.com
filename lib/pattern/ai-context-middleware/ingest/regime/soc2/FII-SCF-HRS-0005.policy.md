@@ -10,7 +10,7 @@ documentType: "Policy"
 approvedBy: "Chief Compliance Officer"
 category: ["SOC2", "Security", "Asset Management"]
 satisfies: ["FII-SCF-HRS-0005"]
-control-question: "Are core values communicated from executive management to personnel through policies and the employee handbook??"
+control-question: "Are core values communicated from executive management to personnel through policies and the employee handbook?"
 control-id: CC1-0001
 control-domain: "Common Criteria Related to Control Environment"
 SCF-control: "CC1-0001"
@@ -19,54 +19,80 @@ order: 2
 
 ---
 
-# Policy on Communication of Core Values and Employee Handbook
+### Introduction
 
-## 1. Introduction
+This policy establishes the framework for communicating our company's core values to all personnel. Clear and consistent communication of these values is essential for fostering a positive, ethical work environment and is a critical component of our commitment to maintaining a robust compliance program. This document outlines the methods and responsibilities for ensuring that all employees and contractors understand our foundational principles as documented in the employee handbook.
 
-This policy outlines the commitment of **Surveilr** to effectively communicate its core values, ethical principles, and key policies to all employees. The objective is to ensure that all personnel understand their responsibilities and the company's expectations regarding ethical conduct and business practices, as documented in the official employee handbook.
+---
 
-## 2\. Policy Statement
+## Policy Statement
 
-All **Surveilr** personnel, including new hires and contractors, shall receive and acknowledge the company's core values and the official employee handbook. This communication shall be initiated by executive management and supported by the Human Resources (HR) department. The policy and handbook will be made available in a centrally accessible location, and acknowledgment of receipt will be recorded for audit purposes.
+The Company is committed to communicating its **core values** to all personnel, including full-time employees, part-time employees, and contractors. This communication is primarily accomplished through the formal distribution of the **employee handbook** and reinforced through new hire orientation and ongoing training. The core values, as defined by executive management, serve as the foundation for our business operations, strategic decisions, and employee conduct.
 
-## 3\. Scope
+---
 
-This policy applies to all full-time and part-time employees, contractors, temporary staff, and interns of **Surveilr**. The requirements herein extend to all business units and geographic locations.
+## Scope
 
-## 4\. Responsibilities
+This policy applies to all **personnel**, including full-time employees, part-time employees, contractors, temporary staff, and interns. It covers the initial communication of core values to new hires and the ongoing accessibility of this information to all current personnel.
 
-  * **Executive Management:** Responsible for defining and championing the core values and ensuring their communication is a priority.
-  * **Human Resources (HR):** Responsible for the distribution of the employee handbook and for tracking and maintaining records of employee acknowledgment. This includes ensuring the handbook is accessible to all personnel and updated as necessary.
-  * **Managers:** Responsible for reinforcing core values and handbook policies within their respective teams.
-  * **All Personnel:** Responsible for reviewing and acknowledging their understanding of the core values and the employee handbook.
+---
 
-## 5\. Evidence Collection Methods
+## Responsibilities
 
-### 5.1. Machine Attestation
+* **Executive Management:**
+    * Defines and approves the company's core values.
+    * Ensures that core values are accurately and clearly articulated in the official employee handbook.
+    * Periodically reviews and updates the core values to reflect the company's mission and culture.
 
-Automated evidence will be collected to verify the availability and distribution of the employee handbook.
+* **Human Resources (HR):**
+    * Maintains the most current version of the employee handbook.
+    * Ensures that all new hires receive a copy of or have access to the employee handbook as part of the onboarding process.
+    * Tracks and documents employee acknowledgments of receiving and reviewing the handbook.
+    * Manages the process for updating and distributing revised versions of the handbook to all personnel.
 
-  * **Availability of Documents:** An automated script or API integration will regularly check the designated internal document repository (e.g., SharePoint, Confluence, Google Drive) to verify that the most current version of the employee handbook is present and accessible to all employees. The script will ingest a report of the document's metadata (e.g., file name, last modified date, and access permissions) into **Surveilr**.
-  * **Confirmation of Distribution:** **Surveilr**'s API integration with the HR Information System (HRIS) will collect records of new employee onboarding tasks. This integration will verify that the "Review Employee Handbook" task is a mandatory step in the new hire checklist. Evidence will include confirmation that the task exists and is marked as complete for each new hire profile.
+* **Individual Personnel:**
+    * Is responsible for reviewing and understanding the core values and other policies outlined in the employee handbook upon hire.
+    * Is required to acknowledge receipt and understanding of the employee handbook.
 
-### 5.2. Human Attestation
+---
 
-Where machine attestation is not feasible, specific human actions and artifacts are required to confirm compliance.
+## Evidence Collection Methods (Attestation)
 
-  * **Employee Acknowledgment:** The primary method for documenting acknowledgment is a digital or physical signed form. During the onboarding process, each new employee must digitally sign a statement of acknowledgment in the HRIS system, confirming they have received, reviewed, and understood the employee handbook. The HRIS will store the signed acknowledgment record.
-  * **Review of Acknowledgment Records:** The HR Manager will conduct a semi-annual review of all new hire records to confirm that a signed acknowledgment for the employee handbook is on file for all personnel hired within the review period.
-  * **Ingestion into Surveilr:** The signed acknowledgment records, whether physical scans or digital files, will be uploaded by the HR Manager to **Surveilr**'s secure evidence vault. The upload will be tagged with specific metadata, including `reviewer_name`, `attestation_date`, `employee_name`, and `document_type: employee__handbook_acknowledgment`. This ensures the artifacts are searchable and auditable within **Surveilr**.
+Compliance with this policy will be verified through a combination of machine and human attestation, with a focus on automation where feasible.
 
-## 6\. Verification Criteria
+* **Machine Attestation (Automated via Surveilr):**
+    * **Employee Handbook Access:** Surveilr will use an API integration with the company's Human Resources Information System (`HRIS`) to verify that all active employees have been provisioned with access to the most current version of the digital employee handbook. This attestation will run on a weekly schedule.
+    * **Document Integrity:** A scheduled script, triggered by Surveilr, will perform a checksum verification on the `employee_handbook.pdf` file located on the internal shared drive (`//sharepoint.company.com/handbook/`) to ensure the document has not been tampered with and is the latest approved version.
+    * **New Hire Notification:** Surveilr will query the HRIS system to confirm that a welcome email, containing a link to the employee handbook, was sent to each new hire's corporate email address within two business days of their start date.
 
-  * **Machine Verification:** **Surveilr** will automatically cross-reference the `employee_handbook` document in the repository with the `Review Employee Handbook` task completion records in the HRIS. A successful verification requires that a document exists and that each new hire has a corresponding completed task record.
-  * **Human Verification:** The semi-annual review by the HR Manager must result in a signed attestation report. This report will confirm that all new hires have a verifiable, signed acknowledgment on file. The report will be stored in **Surveilr**, and its metadata will serve as evidence of the manual review process.
+* **Human Attestation:**
+    * **Signed Acknowledgment:** New hires are required to digitally sign an **acknowledgment form** confirming they have read and understood the employee handbook. This form is generated by the HR onboarding system.
+    * **Evidence Ingestion:** The signed acknowledgment form, along with metadata (employee ID, date of signature, and version of the handbook), is automatically stored in a designated compliance folder. The Surveilr platform will then ingest this document as a `signed_pdf` artifact, marking the attestation as complete.
 
-## 7\. Exceptions
+---
 
-Any exceptions to this policy, such as an inability to provide a digital signature due to technical issues, must be documented and approved by the HR Manager and the CISO. The documentation for the exception and its resolution must be stored in **Surveilr**.
+## Verification Criteria
 
-### *References*
+Successful compliance is met when the following criteria are verified by Surveilr or a human reviewer:
 
-  * [AICPA Trust Services Criteria](https://www.google.com/search?q=https://www.aicpa.org/interestareas/frc/assuranceadvisoryservices/aicpa-trust-services-criteria.html)
-  * [Surveilr Internal Onboarding Checklist - New Hires](https://www.google.com/search?q=https://internal.surveilr.com/docs/onboarding-checklist)
+* **Machine-Verified Criteria:**
+    * The `HRIS` record for each active employee indicates provisioning for or access to the digital employee handbook.
+    * The checksum of the `employee_handbook.pdf` file on the internal shared drive matches the checksum of the officially approved document.
+    * The HRIS system logs show that a communication regarding the employee handbook was sent to all new hires.
+
+* **Human-Verified Criteria:**
+    * A signed `signed_pdf` acknowledgment form, dated within 30 days of the employee's start date, is present in the designated compliance folder for each new hire.
+    * The metadata associated with the form confirms the employee's identity and the version of the handbook reviewed.
+
+---
+
+## Exceptions
+
+Any deviation from this policy, such as a new hire not receiving the employee handbook link or an incomplete acknowledgment form, must be documented. All exceptions must be submitted in writing to the **Chief Compliance Officer** within five business days of discovery. The request must include the reason for the exception, the impacted personnel, and a proposed remediation plan. Exceptions will be reviewed on a case-by-case basis and are subject to approval by the Chief Compliance Officer.
+
+### References
+
+* SOC2 Common Criteria (CC1.1)
+* Company Employee Handbook, Current Version
+* HRIS User Provisioning Policy
+* Surveilr API Documentation
