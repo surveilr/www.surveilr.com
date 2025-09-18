@@ -152,47 +152,52 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/aicpa.sql"() {
     return this.SQL`
-    --- Display breadcrumb
-    SELECT
-      'breadcrumb' AS component;
-    SELECT
-      'Home' AS title,
-      ${this.absoluteURL("/")} AS link;
-    SELECT
-      'Controls' AS title,
-      ${this.absoluteURL("/ce/index.sql")} AS link;
-    SELECT
-      'AICPA' AS title,
-      ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+  --- Display breadcrumb
+  SELECT
+    'breadcrumb' AS component;
+  SELECT
+    'Home' AS title,
+    ${this.absoluteURL("/")} AS link;
+  SELECT
+    'Controls' AS title,
+    ${this.absoluteURL("/ce/index.sql")} AS link;
+  SELECT
+    'AICPA' AS title,
+    ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
  
-    ${this.activePageTitle()}
-   
-    SELECT
-      'text' AS component,
-      'AICPA' AS title;
+  ${this.activePageTitle()}
  
-    SELECT
-      'The American Institute of Certified Public Accountants (AICPA) is the national professional organization for Certified Public Accountants (CPAs) in the United States. Established in 1887, the AICPA sets ethical standards for the profession and U.S. auditing standards for private companies, nonprofit organizations, federal, state, and local governments. It also develops and grades the Uniform CPA Examination and offers specialty credentials for CPAs who concentrate on personal financial planning; forensic accounting; business valuation; and information technology.' AS contents;
+  SELECT
+    'text' AS component,
+    'AICPA' AS title;
  
-    -- Cards for SOC 2 Type I & Type II
-    SELECT
-      'card' AS component;
+  SELECT
+    'The American Institute of Certified Public Accountants (AICPA) is the national professional organization for Certified Public Accountants (CPAs) in the United States. Established in 1887, the AICPA sets ethical standards for the profession and U.S. auditing standards for private companies, nonprofit organizations, federal, state, and local governments. It also develops and grades the Uniform CPA Examination and offers specialty credentials for CPAs who concentrate on personal financial planning; forensic accounting; business valuation; and information technology.' AS contents;
  
-    SELECT
-      'SOC 2 Type I' AS title,
-      'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
-      ${this.absoluteURL("/ce/regime/aicpa/soc2.sql")} AS link
-    UNION ALL
-    SELECT
-      'SOC 2 Type II' AS title,
-      'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
-      ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
+  -- Cards for SOC 2 Type I & Type II
+  SELECT
+    'card' AS component,
+      2 AS columns;
  
-  `;
+  SELECT
+    'SOC 2 Type I' AS title,
+    'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
+    ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")} AS link
+  UNION ALL
+  SELECT
+    'SOC 2 Type II' AS title,
+    'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
+    ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
+ 
+`;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/aicpa/soc2.sql"() {
+  "ce/regime/aicpa/soc2_type1.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_regime_control_soc2",
+    });
+
     return this.SQL`
     --- Display breadcrumb
     SELECT
@@ -208,7 +213,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
     SELECT
       'SOC 2 Type I' AS title,
-      ${this.absoluteURL("/ce/regime/aicpa/soc2.sql")} AS link;
+      ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")} AS link;
  
     ${this.activePageTitle()}
  
@@ -221,23 +226,36 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
  
     SELECT
       'table' AS component,
+      "Control Code" AS markdown,
       TRUE AS sort,
       TRUE AS search;
  
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+ 
     SELECT
-        control_id AS "Control Identifier",
+      '[' || control_id || '](' ||
+        ${this.absoluteURL(
+          "/ce/regime/soc2_detail.sql?type=soc2-type1&id=",
+        )} || control_id || ')' AS "Control Code",
         control_name AS "Control Name",
         common_criteria AS "Common Criteria",
         criteria_type AS "Criteria Type",
-        control_question AS "Control Question",
-        control_code AS "SCF Reference",
-        tenant_name AS "Tenant"
-    FROM compliance_regime_control_soc2;
+        control_question AS "Control Question"
+    FROM compliance_regime_control_soc2
+    LIMIT $limit OFFSET $offset;
+ 
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
   `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/aicpa/soc2_type2.sql"() {
+    const pagination = this.pagination({
+      tableOrViewName: "aicpa_soc2_type2_controls",
+    });
+
     return this.SQL`
     --- Display breadcrumb
     SELECT
@@ -268,19 +286,114 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Table
     SELECT
       'table' AS component,
+      "Control Code" AS markdown,
       TRUE AS sort,
       TRUE AS search;
  
+    -- Pagination Controls (Top)
+    ${pagination.init()}
+ 
     SELECT
-      control_id AS "Control Identifier",
-      fii_id AS "FII Id",
+      '[' || control_id || '](' ||
+        ${this.absoluteURL(
+          "/ce/regime/soc2_detail.sql?type=soc2-type2&id=",
+        )} || control_id || ')' AS "Control Code",
+      fii_id AS "FII ID",
       common_criteria AS "Common Criteria",
       criteria_type AS "Criteria Type",
       control_name AS "Control Name",
-      control_question AS "Control Question",
-      tenant_id AS "Tenant Id",
-      tenant_name AS "Tenant"
-    FROM aicpa_soc2_type2_controls;
+      control_question AS "Control Question"
+    FROM aicpa_soc2_type2_controls
+    LIMIT $limit OFFSET $offset;
+ 
+    -- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/soc2_detail.sql"() {
+    return this.SQL`
+    -- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'AICPA' AS title, ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+ 
+    -- SOC 2 Type breadcrumb
+    SELECT
+      CASE
+        WHEN $type = 'soc2-type1' THEN 'SOC 2 Type I'
+        WHEN $type = 'soc2-type2' THEN 'SOC 2 Type II'
+        ELSE 'SOC 2'
+      END AS title,
+      CASE
+        WHEN $type = 'soc2-type1' THEN ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")}
+        WHEN $type = 'soc2-type2' THEN ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")}
+        ELSE ${this.absoluteURL("/ce/regime/aicpa.sql")}
+      END AS link;
+ 
+    -- Last breadcrumb (dynamic control_id, non-clickable)
+    SELECT
+      control_id AS title, '#' AS link
+    FROM (
+      SELECT control_id
+      FROM compliance_regime_control_soc2
+      WHERE $type = 'soc2-type1' AND control_id = $id::TEXT
+      UNION ALL
+      SELECT control_id
+      FROM aicpa_soc2_type2_controls
+      WHERE $type = 'soc2-type2' AND control_id = $id::TEXT
+    ) t
+    LIMIT 1;
+ 
+    -- Card Header
+    SELECT 'card' AS component,
+           CASE
+             WHEN $type = 'soc2-type1' THEN 'SOC 2 Type I Control Detail'
+             WHEN $type = 'soc2-type2' THEN 'SOC 2 Type II Control Detail'
+             ELSE 'SOC 2 Control Detail'
+           END AS title,
+           1 AS columns;
+ 
+    -- Detail Section (aligned UNION)
+    SELECT
+      common_criteria AS title,
+      '**Control Code:** ' || control_id || '  \n\n' ||
+      '**Control Name:** ' || control_name || '  \n\n' ||
+      (CASE WHEN $type = 'soc2-type2' THEN '**FII ID:** ' || COALESCE(fii_id,'') || '  \n\n' ELSE '' END) ||
+      '**Control Question:** ' || COALESCE(control_question,'') || '  \n\n'
+      AS description_md
+    FROM (
+      -- Type I controls (with SCF reference)
+      SELECT control_id, control_name, fii_id, common_criteria, control_question
+      FROM compliance_regime_control_soc2
+      WHERE $type = 'soc2-type1' AND control_id = $id::TEXT
+     
+      UNION ALL
+     
+      -- Type II controls (no SCF reference → add NULL for column alignment)
+      SELECT control_id, control_name, fii_id, common_criteria, control_question
+      FROM aicpa_soc2_type2_controls
+      WHERE $type = 'soc2-type2' AND control_id = $id::TEXT
+    );
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
   `;
   }
 
@@ -317,7 +430,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   "ce/regime/hitrust.sql"() {
     const pagination = this.pagination({
       tableOrViewName: "compliance_regime_control_hitrust_e1",
-  });
+    });
     return this.SQL`
     ${this.activePageTitle()}
 
@@ -343,8 +456,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       fii_id AS "Fii ID",
       common_criteria AS "Common Criteria",
       control_name AS "Control Name",
-      control_question AS "Control Description",
-      tenant_name AS "Tenant"
+      control_question AS "Control Description"
     FROM compliance_regime_control_hitrust_e1
     ORDER BY control_code ASC
     LIMIT $limit OFFSET $offset;
@@ -371,7 +483,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
         '**Common Criteria:** ' || COALESCE(common_criteria,'') || '  \n\n' ||
         '**Control Name:** ' || COALESCE(control_name,'') || '  \n\n' ||
         '**Control Description:** ' || COALESCE(control_question,'') || '  \n\n' ||
-        '**Fii ID:** ' || COALESCE(fii_id,'') AS description_md
+        '**FII ID:** ' || COALESCE(fii_id,'') AS description_md
     FROM compliance_regime_control_hitrust_e1
     WHERE control_id = $code
     LIMIT 1;
@@ -404,36 +516,101 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   `;
   }
 
-  @ceNav({
-    caption: "ISO 27001 v3",
-    description: "ISO 27001 v3 controls mapped with SCF.",
-    siblingOrder: 4,
-  })
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/iso-27001.sql"() {
-    return this.SQL`
-     ${this.activePageTitle()}
-     SELECT
-      'text' AS component,
-      'ISO 27001 v3 Controls' AS title;
+    const pagination = this.pagination({
+      tableOrViewName: "compliance_iso_27001_control",
+    });
 
-     SELECT
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home'     AS title, ${this.absoluteURL("/")}              AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")}  AS link;
+    SELECT 'ISO 27001 v3' AS title, '#'                               AS link;
+
+    --- Description text
+    SELECT
+      'text' AS component,
       'The ISO 27001 v3 controls are aligned with the Secure Controls Framework (SCF) to provide a comprehensive mapping of security requirements.' AS contents;
 
-     SELECT
-      'table' AS component,
-      TRUE AS sort,
-      TRUE AS search;
+    --- Pagination Controls (Top)
+    ${pagination.init()}
 
-     SELECT
-      control_code AS "Control Code",
-      scf_domain AS "SCF Domain",
-      scf_control AS "SCF Control",
+    --- Table (markdown column for detail links)
+    SELECT
+      'table' AS component,
+      TRUE    AS sort,
+      TRUE    AS search,
+      "Control Code" AS markdown;
+
+    --- Table data
+    SELECT
+      '[' || control_code || '](' || ${this.absoluteURL("/ce/regime/iso-27001_detail.sql?code=")} || replace(control_code, ' ', '%20') || ')' AS "Control Code",
+      scf_domain        AS "SCF Domain",
+      scf_control       AS "SCF Control",
       control_description AS "Control Description",
-      control_question AS "Control Question",
-      evidence AS "Evidence",
-      tenant_name AS "Tenant"
-     FROM compliance_iso_27001_control;
-    `;
+      control_question  AS "Control Question",
+      evidence          AS "Evidence"
+    FROM compliance_iso_27001_control
+    ORDER BY control_code ASC
+    LIMIT $limit OFFSET $offset;
+
+    --- Pagination Controls (Bottom)
+    ${pagination.renderSimpleMarkdown()};
+  `;
+  }
+
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "ce/regime/iso-27001_detail.sql"() {
+    return this.SQL`
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'ISO 27001 v3' AS title, ${this.absoluteURL("/ce/regime/iso-27001.sql")} AS link;
+    SELECT COALESCE($code, '') AS title, '#' AS link;
+
+    --- Primary details card
+    SELECT 'card' AS component, 'ISO 27001 v3 Control Details' AS title, 1 AS columns;
+    SELECT
+        COALESCE(control_code, '(unknown)') AS title,
+        '**SCF Domain:** ' || COALESCE(scf_domain,'') || '  \n\n' ||
+        '**SCF Control:** ' || COALESCE(scf_control,'') || '  \n\n' ||
+        '**Control Description:** ' || COALESCE(control_description,'') || '  \n\n' ||
+        '**Control Question:** ' || COALESCE(control_question,'') || '  \n\n' ||
+        '**Evidence:** ' || COALESCE(evidence,'') AS description_md
+    FROM compliance_iso_27001_control
+    WHERE control_code = $code
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      'card' AS component,
+      1 AS columns;
+ 
+ 
+    SELECT
+      'TODO: Policy Generator Prompt' AS title,
+      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Policy Audit Prompt' AS title,
+      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+    UNION ALL
+    SELECT
+      'TODO: Generated Policies' AS title,
+      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+
+    --- Fallback if no exact match
+    SELECT 'text' AS component,
+          'No exact control found for code: ' || COALESCE($code,'(empty)') AS contents
+    WHERE NOT EXISTS (
+      SELECT 1 FROM compliance_iso_27001_control WHERE control_code = $code
+    );
+  `;
   }
 
   @ceNav({
@@ -473,8 +650,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       common_criteria AS "Common Criteria",
       safeguard AS "Control Question",
       handled_by_nq AS "Handled by nQ",
-      fii_id AS "FII ID",
-      tenant_name AS "Tenant"
+      fii_id AS "FII ID"
     FROM hipaa_security_rule_safeguards
     ORDER BY hipaa_security_rule_reference
     LIMIT $limit OFFSET $offset;
@@ -590,10 +766,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
           )} || scf_code || ')' AS "Control Code",
         scf_domain AS "Domain",
         scf_control AS "Control",
-        scf_control_question AS "Control Question",
-        your_answer AS "Your Answer",
-        tenant_id AS "Tenant ID",
-        tenant_name AS "Tenant"
+        scf_control_question AS "Control Question"
       FROM compliance_regime_thsa
       ORDER BY scf_code
       LIMIT $limit OFFSET $offset;
@@ -763,7 +936,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
 
       scf_domain       AS "Domain",
       scf_control      AS "Title",
-      control_code     AS "SCF Code",
+      control_code     AS "FII ID",
       control_description AS "Control Description",
       control_question AS "Question"
 
@@ -800,7 +973,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
         '**Control Description:** ' || COALESCE(control_description, '') || '  \n\n' ||
         '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
         '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
-        '**SCF / FII IDs:** ' || COALESCE(control_code, '') AS description_md
+        '**FII IDs:** ' || COALESCE(control_code, '') AS description_md
     FROM scf_view
     WHERE
           ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
