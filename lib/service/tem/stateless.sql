@@ -24,16 +24,17 @@ FROM organization org INNER JOIN device_party_relationship dpr ON dpr.party_id=o
 --   - behavior_json        : JSON configuration/behavior details
 -- Only active (non-deleted) sessions are included.
 -- ------------------------------------------------------------
-DROP VIEW IF EXISTS tem_ur_ingest_session;
 DROP VIEW IF EXISTS tem_session;
 CREATE VIEW tem_session AS
 SELECT
     ur_ingest_session_id,
     device_id,
-    ingest_started_at session_date,
-    ingest_finished_at,
-    session_agent,
-    behavior_json
+    strftime('%m-%d-%Y %H:%M:%S', ingest_started_at) AS session_name,
+    strftime('%m-%d-%Y %H:%M:%S', ingest_started_at) AS ingest_started_at,
+    strftime('%m-%d-%Y %H:%M:%S', ingest_finished_at) AS ingest_finished_at,
+    json_extract(session_agent, '$.agent') AS agent,
+    json_extract(session_agent, '$.version') AS version,
+    7 AS tools_count
 FROM ur_ingest_session
 WHERE deleted_at IS NULL;
 
