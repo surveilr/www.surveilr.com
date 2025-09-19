@@ -703,21 +703,161 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       'card' AS component,
       1 AS columns;
  
- 
+          -- accordion for policy generator, audit prompt, and generated policies
+
+              
+   SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+      <br>
+      Create tailored policies directly for <b>Control Code: ' || hipaa_security_rule_reference || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>
+      The **Policy Generator Prompt** lets you transform abstract requirements into actionable, 
+      written policies. Simply provide the relevant control or framework element, and the prompt
+      will guide you in producing a policy that aligns with best practices, regulatory standards, 
+      and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+      for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+     
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'Policy Generator Prompt' AS title,
-       ${this.absoluteURL("/ce/regime/author_prompt.sql?id=") } || $id::TEXT as link,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Author-Prompt'
+      ;
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'Policy Audit Prompt' AS title,
-     ${this.absoluteURL("/ce/regime/audit_prompt.sql?id=") } || $id::TEXT as link,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Audit-Prompt'
+      ;
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'Generated Policies' AS title,
-     ${this.absoluteURL("/ce/regime/policy.sql?id=") } || $id::TEXT as link,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id;
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+
+
+
+   
     `;
   }
 
@@ -1048,148 +1188,6 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
 
   
 
-  //hippa author prompt
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/author_prompt.sql"() {
-    return this.SQL`
-     SELECT
-        'breadcrumb' AS component;
-  
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")} AS link;
-  
-      SELECT
-        'Controls' AS title,
-        ${this.absoluteURL("/ce/index.sql")} AS link;
-  
-      SELECT
-        'HIPAA' AS title,
-        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
-        SELECT
-        hipaa_security_rule_reference AS title,
-         '#' as link
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference = $id::TEXT;
-
-      SELECT
-        'Policy' AS title,
-        '#' AS link
-      
-
-      
-
-      SELECT
-      'text' AS component,
-      'Policy Author Prompt for: ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference  = $id;
-      SELECT 'This page provides detailed information about a specific control policy author prompt.' AS contents;
-
-    SELECT 'card' as component, 1 as columns;
-    SELECT
-      '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
-      WHERE p.control_id = $id AND p.documentType = 'Author-Prompt'
-      ;
-    `;
-  }
-
-  //audit prompt
-
-  @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/audit_prompt.sql"() {
-    return this.SQL`
-     SELECT
-        'breadcrumb' AS component;
-  
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")} AS link;
-  
-      SELECT
-        'Controls' AS title,
-        ${this.absoluteURL("/ce/index.sql")} AS link;
-  
-      SELECT
-        'HIPAA' AS title,
-        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
-        SELECT
-        hipaa_security_rule_reference AS title,
-         '#' as link
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference = $id::TEXT;
-
-      SELECT
-        'audit Prompt' AS title,
-        '#' AS link
-      
-
-      
-
-      SELECT
-      'text' AS component,
-      'Policy Audit Prompt for: ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference  = $id;
-      SELECT 'This page provides detailed information about a specific control policy audit prompt.' AS contents;
-
-    SELECT 'card' as component, 1 as columns;
-    SELECT
-      '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
-      WHERE p.control_id = $id AND p.documentType = 'Audit-Prompt'
-      ;
-    `;
-  }
-
-  //Policy data
-
-   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/policy.sql"() {
-    return this.SQL`
-     SELECT
-        'breadcrumb' AS component;
-  
-      SELECT
-        'Home' AS title,
-        ${this.absoluteURL("/")} AS link;
-  
-      SELECT
-        'Controls' AS title,
-        ${this.absoluteURL("/ce/index.sql")} AS link;
-  
-      SELECT
-        'HIPAA' AS title,
-        ${this.absoluteURL("/ce/regime/hipaa_security_rule.sql")} AS link;
-        SELECT
-        hipaa_security_rule_reference AS title,
-         '#' as link
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference = $id::TEXT;
-
-      SELECT
-        'Policy' AS title,
-        '#' AS link
-      
-
-      
-
-      SELECT
-      'text' AS component,
-      'Policy for : ' || hipaa_security_rule_reference  || ' - ' || safeguard AS title
-      FROM hipaa_security_rule_safeguards
-      WHERE hipaa_security_rule_reference  = $id;
-      SELECT 'This page provides detailed information about a specific control policy.' AS contents;
-
-    SELECT 'card' as component, 1 as columns;
-    SELECT
-      '\n' || p.body_text AS description_md
-      FROM ai_ctxe_policy p
-      WHERE p.control_id = $id
-      ;
-    `;
-  }
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
