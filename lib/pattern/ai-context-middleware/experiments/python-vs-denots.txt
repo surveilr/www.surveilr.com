@@ -1,0 +1,41 @@
+Here’s a comparison of implementing your compliance policy generation and audit tool in Python vs Deno TypeScript:
+
+### Python
+
+**Pros:**
+- Mature ecosystem for AI/ML, data processing, and automation (e.g., pandas, numpy, scikit-learn, transformers).
+- Extensive libraries for workflow automation, file handling, and integration.
+- Large community and support for compliance, auditing, and document processing.
+- Easier to find AI/ML talent and resources.
+- Rapid prototyping and scripting.
+
+**Cons:**
+- Slower runtime performance compared to TypeScript (especially for I/O-heavy or concurrent tasks).
+- Packaging and deployment can be more complex (dependency management, virtual environments).
+- Less suited for modern web APIs or edge/serverless environments.
+- Type safety is optional and less robust than TypeScript.
+
+---
+
+### Deno TypeScript
+
+**Pros:**
+- Modern, secure runtime with first-class TypeScript support (type safety, modern JS features).
+- Simpler dependency management (no package.json lock-in, URL imports).
+- Excellent for building web APIs, edge functions, and integrating with modern web stacks.
+- Fast startup and good performance for I/O-bound tasks.
+- Easier deployment to serverless/edge platforms (e.g., Vercel, Deno Deploy).
+
+**Cons:**
+- Smaller ecosystem for AI/ML and data science (fewer libraries, less mature than Python).
+- Limited support for some compliance and document processing libraries.
+- Fewer community resources and less mature tooling for some enterprise use cases.
+- May require calling out to Python or external services for advanced AI/ML.
+
+---
+
+**Summary:**  
+- Use Python if your workflow is AI/ML-heavy, needs mature data processing, or you want rapid prototyping with a rich ecosystem.
+- Use Deno TypeScript if you prioritize modern web integration, type safety, security, and deployment to edge/serverless, and your AI/ML needs are modest or can be handled via APIs.
+
+Let me know if you want a more detailed breakdown for your specific workflow!
