@@ -291,6 +291,21 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $session_id || ')' as Asset,
             (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
             (SELECT count(uniform_resource_id) FROM tem_nmap WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[Katana Scan Results]('||${this.absoluteURL("/tem/session/katana.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_katana WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[TLS Certificate Results]('||${this.absoluteURL("/tem/session/tlsx_certificate.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_tlsx_certificate WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[Dirsearch Web Path Enumeration Results]('||${this.absoluteURL("/tem/session/dirsearch.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE ur_ingest_session_id = $session_id) as "count";
     `;
     }
 
@@ -365,6 +380,21 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $tenant_id || ')' as Asset,
             (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
             (SELECT count(uniform_resource_id) FROM tem_nmap WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[Katana Scan Results]('||${this.absoluteURL("/tem/tenant/katana.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_katana WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[TLS Certificate Results]('||${this.absoluteURL("/tem/tenant/tlsx_certificate.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_tlsx_certificate WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[Dirsearch Web Path Enumeration Results]('||${this.absoluteURL("/tem/tenant/dirsearch.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE tenant_id = $tenant_id) as "count";
     `;
     }
 
@@ -790,6 +820,8 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+        SELECT 'Findings' AS title,
+            ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
         SELECT 'Naabu Port Scan Results' AS title,
             '#' AS link;
 
@@ -890,6 +922,8 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+        SELECT 'Findings' AS title,
+            ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
         SELECT 'Subfinder Results' AS title,
             '#' AS link;
 
@@ -997,6 +1031,8 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+        SELECT 'Findings' AS title,
+             ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
         SELECT 'HTTPX Toolkit Results' AS title,
             '#' AS link;
 
@@ -1149,6 +1185,359 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         ${pagination.renderSimpleMarkdown("tenant_id")};
 `;
     }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/katana.sql"() {
+        const viewName = `tem_katana`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Display breadcrumb
+        SELECT 'breadcrumb' AS component;
+            SELECT
+                'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT
+                'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;
+            SELECT
+                'Attack Surface Mapping By Tenant' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+            SELECT tanent_name AS title,
+                ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id
+                AS link
+            FROM tem_tenant WHERE tenant_id = $tenant_id;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+            SELECT 'Katana Scan Results' AS title,
+                '#' AS link;
+
+        --- Page title
+        SELECT 'title' AS component,
+            'Katana Scan Results' AS contents;
+
+        --- Page description
+        SELECT 'text' AS component,
+            'This page displays parsed Katana scan results extracted from JSONL stored in uniform_resource.content. 
+            Each record includes the request method, endpoint, status code, and timestamp, 
+            helping to analyze web exposure discovered during reconnaissance.' AS contents;
+
+        --- Table setup
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+           strftime('%m-%d-%Y', timestamp) AS "Observed At",
+            method        AS "Method",
+            endpoint      AS "Endpoint",
+            COALESCE(
+                printf('%s', status_code),
+                'N/A'
+            )                               AS "Status Code"
+        FROM ${viewName}
+        WHERE tenant_id = $tenant_id;
+
+        ${pagination.renderSimpleMarkdown("tenant_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/katana.sql"() {
+        const viewName = `tem_katana`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Breadcrumb
+        SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT 'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
+            SELECT 'Attack Surface Mapping By Session' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+            SELECT 'Katana Scan Results' AS title,
+                '#' AS link;
+
+        --- Page Title
+        SELECT 'title' AS component,
+            'Katana Scan Results' AS contents;
+
+        --- Page Description
+        SELECT 'text' AS component,
+            'This page displays parsed Katana scan results extracted from JSONL stored in uniform_resource.content. 
+             It includes request and response details such as method, endpoint, status code, and observed timestamps 
+             to assist in analyzing web application surface mapping.' AS contents;
+
+        --- Table Config
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+            tanent_name  AS "Tenant",
+            strftime('%m-%d-%Y %H:%M:%S', timestamp) AS "Observed At",
+            method       AS "Method",
+            endpoint     AS "Endpoint",
+            COALESCE(status_code, 'N/A') AS "Status Code"
+        FROM ${viewName}
+        WHERE ur_ingest_session_id = $session_id;
+
+        ${pagination.renderSimpleMarkdown("session_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/tlsx_certificate.sql"() {
+        const viewName = `tem_tlsx_certificate`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Breadcrumb setup
+        SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT 'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;
+            SELECT 'Attack Surface Mapping By Tenant' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+            SELECT tanent_name AS title,
+                ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link
+            FROM tem_tenant WHERE tenant_id = $tenant_id;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+            SELECT 'TLS Certificate Results' AS title,
+                '#' AS link;
+
+        --- Page title
+        SELECT 'title' AS component,
+            'TLS Certificate Results' AS contents;
+
+        --- Page description
+        SELECT 'text' AS component,
+            'This page displays parsed TLS certificate scan results from tlsx JSONL data stored in uniform_resource.content.
+            Each record includes host, IP, port, TLS version, cipher suite, subject/issuer details, fingerprints, and validity period.
+            This helps assess TLS configuration, certificate trust, and potential misconfigurations.' AS contents;
+
+        --- Table setup
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+            strftime('%m-%d-%Y', observed_at) AS "Observed At",
+            host                              AS "Host",
+            ip_address                        AS "IP Address",
+            port                              AS "Port",
+            probe_status                      AS "Probe Status",
+            tls_version                       AS "TLS Version",
+            is_self_signed                    AS "Self-Signed",
+            is_mismatched                     AS "Mismatched",
+            strftime('%m-%d-%Y', valid_from)  AS "Valid From",
+            strftime('%m-%d-%Y', valid_until) AS "Valid Until",
+            serial_number                     AS "Serial",
+            issuer_dn                         AS "Issuer DN",
+            issuer_cn                         AS "Issuer CN",
+            tls_connection                    AS "TLS Connection",
+            sni                               AS "SNI"
+        FROM ${viewName}
+        WHERE tenant_id = $tenant_id;
+
+        ${pagination.renderSimpleMarkdown("tenant_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/tlsx_certificate.sql"() {
+        const viewName = `tem_tlsx_certificate`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Breadcrumb setup
+       SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT 'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
+            SELECT 'Attack Surface Mapping By Session' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+            SELECT 'TLS Certificate Results' AS title,
+                '#' AS link;
+
+        --- Page title
+        SELECT 'title' AS component,
+            'TLS Certificate Results' AS contents;
+
+        --- Page description
+        SELECT 'text' AS component,
+            'This page displays parsed TLS certificate scan results from tlsx JSONL data stored in uniform_resource.content.
+            Each record includes host, IP, port, TLS version, cipher suite, subject/issuer details, fingerprints, and validity period.
+            This helps assess TLS configuration, certificate trust, and potential misconfigurations.' AS contents;
+
+        --- Table setup
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+            tanent_name  AS "Tenant",
+            strftime('%m-%d-%Y', observed_at) AS "Observed At",
+            host                              AS "Host",
+            ip_address                        AS "IP Address",
+            port                              AS "Port",
+            probe_status                      AS "Probe Status",
+            tls_version                       AS "TLS Version",
+            is_self_signed                    AS "Self-Signed",
+            is_mismatched                     AS "Mismatched",
+            strftime('%m-%d-%Y', valid_from)  AS "Valid From",
+            strftime('%m-%d-%Y', valid_until) AS "Valid Until",
+            serial_number                     AS "Serial",
+            issuer_dn                         AS "Issuer DN",
+            issuer_cn                         AS "Issuer CN",
+            tls_connection                    AS "TLS Connection",
+            sni                               AS "SNI"
+        FROM ${viewName}
+        WHERE ur_ingest_session_id = $session_id;
+
+        ${pagination.renderSimpleMarkdown("session_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/dirsearch.sql"() {
+        const viewName = `tem_dirsearch`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+
+      --- Breadcrumb setup
+      SELECT 'breadcrumb' AS component;
+          SELECT 'Home' AS title,
+              ${this.absoluteURL("/")} AS link;
+          SELECT 'Tem' AS title,
+              ${this.absoluteURL("/tem/index.sql")} AS link;
+          SELECT 'Attack Surface Mapping By Tenant' AS title,
+              ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+          SELECT tanent_name AS title,
+              ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link
+          FROM tem_tenant WHERE tenant_id = $tenant_id;
+          SELECT 'Findings' AS title,
+              ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+          SELECT 'Dirsearch Web Path Enumeration Results' AS title,
+              '#' AS link;
+
+      --- Page title
+      SELECT 'title' AS component,
+          'Dirsearch Web Path Enumeration Results' AS contents;
+
+      --- Page description
+      SELECT 'text' AS component,
+          'This page displays parsed results from the Dirsearch tool, which scans web applications to enumerate hidden files and directories. 
+          Each entry shows the discovered URL, HTTP status code, content type, response length, and any redirect information.
+          These insights help identify sensitive endpoints, misconfigurations, or exposed resources within a tenant’s web application footprint.' AS contents;
+
+      --- Table setup
+      SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search;
+
+      ${pagination.init()}
+      SELECT
+          observed_at AS "Observed At",
+          discovered_url   AS "Discovered URL",
+          status_code      AS "Status Code",
+          content_type     AS "Content Type",
+          content_length   AS "Content Length",
+          redirect_url     AS "Redirect"
+      FROM ${viewName}
+      WHERE tenant_id = $tenant_id;
+
+      ${pagination.renderSimpleMarkdown("tenant_id")};
+  `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/dirsearch.sql"() {
+        const viewName = `tem_dirsearch`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+
+      --- Breadcrumb setup
+        SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT 'Tem' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
+            SELECT 'Attack Surface Mapping By Session' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+          SELECT 'Dirsearch Web Path Enumeration Results' AS title,
+              '#' AS link;
+
+      --- Page title
+      SELECT 'title' AS component,
+          'Dirsearch Web Path Enumeration Results' AS contents;
+
+      --- Page description
+      SELECT 'text' AS component,
+          'This page displays parsed results from the Dirsearch tool, which scans web applications to enumerate hidden files and directories. 
+          Each entry shows the discovered URL, HTTP status code, content type, response length, and any redirect information.
+          These insights help identify sensitive endpoints, misconfigurations, or exposed resources within a session’s web application footprint.' AS contents;
+
+      --- Table setup
+      SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search;
+
+      ${pagination.init()}
+      SELECT
+          tanent_name  AS "Tenant",
+          observed_at AS "Observed At",
+          discovered_url   AS "Discovered URL",
+          status_code AS "Status Code",
+          content_type     AS "Content Type",
+          content_length   AS "Content Length",
+          COALESCE(redirect_url, '-') AS "Redirect"
+      FROM ${viewName}
+      WHERE ur_ingest_session_id = $session_id;
+
+      ${pagination.renderSimpleMarkdown("session_id")};
+  `;
+    }
+
 
 }
 
