@@ -22,12 +22,14 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
       sudo ca-certificates curl wget git zsh bash coreutils \
-      build-essential gcc jq python3 \
+      build-essential gcc jq python3 python3-pip \
       whatweb nmap openssl \
       subfinder dnsx httpx-toolkit naabu nuclei dirsearch \
       wafw00f testssl.sh \
       golang-go \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && git clone https://github.com/s0md3v/Corsy.git /opt/eaa/Corsy \
+    && pip3 install -r /opt/eaa/Corsy/requirements.txt --break-system-packages
 
 # ------------------------------------------------------------------------------
 # 2) Create non-root user (for Homebrew) with passwordless sudo
@@ -84,7 +86,7 @@ ENV GOBIN=/usr/local/bin
 RUN set -eux; \
     go install github.com/projectdiscovery/katana/cmd/katana@latest; \
     go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest; \
-    go install -v github.com/PentestPad/subzy@latest:
+    go install -v github.com/PentestPad/subzy@latest
     
 
 # Make Homebrew available to root shells too (nice for interactive sessions)

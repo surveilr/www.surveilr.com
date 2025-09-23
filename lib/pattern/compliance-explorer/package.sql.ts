@@ -15,7 +15,7 @@ const SQE_FAV_ICON = "content-assembler.ico";
 function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
   return spn.navigationPrime({
     ...route,
-    parentPath: "ce/index.sql",
+    parentPath: "ce/regime/index.sql",
   });
 }
 
@@ -38,7 +38,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     description:
       "SCF (Secure Controls Framework) controls are a set of cybersecurity and privacy requirements designed to help organizations manage and comply with various regulatory, statutory, and contractual frameworks.",
   })
-  "ce/index.sql"() {
+  "ce/regime/index.sql"() {
     return this.SQL`
     SELECT
       'text' AS component,
@@ -160,7 +160,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     ${this.absoluteURL("/")} AS link;
   SELECT
     'Controls' AS title,
-    ${this.absoluteURL("/ce/index.sql")} AS link;
+  ${this.absoluteURL("/ce/regime/index.sql")} AS link;
   SELECT
     'AICPA' AS title,
     ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
@@ -182,18 +182,18 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   SELECT
     'SOC 2 Type I' AS title,
     'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.' AS description,
-    ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")} AS link
+    ${this.absoluteURL("/ce/regime/soc2_type1.sql")} AS link
   UNION ALL
   SELECT
     'SOC 2 Type II' AS title,
     'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.' AS description,
-    ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
+    ${this.absoluteURL("/ce/regime/soc2_type2.sql")} AS link;
  
 `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/aicpa/soc2_type1.sql"() {
+  "ce/regime/soc2_type1.sql"() {
     const pagination = this.pagination({
       tableOrViewName: "compliance_regime_control_soc2",
     });
@@ -207,13 +207,13 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/")} AS link;
     SELECT
       'Controls' AS title,
-      ${this.absoluteURL("/ce/index.sql")} AS link;
+      ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT
       'AICPA' AS title,
       ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
     SELECT
       'SOC 2 Type I' AS title,
-      ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")} AS link;
+      ${this.absoluteURL("/ce/regime/soc2_type1.sql")} AS link;
  
     ${this.activePageTitle()}
  
@@ -251,7 +251,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
-  "ce/regime/aicpa/soc2_type2.sql"() {
+  "ce/regime/soc2_type2.sql"() {
     const pagination = this.pagination({
       tableOrViewName: "aicpa_soc2_type2_controls",
     });
@@ -265,13 +265,13 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       ${this.absoluteURL("/")} AS link;
     SELECT
       'Controls' AS title,
-      ${this.absoluteURL("/ce/index.sql")} AS link;
+      ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT
       'AICPA' AS title,
       ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
     SELECT
       'SOC 2 Type II' AS title,
-      ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")} AS link;
+      ${this.absoluteURL("/ce/regime/soc2_type2.sql")} AS link;
  
     --- Display page title
     SELECT
@@ -317,7 +317,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     -- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'AICPA' AS title, ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
  
     -- SOC 2 Type breadcrumb
@@ -328,8 +328,8 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
         ELSE 'SOC 2'
       END AS title,
       CASE
-        WHEN $type = 'soc2-type1' THEN ${this.absoluteURL("/ce/regime/aicpa/soc2_type1.sql")}
-        WHEN $type = 'soc2-type2' THEN ${this.absoluteURL("/ce/regime/aicpa/soc2_type2.sql")}
+        WHEN $type = 'soc2-type1' THEN ${this.absoluteURL("/ce/regime/soc2_type1.sql")}
+        WHEN $type = 'soc2-type2' THEN ${this.absoluteURL("/ce/regime/soc2_type2.sql")}
         ELSE ${this.absoluteURL("/ce/regime/aicpa.sql")}
       END AS link;
  
@@ -437,7 +437,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'HiTRUST e1 Assessment' AS title, '#' AS link;
 
     --- Description text
@@ -472,7 +472,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'HiTRUST e1 Assessment' AS title, ${this.absoluteURL("/ce/regime/hitrust.sql")} AS link;
     SELECT COALESCE($code, '') AS title, '#' AS link;
 
@@ -528,7 +528,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home'     AS title, ${this.absoluteURL("/")}              AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")}  AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")}  AS link;
     SELECT 'ISO 27001 v3' AS title, '#'                               AS link;
 
     --- Description text
@@ -569,7 +569,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'ISO 27001 v3' AS title, ${this.absoluteURL("/ce/regime/iso-27001.sql")} AS link;
     SELECT COALESCE($code, '') AS title, '#' AS link;
 
@@ -672,7 +672,7 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   
       SELECT
         'Controls' AS title,
-        ${this.absoluteURL("/ce/index.sql")} AS link;
+        ${this.absoluteURL("/ce/regime/index.sql")} AS link;
   
       SELECT
         'HIPAA' AS title,
@@ -878,7 +878,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   
       SELECT
         'Controls' AS title,
-        ${this.absoluteURL("/ce/index.sql")} AS link;
+        ${this.absoluteURL("/ce/regime/index.sql")} AS link;
   
       SELECT
         'Together.Health Security Assessment (THSA)' AS title,
@@ -931,7 +931,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
  
     SELECT
       'Controls' AS title,
-      ${this.absoluteURL("/ce/index.sql")} AS link;
+       ${this.absoluteURL("/ce/regime/index.sql")} AS link;
  
     SELECT
       'Together.Health Security Assessment (THSA)' AS title,
@@ -1042,7 +1042,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
     SELECT 'CMMC Level ' || COALESCE(@level::TEXT,'') AS title, '#' AS link;
 
@@ -1103,7 +1103,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
     SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
     SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
     SELECT COALESCE($code, '') AS title, '#' AS link;;
