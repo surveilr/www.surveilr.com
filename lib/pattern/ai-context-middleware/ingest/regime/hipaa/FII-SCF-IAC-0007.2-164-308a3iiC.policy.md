@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Access Termination - Policy"
+title: "HIPAA 164.308(a)(3)(ii)(C) - Policy"
 weight: 1
 description: "Policy document for HIPAA control 164.308(a)(3)(ii)(C)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,43 +14,46 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# Access Termination Policy
+# Termination of Access to EPHI Policy
 
 ## Introduction
-The purpose of this policy is to define the procedures for terminating access to Electronic Protected Health Information (EPHI) when an employee leaves the organization or when access is no longer needed. This ensures compliance with the HIPAA regulation 164.308(a)(3)(ii)(C) and protects sensitive health information from unauthorized access.
+The purpose of this policy is to establish procedures for terminating access to electronic Protected Health Information (EPHI) in compliance with HIPAA regulation 164.308(a)(3)(ii)(C). This ensures that access rights are revoked promptly and appropriately when an employee leaves the organization or as required by other specified conditions.
 
 ## Policy Statement
-All access to EPHI must be terminated promptly when an employee leaves the organization or when their access is no longer required. This includes access to systems, applications, and physical spaces where EPHI is stored or processed.
+Our organization is committed to safeguarding EPHI by implementing robust procedures for terminating access to EPHI when employees no longer require access. This policy aims to minimize risks associated with unauthorized access and ensure compliance with HIPAA regulations.
 
 ## Scope
-This policy applies to all employees, contractors, and third-party service providers who have been granted access to EPHI. It encompasses all systems and applications used to store, process, or transmit EPHI.
+This policy applies to all employees, contractors, and third-party affiliates who have access to EPHI. It encompasses all forms of access, including physical and electronic methods.
 
 ## Responsibilities
-- **Human Resources (HR)**: Responsible for notifying IT of employee terminations and providing necessary documentation.
-- **IT Department**: Responsible for executing access termination procedures and maintaining records of terminated access.
-- **Managers**: Responsible for reviewing and approving access termination requests.
+- **HR Department**: Responsible for notifying IT of employee terminations and managing the access termination checklist.
+- **IT Department**: Responsible for executing access termination procedures and maintaining audit logs.
+- **Compliance Officer**: Responsible for oversight and periodic review of access termination processes to ensure compliance.
 
 ## Evidence Collection Methods
 
+### Explanation
+To ensure compliance with this policy, evidence must be collected to demonstrate that access to EPHI has been terminated for all departing employees.
+
 ### Machine Attestation
-- **Automated Access Revocation**: Integrate with the HR management system to automatically trigger access termination when an employee's status is updated to "terminated." This ensures that access to EPHI is revoked immediately.
-  
-- **API Integration**: Use API calls with cloud service providers to invalidate all access tokens associated with terminated employees, ensuring they no longer have access to EPHI.
+- **Integration with Identity Management Systems**: Access to EPHI will be automatically revoked through integration with identity management systems. Logs of access terminations will be ingested into Surveilr, providing machine-attestable evidence of compliance.
+- **Endpoint Configuration Monitoring**: Utilize `OSquery` to monitor endpoints for any unauthorized access attempts post-termination.
 
-- **Log Collection**: Utilize OSquery or similar tools to collect access logs of terminated employees to ensure all access points have been accounted for and terminated.
-
-### Human Attestation
-- **Termination Notice**: The HR department must provide a signed termination notice for each employee who leaves. This notice should be uploaded to Surveilr with relevant metadata, including review date and reviewer name.
-
-- **Access Termination Report**: After access has been revoked, the IT administrator must verify the termination and document the process in a formal report. This report must be uploaded to Surveilr for record-keeping.
+### Human Attestation (if unavoidable)
+- **Access Termination Checklist**: HR must complete the access termination checklist for departing employees. This checklist must be signed and uploaded to Surveilr, accompanied by metadata such as reviewer name, date, and outcome.
 
 ## Verification Criteria
-- Verification of access termination must be performed within 24 hours of receiving the termination notice from HR.
-- Regular audits should be conducted to ensure that all access terminations have been executed as per this policy and to identify any potential gaps in the process.
+Verification will be based on the timely and complete revocation of access as evidenced by:
+- Machine logs from identity management systems in Surveilr.
+- Completed and signed access termination checklists stored in Surveilr.
 
 ## Exceptions
-Any exceptions to this policy must be documented and approved by the IT security officer. Exceptions may be granted in cases where immediate access termination is not feasible due to operational requirements, but access must be terminated as soon as possible thereafter.
+Exceptions to this policy must be documented and approved by the Compliance Officer. Any deviations from the established procedures must be justified and assessed for risk.
 
----
+## References
+- [HIPAA Privacy Rule](https://www.hhs.gov/hipaa/for-professionals/privacy/index.html)
+- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
 
-This policy demonstrates a commitment to safeguarding EPHI by ensuring that access is effectively managed and terminated in a timely manner, thereby adhering to HIPAA regulations and protecting patient privacy.
+### _References_
+- [HIPAA Compliance Overview](https://www.hhs.gov/hipaa/for-professionals/compliance/index.html)
+- [Surveilr Documentation](https://www.surveilr.com/docs)

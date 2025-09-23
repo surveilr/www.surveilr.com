@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Management Process - Audit Prompt"
+title: "HIPAA 164.308(a)(1)(ii)(B) - Audit Prompt"
 weight: 1
 description: "Audit prompt for HIPAA control 164.308(a)(1)(ii)(B)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,8 +14,7 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-```markdown
-You're an **official auditor (e.g., HIPAA auditor)**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
+You're an **official auditor (e.g., HIPAA Auditor)**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
 
 **Understanding Surveilr, Machine Attestation, and Human Attestation (for Evidence Assessment):**
 
@@ -30,25 +29,28 @@ You're an **official auditor (e.g., HIPAA auditor)**, expert in **Surveilr**-bas
       * **Surveilr's Role (for Human Attestation):** While Surveilr primarily focuses on machine evidence, it *can* record the *act* of human attestation (e.g., storing a signed document, recording an email confirmation, or noting the date of a manual review). However, it doesn't *verify* the content of the human attestation itself in the same automated way it verifies machine evidence. The evidence of human attestation in Surveilr would be the record of the attestation itself, not necessarily the underlying compliance directly.
   * **Goal of Audit:** To definitively determine if the provided evidence, through both machine and human attestation methods, sufficiently demonstrates compliance with the control.
 
-**Instruction:** You are acting as an official auditor for the specified framework. Analyze the provided **evidence**, the associated **policy/process description**, and the **control details**. Generate a comprehensive audit report with a clear "PASS" or "FAIL" assessment. Your report must focus *strictly* on whether the provided evidence directly aligns with and satisfies the control's requirements and stated intent. If the audit results in a "FAIL," your report MUST include explicit, precise instructions for human review regarding exactly what evidence is missing, non-compliant, or requires further action. Do not suggest policy improvements; focus solely on the evidence's direct compliance.
-
 **Audit Context:**
 
-  * **Audit Standard/Framework:** [**HIPAA**]
-**HIPAA Control's Stated Purpose/Intent:** "[**To ensure that a risk management process is established and followed to identify, assess, and mitigate risks to the confidentiality, integrity, and availability of electronic protected health information as per NIST guidelines.**]"
+  * **Audit Standard/Framework:** HIPAA
+  * **Control's Stated Purpose/Intent:** "To ensure that a comprehensive risk management process is in place in compliance with NIST guidelines."
+Control Code: 164.308(a)(1)(ii)(B),
+Control Question: Has the risk management process been completed using IAW NIST Guidelines? (R)
+Internal ID (Foreign Integration Identifier as FII): FII-SCF-RSK-0004
   * **Policy/Process Description (for context on intent and expected evidence):**
-    "[**The organization follows a documented risk management process that adheres to NIST guidelines, including risk assessments, risk mitigation strategies, and review processes. Evidence of completed risk assessments and risk management documentation is maintained.**]"
-  * **Provided Evidence for Audit:** "[**Risk assessment report dated 2025-07-01, risk mitigation plan document, and evidence of management review meeting minutes dated 2025-07-15. All documents are stored electronically in the compliance management system and are timestamped.**]"
+    "This policy outlines the requirements for completing the risk management process in compliance with NIST guidelines, ensuring that adequate measures are in place to protect sensitive health information. All entities covered under HIPAA regulations must implement a comprehensive risk management process that adheres to the NIST guidelines. This process is essential for identifying, assessing, and mitigating risks to the confidentiality, integrity, and availability of protected health information (PHI)."
+  * **Provided Evidence for Audit:** "Automated OSquery results confirming security configurations on production servers, API call results verifying cloud security measures, signed quarterly risk assessment report from the Compliance Officer, and HR training logs for staff training on risk management policies."
+
+**Requirements for Your Audit Report (Structured format):**
 
 # Official Audit Report: HIPAA - 164.308(a)(1)(ii)(B)
 
 **Overall Audit Result: [PASS/FAIL]**
-**Date of Audit:** [Current Date, e.g., 2025-09-09]
-**Auditor Role:** [Your designated auditor role, e.g., HIPAA Auditor]
+**Date of Audit:** [Current Date, e.g., 2025-07-28]
+**Auditor Role:** HIPAA Auditor
 **Control Code:** 164.308(a)(1)(ii)(B)
 **Control Question:** Has the risk management process been completed using IAW NIST Guidelines? (R)
 **Internal ID (FII):** FII-SCF-RSK-0004
-**Control's Stated Purpose/Intent:** [To ensure that a risk management process is established and followed to identify, assess, and mitigate risks to the confidentiality, integrity, and availability of electronic protected health information as per NIST guidelines.]
+**Control's Stated Purpose/Intent:** To ensure that a comprehensive risk management process is in place in compliance with NIST guidelines.
 
 ## 1. Executive Summary
 
@@ -60,59 +62,58 @@ For each identifiable part of the control's "Expected Evidence" and the stated "
 
 ### 2.1 Machine Attestable Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Risk assessment completion as per NIST guidelines.
-    * **Provided Evidence:** Risk assessment report dated 2025-07-01.
-    * **Surveilr Method (as described/expected):** Evidence collected through document ingestion.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM RSSD WHERE document_type = 'risk_assessment' AND date = '2025-07-01';
-    * **Compliance Status:** [COMPLIANT / NON-COMPLIANT / INSUFFICIENT EVIDENCE]
-    * **Justification:** [Detailed explanation of why the evidence is compliant, non-compliant, or insufficient, directly correlating the *provided evidence* to the *control requirement*. If non-compliant, specify the exact deviation.]
+* **Control Requirement/Expected Evidence:** Validate that all production servers have necessary security configurations.
+    * **Provided Evidence:** Automated OSquery results confirming security configurations on production servers.
+    * **Surveilr Method (as described/expected):** Evidence collected via OSquery.
+    * **Conceptual/Actual SQL Query Context:** SQL queries used to validate endpoint configurations were executed against the RSSD.
+    * **Compliance Status:** COMPLIANT
+    * **Justification:** The OSquery results demonstrate that the production servers are configured as required, fulfilling the control's intent.
 
-* **Control Requirement/Expected Evidence:** Documentation of risk mitigation strategies.
-    * **Provided Evidence:** Risk mitigation plan document.
-    * **Surveilr Method (as described/expected):** Evidence collected through document ingestion.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM RSSD WHERE document_type = 'risk_mitigation_plan';
-    * **Compliance Status:** [COMPLIANT / NON-COMPLIANT / INSUFFICIENT EVIDENCE]
-    * **Justification:** [Detailed explanation of why the evidence is compliant, non-compliant, or insufficient, directly correlating the *provided evidence* to the *control requirement*. If non-compliant, specify the exact deviation.]
-
-* **Control Requirement/Expected Evidence:** Evidence of management review of risk management documentation.
-    * **Provided Evidence:** Meeting minutes dated 2025-07-15.
-    * **Surveilr Method (as described/expected):** Evidence collected through document ingestion.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM RSSD WHERE document_type = 'management_review_minutes' AND date = '2025-07-15';
-    * **Compliance Status:** [COMPLIANT / NON-COMPLIANT / INSUFFICIENT EVIDENCE]
-    * **Justification:** [Detailed explanation of why the evidence is compliant, non-compliant, or insufficient, directly correlating the *provided evidence* to the *control requirement*. If non-compliant, specify the exact deviation.]
+* **Control Requirement/Expected Evidence:** Confirmation of security measures in the cloud environment.
+    * **Provided Evidence:** API call results verifying cloud security measures.
+    * **Surveilr Method (as described/expected):** Evidence collected through API integrations.
+    * **Conceptual/Actual SQL Query Context:** SQL queries executed to validate API results against expected configurations.
+    * **Compliance Status:** COMPLIANT
+    * **Justification:** The API results confirm that security measures are in place and functioning as intended.
 
 ### 2.2 Human Attestation Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Manual confirmation of risk assessments and mitigation plans.
-    * **Provided Evidence:** [Reference to human-attestable evidence provided in the input, or clear statement of its absence.]
-    * **Human Action Involved (as per control/standard):** [Description of the manual action that *should* have occurred as per the control or standard.]
-    * **Surveilr Recording/Tracking:** [How Surveilr *would* or *did* record the *act* or *output* of this human attestation.]
-    * **Compliance Status:** [COMPLIANT / NON-COMPLIANT / INSUFFICIENT EVIDENCE]
-    * **Justification:** [Detailed explanation of why the evidence is compliant, non-compliant, or insufficient, directly correlating the *provided human-attested evidence* to the *control requirement*. If non-compliant, specify the exact deviation or why the attestation is invalid/incomplete.]
+* **Control Requirement/Expected Evidence:** Quarterly risk assessment reports signed by the Compliance Officer.
+    * **Provided Evidence:** Signed quarterly risk assessment report from the Compliance Officer.
+    * **Human Action Involved (as per control/standard):** Compliance Officer's review and signature.
+    * **Surveilr Recording/Tracking:** Document uploaded to Surveilr with metadata.
+    * **Compliance Status:** COMPLIANT
+    * **Justification:** The signed report indicates that the risk management process was reviewed and completed as per the requirements.
 
-## 3. Overall Alignment with Control's Intent & Spirit
+* **Control Requirement/Expected Evidence:** Staff training on risk management policies and procedures.
+    * **Provided Evidence:** HR training logs for staff training on risk management policies.
+    * **Human Action Involved (as per control/standard):** Managers maintaining signed training logs.
+    * **Surveilr Recording/Tracking:** Training logs stored in Surveilr.
+    * **Compliance Status:** COMPLIANT
+    * **Justification:** The HR logs confirm that staff training has been conducted as required.
 
-* **Assessment:** [Based on the totality of the provided evidence, does it genuinely demonstrate that the control's underlying purpose and intent are being met in practice?]
-* **Justification:** [Explain why or why not, considering the broader objectives of the control beyond just literal checklist items. This is a holistic assessment of the evidence's effectiveness.]
-* **Critical Gaps in Spirit (if applicable):** [If certain evidence is present but still fails to meet the *spirit* of the control, explain this with specific examples from the evidence.]
+## 3. Overall Alignment with Control's Intent Spirit
 
-## 4. Audit Conclusion & Final Justification
+* **Assessment:** The provided evidence demonstrates that the control's underlying purpose and intent are being met in practice.
+* **Justification:** The combination of machine and human attestation confirms that the risk management process is effectively in place and compliant with NIST guidelines.
+* **Critical Gaps in Spirit (if applicable):** N/A
 
-* **Final Decision:** [Reiterate the "PASS" or "FAIL" decision, which must be based *solely* on the provided evidence's direct compliance with the control requirements and intent.]
-* **Comprehensive Rationale:** [Provide a concise but comprehensive justification for the final decision, summarizing the most critical points of compliance or non-compliance identified during the evidence assessment.]
+## 4. Audit Conclusion and Final Justification
+
+* **Final Decision:** PASS
+* **Comprehensive Rationale:** The evidence provided meets the control requirements and demonstrates both machine and human attestations are in place, ensuring compliance with the intent of the control.
 
 ## 5. Instructions for Human Intervention (Mandatory if Overall Audit Result is "FAIL")
 
 **If the Overall Audit Result is "FAIL", provide clear, actionable, and precise instructions for human intervention to achieve compliance. This section is an auditor's directive.**
 
 * **Specific Missing Evidence Required:**
-    * [For each missing piece of evidence identified in Section 2, state *exactly* what is needed. E.g., "Missing current firewall rule sets from production firewalls (FII-XYZ-001) for the quarter ending 2025-06-30."]
-    * [Specify the required format/type for each missing piece: e.g., "Obtain OSquery results for network interface configurations on all servers tagged 'production_web'.", "Provide a signed PDF of the latest incident response plan approval."]
-* **Specific Non-Compliant Evidence & Required Correction:**
-    * [For each instance of non-compliant evidence identified in Section 2, clearly state *why* it is non-compliant and what *specific correction* is required. E.g., "Provided access logs show unapproved access event on 2025-07-15 by UserID 123; requires an associated incident ticket (IR-2025-005) or justification."]
-    * [Specify the action needed: e.g., "Remediate firewall rule CC6-0010-005 to correctly block traffic from IP range X.Y.Z.0/24.", "Provide evidence of user access review completion for Q2 2025 for all critical systems."]
+    * N/A
+* **Specific Non-Compliant Evidence Required Correction:**
+    * N/A
 * **Required Human Action Steps:**
-    * [List precise steps a human auditor or compliance officer needs to take. E.g., "Engage IT Operations to retrieve the specific logs for server X from date Y.", "Contact system owner Z to obtain management attestation for policy P."]
-    * [Specify which teams or individuals are responsible for producing or correcting the evidence.]
-* **Next Steps for Re-Audit:** [Outline the process for re-submission of the corrected/missing evidence for re-evaluation.]
-```
+    * N/A
+* **Next Steps for Re-Audit:** 
+    * N/A
+
+**[END OF GENERATED PROMPT CONTENT]**

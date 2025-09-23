@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Analysis - Policy"
+title: "HIPAA 164.308(a)(1)(ii)(A) - Policy"
 weight: 1
 description: "Policy document for HIPAA control 164.308(a)(1)(ii)(A)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,40 +14,51 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# Risk Analysis Policy
+# HIPAA Compliance Policy for Risk Analysis
 
 ## Introduction
-The purpose of this policy is to establish guidelines for the completion of a risk analysis in accordance with the National Institute of Standards and Technology (NIST) guidelines, ensuring compliance with the Health Insurance Portability and Accountability Act (HIPAA). This policy outlines the requirements for assessing risks to electronic protected health information (ePHI) and implementing appropriate measures to mitigate identified vulnerabilities.
+This policy outlines the requirements for conducting a risk analysis in compliance with HIPAA standard 164.308(a)(1)(ii)(A), ensuring that all processes align with the National Institute of Standards and Technology (NIST) Guidelines.
 
-## Control Requirement for Conducting a Risk Analysis
-### Risk Assessment Process
-The organization must conduct a comprehensive risk analysis as mandated by Control Code 164.308(a)(1)(ii)(A). This analysis should identify potential risks and vulnerabilities to ePHI, assess the impact of these risks, and determine the likelihood of potential breaches. The risk analysis must be documented and updated regularly or whenever significant changes occur in the environment affecting ePHI.
+## Policy Statement
+It is the policy of [Organization Name] to conduct and document a thorough risk analysis in accordance with NIST Guidelines to identify and mitigate risks related to the confidentiality, integrity, and availability of protected health information (PHI).
 
-### Machine Attestation Methods
-To facilitate the risk analysis process, the organization is encouraged to utilize automated tools that can assist in identifying and assessing risks. Suggested methods include:
-- **Vulnerability Scanning Tools**: Employ tools such as Nessus or Qualys to automatically scan systems for known vulnerabilities. The results should be ingested into our compliance tracking system, Surveilr, for analysis and documentation.
-- **Automated Risk Assessment Tools**: Utilize platforms like RiskWatch or SecurityScorecard to gather continuous risk assessment data and generate reports that can be reviewed for compliance checks.
+## Scope
+This policy applies to all employees, contractors, and third-party service providers who handle PHI or have access to systems that store or process PHI within [Organization Name].
 
-### Human Attestation Methods
-In cases where automation is impractical or insufficient, human attestation is required. The following processes should be implemented:
-- **Quarterly Reporting**: The risk management team must certify the completion of the risk analysis report on a quarterly basis. This report must be signed by the team lead and uploaded to Surveilr, including pertinent metadata such as the reviewer’s name, review date, and outcome of the assessment.
-- **Review and Sign-off**: The Chief Compliance Officer (CCO) must review the final risk analysis report, provide feedback, and sign the document. The signed report should be digitized and stored within Surveilr, ensuring all relevant metadata is included for tracking and future audits.
+## Responsibilities
+- **Compliance Officer**: Responsible for overseeing the risk analysis process and ensuring compliance with HIPAA and NIST guidelines.
+- **IT Security Team**: Responsible for implementing technical controls and providing necessary evidence for machine attestation.
+- **All Staff**: Required to comply with the risk analysis process and provide necessary support as needed.
 
-## References
-- National Institute of Standards and Technology (NIST) Special Publication 800-30: Guide for Conducting Risk Assessments.
-- Health Insurance Portability and Accountability Act (HIPAA) Security Rule.
-- National Institute of Standards and Technology (NIST) Special Publication 800-53: Security and Privacy Controls for Information Systems and Organizations.
+## Evidence Collection Methods
 
-## Attestation Guidance
+### Explanation
+To demonstrate compliance with the risk analysis requirement, [Organization Name] will collect evidence through a combination of machine and human attestation methods.
 
 ### Machine Attestation
-To ensure machine attestability, the following methods should be adopted:
-- **Centralized Vulnerability Management System**: Automate the collection of risk assessment results using a centralized system that consolidates data from various vulnerability scanning tools. This system should integrate seamlessly with Surveilr for compliance verification and tracking.
-- **Continuous Monitoring**: Implement continuous monitoring solutions that regularly assess the security posture and risk levels associated with ePHI, feeding real-time data into Surveilr.
+- **Automated Risk Assessment Tools**: Utilize automated tools to collect data on potential vulnerabilities and risks.
+- **OSquery Data**: Verify that production servers have required agents installed by ingesting OSquery data into Surveilr. This data will include system configurations, software versions, and installed security patches.
+- **API Integrations**: Integrate with cloud service providers to collect logs related to access and changes to systems that handle PHI.
 
-### Human Attestation
-The following actions and documentation procedures are required for human attestability:
-- **Reporting Protocol**: The risk management team must compile the risk analysis report and submit it for review. The report should include a summary of findings, risk ratings, and recommended mitigation strategies.
-- **Documentation Storage**: Upon approval from the CCO, the signed report should be digitized and uploaded to Surveilr, ensuring that all metadata related to the review process, including the reviewer's name, date of review, and any comments, is included for future reference.
+### Human Attestation (if unavoidable)
+- **Quarterly Risk Assessment Reports**: The Compliance Officer must sign the quarterly risk assessment report. This report will then be uploaded to Surveilr with metadata, including the reviewer’s name, date, and outcome.
+- **Training Logs**: Signed training logs for staff that detail HIPAA compliance training and risk awareness.
 
-By adhering to these structured guidelines, the organization will maintain compliance with HIPAA requirements while effectively managing risks to its information systems.
+## Verification Criteria
+- The risk analysis must be reviewed and updated at least annually or upon significant changes to the environment.
+- Evidence of machine attestation must be stored in Surveilr and be easily queryable.
+- Human attestations must include verifiable documentation uploaded to Surveilr.
+
+## Exceptions
+Any exceptions to this policy must be documented and approved by the Compliance Officer. Exceptions must be justified and include a plan for risk mitigation.
+
+## References
+- [HIPAA Privacy Rule](https://www.hhs.gov/hipaa/for-professionals/privacy/index.html)
+- [NIST Risk Management Framework](https://csrc.nist.gov/publications/detail/sp/800-37/rev-2/final)
+- [NIST Special Publication 800-30](https://csrc.nist.gov/publications/detail/sp/800-30/rev-1/final)
+
+### _References_  
+- [NIST Special Publication 800-53](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf)  
+- [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
+
+This policy is effective as of [Effective Date] and will be reviewed annually for updates and improvements.

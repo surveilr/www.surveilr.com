@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Management Process - Author Prompt"
+title: "HIPAA 164.308(a)(1)(ii)(B) - Author Prompt"
 weight: 1
 description: "Authoring prompt for HIPAA control 164.308(a)(1)(ii)(B)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,27 +14,43 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-Generate a HIPAA-compliant policy document addressing the control code 164.308(a)(1)(ii)(B) titled "Risk Management Process." The policy must include the following sections in markdown format: 
+You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for the following control:
 
-1. **Policy Statement**: Clearly state the purpose and intent of the risk management process in compliance with HIPAA and NIST guidelines.
+**Control Code**: 164.308(a)(1)(ii)(B)  
+**Control Question**: Has the risk management process been completed using IAW NIST Guidelines? (R)  
+**Internal ID**: FII-SCF-RSK-0004  
 
-2. **Scope**: Define the applicability of this policy, including who it affects within the organization.
+**Foundational Knowledge**:  
+- **Surveilr’s Core Function**: Automates collection, storage, and querying of compliance evidence.  
+- **Machine Attestation**: Evidence that can be automatically validated. Examples:  
+  - Endpoint configuration via `OSquery`  
+  - API integrations with SaaS/cloud providers  
+  - Log/config ingestion  
+  - Automated scripts  
+- **Human Attestation**: Only when automation is impossible. Must be specific and verifiable. Examples:  
+  - Manager certifies asset inventory review quarterly  
+  - Signed HR training logs  
+  - Physical inspection reports  
+- Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
-3. **Responsibilities**: Outline the roles and responsibilities of individuals involved in the risk management process.
+**Required Policy Document Structure**:  
+- **Introduction** – concise purpose  
+- **Policy Statement** – high-level declaration  
+- **Scope** – what/who it applies to  
+- **Responsibilities** – clear roles/duties  
+- **Evidence Collection Methods** – with subheadings per requirement:  
+  - Explanation  
+  - Machine Attestation  
+  - Human Attestation (if unavoidable)  
+- **Verification Criteria**  
+- **Exceptions**  
+- **References** (with `### _References_`)  
 
-4. **Evidence Collection Methods**: 
-   - Provide detailed machine attestability methods. For instance, describe how to collect evidence of risk assessments and mitigation strategies using automated tools such as OSquery for system configurations and vulnerabilities.
-   - Suggest utilizing API integrations with cloud service providers to validate the implementation of security controls and risk management documentation.
-   - Detail the automation of logging processes, ensuring that logs related to risk assessments are ingested into Surveilr for compliance validation.
+**Attestation Guidance**:  
+- Machine Attestation: e.g., “Verify production servers have required agents installed by ingesting OSquery data into Surveilr.”  
+- Human Attestation: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”  
 
-5. **Verification Criteria**: 
-   - State how the organization will verify that the risk management process is completed according to NIST guidelines, emphasizing machine attestability through automated checks.
-   - Highlight the importance of ensuring that any manual processes are documented effectively.
-
-6. **Exceptions**: Describe scenarios under which exceptions to this policy may be allowed, including how these exceptions will be managed and documented.
-
-Where human attestation is necessary, specify the exact actions that must be taken, such as:
-- A designated manager must sign off on risk assessment reports quarterly, and these signed documents must be uploaded to Surveilr, including metadata such as reviewer name, date, and outcome.
-- Include any other necessary human interactions, detailing how these will be recorded and stored in Surveilr.
-
-Ensure the policy maximizes machine attestability while explicitly documenting human attestation instances, including methods and limitations. Use clear markdown formatting, bullet points for clarity, and inline code for technical terms. End the document with a references section labeled "### _References_."
+Please ensure to follow the Markdown and Formatting Rules:  
+- Use standard Markdown (headings, bullets, bold, inline code).  
+- Use `[Link Text](URL)` for citations.  
+- Do not include SQL queries.

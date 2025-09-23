@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Formal Sanctions - Policy"
+title: "HIPAA 164.308(a)(1)(ii)(C) - Policy"
 weight: 1
 description: "Policy document for HIPAA control 164.308(a)(1)(ii)(C)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,42 +14,51 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# Formal Sanctions Policy
+# HIPAA Compliance Policy for Sanctions Against Employee Non-Compliance
 
-## Policy Statement
-This policy establishes the necessity of formal sanctions against employees who fail to comply with the organization's security policies and procedures. It is imperative to maintain the integrity, confidentiality, and availability of protected health information (PHI) and to ensure compliance with the Health Insurance Portability and Accountability Act (HIPAA). Non-compliance may result in disciplinary action, which can include verbal warnings, written reprimands, suspension, or termination of employment, depending on the severity of the violation.
+## Introduction  
+This policy establishes the framework for enforcing formal sanctions against employees who fail to comply with security policies and procedures within the organization, ensuring compliance with HIPAA Control Code 164.308(a)(1)(ii)(C).
 
-## Scope
-This policy applies to all employees, contractors, and third-party vendors who have access to the organization's systems and data containing PHI. Departments involved in implementing and enforcing this policy include Human Resources (HR), Information Technology (IT), Compliance, and any other relevant departments responsible for safeguarding PHI and enforcing security protocols.
+## Policy Statement  
+It is the policy of [Organization Name] to enforce formal sanctions against employees who do not adhere to established security policies and procedures. These sanctions are intended to promote a culture of compliance and security awareness among employees.
 
-## Responsibilities
-- **Human Resources (HR)**: Responsible for maintaining records of employee training on security policies and for administering the sanctions process in coordination with management.
-- **Information Technology (IT)**: Responsible for monitoring system logs, implementing automated compliance tools, and reporting non-compliance incidents.
-- **Compliance Officer**: Ensures that the formal sanctions policy is enforced consistently and fairly, reviews incidents of non-compliance, and recommends appropriate sanctions.
-- **Department Managers**: Responsible for ensuring their teams adhere to security policies and for reporting any violations.
+## Scope  
+This policy applies to all employees, contractors, and temporary staff at [Organization Name] who have access to sensitive information and are subject to the organization's security policies.
 
-## Evidence Collection Methods
-- **Automated System Logs**: Utilize system logs to track user access and activities related to PHI. Automated tools will generate alerts for unauthorized access or policy violations.
-- **Compliance Management Tools**: Integrate compliance management tools that automatically log training completion, policy acknowledgments, and sanction enforcement.
-- **HR System Integration**: Connect with HR systems to monitor employee training compliance and maintain records of disciplinary actions taken.
-- **Audit Logs**: Regularly review audit logs to verify that sanctions have been applied consistently and in accordance with this policy.
+## Responsibilities  
+- **Human Resources (HR)**: Responsible for the maintenance and enforcement of the sanctions policy, including documentation and reporting.
+- **Compliance Officer**: Responsible for overseeing compliance with this policy and ensuring that sanctions are applied fairly and consistently.
+- **Employees**: Responsible for understanding and adhering to security policies and procedures.
 
-## Verification Criteria
-- **Training Confirmation**: Utilize API integrations with HR systems to confirm that employees have received and acknowledged security policy training. The HR system must reflect that employees have completed relevant training modules.
-- **Sanction Application Review**: Ingest system logs into Surveilr to review instances of sanction application. This includes tracking when sanctions were applied, the nature of the violation, and the outcome.
-- **Regular Audits**: Conduct regular audits of compliance reports and sanction records to ensure adherence to this policy and identify areas for improvement.
+## Evidence Collection Methods  
 
-## Exceptions
-Exceptions to this policy must be documented and approved by the Compliance Officer. Situations that may warrant an exception include:
-- Instances where an employee was unable to complete training due to documented medical or personal emergencies.
-- Cases where a violation resulted from a documented system failure not attributable to user actions.
+### Explanation  
+To ensure compliance with this policy, various methods of evidence collection will be utilized, with a focus on automated processes to reduce administrative burden.
 
-Documentation of exceptions must include:
-- A detailed account of the circumstances leading to the exception.
-- Signatures from the employee involved, their manager, and the Compliance Officer.
-- Submission of this documentation to Surveilr with relevant metadata (review date, reviewer name).
+### Machine Attestation  
+- **Automated Reporting**: Compliance with security policies will be verified through automated reporting mechanisms, such as:
+  - **API Integrations**: Integrate with HR systems to verify training completion and sanctions documentation using Surveilr.
+  - **Log Ingestion**: Collect logs of employee access to sensitive information to monitor compliance with security protocols.
 
-## References
-- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
-- [NIST SP 800-53](https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final)
-- [Surveilr Documentation](https://www.surveilr.com/docs)
+### Human Attestation (if unavoidable)  
+In cases where automation is not feasible, human attestation will be required:
+- **Documentation Maintenance**: HR must maintain signed documentation of sanctions against employees who fail to comply with security policies.
+- **Quarterly Review Certification**: Managers will certify the review of employee compliance with security policies at least quarterly and upload signed certification to Surveilr with appropriate metadata.
+
+## Verification Criteria  
+Verification of compliance with this policy will involve:
+- Regular audits of automated reports generated by Surveilr.
+- Review of signed documentation and certifications by HR and management.
+- Assessment of employee training completion rates and compliance incident reports.
+
+## Exceptions  
+Any exceptions to this policy must be documented and approved by the Compliance Officer and Human Resources. Exceptions will be reviewed on a case-by-case basis.
+
+## References  
+- HIPAA Privacy Rule: [HIPAA Privacy Rule](https://www.hhs.gov/hipaa/for-professionals/privacy/index.html)  
+- HIPAA Security Rule: [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)  
+- Surveilr Compliance Automation: [Surveilr](https://surveilr.io)  
+
+---
+
+This policy is established to ensure a high standard of security compliance and to protect sensitive information within [Organization Name]. All employees are expected to adhere to the policies and procedures outlined herein.

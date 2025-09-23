@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Formal Sanctions - Author Prompt"
+title: "HIPAA 164.308(a)(1)(ii)(C) - Author Prompt"
 weight: 1
 description: "Authoring prompt for HIPAA control 164.308(a)(1)(ii)(C)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,25 +14,39 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-Create a HIPAA-compliant policy document addressing Control Code 164.308(a)(1)(ii)(C), titled "Formal Sanctions." The document must be structured in Markdown format with the following sections: Policy Statement, Scope, Responsibilities, Evidence Collection Methods, Verification Criteria, and Exceptions. 
+You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for the following control:
 
-1. **Policy Statement**: Clearly articulate the necessity of formal sanctions for employees who fail to comply with security policies and procedures.
+- **Control Code**: 164.308(a)(1)(ii)(C)  
+- **Control Question**: Do you have formal sanctions against employees who fail to comply with security policies and procedures? (R)  
+- **Internal ID**: FII-SCF-HRS-0007  
 
-2. **Scope**: Define the individuals and departments to which this policy applies, ensuring clarity on who is responsible for compliance.
+Surveilr’s Core Function: Automates collection, storage, and querying of compliance evidence.  
+Machine Attestation: Evidence that can be automatically validated. Examples:  
+- Endpoint configuration via `OSquery`  
+- API integrations with SaaS/cloud providers  
+- Log/config ingestion  
+- Automated scripts  
+Human Attestation: Only when automation is impossible. Must be specific and verifiable. Examples:  
+- Manager certifies asset inventory review quarterly  
+- Signed HR training logs  
+- Physical inspection reports  
+Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
-3. **Responsibilities**: Outline the roles responsible for enforcing this policy, including any specific duties related to monitoring compliance and administering sanctions.
+### Required Policy Document Structure
+- **Introduction** – concise purpose  
+- **Policy Statement** – high-level declaration  
+- **Scope** – what/who it applies to  
+- **Responsibilities** – clear roles/duties  
+- **Evidence Collection Methods** – with subheadings per requirement:  
+  - Explanation  
+  - Machine Attestation  
+  - Human Attestation (if unavoidable)  
+- **Verification Criteria**  
+- **Exceptions**  
+- **References** (with `### _References_`)  
 
-4. **Evidence Collection Methods**: 
-   - Prioritize machine attestability by detailing automated methods for evidence collection. For example, describe how to use system logs or compliance management tools to track policy adherence.
-   - Suggest methods like integrating with HR systems to monitor training compliance or using audit logs to verify sanction enforcement.
+### Attestation Guidance
+- Machine Attestation: e.g., “Verify compliance with security policies by automating the audit of employee training completion using API integrations with Surveilr.”  
+- Human Attestation: e.g., “HR must maintain signed documentation of sanctions and upload to Surveilr with metadata.”  
 
-5. **Verification Criteria**: Specify how compliance with this policy will be verified. Include automated evidence collection methods such as:
-   - "Utilize API integrations with HR systems to confirm that employees have received and acknowledged security policy training."
-   - "Ingest system logs into Surveilr to review sanction application instances."
-
-6. **Exceptions**: Clearly state any exceptions to the policy and the process for documenting these exceptions.
-
-Ensure that the policy maximizes machine attestability while explicitly indicating instances where human attestation is necessary. For human attestation, provide specific actions, artifacts, and methods for documenting and ingesting these attestations into Surveilr, such as:
-- "The HR manager must sign off on training completion logs, which are then uploaded to Surveilr with relevant metadata (review date, reviewer name)."
-
-End the document with a section titled "References" for any external resources used.
+Please ensure to follow standard Markdown formatting rules, using headings, bullets, bold, inline code, and `[Link Text](URL)` for citations. Do not include SQL queries.

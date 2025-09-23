@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Analysis - Author Prompt"
+title: "HIPAA 164.308(a)(1)(ii)(A) - Author Prompt"
 weight: 1
 description: "Authoring prompt for HIPAA control 164.308(a)(1)(ii)(A)"
-publishDate: "2025-09-22"
+publishDate: "2025-09-23"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,21 +14,42 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-Generate a comprehensive HIPAA-compliant policy document addressing Control Code 164.308(a)(1)(ii)(A) titled "Risk Analysis." The document should follow structured MDX formatting and include the following sections: 
+You are an expert AI policy author specializing in Surveilr-based machine-attestable HIPAA compliance policies. Your task is to write a policy for the following control:
 
-1. **Front Matter**: Include required metadata fields in YAML format: title, weight, description, publishDate, publishBy, classification, documentVersion, documentType, approvedBy, category (as array), satisfies (as array of FII-SCF-CODEs), merge-group, and order.
+**Control Code**: 164.308(a)(1)(ii)(A)  
+**Control Question**: Has a risk analysis been completed using IAW NIST Guidelines? (R)  
+**Internal ID**: FII-SCF-RSK-0004  
 
-2. **Introduction**: Provide a concise purpose of the policy regarding risk analysis completion in accordance with NIST Guidelines.
+**Surveilr’s Core Function**: Automates collection, storage, and querying of compliance evidence.  
+**Machine Attestation**: Evidence that can be automatically validated. Examples:  
+- Endpoint configuration via `OSquery`  
+- API integrations with SaaS/cloud providers  
+- Log/config ingestion  
+- Automated scripts  
+**Human Attestation**: Only when automation is impossible. Must be specific and verifiable. Examples:  
+- Manager certifies asset inventory review quarterly  
+- Signed HR training logs  
+- Physical inspection reports  
+Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
-3. **Policy Sections**: Use H2 headings for each major requirement. Each section should:
-   - Explain the control requirement for conducting a risk analysis.
-   - Suggest machine attestation methods, such as using automated tools to identify and assess risks and vulnerabilities. For example: "Utilize vulnerability scanning tools to automatically assess system vulnerabilities and ingest results into Surveilr."
-   - Identify human attestation methods where automation is impractical, such as: "The risk management team must certify the completion of the risk analysis report quarterly, and this signed report should be uploaded to Surveilr with metadata including the reviewer name, date, and outcome."
+**Required Policy Document Structure**:  
+- **Introduction** – concise purpose  
+- **Policy Statement** – high-level declaration  
+- **Scope** – what/who it applies to  
+- **Responsibilities** – clear roles/duties  
+- **Evidence Collection Methods** – with subheadings per requirement:  
+  - Explanation  
+  - Machine Attestation  
+  - Human Attestation (if unavoidable)  
+- **Verification Criteria**  
+- **Exceptions**  
+- **References** (with `### _References_`)  
 
-4. **References**: Include a section at the end titled ### _References_ to cite relevant standards and guidelines.
+**Attestation Guidance**:  
+- Machine Attestation: e.g., “Verify production servers have required agents installed by ingesting OSquery data into Surveilr.”  
+- Human Attestation: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”  
 
-5. **Attestation Guidance**: 
-   - For Machine Attestation: Describe practical, automatable methods to collect evidence. For example: "Automate the collection of risk assessment results using a centralized vulnerability management system and integrate the data into Surveilr for compliance verification."
-   - For Human Attestation: Outline the specific actions, artifacts, and ingestion methods into Surveilr. For example: "The Chief Compliance Officer must review and sign the risk analysis report, which will then be digitized and stored in Surveilr with all pertinent metadata."
-
-Ensure the document emphasizes the prioritization of machine attestability while clearly documenting instances where human attestation is necessary, including detailed methods for documentation and ingestion into Surveilr. Focus on providing clarity and compliance without embedding SQL queries.
+**Markdown and Formatting Rules**:  
+- Use standard Markdown (headings, bullets, bold, inline code).  
+- Use `[Link Text](URL)` for citations.  
+- Do not include SQL queries.
