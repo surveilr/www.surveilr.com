@@ -52,9 +52,9 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     }
 
     @spn.navigationPrimeTopLevel({
-        caption: "Tem",
+        caption: "Threat Exposure Management",
         description:
-            `Opsfolio TEM and Opsfolio EAA are part of the Opsfolio Suite, which underpins Opsfolio Compliance-as-a-Service (CaaS) offerings.`,
+            `Opsfolio Threat Exposure Management (TEM) and Opsfolio EAA are part of the Opsfolio Suite, which underpins Opsfolio Compliance-as-a-Service (CaaS) offerings.`,
     })
     "tem/index.sql"() {
         return this.SQL`
@@ -114,6 +114,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     "tem/attack_surface_mapping_session.sql"() {
         return this.SQL`
         ${this.activePageTitle()}
+        
 
         --- Dsply Page Title
         SELECT
@@ -151,7 +152,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -192,7 +193,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -232,7 +233,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -306,6 +307,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $session_id || ')' as Asset,
             (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
             (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[TestSSL Report]('||${this.absoluteURL("/tem/session/tssl_certificate.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
+            (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE ur_ingest_session_id = $session_id) as "count";
     `;
     }
 
@@ -320,7 +326,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -395,6 +401,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $tenant_id || ')' as Asset,
             (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
             (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[TestSSL Report]('||${this.absoluteURL("/tem/tenant/tssl_certificate.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE tenant_id = $tenant_id) as "count";
     `;
     }
 
@@ -414,7 +425,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -482,7 +493,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -549,7 +560,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -602,7 +613,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -654,7 +665,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -709,7 +720,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -763,7 +774,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -816,7 +827,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -868,7 +879,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -918,7 +929,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -967,7 +978,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -1027,7 +1038,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             'Home' AS title,
             ${this.absoluteURL("/")}    AS link;
         SELECT
-            'Tem' AS title,
+            'Threat Exposure Management' AS title,
             ${this.absoluteURL("/tem/index.sql")} AS link;  
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -1086,7 +1097,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
                 'Home' AS title,
                 ${this.absoluteURL("/")}    AS link;
             SELECT
-                'Tem' AS title,
+                'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -1145,7 +1156,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
                 'Home' AS title,
                 ${this.absoluteURL("/")}    AS link;
             SELECT
-                'Tem' AS title,
+                'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -1202,7 +1213,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
                 'Home' AS title,
                 ${this.absoluteURL("/")} AS link;
             SELECT
-                'Tem' AS title,
+                'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;
             SELECT
                 'Attack Surface Mapping By Tenant' AS title,
@@ -1262,7 +1273,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'breadcrumb' AS component;
             SELECT 'Home' AS title,
                 ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title,
+            SELECT 'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Session' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -1314,7 +1325,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'breadcrumb' AS component;
             SELECT 'Home' AS title,
                 ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title,
+            SELECT 'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;
             SELECT 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -1379,7 +1390,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
        SELECT 'breadcrumb' AS component;
             SELECT 'Home' AS title,
                 ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title,
+            SELECT 'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Session' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -1442,7 +1453,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
       SELECT 'breadcrumb' AS component;
           SELECT 'Home' AS title,
               ${this.absoluteURL("/")} AS link;
-          SELECT 'Tem' AS title,
+          SELECT 'Threat Exposure Management' AS title,
               ${this.absoluteURL("/tem/index.sql")} AS link;
           SELECT 'Attack Surface Mapping By Tenant' AS title,
               ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
@@ -1498,7 +1509,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'breadcrumb' AS component;
             SELECT 'Home' AS title,
                 ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title,
+            SELECT 'Threat Exposure Management' AS title,
                 ${this.absoluteURL("/tem/index.sql")} AS link;  
             SELECT 'Attack Surface Mapping By Session' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
@@ -1538,7 +1549,825 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
   `;
     }
 
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/tssl_certificate.sql"() {
+        const viewName = `tem_testssl_general`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Threat Exposure Management' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Tenant' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+        SELECT tanent_name AS title,
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+        SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT 'TestSSL Report' AS title,
+            '#' AS link;
 
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'TestSSL Report' as contents;
+
+        SELECT
+          'text'              as component,
+          'The TestSSL Report provides a comprehensive overview of the SSL/TLS security posture of scanned hosts. It consolidates findings from server configurations, supported protocols, cipher suites, forward secrecy settings, HTTP headers, browser simulations, vulnerabilities, and overall ratings into a structured and easily interpretable format. Each entry includes a unique identifier, severity level, and descriptive details, allowing security teams to quickly identify and prioritize issues. The report helps organizations assess compliance with best practices, track security improvements over time, and make informed decisions to strengthen their SSL/TLS configurations, ensuring robust protection for web applications and client connections.' as contents;
+        
+         SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search,
+          'Host' as markdown;
+
+      ${pagination.init()}
+      SELECT
+           '[' || host || '](' || ${this.absoluteURL("/tem/tenant/tssl_certificate_inner.sql?component=tab&tab=pretests&uniform_resource_id=")
+            } || uniform_resource_id ||'&tenant_id='||$tenant_id||')' as Host,
+          datetime(start_time, 'unixepoch') AS "start time",
+          ip,
+          port,
+          rdns
+      FROM ${viewName}
+      WHERE tenant_id = $tenant_id;
+
+      ${pagination.renderSimpleMarkdown("tenant_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/tssl_certificate_inner.sql"() {
+        const viewName = `tem_testssl_general`;
+        const pretestViewName = `tem_testssl_pretest`;
+        const pretestPagination = this.pagination({
+            tableOrViewName: pretestViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const protocolsViewName = `tem_testssl_protocols`;
+        const protocolsPagination = this.pagination({
+            tableOrViewName: protocolsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const ciphersViewName = `tem_testssl_ciphers`;
+        const ciphersPagination = this.pagination({
+            tableOrViewName: ciphersViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const serverReferencesViewName = `tem_testssl_server_references`;
+        const serverReferencesPagination = this.pagination({
+            tableOrViewName: serverReferencesViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const fsViewName = `tem_testssl_fs`;
+        const fsPagination = this.pagination({
+            tableOrViewName: fsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const serverDefaultsViewName = `tem_testssl_server_default`;
+        const serverDefaultsPagination = this.pagination({
+            tableOrViewName: serverDefaultsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const headerResponseViewName = `tem_testssl_header_response`;
+        const headerResponsePagination = this.pagination({
+            tableOrViewName: headerResponseViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const vulnerabilitieViewName = `tem_testssl_vulnerabilitie`;
+        const vulnerabilitiePagination = this.pagination({
+            tableOrViewName: vulnerabilitieViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const browserSimulationViewName = `tem_testssl_browser_simulation`;
+        const browserSimulationPagination = this.pagination({
+            tableOrViewName: browserSimulationViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        const ratingViewName = `tem_testssl_rating`;
+        const ratingPagination = this.pagination({
+            tableOrViewName: ratingViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT
+            'breadcrumb' AS component;
+        SELECT
+            'Home' AS title,
+            ${this.absoluteURL("/")}    AS link;
+        SELECT
+            'Threat Exposure Management' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Tenant' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+        SELECT tanent_name AS title,
+            ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
+        SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT 'TestSSL Report' AS title,
+            ${this.absoluteURL("/tem/tenant/tssl_certificate.sql?tenant_id=")} || $tenant_id AS link;
+        SELECT host AS title,
+            '#' AS link
+        FROM ${viewName}
+        WHERE tenant_id = $tenant_id;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'TestSSL Report' as contents;
+
+        SELECT
+          'text'              as component,
+          'The TestSSL Report provides a comprehensive overview of the SSL/TLS security posture of scanned hosts. It consolidates findings from server configurations, supported protocols, cipher suites, forward secrecy settings, HTTP headers, browser simulations, vulnerabilities, and overall ratings into a structured and easily interpretable format. Each entry includes a unique identifier, severity level, and descriptive details, allowing security teams to quickly identify and prioritize issues. The report helps organizations assess compliance with best practices, track security improvements over time, and make informed decisions to strengthen their SSL/TLS configurations, ensuring robust protection for web applications and client connections.' as contents;
+        
+
+
+        select 
+        'table' as component,
+        TRUE    as freeze_columns,
+        TRUE    as freeze_headers,
+        TRUE    as border;  
+           
+            select 
+                'Invocation' as 'General Info',
+                invocation as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'Open SSL' as 'General Info',
+                openssl as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'Version' as 'General Info',
+                version as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'Host' as 'General Info',
+                host as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'ip' as 'General Info',
+                ip as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'port' as 'General Info',
+                port as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+            union all
+            select 
+                'service' as 'General Info',
+                service as 'Value'
+                FROM tem_testssl_general WHERE tenant_id=$tenant_id
+
+       select 
+            'tab' as component;
+        -- Pretests tab (active only if tab=pretests) 
+        select 
+            'Pretests' as title,
+            (coalesce($tab, 'pretests') = 'pretests') as active,
+            '?component=tab&tab=pretests&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Protocols tab (active only if tab=protocols) 
+        select 
+            'Protocols' as title,
+            ($tab = 'protocols') as active,
+            '?component=tab&tab=protocols&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+         -- Ciphers tab (active only if tab=ciphers)
+        select 
+            'Ciphers' as title,
+            ($tab = 'ciphers') as active,
+            '?component=tab&tab=ciphers&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Server Preferences tab (active only if tab=server-preferences)
+        select 
+            'Server Preferences' as title,
+            ($tab = 'server-preferences') as active,
+            '?component=tab&tab=server-preferences&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Forward Secrecy (active only if tab=forward-secrecy)
+        select 
+            'Forward Secrecy' as title,
+            ($tab = 'forward-secrecy') as active,
+            '?component=tab&tab=forward-secrecy&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Server Defaults / Certificates (active only if tab=protocols)
+        select 
+            'Server Defaults / Certificates' as title,
+            ($tab = 'server-defaults') as active,
+            '?component=tab&tab=server-defaults&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- HTTP Response Headers (active only if tab=http-response-header)
+        select 
+            'HTTP Response Headers' as title,
+            ($tab = 'http-response-header') as active,
+            '?component=tab&tab=http-response-header&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Vulnerabilities (active only if tab=http-response-header)
+        select 
+            'Vulnerabilities' as title,
+            ($tab = 'vulnerabilitie') as active,
+            '?component=tab&tab=vulnerabilitie&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Browser Simulations (active only if tab=browser-simulations)
+        select 
+            'Browser Simulations' as title,
+            ($tab = 'browser-simulations') as active,
+            '?component=tab&tab=browser-simulations&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+        -- Rating (active only if tab=rating)
+        select 
+            'Rating' as title,
+            ($tab = 'rating') as active,
+            '?component=tab&tab=rating&uniform_resource_id='||$uniform_resource_id||'&tenant_id='||$tenant_id as link;
+
+            -- Pretests tab
+            ${pretestPagination.init()}
+            SELECT
+            'title'   as component,
+            'Pretests' as contents WHERE $tab = 'pretests';
+            SELECT
+            'text'              as component,
+            'Quick preliminary checks performed before the detailed scan. These verify basic connectivity, service availability, and whether the host can be tested reliably.' as contents
+            WHERE $tab = 'pretests';
+        
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'pretests';
+            select id,severity,finding from ${pretestViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'pretests';
+            ${pretestPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='pretests'")};
+
+            -- Protocols tab
+            ${protocolsPagination.init()}
+            SELECT
+            'title'   as component,
+            'Protocols' as contents WHERE $tab = 'protocols';
+            SELECT
+            'text'              as component,
+            'Lists the supported SSL/TLS protocol versions (e.g., TLS 1.0, 1.2, 1.3). Helps identify if older, insecure protocols are enabled or only modern secure ones are accepted.' as contents
+            WHERE $tab = 'protocols';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'protocols';
+            select id,severity,finding from ${protocolsViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'protocols';
+            ${protocolsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='protocols'")};
+
+            -- Ciphers tab
+            ${ciphersPagination.init()}
+            SELECT
+            'title'   as component,
+            'Ciphers' as contents WHERE $tab = 'ciphers';
+            SELECT
+            'text'              as component,
+            'Shows the encryption algorithms (ciphers) supported by the server. Weak or outdated ciphers (like CBC-based ones) are flagged, while strong ciphers are marked safe.' as contents
+            WHERE $tab = 'ciphers';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'ciphers';
+            select id,severity,finding from ${ciphersViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'ciphers';
+            ${ciphersPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='ciphers'")};
+
+            -- Server Preferences tab
+            ${serverReferencesPagination.init()}
+            SELECT
+            'title'   as component,
+            'Server Preferences' as contents WHERE $tab = 'server-preferences';
+            SELECT
+            'text'              as component,
+            'Describes how the server prioritizes protocols and ciphers. For example, whether the server enforces its own cipher order or allows clients to choose.' as contents
+            WHERE $tab = 'server-preferences';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'server-preferences';
+            select id,severity,finding from ${serverReferencesViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'server-preferences';
+            ${serverReferencesPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='server-preferences'")};
+
+            -- Forward Secrecy (FS) tab
+            ${fsPagination.init()}
+            SELECT
+            'title'   as component,
+            'Forward Secrecy (FS)' as contents WHERE $tab = 'forward-secrecy';
+            SELECT
+            'text'              as component,
+            'Checks whether the server supports forward secrecy using key exchange methods (e.g., ECDHE). FS ensures that past communications remain secure even if the server’s private key is compromised later.' as contents
+            WHERE $tab = 'forward-secrecy';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'forward-secrecy';
+            select id,severity,finding from ${fsViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'forward-secrecy';
+            ${fsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='forward-secrecy'")};
+
+            -- Server Defaults / Certificates tab
+            ${serverDefaultsPagination.init()}
+            SELECT
+            'title'   as component,
+            'Server Defaults / Certificates' as contents WHERE $tab = 'server-defaults';
+            SELECT
+            'text'              as component,
+            'Displays SSL/TLS certificate information such as common name, issuer, validity, and other defaults. This helps verify domain ownership, certificate authority, and expiration.' as contents
+            WHERE $tab = 'server-defaults';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'server-defaults';
+            select id,severity,finding from ${serverDefaultsViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'server-defaults';
+            ${serverDefaultsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='server-defaults'")};
+
+            -- HTTP Response Headers tab
+            ${headerResponsePagination.init()}
+            SELECT
+            'title'   as component,
+            'HTTP Response Headers' as contents WHERE $tab = 'http-response-header';
+            SELECT
+            'text'              as component,
+            'Lists security-related HTTP headers (e.g., HSTS, X-Frame-Options, CSP). These help protect against attacks like clickjacking, XSS, or protocol downgrade.' as contents
+            WHERE $tab = 'http-response-header';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'http-response-header';
+            select header_response_id as "header response id",severity,finding from ${headerResponseViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'http-response-header';
+            ${headerResponsePagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='http-response-header'")};
+
+            -- Vulnerabilities tab
+            ${vulnerabilitiePagination.init()}
+            SELECT
+            'title'   as component,
+            'Vulnerabilities' as contents WHERE $tab = 'vulnerabilitie';
+            SELECT
+            'text'              as component,
+            'Tests the server against known SSL/TLS vulnerabilities (e.g., Heartbleed, POODLE, LUCKY13). Any positive finding here indicates a serious risk.' as contents
+            WHERE $tab = 'vulnerabilitie';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'vulnerabilitie';
+            select vulnerability_id as "vulnerability id",severity,finding from ${vulnerabilitieViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'vulnerabilitie';
+            ${vulnerabilitiePagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='vulnerabilitie'")};
+
+            -- Browser Simulations tab
+            ${browserSimulationPagination.init()}
+            SELECT
+            'title'   as component,
+            'Browser Simulations' as contents WHERE $tab = 'browser-simulations';
+            SELECT
+            'text'              as component,
+            'Simulates how different browsers and versions connect to the server. This helps verify compatibility and whether old browsers are blocked from insecure connections.' as contents
+            WHERE $tab = 'browser-simulations';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'browser-simulations';
+            select simulation_id as "simulation id",severity,finding from ${browserSimulationViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'browser-simulations';
+            ${browserSimulationPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='browser-simulations'")};
+
+           -- Rating Simulations tab
+            ${ratingPagination.init()}
+             SELECT
+            'title'   as component,
+            'Rating' as contents WHERE $tab = 'rating';
+            SELECT
+            'text'              as component,
+            'Provides an overall grade (A, B, etc.) summarizing the server’s SSL/TLS configuration strength. This is often based on industry benchmarks like SSL Labs grading.' as contents
+            WHERE $tab = 'rating';
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'rating';
+            select rating_id as "rating id",severity,finding from ${ratingViewName} where uniform_resource_id= $uniform_resource_id AND tenant_id=$tenant_id AND $tab = 'rating';
+            ${ratingPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "tenant_id", "$tab='rating'")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/tssl_certificate.sql"() {
+        const viewName = `tem_testssl_general`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+         SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title,
+                ${this.absoluteURL("/")} AS link;
+            SELECT 'Threat Exposure Management' AS title,
+                ${this.absoluteURL("/tem/index.sql")} AS link;  
+            SELECT 'Attack Surface Mapping By Session' AS title,
+                ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+            SELECT 'Findings' AS title,
+                ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+        SELECT 'TestSSL Report' AS title,
+            '#' AS link;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'TestSSL Report' as contents;
+
+        SELECT
+          'text'              as component,
+          'The TestSSL Report provides a comprehensive overview of the SSL/TLS security posture of scanned hosts. It consolidates findings from server configurations, supported protocols, cipher suites, forward secrecy settings, HTTP headers, browser simulations, vulnerabilities, and overall ratings into a structured and easily interpretable format. Each entry includes a unique identifier, severity level, and descriptive details, allowing security teams to quickly identify and prioritize issues. The report helps organizations assess compliance with best practices, track security improvements over time, and make informed decisions to strengthen their SSL/TLS configurations, ensuring robust protection for web applications and client connections.' as contents;
+        
+         SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search,
+          'Host' as markdown;
+
+      ${pagination.init()}
+      SELECT
+           '[' || host || '](' || ${this.absoluteURL("/tem/session/tssl_certificate_inner.sql?component=tab&tab=pretests&uniform_resource_id=")
+            } || uniform_resource_id ||'&session_id='||$session_id||')' as Host,
+          datetime(start_time, 'unixepoch') AS "start time",
+          ip,
+          port,
+          rdns
+      FROM ${viewName}
+      WHERE ur_ingest_session_id = $session_id;
+
+      ${pagination.renderSimpleMarkdown("session_id")};
+    `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/tssl_certificate_inner.sql"() {
+        const viewName = `tem_testssl_general`;
+        const pretestViewName = `tem_testssl_pretest`;
+        const pretestPagination = this.pagination({
+            tableOrViewName: pretestViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const protocolsViewName = `tem_testssl_protocols`;
+        const protocolsPagination = this.pagination({
+            tableOrViewName: protocolsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const ciphersViewName = `tem_testssl_ciphers`;
+        const ciphersPagination = this.pagination({
+            tableOrViewName: ciphersViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const serverReferencesViewName = `tem_testssl_server_references`;
+        const serverReferencesPagination = this.pagination({
+            tableOrViewName: serverReferencesViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const fsViewName = `tem_testssl_fs`;
+        const fsPagination = this.pagination({
+            tableOrViewName: fsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const serverDefaultsViewName = `tem_testssl_server_default`;
+        const serverDefaultsPagination = this.pagination({
+            tableOrViewName: serverDefaultsViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const headerResponseViewName = `tem_testssl_header_response`;
+        const headerResponsePagination = this.pagination({
+            tableOrViewName: headerResponseViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const vulnerabilitieViewName = `tem_testssl_vulnerabilitie`;
+        const vulnerabilitiePagination = this.pagination({
+            tableOrViewName: vulnerabilitieViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const browserSimulationViewName = `tem_testssl_browser_simulation`;
+        const browserSimulationPagination = this.pagination({
+            tableOrViewName: browserSimulationViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        const ratingViewName = `tem_testssl_rating`;
+        const ratingPagination = this.pagination({
+            tableOrViewName: ratingViewName,
+            whereSQL: "WHERE uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+        --- Display breadcrumb
+        SELECT 'breadcrumb' AS component;
+        SELECT 'Home' AS title,
+            ${this.absoluteURL("/")} AS link;
+        SELECT 'Threat Exposure Management' AS title,
+            ${this.absoluteURL("/tem/index.sql")} AS link;  
+        SELECT 'Attack Surface Mapping By Session' AS title,
+            ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+        SELECT 'Findings' AS title,
+            ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+        SELECT 'TestSSL Report' AS title,
+            ${this.absoluteURL("/tem/session/tssl_certificate.sql?session_id=")} || $session_id AS link;
+        SELECT host AS title,
+            '#' AS link
+        FROM ${viewName}
+        WHERE ur_ingest_session_id = $session_id;
+
+        --- Dsply Page Title
+        SELECT
+          'title'   as component,
+          'TestSSL Report' as contents;
+
+        SELECT
+          'text'              as component,
+          'The TestSSL Report provides a comprehensive overview of the SSL/TLS security posture of scanned hosts. It consolidates findings from server configurations, supported protocols, cipher suites, forward secrecy settings, HTTP headers, browser simulations, vulnerabilities, and overall ratings into a structured and easily interpretable format. Each entry includes a unique identifier, severity level, and descriptive details, allowing security teams to quickly identify and prioritize issues. The report helps organizations assess compliance with best practices, track security improvements over time, and make informed decisions to strengthen their SSL/TLS configurations, ensuring robust protection for web applications and client connections.' as contents;
+        
+
+
+        select 
+        'table' as component,
+        TRUE    as freeze_columns,
+        TRUE    as freeze_headers,
+        TRUE    as border;  
+           
+            select 
+                'Invocation' as 'General Info',
+                invocation as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'Open SSL' as 'General Info',
+                openssl as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'Version' as 'General Info',
+                version as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'Host' as 'General Info',
+                host as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'ip' as 'General Info',
+                ip as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'port' as 'General Info',
+                port as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
+            select 
+                'service' as 'General Info',
+                service as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+
+       select 
+            'tab' as component;
+        -- Pretests tab (active only if tab=pretests) 
+        select 
+            'Pretests' as title,
+            (coalesce($tab, 'pretests') = 'pretests') as active,
+            '?component=tab&tab=pretests&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Protocols tab (active only if tab=protocols) 
+        select 
+            'Protocols' as title,
+            ($tab = 'protocols') as active,
+            '?component=tab&tab=protocols&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+         -- Ciphers tab (active only if tab=ciphers)
+        select 
+            'Ciphers' as title,
+            ($tab = 'ciphers') as active,
+            '?component=tab&tab=ciphers&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Server Preferences tab (active only if tab=server-preferences)
+        select 
+            'Server Preferences' as title,
+            ($tab = 'server-preferences') as active,
+            '?component=tab&tab=server-preferences&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Forward Secrecy (active only if tab=forward-secrecy)
+        select 
+            'Forward Secrecy' as title,
+            ($tab = 'forward-secrecy') as active,
+            '?component=tab&tab=forward-secrecy&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Server Defaults / Certificates (active only if tab=protocols)
+        select 
+            'Server Defaults / Certificates' as title,
+            ($tab = 'server-defaults') as active,
+            '?component=tab&tab=server-defaults&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- HTTP Response Headers (active only if tab=http-response-header)
+        select 
+            'HTTP Response Headers' as title,
+            ($tab = 'http-response-header') as active,
+            '?component=tab&tab=http-response-header&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Vulnerabilities (active only if tab=http-response-header)
+        select 
+            'Vulnerabilities' as title,
+            ($tab = 'vulnerabilitie') as active,
+            '?component=tab&tab=vulnerabilitie&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Browser Simulations (active only if tab=browser-simulations)
+        select 
+            'Browser Simulations' as title,
+            ($tab = 'browser-simulations') as active,
+            '?component=tab&tab=browser-simulations&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+        -- Rating (active only if tab=rating)
+        select 
+            'Rating' as title,
+            ($tab = 'rating') as active,
+            '?component=tab&tab=rating&uniform_resource_id='||$uniform_resource_id||'&session_id='||$session_id as link;
+
+            -- Pretests tab
+            ${pretestPagination.init()}
+            SELECT
+            'title'   as component,
+            'Pretests' as contents
+            WHERE $tab = 'pretests';
+            SELECT
+            'text'              as component,
+            'Quick preliminary checks performed before the detailed scan. These verify basic connectivity, service availability, and whether the host can be tested reliably.' as contents
+            WHERE $tab = 'pretests';
+        
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'pretests';
+            select id,severity,finding from ${pretestViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'pretests';
+            ${pretestPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='pretests'")};
+
+            -- Protocols tab
+            ${protocolsPagination.init()}
+            SELECT
+                'title'   as component,
+                'Protocols' as contents WHERE $tab = 'protocols';
+            SELECT
+                'text'              as component,
+                'Lists the supported SSL/TLS protocol versions (e.g., TLS 1.0, 1.2, 1.3). Helps identify if older, insecure protocols are enabled or only modern secure ones are accepted.' as contents
+            WHERE $tab = 'protocols';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'protocols';
+            select id,severity,finding from ${protocolsViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'protocols';
+            ${protocolsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='protocols'")};
+
+            -- Ciphers tab
+            ${ciphersPagination.init()}
+            SELECT
+                'title'   as component,
+                'Ciphers' as contents WHERE $tab = 'ciphers';
+            SELECT
+                'text'              as component,
+                'Shows the encryption algorithms (ciphers) supported by the server. Weak or outdated ciphers (like CBC-based ones) are flagged, while strong ciphers are marked safe.' as contents
+            WHERE $tab = 'ciphers';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'ciphers';
+            select id,severity,finding from ${ciphersViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'ciphers';
+            ${ciphersPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='ciphers'")};
+
+            -- Server Preferences tab
+            ${serverReferencesPagination.init()}
+            SELECT
+                'title'   as component,
+                'Server Preferences' as contents WHERE $tab = 'server-preferences';
+            SELECT
+                'text'              as component,
+                'Describes how the server prioritizes protocols and ciphers. For example, whether the server enforces its own cipher order or allows clients to choose.' as contents
+            WHERE $tab = 'server-preferences';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'server-preferences';
+            select id,severity,finding from ${serverReferencesViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'server-preferences';
+            ${serverReferencesPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='server-preferences'")};
+
+            -- Forward Secrecy (FS) tab
+            ${fsPagination.init()}
+            SELECT
+                'title'   as component,
+                'Forward Secrecy (FS)' as contents WHERE $tab = 'forward-secrecy';
+            SELECT
+                'text'              as component,
+                'Checks whether the server supports forward secrecy using key exchange methods (e.g., ECDHE). FS ensures that past communications remain secure even if the server’s private key is compromised later.' as contents
+            WHERE $tab = 'forward-secrecy';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'forward-secrecy';
+            select id,severity,finding from ${fsViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'forward-secrecy';
+            ${fsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='forward-secrecy'")};
+
+            -- Server Defaults / Certificates tab
+            ${serverDefaultsPagination.init()}
+            SELECT
+                'title'   as component,
+                'Server Defaults / Certificates' as contents WHERE $tab = 'server-defaults';
+            SELECT
+                'text'              as component,
+                'Displays SSL/TLS certificate information such as common name, issuer, validity, and other defaults. This helps verify domain ownership, certificate authority, and expiration.' as contents
+            WHERE $tab = 'server-defaults';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'server-defaults';
+            select id,severity,finding from ${serverDefaultsViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'server-defaults';
+            ${serverDefaultsPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='server-defaults'")};
+
+            -- HTTP Response Headers tab
+            ${headerResponsePagination.init()}
+            SELECT
+                'title'   as component,
+                'HTTP Response Headers' as contents WHERE $tab = 'http-response-header';
+            SELECT
+                'text'              as component,
+                'Lists security-related HTTP headers (e.g., HSTS, X-Frame-Options, CSP). These help protect against attacks like clickjacking, XSS, or protocol downgrade.' as contents
+            WHERE $tab = 'http-response-header';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'http-response-header';
+            select header_response_id as "header response id",severity,finding from ${headerResponseViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'http-response-header';
+            ${headerResponsePagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='http-response-header'")};
+
+            -- Vulnerabilities tab
+            ${vulnerabilitiePagination.init()}
+            SELECT
+                'title'   as component,
+                'Vulnerabilities' as contents WHERE $tab = 'vulnerabilitie';
+            SELECT
+                'text'              as component,
+                'Tests the server against known SSL/TLS vulnerabilities (e.g., Heartbleed, POODLE, LUCKY13). Any positive finding here indicates a serious risk.' as contents
+            WHERE $tab = 'vulnerabilitie';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'vulnerabilitie';
+            select vulnerability_id as "vulnerability id",severity,finding from ${vulnerabilitieViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'vulnerabilitie';
+            ${vulnerabilitiePagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='vulnerabilitie'")};
+
+            -- Browser Simulations tab
+            ${browserSimulationPagination.init()}
+             SELECT
+                'title'   as component,
+                'Browser Simulations' as contents WHERE $tab = 'browser-simulations';
+            SELECT
+                'text'              as component,
+                'Simulates how different browsers and versions connect to the server. This helps verify compatibility and whether old browsers are blocked from insecure connections.' as contents
+            WHERE $tab = 'browser-simulations';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'browser-simulations';
+            select simulation_id as "simulation id",severity,finding from ${browserSimulationViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'browser-simulations';
+            ${browserSimulationPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='browser-simulations'")};
+
+           -- Rating Simulations tab
+            ${ratingPagination.init()}
+             SELECT
+                'title'   as component,
+                'Rating' as contents WHERE $tab = 'rating';
+            SELECT
+                'text'              as component,
+                'Provides an overall grade (A, B, etc.) summarizing the server’s SSL/TLS configuration strength. This is often based on industry benchmarks like SSL Labs grading.' as contents
+            WHERE $tab = 'rating';
+
+            SELECT 'table' AS component,
+                TRUE AS sort,
+                TRUE AS search,
+                'Host' as markdown where $tab = 'rating';
+            select rating_id as "rating id",severity,finding from ${ratingViewName} where uniform_resource_id= $uniform_resource_id AND ur_ingest_session_id=$session_id AND $tab = 'rating';
+            ${ratingPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='rating'")};
+    `;
+    }
 }
 
 export async function SQL() {
