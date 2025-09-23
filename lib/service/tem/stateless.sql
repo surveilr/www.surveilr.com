@@ -472,3 +472,355 @@ INNER JOIN tem_session ts ON ur.device_id = ts.device_id
      JOIN json_each(json_extract(ur.content, '$.results')) AS result
 WHERE ur.uri LIKE '%dirsearch%'
   AND ur.nature = 'json';
+
+-- =======================================================
+-- View: tem_testssl_general
+-- -------------------------------------------------------
+-- Purpose:
+--   Extract general host-level details from testssl.json
+--   files stored in uniform_resource.
+--   Each row corresponds to one scanned host (targetHost).
+-- Includes:
+--   - Tenant info (tenant_id, tenant_name)
+--   - Scan start time
+--   - Host details (host, ip, port, rdns, service)
+--   - Source URI reference
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_general;
+CREATE VIEW tem_testssl_general AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(ur.content, '$.Invocation') AS invocation,
+    json_extract(ur.content, '$.version') AS version,
+    json_extract(ur.content, '$.openssl') AS openssl,
+    json_extract(ur.content, '$.startTime') AS start_time,
+    json_extract(s.value, '$.targetHost') AS host,
+    json_extract(s.value, '$.ip')         AS ip,
+    json_extract(s.value, '$.port')       AS port,
+    json_extract(s.value, '$.rDNS')       AS rdns,
+    json_extract(s.value, '$.service')    AS service,
+    ur.uri
+  FROM uniform_resource ur
+  INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+  INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+  JOIN json_each(ur.content, '$.scanResult') s
+  WHERE ur.uri LIKE '%testssl%' AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- =======================================================
+-- View: tem_testssl_pretest
+-- -------------------------------------------------------
+-- Purpose:
+--   Extract all "pretest" findings from testssl.json
+--   for each scanned host.
+--   Each row corresponds to one pretest check result.
+-- Includes:
+--   - Host
+--   - Pretest id, severity, finding
+--   - Source URI reference
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_pretest;
+CREATE VIEW tem_testssl_pretest AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(p.value, '$.id')           AS id,
+    json_extract(p.value, '$.severity')     AS severity,
+    json_extract(p.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+  INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+  INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+  JOIN json_each(ur.content, '$.scanResult') s
+  JOIN json_each(s.value, '$.pretest') p
+
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- =======================================================
+-- Query: Extract protocol details from testssl.json
+-- -------------------------------------------------------
+-- Purpose:
+--   This query pulls out the protocol findings from
+--   testssl scan results stored in uniform_resource.
+--   Each row corresponds to one protocol check for
+--   a specific scanned host.
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_protocols;
+CREATE VIEW tem_testssl_protocols AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(p.value, '$.id')           AS id,
+    json_extract(p.value, '$.severity')     AS severity,
+    json_extract(p.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.protocols') p
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- =======================================================
+-- View: tem_testssl_ciphers
+-- -------------------------------------------------------
+-- Purpose:
+--   Extract all "cipher" test results from testssl.json
+--   stored in the uniform_resource table.
+--
+-- Behavior:
+--   - Iterates through each scanResult element.
+--   - Expands the ciphers array inside each scanResult.
+--   - Produces one row per cipher finding for each host.
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_ciphers;
+CREATE VIEW tem_testssl_ciphers AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(c.value, '$.id')           AS id,
+    json_extract(c.value, '$.severity')     AS severity,
+    json_extract(c.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.ciphers') c
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- =======================================================
+-- View: tem_testssl_server_references
+-- -------------------------------------------------------
+-- Purpose:
+--   Extract all "serverPreferences" test results from
+--   testssl.json files stored in the uniform_resource table.
+--
+-- Behavior:
+--   - Iterates through each element of the scanResult array.
+--   - Expands the serverPreferences array for each host.
+--   - Produces one row per server preference finding.
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_server_references;
+CREATE VIEW tem_testssl_server_references AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(sp.value, '$.id')           AS id,
+    json_extract(sp.value, '$.severity')     AS severity,
+    json_extract(sp.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.serverPreferences') sp
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- =======================================================
+-- View: tem_testssl_fs
+-- -------------------------------------------------------
+-- Purpose:
+--   Extract all "Forward Secrecy (FS)" test results from
+--   testssl.json files stored in the uniform_resource table.
+--
+-- Behavior:
+--   - Iterates through each element of the scanResult array.
+--   - Expands the fs (Forward Secrecy) array for each host.
+--   - Produces one row per FS finding.
+--
+-- Forward Secrecy (FS):
+--   Forward Secrecy ensures that even if the server's long-term
+--   private key is compromised, past communications remain secure.
+--   Testssl.sh reports FS support status for the cipher suites.
+-- =======================================================
+DROP VIEW IF EXISTS tem_testssl_fs;
+CREATE VIEW tem_testssl_fs AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(fs.value, '$.id')           AS id,
+    json_extract(fs.value, '$.severity')     AS severity,
+    json_extract(fs.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.fs') fs
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- View: tem_testssl_server_defaults
+-- --------------------------------------------
+-- This view extracts the "serverDefault" section from TestSSL JSON scan results.
+-- For each host in a testssl scan, it retrieves:
+--   - pretest_id:    The identifier of the server default check
+--   - pretest_severity: Severity level of the finding
+--   - pretest_finding: Description of the finding
+-- The view links the scan data to the uniform_resource table via uniform_resource_id
+-- and filters only JSON entries with a valid targetHost. Useful for reporting
+-- server configuration issues and compliance checks.
+DROP VIEW IF EXISTS tem_testssl_server_default;
+DROP VIEW IF EXISTS tem_testssl_server_default;
+CREATE VIEW tem_testssl_server_default AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(sd.value, '$.targetHost')   AS host,
+    json_extract(sd.value, '$.id')           AS id,
+    json_extract(sd.value, '$.severity')     AS severity,
+    json_extract(sd.value, '$.finding')      AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.serverDefaults') sd
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json' AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+
+-- View: tem_testssl_header_response
+-- --------------------------------------------
+-- This view extracts the "headerResponse" section from TestSSL JSON scan results.
+-- For each host in a TestSSL scan, it retrieves:
+--   - header_response_id: The identifier of the header response check
+--   - severity: Severity level of the finding
+--   - finding: Description of the finding
+-- The view links the scan data to the uniform_resource table via uniform_resource_id
+-- and filters only JSON entries with a valid targetHost.
+DROP VIEW IF EXISTS tem_testssl_header_response;
+CREATE VIEW tem_testssl_header_response AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(fs.value, '$.id')          AS header_response_id,
+    json_extract(fs.value, '$.severity')    AS severity,
+    json_extract(fs.value, '$.finding')     AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.headerResponse') fs
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json'
+  AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+
+-- View: tem_testssl_vulnerabilitie
+-- --------------------------------------------
+-- This view extracts the "vulnerabilities" section from TestSSL JSON scan results.
+-- For each host in a TestSSL scan, it retrieves:
+--   - vulnerability_id: The identifier of the vulnerability check
+--   - severity: Severity level of the finding
+--   - finding: Description of the finding
+-- The view links the scan data to the uniform_resource table via uniform_resource_id
+-- and filters only JSON entries with a valid targetHost.
+DROP VIEW IF EXISTS tem_testssl_vulnerabilitie;
+CREATE VIEW tem_testssl_vulnerabilitie AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(fs.value, '$.id')          AS vulnerability_id,
+    json_extract(fs.value, '$.severity')    AS severity,
+    json_extract(fs.value, '$.finding')     AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.vulnerabilities') fs
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json'
+  AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- View: tem_testssl_browser_simulation
+-- --------------------------------------------
+-- This view extracts the "browserSimulations" section from TestSSL JSON scan results.
+-- For each host in a TestSSL scan, it retrieves:
+--   - simulation_id: The identifier of the browser simulation check
+--   - severity: Severity level of the finding
+--   - finding: Description of the finding
+-- The view links the scan data to the uniform_resource table via uniform_resource_id
+-- and filters only JSON entries with a valid targetHost.
+DROP VIEW IF EXISTS tem_testssl_browser_simulation;
+CREATE VIEW tem_testssl_browser_simulation AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(fs.value, '$.id')          AS simulation_id,
+    json_extract(fs.value, '$.severity')    AS severity,
+    json_extract(fs.value, '$.finding')     AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.browserSimulations') fs
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json'
+  AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+-- View: tem_testssl_rating
+-- --------------------------------------------
+-- This view extracts the "rating" section from TestSSL JSON scan results.
+-- For each host in a TestSSL scan, it retrieves:
+--   - rating_id: The identifier of the rating check
+--   - severity: Severity level of the finding
+--   - finding: Description of the finding or rating result
+-- The view links the scan data to the uniform_resource table via uniform_resource_id
+-- and filters only JSON entries with a valid targetHost.
+DROP VIEW IF EXISTS tem_testssl_rating;
+CREATE VIEW tem_testssl_rating AS
+SELECT
+    ur.uniform_resource_id,
+    t.tenant_id,
+    t.tanent_name,
+    ts.ur_ingest_session_id,
+    json_extract(s.value, '$.targetHost')   AS host,
+    json_extract(fs.value, '$.id')          AS rating_id,
+    json_extract(fs.value, '$.severity')    AS severity,
+    json_extract(fs.value, '$.finding')     AS finding,
+    ur.uri
+FROM uniform_resource ur
+INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+JOIN json_each(ur.content, '$.scanResult') s
+JOIN json_each(s.value, '$.rating') fs
+WHERE ur.uri LIKE '%testssl%'
+  AND ur.nature = 'json'
+  AND json_extract(s.value, '$.targetHost') NOT NULL;
