@@ -710,13 +710,13 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
   '<details class="test-detail-outer-accordion" open>
     <summary class="test-detail-outer-summary">
       Policy Generator Prompt 
-      <br>
-      Create tailored policies directly for <b>Control Code: ' || hipaa_security_rule_reference || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>
-      The **Policy Generator Prompt** lets you transform abstract requirements into actionable, 
-      written policies. Simply provide the relevant control or framework element, and the prompt
-      will guide you in producing a policy that aligns with best practices, regulatory standards, 
-      and organizational needs. This makes policy creation faster, consistent, and accessible—even 
-      for teams without dedicated compliance writers.
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || hipaa_security_rule_reference || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
     </summary>
     <div class="test-detail-outer-content">' AS html
 FROM hipaa_security_rule_safeguards
@@ -727,7 +727,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT
       '\n' || p.body_text AS description_md
       FROM ai_ctxe_complaince_prompt p
-      WHERE p.control_id = $id AND p.documentType = 'Author-Prompt'
+      WHERE p.control_id = $id AND p.documentType = 'Author Prompt'
       ;
 
     
@@ -741,7 +741,7 @@ SELECT 'html' AS component,
     <summary class="test-detail-outer-summary">
       Policy Audit Prompt 
       <br>
-      Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
     </summary>
     <div class="test-detail-outer-content">' AS html
 FROM hipaa_security_rule_safeguards
@@ -751,7 +751,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT
       '\n' || p.body_text AS description_md
       FROM ai_ctxe_complaince_prompt p
-      WHERE p.control_id = $id AND p.documentType = 'Audit-Prompt'
+      WHERE p.control_id = $id AND p.documentType = 'Audit Prompt'
       ;
  SELECT 'html' AS component,
       '</div></details>' AS html;
@@ -762,7 +762,7 @@ SELECT 'html' AS component,
     <summary class="test-detail-outer-summary">
       Generated Policies
       <br>
-      The Generated Policies section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
     </summary>
     <div class="test-detail-outer-content">' AS html
 FROM hipaa_security_rule_safeguards
