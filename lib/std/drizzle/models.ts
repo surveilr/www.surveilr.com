@@ -13,9 +13,9 @@ import {
   sqliteView,
   text,
   unique,
-} from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
-import { relations } from "drizzle-orm";
+} from "npm:drizzle-orm/sqlite-core";
+import { sql } from "npm:drizzle-orm";
+import { relations } from "npm:drizzle-orm";
 
 // Custom types to match legacy SQL types
 const timestamptz = customType<{ data: string; driverData: string }>({ 
