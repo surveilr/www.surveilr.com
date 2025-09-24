@@ -1,8 +1,8 @@
 // ============================================================================
 // VIEWS - ALL views from the RSSD system (using proper Drizzle patterns)
 // ============================================================================
-import { sqliteView } from "npm:drizzle-orm/sqlite-core"
-import { sql, count, avg, min, max, sum, eq, and, desc, asc } from "npm:drizzle-orm"
+import { sqliteView } from "drizzle-orm/sqlite-core"
+import { sql, count, avg, min, max, sum, eq, and, desc, asc } from "drizzle-orm"
 import { 
   codeNotebookCell, 
   codeNotebookKernel,

@@ -29,10 +29,14 @@
 // TL;DR: This script focuses on **learning Drizzle's typesafe query
 // generation** and **migration tooling** without requiring a persistent database.
 
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 const {
   generateSQLiteDrizzleJson: generateDrizzleJson,
   generateSQLiteMigration: generateMigration,
-} = await import("npm:drizzle-kit/api");
+} = require(
+  "drizzle-kit/api",
+) as typeof import("npm:drizzle-kit/api");
 import * as schema from "./models.ts";
 import * as views from "./views.ts";
 import { SQL, inlinedSQL } from "../../universal/sql-text.ts";
