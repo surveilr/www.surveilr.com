@@ -1,8 +1,8 @@
 ---
-title: "HIPAA 164.308(a)(3)(ii)(A) - Author Prompt"
+title: "Employee Authorization Author Prompt"
 weight: 1
-description: "Authoring prompt for HIPAA control 164.308(a)(3)(ii)(A)"
-publishDate: "2025-09-23"
+description: "Employee Authorization Procedures This control ensures that procedures are in place for the authorization and supervision of employees who access or handle Electronic Protected Health Information (EPHI). It outlines the necessary steps to verify employee access rights and provides guidelines for monitoring their interactions with EPHI to maintain data security and compliance with HIPAA regulations."
+publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,7 +14,7 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for the following control:
+You are an expert AI policy author specializing in Surveilr-based machine-attestable HIPAA compliance policies. Your task is to write a policy for the following control:
 
 **Control Code**: 164.308(a)(3)(ii)(A)  
 **Control Question**: Have you implemented procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed? (A)  
@@ -26,7 +26,6 @@ You are an expert AI policy author specializing in Surveilr-based machine-attest
 - API integrations with SaaS/cloud providers  
 - Log/config ingestion  
 - Automated scripts  
-
 **Human Attestation**: Only when automation is impossible. Must be specific and verifiable. Examples:  
 - Manager certifies asset inventory review quarterly  
 - Signed HR training logs  
@@ -48,10 +47,5 @@ Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (
 - **References** (with `### _References_`)  
 
 **Attestation Guidance**:  
-- Machine Attestation: e.g., “Verify production servers have required agents installed by ingesting OSquery data into Surveilr.”  
-- Human Attestation: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”  
-
-**Markdown and Formatting Rules**:  
-- Use standard Markdown (headings, bullets, bold, inline code).  
-- Use `[Link Text](URL)` for citations.  
-- Do not include SQL queries.
+- **Machine Attestation**: e.g., “Verify employee access controls are configured properly by ingesting OSquery data into Surveilr.”  
+- **Human Attestation**: e.g., “HR Manager must sign the employee access authorization logs quarterly, then upload to Surveilr with metadata.”

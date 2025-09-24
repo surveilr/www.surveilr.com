@@ -1,8 +1,8 @@
 ---
-title: "HIPAA 164.308(a)(1)(ii)(B) - Author Prompt"
+title: "Risk Management Author Prompt"
 weight: 1
-description: "Authoring prompt for HIPAA control 164.308(a)(1)(ii)(B)"
-publishDate: "2025-09-23"
+description: "Risk Management Compliance The risk management process must be conducted in accordance with the National Institute of Standards and Technology (NIST) guidelines to ensure that all potential risks to sensitive information are identified, assessed, and mitigated appropriately. This involves a systematic approach to evaluating threats and vulnerabilities, implementing necessary safeguards, and regularly reviewing and updating the risk management strategies to maintain compliance with HIPAA regulations. Adhering to these guidelines helps organizations protect patient information and reduce the likelihood of data breaches."
+publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -14,7 +14,7 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for the following control:
+You are an expert AI policy author specializing in Surveilr-based machine-attestable HIPAA compliance policies. Your task is to write a policy for the following control:
 
 **Control Code**: 164.308(a)(1)(ii)(B)  
 **Control Question**: Has the risk management process been completed using IAW NIST Guidelines? (R)  
@@ -34,23 +34,18 @@ You are an expert AI policy author specializing in Surveilr-based machine-attest
 - Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
 **Required Policy Document Structure**:  
-- **Introduction** – concise purpose  
-- **Policy Statement** – high-level declaration  
-- **Scope** – what/who it applies to  
-- **Responsibilities** – clear roles/duties  
-- **Evidence Collection Methods** – with subheadings per requirement:  
-  - Explanation  
-  - Machine Attestation  
-  - Human Attestation (if unavoidable)  
-- **Verification Criteria**  
-- **Exceptions**  
-- **References** (with `### _References_`)  
+1. **Introduction** – concise purpose  
+2. **Policy Statement** – high-level declaration  
+3. **Scope** – what/who it applies to  
+4. **Responsibilities** – clear roles/duties  
+5. **Evidence Collection Methods** – with subheadings per requirement:  
+   - Explanation  
+   - Machine Attestation  
+   - Human Attestation (if unavoidable)  
+6. **Verification Criteria**  
+7. **Exceptions**  
+8. **References** (with `### _References_`)  
 
 **Attestation Guidance**:  
 - Machine Attestation: e.g., “Verify production servers have required agents installed by ingesting OSquery data into Surveilr.”  
-- Human Attestation: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”  
-
-Please ensure to follow the Markdown and Formatting Rules:  
-- Use standard Markdown (headings, bullets, bold, inline code).  
-- Use `[Link Text](URL)` for citations.  
-- Do not include SQL queries.
+- Human Attestation: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”
