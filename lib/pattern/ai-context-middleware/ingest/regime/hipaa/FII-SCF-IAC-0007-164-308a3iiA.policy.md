@@ -1,8 +1,8 @@
 ---
-title: "EPHI Access Authorization Policy"
+title: "ePHI Access Control Policy"
 weight: 1
-description: "Establishes procedures for authorizing and supervising employees accessing Electronic Protected Health Information (EPHI)."
-publishDate: "2025-09-24"
+description: "Establishes procedures for authorizing and supervising access to electronic Protected Health Information (ePHI)."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,62 +11,68 @@ control-id: "164.308(a)(3)(ii)(A)"
 control-question: "Have you implemented procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed? (A)"
 fiiId: "FII-SCF-IAC-0007, FII-SCF-IAC-0007.1"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-# HIPAA Compliance Policy Document for Control 164.308(a)(3)(ii)(A)
+# Policy Document for Control: 164.308(a)(3)(ii)(A)
 
-## **Introduction**
-This policy outlines the procedures for the authorization and supervision of employees who work with Electronic Protected Health Information (EPHI) or in locations where it might be accessed. It ensures compliance with HIPAA requirements while leveraging Surveilr for effective evidence collection and management.
+## Introduction
+The purpose of this policy is to establish procedures for the authorization and supervision of employees who work with electronic Protected Health Information (ePHI) or in locations where ePHI might be accessed. This policy ensures compliance with HIPAA requirements and protects the confidentiality, integrity, and availability of ePHI.
 
-## **Policy Statement**
-The organization is committed to implementing and maintaining procedures for the authorization and supervision of employees who interact with EPHI. This policy aims to safeguard sensitive health information from unauthorized access and ensure that all personnel have the necessary training and supervision to handle such information responsibly.
+## Policy Statement
+This policy mandates the implementation of strict controls for the authorization and supervision of workforce members accessing ePHI. These controls are essential to minimize unauthorized access and ensure responsible handling of sensitive health information.
 
-## **Scope**
-This policy applies to all employees, contractors, and third-party vendors who have access to EPHI or work in areas where EPHI is stored or processed. It encompasses all locations, systems, and operational processes involving EPHI.
+## Scope
+This policy applies to all employees, contractors, and third-party vendors who have access to ePHI across all organizational environments, including:
+- On-premises systems
+- Cloud-hosted systems
+- SaaS applications
+- Third-party vendor systems
 
-## **Responsibilities**
-- **Compliance Officer**: Oversees the implementation of authorization and supervision procedures, monitors compliance, and ensures regular audits are conducted.
-- **Human Resources (HR)**: Responsible for employee training and maintaining records of training completion and employee roles concerning EPHI access.
-- **IT Department**: Implements technical controls and ensures that machine attestation methods are in place for monitoring compliance.
-- **Supervisors/Managers**: Ensure that employees under their supervision are properly trained and authorized to access EPHI.
+## Responsibilities
+- **Compliance Officer**: Oversee policy implementation and conduct regular reviews.
+- **HR Manager**: Ensure employee roles and access permissions are accurately maintained and updated.
+- **IT Security Team**: Monitor access logs and ensure compliance with access control measures.
+- **All Employees**: Acknowledge and adhere to the policy requirements.
 
-## **Evidence Collection Methods**
+## Evidence Collection Methods
 
-### **1. Authorization Procedures**
-#### **Explanation**
-The organization will define and document the criteria for employee access to EPHI based on job roles and responsibilities.
+### Authorization Procedures
+- **Requirement**: Implement procedures for authorizing access to ePHI.
+- **Machine Attestation**: 
+  - Utilize OSquery to collect and validate access logs for all employees with ePHI access.
+  - Integrate with HR systems to automate verification of employee roles and access permissions.
+- **Human Attestation**:
+  - The HR manager must sign off on the quarterly review of employee access logs.
 
-#### **Machine Attestation**
-- Verify the role-based access control configurations in all systems handling EPHI by ingesting logs from the access management system into Surveilr.
+### Supervision Procedures
+- **Requirement**: Supervise employees who access ePHI.
+- **Machine Attestation**:
+  - Automate monitoring of user activity through security information and event management (SIEM) systems.
+- **Human Attestation**:
+  - Conduct biannual training sessions, with attendance records signed by the Compliance Officer.
 
-#### **Human Attestation**
-- HR must maintain signed acknowledgment forms from employees regarding their access rights and responsibilities, to be uploaded to Surveilr with metadata.
+## Verification Criteria
+- All access permissions must be reviewed at least quarterly.
+- Logs of employee access must be maintained for a minimum of six years.
+- Evidence of training and access reviews must be documented and available for audits.
 
-### **2. Supervision Procedures**
-#### **Explanation**
-Supervision procedures will be established to ensure that employees with access to EPHI are regularly monitored and supervised by qualified personnel.
+## Attestation Guidance
 
-#### **Machine Attestation**
-- Utilize API integrations with monitoring tools to collect data on user activity related to EPHI access, which will be ingested into Surveilr for validation.
+### Machine Attestation
+- Verify access to ePHI is limited to authorized personnel by reviewing logs ingested into Surveilr.
+- Utilize automated scripts to generate reports on access patterns and anomalies.
 
-#### **Human Attestation**
-- Supervisors must conduct quarterly reviews of employee access logs and submit signed reports to Surveilr, including metadata about the reviewer and date.
+### Human Attestation
+- The Compliance Officer must sign a quarterly report certifying that all access controls are reviewed.
+- The HR manager must compile and present a summary of access control changes to the Compliance Officer.
 
-## **Verification Criteria**
-- Compliance will be verified through automated reports generated by Surveilr, logging any unauthorized access attempts, and confirming that all personnel have completed required training and authorization processes.
-- Human attestations will be reviewed during internal audits to ensure their accuracy and completeness.
+## Policy Lifecycle Requirements
+- **Data Retention**: Access logs and evidence must be retained for a minimum of six years.
+- **Policy Review**: This policy must be reviewed and updated at least annually or when significant changes occur in the organizational structure or regulations.
 
-## **Exceptions**
-Any exceptions to this policy must be documented and approved by the Compliance Officer. These exceptions will be evaluated based on the risks associated with EPHI access and supervision.
+## Formal Documentation and Audit
+All workforce members must acknowledge their understanding of this policy and their compliance obligations. Comprehensive audit logging must be maintained for all critical actions related to access authorization and supervision of ePHI.
 
-## **References**
-### _References_
-- HIPAA Privacy Rule (45 CFR Part 160 and Subparts A and E of Part 164)
-- HIPAA Security Rule (45 CFR Part 160 and Subparts A and C of Part 164)
-- NIST Special Publication 800-53, Security and Privacy Controls for Information Systems and Organizations
-- Organizational Training and Awareness Programs on HIPAA compliance
-
----
-
-This policy is effective immediately and will be reviewed annually or as required by changes in regulations or organizational structure. Compliance with this policy is mandatory for all affected personnel.
+### References
+None

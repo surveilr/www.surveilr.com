@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Management Policy"
+title: "Risk Management Compliance Policy"
 weight: 1
-description: "Establishes a comprehensive risk management process to protect PHI in compliance with HIPAA and NIST guidelines."
-publishDate: "2025-09-24"
+description: "Establishes a framework for conducting and documenting risk management processes per NIST guidelines."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,61 +11,56 @@ control-id: "164.308(a)(1)(ii)(B)"
 control-question: "Has the risk management process been completed using IAW NIST Guidelines? (R)"
 fiiId: "FII-SCF-RSK-0004"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-# HIPAA Compliance Policy Document
+# Risk Management Process Compliance Policy
 
 ## Introduction
-This policy establishes the framework for ensuring that the risk management process is conducted in accordance with the National Institute of Standards and Technology (NIST) guidelines, as required by HIPAA control code 164.308(a)(1)(ii)(B). The purpose of this policy is to uphold the confidentiality, integrity, and availability of protected health information (PHI) through effective risk management.
+The purpose of this policy is to establish a comprehensive framework for completing the risk management process in accordance with the National Institute of Standards and Technology (NIST) guidelines. This policy aims to ensure that all risk assessments are conducted, documented, and validated consistently, thereby enhancing the organization's ability to manage and mitigate risks effectively.
 
-## Policy Statement
-The organization is committed to completing a comprehensive risk management process that adheres to NIST guidelines. This process will be regularly validated and documented to ensure compliance and to mitigate potential risks to PHI.
+## Policy Sections
 
-## Scope
-This policy applies to all employees, contractors, and third-party service providers who manage, handle, or have access to PHI within the organization. It encompasses all activities related to the risk management process as stipulated in NIST guidelines.
+### Risk Management Process Requirement
+The organization is required to complete a risk management process that aligns with NIST guidelines. This includes identifying, assessing, and responding to risks to the organization’s assets, individuals, and operations.
+
+- **Machine Attestation Methods:**
+  - Utilize automated tools to collect risk assessment data and verify completion status. For instance, system logs should be leveraged to confirm that risk assessments are conducted at defined intervals.
+  
+- **Human Attestation Methods:**
+  - In situations where automation is impractical, managerial sign-off on risk management documentation is required. Managers must review and approve all risk assessments to ensure compliance with established protocols.
+
+### Evidence Collection Methods
+- **Explanation of Requirement:**
+  - A documented risk management process is essential for compliance and accountability. It serves as a record of risk assessments and the organization’s response strategies.
+  
+- **Machine Attestation Approach:**
+  - Evidence of risk assessments must be collected and verified automatically. For example, risk assessment reports should be ingested into the Surveilr platform for validation and compliance tracking.
+  
+- **Human Attestation (if unavoidable):**
+  - When automated methods cannot be employed, risk assessment documentation must be completed and signed by relevant personnel to ensure accountability.
+
+### Verification Criteria
+To validate compliance with this policy, the following measurable criteria must be adhered to:
+- Risk assessments must be completed quarterly, with comprehensive reports submitted for review to the Compliance Officer.
+- Any identified risks must be documented, along with the corresponding mitigation strategies and follow-up actions.
 
 ## Responsibilities
-- **Risk Management Officer**: Responsible for overseeing the risk management process and ensuring compliance with NIST guidelines.
-- **Compliance Team**: Responsible for the collection, storage, and querying of compliance evidence using Surveilr.
-- **IT Security Team**: Responsible for implementing machine attestation methods and ensuring technical controls are in place.
-- **Management**: Responsible for human attestation where automation is not feasible.
+The following roles are responsible for specific tasks within the risk management process:
+- **Compliance Officer:** Review risk management reports quarterly and ensure adherence to policy requirements.
+- **IT Security:** Conduct bi-annual risk assessments, document findings, and facilitate the review process.
+- **Management:** Provide oversight and sign-off on risk assessment documentation.
 
-## Evidence Collection Methods
+## Policy Lifecycle Requirements
+- All risk assessment documentation must be retained for a minimum of six years to comply with regulatory requirements and organizational standards.
+- This policy must be reviewed and updated at least annually to ensure its effectiveness and relevance to current practices.
 
-### Explanation
-The organization will utilize both machine and human attestation to verify the completion of the risk management process. This ensures a robust and reliable evidence collection strategy in compliance with HIPAA and NIST guidelines.
+## Formal Documentation and Audit
+All workforce members are required to acknowledge their understanding and compliance with this policy. Additionally, comprehensive audit logging must be implemented for all critical actions related to the risk management process, ensuring traceability and accountability.
 
-### Machine Attestation
-- **Procedure**: Utilize Surveilr to automatically ingest and analyze assessment data related to the risk management process.
-- **Implementation**: 
-  - Endpoint configurations will be validated using `OSquery` to ensure compliance with established security standards.
-  - API integrations with SaaS/cloud providers will be monitored to ensure that risk assessments are conducted and documented.
-  - Automated scripts will be used to collect logs and configuration data to verify that the risk management process has been followed.
-
-### Human Attestation (if unavoidable)
-- **Procedure**: In instances where automated attestation is not feasible, human attestation will be employed.
-- **Implementation**: 
-  - The Risk Management Officer must sign the completed risk management report, certifying its accuracy.
-  - The signed report must be uploaded to Surveilr along with relevant metadata (reviewer, date, outcome) for future querying.
-
-## Verification Criteria
-The completion of the risk management process will be verified through:
-- Successful ingestion of relevant assessment data into Surveilr.
-- Signed documentation from the Risk Management Officer confirming the process completion.
-- Audit logs from the Surveilr system indicating compliance evidence collection.
-
-## Exceptions
-Any exceptions to this policy must be documented and approved by the Risk Management Officer. Exceptions may include scenarios where machine attestation methods are impractical or where human attestation is necessary due to specific operational constraints.
-
-## References
-- HIPAA Security Rule: 45 CFR §164.308(a)(1)(ii)(B)
-- NIST Special Publication 800-30: Guide for Conducting Risk Assessments
-- NIST Special Publication 800-53: Security and Privacy Controls for Information Systems and Organizations
-
-### _References_
-- FII-SCF-RSK-0004
+### References
+None
 
 ---
 
-This policy document should be reviewed annually, or as necessary, to ensure ongoing compliance with HIPAA and NIST guidelines. All staff members are required to familiarize themselves with these procedures and adhere to the processes outlined herein.
+This policy document is designed to ensure that the risk management process is completed in accordance with NIST guidelines, thereby safeguarding the organization against potential risks and ensuring compliance with regulatory standards.

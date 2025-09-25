@@ -1,8 +1,8 @@
 ---
-title: "Author Prompt: HIPAA Sanctions Compliance Policy"
+title: "Author Prompt: Employee Security Compliance Policy"
 weight: 1
-description: "Imposes formal sanctions on employees for non-compliance with HIPAA security policies and procedures."
-publishDate: "2025-09-24"
+description: "Establishes formal sanctions for employees failing to comply with security policies and procedures."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,46 +11,55 @@ control-id: "164.308(a)(1)(ii)(C)"
 control-question: "Do you have formal sanctions against employees who fail to comply with security policies and procedures? (R)"
 fiiId: "FII-SCF-HRS-0007"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-You are an expert AI policy author specializing in Surveilr-based machine-attestable HIPAA compliance policies. Your task is to write a policy for the following control:
+You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for Control: "164.308(a)(1)(ii)(C)" (FII: FII-SCF-HRS-0007). 
 
-**Control Code**: 164.308(a)(1)(ii)(C)  
-**Control Question**: Do you have formal sanctions against employees who fail to comply with security policies and procedures? (R)  
-**Internal ID**: FII-SCF-HRS-0007  
+The policy must adhere to the following structure and guidelines:
 
-### Introduction
-- Provide a concise purpose of the policy regarding sanctions for non-compliance with security policies and procedures.
+1. **Document Structure:**
+   - **Introduction:** Concise purpose of the policy.
+   - **Policy Sections:** Use H2 headings (##) per major requirement. Each section should:
+     - Explain the control requirement.
+     - Suggest machine attestation methods (e.g., "Use OSquery to collect asset inventories daily").
+     - Suggest human attestation methods where unavoidable (e.g., "Manager signs quarterly inventory validation report").
+   - **References:** End with ### References.
 
-### Policy Statement
-- Draft a high-level declaration that outlines the organization's commitment to enforcing compliance through formal sanctions.
+2. **Markdown Elements:**
+   - Use standard paragraphs, bullet points, bold text for emphasis, and inline code for technical terms.
+   - Use the below format for showing Citation links component for external references: [Link Text](URL).
 
-### Scope
-- Define what and who the policy applies to, including all employees and relevant stakeholders.
+3. **Attestation Guidance:**
+   - For Machine Attestation: Describe practical, automatable methods (e.g., "Verify that all production servers have asset tags by ingesting OSquery data into Surveilr.").
+   - For Human Attestation: Describe precise steps and artifacts (e.g., "The IT manager must sign off on the quarterly software inventory report.").
 
-### Responsibilities
-- Clearly outline roles and duties associated with enforcing the policy, including management and compliance officers.
+4. **Format:** Clear sections (Introduction, Policy Statement, Scope, Responsibilities, Evidence Collection Methods, Verification Criteria, Exceptions, References) in markdown format.
 
-### Evidence Collection Methods
-- #### Explanation
-  - Describe how evidence will be collected to demonstrate compliance with this policy.
-  
-- #### Machine Attestation
-  - Provide examples of machine attestation, such as automated tracking of policy acknowledgments through Surveilr.
+5. **Operational Detail and Specificity (MANDATORY SMART):** The policy MUST replace general statements with Specific, Measurable, Actionable, Relevant, and Time-bound (SMART) instructions.
 
-- #### Human Attestation (if unavoidable)
-  - Outline circumstances under which human attestation is required, such as signed acknowledgment forms.
+6. **Comprehensive Scope Definition (MANDATORY):** Explicitly define the policy's scope to include ALL relevant entities and environments, covering cloud-hosted systems, SaaS applications, and third-party vendor systems.
 
-### Verification Criteria
-- Specify the criteria that will be used to verify compliance with the policy.
+7. **Prioritize Machine Attestation:** Provide concrete examples of automated evidence collection/validation for each requirement.
 
-### Exceptions
-- Detail any exceptions to the policy and the process for requesting them.
+8. **Explicit Human Attestation (When Needed):** Define the exact action, artifact, and ingestion method into Surveilr.
 
-### References
-- Provide relevant references with `### _References_` for further reading and compliance guidelines.
+9. **Granular Roles and Cross-Referencing (MANDATORY):** The Responsibilities section MUST define specific, task-level duties for each role mentioned and explicitly link to related organizational plans.
 
-### Attestation Guidance
-- **Machine Attestation**: e.g., “Automatically track employee policy acknowledgments through Surveilr to ensure compliance.”
-- **Human Attestation**: e.g., “HR must maintain signed records of employee compliance training and sanctions, then upload them to Surveilr with metadata.”
+10. **Policy Lifecycle Requirements (MANDATORY):** The policy MUST contain a dedicated subsection detailing minimum data retention periods for evidence/logs and mandatory frequency for policy review and update.
+
+11. **Formal Documentation and Audit (MANDATORY):** The policy MUST require workforce member acknowledgment/attestation of understanding and compliance.
+
+12. **Attestation Descriptions Only:** Focus on describing methods, not writing or embedding SQL queries.
+
+13. **Evidence Collection Methods:** Include subheadings per requirement with explanations, machine attestation approaches, and human attestation descriptions if unavoidable.
+
+14. **Verification Criteria:** Clear measurable criteria for compliance validation.
+
+15. **Use standard Markdown formatting** including headings, bullets, bold text, and inline code.
+
+16. **Use [Link Text](URL) format for external references.**
+
+17. **End with ### References section.** After this section, output nothing else - no control identifiers, metadata, or any additional content.
+
+Write the policy ensuring that it maximizes machine attestability while clearly documenting where human attestation is unavoidable. Ensure that the policy is comprehensive and precise, adhering to the guidelines above.

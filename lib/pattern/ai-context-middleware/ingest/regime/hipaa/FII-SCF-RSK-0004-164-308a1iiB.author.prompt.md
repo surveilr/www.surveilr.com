@@ -1,8 +1,8 @@
 ---
-title: "Author Prompt: HIPAA Risk Management Policy"
+title: "Author Prompt: Risk Management Compliance Policy"
 weight: 1
-description: "Establishes a comprehensive risk management process to protect PHI in compliance with HIPAA and NIST guidelines."
-publishDate: "2025-09-24"
+description: "Establishes a framework for conducting and documenting risk management processes per NIST guidelines."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,43 +11,47 @@ control-id: "164.308(a)(1)(ii)(B)"
 control-question: "Has the risk management process been completed using IAW NIST Guidelines? (R)"
 fiiId: "FII-SCF-RSK-0004"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for the following control:
+You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for Control: "Has the risk management process been completed using IAW NIST Guidelines? (R)" (FII: FII-SCF-RSK-0004).
 
-**Control Code**: 164.308(a)(1)(ii)(B)  
-**Control Question**: Has the risk management process been completed using IAW NIST Guidelines? (R)  
-**Internal ID**: FII-SCF-RSK-0004  
+## Introduction
+- Clearly state the purpose of the policy regarding the risk management process in accordance with NIST guidelines.
 
-Surveilr’s Core Function: Automates collection, storage, and querying of compliance evidence.  
-Machine Attestation: Evidence that can be automatically validated. Examples:  
-- Endpoint configuration via `OSquery`  
-- API integrations with SaaS/cloud providers  
-- Log/config ingestion  
-- Automated scripts  
+## Policy Sections
+### Risk Management Process Requirement
+- Describe the control requirement for completing the risk management process.
+- **Machine Attestation Methods:** 
+  - Suggest using automated tools to collect risk assessment data and validate completion status.
+  - Example: "Utilize system logs to verify that risk assessments are conducted at defined intervals."
+- **Human Attestation Methods:** 
+  - Define actions required when automation is impractical, such as managerial sign-off on risk management documentation.
 
-Human Attestation: Only when automation is impossible. Must be specific and verifiable. Examples:  
-- Manager certifies asset inventory review quarterly  
-- Signed HR training logs  
-- Physical inspection reports  
+### Evidence Collection Methods
+- **Explanation of Requirement:** 
+  - Outline the necessity for a documented risk management process.
+- **Machine Attestation Approach:** 
+  - Describe how evidence of risk assessments can be automatically collected and verified.
+  - Example: "Ingest risk assessment reports into Surveilr for validation."
+- **Human Attestation (if unavoidable):** 
+  - Specify documentation and methods for human attestation, such as signed reports.
 
-Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
+### Verification Criteria
+- Detail measurable criteria for compliance validation, such as "Risk assessments must be completed quarterly, with reports submitted for review."
 
-### Policy Document Structure
-- **Introduction** – concise purpose  
-- **Policy Statement** – high-level declaration  
-- **Scope** – what/who it applies to  
-- **Responsibilities** – clear roles/duties  
-- **Evidence Collection Methods** – with subheadings per requirement:  
-  - Explanation  
-  - Machine Attestation  
-  - Human Attestation (if unavoidable)  
-- **Verification Criteria**  
-- **Exceptions**  
-- **References**  
-  ### _References_
+## Responsibilities
+- Define specific, task-level duties for roles involved in the risk management process.
+  - Example: "Compliance Officer: Review risk management reports quarterly; IT Security: Conduct risk assessments bi-annually."
 
-### Attestation Guidance
-- **Machine Attestation**: e.g., “Verify risk management process completion by ingesting relevant assessment data into Surveilr.”  
-- **Human Attestation**: e.g., “Risk Management Officer must sign the completed risk management report, then upload to Surveilr with metadata.”
+## Policy Lifecycle Requirements
+- Detail minimum data retention periods for risk assessment documentation (e.g., "retain for 6 years").
+- Specify mandatory frequency for policy review and update (e.g., "reviewed at least annually").
+
+## Formal Documentation and Audit
+- Require workforce member acknowledgment of understanding and compliance with the policy.
+- Mandate comprehensive audit logging for all critical actions related to risk management.
+
+### References
+### References
+None

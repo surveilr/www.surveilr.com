@@ -1,8 +1,8 @@
 ---
-title: "Audit Prompt: EPHI Access Termination Policy"
+title: "Audit Prompt: ePHI Access Termination Policy"
 weight: 1
-description: "Terminate access to Electronic Protected Health Information (EPHI) promptly for departing employees and under specific circumstances."
-publishDate: "2025-09-24"
+description: "Establishes procedures for promptly terminating access to electronic Protected Health Information upon employee exit."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,10 +11,10 @@ control-id: "164.308(a)(3)(ii)(C)"
 control-question: "Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)"
 fiiId: "FII-SCF-IAC-0007.2"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-You're an **official auditor**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
+You're an **official auditor (e.g., auditor)**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
 
 **Understanding Surveilr, Machine Attestation, and Human Attestation (for Evidence Assessment):**
 
@@ -31,30 +31,30 @@ You're an **official auditor**, expert in **Surveilr**-based attestation, skille
 
 **Audit Context:**
 
-  * **Audit Standard/Framework:** HIPAA
-  * **Control's Stated Purpose/Intent:** "To ensure that access to Electronic Protected Health Information (EPHI) is terminated when an employee leaves the organization or as required by relevant regulations."
-  * **Control Code:** 164.308(a)(3)(ii)(C)
-  * **Control Question:** Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)
-  * **Internal ID (Foreign Integration Identifier as FII):** FII-SCF-IAC-0007.2
+  * **Audit Standard/Framework:** [HIPAA]
+** Control's Stated Purpose/Intent:** "Terminate access to electronic Protected Health Information (ePHI) when an employee exits the organization or as mandated."
+Control Code: 164.308(a)(3)(ii)(C),
+Control Question: "Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)"
+Internal ID (Foreign Integration Identifier as FII): FII-SCF-IAC-0007.2
   * **Policy/Process Description (for context on intent and expected evidence):**
-    "This policy outlines the procedures implemented to ensure that access to Electronic Protected Health Information (EPHI) is terminated when an employee leaves the organization or as mandated by relevant regulations. This is essential for maintaining the confidentiality, integrity, and availability of EPHI in accordance with HIPAA regulations."
-  * **Provided Evidence for Audit:** "OSquery results confirming that access permissions for terminated employees have been removed, along with a scanned employee termination checklist signed by HR, certifying that all access to EPHI has been terminated."
+    "The purpose of this policy is to establish procedures for terminating access to electronic Protected Health Information (ePHI) when an employee exits the organization or as mandated. This policy aims to ensure compliance with regulatory requirements and maintain the confidentiality, integrity, and availability of ePHI. Access to ePHI must be terminated promptly to mitigate risks associated with unauthorized access. This policy outlines the procedures, responsibilities, and methods for both machine and human attestation regarding access termination."
+  * **Provided Evidence for Audit:** "Automated access logs collected via OSquery show that employee access to ePHI is disabled within 24 hours of termination. Weekly audits were conducted confirming no unauthorized access to ePHI by terminated employees. Signed termination checklists from HR manager are uploaded to Surveilr with relevant metadata."
 
 **Requirements for Your Audit Report (Structured format):**
 
 # Official Audit Report: HIPAA - 164.308(a)(3)(ii)(C)
 
-**Overall Audit Result: [PASS/FAIL]**
+**Overall Audit Result: [PASS]**
 **Date of Audit:** [Current Date, e.g., 2025-07-28]
 **Auditor Role:** [Your designated auditor role, e.g., HIPAA Auditor]
-**Control Code:** 164.308(a)(3)(ii)(C)
-**Control Question:** Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)
-**Internal ID (FII):** FII-SCF-IAC-0007.2
-**Control's Stated Purpose/Intent:** To ensure that access to Electronic Protected Health Information (EPHI) is terminated when an employee leaves the organization or as required by relevant regulations.
+**Control Code:** [Control Code from input]
+**Control Question:** [Control Question from input]
+**Internal ID (FII):** [FII from input]
+**Control's Stated Purpose/Intent:** [Description of intent/goal from input]
 
 ## 1. Executive Summary
 
-[Provide a concise summary of the audit findings, the overall pass/fail rationale, and critical evidence gaps or compliance achievements. This section should clearly state the audit decision and the primary reasons.]
+The audit findings indicate full compliance with the control requirements regarding the termination of access to electronic Protected Health Information (ePHI). The provided evidence demonstrates that access is consistently terminated within the required timeframe, supported by both machine and human attestation. Automated access logs and signed checklists validate adherence to the policy.
 
 ## 2. Evidence Assessment Against Control Requirements
 
@@ -62,43 +62,48 @@ For each identifiable part of the control's "Expected Evidence" and the stated "
 
 ### 2.1 Machine Attestable Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Confirmation of removal of EPHI access for terminated employees.
-    * **Provided Evidence:** OSquery results confirming that access permissions for terminated employees have been removed.
-    * **Surveilr Method (as described/expected):** Automated OSquery data ingestion into Surveilr.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM access_logs WHERE user_status = 'terminated'; 
+* **Control Requirement/Expected Evidence:** Access to ePHI must be disabled within 24 hours of termination.
+    * **Provided Evidence:** Automated access logs confirm that employee access to ePHI is disabled within 24 hours of termination.
+    * **Surveilr Method (as described/expected):** OSquery collected access logs daily.
+    * **Conceptual/Actual SQL Query Context:** SELECT * FROM access_logs WHERE access_disabled = 'true' AND termination_date <= NOW() - INTERVAL '1 day';
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The OSquery results clearly demonstrate that access permissions have been successfully removed for all terminated employees, aligning with the control's requirement.
+    * **Justification:** The evidence clearly demonstrates that access is disabled as required, with logs affirming compliance.
+
+* **Control Requirement/Expected Evidence:** Weekly audits show no unauthorized access to ePHI by terminated employees.
+    * **Provided Evidence:** Weekly audit reports confirm compliance with no instances of unauthorized access.
+    * **Surveilr Method (as described/expected):** Automated weekly audits generated compliance reports.
+    * **Conceptual/Actual SQL Query Context:** SELECT * FROM access_logs WHERE access_status = 'unauthorized';
+    * **Compliance Status:** COMPLIANT
+    * **Justification:** The weekly audit reports provide sufficient evidence of compliance, confirming that no unauthorized access occurred.
 
 ### 2.2 Human Attestation Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Certification of access termination by HR.
-    * **Provided Evidence:** Scanned employee termination checklist signed by HR.
-    * **Human Action Involved (as per control/standard):** HR completed the employee termination checklist and signed it.
-    * **Surveilr Recording/Tracking:** The signed checklist is uploaded to Surveilr.
+* **Control Requirement/Expected Evidence:** Signed termination checklist upon employee exit.
+    * **Provided Evidence:** Signed checklists are uploaded to Surveilr with metadata.
+    * **Human Action Involved (as per control/standard):** HR manager signs off on the termination checklist upon exit.
+    * **Surveilr Recording/Tracking:** Surveilr records the signed checklist and associated metadata.
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The signed checklist provides human attestation of the termination process, further supporting compliance with the control's intent.
+    * **Justification:** The signed checklists provide clear evidence of human attestation, supporting policy adherence.
 
 ## 3. Overall Alignment with Control's Intent & Spirit
 
-* **Assessment:** The evidence provided demonstrates a clear adherence to the control's intent of securing EPHI by ensuring timely termination of access.
-* **Justification:** The combination of machine attestable evidence and human attestation provides a comprehensive view that meets both the letter and spirit of the control.
+* **Assessment:** The provided evidence aligns with the control's intent to ensure the timely termination of ePHI access.
+* **Justification:** All aspects of the control's requirements are met through both machine and human attestations, demonstrating a robust approach to compliance.
+* **Critical Gaps in Spirit (if applicable):** No critical gaps identified; evidence fully supports the control's intent.
 
 ## 4. Audit Conclusion and Final Justification
 
 * **Final Decision:** PASS
-* **Comprehensive Rationale:** The audit found sufficient evidence demonstrating compliance with the control requirements through both automated and manual processes, fulfilling the intent of maintaining the security of EPHI.
+* **Comprehensive Rationale:** The audit findings confirm compliance with the control requirements, as evidenced by automated logs, audit reports, and human attestations. All evidence aligns with the intended purpose of the control.
 
 ## 5. Instructions for Human Intervention (Mandatory if Overall Audit Result is "FAIL")
 
 **If the Overall Audit Result is "FAIL", provide clear, actionable, and precise instructions for human intervention to achieve compliance. This section is an auditor's directive.**
 
 * **Specific Missing Evidence Required:**
-    * [For each missing piece of evidence identified in Section 2, state *exactly* what is needed.]
-    * [Specify the required format/type for each missing piece.]
+    * [N/A - No missing evidence identified.]
 * **Specific Non-Compliant Evidence Required Correction:**
-    * [For each instance of non-compliant evidence identified in Section 2, clearly state *why* it is non-compliant and what *specific correction* is required.]
-    * [Specify the action needed.]
+    * [N/A - No non-compliant evidence identified.]
 * **Required Human Action Steps:**
-    * [List precise steps a human auditor or compliance officer needs to take.]
-    * [Specify which teams or individuals are responsible for producing or correcting the evidence.]
-* **Next Steps for Re-Audit:** [Outline the process for re-submission of the corrected/missing evidence for re-evaluation.]
+    * [N/A - No action required; compliance achieved.]
+* **Next Steps for Re-Audit:** [N/A - Compliance confirmed; no re-audit necessary.]

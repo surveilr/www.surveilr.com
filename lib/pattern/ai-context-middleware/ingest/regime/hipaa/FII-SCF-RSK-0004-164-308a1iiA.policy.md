@@ -1,8 +1,8 @@
 ---
-title: "HIPAA Risk Analysis Policy"
+title: "ePHI Risk Analysis Policy"
 weight: 1
-description: "Conducts comprehensive risk analysis to safeguard protected health information in compliance with HIPAA regulations."
-publishDate: "2025-09-24"
+description: "Establishes requirements for conducting risk analyses to protect electronic Protected Health Information (ePHI)."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,51 +11,91 @@ control-id: "164.308(a)(1)(ii)(A)"
 control-question: "Has a risk analysis been completed using IAW NIST Guidelines? (R)"
 fiiId: "FII-SCF-RSK-0004"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-# HIPAA Compliance Policy for Risk Analysis
-
 ## Introduction
-This policy outlines the requirements and procedures for conducting a risk analysis as per the HIPAA regulation 164.308(a)(1)(ii)(A). The purpose of this policy is to ensure that a thorough risk analysis is conducted in accordance with NIST guidelines, thereby safeguarding the confidentiality, integrity, and availability of protected health information (PHI).
 
-## Policy Statement
-It is the policy of [Organization Name] to conduct a comprehensive risk analysis in alignment with NIST guidelines to identify potential risks and vulnerabilities to PHI. This analysis will be documented, maintained, and made available for auditing purposes to ensure compliance with HIPAA regulations.
+The purpose of this policy is to establish the requirements for conducting a risk analysis in compliance with NIST guidelines, ensuring the protection of electronic Protected Health Information (ePHI) across all relevant entities and environments.
 
-## Scope
-This policy applies to all employees, contractors, and third-party vendors of [Organization Name] who handle, manage, or have access to PHI. It encompasses all systems and processes that store, transmit, or process PHI.
+## Requirement Overview
 
-## Responsibilities
-- **Compliance Officer**: Responsible for overseeing the risk analysis process, ensuring adherence to NIST guidelines, and maintaining documentation for review.
-- **IT Security Team**: Responsible for conducting the risk analysis, gathering data, and implementing security measures as identified in the analysis.
-- **All Staff**: Required to report any potential risks or vulnerabilities related to PHI to the Compliance Officer or IT Security Team.
+The control 164.308(a)(1)(ii)(A) mandates that a comprehensive risk analysis be performed to identify vulnerabilities and threats to ePHI. This analysis must be completed in accordance with the National Institute of Standards and Technology (NIST) guidelines to safeguard sensitive information effectively.
 
 ## Evidence Collection Methods
 
-### Explanation
-To ensure that the risk analysis is conducted and documented properly, evidence will be collected through both machine and human attestation methods.
+### Requirement Explanation
 
-### Machine Attestation
-- Automated scripts will be deployed to collect and analyze system configurations and security controls. This includes:
-  - Ingesting OSquery data into Surveilr to verify that security measures are in place and functioning effectively.
-  - API integrations with SaaS/cloud providers to confirm that security settings meet compliance standards.
-  - Log and configuration ingestion to maintain a record of system vulnerabilities and changes.
+Conducting a risk analysis is essential to understand the potential risks to ePHI and to implement appropriate security measures.
 
-### Human Attestation (if unavoidable)
-- The Compliance Officer must sign the quarterly risk assessment report to certify that the risk analysis has been completed in accordance with NIST guidelines. The signed report will then be uploaded to Surveilr along with relevant metadata (e.g., reviewer, date, outcome).
+### Machine Attestation Approach
+
+- Utilize **Surveilr** to automate the collection of risk assessment data.
+- Integrate **NIST Special Publication 800-30** framework to ensure thorough risk assessments are conducted.
+- Use **OSquery** to monitor changes in the environment that may affect risk levels, collecting data on configurations and vulnerabilities on a daily basis.
+
+### Human Attestation (If Unavoidable)
+
+- The Risk Management Officer must sign off on the annual risk analysis report.
+- The signed report is to be uploaded to Surveilr, accompanied by metadata including the review date and reviewer name.
+
+## Operational Steps
+
+- Conduct a risk analysis in accordance with NIST guidelines at least annually.
+- Document and review findings, categorizing risks by severity and impact within 30 days of completion.
+- Implement identified remediation actions within 90 days of the risk analysis.
+- Validate the effectiveness of implemented actions through follow-up assessments within 30 days post-remediation.
+- Ensure all relevant stakeholders are trained on the findings and actions taken within 60 days of risk analysis completion.
+
+## Scope Definition
+
+This policy applies to all systems and environments that create, receive, maintain, or transmit ePHI, including:
+- Cloud-hosted systems
+- Software as a Service (SaaS) applications
+- Third-party vendor systems (Business Associates)
+- Internal systems and networks
+
+## Roles and Responsibilities
+
+- **Risk Management Officer**: 
+  - Conducts risk assessments annually.
+  - Documents findings and remediation plans.
+  
+- **IT Security Team**: 
+  - Implements technical controls based on risk assessment findings.
+  - Monitors compliance with security protocols daily.
+
+- **Compliance Officer**: 
+  - Reviews and approves the final risk analysis report.
+  - Ensures that all documentation is retained for audit purposes.
+
+- **All Workforce Members**: 
+  - Acknowledge understanding and compliance with risk management policies and procedures.
+
+### Related Organizational Plans
+
+This policy is linked to the following plans for escalation and recovery:
+- Incident Response Plan
+- Disaster Recovery Plan
+
+## Policy Lifecycle Requirements
+
+- Evidence and logs related to risk analysis must be retained for a minimum of **6 years**.
+- The policy must be reviewed and updated at least **annually**.
+
+## Formal Documentation and Audit
+
+- All workforce members must acknowledge their understanding and compliance with this policy.
+- Comprehensive audit logging will be maintained for all critical actions related to risk analysis.
+- Any exceptions to the policy must be formally documented, including justification, duration, and approval.
 
 ## Verification Criteria
-- The risk analysis must be completed at least annually and whenever there are significant changes to technology, business practices, or regulatory requirements.
-- Evidence of machine and human attestations must be stored in Surveilr and made available for audit purposes.
-- The risk analysis report must demonstrate a clear understanding of potential risks and outline appropriate mitigation strategies.
 
-## Exceptions
-Any exceptions to this policy must be documented and approved by the Compliance Officer. Exceptions may be granted in cases where conducting a full risk analysis is not feasible due to resource constraints, provided that a justification is submitted and assessed.
+- Successful completion of annual risk analysis as evidenced by signed reports in Surveilr.
+- Compliance with remediation timelines and documentation of actions taken.
 
-## References
-- HIPAA Privacy Rule (45 CFR Part 164)
-- NIST Special Publication 800-30: Guide for Conducting Risk Assessments
-- NIST Special Publication 800-53: Security and Privacy Controls for Information Systems and Organizations
+### References
 
-### _References_
-FII-SCF-RSK-0004
+- [NIST Special Publication 800-30](https://csrc.nist.gov/publications/detail/sp/800-30/rev-1/final)
+- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
+- [Surveilr Documentation](https://www.surveilr.com/docs)
