@@ -1,7 +1,7 @@
 ---
-title: "IS Activity Review Author Prompt"
+title: "Author Prompt: IS Activity Records Review Policy"
 weight: 1
-description: "IS Activity Review Regular reviews of information system (IS) activity are essential for maintaining security and compliance with HIPAA regulations. This control involves implementing procedures to consistently examine audit logs, access reports, and security incident tracking to identify potential security breaches, unauthorized access, or anomalies. By routinely monitoring these records, organizations can enhance their ability to respond to incidents and protect sensitive patient information effectively."
+description: "Establishes procedures for reviewing information system activity records to ensure HIPAA compliance and enhance security."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -20,33 +20,36 @@ You are an expert AI policy author specializing in Surveilr-based machine-attest
 **Control Question**: Have you implemented procedures to regularly review records of IS activity such as audit logs, access reports, and security incident tracking? (R)  
 **Internal ID**: FII-SCF-RSK-0004  
 
-### Policy Document Structure
-- **Introduction** – concise purpose  
-- **Policy Statement** – high-level declaration  
-- **Scope** – what/who it applies to  
-- **Responsibilities** – clear roles/duties  
-- **Evidence Collection Methods** – with subheadings per requirement:  
-  - **Explanation**  
-  - **Machine Attestation**  
-  - **Human Attestation** (if unavoidable)  
-- **Verification Criteria**  
-- **Exceptions**  
-- **References**  
-  ### _References_
+### Introduction
+- Provide a concise purpose for the policy.
 
-### Foundational Knowledge
-- **Surveilr’s Core Function**: Automates collection, storage, and querying of compliance evidence.  
-- **Machine Attestation**: Evidence that can be automatically validated. Examples:
-  - Endpoint configuration via `OSquery`
-  - API integrations with SaaS/cloud providers  
-  - Log/config ingestion  
-  - Automated scripts  
-- **Human Attestation**: Only when automation is impossible. Must be specific and verifiable. Examples:
-  - Manager certifies asset inventory review quarterly  
-  - Signed HR training logs  
-  - Physical inspection reports  
-- Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.
+### Policy Statement
+- Write a high-level declaration regarding the implementation of procedures for reviewing IS activity records.
+
+### Scope
+- Define what/who this policy applies to.
+
+### Responsibilities
+- Outline clear roles and duties related to the review of IS activity records.
+
+### Evidence Collection Methods
+- **Explanation**: Describe the importance of collecting evidence for compliance.
+- **Machine Attestation**:  
+  - Detail methods for automating evidence collection.  
+  - Example: “Verify that audit logs are ingested into Surveilr on a daily basis for analysis.”  
+- **Human Attestation (if unavoidable)**:  
+  - Specify any necessary human attestations.  
+  - Example: “IT Manager must certify the quarterly review of access reports and upload the signed document to Surveilr.”  
+
+### Verification Criteria
+- Establish the criteria for verifying compliance with this control.
+
+### Exceptions
+- Note any exceptions to the policy.
+
+### References
+- Include relevant references with `### _References_`.
 
 ### Attestation Guidance
-- **Machine Attestation**: e.g., “Verify audit logs are regularly reviewed by ingesting access report data into Surveilr.”  
-- **Human Attestation**: e.g., “Compliance Officer must sign the quarterly audit log review report, then upload to Surveilr with metadata.”
+- **Machine Attestation**: e.g., “Verify that all access reports are automatically ingested into Surveilr for real-time monitoring.”
+- **Human Attestation**: e.g., “The Compliance Officer must sign the annual security incident report and upload it to Surveilr with complete metadata.”

@@ -1,7 +1,7 @@
 ---
-title: "Employee Authorization Audit Prompt"
+title: "Audit Prompt: EPHI Access Authorization Policy"
 weight: 1
-description: "Employee Authorization Procedures This control ensures that appropriate procedures are in place for the authorization and supervision of employees who handle electronic protected health information (EPHI) or have access to areas where EPHI is stored. Implementing these procedures helps mitigate risks associated with unauthorized access and ensures compliance with HIPAA regulations concerning the protection of sensitive health information. Regular training and oversight are essential components of these protocols to maintain a secure environment."
+description: "Establishes procedures for authorizing and supervising employees accessing Electronic Protected Health Information (EPHI)."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -32,25 +32,25 @@ You're an **official auditor (e.g., HIPAA Auditor)**, expert in **Surveilr**-bas
 **Audit Context:**
 
   * **Audit Standard/Framework:** HIPAA
-  * **Control's Stated Purpose/Intent:** "The intent of this control is to ensure that access to electronic Protected Health Information (ePHI) is strictly controlled and that employees who have access are properly authorized and supervised."
-Control Code: 164.308(a)(3)(ii)(A)
-Control Question: Have you implemented procedures for the authorization and/or supervision of employees who work with ePHI or in locations where it might be accessed? (A)
-Internal ID (Foreign Integration Identifier as FII): FII-SCF-IAC-0007, FII-SCF-IAC-0007.1
+  * **Control's Stated Purpose/Intent:** "To ensure that procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed are implemented effectively."
+    Control Code: 164.308(a)(3)(ii)(A)
+    Control Question: Have you implemented procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed? (A)
+    Internal ID (Foreign Integration Identifier as FII): FII-SCF-IAC-0007, FII-SCF-IAC-0007.1
   * **Policy/Process Description (for context on intent and expected evidence):**
-    "This policy establishes a framework for the authorization and supervision of employees who have access to electronic Protected Health Information (ePHI). It outlines the responsibilities of various departments, including HR and IT, in managing access controls and ensuring proper training and supervision of employees."
-  * **Provided Evidence for Audit:** "OSquery results show user permissions for employees with access to ePHI, API logs verify access control settings in the SaaS application, quarterly access review signed logs by HR Manager, and training logs demonstrating employee training completion."
+    "This policy outlines the procedures for the authorization and supervision of employees who work with Electronic Protected Health Information (EPHI) or in locations where it might be accessed. It ensures compliance with HIPAA requirements while leveraging Surveilr for effective evidence collection and management. The organization is committed to implementing and maintaining procedures for the authorization and supervision of employees who interact with EPHI."
+  * **Provided Evidence for Audit:** "Evidence includes role-based access control configurations collected via Surveilr, signed acknowledgment forms from employees regarding their access rights, and logs from monitoring tools demonstrating user activity related to EPHI access."
 
 **Requirements for Your Audit Report (Structured format):**
 
 # Official Audit Report: HIPAA - 164.308(a)(3)(ii)(A)
 
 **Overall Audit Result: [PASS/FAIL]**
-**Date of Audit:** [Current Date, e.g., 2023-10-05]
+**Date of Audit:** [Current Date, e.g., 2025-07-28]
 **Auditor Role:** HIPAA Auditor
 **Control Code:** 164.308(a)(3)(ii)(A)
-**Control Question:** Have you implemented procedures for the authorization and/or supervision of employees who work with ePHI or in locations where it might be accessed? (A)
+**Control Question:** Have you implemented procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed? (A)
 **Internal ID (FII):** FII-SCF-IAC-0007, FII-SCF-IAC-0007.1
-**Control's Stated Purpose/Intent:** The intent of this control is to ensure that access to electronic Protected Health Information (ePHI) is strictly controlled and that employees who have access are properly authorized and supervised.
+**Control's Stated Purpose/Intent:** To ensure that procedures for the authorization and/or supervision of employees who work with EPHI or in locations where it might be accessed are implemented effectively.
 
 ## 1. Executive Summary
 
@@ -62,54 +62,51 @@ For each identifiable part of the control's "Expected Evidence" and the stated "
 
 ### 2.1 Machine Attestable Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Employee access controls are configured properly.
-    * **Provided Evidence:** OSquery results showing user permissions for employees with access to ePHI.
-    * **Surveilr Method (as described/expected):** OSquery for endpoint data.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM user_permissions WHERE access = 'ePHI';
+* **Control Requirement/Expected Evidence:** Role-based access control configurations must be verified.
+    * **Provided Evidence:** Access management system logs showing role-based access configurations were collected.
+    * **Surveilr Method (as described/expected):** Logs were ingested into Surveilr via automated data ingestion methods.
+    * **Conceptual/Actual SQL Query Context:** SQL query used to verify role configurations against the RSSD.
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The OSquery results demonstrate that access permissions are correctly configured for employees who require access to ePHI.
+    * **Justification:** The evidence demonstrates that role-based access control configurations are in place and were verified through the appropriate automated means.
 
-* **Control Requirement/Expected Evidence:** Access control settings in the SaaS application are appropriately set.
-    * **Provided Evidence:** API logs verifying access control settings.
-    * **Surveilr Method (as described/expected):** API call to the SaaS provider.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM saas_access_controls WHERE application = 'ePHI';
+* **Control Requirement/Expected Evidence:** Signed acknowledgment forms from employees regarding access rights.
+    * **Provided Evidence:** Acknowledgment forms uploaded to Surveilr with metadata.
+    * **Surveilr Method (as described/expected):** Scanned documents were stored in Surveilr.
+    * **Conceptual/Actual SQL Query Context:** SQL query context to validate existence and completeness of signed forms.
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The API logs provide clear evidence that access control settings for ePHI are correctly maintained.
+    * **Justification:** All required acknowledgment forms are present and adequately documented, indicating compliance with the control's requirements.
 
 ### 2.2 Human Attestation Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Quarterly access review certification.
-    * **Provided Evidence:** Signed logs by HR Manager.
-    * **Human Action Involved (as per control/standard):** HR Manager certifying access authorization logs quarterly.
-    * **Surveilr Recording/Tracking:** Signed logs uploaded to Surveilr.
+* **Control Requirement/Expected Evidence:** Supervisors must conduct quarterly reviews of employee access logs.
+    * **Provided Evidence:** Signed reports submitted to Surveilr.
+    * **Human Action Involved (as per control/standard):** Supervisors conducting manual reviews and signing reports.
+    * **Surveilr Recording/Tracking:** Submission of signed reports stored in Surveilr.
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The signed logs confirm that the HR Manager conducted the quarterly review and that all access authorizations were verified.
+    * **Justification:** The signed reports indicate that the required supervisory reviews were conducted and documented appropriately.
 
-* **Control Requirement/Expected Evidence:** Training records for employees on ePHI handling.
-    * **Provided Evidence:** Training logs demonstrating employee training completion.
-    * **Human Action Involved (as per control/standard):** Employees participating in ePHI handling training.
-    * **Surveilr Recording/Tracking:** Training logs uploaded to Surveilr.
-    * **Compliance Status:** COMPLIANT
-    * **Justification:** The training logs show that employees have successfully completed the required training on handling ePHI.
+## 3. Overall Alignment with Control's Intent & Spirit
 
-## 3. Overall Alignment with Control's Intent Spirit
-
-* **Assessment:** The provided evidence demonstrates that the control's underlying purpose and intent are being met in practice.
-* **Justification:** The evidence shows that proper authorization and supervision procedures are effectively implemented, ensuring that only authorized personnel have access to ePHI.
-* **Critical Gaps in Spirit (if applicable):** No critical gaps identified.
+* **Assessment:** The evidence aligns with the control's intent to protect EPHI through proper authorization and supervision.
+* **Justification:** The evidence provided shows a robust framework for managing access to EPHI, fulfilling the control's underlying purpose.
+* **Critical Gaps in Spirit (if applicable):** None identified.
 
 ## 4. Audit Conclusion and Final Justification
 
 * **Final Decision:** PASS
-* **Comprehensive Rationale:** The audit determined that all required evidence demonstrates compliance with the control's requirements and intent regarding the authorization and supervision of employees working with ePHI.
+* **Comprehensive Rationale:** The evidence clearly demonstrates compliance with the control requirements. All necessary documentation and attestations are present and verified.
 
 ## 5. Instructions for Human Intervention (Mandatory if Overall Audit Result is "FAIL")
 
 **If the Overall Audit Result is "FAIL", provide clear, actionable, and precise instructions for human intervention to achieve compliance. This section is an auditor's directive.**
 
-* **Specific Missing Evidence Required:** N/A
-* **Specific Non-Compliant Evidence Required Correction:** N/A
-* **Required Human Action Steps:** N/A
-* **Next Steps for Re-Audit:** N/A
-
-**[END OF GENERATED PROMPT CONTENT]**
+* **Specific Missing Evidence Required:**
+    * [For each missing piece of evidence identified in Section 2, state *exactly* what is needed.]
+    * [Specify the required format/type for each missing piece: e.g., "Obtain OSquery results for network interface configurations on all servers tagged 'production_web'.", "Provide a signed PDF of the latest incident response plan approval."]
+* **Specific Non-Compliant Evidence Required Correction:**
+    * [For each instance of non-compliant evidence identified in Section 2, clearly state *why* it is non-compliant and what *specific correction* is required.]
+    * [Specify the action needed: e.g., "Remediate firewall rule CC6-0010-005 to correctly block traffic from IP range X.Y.Z.0/24.", "Provide evidence of user access review completion for Q2 2025 for all critical systems."]
+* **Required Human Action Steps:**
+    * [List precise steps a human auditor or compliance officer needs to take.]
+    * [Specify which teams or individuals are responsible for producing or correcting the evidence.]
+* **Next Steps for Re-Audit:** [Outline the process for re-submission of the corrected/missing evidence for re-evaluation.]

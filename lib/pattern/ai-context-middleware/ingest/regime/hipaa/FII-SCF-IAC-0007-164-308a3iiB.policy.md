@@ -1,7 +1,7 @@
 ---
-title: "Access Verification Policy"
+title: "EPHI Access Determination Policy"
 weight: 1
-description: "Access Verification Procedures This control ensures that organizations have established procedures to assess and verify the appropriateness of employee access to electronic protected health information (EPHI). By implementing these procedures, organizations can mitigate the risk of unauthorized access and maintain compliance with HIPAA regulations, thereby protecting patient data and ensuring the confidentiality and integrity of sensitive information."
+description: "Establishes procedures to determine appropriate employee access to Electronic Protected Health Information (EPHI)."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -14,55 +14,63 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# HIPAA Compliance Policy for Employee Access to EPHI
+# HIPAA Compliance Policy for Access Determination to EPHI
 
-## **Introduction**
-The purpose of this policy is to ensure that appropriate procedures are in place for determining employee access to Electronic Protected Health Information (EPHI) in compliance with HIPAA control code 164.308(a)(3)(ii)(B). This policy outlines the responsibilities, evidence collection methods, and verification criteria necessary to uphold the confidentiality, integrity, and availability of EPHI.
+**Control Code:** 164.308(a)(3)(ii)(B)  
+**Internal ID:** FII-SCF-IAC-0007  
+**Control Question:** Have you implemented procedures to determine the access of an employee to EPHI is appropriate? (A)  
 
-## **Policy Statement**
-Our organization is committed to ensuring that access to EPHI is restricted to authorized personnel only. We will implement and maintain effective procedures to regularly assess and verify that employee access rights to EPHI are appropriate based on their job responsibilities.
+## Introduction
+The purpose of this policy is to establish clear procedures for determining the appropriateness of employee access to Electronic Protected Health Information (EPHI). Ensuring that access is granted based on necessity and role is essential for safeguarding sensitive health information and maintaining compliance with HIPAA regulations.
 
-## **Scope**
-This policy applies to all employees, contractors, and third-party service providers who have access to EPHI within the organization. It encompasses all systems, applications, and environments where EPHI is stored, processed, or transmitted.
+## Policy Statement
+[Organization Name] is committed to implementing comprehensive procedures that effectively determine and validate employee access to EPHI. Access will be granted based on job responsibilities, the principle of least privilege, and ongoing assessments to ensure compliance with HIPAA standards.
 
-## **Responsibilities**
-- **Compliance Officer**: Oversees the implementation of this policy and ensures compliance with HIPAA regulations.
-- **IT Department**: Responsible for the technical implementation of access controls and the collection of machine attestations.
-- **Human Resources (HR)**: Manages employee access requests and ensures proper documentation is maintained for human attestations.
-- **Department Managers**: Conduct periodic reviews of employee access and ensure that access rights align with job functions.
+## Scope
+This policy applies to all employees, contractors, and third-party vendors who require access to EPHI in the course of their work. It encompasses all systems, applications, and processes that handle EPHI within [Organization Name].
 
-## **Evidence Collection Methods**
+## Responsibilities
+- **Compliance Officer**: Oversee the implementation of access determination procedures and ensure adherence to HIPAA regulations.
+- **Department Managers**: Assess and validate the access needs of their employees, ensuring access aligns with job functions.
+- **IT Security Team**: Maintain access control systems and facilitate regular reviews of access logs and permissions.
+- **HR Department**: Conduct annual certifications of employee access and maintain documentation related to employee roles.
 
-### **Explanation**
-To ensure employee access to EPHI is appropriate, procedures will be implemented to regularly review and validate access rights. This includes both automated and manual methods of attestation.
+## Evidence Collection Methods
 
-### **Machine Attestation**
-- **Access Log Ingestion**: Verify that user access levels are appropriate by ingesting access log data into Surveilr. This includes monitoring and analyzing logs to ensure that access rights align with the employee's current role and responsibilities.
-- **Endpoint Configuration**: Utilize `OSquery` to check endpoint configurations for compliance with access control policies.
-- **Automated Scripts**: Deploy scripts that regularly audit user permissions against a defined baseline of appropriate access levels.
+### Explanation
+To ensure compliance with access determination procedures, [Organization Name] will utilize a combination of automated systems and manual reviews. This includes regular audits of access logs, role assessments, and user access reviews.
 
-### **Human Attestation (if unavoidable)**
-- **Quarterly Review Certification**: Department managers will certify quarterly that access rights have been reviewed and are appropriate. This certification will be documented, and the signed evidence will be uploaded to Surveilr with relevant metadata (reviewer, date, outcome).
-- **Access Request Documentation**: HR will maintain signed access request forms for each employee, which must be uploaded to Surveilr for documentation purposes. This includes any changes in access permissions.
+### Machine Attestation
+Surveilr will be employed to automate the collection of evidence regarding access procedures. This includes:
+- Verifying access logs through API integrations with Surveilr to confirm appropriate employee access.
+- Generating automated reports that track changes in access permissions and flag any discrepancies.
 
-## **Verification Criteria**
-The following criteria will be used to validate compliance with this policy:
-- Evidence of regular access reviews conducted by department managers.
-- Records of machine-generated attestations from Surveilr regarding user access.
-- Documentation of any human attestations, including signed forms and quarterly certification records.
-- Verification that access levels are aligned with job functions and responsibilities within the organization.
+### Human Attestation (if unavoidable)
+In circumstances where machine attestation is insufficient, human attestation will be required. Examples include:
+- HR must certify employee access reviews annually and upload documentation to Surveilr with metadata indicating the review date and responsible party.
+- Department managers may need to provide written confirmation of access appropriateness during quarterly reviews.
 
-## **Exceptions**
-Any exceptions to this policy must be documented and approved by the Compliance Officer. Exceptions may be granted in instances where business needs require temporary access changes that do not align with established access control procedures.
+## Verification Criteria
+To verify the effectiveness of access procedures, [Organization Name] will utilize the following criteria:
+- Regular audits of access logs showing alignment with employee roles and responsibilities.
+- Documentation of role-based access reviews and adjustments made to access rights.
+- Feedback from department heads and employees regarding the adequacy of access controls.
 
-## **References**
-- HIPAA Security Rule: 45 CFR 164.308(a)(3)(ii)(B)  
-- Surveilr Compliance Evidence Collection Guidelines  
-- Organizational Access Control Policy  
+## Exceptions
+Exceptions to this policy may be made under specific circumstances, such as:
+- Temporary access granted for emergency situations, which will be documented and reviewed post-event.
+- Access granted to external auditors or regulatory bodies, with strict oversight and time limitations.
 
-### _References_  
-- [HIPAA Security Rule Text](https://www.hhs.gov/hipaa/for-professionals/privacy/laws-regulations/index.html)  
-- [Surveilr Documentation](https://surveilr.com/docs)  
-- [Access Control Best Practices](https://www.nist.gov/publications/access-control-best-practices)  
+## References
+### _References_
+- HIPAA Privacy Rule: 45 CFR Parts 160 and 164
+- [Organization Name] Data Security Policy
+- Surveilr Documentation and User Guidelines
 
-This policy will be reviewed annually and updated as necessary to ensure ongoing compliance with HIPAA and the effectiveness of access control measures.
+## Attestation Guidance
+- **Machine Attestation**: “Verify access logs through API integrations with Surveilr to confirm appropriate employee access.”
+- **Human Attestation**: “HR must certify employee access reviews annually and upload documentation to Surveilr with metadata.” 
+
+---
+
+This policy is subject to periodic review and updates as necessary to ensure ongoing compliance with HIPAA regulations and the evolving landscape of data security.

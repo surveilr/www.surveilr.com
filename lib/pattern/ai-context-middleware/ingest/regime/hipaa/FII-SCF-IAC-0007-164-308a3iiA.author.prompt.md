@@ -1,7 +1,7 @@
 ---
-title: "Employee Authorization Author Prompt"
+title: "Author Prompt: EPHI Access Authorization Policy"
 weight: 1
-description: "Employee Authorization Procedures This control ensures that procedures are in place for the authorization and supervision of employees who access or handle Electronic Protected Health Information (EPHI). It outlines the necessary steps to verify employee access rights and provides guidelines for monitoring their interactions with EPHI to maintain data security and compliance with HIPAA regulations."
+description: "Establishes procedures for authorizing and supervising employees accessing Electronic Protected Health Information (EPHI)."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -30,10 +30,9 @@ You are an expert AI policy author specializing in Surveilr-based machine-attest
 - Manager certifies asset inventory review quarterly  
 - Signed HR training logs  
 - Physical inspection reports  
-
 Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
-**Required Policy Document Structure**:  
+### Policy Document Structure
 - **Introduction** – concise purpose  
 - **Policy Statement** – high-level declaration  
 - **Scope** – what/who it applies to  
@@ -46,6 +45,6 @@ Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (
 - **Exceptions**  
 - **References** (with `### _References_`)  
 
-**Attestation Guidance**:  
-- **Machine Attestation**: e.g., “Verify employee access controls are configured properly by ingesting OSquery data into Surveilr.”  
-- **Human Attestation**: e.g., “HR Manager must sign the employee access authorization logs quarterly, then upload to Surveilr with metadata.”
+### Attestation Guidance
+- **Machine Attestation**: e.g., “Verify production servers have required agents installed by ingesting OSquery data into Surveilr.”  
+- **Human Attestation**: e.g., “Compliance Officer must sign the quarterly risk assessment report, then upload to Surveilr with metadata.”

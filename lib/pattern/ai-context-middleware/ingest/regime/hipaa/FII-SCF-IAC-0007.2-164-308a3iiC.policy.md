@@ -1,7 +1,7 @@
 ---
-title: "Access Termination Policy"
+title: "EPHI Access Termination Policy"
 weight: 1
-description: "Access Termination Procedures Organizations must implement formal procedures to terminate access to electronic protected health information (EPHI) when an employee exits the organization or as mandated by specific regulatory requirements. This control ensures that former employees no longer have the ability to access sensitive health information, thereby protecting patient privacy and maintaining compliance with HIPAA regulations. Regular reviews of access controls should also be conducted to ensure that all access rights are current and appropriate."
+description: "Terminate access to Electronic Protected Health Information (EPHI) promptly for departing employees and under specific circumstances."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -14,51 +14,46 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# **Policy for Terminating Access to Electronic Protected Health Information (EPHI)**
+# HIPAA Compliance Policy for Terminating Access to EPHI
 
-### **Introduction**  
-The purpose of this policy is to establish procedures for the prompt and secure termination of access to Electronic Protected Health Information (EPHI) when an employee leaves the organization or as required by regulatory obligations. This policy is designed to ensure compliance with HIPAA regulations and to protect the confidentiality, integrity, and availability of EPHI.
+## Introduction
+This policy outlines the procedures implemented to ensure that access to Electronic Protected Health Information (EPHI) is terminated when an employee leaves the organization or as mandated by relevant regulations. This is essential for maintaining the confidentiality, integrity, and availability of EPHI in accordance with HIPAA regulations.
 
-### **Policy Statement**  
-The organization is committed to ensuring that access to EPHI is terminated immediately upon an employee’s departure or as dictated by specific circumstances outlined in paragraph (a)(3)(ii)(B) of HIPAA. This policy mandates the implementation of systematic procedures to revoke access rights, preventing unauthorized access to sensitive health information.
+## Policy Statement
+It is the policy of [Organization Name] to ensure that access to EPHI is promptly terminated for any employee leaving the organization, or as required under specific circumstances outlined in HIPAA regulation 164.308(a)(3)(ii)(B). This is to prevent unauthorized access to sensitive health information.
 
-### **Scope**  
-This policy applies to all employees, contractors, and third-party vendors who have access to EPHI within the organization. It encompasses all systems and applications that store, process, or transmit EPHI.
+## Scope
+This policy applies to all employees, contractors, and third-party users who have been granted access to EPHI within [Organization Name]. It encompasses all systems, applications, and platforms where EPHI is stored or processed.
 
-### **Responsibilities**  
-- **Human Resources (HR)**: Responsible for notifying the IT department and Compliance Officer of employee departures and ensuring relevant documentation is prepared.
-- **IT Department**: Responsible for executing the termination of access to EPHI and maintaining access control logs.
-- **Compliance Officer**: Responsible for overseeing adherence to this policy and the verification of access termination processes.
-- **Department Managers**: Responsible for identifying and reporting access needs and changes within their teams.
+## Responsibilities
+- **Human Resources (HR)**: Responsible for notifying IT of employee terminations and conducting employee exit interviews.
+- **IT Department**: Responsible for executing the termination of access to EPHI and maintaining records of access termination.
+- **Compliance Officer**: Responsible for overseeing adherence to this policy and ensuring that procedures align with HIPAA requirements.
 
-### **Evidence Collection Methods**  
-- **Explanation**  
-  To ensure compliance with the termination of access, evidence will be collected through detailed logs and records of access changes.
+## Evidence Collection Methods
 
-- **Machine Attestation**  
-  Access to EPHI will be verified by querying user access logs via Surveilr to ensure that access permissions for terminated employees have been revoked.
+### Explanation
+To ensure compliance with the termination of access to EPHI, [Organization Name] will utilize both automated and manual methods for evidence collection. The focus will be on machine attestation due to its efficiency and reliability, with human attestation reserved for instances where automation is not feasible.
 
-- **Human Attestation (if unavoidable)**  
-  HR must certify the termination of access for departing employees. This certification will be documented and uploaded to Surveilr with relevant metadata, including the date of termination and the employee's identification.
+### Machine Attestation
+- **OSquery Data Collection**: Access to EPHI will be validated through automated OSquery data ingestion into Surveilr. This will confirm the removal of user permissions and provide real-time evidence that access has been terminated.
+- **API Integrations**: Integration with SaaS/cloud providers will allow for automated monitoring and reporting on user access, ensuring that any changes are logged and verifiable.
 
-### **Verification Criteria**  
-Compliance with this policy will be verified through:
-- Regular audits of access logs to confirm that access has been revoked for all terminated employees.
-- Review of HR records to ensure that all departures are documented and communicated to the IT department.
-- Confirmation from the Compliance Officer that all documented terminations of access are complete and accurate.
+### Human Attestation (if unavoidable)
+- **Employee Termination Checklist**: When automation is not possible, HR will complete an employee termination checklist and sign it to certify that all access to EPHI has been terminated. This checklist will then be uploaded to Surveilr, along with metadata including the reviewer's name, date, and outcome.
 
-### **Exceptions**  
-Any exceptions to this policy must be requested in writing and approved by the Compliance Officer. Exceptions may be granted for specific circumstances that warrant continued access for a designated period, such as ongoing legal investigations or other regulatory requirements.
+## Verification Criteria
+Verification of compliance with this policy will be conducted through regular audits of access logs, OSquery data, and human attestation records. The Compliance Officer will ensure that all termination processes are documented and that evidence is readily accessible for review.
 
-### **References**  
-- U.S. Department of Health & Human Services, HIPAA Administrative Simplification Regulations, 45 CFR § 164.308(a)(3)(ii)(C)  
-- Organization’s Employee Handbook  
-- Surveilr Access Management Protocols  
+## Exceptions
+Any exceptions to this policy must be documented and approved by the Compliance Officer. Exceptions may be granted in extraordinary circumstances, provided that they do not compromise the security of EPHI.
 
-### **Attestation Guidance**  
-- **Machine Attestation**: Verify that access permissions for terminated employees are updated in Surveilr by analyzing access logs.
-- **Human Attestation**: The Compliance Officer must sign off on access termination for all departing employees and upload the signed document to Surveilr with relevant metadata.
+## References
+- Health Insurance Portability and Accountability Act (HIPAA) Regulations
+- Control Code: 164.308(a)(3)(ii)(C)
+- [Organization Name] Employee Handbook
+- [Organization Name] IT Security Policy
 
 ---
 
-This policy will be reviewed annually and updated as necessary to reflect changes in regulatory requirements or organizational practices. Compliance with this policy is mandatory for all personnel with access to EPHI.
+This policy will be reviewed annually, and any necessary changes will be made to ensure continued compliance with HIPAA regulations and organizational standards. All employees are required to familiarize themselves with this policy and adhere to its directives.

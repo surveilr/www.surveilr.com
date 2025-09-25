@@ -1,7 +1,7 @@
 ---
-title: "Records Review Procedures Policy"
+title: "IS Activity Records Review Policy"
 weight: 1
-description: "Records Review Procedures This control requires the implementation of systematic procedures for the regular review of information systems activity records, including audit logs, access reports, and security incident tracking. These reviews are essential for identifying potential security incidents, ensuring compliance with HIPAA regulations, and enhancing overall information security management. Regular reviews help organizations maintain oversight of their information systems and promptly address any anomalies or unauthorized activities."
+description: "Establishes procedures for reviewing information system activity records to ensure HIPAA compliance and enhance security."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -14,50 +14,56 @@ regimeType: "HIPAA"
 category: ["HIPAA", "Compliance", "Healthcare"]
 ---
 
-# HIPAA Compliance Policy Document
+# HIPAA Compliance Policy for IS Activity Records Review
 
 ## Introduction
-This policy outlines the procedures for regularly reviewing records of information system (IS) activity, including audit logs, access reports, and security incident tracking, to ensure compliance with HIPAA regulations and to enhance the security posture of the organization.
+This policy establishes the framework for the regular review of information system (IS) activity records, including audit logs, access reports, and security incident tracking, to ensure compliance with HIPAA regulations and enhance the security posture of the organization.
 
 ## Policy Statement
-The organization is committed to maintaining the integrity and confidentiality of protected health information (PHI) by implementing and enforcing procedures that facilitate regular reviews of IS activity records. This is to ensure compliance with HIPAA Control Code 164.308(a)(1)(ii)(D).
+The organization is committed to implementing robust procedures for the regular review of IS activity records. This includes systematic analysis of audit logs, access reports, and security incidents to identify potential security threats, ensure compliance with HIPAA requirements, and maintain the integrity of sensitive patient information.
 
 ## Scope
-This policy applies to all employees, contractors, and third-party service providers who have access to the organization’s information systems and are responsible for managing or accessing PHI.
+This policy applies to all employees, contractors, and third-party service providers who have access to the organization’s information systems and data. It encompasses all IS activity records relevant to HIPAA compliance.
 
 ## Responsibilities
-- **Compliance Officer**: Responsible for overseeing the implementation of this policy, ensuring that review processes are followed and documented.
-- **IT Security Team**: Responsible for conducting the reviews of IS activity records and reporting findings to the Compliance Officer.
-- **All Staff**: Required to support the compliance efforts and report any discrepancies or security incidents to the IT Security Team.
+- **IT Security Team**: Responsible for the collection, analysis, and reporting of IS activity records. They will ensure that audit logs and access reports are reviewed regularly.
+- **Compliance Officer**: Responsible for overseeing the adherence to this policy, ensuring that the review processes are implemented effectively, and that documentation is maintained for compliance.
+- **All Staff**: Required to report any irregularities or security incidents identified within IS activity records to the IT Security Team.
 
 ## Evidence Collection Methods
 
 ### Explanation
-Regular reviews of IS activity records are essential for identifying unauthorized access and ensuring compliance with HIPAA regulations. The organization will utilize automated tools and processes to facilitate these reviews.
+Collecting evidence regarding the review of IS activity records is critical for demonstrating compliance with HIPAA requirements. It ensures that the organization can provide verifiable proof of its efforts to monitor and secure sensitive information.
 
 ### Machine Attestation
-- **Audit Log Review**: Implement automated scripts to ingest audit log data into Surveilr for ongoing analysis. This process will ensure that access logs are reviewed regularly, with findings documented and stored as machine-attested evidence.
-- **Access Reports**: Integrate with endpoint management systems via API to pull access reports regularly into Surveilr, enabling continuous monitoring and automated reporting of access patterns.
-- **Security Incident Tracking**: Use automated log ingestion to track security incidents and maintain records within Surveilr for review.
+- **Automated Evidence Collection**: The organization will utilize Surveilr to automate evidence collection. For example, “Verify that audit logs are ingested into Surveilr on a daily basis for analysis.” This process will allow for real-time monitoring and assessment of IS activities.
 
-### Human Attestation
-- **Quarterly Review Report**: The Compliance Officer must review the findings from the automated processes quarterly. A report certifying the review must be signed and uploaded to Surveilr, including relevant metadata such as reviewer name, date, and outcome.
+### Human Attestation (if unavoidable)
+- **Necessary Human Attestations**: In instances where automated measures cannot capture all required evidence, human attestations will be employed. For example, “The IT Manager must certify the quarterly review of access reports and upload the signed document to Surveilr.” This ensures accountability and provides a clear audit trail.
 
 ## Verification Criteria
-- Evidence of regular IS activity record reviews will be verified through:
-  - Ingested data from audit logs and access reports in Surveilr.
-  - Signed quarterly review reports by the Compliance Officer.
-  - Documentation of security incidents and their resolutions.
+Compliance with this control will be verified through:
+- Regular audits of IS activity records to ensure that reviews are conducted as per the established schedule.
+- Documentation of findings from the reviews, including any identified security incidents and resolutions.
+- Confirmation that automated evidence collection processes are functioning correctly and that human attestations are duly completed and stored.
 
 ## Exceptions
-Any exceptions to this policy must be documented and approved by the Compliance Officer, ensuring that alternative measures are in place to maintain compliance.
+No exceptions to this policy will be permitted unless specifically authorized by the Compliance Officer, who must document the rationale for any deviations.
 
 ## References
-- HIPAA Privacy Rule (45 CFR Part 160 and Part 164)
-- NIST Special Publication 800-53: Security and Privacy Controls for Information Systems and Organizations
-
 ### _References_
-- Control Code: 164.308(a)(1)(ii)(D)
-- Internal ID: FII-SCF-RSK-0004
+- HIPAA Privacy Rule (45 CFR Part 160 and Part 164)
+- National Institute of Standards and Technology (NIST) Special Publication 800-53
+- Organizational Security Policies and Procedures
 
-This policy will be reviewed and updated annually or as needed to reflect changes in regulatory requirements or organizational practices.
+## Attestation Guidance
+
+### Machine Attestation
+- “Verify that all access reports are automatically ingested into Surveilr for real-time monitoring.” This will ensure that access to sensitive information is continuously tracked and analyzed.
+
+### Human Attestation
+- “The Compliance Officer must sign the annual security incident report and upload it to Surveilr with complete metadata.” This document will serve as a formal record of compliance and incident management.
+
+---
+
+This policy is designed to ensure the organization adheres to HIPAA requirements concerning the review of IS activity records, thereby safeguarding sensitive patient information and enhancing overall security measures.

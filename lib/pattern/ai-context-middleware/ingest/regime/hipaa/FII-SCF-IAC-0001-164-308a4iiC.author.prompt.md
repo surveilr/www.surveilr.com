@@ -1,7 +1,7 @@
 ---
-title: "Access Authorization Author Prompt"
+title: "Author Prompt: Access Authorization Policy"
 weight: 1
-description: "Access Authorization Policies This control requires the establishment and implementation of comprehensive policies and procedures that govern user access to workstations, transactions, programs, or processes. These policies must be documented, regularly reviewed, and updated to ensure they accurately reflect the current access rights and responsibilities of users, thereby safeguarding sensitive information in accordance with HIPAA regulations."
+description: "Establishes procedures for managing user access to protect the confidentiality of protected health information (PHI)."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -20,34 +20,42 @@ You are an expert AI policy author specializing in Surveilr-based machine-attest
 **Control Question**: Have you implemented policies and procedures that are based upon your access authorization policies, established, document, review, and modify a user's right of access to a workstation, transaction, program, or process? (A)  
 **Internal ID**: FII-SCF-IAC-0001  
 
-### Introduction
-- Provide a concise purpose for the policy.
+**Introduction**  
+Provide a concise purpose for the policy.
 
-### Policy Statement
-- Include a high-level declaration regarding access authorization policies.
+**Policy Statement**  
+Include a high-level declaration regarding access authorization policies.
 
-### Scope
-- Define what/who this policy applies to.
+**Scope**  
+Define what and who the policy applies to.
 
-### Responsibilities
-- Outline clear roles and duties related to access authorization.
+**Responsibilities**  
+Outline clear roles and duties related to access authorization.
 
-### Evidence Collection Methods
-- **Explanation**: Describe how access authorization is managed.
-- **Machine Attestation**: Detail how compliance evidence is collected automatically, such as through API integrations with relevant systems.
-- **Human Attestation (if unavoidable)**: Specify any necessary human attestations, such as manual reviews of access logs.
+**Evidence Collection Methods**  
+- **Explanation**  
+  Describe how evidence of compliance will be collected.
+  
+- **Machine Attestation**  
+  Detail methods for machine-based evidence collection. Examples:  
+  - Verify user access levels through automated queries stored in Surveilr.  
+  - Utilize API integrations to confirm access rights in cloud services.  
 
-### Verification Criteria
-- Define the criteria for verifying compliance with access authorization policies.
+- **Human Attestation (if unavoidable)**  
+  Specify processes for human verification when automation is not possible. Examples:  
+  - Compliance Officer must document and sign user access reviews quarterly.  
+  - Require supervisors to certify access changes and submit supporting documentation.  
 
-### Exceptions
-- Outline any exceptions to the policy.
+**Verification Criteria**  
+Establish criteria for verifying compliance with the access authorization policy.
 
-### References
-- Include relevant references with `### _References_`.
+**Exceptions**  
+Define any exceptions to the policy.
 
-### Attestation Guidance
-- **Machine Attestation**: e.g., “Verify user access levels by ingesting API logs into Surveilr.”
-- **Human Attestation**: e.g., “Access Control Manager must document and sign the annual review of access rights, then upload to Surveilr with metadata.”
+**References**  
+Include relevant legal and regulatory references.  
+### _References_  
 
-Ensure to use standard Markdown formatting, including headings, bullets, and bold text where necessary. Use `[Link Text](URL)` for any citations. Do not include SQL queries.
+**Attestation Guidance**  
+- **Machine Attestation**: e.g., “Verify user access levels through automated queries stored in Surveilr.”  
+- **Human Attestation**: e.g., “Compliance Officer must document and sign user access reviews quarterly, then upload to Surveilr with metadata.”
