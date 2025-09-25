@@ -49,6 +49,7 @@ SELECT DISTINCT
   json_extract(ur.frontmatter, '$.approvedBy') AS approvedBy,
   json_extract(ur.frontmatter, '$.category') AS category,
   json_extract(ur.frontmatter, '$.control-id') AS control_id,
+  json_extract(ur.frontmatter, '$.regimeType') AS regimeType,
  
   TRIM(
     CASE
