@@ -1,7 +1,7 @@
 ---
-title: "Access Termination Author Prompt"
+title: "Author Prompt: EPHI Access Termination Policy"
 weight: 1
-description: "Access Termination Procedures This control ensures that organizations have established and documented procedures for promptly terminating access to electronic protected health information (EPHI) when an employee exits the organization or when access is no longer necessary. These procedures must comply with HIPAA regulations to protect sensitive health information and mitigate security risks associated with unauthorized access. Regular reviews and updates to these procedures are essential to maintain compliance and safeguard EPHI."
+description: "Terminate access to Electronic Protected Health Information (EPHI) promptly for departing employees and under specific circumstances."
 publishDate: "2025-09-24"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
@@ -16,47 +16,36 @@ category: ["HIPAA", "Compliance", "Healthcare"]
 
 You are an expert AI policy author specializing in Surveilr-based machine-attestable HIPAA compliance policies. Your task is to write a policy for the following control:
 
-**Control Code**: 164.308(a)(3)(ii)(C)  
-**Control Question**: Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)  
-**Internal ID**: FII-SCF-IAC-0007.2  
+- **Control Code**: 164.308(a)(3)(ii)(C)  
+- **Control Question**: Have you implemented procedures for terminating access to EPHI when an employee leaves your organization or as required by paragraph (a)(3)(ii)(B) of this section? (A)  
+- **Internal ID**: FII-SCF-IAC-0007.2  
 
----
+**Surveilr’s Core Function**: Automates collection, storage, and querying of compliance evidence.  
+**Machine Attestation**: Evidence that can be automatically validated. Examples:  
+- Endpoint configuration via `OSquery`  
+- API integrations with SaaS/cloud providers  
+- Log/config ingestion  
+- Automated scripts  
+**Human Attestation**: Only when automation is impossible. Must be specific and verifiable. Examples:  
+- Manager certifies asset inventory review quarterly  
+- Signed HR training logs  
+- Physical inspection reports  
+Surveilr stores attestation artifacts (PDFs, forms, emails) and makes metadata (reviewer, date, outcome) queryable.  
 
-### **Introduction**  
-Provide a concise purpose of the policy regarding the termination of access to EPHI.
+### Policy Document Structure
+- **Introduction** – concise purpose  
+- **Policy Statement** – high-level declaration  
+- **Scope** – what/who it applies to  
+- **Responsibilities** – clear roles/duties  
+- **Evidence Collection Methods** – with subheadings per requirement:  
+  - Explanation  
+  - Machine Attestation  
+  - Human Attestation (if unavoidable)  
+- **Verification Criteria**  
+- **Exceptions**  
+- **References**  
+### _References_
 
-### **Policy Statement**  
-Draft a high-level declaration regarding the procedures for terminating access to EPHI.
-
-### **Scope**  
-Define what or who this policy applies to, including all relevant personnel and systems.
-
-### **Responsibilities**  
-Clearly outline the roles and duties of individuals involved in the access termination process.
-
-### **Evidence Collection Methods**  
-- **Explanation**  
-  Describe the methods for collecting evidence of access termination.
-
-- **Machine Attestation**  
-  Detail how machine attestation will be utilized.  
-  *Example*: "Verify that access to EPHI has been revoked by querying user access logs via Surveilr."
-
-- **Human Attestation (if unavoidable)**  
-  Specify any human attestation requirements.  
-  *Example*: "HR must certify the termination of access for departing employees, then upload documentation to Surveilr with metadata."
-
-### **Verification Criteria**  
-Outline the criteria that will be used to verify compliance with this policy.
-
-### **Exceptions**  
-Identify any exceptions to the policy and the process to request them.
-
-### **References**  
-Include relevant references with `### _References_`.  
-
----
-
-### **Attestation Guidance**  
-- **Machine Attestation**: e.g., “Verify that access permissions for terminated employees are updated in Surveilr by analyzing access logs.”  
-- **Human Attestation**: e.g., “Compliance Officer must sign off on access termination for all departing employees and upload the signed document to Surveilr with relevant metadata.”
+### Attestation Guidance
+- **Machine Attestation**: e.g., “Verify that access to EPHI is terminated by ingesting OSquery data into Surveilr to confirm removal of user permissions.”  
+- **Human Attestation**: e.g., “HR must sign the employee termination checklist, then upload it to Surveilr with appropriate metadata.”
