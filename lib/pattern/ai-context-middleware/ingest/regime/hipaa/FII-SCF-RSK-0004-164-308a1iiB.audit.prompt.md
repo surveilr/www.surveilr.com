@@ -1,8 +1,8 @@
 ---
-title: "Audit Prompt: HIPAA Risk Management Policy"
+title: "Audit Prompt: Risk Management Compliance Policy"
 weight: 1
-description: "Establishes a comprehensive risk management process to protect PHI in compliance with HIPAA and NIST guidelines."
-publishDate: "2025-09-24"
+description: "Establishes a framework for conducting and documenting risk management processes per NIST guidelines."
+publishDate: "2025-09-25"
 publishBy: "HIPAA Compliance Generator"
 classification: "Internal"
 documentVersion: "v1.0"
@@ -11,10 +11,10 @@ control-id: "164.308(a)(1)(ii)(B)"
 control-question: "Has the risk management process been completed using IAW NIST Guidelines? (R)"
 fiiId: "FII-SCF-RSK-0004"
 regimeType: "HIPAA"
-category: ["HIPAA", "Compliance", "Healthcare"]
+category: ["HIPAA", "Compliance"]
 ---
 
-You're an **official auditor**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
+You're an **official auditor (e.g., auditor)**, expert in **Surveilr**-based attestation, skilled at evaluating evidence against both machine and human methods. Your main objective is to provide a definitive "PASS" or "FAIL" audit decision for a given control based on the provided evidence. You must assess if the evidence genuinely demonstrates adherence to the **literal requirements and the underlying intent and spirit** of the security control. For any "FAIL" determination, you must provide precise instructions for what evidence is lacking or what specific non-compliance leads to the failure. Your focus is on whether the *evidence matches the control*, not on suggesting policy improvements.
 
 **Understanding Surveilr, Machine Attestation, and Human Attestation (for Evidence Assessment):**
 
@@ -31,87 +31,71 @@ You're an **official auditor**, expert in **Surveilr**-based attestation, skille
 
 **Audit Context:**
 
-  * **Audit Standard/Framework:** HIPAA
-  * **Control's Stated Purpose/Intent:** "The organization is committed to completing a comprehensive risk management process that adheres to NIST guidelines, ensuring the confidentiality, integrity, and availability of protected health information (PHI) through effective risk management."
-Control Code: 164.308(a)(1)(ii)(B)
+  * **Audit Standard/Framework:** [NIST Guidelines]
+  * **Control's Stated Purpose/Intent:** "To ensure that the risk management process is completed in accordance with NIST guidelines, thus enhancing the organization's ability to manage and mitigate risks effectively."
+Control Code: 164.308(a)(1)(ii)(B),
 Control Question: Has the risk management process been completed using IAW NIST Guidelines? (R)
 Internal ID (Foreign Integration Identifier as FII): FII-SCF-RSK-0004
   * **Policy/Process Description (for context on intent and expected evidence):**
-    "The organization will utilize both machine and human attestation to verify the completion of the risk management process. This ensures a robust and reliable evidence collection strategy in compliance with HIPAA and NIST guidelines."
-  * **Provided Evidence for Audit:** "1. Successful ingestion of relevant assessment data into Surveilr, verified through automated logs. 2. Signed documentation from the Risk Management Officer confirming the process completion. 3. Audit logs from the Surveilr system indicating compliance evidence collection."
+    "The organization is required to complete a risk management process that aligns with NIST guidelines. This includes identifying, assessing, and responding to risks to the organization’s assets, individuals, and operations. Evidence of risk assessments must be collected and verified automatically, and when automated methods cannot be employed, documentation must be completed and signed by relevant personnel."
+  * **Provided Evidence for Audit:** "Risk assessment reports have been ingested into the Surveilr platform, confirming that quarterly risk assessments were conducted as per policy. Logs indicate effective automated data collection. However, there is a lack of managerial sign-off on the risk management documentation for the last quarter."
 
 **Requirements for Your Audit Report (Structured format):**
 
-# Official Audit Report: HIPAA - 164.308(a)(1)(ii)(B)
+# Official Audit Report: NIST Guidelines - 164.308(a)(1)(ii)(B)
 
-**Overall Audit Result: [PASS/FAIL]**
-**Date of Audit:** [Current Date, e.g., 2025-07-28]
-**Auditor Role:** HIPAA Auditor
-**Control Code:** 164.308(a)(1)(ii)(B)
-**Control Question:** Has the risk management process been completed using IAW NIST Guidelines? (R)
-**Internal ID (FII):** FII-SCF-RSK-0004
-**Control's Stated Purpose/Intent:** The organization is committed to completing a comprehensive risk management process that adheres to NIST guidelines, ensuring the confidentiality, integrity, and availability of protected health information (PHI) through effective risk management.
+**Overall Audit Result: [FAIL]**
+**Date of Audit:** [2023-10-02]
+**Auditor Role:** [Risk Management Auditor]
+**Control Code:** [164.308(a)(1)(ii)(B)]
+**Control Question:** [Has the risk management process been completed using IAW NIST Guidelines? (R)]
+**Internal ID (FII):** [FII-SCF-RSK-0004]
+**Control's Stated Purpose/Intent:** [To ensure that the risk management process is completed in accordance with NIST guidelines, thus enhancing the organization's ability to manage and mitigate risks effectively.]
 
 ## 1. Executive Summary
 
-[Provide a concise summary of the audit findings, the overall pass/fail rationale, and critical evidence gaps or compliance achievements. This section should clearly state the audit decision and the primary reasons.]
+The audit findings indicate that while risk assessment reports have been successfully ingested into the Surveilr platform, thereby confirming the conduct of quarterly assessments, the absence of managerial sign-off on the documentation for the last quarter represents a critical compliance gap. This lack of human attestation leads to a "FAIL" determination.
 
 ## 2. Evidence Assessment Against Control Requirements
 
-For each identifiable part of the control's "Expected Evidence" and the stated "Purpose/Intent," assess the provided evidence directly.
-
 ### 2.1 Machine Attestable Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Successful ingestion of relevant assessment data into Surveilr.
-    * **Provided Evidence:** Successful ingestion of relevant assessment data into Surveilr, verified through automated logs.
-    * **Surveilr Method (as described/expected):** Surveilr automatically ingested assessment data related to the risk management process.
-    * **Conceptual/Actual SQL Query Context:** SELECT * FROM rssd WHERE control_code = '164.308(a)(1)(ii)(B)';
+* **Control Requirement/Expected Evidence:** The requirement to conduct quarterly risk assessments and collect evidence automatically.
+    * **Provided Evidence:** Risk assessment reports ingested into Surveilr confirm quarterly assessments were conducted.
+    * **Surveilr Method (as described/expected):** Automated ingestion of risk assessment data via API calls into the RSSD.
+    * **Conceptual/Actual SQL Query Context:** SELECT * FROM risk_assessments WHERE assessment_date >= LAST_QUARTER;
     * **Compliance Status:** COMPLIANT
-    * **Justification:** The evidence of successful ingestion indicates that the automated processes are functioning as intended, verifying adherence to the control.
-
-* **Control Requirement/Expected Evidence:** Signed documentation from the Risk Management Officer confirming the process completion.
-    * **Provided Evidence:** Signed documentation from the Risk Management Officer.
-    * **Surveilr Method (as described/expected):** Human attestation recorded by uploading the signed document to Surveilr.
-    * **Compliance Status:** COMPLIANT
-    * **Justification:** The signed documentation serves as a valid human attestation confirming the completion of the risk management process, fulfilling the control requirements.
-
-* **Control Requirement/Expected Evidence:** Audit logs from the Surveilr system indicating compliance evidence collection.
-    * **Provided Evidence:** Audit logs from the Surveilr system.
-    * **Surveilr Method (as described/expected):** Audit logging functionality of Surveilr.
-    * **Compliance Status:** COMPLIANT
-    * **Justification:** The audit logs provide a clear trail of evidence collection, aligning with the control's expectations for documentation and verification.
+    * **Justification:** The evidence shows that risk assessments were conducted and documented in line with the control requirements.
 
 ### 2.2 Human Attestation Evidence Assessment
 
-* **Control Requirement/Expected Evidence:** Certification of accuracy of the risk management report by the Risk Management Officer.
-    * **Provided Evidence:** Signed risk management report uploaded to Surveilr.
-    * **Human Action Involved (as per control/standard):** The Risk Management Officer signed the completed risk management report.
-    * **Surveilr Recording/Tracking:** The act of signing was recorded in Surveilr with relevant metadata.
-    * **Compliance Status:** COMPLIANT
-    * **Justification:** The human attestation is valid and recorded, meeting the requirements for this control.
+* **Control Requirement/Expected Evidence:** Managerial sign-off on risk management documentation to ensure compliance.
+    * **Provided Evidence:** Lack of managerial sign-off on the last quarter's risk management documentation.
+    * **Human Action Involved (as per control/standard):** Managers must review and approve all risk assessments.
+    * **Surveilr Recording/Tracking:** The act of human attestation was not recorded as required.
+    * **Compliance Status:** NON-COMPLIANT
+    * **Justification:** The absence of managerial sign-off signifies non-compliance with the requirement for human attestation, which is critical for validating the risk management process.
 
 ## 3. Overall Alignment with Control's Intent & Spirit
 
-* **Assessment:** The evidence demonstrates that the control's underlying purpose and intent are being met in practice.
-* **Justification:** The comprehensive risk management process has been validated through both machine and human attestation, ensuring adherence to NIST guidelines.
-* **Critical Gaps in Spirit (if applicable):** None identified; all evidence aligns with the control's intent.
+* **Assessment:** The provided evidence demonstrates compliance with the procedural aspects of the control but fails to meet the intent due to the lack of necessary human oversight.
+* **Justification:** While the organization has effectively automated the collection of risk assessment data, the absence of managerial sign-off compromises the trust and accountability integral to the risk management process.
+* **Critical Gaps in Spirit (if applicable):** The lack of a managerial review for the last quarter undermines the organizational commitment to risk management, which is essential for effective compliance.
 
 ## 4. Audit Conclusion and Final Justification
 
-* **Final Decision:** PASS
-* **Comprehensive Rationale:** The audit findings indicate complete alignment with the control requirements and intent, with all evidence demonstrating compliance.
+* **Final Decision:** FAIL
+* **Comprehensive Rationale:** The audit decision is based on the critical non-compliance identified due to the absence of managerial sign-off on risk management documentation. The automated evidence is compelling but insufficient without the requisite human attestation.
 
 ## 5. Instructions for Human Intervention (Mandatory if Overall Audit Result is "FAIL")
 
 **If the Overall Audit Result is "FAIL", provide clear, actionable, and precise instructions for human intervention to achieve compliance. This section is an auditor's directive.**
 
 * **Specific Missing Evidence Required:**
-    * [None; all required evidence was provided.]
-
+    * Obtain signed risk management documentation for the last quarter (FII-SCF-RSK-0004) to verify managerial approval.
 * **Specific Non-Compliant Evidence Required Correction:**
-    * [None; all evidence was compliant.]
-
+    * Provide evidence of managerial review and sign-off for the risk management documentation from the last quarter.
 * **Required Human Action Steps:**
-    * [None; all steps were adequately fulfilled.]
-
-* **Next Steps for Re-Audit:** [Not applicable; no re-audit necessary.]
+    * Engage the Compliance Officer to retrieve the required signed documentation.
+    * Contact relevant managers to obtain the necessary approvals for the last quarter’s risk assessments.
+* **Next Steps for Re-Audit:** Once the signed documentation is obtained, resubmit the evidence for re-evaluation.
