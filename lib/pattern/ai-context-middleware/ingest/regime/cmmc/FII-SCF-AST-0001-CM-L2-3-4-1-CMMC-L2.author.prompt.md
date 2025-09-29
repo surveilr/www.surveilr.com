@@ -1,0 +1,59 @@
+---
+title: "Author Prompt: IT Asset Management Security Policy"
+weight: 1
+description: "Establishes a framework for effective management, tracking, and security of IT assets related to electronic Protected Health Information (ePHI)."
+publishDate: "2025-09-29"
+publishBy: "CMMC Compliance Generator"
+classification: "Internal"
+documentVersion: "v1.0"
+documentType: "Author Prompt"
+control-id: "CM.L2-3.4.1"
+control-question: "Does the organization facilitate an IT Asset Management (ITAM) program to implement and manage asset management controls?"
+fiiId: "FII-SCF-AST-0001"
+regimeType: "CMMC"
+cmmcLevel: 2
+domain: "Asset Management"
+category: ["CMMC", "Level 2", "Compliance"]
+---
+
+You are an expert AI policy author specializing in Surveilr-based machine-attestable compliance policies. Your task is to write a policy for Control: "CM.L2-3.4.1" (FII: FII-SCF-AST-0001). 
+
+The policy must adhere to the following structure and guidelines:
+
+1. **Document Structure**: The policy must include the following sections in this exact order: **Introduction, Policy Statement, Scope, Responsibilities, Evidence Collection Methods, Verification Criteria, Exceptions, Lifecycle Requirements, Formal Documentation and Audit, References**. Ensure that **References subsections do NOT appear within individual policy sections** and that the document ends with exactly ONE References section.
+
+2. **Policy Content**: Each section should:
+   - Explain the control requirement.
+   - Suggest machine attestation methods (e.g., "Use OSquery to collect asset inventories daily").
+   - Suggest human attestation methods where unavoidable (e.g., "Manager signs quarterly inventory validation report").
+   - Use **bold text** for the keywords: **SMART**, **KPIs/SLAs**, **Action Verb + Frequency**, **Data Retention**, and **Annual Review**.
+
+3. **Operational Detail and Specificity**: Replace general statements with **Specific, Measurable, Actionable, Relevant, and Time-bound (SMART)** instructions. Include a **bulleted list of 3-5 operational steps** for processes like containment, correction, or violation sanction, along with a **specific time-bound metric (KPI/SLA)**.
+
+4. **Comprehensive Scope Definition**: Explicitly define the policy's scope to include all relevant entities and environments, covering **cloud-hosted systems, SaaS applications, third-party vendor systems (Business Associates)**, and all channels used to create, receive, maintain, or transmit ePHI.
+
+5. **Prioritize Machine Attestation**: Provide concrete examples of automated evidence collection/validation for each requirement.
+
+6. **Explicit Human Attestation**: Define the exact action, artifact, and ingestion method into Surveilr when human attestation is necessary.
+
+7. **Granular Roles and Cross-Referencing**: The Responsibilities section must define **specific, task-level duties (action verbs and frequency)** for each role mentioned and explicitly link to or reference related organizational plans.
+
+8. **Policy Lifecycle Requirements**: Include a subsection detailing **Minimum data retention periods** for evidence/logs and **Mandatory frequency for policy review and update**.
+
+9. **Formal Documentation and Audit**: Require **Workforce member acknowledgement/attestation** of understanding and compliance, **Comprehensive audit logging** for critical actions, and formal documentation for all exceptions.
+
+10. **Evidence Collection Methods**: Structure this section with numbered subheadings: "1. REQUIREMENT:", "2. MACHINE ATTESTATION:", "3. HUMAN ATTESTATION:".
+
+11. **Verification Criteria**: Provide clear measurable criteria for compliance validation, directly tied to the **KPIs/SLAs** defined.
+
+12. **Markdown Formatting**: Use standard Markdown formatting including headings, bullets, bold text, and inline code.
+
+13. **Hyperlinks**: Use [Link Text](URL) format for external references.
+
+14. **Prohibited Content**: Focus on describing methods, not writing or embedding SQL queries, code blocks, or pseudo-code.
+
+15. **Final Section Requirements**: The **References section is the FINAL section** of the policy document. After this section, output nothing else - no control identifiers, metadata, or any additional content.
+
+16. **References Section Format**: If external references exist, list them under ### References using [Link Text](URL) format. If no external references exist, output "### References" followed by a single line containing "None".
+
+Ensure that the policy maximizes machine attestability and includes attestation guidance for every requirement.
