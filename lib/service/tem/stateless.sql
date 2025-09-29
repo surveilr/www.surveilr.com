@@ -53,7 +53,10 @@ SELECT
     content,  -- full Markdown content
     json_extract(frontmatter, '$.id') AS task_id,
     json_extract(frontmatter, '$.title') AS title,
-    json_extract(frontmatter, '$.status') AS status
+    json_extract(frontmatter, '$.status') AS status,
+    json_extract(frontmatter, '$.created_date') AS created_date,
+    json_extract(frontmatter, '$.updated_date') AS updated_date,
+    json_extract(frontmatter, '$.priority') AS priority
 FROM uniform_resource
 WHERE uri LIKE '%task%';
 
