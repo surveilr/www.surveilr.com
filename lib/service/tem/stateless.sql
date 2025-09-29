@@ -38,6 +38,26 @@ SELECT
 FROM ur_ingest_session
 WHERE deleted_at IS NULL;
 
+-- View: tem_task_summary
+-- Purpose: Extracts all task-related records from the uniform_resource table.
+-- Includes the full Markdown content along with frontmatter fields: task ID, title, and status.
+-- Filters only records where the URI contains "/task/".
+-- Designed to provide a single source for listing tasks and rendering task details in the TEM module.
+
+DROP VIEW IF EXISTS tem_task_summary;
+
+CREATE VIEW tem_task_summary AS
+SELECT
+    uniform_resource_id,
+    uri,
+    content,  -- full Markdown content
+    json_extract(frontmatter, '$.id') AS task_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.status') AS status
+FROM uniform_resource
+WHERE uri LIKE '%task%';
+
+
 -- This query extracts unique asset names from the `uniform_resource` table for URIs under `/var/`.
 -- It breaks down each URI into its path segments and applies the following rules:
 --   1. Identifies the base asset folder (e.g., ".session", "dnsx", "tls").
@@ -1118,3 +1138,5 @@ SELECT
 
 FROM parsed
 WHERE instr(subject_line, 'CN=') > 0;
+
+

@@ -52,30 +52,57 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     }
 
     @spn.navigationPrimeTopLevel({
-        caption: "Threat Exposure Management",
-        description:
-            `Opsfolio Threat Exposure Management (TEM) and Opsfolio EAA are part of the Opsfolio Suite, which underpins Opsfolio Compliance-as-a-Service (CaaS) offerings.`,
+    caption: "Threat Exposure Management",
+    description: `Opsfolio Threat Exposure Management (TEM) and Opsfolio EAA are part of the Opsfolio Suite, which underpins Opsfolio Compliance-as-a-Service (CaaS) offerings.`,
     })
     "tem/index.sql"() {
-        return this.SQL`
-    select
-        'text'              as component,
-        'Opsfolio Threat Exposure Management (TEM) transforms static penetration test reports into real-time, actionable dashboards and workflows. Powered by Opsfolio EAA, it streamlines vulnerability reporting, automates remediation tracking, and delivers compliance-ready evidence to keep your organization secure and audit-ready.' as contents;
-      WITH navigation_cte AS (
-          SELECT COALESCE(title, caption) as title, description
+    const taskView = "tem_task_summary"; 
+    const pagination = this.pagination({
+        tableOrViewName: taskView,
+        whereSQL: "WHERE uri LIKE '%task%'",
+    });
+
+    return this.SQL`
+        -- Intro text
+        SELECT
+            'text' AS component,
+            'Opsfolio Threat Exposure Management (TEM) transforms static penetration test reports into real-time, actionable dashboards and workflows. Powered by Opsfolio EAA, it streamlines vulnerability reporting, automates remediation tracking, and delivers compliance-ready evidence to keep your organization secure and audit-ready.' AS contents;
+
+        -- Navigation list
+        WITH navigation_cte AS (
+            SELECT COALESCE(title, caption) AS title, description
             FROM sqlpage_aide_navigation
-           WHERE namespace = 'prime' AND path = ${this.constructHomePath("tem")
-            }
-      )
-      SELECT 'list' AS component, title, description
+            WHERE namespace = 'prime' AND path = ${this.constructHomePath("tem")}
+        )
+        SELECT 'list' AS component, title, description
         FROM navigation_cte;
-      SELECT caption as title, ${this.absoluteURL("/")
-            } || COALESCE(url, path) as link, description
+
+        SELECT caption AS title, ${this.absoluteURL("/")} || COALESCE(url, path) AS link, description
         FROM sqlpage_aide_navigation
-       WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("tem")
-            }
-       ORDER BY sibling_order;`;
+        WHERE namespace = 'prime' AND parent_path = ${this.constructHomePath("tem")}
+        ORDER BY sibling_order;
+
+        --- Page Title for Tasks Section
+        SELECT 'title' AS component, 'Tasks Overview' AS contents;
+
+        --- Small description above the table
+        SELECT 'text' AS component,
+        'This table lists all tasks detected in the system, including their status and title. Click on a Task ID to view detailed content.' AS contents;
+
+        --- Tasks Table
+        SELECT 'table' AS component, TRUE AS sort, TRUE AS search, 'Title' AS markdown;
+
+        ${pagination.init()}
+        SELECT
+        '[' || title || '](' || ${this.absoluteURL("/tem/task_detail.sql?task_id=")} || uniform_resource_id || ')' AS "Title",
+        task_id AS "Task ID",
+        status AS "Status"
+        FROM ${taskView};
+
+        ${pagination.renderSimpleMarkdown()};
+    `;
     }
+
 
     @temNav({
         caption: "Attack Surface Mapping By Tenant",
@@ -2614,6 +2641,53 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
       </html>
         `;
     }
+  @spn.shell({ breadcrumbsFromNavStmts: "no" })
+  "tem/task_detail.sql"() {
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'Tem' AS title, ${this.absoluteURL("/tem/index.sql")} AS link;
+    SELECT 
+      (SELECT title FROM tem_task_summary WHERE uniform_resource_id = $task_id) AS title,
+      '#' AS link;
+
+    --- Card Header with Task Title
+    SELECT 'card' AS component,
+           (SELECT title
+            FROM tem_task_summary
+            WHERE uniform_resource_id = $task_id) AS title,
+           1 AS columns;
+
+    --- Task Content Section (rendered nicely in Markdown)
+    WITH RECURSIVE strip_comments(txt) AS (
+    -- initial content (after frontmatter)
+    SELECT ltrim(
+             substr(
+               content,
+               instr(substr(content, instr(content, '---') + 3), '---') + instr(content, '---') + 5
+             )
+           )
+    FROM tem_task_summary
+    WHERE uniform_resource_id = $task_id
+
+    UNION ALL
+
+    -- remove first <!-- ... --> occurrence
+    SELECT 
+        substr(txt, 1, instr(txt, '<!--') - 1) || substr(txt, instr(txt, '-->') + 3)
+    FROM strip_comments
+    WHERE txt LIKE '%<!--%-->%'
+    )
+    SELECT txt AS description_md
+    FROM strip_comments
+    WHERE txt NOT LIKE '%<!--%-->%'
+    LIMIT 1;
+    `;
+  }
+    
 }
 
 export async function SQL() {
