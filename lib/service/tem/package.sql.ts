@@ -312,6 +312,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $session_id || ')' as Asset,
             (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
             (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[SSL/TLS Certificate Metadata]('||${this.absoluteURL("/tem/session/openssl.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_openssl WHERE ur_ingest_session_id = $session_id) as "count";
     `;
     }
 
@@ -406,6 +411,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $tenant_id || ')' as Asset,
             (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
             (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[SSL/TLS Certificate Metadata]('||${this.absoluteURL("/tem/tenant/openssl.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_openssl WHERE tenant_id = $tenant_id) as "count";
     `;
     }
 
@@ -2002,7 +2012,8 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
           datetime(start_time, 'unixepoch') AS "start time",
           ip,
           port,
-          rdns
+          rdns,
+          tanent_name  AS "Tenant"
       FROM ${viewName}
       WHERE ur_ingest_session_id = $session_id;
 
@@ -2098,7 +2109,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         TRUE    as freeze_columns,
         TRUE    as freeze_headers,
         TRUE    as border;  
-           
+           select 
+                'Tenant' as 'General Info',
+                tanent_name as 'Value'
+                FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
+            union all
             select 
                 'Invocation' as 'General Info',
                 invocation as 'Value'
@@ -2368,6 +2383,161 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${ratingPagination.renderSimpleMarkdown("component", "tab", "uniform_resource_id", "session_id", "$tab='rating'")};
     `;
     }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/openssl.sql"() {
+        const viewName = `tem_openssl`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+
+      --- Breadcrumb setup
+      SELECT 'breadcrumb' AS component;
+          SELECT 'Home' AS title,
+              ${this.absoluteURL("/")} AS link;
+          SELECT 'Threat Exposure Management' AS title,
+              ${this.absoluteURL("/tem/index.sql")} AS link;
+          SELECT 'Attack Surface Mapping By Tenant' AS title,
+              ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+          SELECT tanent_name AS title,
+              ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link
+          FROM tem_tenant WHERE tenant_id = $tenant_id;
+          SELECT 'Findings' AS title,
+              ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+          SELECT 'SSL/TLS Certificate Metadata' AS title,
+              '#' AS link;
+
+      --- Page title
+      SELECT 'title' AS component,
+          'SSL/TLS Certificate Metadata' AS contents;
+
+      --- Page description
+      SELECT 'text' AS component,
+          'This page displays structured SSL/TLS certificate details extracted from OpenSSL output. 
+          Each row represents a certificate discovered within the tenant’s infrastructure, showing subject details, issuer information, and validity periods. 
+          These insights help assess certificate ownership, identify expired or weakly issued certificates, and strengthen the tenant’s security posture.' AS contents;
+
+      --- Table setup
+      SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search;
+
+      ${pagination.init()}
+     SELECT
+        CASE WHEN common_name IS NULL OR trim(common_name) = '' THEN '-' ELSE common_name END AS "Common Name",
+        CASE WHEN subject_organization IS NULL OR trim(subject_organization) = '' THEN '-' ELSE subject_organization END AS "Subject Organization",
+        CASE WHEN issuer_common_name IS NULL OR trim(issuer_common_name) = '' THEN '-' ELSE issuer_common_name END AS "Issuer CN",
+        CASE WHEN issuer_organization IS NULL OR trim(issuer_organization) = '' THEN '-' ELSE issuer_organization END AS "Issuer Organization",
+        CASE WHEN issuer_country IS NULL OR trim(issuer_country) = '' THEN '-' ELSE issuer_country END AS "Issuer Country",
+
+        -- Issued Date
+        CASE
+            WHEN issued_date IS NULL OR trim(issued_date) = '' THEN '-'
+            ELSE printf(
+                    '%s %s %s',
+                    trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), 1, 3)),
+                    trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), 5, 2)),
+                    trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), -9, 4))
+                )
+        END AS "Issued Date",
+
+        -- Expires Date
+        CASE
+            WHEN expires_date IS NULL OR trim(expires_date) = '' THEN '-'
+            ELSE printf(
+                    '%s %s %s',
+                    trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), 1, 3)),
+                    trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), 5, 2)),
+                    trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), -9, 4))
+                )
+        END AS "Expires Date"
+
+    FROM ${viewName}
+    WHERE tenant_id = $tenant_id;
+
+      ${pagination.renderSimpleMarkdown("tenant_id")};
+  `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/openssl.sql"() {
+        const viewName = `tem_openssl`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+        ${this.activePageTitle()}
+
+        --- Breadcrumb setup
+            SELECT 'breadcrumb' AS component;
+                SELECT 'Home' AS title,
+                    ${this.absoluteURL("/")} AS link;
+                SELECT 'Threat Exposure Management' AS title,
+                    ${this.absoluteURL("/tem/index.sql")} AS link;  
+                SELECT 'Attack Surface Mapping By Session' AS title,
+                    ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+                SELECT 'Findings' AS title,
+                    ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+                SELECT 'SSL/TLS Certificate Metadata' AS title,
+                    '#' AS link;
+
+        --- Page title
+        SELECT 'title' AS component,
+            'SSL/TLS Certificate Metadata' AS contents;
+
+        --- Page description
+        SELECT 'text' AS component,
+            'This page displays structured SSL/TLS certificate details extracted from OpenSSL output for a given session. 
+            Each row represents a certificate discovered within the session’s infrastructure, showing subject details, issuer information, and validity periods. 
+            These insights help assess certificate ownership, identify expired or weakly issued certificates, and strengthen the session’s security posture.' AS contents;
+
+        --- Table setup
+        SELECT 'table' AS component,
+            TRUE AS sort,
+            TRUE AS search;
+
+        ${pagination.init()}
+        SELECT
+            CASE WHEN tanent_name IS NULL OR trim(tanent_name) = '' THEN '-' ELSE tanent_name END AS "Tenant",
+            CASE WHEN common_name IS NULL OR trim(common_name) = '' THEN '-' ELSE common_name END AS "Common Name",
+            CASE WHEN subject_organization IS NULL OR trim(subject_organization) = '' THEN '-' ELSE subject_organization END AS "Subject Organization",
+            CASE WHEN issuer_common_name IS NULL OR trim(issuer_common_name) = '' THEN '-' ELSE issuer_common_name END AS "Issuer CN",
+            CASE WHEN issuer_organization IS NULL OR trim(issuer_organization) = '' THEN '-' ELSE issuer_organization END AS "Issuer Organization",
+            CASE WHEN issuer_country IS NULL OR trim(issuer_country) = '' THEN '-' ELSE issuer_country END AS "Issuer Country",
+
+            -- Issued Date
+            CASE
+                WHEN issued_date IS NULL OR trim(issued_date) = '' THEN '-'
+                ELSE printf(
+                        '%s %s %s',
+                        trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), 1, 3)),
+                        trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), 5, 2)),
+                        trim(substr(replace(replace(issued_date, '  ', ' '), '  ', ' '), -9, 4))
+                    )
+            END AS "Issued Date",
+
+            -- Expires Date
+            CASE
+                WHEN expires_date IS NULL OR trim(expires_date) = '' THEN '-'
+                ELSE printf(
+                        '%s %s %s',
+                        trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), 1, 3)),
+                        trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), 5, 2)),
+                        trim(substr(replace(replace(expires_date, '  ', ' '), '  ', ' '), -9, 4))
+                    )
+            END AS "Expires Date"
+
+        FROM ${viewName}
+        WHERE ur_ingest_session_id = $session_id;
+
+        ${pagination.renderSimpleMarkdown("session_id")};
+        `;
+    }
+
 
     @spn.shell({
         breadcrumbsFromNavStmts: "no",
