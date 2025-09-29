@@ -824,3 +824,297 @@ JOIN json_each(s.value, '$.rating') fs
 WHERE ur.uri LIKE '%testssl%'
   AND ur.nature = 'json'
   AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+  -- ===============================================================
+-- View: tem_openssl_original
+--
+-- Purpose:
+--   This view extracts individual SSL/TLS certificate blocks and
+--   their associated metadata from the raw content stored in the
+--   `uniform_resource` table. Certificates are split into multiple
+--   rows for easier parsing and analysis.
+--
+-- Method:
+--   * Uses a recursive CTE (`cert_blocks`) to search the content for
+--     "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
+--     markers.
+--   * Each recursion step:
+--       - `metadata`   : Text before the certificate block
+--       - `certificate`: The full PEM-encoded certificate including
+--                        BEGIN/END markers
+--       - `remaining_text`: Remaining content after the current
+--                           certificate (used for recursion)
+--   * The process continues until no more certificate blocks are
+--     found.
+--
+-- Output Columns:
+--   - uniform_resource_id : Identifier linking back to the source entry
+--   - tenant_id           : Tenant identifier
+--   - tanent_name         : Tenant name
+--   - ur_ingest_session_id: Session identifier
+--   - cert_index          : Sequential index of the certificate
+--   - metadata            : Preceding OpenSSL diagnostic text
+--   - certificate         : Extracted PEM certificate block
+--
+-- Notes:
+--   * Certificates are returned in the order they appear.
+--   * Rows without a certificate (NULL) are excluded.
+--   * This view normalizes OpenSSL output into a relational form for
+--     downstream parsing (e.g., extracting CN, issuer, validity period).
+--
+-- ===============================================================
+DROP VIEW IF EXISTS tem_openssl_original;
+CREATE VIEW tem_openssl_original AS
+WITH RECURSIVE cert_blocks AS (
+    -- Anchor: start from the beginning of content with tenant info
+    SELECT
+        ur.uniform_resource_id,
+        t.tenant_id,
+        t.tanent_name,
+        ts.ur_ingest_session_id,
+        ur.content AS remaining_text,
+        NULL AS metadata,
+        NULL AS certificate,
+        1 AS cert_index
+    FROM uniform_resource ur
+    INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+    INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+
+    UNION ALL
+
+    -- Recursive step: extract the next certificate block
+    SELECT
+        uniform_resource_id,
+        tenant_id,
+        tanent_name,
+        ur_ingest_session_id,
+        substr(remaining_text, instr(remaining_text, '-----END CERTIFICATE-----') + length('-----END CERTIFICATE-----')) AS remaining_text,
+        trim(substr(remaining_text, 1, instr(remaining_text, '-----BEGIN CERTIFICATE-----') - 1)) AS metadata,
+        substr(
+            remaining_text,
+            instr(remaining_text, '-----BEGIN CERTIFICATE-----'),
+            instr(remaining_text, '-----END CERTIFICATE-----') - instr(remaining_text, '-----BEGIN CERTIFICATE-----') + length('-----END CERTIFICATE-----')
+        ) AS certificate,
+        cert_index + 1
+    FROM cert_blocks
+    WHERE remaining_text LIKE '%-----BEGIN CERTIFICATE-----%'
+)
+SELECT
+    uniform_resource_id,
+    tenant_id,
+    tanent_name,
+    ur_ingest_session_id,
+    cert_index,
+    metadata,
+    certificate
+FROM cert_blocks
+WHERE certificate IS NOT NULL
+ORDER BY uniform_resource_id, cert_index;
+
+
+-- ===============================================================
+-- View: tem_openssl
+-- Purpose:
+--   This view parses raw SSL certificate metadata stored in the
+--   `tem_openssl_original` view and extracts key fields into
+--   structured columns. The goal is to make certificate details
+--   easier to query, filter, and join with other data.
+--
+-- Source:
+--   Table: tem_openssl_original
+--   Column: metadata (raw certificate text as produced by OpenSSL)
+--
+-- Extracted Fields:
+--   - common_name          : Subject CN from "s:" line
+--   - subject_organization : Subject O from "s:" line
+--   - issuer_country       : Issuer C from "i:" line
+--   - issuer_common_name   : Issuer CN from "i:" line
+--   - issuer_organization  : Issuer O from "i:" line
+--   - issued_date          : Certificate "NotBefore" validity date
+--   - expires_date         : Certificate "NotAfter" validity date
+--
+-- Notes:
+--   * The view trims values and falls back to an empty string ("")
+--     if a field is not present in the metadata.
+--   * Only rows where a Common Name (CN) exists in the subject
+--     line are included (filter applied in final WHERE clause).
+--   * Parsing is implemented using SQLite string functions
+--     (instr, substr, length) to avoid dependency on regexp.
+--
+-- Usage Example:
+--   SELECT common_name, issuer_common_name, issued_date, expires_date
+--   FROM tem_openssl
+--   WHERE expires_date < date('now');
+--
+-- ===============================================================
+DROP VIEW IF EXISTS tem_openssl;
+CREATE VIEW tem_openssl AS
+WITH parsed AS (
+  SELECT
+    uniform_resource_id,
+    tenant_id,
+    tanent_name,
+    ur_ingest_session_id,
+    cert_index,
+    metadata,
+
+    -- full subject line starting at the first "s:" up to the newline
+    CASE
+      WHEN instr(metadata, 's:') = 0 THEN ''
+      ELSE trim(
+        substr(
+          metadata,
+          instr(metadata, 's:'),
+          CASE
+            WHEN instr(substr(metadata, instr(metadata, 's:')), char(10)) > 0
+              THEN instr(substr(metadata, instr(metadata, 's:')), char(10)) - 1
+            ELSE length(metadata) - instr(metadata, 's:') + 1
+          END
+        )
+      )
+    END AS subject_line,
+
+    -- full issuer line starting at the first "i:" up to the newline
+    CASE
+      WHEN instr(metadata, 'i:') = 0 THEN ''
+      ELSE trim(
+        substr(
+          metadata,
+          instr(metadata, 'i:'),
+          CASE
+            WHEN instr(substr(metadata, instr(metadata, 'i:')), char(10)) > 0
+              THEN instr(substr(metadata, instr(metadata, 'i:')), char(10)) - 1
+            ELSE length(metadata) - instr(metadata, 'i:') + 1
+          END
+        )
+      )
+    END AS issuer_line
+
+  FROM tem_openssl_original
+)
+
+SELECT
+  uniform_resource_id,
+  tenant_id,
+  tanent_name,
+  ur_ingest_session_id,
+  cert_index,
+
+  /* common_name (from subject_line -> CN=...) */
+  CASE
+    WHEN instr(subject_line, 'CN=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        subject_line,
+        instr(subject_line, 'CN=') + 3,
+        CASE
+          WHEN instr(substr(subject_line, instr(subject_line, 'CN=') + 3), ',') > 0
+            THEN instr(substr(subject_line, instr(subject_line, 'CN=') + 3), ',') - 1
+          ELSE length(subject_line) - (instr(subject_line, 'CN=') + 3) + 1
+        END
+      )
+    )
+  END AS common_name,
+
+  /* subject_organization (from subject_line -> O=...) */
+  CASE
+    WHEN instr(subject_line, 'O=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        subject_line,
+        instr(subject_line, 'O=') + 2,
+        CASE
+          WHEN instr(substr(subject_line, instr(subject_line, 'O=') + 2), ',') > 0
+            THEN instr(substr(subject_line, instr(subject_line, 'O=') + 2), ',') - 1
+          ELSE length(subject_line) - (instr(subject_line, 'O=') + 2) + 1
+        END
+      )
+    )
+  END AS subject_organization,
+
+  /* issuer_country (from issuer_line -> C=...) */
+  CASE
+    WHEN instr(issuer_line, 'C=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'C=') + 2,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'C=') + 2), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'C=') + 2), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'C=') + 2) + 1
+        END
+      )
+    )
+  END AS issuer_country,
+
+  /* issuer_common_name (from issuer_line -> CN=...) */
+  CASE
+    WHEN instr(issuer_line, 'CN=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'CN=') + 3,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'CN=') + 3), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'CN=') + 3), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'CN=') + 3) + 1
+        END
+      )
+    )
+  END AS issuer_common_name,
+
+  /* issuer_organization (from issuer_line -> O=...) */
+  CASE
+    WHEN instr(issuer_line, 'O=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'O=') + 2,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'O=') + 2), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'O=') + 2), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'O=') + 2) + 1
+        END
+      )
+    )
+  END AS issuer_organization,
+
+  /* issued_date (NotBefore:) */
+  CASE
+    WHEN instr(metadata, 'NotBefore:') = 0 THEN ''
+    ELSE trim(
+      substr(
+        metadata,
+        instr(metadata, 'NotBefore:') + length('NotBefore:'),
+        CASE
+          WHEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), ';') > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), ';') - 1
+          WHEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), char(10)) > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), char(10)) - 1
+          ELSE length(metadata) - (instr(metadata, 'NotBefore:') + length('NotBefore:')) + 1
+        END
+      )
+    )
+  END AS issued_date,
+
+  /* expires_date (NotAfter:) */
+  CASE
+    WHEN instr(metadata, 'NotAfter:') = 0 THEN ''
+    ELSE trim(
+      substr(
+        metadata,
+        instr(metadata, 'NotAfter:') + length('NotAfter:'),
+        CASE
+          WHEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), char(10)) > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), char(10)) - 1
+          WHEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), ';') > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), ';') - 1
+          ELSE length(metadata) - (instr(metadata, 'NotAfter:') + length('NotAfter:')) + 1
+        END
+      )
+    )
+  END AS expires_date
+
+FROM parsed
+WHERE instr(subject_line, 'CN=') > 0;
