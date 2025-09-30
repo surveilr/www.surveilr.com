@@ -902,7 +902,8 @@ WITH RECURSIVE cert_blocks AS (
     FROM uniform_resource ur
     INNER JOIN tem_tenant t ON t.device_id = ur.device_id
     INNER JOIN tem_session ts ON ur.device_id = ts.device_id
-
+    WHERE ur.uri LIKE '%openssl%'  -- filter by uri
+    
     UNION ALL
 
     -- Recursive step: extract the next certificate block

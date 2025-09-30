@@ -110,6 +110,54 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
     `;
     }
 
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/task_detail.sql"() {
+        return this.SQL`
+            ${this.activePageTitle()}
+
+            --- Breadcrumbs
+            SELECT 'breadcrumb' AS component;
+            SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+            SELECT 'Tem' AS title, ${this.absoluteURL("/tem/index.sql")
+            } AS link;
+            SELECT 
+            (SELECT title FROM tem_task_summary WHERE uniform_resource_id = $task_id) AS title,
+            '#' AS link;
+
+            --- Card Header with Task Title
+            SELECT 'card' AS component,
+                (SELECT title
+                    FROM tem_task_summary
+                    WHERE uniform_resource_id = $task_id) AS title,
+                1 AS columns;
+
+            --- Task Content Section (rendered nicely in Markdown)
+            WITH RECURSIVE strip_comments(txt) AS (
+            -- initial content (after frontmatter)
+            SELECT ltrim(
+                    substr(
+                    content,
+                    instr(substr(content, instr(content, '---') + 3), '---') + instr(content, '---') + 5
+                    )
+                )
+            FROM tem_task_summary
+            WHERE uniform_resource_id = $task_id
+
+            UNION ALL
+
+            -- remove first <!-- ... --> occurrence
+            SELECT 
+                substr(txt, 1, instr(txt, '<!--') - 1) || substr(txt, instr(txt, '-->') + 3)
+            FROM strip_comments
+            WHERE txt LIKE '%<!--%-->%'
+            )
+            SELECT txt AS description_md
+            FROM strip_comments
+            WHERE txt NOT LIKE '%<!--%-->%'
+            LIMIT 1;
+    `;
+    }
+
     @temNav({
         caption: "Attack Surface Mapping By Tenant",
         description:
@@ -2917,53 +2965,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         `;
     }
 
-    @spn.shell({ breadcrumbsFromNavStmts: "no" })
-    "tem/task_detail.sql"() {
-        return this.SQL`
-            ${this.activePageTitle()}
 
-            --- Breadcrumbs
-            SELECT 'breadcrumb' AS component;
-            SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-            SELECT 'Tem' AS title, ${this.absoluteURL("/tem/index.sql")
-            } AS link;
-            SELECT 
-            (SELECT title FROM tem_task_summary WHERE uniform_resource_id = $task_id) AS title,
-            '#' AS link;
-
-            --- Card Header with Task Title
-            SELECT 'card' AS component,
-                (SELECT title
-                    FROM tem_task_summary
-                    WHERE uniform_resource_id = $task_id) AS title,
-                1 AS columns;
-
-            --- Task Content Section (rendered nicely in Markdown)
-            WITH RECURSIVE strip_comments(txt) AS (
-            -- initial content (after frontmatter)
-            SELECT ltrim(
-                    substr(
-                    content,
-                    instr(substr(content, instr(content, '---') + 3), '---') + instr(content, '---') + 5
-                    )
-                )
-            FROM tem_task_summary
-            WHERE uniform_resource_id = $task_id
-
-            UNION ALL
-
-            -- remove first <!-- ... --> occurrence
-            SELECT 
-                substr(txt, 1, instr(txt, '<!--') - 1) || substr(txt, instr(txt, '-->') + 3)
-            FROM strip_comments
-            WHERE txt LIKE '%<!--%-->%'
-            )
-            SELECT txt AS description_md
-            FROM strip_comments
-            WHERE txt NOT LIKE '%<!--%-->%'
-            LIMIT 1;
-    `;
-    }
 }
 
 export async function SQL() {
