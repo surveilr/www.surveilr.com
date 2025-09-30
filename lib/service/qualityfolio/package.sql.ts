@@ -301,54 +301,55 @@ LEFT JOIN
     '## Total Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(bug_id) as description_md,
+    '## '||count(id) as description_md,
     '12' as width,
-     'red' as color,
+    'red' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
     ${this.absoluteURL("/qualityfolio/bug-list.sql")} as link
     FROM 
-    jira_issues t ;
+    bug_report t ;
+
     select
     '## Open Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(bug_id) as description_md,
+    '## '||count(id) as description_md,
     '12' as width,
      'orange' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=To Do")} as link
+    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
     FROM 
-    jira_issues t  where status='To Do';
+    bug_report t  where status='open';
 
 
     select
     '## Closed Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(bug_id) as description_md,
+    '## '||count(id) as description_md,
     '12' as width,
      'purple' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Completed")} as link
+     ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
     FROM 
-    jira_issues t where status='Completed';
+    bug_report t where status='closed';
 
 
     select
     '## Rejected Defects' as description_md,
 
     'white' as background_color,
-    '## '||count(bug_id) as description_md,
+    '## '||count(id) as description_md,
     '12' as width,
      'cyan' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
     ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Rejected")} as link
     FROM 
-    jira_issues t where status='Rejected';
+    bug_report t where status='Rejected';
 
 
 SELECT 'html' as component,
@@ -1891,33 +1892,31 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       FROM  test_run WHERE $tab = 'test-run' and test_case_id = $id;
    
 
+
     --Tab - specific content for "bug-report"
 
+     SELECT
+     b.id||' - '||b.title as title,
+     'head-title' as class,
+    '\n **Created By**  :  ' || b.created_by AS description_md,
+    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
+    '\n **Type**  :  ' || b.type AS description_md,
+    '\n **Priority**  :  ' || b.priority AS description_md,
+    '\n **Assigned**  :  ' || b.assigned AS description_md,
+    '\n **Status**  :  ' || b.status AS description_md,
+    '\n' || b.body AS description_md
+    FROM  bug_report b
+    WHERE $tab = 'bug-report' and b.test_case_id = $id;
 
-    select
-    title         as title,
-     '\n \n\n**id**  :  ' || l.bug_id AS description_md,
-    '\n **Created By**  :  ' || reporter AS description_md,
-    '\n **Run Date**  :  ' || strftime('%d-%m-%Y', created) AS description_md,
-    '\n **Type**  :  ' || type AS description_md,
-    '\n **Assigned**  :  ' || assignee AS description_md,
-    '\n **Status**  :  ' || status AS description_md,
-    '\n' || description AS description_md
-    FROM
-    bug_list l
-    inner join
-    jira_issues j on l.bug_id=j.bug_id
-    where l.test_case_id=$id;
+
+
 
     SELECT
     CASE
         WHEN $tab = 'bug-report' THEN 'html'
     END AS component,
       '<div id="bug-report-content"></div>' as html
-    FROM  bug_list l
-    inner join
-    jira_issues j on l.bug_id=j.bug_id
-    where l.test_case_id=$id;
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status='failed' and $tab = 'bug-report';
 
     -- Close Test Execution Data Accordion
     SELECT 'html' AS component,
