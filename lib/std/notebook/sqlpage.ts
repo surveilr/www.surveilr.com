@@ -730,7 +730,7 @@ export class TypicalSqlPageNotebook
     );
 
     await Promise.all(
-      cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/, /\.handlebars$/] })
+      cc.filter({ include: [/\.sql$/] })
         .map(
           async (method) => {
             const notebook = method.source.instance;
