@@ -212,7 +212,7 @@ export class FhirSqlPages extends spn.TypicalSqlPageNotebook {
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
-  const SQL = await spn.TypicalSqlPageNotebook.SQL(
+  const SQL = await spn.TypicalSqlPageNotebook.spry(
     new class extends spn.TypicalSqlPageNotebook {
       async statelessSQL() {
         // read the file from either local or remote (depending on location of this file)
@@ -235,5 +235,5 @@ if (import.meta.main) {
     new orch.OrchestrationSqlPages(),
     new FhirSqlPages(),
   );
-  console.log(SQL.join("\n"));
+  // console.log(SQL.join("\n"));
 }
