@@ -670,20 +670,161 @@ FROM (SELECT control_id, fii_id
     SELECT
       'card' AS component,
       1 AS columns;
- 
- 
-    SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
 
+      SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || control_id || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+     
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Author Prompt' and regime = 'HiTRUST'
+      ;
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_complaince_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' and regime = 'HiTRUST'
+      ;
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $code and regimeType = 'HiTRUST';
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+
+
+
+ 
+ 
+    
 
     --- Fallback if no exact match
     SELECT 'text' AS component,
@@ -1245,15 +1386,17 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
           END,
           '\n', ' '),
           '\r', ' ')
-      || '](' || ${this.absoluteURL("/ce/regime/cmmc_detail.sql?code=")}
-      || replace(replace(
-          CASE 
-            WHEN @level = 1 THEN cmmc_level_1
-            WHEN @level = 2 THEN cmmc_level_2
-            ELSE cmmc_level_3
-          END,
-          '\n', ' '), ' ', '%20')
-      || '&level=' || @level || ')' AS "Control Code",
+|| '](' || ${this.absoluteURL("/ce/regime/cmmc_detail.sql?code=")} 
+|| replace(replace( 
+    CASE  
+      WHEN @level = 1 THEN cmmc_level_1 
+      WHEN @level = 2 THEN cmmc_level_2 
+      ELSE cmmc_level_3 
+    END, 
+    '\n', ' '), ' ', '%20') 
+|| '&fiiid=' || replace(control_code, ' ', '%20')
+|| '&level=' || @level
+|| ')' AS "Control Code",
 
       scf_domain       AS "Domain",
       scf_control      AS "Title",
@@ -1284,7 +1427,9 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
   SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
   SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
-  SELECT COALESCE($code, '') AS title, '#' AS link;;
+  SELECT COALESCE($code, '') AS title, '#' AS link;
+
+  
 
   --- Primary details card
   SELECT 'card' AS component, 'CMMC Control Details' AS title, 1 AS columns;
@@ -1295,6 +1440,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
       '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
       '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
       '**FII IDs:** ' || COALESCE(control_code, '') AS description_md
+      
   FROM scf_view
   WHERE
         ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
@@ -1326,7 +1472,14 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   SELECT
     '\n' || p.body_text AS description_md
     FROM ai_ctxe_complaince_prompt p
-    WHERE p.control_id = $code AND p.documentType = 'Author Prompt' AND p.regime = 'CMMC';
+   
+    WHERE p.control_id = $code AND  p.documentType = 'Author Prompt' AND p.fii_id=$fiiid
+    AND (
+    ($level = 1 AND regime = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regime = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regime = 'CMMC' AND category_type='Level 3')
+    );
+   
 
   SELECT 'html' AS component,
     '</div></details>' AS html;
@@ -1345,7 +1498,12 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   SELECT
     '\n' || p.body_text AS description_md
     FROM ai_ctxe_complaince_prompt p
-    WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' AND p.regime = 'CMMC';
+    WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' AND p.fii_id=$fiiid AND
+   ( 
+    ($level = 1 AND regime = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regime = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regime = 'CMMC' AND category_type='Level 3')
+    );
 
   SELECT 'html' AS component,
     '</div></details>' AS html;
@@ -1364,7 +1522,13 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   SELECT
     '\n' || p.body_text AS description_md
     FROM ai_ctxe_policy p
-    WHERE p.control_id = $code AND p.regimeType = 'CMMC';
+    WHERE p.control_id = $code AND p.fii_id=$fiiid
+    
+    AND 
+    (($level = 1 AND regimeType = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regimeType = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regimeType = 'CMMC' AND category_type='Level 3')
+    );
 
   SELECT 'html' AS component,
     '</div></details>' AS html;

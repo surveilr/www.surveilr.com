@@ -84,7 +84,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install runme rustscan
+RUN set -eux; brew install runme rustscan backlog-md
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -114,7 +114,6 @@ RUN set -eux; \
 # ------------------------------------------------------------------------------
 COPY .env /opt/eaa/.env
 COPY .interpretation-template /opt/eaa/.interpretation-template
-COPY resolver.txt /opt/eaa/resolver.txt
 
 # ------------------------------------------------------------------------------
 # 8) Add the runbook and prep nuclei templates

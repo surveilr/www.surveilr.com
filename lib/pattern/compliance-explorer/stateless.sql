@@ -50,6 +50,8 @@ SELECT DISTINCT
   json_extract(ur.frontmatter, '$.category') AS category,
   json_extract(ur.frontmatter, '$.control-id') AS control_id,
   json_extract(ur.frontmatter, '$.regimeType') AS regimeType,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
  
   TRIM(
     CASE
@@ -179,6 +181,8 @@ SELECT DISTINCT
   json_extract(ur.frontmatter, '$.category') AS category,
   json_extract(ur.frontmatter, '$.control-id') AS control_id,
   json_extract(ur.frontmatter, '$.regimeType') AS regime,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
 
   TRIM(
     CASE
