@@ -167,8 +167,8 @@ FROM uniform_resource_aicpa_soc2_type2_controls;
 
 --###view for complaince explorer prompts #####-------
 
-DROP VIEW IF EXISTS ai_ctxe_complaince_prompt;
-CREATE VIEW ai_ctxe_complaince_prompt AS
+DROP VIEW IF EXISTS ai_ctxe_compliance_prompt;
+CREATE VIEW ai_ctxe_compliance_prompt AS
 SELECT DISTINCT
   ur.uniform_resource_id,
   json_extract(ur.frontmatter, '$.title') AS title,

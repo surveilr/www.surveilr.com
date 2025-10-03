@@ -412,7 +412,7 @@ FROM (SELECT control_id, fii_id
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Author Prompt' AND (
     ($type = 'soc2-type1' AND regime = 'SOC2-TypeI') OR
     ($type = 'soc2-type2' AND regime = 'SOC2-TypeII')
@@ -447,7 +447,7 @@ FROM (SELECT control_id, fii_id
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Audit Prompt' AND (
     ($type = 'soc2-type1' AND regime = 'SOC2-TypeI') OR
     ($type = 'soc2-type2' AND regime = 'SOC2-TypeII')
@@ -691,7 +691,7 @@ WHERE control_id = $code::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $code AND p.documentType = 'Author Prompt' and regime = 'HiTRUST'
       ;
 
@@ -715,7 +715,7 @@ WHERE control_id = $code::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' and regime = 'HiTRUST'
       ;
  SELECT 'html' AS component,
@@ -931,7 +931,7 @@ WHERE control_code = $code::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $code AND p.documentType = 'Author Prompt' and regime = 'ISO'
       ;
 
@@ -955,7 +955,7 @@ WHERE control_code = $code::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' and regime = 'ISO'
       ;
  SELECT 'html' AS component,
@@ -1184,7 +1184,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Author Prompt'
       ;
 
@@ -1208,7 +1208,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Audit Prompt'
       ;
  SELECT 'html' AS component,
@@ -1440,7 +1440,7 @@ WHERE scf_code = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Author Prompt' and regime = 'THSA'
       ;
 
@@ -1464,7 +1464,7 @@ WHERE scf_code = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Audit Prompt' and regime = 'THSA'
       ;
  SELECT 'html' AS component,
@@ -1747,7 +1747,7 @@ WHERE scf_code = $id::TEXT;
   SELECT 'card' as component, 1 as columns;
   SELECT
     '\n' || p.body_text AS description_md
-    FROM ai_ctxe_complaince_prompt p
+    FROM ai_ctxe_compliance_prompt p
    
     WHERE p.control_id = $code AND  p.documentType = 'Author Prompt' AND p.fii_id=$fiiid
     AND (
@@ -1773,7 +1773,7 @@ WHERE scf_code = $id::TEXT;
   SELECT 'card' as component, 1 as columns;
   SELECT
     '\n' || p.body_text AS description_md
-    FROM ai_ctxe_complaince_prompt p
+    FROM ai_ctxe_compliance_prompt p
     WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' AND p.fii_id=$fiiid AND
    ( 
     ($level = 1 AND regime = 'CMMC' AND category_type='Level 1') OR
