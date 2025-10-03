@@ -407,6 +407,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $session_id || ')' as Asset,
             (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Tenant Name",
             (SELECT count(uniform_resource_id) FROM tem_openssl WHERE ur_ingest_session_id = $session_id) as "count";
+         SELECT
+           '[WAF Detection Results]('||${this.absoluteURL("/tem/session/wafw00f.sql?session_id=")
+            } || $session_id || ')' as Asset,
+            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_wafw00f WHERE ur_ingest_session_id = $session_id) as "count";
     `;
     }
 
@@ -510,6 +515,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             } || $tenant_id || ')' as Asset,
             (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
             (SELECT count(uniform_resource_id) FROM tem_openssl WHERE tenant_id = $tenant_id) as "count";
+         SELECT
+           '[WAF Detection Results]('||${this.absoluteURL("/tem/tenant/wafw00f.sql?tenant_id=")
+            } || $tenant_id || ')' as Asset,
+            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
+            (SELECT count(uniform_resource_id) FROM tem_wafw00f WHERE tenant_id = $tenant_id) as "count";
     `;
     }
 
@@ -2889,6 +2899,108 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         `;
     }
 
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/tenant/wafw00f.sql"() {
+        const viewName = `tem_wafw00f`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE tenant_id = $tenant_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+
+      --- Breadcrumb setup
+      SELECT 'breadcrumb' AS component;
+          SELECT 'Home' AS title,
+              ${this.absoluteURL("/")} AS link;
+          SELECT 'Threat Exposure Management' AS title,
+              ${this.absoluteURL("/tem/index.sql")} AS link;
+          SELECT 'Attack Surface Mapping By Tenant' AS title,
+              ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
+          SELECT tanent_name AS title,
+              ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link
+          FROM tem_tenant
+          WHERE tenant_id = $tenant_id;
+          SELECT 'Pentest Findings' AS title,
+              ${this.absoluteURL("/tem/tenant/finding.sql?tenant_id=")} || $tenant_id AS link;
+          SELECT 'WAF Detection Results' AS title,
+              '#' AS link;
+
+      --- Page title
+      SELECT 'title' AS component,
+          'WAF Detection Results' AS contents;
+
+      --- Page description
+      SELECT 'text' AS component,
+          'This page displays the WAFW00F penetration testing results for the tenant. Each row corresponds to a scanned host/domain within the tenant’s infrastructure. 
+          The host column shows the scanned domain, and the Scan Output column contains the full WAFW00F scan block for reference.' AS contents;
+
+      --- Table setup
+      SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search;
+
+      ${pagination.init()}
+      SELECT
+          host AS "Host/Domain",
+          block_content AS "Scan Output"
+      FROM ${viewName}
+      WHERE tenant_id = $tenant_id;
+
+      ${pagination.renderSimpleMarkdown("tenant_id")};
+  `;
+    }
+
+    @spn.shell({ breadcrumbsFromNavStmts: "no" })
+    "tem/session/wafw00f.sql"() {
+        const viewName = `tem_wafw00f`;
+        const pagination = this.pagination({
+            tableOrViewName: viewName,
+            whereSQL: "WHERE ur_ingest_session_id = $session_id",
+        });
+        return this.SQL`
+      ${this.activePageTitle()}
+
+      --- Breadcrumb setup
+      SELECT 'breadcrumb' AS component;
+          SELECT 'Home' AS title,
+              ${this.absoluteURL("/")} AS link;
+          SELECT 'Threat Exposure Management' AS title,
+              ${this.absoluteURL("/tem/index.sql")} AS link;
+          SELECT 'Attack Surface Mapping By Session' AS title,
+              ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")} AS link;
+          SELECT 'Findings' AS title,
+              ${this.absoluteURL("/tem/session/finding.sql?session_id=")} || $session_id AS link;
+          SELECT 'WAF Detection Results' AS title,
+              '#' AS link;
+
+      --- Page title
+      SELECT 'title' AS component,
+          'WAF Detection Results' AS contents;
+
+      --- Page description
+      SELECT 'text' AS component,
+          'This page displays the WAFW00F penetration testing results for the given session. Each row corresponds to a scanned host/domain within the session’s infrastructure. 
+          The Host/Domain column shows the scanned domain, and the Scan Output column contains the full WAFW00F scan block for reference.' AS contents;
+
+      --- Table setup
+      SELECT 'table' AS component,
+          TRUE AS sort,
+          TRUE AS search;
+
+      ${pagination.init()}
+      SELECT
+          host AS "Host/Domain",
+          block_content AS "Scan Output"
+      FROM ${viewName}
+      WHERE ur_ingest_session_id = $session_id;
+
+      ${pagination.renderSimpleMarkdown("session_id")};
+  `;
+    }
+
+
+
     @spn.shell({
         breadcrumbsFromNavStmts: "no",
         shellStmts: "do-not-include",
@@ -2977,7 +3089,7 @@ export async function SQL() {
                     import.meta.resolve("../../pattern/osquery-ms/stateful.sql"),
                 );
             }
-            async statelessfleetfolioSQL() {
+            async statelessTemSQL() {
                 // read the file from either local or remote (depending on location of this file)
                 return await spn.TypicalSqlPageNotebook.fetchText(
                     import.meta.resolve("./stateless.sql"),
