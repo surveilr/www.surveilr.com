@@ -150,6 +150,7 @@ FROM cleaned c,
 json_each(c.c)
 WHERE json_valid(c.c) = 1;
 
+
 -- Description:
 -- This view extracts key web metadata from JSON objects stored in 
 -- `tem_what_web_result`.
@@ -849,7 +850,7 @@ WHERE ur.uri LIKE '%testssl%'
   AND json_extract(s.value, '$.targetHost') NOT NULL;
 
   -- ===============================================================
--- View: tem_openssl_original
+-- View: tem_openssl_original_txt
 --
 -- Purpose:
 --   This view extracts individual SSL/TLS certificate blocks and
@@ -886,8 +887,8 @@ WHERE ur.uri LIKE '%testssl%'
 --     downstream parsing (e.g., extracting CN, issuer, validity period).
 --
 -- ===============================================================
-DROP VIEW IF EXISTS tem_openssl_original;
-CREATE VIEW tem_openssl_original AS
+DROP VIEW IF EXISTS tem_openssl_original_txt;
+CREATE VIEW tem_openssl_original_txt AS
 WITH RECURSIVE cert_blocks AS (
     -- Anchor: start from the beginning of content with tenant info
     SELECT
@@ -940,12 +941,12 @@ ORDER BY uniform_resource_id, cert_index;
 -- View: tem_openssl
 -- Purpose:
 --   This view parses raw SSL certificate metadata stored in the
---   `tem_openssl_original` view and extracts key fields into
+--   `tem_openssl_original_txt` view and extracts key fields into
 --   structured columns. The goal is to make certificate details
 --   easier to query, filter, and join with other data.
 --
 -- Source:
---   Table: tem_openssl_original
+--   Table: tem_openssl_original_txt
 --   Column: metadata (raw certificate text as produced by OpenSSL)
 --
 -- Extracted Fields:
@@ -1014,7 +1015,7 @@ WITH parsed AS (
       )
     END AS issuer_line
 
-  FROM tem_openssl_original
+  FROM tem_openssl_original_txt
 )
 
 SELECT
@@ -1143,4 +1144,169 @@ SELECT
 FROM parsed
 WHERE instr(subject_line, 'CN=') > 0;
 
+
+-- ===============================================================
+-- View: tem_wafw00f_original_txt
+-- Purpose:
+--   Parses wafw00f output stored in uniform_resource.content (rows where
+--   uri LIKE '%wafw00f%'). Splits the raw text into lines, identifies
+--   blocks that start with '[*] Checking ...' and aggregates only the
+--   marker lines that start with one of: [*], [+], [-], [~].
+--   Non-marker lines (e.g. ASCII art/banner or other noise) are excluded.
+-- ===============================================================
+DROP VIEW IF EXISTS tem_wafw00f_original_txt;
+CREATE VIEW tem_wafw00f_original_txt AS
+WITH RECURSIVE
+-- Recursively split content into trimmed lines with a sequential line number
+split_lines(uniform_resource_id, uri, line, rest, ln) AS (
+    SELECT
+        uniform_resource_id,
+        uri,
+        trim(
+          CASE
+            WHEN instr(content, char(10)) > 0 THEN substr(content, 1, instr(content, char(10)) - 1)
+            ELSE content
+          END
+        ) AS line,
+        CASE
+          WHEN instr(content, char(10)) > 0 THEN substr(content, instr(content, char(10)) + 1)
+          ELSE ''
+        END AS rest,
+        1 AS ln
+    FROM uniform_resource
+    WHERE uri LIKE '%wafw00f%'
+
+    UNION ALL
+
+    SELECT
+        uniform_resource_id,
+        uri,
+        trim(
+          CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, 1, instr(rest, char(10)) - 1)
+            ELSE rest
+          END
+        ) AS line,
+        CASE
+          WHEN instr(rest, char(10)) > 0 THEN substr(rest, instr(rest, char(10)) + 1)
+          ELSE ''
+        END AS rest,
+        ln + 1
+    FROM split_lines
+    WHERE rest <> ''
+),
+-- Find the start line number for each block (lines that begin with "[*] Checking ")
+block_start AS (
+    SELECT uniform_resource_id, uri, ln AS start_ln
+    FROM split_lines
+    WHERE line LIKE '[*] Checking %'
+),
+-- Assign each marker line to the most recent block_start before it.
+-- Also filter to include only marker lines that start with one of the allowed prefixes.
+block_lines AS (
+    SELECT s.uniform_resource_id,
+           s.uri,
+           b.start_ln AS block_ln,
+           s.line
+    FROM split_lines s
+    JOIN block_start b
+      ON s.uniform_resource_id = b.uniform_resource_id
+     AND s.ln >= b.start_ln
+     AND NOT EXISTS (
+           SELECT 1 FROM block_start b2
+           WHERE b2.uniform_resource_id = s.uniform_resource_id
+             AND b2.start_ln > b.start_ln
+             AND b2.start_ln <= s.ln
+         )
+    WHERE
+      -- keep only marker lines:
+      s.line LIKE '[*]%' OR
+      s.line LIKE '[+]%' OR
+      s.line LIKE '[-]%' OR
+      s.line LIKE '[~]%'
+)
+-- Aggregate lines into one block per row; order by the block start line
+SELECT
+    uniform_resource_id,
+    uri,
+    group_concat(line, char(10)) AS block_content
+FROM block_lines
+GROUP BY uniform_resource_id, uri, block_ln
+ORDER BY uniform_resource_id, block_ln;
+
+-- ===============================================================
+-- View: tem_waf_hosts
+-- 
+-- Purpose:
+--   Extracts the host/domain from each WAFW00F block in the
+--   tem_wafw00f_original_txt table. Each row corresponds to
+--   a single WAFW00F scan block. Only the host is extracted
+--   from lines starting with "[*] Checking ...", along with
+--   the full block_content for reference.
+-- 
+-- Columns:
+--   uniform_resource_id : ID of the original uniform_resource row
+--   host                : Extracted host/domain from the scan
+--   block_content       : Full text block of the WAFW00F scan
+-- ===============================================================
+DROP VIEW IF EXISTS tem_wafw00f;
+CREATE VIEW tem_wafw00f AS
+WITH RECURSIVE split_lines AS (
+    SELECT
+        wafWoof.uniform_resource_id,
+        t.tenant_id,
+        t.tanent_name,
+        ts.ur_ingest_session_id,
+        CASE
+            WHEN instr(block_content, char(10)) > 0 THEN substr(block_content, 1, instr(block_content, char(10)) - 1)
+            ELSE block_content
+        END AS line,
+        CASE
+            WHEN instr(block_content, char(10)) > 0 THEN substr(block_content, instr(block_content, char(10)) + 1)
+            ELSE ''
+        END AS rest,
+        block_content
+    FROM tem_wafw00f_original_txt wafWoof
+    INNER JOIN uniform_resource ur ON wafWoof.uniform_resource_id = ur.uniform_resource_id
+    INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+    INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+
+    UNION ALL
+
+    SELECT
+        uniform_resource_id,
+        tenant_id,
+        tanent_name,
+        ur_ingest_session_id,
+        CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, 1, instr(rest, char(10)) - 1)
+            ELSE rest
+        END AS line,
+        CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, instr(rest, char(10)) + 1)
+            ELSE ''
+        END AS rest,
+        block_content
+    FROM split_lines
+    WHERE rest <> ''
+)
+SELECT DISTINCT
+    uniform_resource_id,
+    tenant_id,
+    tanent_name,
+    ur_ingest_session_id,
+    -- Extract host from "https://..."
+    substr(
+        line,
+        instr(line, 'https://') + 8,
+        CASE
+            WHEN instr(substr(line, instr(line, 'https://') + 8), '/') > 0
+            THEN instr(substr(line, instr(line, 'https://') + 8), '/') - 1
+            ELSE length(substr(line, instr(line, 'https://') + 8))
+        END
+    ) AS host,
+    block_content
+FROM split_lines
+WHERE line LIKE '[*] Checking %'
+ORDER BY host;
 
