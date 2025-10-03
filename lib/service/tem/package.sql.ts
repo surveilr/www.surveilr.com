@@ -180,7 +180,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT
             'card' as component,
             4      as columns;
-        SELECT tanent_name as title,
+        SELECT tenant_name as title,
           ${this.absoluteURL(
             "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
         )
@@ -217,12 +217,12 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 
             '[' || session_name || ']('||${this.absoluteURL("/tem/session/finding.sql?session_id=")
             } || ur_ingest_session_id || ')' AS "Session",
-            IFNULL(tools_count, '-') AS "Analysis Tools",
+            (SELECT COUNT(tool_name) FROM tem_session_finding_link WHERE ts.ur_ingest_session_id=ur_ingest_session_id) AS "Analysis Tools",
             IFNULL(ingest_started_at, '-') AS "Session Start Date",
             IFNULL(ingest_finished_at, '-') AS "Session End Date",
             IFNULL(agent, '-') AS "Agent",
             IFNULL(version, '-') AS "Version"
-        FROM tem_session;
+        FROM tem_session ts;
         `;
     }
 
@@ -243,7 +243,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
 
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             '#' AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
 
         --- Dsply Page Title
@@ -286,7 +286,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-         SELECT tanent_name AS title,
+         SELECT tenant_name AS title,
             'tenant/attack_surface_mapping_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Assets' AS title,
             '#' AS link;
@@ -327,7 +327,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Session' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_session.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             'tenant/attack_surface_mapping_inner.sql?tenant_id='|| $tenant_id AS link FROM tem_tenant WHERE tenant_id=$tenant_id;
         SELECT 'Findings' AS title,
             '#' AS link;
@@ -348,70 +348,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         'Asset' as markdown;
 
         SELECT
-             '[What web data]('||${this.absoluteURL("/tem/session/what_web.sql?session_id=")
-            } || $session_id || ')' as Asset,
-           (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-           (SELECT count(uniform_resource_id) FROM tem_what_web_result WHERE ur_ingest_session_id = $session_id) as "count";
-        SELECT
-           '[DNSX Scan Results]('||${this.absoluteURL("/tem/session/dnsx.sql?session_id=")
-            } || $session_id || ')' as Asset,
-           (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-           (SELECT count(uniform_resource_id) FROM tem_dnsx_result WHERE ur_ingest_session_id = $session_id) as "count";
-        SELECT
-           '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/session/nuclei.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_nuclei_result WHERE ur_ingest_session_id = $session_id) as "count";
-        SELECT
-           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/session/naabu.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_naabu_result WHERE ur_ingest_session_id = $session_id) as "count";
-        SELECT
-           '[Subfinder Results]('||${this.absoluteURL("/tem/session/subfinder.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_subfinder WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/session/httpx-toolkit.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_httpx_result WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[Nmap Scan Results]('||${this.absoluteURL("/tem/session/nmap.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_nmap WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[Katana Scan Results]('||${this.absoluteURL("/tem/session/katana.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_katana WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[TLS Certificate Results]('||${this.absoluteURL("/tem/session/tlsx_certificate.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_tlsx_certificate WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[Dirsearch Web Path Enumeration Results]('||${this.absoluteURL("/tem/session/dirsearch.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[TestSSL Report]('||${this.absoluteURL("/tem/session/tssl_certificate.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Session Name",
-            (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[SSL/TLS Certificate Metadata]('||${this.absoluteURL("/tem/session/openssl.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_openssl WHERE ur_ingest_session_id = $session_id) as "count";
-         SELECT
-           '[WAF Detection Results]('||${this.absoluteURL("/tem/session/wafw00f.sql?session_id=")
-            } || $session_id || ')' as Asset,
-            (SELECT session_name FROM tem_session WHERE ur_ingest_session_id = $session_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_wafw00f WHERE ur_ingest_session_id = $session_id) as "count";
+            '[' || tool_name || '](' || ${this.absoluteURL("")} || redirect_url || ')' AS 'Asset',
+            session_name AS "Session Name", -- or tenant_name for tenant page
+            count
+        FROM tem_session_finding_link
+        WHERE ur_ingest_session_id = $session_id;
     `;
     }
 
@@ -431,7 +372,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-         SELECT tanent_name AS title,
+         SELECT tenant_name AS title,
                 ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -455,71 +396,11 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         'Asset' as markdown;
 
         SELECT
-             '[What web data]('||${this.absoluteURL("/tem/tenant/what_web.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_what_web_result WHERE tenant_id = $tenant_id) as "count";
-        SELECT
-           '[DNSX Scan Results]('||${this.absoluteURL("/tem/tenant/dnsx.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_dnsx_result WHERE tenant_id = $tenant_id) as "count";
-            
-        SELECT
-           '[Nuclei Scan Findings]('||${this.absoluteURL("/tem/tenant/nuclei.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_nuclei_result WHERE tenant_id = $tenant_id) as "count";
-        SELECT
-           '[Naabu Port Scan Results]('||${this.absoluteURL("/tem/tenant/naabu.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_naabu_result WHERE tenant_id = $tenant_id) as "count";
-        SELECT
-           '[Subfinder Results]('||${this.absoluteURL("/tem/tenant/subfinder.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_subfinder WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[HTTPX Toolkit Results]('||${this.absoluteURL("/tem/tenant/httpx-toolkit.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_httpx_result WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[Nmap Scan Results]('||${this.absoluteURL("/tem/tenant/nmap.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_nmap WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[Katana Scan Results]('||${this.absoluteURL("/tem/tenant/katana.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_katana WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[TLS Certificate Results]('||${this.absoluteURL("/tem/tenant/tlsx_certificate.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_tlsx_certificate WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[Dirsearch Web Path Enumeration Results]('||${this.absoluteURL("/tem/tenant/dirsearch.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_dirsearch WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[TestSSL Report]('||${this.absoluteURL("/tem/tenant/tssl_certificate.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_testssl_general WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[SSL/TLS Certificate Metadata]('||${this.absoluteURL("/tem/tenant/openssl.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_openssl WHERE tenant_id = $tenant_id) as "count";
-         SELECT
-           '[WAF Detection Results]('||${this.absoluteURL("/tem/tenant/wafw00f.sql?tenant_id=")
-            } || $tenant_id || ')' as Asset,
-            (SELECT tanent_name FROM tem_tenant WHERE tenant_id = $tenant_id) AS "Tenant Name",
-            (SELECT count(uniform_resource_id) FROM tem_wafw00f WHERE tenant_id = $tenant_id) as "count";
+            '[' || tool_name || '](' || ${this.absoluteURL("")} || redirect_url || ')' AS Asset,
+            tenant_name AS "Tenant Name",
+            count
+        FROM tem_tenant_finding_link
+        WHERE tenant_id = $tenant_id;
     `;
     }
 
@@ -544,7 +425,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -644,7 +525,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
                     WHEN length(q.target_url) > 60 THEN substr(q.target_url, 1, 60) || '...'
                     ELSE q.target_url
                 END AS "Target URL",
-                q.tanent_name AS "Tenant",
+                q.tenant_name AS "Tenant",
                 CASE
                     WHEN q.http_status BETWEEN 200 AND 299 THEN '🟢 ' || q.http_status
                     WHEN q.http_status BETWEEN 300 AND 399 THEN '🟠 ' || q.http_status
@@ -686,7 +567,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -766,7 +647,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
-            tanent_name AS "Tenant",
+            tenant_name AS "Tenant",
             host,
             ttl,
             resolver,
@@ -798,7 +679,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -880,7 +761,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
-            tanent_name AS "Tenant",
+            tenant_name AS "Tenant",
             host,
             url,
             template_id AS "Template ID",
@@ -914,7 +795,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -994,7 +875,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
-            tanent_name AS "Tenant",
+            tenant_name AS "Tenant",
             host,
             port,
             ip AS "IP Address",
@@ -1026,7 +907,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1102,7 +983,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
-            tanent_name           AS  "Tenant",
+            tenant_name           AS  "Tenant",
             domain                AS "Domain",
             raw_records           AS "Discovered Host",
             source                AS "Source",
@@ -1132,7 +1013,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1218,7 +1099,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()} 
         SELECT
-            tanent_name        AS  "Tenant",
+            tenant_name        AS  "Tenant",
             domain             AS "Domain",
             url                AS "URL",
             scheme             AS "Scheme",
@@ -1258,7 +1139,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             SELECT 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-            SELECT tanent_name AS title,
+            SELECT tenant_name AS title,
                 ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1344,7 +1225,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()}
         SELECT
-            tanent_name       AS  "Tenant",
+            tenant_name       AS  "Tenant",
             host_ip           AS "Host IP",
             protocol          AS "Protocol",
             port              AS "Port",
@@ -1382,7 +1263,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
                 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-            SELECT tanent_name AS title,
+            SELECT tenant_name AS title,
                 ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1469,7 +1350,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()}
         SELECT
-            tanent_name  AS "Tenant",
+            tenant_name  AS "Tenant",
             strftime('%m-%d-%Y %H:%M:%S', timestamp) AS "Observed At",
             method       AS "Method",
             endpoint     AS "Endpoint",
@@ -1500,7 +1381,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
             SELECT 'Attack Surface Mapping By Tenant' AS title,
                 ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-            SELECT tanent_name AS title,
+            SELECT tenant_name AS title,
                 ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1593,7 +1474,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()}
         SELECT
-            tanent_name  AS "Tenant",
+            tenant_name  AS "Tenant",
             strftime('%m-%d-%Y', observed_at) AS "Observed At",
             host                              AS "Host",
             ip_address                        AS "IP Address",
@@ -1635,7 +1516,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
           SELECT 'Attack Surface Mapping By Tenant' AS title,
               ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-          SELECT tanent_name AS title,
+          SELECT tenant_name AS title,
               ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1719,7 +1600,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
       ${pagination.init()}
       SELECT
-          tanent_name  AS "Tenant",
+          tenant_name  AS "Tenant",
           observed_at AS "Observed At",
           discovered_url   AS "Discovered URL",
           status_code AS "Status Code",
@@ -1754,7 +1635,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -1873,7 +1754,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         SELECT 'Attack Surface Mapping By Tenant' AS title,
             ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-        SELECT tanent_name AS title,
+        SELECT tenant_name AS title,
             ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -2284,7 +2165,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
           ip,
           port,
           rdns,
-          tanent_name  AS "Tenant"
+          tenant_name  AS "Tenant"
       FROM ${viewName}
       WHERE ur_ingest_session_id = $session_id;
 
@@ -2395,7 +2276,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
         TRUE    as border;  
            select 
                 'Tenant' as 'General Info',
-                tanent_name as 'Value'
+                tenant_name as 'Value'
                 FROM tem_testssl_general WHERE ur_ingest_session_id=$session_id
             union all
             select 
@@ -2757,7 +2638,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
           SELECT 'Attack Surface Mapping By Tenant' AS title,
               ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")
             } AS link;
-          SELECT tanent_name AS title,
+          SELECT tenant_name AS title,
               ${this.absoluteURL(
                 "/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=",
             )
@@ -2863,7 +2744,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
 
         ${pagination.init()}
         SELECT
-            CASE WHEN tanent_name IS NULL OR trim(tanent_name) = '' THEN '-' ELSE tanent_name END AS "Tenant",
+            CASE WHEN tenant_name IS NULL OR trim(tenant_name) = '' THEN '-' ELSE tenant_name END AS "Tenant",
             CASE WHEN common_name IS NULL OR trim(common_name) = '' THEN '-' ELSE common_name END AS "Common Name",
             CASE WHEN subject_organization IS NULL OR trim(subject_organization) = '' THEN '-' ELSE subject_organization END AS "Subject Organization",
             CASE WHEN issuer_common_name IS NULL OR trim(issuer_common_name) = '' THEN '-' ELSE issuer_common_name END AS "Issuer CN",
@@ -2917,7 +2798,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
               ${this.absoluteURL("/tem/index.sql")} AS link;
           SELECT 'Attack Surface Mapping By Tenant' AS title,
               ${this.absoluteURL("/tem/attack_surface_mapping_tenant.sql")} AS link;
-          SELECT tanent_name AS title,
+          SELECT tenant_name AS title,
               ${this.absoluteURL("/tem/tenant/attack_surface_mapping_inner.sql?tenant_id=")} || $tenant_id AS link
           FROM tem_tenant
           WHERE tenant_id = $tenant_id;
