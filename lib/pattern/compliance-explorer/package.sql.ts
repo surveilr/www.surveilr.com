@@ -17,7 +17,7 @@ function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
     ...route,
     parentPath: "ce/regime/index.sql",
   });
-}
+ }
 
 /**
  * These pages depend on ../../prime/ux.sql.ts being loaded into RSSD (for nav).
