@@ -632,4 +632,5 @@ export class SurveilrSqlNotebook<
       }).map(async (c) => await c.source.instance.methodText(c)),
     );
   }
+  static async spry(...sources: SurveilrSqlNotebook<Any>[]) {}
 }
