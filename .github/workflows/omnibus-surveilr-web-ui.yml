@@ -45,3 +45,4 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/surveilr/www.surveilr.com/omnibus-rssd-nginx:latest
+          
