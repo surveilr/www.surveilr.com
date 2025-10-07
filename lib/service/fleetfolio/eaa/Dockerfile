@@ -84,7 +84,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install runme rustscan backlog-md
+RUN set -eux; brew install runme rustscan backlog-md dalfox
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
