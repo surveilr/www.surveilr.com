@@ -1959,7 +1959,42 @@ export async function controlSQL() {
   );
 }
 
+/**
+ * Initializes and runs the Compliance Explorer SQL page notebook using the provided source directory.
+ *
+ * This function creates a customized instance of `TypicalSqlPageNotebook` with overridden methods to
+ * fetch stateless and stateful SQL control files. It then composes the notebook with various SQL page
+ * modules, including shell, uniform resource, console, orchestration, and compliance explorer pages.
+ *
+ * @param srcDir - The source directory containing SQL files and resources.
+ * @returns A promise that resolves when the notebook has been initialized and executed.
+ */
+export async function spry(srcDir: string) {
+  return await spn.TypicalSqlPageNotebook.spry(srcDir,
+    new class extends spn.TypicalSqlPageNotebook {
+      async statelessControlSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateless.sql"),
+        );
+      }
+
+      async orchestrateStatefulControlSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateful.sql"),
+        );
+      }
+    }(),
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
+    new ur.UniformResourceSqlPages(),
+    new c.ConsoleSqlPages(),
+    new orch.OrchestrationSqlPages(),
+    new ComplianceExplorerSqlPages(),
+  );
+}
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
   console.log((await controlSQL()).join("\n"));
+  await spry("src");
 }
