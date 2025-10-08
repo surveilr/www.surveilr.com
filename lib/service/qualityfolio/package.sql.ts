@@ -480,18 +480,20 @@ SELECT 'html' as component,
 
 SELECT 'table' as component,
        'Total Tests,Passed,Failed,Pass Rate' as align_right,
-       'test cycle' as markdown,
+       'test case' as markdown,
        'passed' as markdown,
        'failed' as markdown;
   SELECT 
-    '['|| test_cycle ||']('||${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
-      }|| test_cycle ||')' as "test cycle",
+    test_cycle as "test cycle",
     suite_id as "suite",
     name as "suite name",
-    test_case_count as "test case",
-     -- Passed / Failed as plain numeric cells (HTML is escaped by SQLPage in tables)
-     COALESCE(passed_count, 0) AS "passed",
-     COALESCE(failed_count, 0) AS "failed",
+    -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
+    '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || ')' AS "test case",
+     '[' || COALESCE(passed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
+     '[' || COALESCE(failed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
      -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
      (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
   FROM test_cycle;
@@ -1465,7 +1467,11 @@ SELECT
                 SELECT 1
                 FROM json_each(test_cycles)
                 WHERE value = $test_cycle
-              ));
+              ))AND (
+      $status IS NULL
+      OR LOWER($status) = 'passed' AND LOWER(COALESCE(test_status, '')) = 'passed'
+      OR LOWER($status) = 'failed' AND LOWER(COALESCE(test_status, '')) = 'failed'
+    );
 
     `;
   }
@@ -2590,12 +2596,19 @@ WHERE rn.id = $id;
     const viewName = `test_cases`;
     const pagination = this.pagination({
       tableOrViewName: viewName,
-      whereSQL: `WHERE ($test_cycle IS NULL
-              OR EXISTS (
-                SELECT 1
-                FROM json_each(test_cycles)
-                WHERE value = $test_cycle
-              ))`,
+      whereSQL: `WHERE (
+                  $test_cycle IS NULL
+                  OR EXISTS (
+                    SELECT 1
+                    FROM json_each(test_cycles)
+                    WHERE value = $test_cycle
+                  )
+                )
+                AND (
+                  $status IS NULL
+                  OR LOWER($status) = 'passed' AND LOWER(COALESCE(test_status, '')) = 'passed'
+                  OR LOWER($status) = 'failed' AND LOWER(COALESCE(test_status, '')) = 'failed'
+                )`,
     });
 
     return this.SQL`
@@ -2686,8 +2699,10 @@ WHERE rn.id = $id;
     UNION ALL
     -- Show "Export Test Cycle Test Cases" button when filtering by group
     SELECT 'Export Test Cycle Test Cases' as title,
-           'download-test-cycle-test-case.sql?test_cycle=' || $test_cycle as link,
-           'download' as icon
+      -- Include status query param only when $status is provided
+      'download-test-cycle-test-case.sql?test_cycle=' || REPLACE(REPLACE($test_cycle, ' ', '%20'), '&', '%26') ||
+        CASE WHEN $status IS NOT NULL THEN '&status=' || REPLACE(REPLACE($status, ' ', '%20'), '&', '%26') ELSE '' END as link,
+      'download' as icon
     WHERE $test_cycle IS NOT NULL
     UNION ALL
     -- Show "Export All Test Cases" button when showing all test cases
@@ -2726,10 +2741,18 @@ WHERE rn.id = $id;
       tc.formatted_test_case_created_at AS "Created On"
     FROM ${viewName} tc
     LEFT JOIN test_suites ts ON ts.id = tc.suite_id
-    WHERE EXISTS (
-      SELECT 1
-      FROM json_each(tc.test_cycles)
-      WHERE value = $test_cycle
+    WHERE (
+      $test_cycle IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(tc.test_cycles)
+        WHERE value = $test_cycle
+      )
+    )
+    AND (
+      $status IS NULL
+      OR LOWER($status) = 'passed' AND LOWER(COALESCE(tc.test_status, '')) = 'passed'
+      OR LOWER($status) = 'failed' AND LOWER(COALESCE(tc.test_status, '')) = 'failed'
     )
     ORDER BY tc.test_case_id
     LIMIT $limit OFFSET $offset;
