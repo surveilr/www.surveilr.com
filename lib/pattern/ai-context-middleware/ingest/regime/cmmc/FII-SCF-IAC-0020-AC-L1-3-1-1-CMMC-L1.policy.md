@@ -8,7 +8,7 @@ classification: "Internal"
 documentVersion: "v1.0"
 documentType: "Policy"
 control-id: "AC.L1-3.1.1"
-control-question: "Does the organization enforce Logical Access Control (LAC) permissions that conform to the principle of "least privilege?""
+control-question: "Does the organization enforce Logical Access Control (LAC) permissions that conform to the principle of least privilege?"
 fiiId: "FII-SCF-IAC-0020"
 regimeType: "CMMC"
 cmmcLevel: 1
