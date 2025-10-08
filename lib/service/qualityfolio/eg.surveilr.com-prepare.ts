@@ -112,6 +112,60 @@ class App {
       // Step 2: Unzip the file
       await FileHandler.unzipFile(this.zipFilePath, ingestDir);
 
+      // Step 2.5: Generate package.sql in the rssd store without blocking this process.
+      try {
+        // Determine script directory (where package.sql.ts lives)
+        const scriptDir = dirname(path.fromFileUrl(import.meta.url));
+        // Place output package.sql inside the base rssd directory (same store)
+        const outputFile = path.join(this.ingestDir, '..', 'package.sql');
+        console.log(`Spawning background process to generate SQL (cwd=${scriptDir}), output=${outputFile}`);
+
+        // Open output file for writing (truncate/create)
+        const outFile = await Deno.open(outputFile, { create: true, write: true, truncate: true });
+
+        // Use Deno.Command to spawn the deno process and pipe stdout to the file.
+        const command = new Deno.Command('deno', {
+          args: ['run', '-A', './package.sql.ts'],
+          cwd: scriptDir,
+          stdout: 'piped',
+          stderr: 'piped',
+        });
+
+        const child = command.spawn();
+
+        // Pipe child's stdout to the output file asynchronously (do not await)
+        if (child.stdout) {
+          (async () => {
+            try {
+              await child.stdout.pipeTo(outFile.writable);
+            } catch (e) {
+              console.error('Error piping package.sql stdout:', e);
+            } finally {
+              // do not close outFile here: pipeTo will close the writable when complete
+            }
+          })();
+        } else {
+          // No stdout to pipe; close file silently
+          try { await outFile.close(); } catch (_) { /* ignore */ }
+        }
+
+        // Pipe child's stderr to the current process stderr for visibility (async)
+        if (child.stderr) {
+          (async () => {
+            try {
+              await child.stderr.pipeTo(Deno.stderr.writable);
+            } catch (e) {
+              console.error('Error piping package.sql stderr:', e);
+            }
+          })();
+        }
+
+        // Do not await child.status() so this runs in background relative to this script.
+      } catch (err) {
+        console.error('Failed to spawn package.sql generator:', err);
+        // don't throw — we don't want to stop the main flow if generation fails
+      }
+
       // Step 3: Execute the ingest command
       await CommandExecutor.executeCommand(this.ingestCommand);
     } catch (error: unknown) {
