@@ -115,7 +115,9 @@ class App {
       // Step 3: Execute the ingest command
       await CommandExecutor.executeCommand(this.ingestCommand);
     } catch (error: unknown) {
-      console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
       Deno.exit(1);
     }
   }

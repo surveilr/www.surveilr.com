@@ -186,6 +186,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
       FROM test_plan_list  order by id asc;
     `;
   }
+
   @spn.navigationPrimeTopLevel({
     caption: "Test Management System",
     description: "Test management system",
@@ -228,7 +229,7 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
     
     
 
-select
+  select
     '## Total Test Cases Count' as description_md,
  
     'white' as background_color,
@@ -465,6 +466,35 @@ SELECT
     END as _sqlpage_css_class
 FROM html_stats;
 
+
+-- Test cycles
+SELECT 'title' AS component,
+'Test cycles' as contents;
+
+SELECT 'text' as component,
+'Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases.' as contents;
+
+-- Add small CSS to color passed/failed cells via row classes (safer than inline HTML in cells)
+SELECT 'html' as component,
+       '<style>tr.has-pass td:nth-child(5){color:#28a745;font-weight:600} tr.has-fail td:nth-child(6){color:#dc3545;font-weight:600}</style>' as html;
+
+SELECT 'table' as component,
+       'Total Tests,Passed,Failed,Pass Rate' as align_right,
+       'test cycle' as markdown,
+       'passed' as markdown,
+       'failed' as markdown;
+  SELECT 
+    '['|| test_cycle ||']('||${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+      }|| test_cycle ||')' as "test cycle",
+    suite_id as "suite",
+    name as "suite name",
+    test_case_count as "test case",
+     -- Passed / Failed as plain numeric cells (HTML is escaped by SQLPage in tables)
+     COALESCE(passed_count, 0) AS "passed",
+     COALESCE(failed_count, 0) AS "failed",
+     -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
+     (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
+  FROM test_cycle;
     `;
   }
 
@@ -1410,6 +1440,32 @@ SELECT
       priority as "Priority"
     FROM test_cases t
     WHERE  group_id = $group_id;
+
+    `;
+  }
+
+  @spn.shell({
+    breadcrumbsFromNavStmts: "no",
+    shellStmts: "do-not-include",
+  })
+  "qualityfolio/download-test-cycle-test-case.sql"() {
+    return this.SQL`
+    select 'csv' as component, 'test_suites_'||$test_cycle||'.csv' as filename;
+     SELECT
+      test_case_id as id,
+      test_case_title AS "title",
+      group_name AS "group",
+      test_status,
+      created_by as "Created By",
+      formatted_test_case_created_at as "Created On",
+      priority as "Priority"
+    FROM test_cases t
+    WHERE  ($test_cycle IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $test_cycle
+              ));
 
     `;
   }
@@ -2440,6 +2496,7 @@ WHERE rn.id = $id;
    select "dynamic" as component, sqlpage.run_sql('qualityfolio/progress-bar.sql') as properties;
     `;
   }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/test-cases-full-list.sql"() {
     const viewName = `test_cases`;
@@ -2522,6 +2579,165 @@ WHERE rn.id = $id;
 
     `;
   }
+
+  @qltyfolioNav({
+    caption: "Test Cases",
+    description:
+      "Complete list of all test cases across all projects and suites",
+    siblingOrder: 4,
+  })
+  "qualityfolio/test_cycle_case.sql"() {
+    const viewName = `test_cases`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: `WHERE ($test_cycle IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $test_cycle
+              ))`,
+    });
+
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    -- Page description based on context
+    SELECT 'text' AS component,
+    'This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.' AS contents;
+
+    -- Status overview based on context
+      SELECT
+      'alert' AS component,
+      'info' AS color,
+      'Test Case Overview' AS title,
+      'Total test cases: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE $test_cycle IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $test_cycle
+          )
+      ) ||
+      ' | Passed: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE test_status = 'passed'
+          AND ($test_cycle IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $test_cycle
+              ))
+      ) ||
+      ' | Failed: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE test_status = 'failed'
+          AND ($test_cycle IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $test_cycle
+              ))
+      ) ||
+      ' | Pending: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE (test_status IS NULL OR test_status = 'TODO')
+          AND ($test_cycle IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $test_cycle
+              ))
+      ) AS description;
+
+
+
+    SELECT 'html' as component,
+      '<style>
+         tr td.test_status {
+              color: blue !important;
+          }
+          tr.rowClass-passed td.test_status {
+              color: green !important;
+          }
+           tr.rowClass-failed td.test_status {
+              color: red !important;
+          }
+          tr.rowClass-TODO td.test_status {
+              color: orange !important;
+          }
+          .btn-list {
+          display: flex;
+          justify-content: flex-end;
+      }
+      </style>' as html;
+
+    SELECT 'button' as component;
+
+    -- Show "View All Test Cases" button when filtering by group
+    SELECT 'View All Test Cases' as title,
+           'test-cases.sql' as link,
+           'list' as icon
+    WHERE $test_cycle IS NOT NULL
+    UNION ALL
+    -- Show "Export Test Cycle Test Cases" button when filtering by group
+    SELECT 'Export Test Cycle Test Cases' as title,
+           'download-test-cycle-test-case.sql?test_cycle=' || $test_cycle as link,
+           'download' as icon
+    WHERE $test_cycle IS NOT NULL
+    UNION ALL
+    -- Show "Export All Test Cases" button when showing all test cases
+    SELECT 'Export All Test Cases' as title,
+           'download-full_list.sql' as link,
+           'download' as icon
+    WHERE $test_cycle IS NULL;
+
+    ${pagination.init()}
+
+    SELECT 'table' as component,
+           TRUE AS sort,
+           TRUE AS search,
+           'Test Case ID' as markdown,
+           'Title' as markdown,
+           'Group' as markdown,
+           'Suite' as markdown,
+           'Status' as markdown;
+
+    SELECT
+      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| tc.test_case_id || ')' as "Test Case ID",
+      tc.test_case_title AS "Title",
+      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+      }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+      }|| ts.id || ')' AS "Suite",
+      CASE
+        WHEN tc.test_status IS NOT NULL THEN tc.test_status
+        ELSE 'TODO'
+      END AS "Status",
+      'rowClass-' || COALESCE(tc.test_status, 'TODO') as _sqlpage_css_class,
+      tc.test_type AS "Type",
+      tc.priority AS "Priority",
+      tc.created_by AS "Created By",
+      tc.formatted_test_case_created_at AS "Created On"
+    FROM ${viewName} tc
+    LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+    WHERE EXISTS (
+      SELECT 1
+      FROM json_each(tc.test_cycles)
+      WHERE value = $test_cycle
+    )
+    ORDER BY tc.test_case_id
+    LIMIT $limit OFFSET $offset;
+
+    ${pagination.renderSimpleMarkdown("id")};
+    `;
+  }
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
