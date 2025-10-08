@@ -1715,13 +1715,14 @@ WHERE scf_code = $id::TEXT;
       '**Control Description:** ' || COALESCE(control_description, '') || '  \n\n' ||
       '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
       '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
-      '**FII IDs:** ' || COALESCE(control_code, '') AS description_md
+      '**FII IDs:** ' || COALESCE($fiiid, '') AS description_md
       
   FROM scf_view
   WHERE
-        ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+       ( ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
     OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
-    OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+    OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code))
+    AND control_code = $fiiid
   LIMIT 1;
 
   -- TODO Placeholder Card
