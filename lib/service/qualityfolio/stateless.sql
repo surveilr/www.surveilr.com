@@ -1486,3 +1486,29 @@ WHERE
         OR CAST(ur.content AS TEXT) LIKE '%Status:%'
     )
 ORDER BY ur.created_at DESC;
+
+DROP VIEW IF EXISTS test_cycle;
+CREATE VIEW test_cycle AS
+SELECT
+  json_extract(value, '$') AS test_cycle,
+  c.suite_id,
+  ts.name,
+  COUNT(*) AS test_case_count,
+  COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
+  COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
+FROM
+  test_cases AS c
+  JOIN json_each(c.test_cycles)
+    -- expand test_cycles
+  JOIN test_suites AS ts ON ts.id = c.suite_id
+  LEFT JOIN test_case_run_results AS r
+    ON r.test_case_id = c.test_case_id
+WHERE
+  c.test_cycles IS NOT NULL
+GROUP BY
+  json_extract(value, '$'),
+  c.suite_id,
+  ts.name
+ORDER BY
+  c.suite_id,
+  test_cycle;
