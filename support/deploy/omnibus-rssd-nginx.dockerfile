@@ -96,14 +96,15 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
 
 
 
-# Find directories containing `package.sql` and move the file to the shared directory
-RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'package.sql' -exec dirname {} \;)) && \
+# Find the `package.sql` file under /lib/service/qualityfolio and copy it to /rssd/lib/service/qualityfolio/
+RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com/lib/service/qualityfolio -type f -name 'package.sql')) && \
     for path in \"\${RSSD_SRC_PATH[@]}\"; do \
-      relative_path=\$(echo \"\$path\" | sed 's#/app/www.surveilr.com/##'); \
-      rssd_name=\$(echo \"\$relative_path\" | sed 's#/#-#g').sqlite.db; \
-      mkdir -p /rssd/$relative_path && \
-      cp \$path/package.sql /rssd/$relative_path/; \
+      # Ensure the target directory exists in /rssd
+      mkdir -p /rssd/lib/service/qualityfolio && \
+      # Copy the package.sql file directly to /rssd/lib/service/qualityfolio/
+      cp \$path /rssd/lib/service/qualityfolio/; \
     done"
+
 
 
 # Stage 2: Final Runtime Image
