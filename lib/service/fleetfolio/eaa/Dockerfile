@@ -26,7 +26,7 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
       sudo ca-certificates curl wget git zsh bash coreutils \
       build-essential gcc jq python3 python3-pip python3-setuptools python3-wheel \
-      whatweb nmap openssl \
+      whatweb nmap openssl seclists ffuf sslyze zip \
       subfinder dnsx httpx-toolkit naabu nuclei dirsearch nikto amass wpscan dnsenum \
       wafw00f testssl.sh paramspider libpcap-dev  \
       golang-go \
@@ -95,8 +95,7 @@ RUN set -eux; \
     go install github.com/projectdiscovery/katana/cmd/katana@latest && \
     go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest && \
     go install -v github.com/PentestPad/subzy@latest && \
-    go install -v github.com/projectdiscovery/pdtm/cmd/pdtm@latest && \
-    pdtm -install-all
+    go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest
 
 # Make Homebrew available to root shells too (nice for interactive sessions)
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
@@ -114,6 +113,7 @@ RUN set -eux; \
 # ------------------------------------------------------------------------------
 COPY .env /opt/eaa/.env
 COPY .interpretation-template /opt/eaa/.interpretation-template
+COPY directory-list.txt /opt/eaa/directory-list.txt
 
 # ------------------------------------------------------------------------------
 # 8) Add the runbook and prep nuclei templates
