@@ -421,7 +421,7 @@ export class TypicalSqlPageNotebook
           SELECT 'text' AS component,
               (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length
             ? " || " + filteredParams.map((qp) =>
-              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+              `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
           } || ')' ELSE '' END)
@@ -429,7 +429,7 @@ export class TypicalSqlPageNotebook
               || '(Page ' || $current_page || ' of ' || $total_pages || ") "
               || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length
             ? " || " + filteredParams.map((qp) =>
-              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+              `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
           } || ')' ELSE '' END)

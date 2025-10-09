@@ -1,0 +1,652 @@
+{
+    "lformsVersion": "34.0.0",
+    "PATH_DELIMITER": "/",
+    "code": null,
+    "codeList": null,
+    "identifier": null,
+    "name": "Fleetfolio External Assets Assessment (EAA) Intake",
+    "template": "table",
+    "items": [
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "About your organization and point of contact",
+            "questionCode": "about",
+            "questionCodeSystem": "LinkId",
+            "linkId": "about",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "dataType": "ST",
+                    "question": "Company or organization name",
+                    "questionCode": "about.companyName",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "about.companyName",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "Netspective"
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Primary contact full name",
+                    "questionCode": "about.contactName",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "about.contactName",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "Arun KR"
+                },
+                {
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "name@domain.tld"
+                        }
+                    ],
+                    "dataType": "ST",
+                    "question": "Primary contact email",
+                    "questionCode": "about.contactEmail",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "about.contactEmail",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "Email-ID"
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Primary contact phone (optional)",
+                    "questionCode": "about.contactPhone",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "about.contactPhone",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": "Phone-number"
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        },
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "Assets to assess (public only)",
+            "questionCode": "assets",
+            "questionCodeSystem": "LinkId",
+            "linkId": "assets",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "example.com"
+                        }
+                    ],
+                    "dataType": "ST",
+                    "question": "Primary internet domain",
+                    "questionCode": "assets.primaryDomain",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "assets.primaryDomain",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "netspective.com"
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Additional domains (optional, repeat)",
+                    "questionCode": "assets.additionalDomains",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "assets.additionalDomains",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": "netspective"
+                },
+                {
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "1.2.3.4 or 203.0.113.0/24"
+                        }
+                    ],
+                    "dataType": "ST",
+                    "question": "Public IPs or CIDR ranges (optional, repeat)",
+                    "questionCode": "assets.publicIPs",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "assets.publicIPs",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": " IP"
+                },
+                {
+                    "dataType": "URL",
+                    "question": "Key URLs/APIs to evaluate (optional, repeat)",
+                    "questionCode": "assets.urls",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "assets.urls",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": "https://www.netspective.com/"
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Targets to exclude (optional, repeat; subdomains, paths, IPs, or regex-like patterns)",
+                    "questionCode": "assets.excludeTargets",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "assets.excludeTargets",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    }
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        },
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "Scope and scan profile",
+            "questionCode": "scope",
+            "questionCodeSystem": "LinkId",
+            "linkId": "scope",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "dataType": "CNE",
+                    "question": "Assessment profile",
+                    "questionCode": "scope.profile",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "scope.profile",
+                    "answerCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answers": [
+                        {
+                            "code": "basic",
+                            "text": "Basic (non-intrusive; headers, TLS, DNS, open TCP port touch, HTTP metadata)"
+                        },
+                        {
+                            "code": "standard",
+                            "text": "Standard (basic + lightweight service fingerprinting and default vuln checks)"
+                        }
+                    ],
+                    "defaultAnswer": {
+                        "code": "basic",
+                        "text": "Basic (non-intrusive; headers, TLS, DNS, open TCP port touch, HTTP metadata)"
+                    },
+                    "codeList": [],
+                    "displayControl": {
+                        "answerLayout": {
+                            "type": "COMBO_BOX",
+                            "columns": "0"
+                        }
+                    },
+                    "questionCardinality": {
+                        "min": "1",
+                        "max": "1"
+                    },
+                    "value": {
+                        "code": "basic",
+                        "text": "Basic (non-intrusive; headers, TLS, DNS, open TCP port touch, HTTP metadata)"
+                    }
+                },
+                {
+                    "dataType": "CNE",
+                    "question": "Safe request rate",
+                    "questionCode": "scope.rateLimit",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "scope.rateLimit",
+                    "answerCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answers": [
+                        {
+                            "code": "conservative",
+                            "text": "Conservative (lowest traffic)"
+                        },
+                        {
+                            "code": "balanced",
+                            "text": "Balanced (default)"
+                        },
+                        {
+                            "code": "fast",
+                            "text": "Faster (may create brief traffic spikes)"
+                        }
+                    ],
+                    "defaultAnswer": {
+                        "code": "balanced",
+                        "text": "Balanced (default)"
+                    },
+                    "codeList": [],
+                    "displayControl": {
+                        "answerLayout": {
+                            "type": "COMBO_BOX",
+                            "columns": "0"
+                        }
+                    },
+                    "questionCardinality": {
+                        "min": "1",
+                        "max": "1"
+                    },
+                    "value": {
+                        "code": "balanced",
+                        "text": "Balanced (default)"
+                    }
+                },
+                {
+                    "header": true,
+                    "dataType": "SECTION",
+                    "question": "Preferred execution window (optional)",
+                    "questionCode": "scope.window",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "scope.window",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "items": [
+                        {
+                            "dataType": "DTM",
+                            "question": "Earliest start (UTC)",
+                            "questionCode": "scope.window.start",
+                            "questionCodeSystem": "LinkId",
+                            "linkId": "scope.window.start",
+                            "questionCardinality": {
+                                "max": "1",
+                                "min": "1"
+                            },
+                            "codeList": [],
+                            "answerCardinality": {
+                                "min": "0",
+                                "max": "1"
+                            },
+                            "value": "2025-09-19T06:42:24.497Z"
+                        },
+                        {
+                            "dataType": "DTM",
+                            "question": "Latest end (UTC)",
+                            "questionCode": "scope.window.end",
+                            "questionCodeSystem": "LinkId",
+                            "linkId": "scope.window.end",
+                            "questionCardinality": {
+                                "max": "1",
+                                "min": "1"
+                            },
+                            "codeList": [],
+                            "answerCardinality": {
+                                "min": "0",
+                                "max": "1"
+                            },
+                            "value": "2025-09-19T06:42:26.605Z"
+                        }
+                    ],
+                    "codeList": [],
+                    "displayControl": {
+                        "questionLayout": "vertical"
+                    },
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    }
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        },
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "Notifications and delivery",
+            "questionCode": "notifications",
+            "questionCodeSystem": "LinkId",
+            "linkId": "notifications",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+                            "valueString": "name@domain.tld"
+                        }
+                    ],
+                    "dataType": "ST",
+                    "question": "Email(s) to receive results (repeat)",
+                    "questionCode": "notifications.recipients",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "notifications.recipients",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "EMAIL-ID"
+                },
+                {
+                    "dataType": "CNE",
+                    "question": "Preferred delivery format",
+                    "questionCode": "notifications.deliveryFormat",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "notifications.deliveryFormat",
+                    "answerCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answers": [
+                        {
+                            "code": "dashboard",
+                            "text": "Fleetfolio dashboard only"
+                        },
+                        {
+                            "code": "dashboard+pdf",
+                            "text": "Dashboard + PDF summary"
+                        },
+                        {
+                            "code": "dashboard+zip",
+                            "text": "Dashboard + ZIP of raw artifacts"
+                        }
+                    ],
+                    "defaultAnswer": {
+                        "code": "dashboard+zip",
+                        "text": "Dashboard + ZIP of raw artifacts"
+                    },
+                    "codeList": [],
+                    "displayControl": {
+                        "answerLayout": {
+                            "type": "COMBO_BOX",
+                            "columns": "0"
+                        }
+                    },
+                    "questionCardinality": {
+                        "min": "1",
+                        "max": "1"
+                    },
+                    "value": {
+                        "code": "dashboard+zip",
+                        "text": "Dashboard + ZIP of raw artifacts"
+                    }
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        },
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "Authorization and rules of engagement",
+            "questionCode": "attest",
+            "questionCodeSystem": "LinkId",
+            "linkId": "attest",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "dataType": "BL",
+                    "question": "I am authorized to request assessment of the assets listed and confirm they are owned/controlled by my organization.",
+                    "questionCode": "attest.authz",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "attest.authz",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": true
+                },
+                {
+                    "dataType": "BL",
+                    "question": "I confirm all assets are public-facing and no credentials are required or provided.",
+                    "questionCode": "attest.publicOnly",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "attest.publicOnly",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": true
+                },
+                {
+                    "dataType": "BL",
+                    "question": "I agree to the LESA Rules of Engagement: non-intrusive tests only; no exploitation; respect robots.txt and explicit exclusions; conservative rate limits as selected; immediate stop upon request.",
+                    "questionCode": "attest.roE",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "attest.roE",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": true
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Authorized requester name (signature equivalent)",
+                    "questionCode": "attest.name",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "attest.name",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "Arun"
+                },
+                {
+                    "dataType": "DT",
+                    "question": "Date",
+                    "questionCode": "attest.date",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "attest.date",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "answerCardinality": {
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "value": "2025-09-18"
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        },
+        {
+            "header": true,
+            "dataType": "SECTION",
+            "question": "Optional context to improve findings",
+            "questionCode": "context",
+            "questionCodeSystem": "LinkId",
+            "linkId": "context",
+            "questionCardinality": {
+                "max": "1",
+                "min": "1"
+            },
+            "items": [
+                {
+                    "dataType": "ST",
+                    "question": "Environment descriptors (optional, repeat; e.g., prod, marketing site, api gateway)",
+                    "questionCode": "context.env",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "context.env",
+                    "questionCardinality": {
+                        "max": "*",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": "Product"
+                },
+                {
+                    "dataType": "ST",
+                    "question": "Security/IT escalation email (optional)",
+                    "questionCode": "context.contactSec",
+                    "questionCodeSystem": "LinkId",
+                    "linkId": "context.contactSec",
+                    "questionCardinality": {
+                        "max": "1",
+                        "min": "1"
+                    },
+                    "codeList": [],
+                    "answerCardinality": {
+                        "min": "0",
+                        "max": "1"
+                    },
+                    "value": "Email-ID"
+                }
+            ],
+            "codeList": [],
+            "displayControl": {
+                "questionLayout": "vertical"
+            },
+            "answerCardinality": {
+                "min": "0",
+                "max": "1"
+            }
+        }
+    ],
+    "templateOptions": {
+        "showQuestionCode": false,
+        "showCodingInstruction": false,
+        "allowMultipleEmptyRepeatingItems": false,
+        "allowHTMLInInstructions": false,
+        "displayControl": {
+            "questionLayout": "vertical"
+        },
+        "viewMode": "auto",
+        "defaultAnswerLayout": {
+            "answerLayout": {
+                "type": "COMBO_BOX",
+                "columns": "0"
+            }
+        },
+        "hideTreeLine": false,
+        "hideIndentation": false,
+        "hideRepetitionNumber": false,
+        "displayScoreWithAnswerText": true,
+        "allowHTML": true
+    },
+    "hasSavedData": true,
+    "fhirVersion": "R4"
+}

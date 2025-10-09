@@ -26,65 +26,693 @@ SELECT `SCF Domain` AS scf_domain,
 FROM uniform_resource_scf_2024_2 WHERE `NIST 800-171A rev 3` !='';
 
 
+DROP VIEW IF EXISTS scf_view;
 
+DROP VIEW IF EXISTS scf_view;
+
+CREATE VIEW scf_view AS
+SELECT 
+    'SCF-' || ROWID AS control_identifier,
+    "SCF Domain" AS scf_domain,
+    "SCF Control" AS scf_control,
+    "SCF #" AS control_code,
+    "Secure Controls Framework (SCF) Control Description" AS control_description,
+    "SCF Control Question" AS control_question,
+    "US CMMC 2.0 Level 1" AS cmmc_level_1,
+    "US CMMC 2.0 Level 2" AS cmmc_level_2,
+    "US CMMC 2.0 Level 3" AS cmmc_level_3
+FROM uniform_resource_scf_2024_2;
+
+DROP VIEW IF EXISTS ai_ctxe_policy;
+CREATE VIEW ai_ctxe_policy AS
+SELECT DISTINCT
+  ur.uniform_resource_id,
+  json_extract(ur.frontmatter, '$.title') AS title,
+  json_extract(ur.frontmatter, '$.description') AS description,
+  json_extract(ur.frontmatter, '$.publishDate') AS publishDate,
+  json_extract(ur.frontmatter, '$.publishBy') AS publishBy,
+  json_extract(ur.frontmatter, '$.classification') AS classification,
+  json_extract(ur.frontmatter, '$.documentType') AS documentType,
+  json_extract(ur.frontmatter, '$.approvedBy') AS approvedBy,
+  json_extract(ur.frontmatter, '$.category') AS category,
+  json_extract(ur.frontmatter, '$.control-id') AS control_id,
+  json_extract(ur.frontmatter, '$.regimeType') AS regimeType,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
+ 
+  TRIM(
+    CASE
+      WHEN instr(ur.content, '---') = 1
+        THEN substr(
+          ur.content,
+          instr(ur.content, '---') + 3 + instr(substr(ur.content, instr(ur.content, '---') + 3), '---') + 3
+        )
+      ELSE ur.content
+    END
+  ) AS body_text
+FROM
+  uniform_resource ur
+JOIN
+  ur_ingest_session_fs_path_entry fs
+    ON fs.uniform_resource_id = ur.uniform_resource_id
+
+WHERE
+  fs.file_basename LIKE '%.policy.md';
+
+DROP VIEW IF EXISTS compliance_regime_control_soc2;
+
+CREATE VIEW compliance_regime_control_soc2 AS
+SELECT
+  "#" AS control_code,
+  "Control Identifier" AS control_id,
+  "Fii ID" AS fii_id,
+  "Common Criteria" AS common_criteria,
+  "Common Criteria type" AS criteria_type,
+  Name AS control_name,
+  "Questions Descriptions" AS control_question,
+  'AICPA SOC 2' AS control_type,
+  tenant_id,
+  tenant_name
+FROM uniform_resource_aicpa_soc2_controls
+WHERE "Control Identifier" IS NOT NULL AND "Control Identifier" != '';
+
+
+DROP VIEW IF EXISTS compliance_regime_control_hitrust_e1;
+
+CREATE VIEW compliance_regime_control_hitrust_e1 AS
+SELECT
+  "#" AS control_code,
+  "Control Identifier" AS control_id,
+  "Fii ID" AS fii_id,
+  "Common Criteria" AS common_criteria,
+  NULL AS criteria_type, -- not available in this table
+  Name AS control_name,
+  Description AS control_question,
+  'HITRUST E1' AS control_type,
+  tenant_id,
+  tenant_name
+FROM uniform_resource_hitrust_e1_assessment
+WHERE "Control Identifier" IS NOT NULL 
+  AND "Control Identifier" != '';
+
+DROP VIEW IF EXISTS compliance_iso_27001_control;
+
+CREATE VIEW compliance_iso_27001_control AS
+SELECT 
+    `SCF Domain` AS scf_domain,
+    `SCF Control` AS scf_control,
+    `SCF #` AS control_code,
+    `Secure Controls Framework (SCF)
+Control Description` AS control_description,
+    `SCF Control Question` AS control_question,
+    Evidence AS evidence,
+    tenant_id,
+    tenant_name,
+    'ISO 27001 v3' AS control_type
+FROM uniform_resource_iso_27001_v3;
+
+DROP VIEW IF EXISTS hipaa_security_rule_safeguards;
+CREATE VIEW hipaa_security_rule_safeguards AS
+SELECT
+    "#" AS id,
+    "Common Criteria" AS common_criteria,
+    "HIPAA Security Rule Reference" AS hipaa_security_rule_reference,
+    Safeguard AS safeguard,
+    "Handled by nQ" AS handled_by_nq,
+    "FII Id" AS fii_id,
+    tenant_id,
+    tenant_name
+FROM uniform_resource_hipaa_security_rule_safeguards;
+ 
+DROP VIEW IF EXISTS compliance_regime_thsa;
+CREATE VIEW compliance_regime_thsa AS
+SELECT
+   "#" AS id,
+  `SCF Domain` AS scf_domain,
+  `SCF Control` AS scf_control,
+  `SCF Control Question` AS scf_control_question,
+  "SCF #" AS scf_code,
+  "Your Answer" AS your_answer,
+  tenant_id,
+  tenant_name
+FROM uniform_resource_thsa;
+
+
+DROP VIEW IF EXISTS aicpa_soc2_type2_controls;
+CREATE VIEW aicpa_soc2_type2_controls AS
+SELECT
+    "#" AS id,
+    "Control Identifier" AS control_id,
+    "Fii ID" AS fii_id,
+    "Common Criteria" AS common_criteria,
+    "Common Criteria type" AS criteria_type,
+    Name AS control_name,
+    "Questions Descriptions" AS control_question,
+    tenant_id,
+    tenant_name
+FROM uniform_resource_aicpa_soc2_type2_controls;
+
+--###view for complaince explorer prompts #####-------
+
+DROP VIEW IF EXISTS ai_ctxe_compliance_prompt;
+CREATE VIEW ai_ctxe_compliance_prompt AS
+SELECT DISTINCT
+  ur.uniform_resource_id,
+  json_extract(ur.frontmatter, '$.title') AS title,
+  json_extract(ur.frontmatter, '$.description') AS description,
+  json_extract(ur.frontmatter, '$.publishDate') AS publishDate,
+  json_extract(ur.frontmatter, '$.publishBy') AS publishBy,
+  json_extract(ur.frontmatter, '$.classification') AS classification,
+  json_extract(ur.frontmatter, '$.documentType') AS documentType,
+  json_extract(ur.frontmatter, '$.approvedBy') AS approvedBy,
+  json_extract(ur.frontmatter, '$.category') AS category,
+  json_extract(ur.frontmatter, '$.control-id') AS control_id,
+  json_extract(ur.frontmatter, '$.regimeType') AS regime,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
+
+  TRIM(
+    CASE
+      WHEN instr(ur.content, '---') = 1
+        THEN substr(
+          ur.content,
+          instr(ur.content, '---') + 3 + instr(substr(ur.content, instr(ur.content, '---') + 3), '---') + 3
+        )
+      ELSE ur.content
+    END
+  ) AS body_text
+FROM
+  uniform_resource ur
+JOIN
+  ur_ingest_session_fs_path_entry fs
+    ON fs.uniform_resource_id = ur.uniform_resource_id
+
+WHERE
+  fs.file_basename LIKE '%.prompt.md'
+  AND json_extract(ur.frontmatter, '$.regimeType') IS NOT NULL;;
+
+
+
+--###view for all controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS all_control;
+
+CREATE VIEW all_control AS
+    SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 1" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 1" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 1' AS control_type,
+    12 AS control_type_id,
+    6 AS control_compliance_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 1" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 2" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 2" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 2' AS control_type,
+    13 AS control_type_id,
+    7 AS control_compliance_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 2" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 3" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 3" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 3' AS control_type,
+    14 AS control_type_id,
+    8 AS control_compliance_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 3" != ''
+ 
+UNION ALL
+ 
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."HIPAA Security Rule Reference" AS control_identifier,
+            cntl."HIPAA Security Rule Reference" AS control_code,
+            cntl."FII Id" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            '' AS expected_evidence,
+            cntl.Safeguard AS question,
+            'HIPAA' AS control_type,
+            0 AS control_type_id,
+            1 AS control_compliance_id        
+          FROM uniform_resource_hipaa_security_rule_safeguards cntl
+          
+UNION ALL
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."Control Identifier" AS control_identifier,
+            cntl."Control Identifier" AS control_code,
+            cntl."Fii ID" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            cntl."Name" AS expected_evidence,
+            cntl.Description AS question,
+            'HITRUST' AS control_type,
+            0 AS control_type_id,
+            5 AS control_compliance_id  
+          FROM uniform_resource_hitrust_e1_assessment cntl
+          
+UNION ALL
+SELECT
+            (SELECT COUNT(*)
+            FROM uniform_resource_iso_27001_v3 AS sub
+            WHERE sub.ROWID <= cntl.ROWID) AS display_order,
+            'ISO-27001-' || (ROWID) as control_identifier,
+             cntl."SCF #" AS control_code,
+             cntl."SCF #" AS fii,
+             cntl."SCF Domain" AS common_criteria,
+             Evidence as expected_evidence,
+             cntl."SCF Control Question" AS question,
+             'ISO 27001:2022' AS control_type,
+            0 AS control_type_id,
+             9 AS control_compliance_id          
+        FROM uniform_resource_iso_27001_v3 as cntl
+UNION ALL
+SELECT
+        CAST(cntl."#" AS INTEGER) AS display_order,
+        cntl."Control Identifier" AS control_identifier,
+        cntl."Control Identifier" AS control_code,
+        cntl."Fii ID" AS fii,
+        cntl."Common Criteria" AS common_criteria,
+        cntl."Name" AS expected_evidence,
+        cntl."Questions Descriptions" AS question,
+        'SOC2 Type I' AS control_type,
+        2 AS control_type_id,
+        3 AS control_compliance_id
+    FROM uniform_resource_aicpa_soc2_controls cntl
+    UNION ALL
+    SELECT
+        CAST(cntl."#" AS INTEGER),
+        cntl."Control Identifier",
+        cntl."Control Identifier",
+        cntl."Fii ID",
+        cntl."Common Criteria",
+        cntl."Name",
+        cntl."Questions Descriptions",
+        'SOC2 Type II' AS control_type,
+        3 AS control_type_id,
+        4 AS control_compliance_id  
+    FROM uniform_resource_aicpa_soc2_type2_controls cntl;
+
+
+--###view for cmmc controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS cmmc_control;
+
+CREATE VIEW cmmc_control AS
+    SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 1" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 1" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 1' AS control_type,
+    12 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 1" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 2" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 2" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 2' AS control_type,
+    13 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 2" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 3" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 3" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 3' AS control_type,
+    14 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 3" != '';
+
+
+--###view for hipaa controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS hipaa_control;
+
+CREATE VIEW hipaa_control AS
+   SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."HIPAA Security Rule Reference" AS control_identifier,
+            cntl."HIPAA Security Rule Reference" AS control_code,
+            cntl."FII Id" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            '' AS expected_evidence,
+            cntl.Safeguard AS question            
+          FROM uniform_resource_hipaa_security_rule_safeguards cntl;
+
+
+--###view for hitrust controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS hitrust_control;
+
+CREATE VIEW hitrust_control as
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."Control Identifier" AS control_identifier,
+            cntl."Control Identifier" AS control_code,
+            cntl."Fii ID" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            cntl."Name" AS expected_evidence,
+            cntl.Description AS question
+          FROM uniform_resource_hitrust_e1_assessment cntl;
+
+
+--###view for iso27001 controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS iso27001_control;
+
+CREATE VIEW iso27001_control AS    
+SELECT
+            (SELECT COUNT(*)
+            FROM uniform_resource_iso_27001_v3 AS sub
+            WHERE sub.ROWID <= cntl.ROWID) AS display_order,
+            'ISO-27001-' || (ROWID) as control_identifier,
+             cntl."SCF #" AS control_code,
+             cntl."SCF #" AS fii,
+             cntl."SCF Domain" AS common_criteria,
+             Evidence as expected_evidence,
+             cntl."SCF Control Question" AS question            
+        FROM uniform_resource_iso_27001_v3 as cntl;
+
+
+--###view for soc2 controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS soc2_control;
+
+CREATE VIEW soc2_control AS
+    SELECT
+        CAST(cntl."#" AS INTEGER) AS display_order,
+        cntl."Control Identifier" AS control_identifier,
+        cntl."Control Identifier" AS control_code,
+        cntl."Fii ID" AS fii,
+        cntl."Common Criteria" AS common_criteria,
+        cntl."Name" AS expected_evidence,
+        cntl."Questions Descriptions" AS question,
+        'SOC2 Type I' AS control_type,
+        2 AS control_type_id
+    FROM uniform_resource_aicpa_soc2_controls cntl
+    UNION ALL
+    SELECT
+        CAST(cntl."#" AS INTEGER),
+        cntl."Control Identifier",
+        cntl."Control Identifier",
+        cntl."Fii ID",
+        cntl."Common Criteria",
+        cntl."Name",
+        cntl."Questions Descriptions",
+        'SOC2 Type II' AS control_type,
+        3 AS control_type_id
+    FROM uniform_resource_aicpa_soc2_type2_controls cntl;       
 -- Drop the table if it exists, then create the new table with auto-increment primary key
 DROP TABLE IF EXISTS "compliance_regime";
 CREATE TABLE "compliance_regime" (
-    "compliance_regime_id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "geography" TEXT,
-    "source" TEXT,
-    "description" TEXT,
-    "version" TEXT,
-    "last_reviewed_date" TIMESTAMPTZ,
-    "authoritative_source" TEXT,
-    "custom_user_text" TEXT,
-    "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT DEFAULT 'UNKNOWN',
-    "updated_at" TIMESTAMPTZ,
-    "updated_by" TEXT,
-    "deleted_at" TIMESTAMPTZ,
-    "deleted_by" TEXT,
-    "activity_log" TEXT
+"compliance_regime_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+"parent_id" TEXT NOT NULL,
+"title" TEXT NOT NULL,
+"geography" TEXT,
+"source" TEXT,
+"description" TEXT,
+"logo" TEXT,
+"status" TEXT,
+"version" TEXT,
+"last_reviewed_date" TIMESTAMPTZ,
+"authoritative_source" TEXT,
+"custom_user_text" TEXT,
+"elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
+"created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+"created_by" TEXT DEFAULT 'UNKNOWN',
+"updated_at" TIMESTAMPTZ,
+"updated_by" TEXT,
+"deleted_at" TIMESTAMPTZ,
+"deleted_by" TEXT,
+"activity_log" TEXT
 );
-
 -- Insert records into the table
 INSERT INTO "compliance_regime" (
-    "title",
-    "geography",
-    "source",
-    "description",
-    "version",
-    "last_reviewed_date",
-    "authoritative_source",
-    "custom_user_text"
+"parent_id",    
+"title",
+"geography",
+"source",
+"description",
+"logo",
+"status",
+"version",
+"last_reviewed_date",
+"authoritative_source",
+"custom_user_text"
 )
 VALUES
-    (
-        'US HIPAA',
-        'US',
-        'Federal',
-        'The Health Insurance Portability and Accountability Act (HIPAA) Security Rule sets national standards to protect individuals electronic personal health information (ePHI) that is created, received, used, or maintained by a covered entity. The Security Rule mandates appropriate administrative, physical, and technical safeguards to ensure the confidentiality, integrity, and security of ePHI.' ||
-        'security, and integrity of protected health information (PHI), ensuring compliance for healthcare providers, ' ||
-        'insurers, and related entities handling electronic and physical health data',
-        'N/A',
-        '2022-10-20 00:00:00+00',
-        'Health Insurance Portability and Accountability Act (HIPAA)',
-        'Below, you will find a complete list of all controls applicable to the US HIPAA framework. These controls are designed ' ||
-        'to ensure compliance with the Health Insurance Portability and Accountability Act (HIPAA) standards, safeguarding ' ||
-        'sensitive patient health information'
-    ),
-    (
-        'NIST',
-        'Universal',
-        'SCF',
-        'The NIST SP 800-53 standard aims to protect operations, assets, individuals, organizations, and the United States from a wide range of cyber threats, including hostile attacks, human error, and natural disasters. The controls are designed to be flexible and customizable to support organizations in their implementation efforts.',
-        '2024',
-        '2024-04-01 00:00:00+00',
-        '800-53 rev4',
-        NULL
-    );
+(
+'',
+'HIPAA',
+'US',
+'Federal',
+'Health Insurance Portability and Accountability Act',
+'',
+'active',
+'N/A',
+'2022-10-20 00:00:00+00',
+'Health Insurance Portability and Accountability Act (HIPAA)',
+'Below, you will find a complete list of all controls applicable to the US HIPAA framework. These controls are designed ' ||
+'to ensure compliance with the Health Insurance Portability and Accountability Act (HIPAA) standards, safeguarding ' ||
+'sensitive patient health information'
+),
+(
+'',
+'NIST',
+'Universal',
+'SCF',
+'Comprehensive cybersecurity guidance framework',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),
+(
+'10',
+'SOC2 Type I',
+'US',
+'SCF',
+'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'10',
+'SOC2 Type II',
+'US',
+'SCF',
+'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'HITRUST CSF',
+'US',
+'SCF',
+'Achieve HITRUST CSF certification, the most trusted and comprehensive security framework in healthcare.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 1',
+'US',
+'SCF',
+'Achieve Cybersecurity Maturity Model Certification (CMMC) to bid on Department of Defense contracts',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 2',
+'US',
+'SCF',
+'110 requirements aligned with NIST SP 800-171; Triennial third-party assessment & annual affirmation; Triennial self-assessment & annual affirmation for select programs. A subset of programs with Level 2 requirements do not involve information critical to national security, and associated contractors will be permitted to meet the requirement through self-assessments. Contractors will be required to conduct self-assessment on an annual basis, accompanied by an annual affirmation from a senior company official that the company is meeting requirements. The Department intends to require companies to register self-assessments and affirmations in the Supplier Performance Risk System (SPRS).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 3',
+'US',
+'SCF',
+'110+ requirements based on NIST SP 800-171 & 800-172; Triennial government-led assessment & annual affirmation. The Department intends for Level 3 cybersecurity requirements to be assessed by government officials. Assessment requirements are currently under development. Level 3 information will likewise be posted as it becomes available.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'14',
+'ISO 27001:2022',
+'US',
+'SCF',
+'Information security management systems standard',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'AICPA',
+'US',
+'Federal',
+'AICPA is the national professional organization for Certified Public Accountants (CPAs) in the United States.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST e1 Assessment',
+'US',
+'Federal',
+'HITRUST e1 Essentials Assessment Adds Efficiency and Flexibility to the HITRUST Portfolio.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST i1 Assessment',
+'US',
+'Federal',
+'HITRUST i1 Leading Security Practices Assessment Delivers Broad and Reliable Assurances Against Current and Emerging Cyber Threats.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST r2 Assessment',
+'US',
+'Federal',
+'HITRUST r2 Expanded Practices Assessment is the Industry-Recognized Gold Standard for Providing the Highest Level of Information Protection and Compliance Assurance.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'ISO',
+'US',
+'Federal',
+'ISO/IEC refers to a joint collaboration between the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'Cybersecurity Maturity Model Certification (CMMC)',
+'US',
+'Federal',
+'The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'14',
+'ISO 42001',
+'US',
+'SCF',
+'ISO/IEC 42001 is the first international management system standard for AI, designed to promote responsible AI development and use by setting requirements for establishing, implementing, maintaining, and continually improving an Artificial Intelligence Management System (AIMS).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+);
 
 -- delete all /fhir-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE path like 'ur%';
@@ -701,8 +1329,11 @@ DROP VIEW IF EXISTS orchestration_logs_by_session;
 DELETE FROM sqlpage_aide_navigation WHERE path like 'ce%';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
 VALUES
-    ('prime', 'index.sql', 1, 'ce/index.sql', 'ce/index.sql', 'SCF Controls', NULL, NULL, 'SCF (Secure Controls Framework) controls are a set of cybersecurity and privacy requirements designed to help organizations manage and comply with various regulatory, statutory, and contractual frameworks.', NULL),
-    ('prime', 'ce/index.sql', 2, 'ce/regime/controls.sql', 'ce/regime/controls.sql', ' ', NULL, NULL, NULL, NULL)
+    ('prime', 'index.sql', 1, 'ce/regime/index.sql', 'ce/regime/index.sql', 'Controls', NULL, NULL, 'SCF (Secure Controls Framework) controls are a set of cybersecurity and privacy requirements designed to help organizations manage and comply with various regulatory, statutory, and contractual frameworks.', NULL),
+    ('prime', 'ce/regime/index.sql', 2, 'ce/regime/scf.sql', 'ce/regime/scf.sql', ' ', NULL, NULL, NULL, NULL),
+    ('prime', 'ce/regime/index.sql', 2, 'ce/regime/controls.sql', 'ce/regime/controls.sql', ' ', NULL, NULL, NULL, NULL),
+    ('prime', 'ce/regime/index.sql', 5, 'ce/regime/hipaa_security_rule.sql', 'ce/regime/hipaa_security_rule.sql', 'HIPAA', NULL, NULL, 'HIPAA and their mapping with SCF and FII IDs.', NULL),
+    ('prime', 'ce/regime/index.sql', 6, 'ce/regime/cmmc.sql', 'ce/regime/cmmc.sql', 'CMMC', NULL, NULL, 'Cybersecurity Maturity Model Certification (CMMC) Levels 1-3.', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
@@ -1156,10 +1787,10 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -2516,7 +3147,7 @@ GROUP BY view_name;
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
-      'ce/index.sql',
+      'ce/regime/index.sql',
       '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
               SELECT ''breadcrumb'' as component;
 WITH RECURSIVE breadcrumbs AS (
@@ -2526,7 +3157,119 @@ WITH RECURSIVE breadcrumbs AS (
         parent_path, 0 AS level,
         namespace
     FROM sqlpage_aide_navigation
-    WHERE namespace = ''prime'' AND path=''ce/index.sql''
+    WHERE namespace = ''prime'' AND path=''ce/regime/index.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT
+  ''text'' AS component,
+  ''Compliance Explorer'' AS title;
+
+SELECT
+  ''The compliance explorer covers a wide range of standards and guidelines across different areas of cybersecurity and data protection. They include industry-specific standards, privacy regulations, and cybersecurity frameworks. Complying with these frameworks supports a strong cybersecurity stance and alignment with data protection laws.'' AS contents;
+
+SELECT
+  ''card'' AS component,
+  '''' AS title,
+  2 AS columns;
+
+SELECT
+  ''CMMC'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Department of Defense (DoD) 
+
+  **Version**: 2.0 
+
+  **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00'' AS description_md,      
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc.sql'' as link
+UNION
+SELECT
+  ''AICPA'' AS title,
+  ''**Geography**: US 
+
+  **Source**: American Institute of Certified Public Accountants (AICPA) 
+
+  **Version**: N/A 
+
+  **Published/Last Reviewed Date/Year**: 2023-10-01 00:00:00+00'' AS description_md,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql'' as link
+UNION
+SELECT
+  ''HiTRUST e1 Assessment'' AS title,
+  ''**Geography**: US 
+
+  **Source**: HITRUST Alliance 
+
+  **HITRUST Essentials, 1-Year (e1) Assessment** 
+
+  **Version**: e1 
+
+  **Published/Last Reviewed Date/Year**: 2021-09-13 00:00:00+00'' AS description_md,      
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hitrust.sql'' as link
+UNION
+SELECT
+  ''ISO 27001:2022'' AS title,
+  ''**Geography**: International 
+
+  **Source**: International Organization for Standardization (ISO) 
+
+  **Version**: 2022 
+
+  **Published/Last Reviewed Date/Year**: 2022-10-25 00:00:00+00'' AS description_md,      
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/iso-27001.sql'' as link
+UNION
+SELECT
+  ''HIPAA'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Federal 
+
+  **Health Insurance Portability and Accountability Act (HIPAA)** 
+
+  **Version**: N/A 
+
+  **Published/Last Reviewed Date/Year**: 2024-01-06 00:00:00+00'' AS description_md,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hipaa_security_rule.sql'' AS link
+UNION
+SELECT
+  ''Together.Health Security Assessment (THSA)'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Together.Health (health innovation collaborative) 
+
+  **Together.Health Security Assessment (THSA)** 
+
+  **Version**: v2019.1 
+
+  **Published/Last Reviewed Date/Year**: 2019-10-26 00:00:00+00'' AS description_md,      
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/thsa.sql'' AS link;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/scf.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ce/regime/scf.sql''
     UNION ALL
     SELECT
         COALESCE(nav.abbreviated_caption, nav.caption) AS title,
@@ -2542,7 +3285,11 @@ FROM breadcrumbs ORDER BY level DESC;
               
 
               
-    SELECT
+      SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/scf.sql/index.sql'') as contents;
+    ;
+      SELECT
     ''text'' AS component,
     ''Compliance Explorer '' AS title;
     SELECT
@@ -2582,6 +3329,475 @@ FROM breadcrumbs ORDER BY level DESC;
       ''[**Detail View**]('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/controls.sql?regimeType=NIST'' || '')'' AS description_md
     FROM compliance_regime
     WHERE title = ''NIST'';
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/aicpa.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              --- Display breadcrumb
+SELECT
+  ''breadcrumb'' AS component;
+SELECT
+  ''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+SELECT
+  ''Controls'' AS title,
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+SELECT
+  ''AICPA'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql'' AS link;
+ 
+SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/aicpa.sql/index.sql'') as contents;
+    ;
+ 
+SELECT
+  ''text'' AS component,
+  ''AICPA'' AS title;
+ 
+SELECT
+  ''The American Institute of Certified Public Accountants (AICPA) is the national professional organization for Certified Public Accountants (CPAs) in the United States. Established in 1887, the AICPA sets ethical standards for the profession and U.S. auditing standards for private companies, nonprofit organizations, federal, state, and local governments. It also develops and grades the Uniform CPA Examination and offers specialty credentials for CPAs who concentrate on personal financial planning; forensic accounting; business valuation; and information technology.'' AS contents;
+ 
+-- Cards for SOC 2 Type I & Type II
+SELECT
+  ''card'' AS component,
+    2 AS columns;
+ 
+SELECT
+  ''SOC 2 Type I'' AS title,
+  ''Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.'' AS description,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type1.sql'' AS link
+UNION ALL
+SELECT
+  ''SOC 2 Type II'' AS title,
+  ''SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.'' AS description,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type2.sql'' AS link;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/soc2_type1.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              --- Display breadcrumb
+SELECT
+  ''breadcrumb'' AS component;
+SELECT
+  ''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+SELECT
+  ''Controls'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+SELECT
+  ''AICPA'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql'' AS link;
+SELECT
+  ''SOC 2 Type I'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type1.sql'' AS link;
+ 
+SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/soc2_type1.sql/index.sql'') as contents;
+    ;
+ 
+SELECT
+  ''text'' AS component,
+  ''SOC 2 Type I Controls'' AS title;
+ 
+SELECT
+    ''The SOC 2 controls are based on the AICPA Trust Services Criteria, focusing on security, availability, processing integrity, confidentiality, and privacy.'' AS contents;
+ 
+SELECT
+  ''table'' AS component,
+  "Control Code" AS markdown,
+  TRUE AS sort,
+  TRUE AS search;
+ 
+-- Pagination Controls (Top)
+SET total_rows = (SELECT COUNT(*) FROM compliance_regime_control_soc2 );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+ 
+SELECT
+  ''['' || control_id || '']('' ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_detail.sql?type=soc2-type1&id='' || control_id || '')'' AS "Control Code",
+    control_name AS "Control Name",
+    common_criteria AS "Common Criteria",
+    criteria_type AS "Criteria Type",
+    control_question AS "Control Question"
+FROM compliance_regime_control_soc2
+LIMIT $limit OFFSET $offset;
+ 
+-- Pagination Controls (Bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/soc2_type2.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              --- Display breadcrumb
+SELECT
+  ''breadcrumb'' AS component;
+SELECT
+  ''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+SELECT
+  ''Controls'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+SELECT
+  ''AICPA'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql'' AS link;
+SELECT
+  ''SOC 2 Type II'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type2.sql'' AS link;
+ 
+--- Display page title
+SELECT
+  ''title'' AS component,
+  ''SOC 2 Type II Controls'' AS contents;
+ 
+--- Display description
+SELECT
+  ''text'' AS component,
+  ''SOC 2 Type II reports evaluate not just the design, but also the operating effectiveness of controls over a defined review period.'' AS contents;
+ 
+--- Table
+SELECT
+  ''table'' AS component,
+  "Control Code" AS markdown,
+  TRUE AS sort,
+  TRUE AS search;
+ 
+-- Pagination Controls (Top)
+SET total_rows = (SELECT COUNT(*) FROM aicpa_soc2_type2_controls );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+ 
+SELECT
+  ''['' || control_id || '']('' ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_detail.sql?type=soc2-type2&id='' || control_id || '')'' AS "Control Code",
+  fii_id AS "FII ID",
+  common_criteria AS "Common Criteria",
+  criteria_type AS "Criteria Type",
+  control_name AS "Control Name",
+  control_question AS "Control Question"
+FROM aicpa_soc2_type2_controls
+LIMIT $limit OFFSET $offset;
+ 
+-- Pagination Controls (Bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/soc2_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+    -- Breadcrumbs
+    SELECT ''breadcrumb'' AS component;
+    SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+    SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+    SELECT ''AICPA'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql'' AS link;
+ 
+    -- SOC 2 Type breadcrumb
+    SELECT
+      CASE
+        WHEN $type = ''soc2-type1'' THEN ''SOC 2 Type I''
+        WHEN $type = ''soc2-type2'' THEN ''SOC 2 Type II''
+        ELSE ''SOC 2''
+      END AS title,
+      CASE
+        WHEN $type = ''soc2-type1'' THEN sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type1.sql''
+        WHEN $type = ''soc2-type2'' THEN sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/soc2_type2.sql''
+        ELSE sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/aicpa.sql''
+      END AS link;
+ 
+    -- Last breadcrumb (dynamic control_id, non-clickable)
+    SELECT
+      control_id AS title, ''#'' AS link
+    FROM (
+      SELECT control_id
+      FROM compliance_regime_control_soc2
+      WHERE $type = ''soc2-type1'' AND control_id = $id::TEXT
+      UNION ALL
+      SELECT control_id
+      FROM aicpa_soc2_type2_controls
+      WHERE $type = ''soc2-type2'' AND control_id = $id::TEXT
+    ) t
+    LIMIT 1;
+ 
+    -- Card Header
+    SELECT ''card'' AS component,
+           CASE
+             WHEN $type = ''soc2-type1'' THEN ''SOC 2 Type I Control Detail''
+             WHEN $type = ''soc2-type2'' THEN ''SOC 2 Type II Control Detail''
+             ELSE ''SOC 2 Control Detail''
+           END AS title,
+           1 AS columns;
+ 
+    -- Detail Section (aligned UNION)
+    SELECT
+      common_criteria AS title,
+      ''**Control Code:** '' || control_id || ''  
+
+'' ||
+      ''**Control Name:** '' || control_name || ''  
+
+'' ||
+      (CASE WHEN $type = ''soc2-type2'' THEN ''**FII ID:** '' || COALESCE(fii_id,'''') || ''  
+
+'' ELSE '''' END) ||
+      ''**Control Question:** '' || COALESCE(control_question,'''') || ''  
+
+''
+      AS description_md
+    FROM (
+      -- Type I controls (with SCF reference)
+      SELECT control_id, control_name, fii_id, common_criteria, control_question
+      FROM compliance_regime_control_soc2
+      WHERE $type = ''soc2-type1'' AND control_id = $id::TEXT
+     
+      UNION ALL
+     
+      -- Type II controls (no SCF reference → add NULL for column alignment)
+      SELECT control_id, control_name, fii_id, common_criteria, control_question
+      FROM aicpa_soc2_type2_controls
+      WHERE $type = ''soc2-type2'' AND control_id = $id::TEXT
+    );
+    -- TODO Placeholder Card
+    SELECT
+      ''card'' AS component,
+      1 AS columns;
+ 
+ 
+   -----accordion start
+   SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || $id || ''</b> &mdash; <b>FII ID: '' || fii_id || ''</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = ''soc2-type1'' AND control_id = $id::TEXT
+    
+    UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = ''soc2-type2'' AND control_id = $id::TEXT
+)
+
+     
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Author Prompt'' AND (
+    ($type = ''soc2-type1'' AND regime = ''SOC2-TypeI'') OR
+    ($type = ''soc2-type2'' AND regime = ''SOC2-TypeII'')
+  );
+      
+
+    
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      --accordion for audit prompt
+
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = ''soc2-type1'' AND control_id = $id::TEXT
+    
+    UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = ''soc2-type2'' AND control_id = $id::TEXT
+)
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Audit Prompt'' AND (
+    ($type = ''soc2-type1'' AND regime = ''SOC2-TypeI'') OR
+    ($type = ''soc2-type2'' AND regime = ''SOC2-TypeII'')
+  );
+      
+ SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = ''soc2-type1'' AND control_id = $id::TEXT
+    
+    UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = ''soc2-type2'' AND control_id = $id::TEXT
+)
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id AND (
+    ($type = ''soc2-type1'' AND regimeType = ''SOC2-TypeI'') OR
+    ($type = ''soc2-type2'' AND regimeType = ''SOC2-TypeII'')
+  );
+   SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+      SELECT ''html'' as component,
+    ''<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    '' as html;
+
+
+          -- end
+   
+   
+   
+   
+   
+   
+   --------------accordion end;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2632,6 +3848,1506 @@ FROM breadcrumbs ORDER BY level DESC;
   control_description AS "Control Description",
   control_id AS "Requirements"
   FROM compliance_regime_control WHERE control_type=$regimeType::TEXT;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/hitrust.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/hitrust.sql/index.sql'') as contents;
+    ;
+
+--- Breadcrumbs
+SELECT ''breadcrumb'' AS component;
+SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+SELECT ''HiTRUST e1 Assessment'' AS title, ''#'' AS link;
+
+--- Description text
+SELECT ''text'' AS component,
+      ''The HiTRUST e1 Assessment controls provide a comprehensive set of security and privacy requirements to support compliance with various standards and regulations.'' AS contents;
+
+--- Pagination Controls (Top)
+SET total_rows = (SELECT COUNT(*) FROM compliance_regime_control_hitrust_e1 );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+--- Table (markdown column)
+SELECT ''table'' AS component, TRUE AS sort, TRUE AS search, "Control Code" AS markdown;
+
+--- Table data
+SELECT
+  ''['' || control_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hitrust_detail.sql?code='' || replace(control_id, '' '', ''%20'') || '')'' AS "Control Code",
+  fii_id AS "Fii ID",
+  common_criteria AS "Common Criteria",
+  control_name AS "Control Name",
+  control_question AS "Control Description"
+FROM compliance_regime_control_hitrust_e1
+ORDER BY control_code ASC
+LIMIT $limit OFFSET $offset;
+
+--- Pagination Controls (Bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/hitrust_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+    --- Breadcrumbs
+    SELECT ''breadcrumb'' AS component;
+    SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+    SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+    SELECT ''HiTRUST e1 Assessment'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hitrust.sql'' AS link;
+    SELECT COALESCE($code, '''') AS title, ''#'' AS link;
+
+    --- Primary details card
+    SELECT ''card'' AS component, ''HiTRUST Control Details'' AS title, 1 AS columns;
+    SELECT
+        COALESCE(control_id, ''(unknown)'') AS title,
+        ''**Common Criteria:** '' || COALESCE(common_criteria,'''') || ''  
+
+'' ||
+        ''**Control Name:** '' || COALESCE(control_name,'''') || ''  
+
+'' ||
+        ''**Control Description:** '' || COALESCE(control_question,'''') || ''  
+
+'' ||
+        ''**FII ID:** '' || COALESCE(fii_id,'''') AS description_md
+    FROM compliance_regime_control_hitrust_e1
+    WHERE control_id = $code
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      ''card'' AS component,
+      1 AS columns;
+
+      SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || control_id || ''</b> &mdash; <b>FII ID: '' || fii_id || ''</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+     
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = ''Author Prompt'' and regime = ''HiTRUST''
+      ;
+
+    
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      --accordion for audit prompt
+
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = ''Audit Prompt'' and regime = ''HiTRUST''
+      ;
+ SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $code and regimeType = ''HiTRUST'';
+   SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+      SELECT ''html'' as component,
+    ''<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    '' as html;
+
+
+          -- end
+
+
+
+ 
+ 
+    
+
+    --- Fallback if no exact match
+    SELECT ''text'' AS component,
+          ''No exact control found for code: '' || COALESCE($code,''(empty)'') AS contents
+    WHERE NOT EXISTS (
+      SELECT 1 FROM compliance_regime_control_hitrust_e1 WHERE control_id = $code
+    );
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/iso-27001.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/iso-27001.sql/index.sql'') as contents;
+    ;
+
+--- Breadcrumbs
+SELECT ''breadcrumb'' AS component;
+SELECT ''Home''     AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''          AS link;
+SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql''  AS link;
+SELECT ''ISO 27001 v3'' AS title, ''#''                               AS link;
+
+--- Description text
+SELECT
+  ''text'' AS component,
+  ''The ISO 27001 v3 controls are aligned with the Secure Controls Framework (SCF) to provide a comprehensive mapping of security requirements.'' AS contents;
+
+--- Pagination Controls (Top)
+SET total_rows = (SELECT COUNT(*) FROM compliance_iso_27001_control );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+--- Table (markdown column for detail links)
+SELECT
+  ''table'' AS component,
+  TRUE    AS sort,
+  TRUE    AS search,
+  "Control Code" AS markdown;
+
+--- Table data
+SELECT
+  ''['' || control_code || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/iso-27001_detail.sql?code='' || replace(control_code, '' '', ''%20'') || '')'' AS "Control Code",
+  scf_domain        AS "SCF Domain",
+  scf_control       AS "SCF Control",
+  control_description AS "Control Description",
+  control_question  AS "Control Question",
+  evidence          AS "Evidence"
+FROM compliance_iso_27001_control
+ORDER BY control_code ASC
+LIMIT $limit OFFSET $offset;
+
+--- Pagination Controls (Bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/iso-27001_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+    --- Breadcrumbs
+    SELECT ''breadcrumb'' AS component;
+    SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+    SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+    SELECT ''ISO 27001 v3'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/iso-27001.sql'' AS link;
+    SELECT COALESCE($code, '''') AS title, ''#'' AS link;
+
+    --- Primary details card
+    SELECT ''card'' AS component, ''ISO 27001 v3 Control Details'' AS title, 1 AS columns;
+    SELECT
+        COALESCE(control_code, ''(unknown)'') AS title,
+        ''**SCF Domain:** '' || COALESCE(scf_domain,'''') || ''  
+
+'' ||
+        ''**SCF Control:** '' || COALESCE(scf_control,'''') || ''  
+
+'' ||
+        ''**Control Description:** '' || COALESCE(control_description,'''') || ''  
+
+'' ||
+        ''**Control Question:** '' || COALESCE(control_question,'''') || ''  
+
+'' ||
+        ''**Evidence:** '' || COALESCE(evidence,'''') AS description_md
+    FROM compliance_iso_27001_control
+    WHERE control_code = $code
+    LIMIT 1;
+
+    -- TODO Placeholder Card
+    SELECT
+      ''card'' AS component,
+      1 AS columns;
+ 
+      ---accordion start
+      SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || $code || ''</b> &mdash;.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+     
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = ''Author Prompt'' and regime = ''ISO''
+      ;
+
+    
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      --accordion for audit prompt
+
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = ''Audit Prompt'' and regime = ''ISO''
+      ;
+ SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $code and regimeType = ''ISO'';
+   SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+      SELECT ''html'' as component,
+    ''<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    '' as html;
+
+
+          -- end
+    
+     
+
+    --- Fallback if no exact match
+    SELECT ''text'' AS component,
+          ''No exact control found for code: '' || COALESCE($code,''(empty)'') AS contents
+    WHERE NOT EXISTS (
+      SELECT 1 FROM compliance_iso_27001_control WHERE control_code = $code
+    );
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/hipaa_security_rule.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ce/regime/hipaa_security_rule.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/hipaa_security_rule.sql/index.sql'') as contents;
+    ;
+ 
+SELECT
+  ''text'' AS component,
+  ''HIPAA'' AS title;
+ 
+SELECT
+  ''The HIPAA define administrative, physical, and technical measures required to ensure the confidentiality, integrity, and availability of electronic protected health information (ePHI).'' AS contents;
+ 
+-- Pagination controls (top)
+SET total_rows = (SELECT COUNT(*) FROM hipaa_security_rule_safeguards );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+ 
+SELECT
+  ''table'' AS component,
+  TRUE AS sort,
+  TRUE AS search,
+  "Control Code" AS markdown;
+ 
+SELECT
+  ''['' || hipaa_security_rule_reference || '']('' ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hipaa_security_rule_detail.sql?id='' || hipaa_security_rule_reference || '')'' AS "Control Code",
+  common_criteria AS "Common Criteria",
+  safeguard AS "Control Question",
+  handled_by_nq AS "Handled by nQ",
+  fii_id AS "FII ID"
+FROM hipaa_security_rule_safeguards
+ORDER BY hipaa_security_rule_reference
+LIMIT $limit OFFSET $offset;
+ 
+-- Pagination controls (bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/hipaa_security_rule_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+      SELECT
+        ''breadcrumb'' AS component;
+  
+      SELECT
+        ''Home'' AS title,
+        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+  
+      SELECT
+        ''Controls'' AS title,
+        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+  
+      SELECT
+        ''HIPAA'' AS title,
+        sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/hipaa_security_rule.sql'' AS link;
+ 
+      -- Dynamic last breadcrumb using the reference from the DB
+      SELECT
+        hipaa_security_rule_reference AS title,
+        ''#'' AS link
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+  
+      SELECT
+        ''card'' AS component,
+        ''HIPAA Security Rule Detail'' AS title,
+        1 AS columns;
+  
+      SELECT
+        common_criteria AS title,
+        ''**Control Code:** '' || hipaa_security_rule_reference || ''  
+
+'' ||
+        ''**Control Question:** '' || safeguard || ''  
+
+'' ||
+        ''**FII ID:** '' || fii_id || ''  
+
+''  AS description_md
+      FROM hipaa_security_rule_safeguards
+      WHERE hipaa_security_rule_reference = $id::TEXT;
+
+      -- TODO Placeholder Card
+    SELECT
+      ''card'' AS component,
+      1 AS columns;
+ 
+          -- accordion for policy generator, audit prompt, and generated policies
+
+              
+   SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || hipaa_security_rule_reference || ''</b> &mdash; <b>FII ID: '' || fii_id || ''</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+     
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Author Prompt''
+      ;
+
+    
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      --accordion for audit prompt
+
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Audit Prompt''
+      ;
+ SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM hipaa_security_rule_safeguards
+WHERE hipaa_security_rule_reference = $id::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id;
+   SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+      SELECT ''html'' as component,
+    ''<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    '' as html;
+
+
+          -- end;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/thsa.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/thsa.sql/index.sql'') as contents;
+    ;
+  
+-- Breadcrumbs
+SELECT ''breadcrumb'' AS component;
+  
+SELECT
+  ''Home'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+  
+SELECT
+  ''Controls'' AS title,
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+  
+SELECT
+  ''Together.Health Security Assessment (THSA)'' AS title,
+  ''#'' AS link;  
+  
+-- Page Heading
+SELECT
+  ''text'' AS component,
+  ''Together.Health Security Assessment (THSA)'' AS title;
+  
+SELECT
+  ''The THSA controls provide compliance requirements for health services, mapped against the Secure Controls Framework (SCF).'' AS contents;
+  
+-- Pagination controls (top)
+SET total_rows = (SELECT COUNT(*) FROM compliance_regime_thsa );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+  
+-- Table
+SELECT
+  ''table'' AS component,
+  TRUE AS sort,
+  TRUE AS search,
+  "Control Code" AS markdown;
+  
+SELECT
+  ''['' || scf_code || '']('' ||
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/thsa_detail.sql?id='' || scf_code || '')'' AS "Control Code",
+  scf_domain AS "Domain",
+  scf_control AS "Control",
+  scf_control_question AS "Control Question"
+FROM compliance_regime_thsa
+ORDER BY scf_code
+LIMIT $limit OFFSET $offset;
+  
+-- Pagination controls (bottom)
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/thsa_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+    SELECT
+      ''breadcrumb'' AS component;
+ 
+    SELECT
+      ''Home'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+ 
+    SELECT
+      ''Controls'' AS title,
+       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+ 
+    SELECT
+      ''Together.Health Security Assessment (THSA)'' AS title,
+      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/thsa.sql'' AS link;
+ 
+    -- Dynamic last breadcrumb using the reference from the DB
+    SELECT
+      scf_code AS title,
+      ''#'' AS link
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
+ 
+    -- Main Control Detail Card
+    SELECT
+      ''card'' AS component,
+      ''Together.Health Security Assessment (THSA) Detail'' AS title,
+      1 AS columns;
+ 
+    SELECT
+      scf_domain AS title,
+      ''**Control Code:** '' || scf_code || ''  
+
+'' ||
+      ''**Control Question:** '' || scf_control_question || ''  
+
+''  AS description_md
+    FROM compliance_regime_thsa
+    WHERE scf_code = $id::TEXT;
+ 
+    -- TODO Placeholder Card
+    SELECT
+      ''card'' AS component,
+      1 AS columns;
+ 
+ SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || $id || ''</b> &mdash;.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+     
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Author Prompt'' and regime = ''THSA''
+      ;
+
+    
+    SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      --accordion for audit prompt
+
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = ''Audit Prompt'' and regime = ''THSA''
+      ;
+ SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+
+      
+SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+    SELECT ''card'' as component, 1 as columns;
+    SELECT
+      ''
+'' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id and regimeType = ''THSA'';
+   SELECT ''html'' AS component,
+      ''</div></details>'' AS html;
+      SELECT ''html'' as component,
+    ''<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    '' as html;
+
+
+          -- end;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/cmmc.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''ce/regime/cmmc.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/cmmc.sql/index.sql'') as contents;
+    ;
+SELECT ''text'' AS component, ''Cybersecurity Maturity Model Certification (CMMC)'' AS title;
+
+SELECT
+  "The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners. The DoD has mandated that all organizations engaged in business with them, irrespective of size, industry, or level of involvement, undergo a cybersecurity maturity assessment based on the CMMC framework. This initiative aims to ensure the protection of sensitive unclassified information shared between the Department and its contractors and subcontractors. The program enhances the Department''s confidence that contractors and subcontractors adhere to cybersecurity requirements applicable to acquisition programs and systems handling controlled unclassified information" AS contents;
+
+SELECT ''card'' AS component, '''' AS title, 3 AS columns;
+
+SELECT
+  ''CMMC Model 2.0 LEVEL 1'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Department of Defense (DoD) 
+
+  **Cybersecurity Maturity Model Certification (CMMC) - Level 1 (Foundational)** 
+
+  **Version**: 2.0 
+
+  **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00'' AS description_md, 
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc_level.sql?level=1'' AS link
+UNION
+SELECT
+  ''CMMC Model 2.0 LEVEL 2'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Department of Defense (DoD) 
+
+  **Cybersecurity Maturity Model Certification (CMMC) - Level 2 (Advanced)** 
+
+  **Version**: 2.0 
+
+  **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00'' AS description_md, 
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc_level.sql?level=2''
+UNION
+SELECT
+  ''CMMC Model 2.0 LEVEL 3'' AS title,
+  ''**Geography**: US 
+
+  **Source**: Department of Defense (DoD) 
+
+  **Cybersecurity Maturity Model Certification (CMMC) - Level 3 (Expert)** 
+
+  **Version**: 2.0 
+
+  **Published/Last Reviewed Date/Year**: 2021-11-04 00:00:00+00'' AS description_md, 
+  sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc_level.sql?level=3'';
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/cmmc_level.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+    SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/cmmc_level.sql/index.sql'') as contents;
+    ;
+
+    --- Breadcrumbs
+    SELECT ''breadcrumb'' AS component;
+    SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+    SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+    SELECT ''CMMC'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc.sql'' AS link;
+    SELECT ''CMMC Level '' || COALESCE(@level::TEXT,'''') AS title, ''#'' AS link;
+
+    --- Description text
+    SELECT ''text'' AS component,
+       "The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners. The DoD has mandated that all organizations engaged in business with them, irrespective of size, industry, or level of involvement, undergo a cybersecurity maturity assessment based on the CMMC framework. This initiative aims to ensure the protection of sensitive unclassified information shared between the Department and its contractors and subcontractors. The program enhances the Department''s confidence that contractors and subcontractors adhere to cybersecurity requirements applicable to acquisition programs and systems handling controlled unclassified information" AS contents;
+
+
+    --- Table (markdown column)
+    SELECT ''table'' AS component, TRUE AS sort, TRUE AS search, "Control Code" AS markdown;
+
+    -- Pagination Controls (Top)
+    SET total_rows = (SELECT COUNT(*) FROM scf_view 
+      WHERE 
+        (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '''')
+     OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '''')
+     OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '''')
+    );
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+    --- Table data
+    SELECT
+      ''['' || replace(replace(
+          CASE 
+            WHEN @level = 1 THEN cmmc_level_1
+            WHEN @level = 2 THEN cmmc_level_2
+            ELSE cmmc_level_3
+          END,
+          ''
+'', '' ''),
+          '''', '' '')
+|| '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc_detail.sql?code='' 
+|| replace(replace( 
+    CASE  
+      WHEN @level = 1 THEN cmmc_level_1 
+      WHEN @level = 2 THEN cmmc_level_2 
+      ELSE cmmc_level_3 
+    END, 
+    ''
+'', '' ''), '' '', ''%20'') 
+|| ''&fiiid='' || replace(control_code, '' '', ''%20'')
+|| ''&level='' || @level
+|| '')'' AS "Control Code",
+
+      scf_domain       AS "Domain",
+      scf_control      AS "Title",
+      control_code     AS "FII ID",
+      control_description AS "Control Description",
+      control_question AS "Question"
+
+    FROM scf_view
+    WHERE 
+          (@level = 1 AND cmmc_level_1 IS NOT NULL AND cmmc_level_1 != '''')
+      OR (@level = 2 AND cmmc_level_2 IS NOT NULL AND cmmc_level_2 != '''')
+      OR (@level = 3 AND cmmc_level_3 IS NOT NULL AND cmmc_level_3 != '''')
+    ORDER BY control_code
+    LIMIT $limit OFFSET $offset;
+
+    -- Pagination Controls (Bottom)
+    SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&level='' || replace($level, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&level='' || replace($level, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'ce/regime/cmmc_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              
+  SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''ce/regime/cmmc_detail.sql/index.sql'') as contents;
+    ;
+  --- Breadcrumbs
+  SELECT ''breadcrumb'' AS component;
+  SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+  SELECT ''Controls'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/index.sql'' AS link;
+  SELECT ''CMMC'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc.sql'' AS link;
+  SELECT ''CMMC Level '' || COALESCE($level::TEXT, '''') AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/ce/regime/cmmc_level.sql?level='' || COALESCE($level::TEXT,''1'') AS link;
+  SELECT COALESCE($code, '''') AS title, ''#'' AS link;
+
+  
+
+  --- Primary details card
+  SELECT ''card'' AS component, ''CMMC Control Details'' AS title, 1 AS columns;
+  SELECT
+      COALESCE($code, ''(unknown)'') AS title,
+      ''**Control Question:** '' || COALESCE(control_question, '''') || ''  
+
+'' ||
+      ''**Control Description:** '' || COALESCE(control_description, '''') || ''  
+
+'' ||
+      ''**SCF Domain:** '' || COALESCE(scf_domain, '''') || ''  
+
+'' ||
+      ''**SCF Control:** '' || COALESCE(scf_control, '''') || ''  
+
+'' ||
+      ''**FII IDs:** '' || COALESCE($fiiid, '''') AS description_md
+      
+  FROM scf_view
+  WHERE
+       ( ($level = 1 AND replace(replace(cmmc_level_1,''
+'','' ''),''\r'','''') = $code)
+    OR ($level = 2 AND replace(replace(cmmc_level_2,''
+'','' ''),''\r'','''') = $code)
+    OR ($level = 3 AND replace(replace(cmmc_level_3,''
+'','' ''),''\r'','''') = $code))
+    AND control_code = $fiiid
+  LIMIT 1;
+
+  -- TODO Placeholder Card
+  SELECT
+    ''card'' AS component,
+    1 AS columns;
+
+  -- Policy Generator Prompt Accordion
+  SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: '' || $code || ''</b> &mdash; <b>Level: '' || $level || ''</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html;
+
+  SELECT ''card'' as component, 1 as columns;
+  SELECT
+    ''
+'' || p.body_text AS description_md
+    FROM ai_ctxe_compliance_prompt p
+   
+    WHERE p.control_id = $code AND  p.documentType = ''Author Prompt'' AND p.fii_id=$fiiid
+    AND (
+    ($level = 1 AND regime = ''CMMC'' AND category_type=''Level 1'') OR
+    ($level = 2 AND regime = ''CMMC'' AND category_type=''Level 2'') OR
+    ($level = 3 AND regime = ''CMMC'' AND category_type=''Level 3'')
+    );
+   
+
+  SELECT ''html'' AS component,
+    ''</div></details>'' AS html;
+
+  -- Policy Audit Prompt Accordion
+  SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html;
+
+  SELECT ''card'' as component, 1 as columns;
+  SELECT
+    ''
+'' || p.body_text AS description_md
+    FROM ai_ctxe_compliance_prompt p
+    WHERE p.control_id = $code AND p.documentType = ''Audit Prompt'' AND p.fii_id=$fiiid AND
+   ( 
+    ($level = 1 AND regime = ''CMMC'' AND category_type=''Level 1'') OR
+    ($level = 2 AND regime = ''CMMC'' AND category_type=''Level 2'') OR
+    ($level = 3 AND regime = ''CMMC'' AND category_type=''Level 3'')
+    );
+
+  SELECT ''html'' AS component,
+    ''</div></details>'' AS html;
+
+  -- Generated Policies Accordion
+  SELECT ''html'' AS component,
+  ''<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">'' AS html;
+
+  SELECT ''card'' as component, 1 as columns;
+  SELECT
+    ''
+'' || p.body_text AS description_md
+    FROM ai_ctxe_policy p
+    WHERE p.control_id = $code AND p.fii_id=$fiiid
+    
+    AND 
+    (($level = 1 AND regimeType = ''CMMC'' AND category_type=''Level 1'') OR
+    ($level = 2 AND regimeType = ''CMMC'' AND category_type=''Level 2'') OR
+    ($level = 3 AND regimeType = ''CMMC'' AND category_type=''Level 3'')
+    );
+
+  SELECT ''html'' AS component,
+    ''</div></details>'' AS html;
+
+  -- CSS Styles
+  SELECT ''html'' as component,
+  ''<style>
+      tr.actualClass-passed td.State {
+          color: green !important;
+      }
+       tr.actualClass-failed td.State {
+          color: red !important;
+      }
+        tr.actualClass-passed td.Statealign-middle {
+          color: green !important;
+      }
+        tr.actualClass-failed td.Statealign-middle {
+          color: red !important;
+      }
+      
+      .btn-list {
+      display: flex;
+      justify-content: flex-end;
+      }
+     h2.accordion-header button {
+      font-weight: 700;
+    }
+
+    /* Test Detail Outer Accordion Styles */
+    .test-detail-outer-accordion {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .test-detail-outer-summary {
+      background-color: #f5f5f5;
+      padding: 15px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #333;
+      border: none;
+      outline: none;
+      user-select: none;
+      list-style: none;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .test-detail-outer-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .test-detail-outer-summary::after {
+      content: "+";
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+      content: "−";
+    }
+
+    .test-detail-outer-summary:hover {
+      background-color: #ebebeb;
+    }
+
+    .test-detail-outer-content {
+      padding: 20px;
+      background-color: white;
+      border-top: 1px solid #ddd;
+    }
+  </style>'' as html;
+
+  --- Fallback if no exact match
+  SELECT ''text'' AS component,
+        ''No exact control found for code: '' || COALESCE($code,''(empty)'') || ''. Showing a fallback example for Level '' || COALESCE($level::TEXT,''1'') || ''.'' AS contents
+  WHERE NOT EXISTS (
+      SELECT 1 FROM scf_view
+      WHERE
+            ($level = 1 AND replace(replace(cmmc_level_1,''
+'','' ''),''\r'','''') = $code)
+        OR ($level = 2 AND replace(replace(cmmc_level_2,''
+'','' ''),''\r'','''') = $code)
+        OR ($level = 3 AND replace(replace(cmmc_level_3,''
+'','' ''),''\r'','''') = $code)
+  );
+
+  --- Example fallback card (optional)
+  SELECT ''card'' AS component, ''Fallback control'' AS title, 1 AS columns
+  WHERE NOT EXISTS (
+      SELECT 1 FROM scf_view
+      WHERE
+            ($level = 1 AND replace(replace(cmmc_level_1,''
+'','' ''),''\r'','''') = $code)
+        OR ($level = 2 AND replace(replace(cmmc_level_2,''
+'','' ''),''\r'','''') = $code)
+        OR ($level = 3 AND replace(replace(cmmc_level_3,''
+'','' ''),''\r'','''') = $code)
+  );
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

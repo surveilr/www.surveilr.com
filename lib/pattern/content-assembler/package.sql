@@ -1908,10 +1908,10 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3567,10 +3567,10 @@ SET current_page = ($offset / $limit) + 1;
    LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3708,10 +3708,10 @@ SELECT ''table'' AS component,
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&periodical_uniform_resource_id='' || replace($periodical_uniform_resource_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;

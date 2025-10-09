@@ -31,6 +31,7 @@ SELECT
     uniform_resource_id,
     json_extract(frontmatter, '$.id') AS id,
     json_extract(frontmatter, '$.projectId') AS project_id,
+    json_extract(frontmatter, '$.version') AS version,
     json_extract(frontmatter, '$.name') AS name,
     json_extract(frontmatter, '$.description') AS description,
     json_extract(frontmatter, '$.created_by') AS created_by_user,
@@ -91,6 +92,7 @@ SELECT
     json_extract(frontmatter, '$.tags') AS tags,
     json_extract(frontmatter, '$.priority') AS priority,
     json_extract(frontmatter, '$.bugId') AS bug_list,
+    json_extract(frontmatter, '$.test_cycles') AS test_cycles,
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
@@ -104,6 +106,7 @@ SELECT
     tc.created_by,
     strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
     tc.test_type,
+    tc.test_cycles,
     tc.created_at,
     tc.tags,
     tc.priority,
@@ -1632,6 +1635,32 @@ WHERE
         OR CAST(ur.content AS TEXT) LIKE '%Status:%'
     )
 ORDER BY ur.created_at DESC;
+
+DROP VIEW IF EXISTS test_cycle;
+CREATE VIEW test_cycle AS
+SELECT
+  json_extract(value, '$') AS test_cycle,
+  c.suite_id,
+  ts.name,
+  COUNT(*) AS test_case_count,
+  COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
+  COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
+FROM
+  test_cases AS c
+  JOIN json_each(c.test_cycles)
+    -- expand test_cycles
+  JOIN test_suites AS ts ON ts.id = c.suite_id
+  LEFT JOIN test_case_run_results AS r
+    ON r.test_case_id = c.test_case_id
+WHERE
+  c.test_cycles IS NOT NULL
+GROUP BY
+  json_extract(value, '$'),
+  c.suite_id,
+  ts.name
+ORDER BY
+  c.suite_id,
+  test_cycle;
 -- delete all /qualityfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1640,7 +1669,8 @@ VALUES
     ('prime', 'qualityfolio/index.sql', 3, 'qualityfolio/html-test-results.sql', 'qualityfolio/html-test-results.sql', 'HTML Test Results', NULL, NULL, 'HTML test execution results from automated test runs with detailed execution information', NULL),
     ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test-cases.sql', 'qualityfolio/test-cases.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL),
     ('prime', 'qualityfolio/index.sql', 2, 'qualityfolio/tap-test-results.sql', 'qualityfolio/tap-test-results.sql', 'TAP Test Results', NULL, NULL, 'Test Anything Protocol (TAP) results from automated test runs', NULL),
-    ('prime', 'qualityfolio/index.sql', 1, 'qualityfolio/test-management.sql', 'qualityfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL)
+    ('prime', 'qualityfolio/index.sql', 1, 'qualityfolio/test-management.sql', 'qualityfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL),
+    ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test_cycle_case.sql', 'qualityfolio/test_cycle_case.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -2487,7 +2517,7 @@ FROM breadcrumbs ORDER BY level DESC;
     
     
 
-select
+  select
     ''## Total Test Cases Count'' as description_md,
  
     ''white'' as background_color,
@@ -2560,54 +2590,55 @@ LEFT JOIN
     ''## Total Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(bug_id) as description_md,
+    ''## ''||count(id) as description_md,
     ''12'' as width,
-     ''red'' as color,
+    ''red'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql'' as link
     FROM 
-    jira_issues t ;
+    bug_report t ;
+
     select
     ''## Open Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(bug_id) as description_md,
+    ''## ''||count(id) as description_md,
     ''12'' as width,
      ''orange'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=To Do'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=open'' as link
     FROM 
-    jira_issues t  where status=''To Do'';
+    bug_report t  where status=''open'';
 
 
     select
     ''## Closed Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(bug_id) as description_md,
+    ''## ''||count(id) as description_md,
     ''12'' as width,
      ''purple'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=Completed'' as link
+     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=closed'' as link
     FROM 
-    jira_issues t where status=''Completed'';
+    bug_report t where status=''closed'';
 
 
     select
     ''## Rejected Defects'' as description_md,
 
     ''white'' as background_color,
-    ''## ''||count(bug_id) as description_md,
+    ''## ''||count(id) as description_md,
     ''12'' as width,
      ''cyan'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=Rejected'' as link
     FROM 
-    jira_issues t where status=''Rejected'';
+    bug_report t where status=''Rejected'';
 
 
 SELECT ''html'' as component,
@@ -2720,6 +2751,35 @@ SELECT
         ELSE ''rowClass-0''
     END as _sqlpage_css_class
 FROM html_stats;
+
+
+-- Test cycles
+SELECT ''title'' AS component,
+''Test cycles'' as contents;
+
+SELECT ''text'' as component,
+''Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases.'' as contents;
+
+-- Add small CSS to color passed/failed cells via row classes (safer than inline HTML in cells)
+SELECT ''html'' as component,
+       ''<style>tr.has-pass td:nth-child(5){color:#28a745;font-weight:600} tr.has-fail td:nth-child(6){color:#dc3545;font-weight:600}</style>'' as html;
+
+SELECT ''table'' as component,
+       ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
+       ''test case'' as markdown,
+       ''passed'' as markdown,
+       ''failed'' as markdown;
+  SELECT 
+    test_cycle as "test cycle",
+    suite_id as "suite",
+    name as "suite name",
+    -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
+    ''['' || COALESCE(test_case_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || '')'' AS "test case",
+     ''['' || COALESCE(passed_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || ''&status=passed'' || '')'' AS "passed",
+     ''['' || COALESCE(failed_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || ''&status=failed'' || '')'' AS "failed",
+     -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
+     (CASE WHEN COALESCE(passed_count,0) > 0 THEN ''has-pass '' ELSE '''' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN ''has-fail '' ELSE '''' END || ''rowClass-'' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
+  FROM test_cycle;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -2824,10 +2884,10 @@ LIMIT $limit OFFSET $offset;
 
 -- Pagination Controls (Bottom)
 SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&file='' || replace($file, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&file='' || replace($file, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&file='' || replace($file, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&file='' || replace($file, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3721,10 +3781,10 @@ ORDER BY tc.test_case_id
 LIMIT $limit OFFSET $offset;
 
 SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&id='' || replace($id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&id='' || replace($id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&id='' || replace($id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&id='' || replace($id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -3749,6 +3809,36 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   priority as "Priority"
 FROM test_cases t
 WHERE  group_id = $group_id;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/download-test-cycle-test-case.sql',
+      '              -- not including shell
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              select ''csv'' as component, ''test_suites_''||$test_cycle||''.csv'' as filename;
+ SELECT
+  test_case_id as id,
+  test_case_title AS "title",
+  group_name AS "group",
+  test_status,
+  created_by as "Created By",
+  formatted_test_case_created_at as "Created On",
+  priority as "Priority"
+FROM test_cases t
+WHERE  ($test_cycle IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $test_cycle
+          ))AND (
+  $status IS NULL
+  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(test_status, '''')) = ''passed''
+  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(test_status, '''')) = ''failed''
+);
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -4298,42 +4388,38 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
       FROM  test_run WHERE $tab = ''test-run'' and test_case_id = $id;
    
 
+
     --Tab - specific content for "bug-report"
 
+     SELECT
+     b.id||'' - ''||b.title as title,
+     ''head-title'' as class,
+    ''
+ **Created By**  :  '' || b.created_by AS description_md,
+    ''
+ **Run Date**  :  '' || strftime(''%d-%m-%Y'', b.created_at) AS description_md,
+    ''
+ **Type**  :  '' || b.type AS description_md,
+    ''
+ **Priority**  :  '' || b.priority AS description_md,
+    ''
+ **Assigned**  :  '' || b.assigned AS description_md,
+    ''
+ **Status**  :  '' || b.status AS description_md,
+    ''
+'' || b.body AS description_md
+    FROM  bug_report b
+    WHERE $tab = ''bug-report'' and b.test_case_id = $id;
 
-    select
-    title         as title,
-     ''
- 
 
-**id**  :  '' || l.bug_id AS description_md,
-    ''
- **Created By**  :  '' || reporter AS description_md,
-    ''
- **Run Date**  :  '' || strftime(''%d-%m-%Y'', created) AS description_md,
-    ''
- **Type**  :  '' || type AS description_md,
-    ''
- **Assigned**  :  '' || assignee AS description_md,
-    ''
- **Status**  :  '' || status AS description_md,
-    ''
-'' || description AS description_md
-    FROM
-    bug_list l
-    inner join
-    jira_issues j on l.bug_id=j.bug_id
-    where l.test_case_id=$id;
+
 
     SELECT
     CASE
         WHEN $tab = ''bug-report'' THEN ''html''
     END AS component,
       ''<div id="bug-report-content"></div>'' as html
-    FROM  bug_list l
-    inner join
-    jira_issues j on l.bug_id=j.bug_id
-    where l.test_case_id=$id;
+    FROM  bug_report b INNER JOIN test_case_run_results r on b.test_case_id=r.test_case_id where r.status=''failed'' and $tab = ''bug-report'';
 
     -- Close Test Execution Data Accordion
     SELECT ''html'' AS component,
@@ -5003,6 +5089,204 @@ SET current_page = ($offset / $limit) + 1;
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
     || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/test_cycle_case.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test_cycle_case.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test_cycle_case.sql/index.sql'') as contents;
+    ;
+
+-- Page description based on context
+SELECT ''text'' AS component,
+''This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.'' AS contents;
+
+-- Status overview based on context
+  SELECT
+  ''alert'' AS component,
+  ''info'' AS color,
+  ''Test Case Overview'' AS title,
+  ''Total test cases: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE $test_cycle IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(test_cycles)
+        WHERE value = $test_cycle
+      )
+  ) ||
+  '' | Passed: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE test_status = ''passed''
+      AND ($test_cycle IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $test_cycle
+          ))
+  ) ||
+  '' | Failed: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE test_status = ''failed''
+      AND ($test_cycle IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $test_cycle
+          ))
+  ) ||
+  '' | Pending: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE (test_status IS NULL OR test_status = ''TODO'')
+      AND ($test_cycle IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $test_cycle
+          ))
+  ) AS description;
+
+
+
+SELECT ''html'' as component,
+  ''<style>
+     tr td.test_status {
+          color: blue !important;
+      }
+      tr.rowClass-passed td.test_status {
+          color: green !important;
+      }
+       tr.rowClass-failed td.test_status {
+          color: red !important;
+      }
+      tr.rowClass-TODO td.test_status {
+          color: orange !important;
+      }
+      .btn-list {
+      display: flex;
+      justify-content: flex-end;
+  }
+  </style>'' as html;
+
+SELECT ''button'' as component;
+
+-- Show "View All Test Cases" button when filtering by group
+SELECT ''View All Test Cases'' as title,
+       ''test-cases.sql'' as link,
+       ''list'' as icon
+WHERE $test_cycle IS NOT NULL
+UNION ALL
+-- Show "Export Test Cycle Test Cases" button when filtering by group
+SELECT ''Export Test Cycle Test Cases'' as title,
+  -- Include status query param only when $status is provided
+  ''download-test-cycle-test-case.sql?test_cycle='' || REPLACE(REPLACE($test_cycle, '' '', ''%20''), ''&'', ''%26'') ||
+    CASE WHEN $status IS NOT NULL THEN ''&status='' || REPLACE(REPLACE($status, '' '', ''%20''), ''&'', ''%26'') ELSE '''' END as link,
+  ''download'' as icon
+WHERE $test_cycle IS NOT NULL
+UNION ALL
+-- Show "Export All Test Cases" button when showing all test cases
+SELECT ''Export All Test Cases'' as title,
+       ''download-full_list.sql'' as link,
+       ''download'' as icon
+WHERE $test_cycle IS NULL;
+
+SET total_rows = (SELECT COUNT(*) FROM test_cases WHERE (
+                  $test_cycle IS NULL
+                  OR EXISTS (
+                    SELECT 1
+                    FROM json_each(test_cycles)
+                    WHERE value = $test_cycle
+                  )
+                )
+                AND (
+                  $status IS NULL
+                  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(test_status, '''')) = ''passed''
+                  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(test_status, '''')) = ''failed''
+                ));
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+SELECT ''table'' as component,
+       TRUE AS sort,
+       TRUE AS search,
+       ''Test Case ID'' as markdown,
+       ''Title'' as markdown,
+       ''Group'' as markdown,
+       ''Suite'' as markdown,
+       ''Status'' as markdown;
+
+SELECT
+  ''['' || tc.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| tc.test_case_id || '')'' as "Test Case ID",
+  tc.test_case_title AS "Title",
+  ''['' || tc.group_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| tc.group_id || '')'' AS "Group",
+  ''['' || ts.name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| ts.id || '')'' AS "Suite",
+  CASE
+    WHEN tc.test_status IS NOT NULL THEN tc.test_status
+    ELSE ''TODO''
+  END AS "Status",
+  ''rowClass-'' || COALESCE(tc.test_status, ''TODO'') as _sqlpage_css_class,
+  tc.test_type AS "Type",
+  tc.priority AS "Priority",
+  tc.created_by AS "Created By",
+  tc.formatted_test_case_created_at AS "Created On"
+FROM test_cases tc
+LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+WHERE (
+  $test_cycle IS NULL
+  OR EXISTS (
+    SELECT 1
+    FROM json_each(tc.test_cycles)
+    WHERE value = $test_cycle
+  )
+)
+AND (
+  $status IS NULL
+  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(tc.test_status, '''')) = ''passed''
+  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(tc.test_status, '''')) = ''failed''
+)
+ORDER BY tc.test_case_id
+LIMIT $limit OFFSET $offset;
+
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&test_cycle='' || replace($test_cycle, '' '', ''%20''), '''') || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&test_cycle='' || replace($test_cycle, '' '', ''%20''), '''') || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
@@ -6937,6 +7221,52 @@ We are thrilled to announce that `surveilr` is now fully compatible with all maj
                 
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v2.2.0'' as title, ''# `surveilr ` v2.2.0 Release Notes
+
+## 🚀 What''''s New
+
+1. JSONL File Ingestion Support
+
+- New Format Support: Added comprehensive JSONL (JSON Lines) file format ingestion capabilities
+- Streaming Data Processing: Efficiently handles large streaming JSON datasets line-by-line
+- Automatic Schema Detection: Intelligently detects and processes JSONL file structures
+
+## How JSONL Ingestion Works
+
+Unlike regular JSON files that contain a single JSON object or array, JSONL files contain one valid JSON object per
+line:
+
+{"id": 1, "name": "Alice", "timestamp": "2025-09-01T10:00:00Z"}
+{"id": 2, "name": "Bob", "timestamp": "2025-09-01T10:01:00Z"}
+{"id": 3, "name": "Charlie", "timestamp": "2025-09-01T10:02:00Z"}
+
+Ingestion Process:
+1. Line-by-Line Reading: File is read sequentially, one line at a time
+2. JSON Validation: Each line is validated as proper JSON
+3. Individual Processing: Each JSON object is processed as a separate resource
+4. Schema Evolution: Supports varying schemas across lines in the same file
+6. Line-Specific URIs: Each line gets a unique URI with line number reference for precise tracking
+
+### URI Structure for JSONL:
+Each JSON line creates a unique uniform_resource entry with line-specific URI:
+/path/to/events.jsonl#L1    # First JSON object
+/path/to/events.jsonl#L2    # Second JSON object
+/path/to/events.jsonl#L3    # Third JSON object
+
+### Example:
+File: /data/user-events.jsonl
+Line 1: {"user": "alice", "action": "login", "timestamp": "2025-09-01T10:00:00Z"}
+Line 2: {"user": "bob", "action": "logout", "timestamp": "2025-09-01T10:05:00Z"}
+
+### Results in uniform_resource entries with URIs:
+/data/user-events.jsonl#L1
+/data/user-events.jsonl#L2
+
+This unique URI scheme allows precise tracking of which specific line in the JSONL file each resource originated
+from, enabling accurate data lineage and debugging capabilities.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.2.0'' as title, ''# `surveilr` v1.2.0 Release Notes 🎉
 
 ## What''''s New?
@@ -6958,27 +7288,6 @@ The `surveilr_udi_dal_fs` virtual table function provides seamless access to fil
 - Query file metadata, such as names, paths, sizes, and timestamps.
 - Retrieve file content and calculate digests for integrity checks.
 - Traverse directories recursively to handle large and nested file systems effortlessly.
-'' as description_md;
-                
-
-                    SELECT ''foldable'' as component;
-                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
-
-## 🚀 New Features
-
-### 1. **Integrated Documentation in Web UI**
-
-This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
-
-### 2. **`uniform_resource` Graph Infrastructure**
-
-The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
-
-- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
-- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
-- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
-
-This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
 '' as description_md;
                 
 
@@ -7039,6 +7348,71 @@ export SURVEILR_LLM_ENDPOINT="http://localhost:1234/v1/chat/completions"
 # Azure OpenAI
 export SURVEILR_LLM_ENDPOINT="https://your-resource.openai.azure.com/openai/deployments/your-deployment/chat/completi
 ons?api-version=2023-05-15"'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
+
+## 🚀 New Features
+
+### 1. **Integrated Documentation in Web UI**
+
+This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
+
+### 2. **`uniform_resource` Graph Infrastructure**
+
+The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
+
+- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
+- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
+- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
+
+This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v3.0.0'' as title, ''# Surveilr v3.0.0 - Drizzle ORM Foundation
+
+## Summary
+
+Migrated internal schema generation from SQLa to [Drizzle ORM](https://orm.drizzle.team/) - a lightweight, type-safe TypeScript ORM. This establishes the foundation for optional type-safe database queries while maintaining our **SQL-first philosophy**.
+
+## What Changed
+
+### Schema Generation (Internal)
+- **Replaced**: SQLa-based `lifecycle.sql.ts` → Drizzle-generated bootstrap SQL
+- **New**: Type-safe schema definitions in `lib/std/drizzle/models.ts` and `views.ts`
+- **Result**: Same RSSD structure with enhanced TypeScript support
+
+### Developer Experience
+- **Added**: Optional type-safe query helpers for complex scenarios
+- **Maintained**: SQL views remain the preferred approach for business logic
+
+## File Organization
+```
+lib/std/drizzle/
+├── models.ts              # RSSD table schemas
+├── views.ts              # SQL view definitions
+├── bootstrap.sql.ts       # Schema generator
+└── drizzle-lifecycle.ts   # Migration cells
+```
+
+## Migration Impact
+
+- **End Users**: No changes to `surveilr` CLI commands
+- **Developers**: Optional access to type-safe queries when needed
+- **Databases**: Same RSSD structure, generated via Drizzle instead of SQLa
+
+## Technical Validation
+
+- ✅ Identical 65+ table structure generated
+- ✅ All foreign key constraints preserved
+- ✅ File ingestion, transforms, multitenancy functional
+- ✅ Web UI and code notebook systems working
+- ✅ Complete test suite passing
+
+---'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
@@ -7519,10 +7893,10 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;

@@ -1,4 +1,36 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-run --allow-sys
+
+/**
+ * ⚠️  DEPRECATED: SQLa-based Lifecycle Management
+ * 
+ * This file has been FORMALLY REPLACED by Drizzle ORM-based lifecycle management.
+ * 
+ * 🚀 NEW APPROACH: Use `drizzle-bootstrap.ts` and `DrizzleLifecycleManager`
+ * 
+ * Migration guide:
+ * - Old: `import * from "lifecycle.sql.ts"`  
+ * - New: `import { DrizzleLifecycleManager } from "./lifecycle-drizzle.ts"`
+ * 
+ * Benefits of new approach:
+ * - ✅ Full TypeScript type safety
+ * - ✅ Custom types (ULID, TIMESTAMPTZ, DATE, TEXT[])  
+ * - ✅ SQL template system with proper escaping
+ * - ✅ Better maintainability and IDE support
+ * - ✅ Perfect schema alignment with legacy
+ * 
+ * Generate new bootstrap.sql: `deno run -A --node-modules-dir drizzle-bootstrap.ts`
+ */
+
+console.warn(`
+⚠️  WARNING: lifecycle.sql.ts is DEPRECATED
+
+Please migrate to:
+  import { DrizzleLifecycleManager } from "./lifecycle-drizzle.ts"
+
+Generate latest bootstrap.sql:
+  deno run -A --node-modules-dir drizzle-bootstrap.ts
+`);
+
 import * as nb from "./notebook/rssd.ts";
 import * as cnb from "./notebook/code.ts";
 import { lifecycle as lcm } from "./models/mod.ts";

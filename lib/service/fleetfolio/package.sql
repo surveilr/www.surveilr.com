@@ -2856,10 +2856,10 @@ SET current_page = ($offset / $limit) + 1;
   OFFSET $offset;
   -- checking
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''policies'';
         ;;
@@ -2890,10 +2890,10 @@ SET current_page = ($offset / $limit) + 1;
 
   -- Software pagenation
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''software'';
         ;;
@@ -2934,10 +2934,10 @@ SET current_page = ($offset / $limit) + 1;
 
   -- User pagenation
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''users'';
         ;;
@@ -2979,10 +2979,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''container''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''container'';
         ;;
@@ -3024,10 +3024,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''all_process''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''all_process'';
         ;;
@@ -3060,10 +3060,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''asset_service''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''asset_service'';
         ;;
@@ -3108,10 +3108,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''ssl_tls_is_enabled''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''ssl_tls_is_enabled'';
         ;;
@@ -3164,10 +3164,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''osquery_ssl_cert_files''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''osquery_ssl_cert_files'';
         ;;
@@ -3211,10 +3211,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''ssl_certificate_and_key_file_modification_times''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''ssl_certificate_and_key_file_modification_times'';
         ;;
@@ -3263,10 +3263,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''vpn_listening_ports''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''vpn_listening_ports'';
         ;;
@@ -3317,10 +3317,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''cron_backup_jobs''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''cron_backup_jobs'';
         ;;
@@ -3361,10 +3361,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''mysql_process_inventory''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''mysql_process_inventory'';
         ;;
@@ -3405,10 +3405,10 @@ SET current_page = ($offset / $limit) + 1;
   WHERE host_identifier = $host_identifier AND $tab = ''postgresql_process_inventory''
   LIMIT $limit OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&host_identifier='' || replace($host_identifier, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&host_identifier='' || replace($host_identifier, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''postgresql_process_inventory'';
         ;
@@ -4021,10 +4021,10 @@ SET current_page = ($offset / $limit) + 1;
     usage_quantity_amount AS "usage quantity amount"
     FROM list_aws_daily_service_cost WHERE service=$service AND ($tab = ''daily_cost'' OR $tab IS NULL) ORDER BY period_start DESC;
      SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&service='' || replace($service, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&service='' || replace($service, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''daily_cost'';
         ;;
@@ -4045,10 +4045,10 @@ SET current_page = ($offset / $limit) + 1;
     usage_quantity_amount AS "usage quantity amount"
     FROM list_aws_monthly_service_cost WHERE service=$service AND $tab = ''monthly_coste'' ORDER BY period_start DESC;
      SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&service='' || replace($service, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&tab='' || replace($tab, '' '', ''%20'') || ''&service='' || replace($service, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&tab='' || replace($tab, '' '', ''%20''), '''') || COALESCE(''&service='' || replace($service, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
  WHERE $tab=''monthly_coste'';
         ;
@@ -6016,6 +6016,52 @@ We are thrilled to announce that `surveilr` is now fully compatible with all maj
                 
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v2.2.0'' as title, ''# `surveilr ` v2.2.0 Release Notes
+
+## 🚀 What''''s New
+
+1. JSONL File Ingestion Support
+
+- New Format Support: Added comprehensive JSONL (JSON Lines) file format ingestion capabilities
+- Streaming Data Processing: Efficiently handles large streaming JSON datasets line-by-line
+- Automatic Schema Detection: Intelligently detects and processes JSONL file structures
+
+## How JSONL Ingestion Works
+
+Unlike regular JSON files that contain a single JSON object or array, JSONL files contain one valid JSON object per
+line:
+
+{"id": 1, "name": "Alice", "timestamp": "2025-09-01T10:00:00Z"}
+{"id": 2, "name": "Bob", "timestamp": "2025-09-01T10:01:00Z"}
+{"id": 3, "name": "Charlie", "timestamp": "2025-09-01T10:02:00Z"}
+
+Ingestion Process:
+1. Line-by-Line Reading: File is read sequentially, one line at a time
+2. JSON Validation: Each line is validated as proper JSON
+3. Individual Processing: Each JSON object is processed as a separate resource
+4. Schema Evolution: Supports varying schemas across lines in the same file
+6. Line-Specific URIs: Each line gets a unique URI with line number reference for precise tracking
+
+### URI Structure for JSONL:
+Each JSON line creates a unique uniform_resource entry with line-specific URI:
+/path/to/events.jsonl#L1    # First JSON object
+/path/to/events.jsonl#L2    # Second JSON object
+/path/to/events.jsonl#L3    # Third JSON object
+
+### Example:
+File: /data/user-events.jsonl
+Line 1: {"user": "alice", "action": "login", "timestamp": "2025-09-01T10:00:00Z"}
+Line 2: {"user": "bob", "action": "logout", "timestamp": "2025-09-01T10:05:00Z"}
+
+### Results in uniform_resource entries with URIs:
+/data/user-events.jsonl#L1
+/data/user-events.jsonl#L2
+
+This unique URI scheme allows precise tracking of which specific line in the JSONL file each resource originated
+from, enabling accurate data lineage and debugging capabilities.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v1.2.0'' as title, ''# `surveilr` v1.2.0 Release Notes 🎉
 
 ## What''''s New?
@@ -6037,27 +6083,6 @@ The `surveilr_udi_dal_fs` virtual table function provides seamless access to fil
 - Query file metadata, such as names, paths, sizes, and timestamps.
 - Retrieve file content and calculate digests for integrity checks.
 - Traverse directories recursively to handle large and nested file systems effortlessly.
-'' as description_md;
-                
-
-                    SELECT ''foldable'' as component;
-                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
-
-## 🚀 New Features
-
-### 1. **Integrated Documentation in Web UI**
-
-This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
-
-### 2. **`uniform_resource` Graph Infrastructure**
-
-The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
-
-- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
-- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
-- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
-
-This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
 '' as description_md;
                 
 
@@ -6118,6 +6143,71 @@ export SURVEILR_LLM_ENDPOINT="http://localhost:1234/v1/chat/completions"
 # Azure OpenAI
 export SURVEILR_LLM_ENDPOINT="https://your-resource.openai.azure.com/openai/deployments/your-deployment/chat/completi
 ons?api-version=2023-05-15"'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
+
+## 🚀 New Features
+
+### 1. **Integrated Documentation in Web UI**
+
+This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
+
+### 2. **`uniform_resource` Graph Infrastructure**
+
+The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
+
+- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
+- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
+- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
+
+This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v3.0.0'' as title, ''# Surveilr v3.0.0 - Drizzle ORM Foundation
+
+## Summary
+
+Migrated internal schema generation from SQLa to [Drizzle ORM](https://orm.drizzle.team/) - a lightweight, type-safe TypeScript ORM. This establishes the foundation for optional type-safe database queries while maintaining our **SQL-first philosophy**.
+
+## What Changed
+
+### Schema Generation (Internal)
+- **Replaced**: SQLa-based `lifecycle.sql.ts` → Drizzle-generated bootstrap SQL
+- **New**: Type-safe schema definitions in `lib/std/drizzle/models.ts` and `views.ts`
+- **Result**: Same RSSD structure with enhanced TypeScript support
+
+### Developer Experience
+- **Added**: Optional type-safe query helpers for complex scenarios
+- **Maintained**: SQL views remain the preferred approach for business logic
+
+## File Organization
+```
+lib/std/drizzle/
+├── models.ts              # RSSD table schemas
+├── views.ts              # SQL view definitions
+├── bootstrap.sql.ts       # Schema generator
+└── drizzle-lifecycle.ts   # Migration cells
+```
+
+## Migration Impact
+
+- **End Users**: No changes to `surveilr` CLI commands
+- **Developers**: Optional access to type-safe queries when needed
+- **Databases**: Same RSSD structure, generated via Drizzle instead of SQLa
+
+## Technical Validation
+
+- ✅ Identical 65+ table structure generated
+- ✅ All foreign key constraints preserved
+- ✅ File ingestion, transforms, multitenancy functional
+- ✅ Web UI and code notebook systems working
+- ✅ Complete test suite passing
+
+---'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
@@ -6598,10 +6688,10 @@ SELECT
   LIMIT $limit
   OFFSET $offset;
   SELECT ''text'' AS component,
-    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
-    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || ''&folder_id='' || replace($folder_id, '' '', ''%20'') || '')'' ELSE '''' END)
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&folder_id='' || replace($folder_id, '' '', ''%20''), '''') || '')'' ELSE '''' END)
     AS contents_md
 ;
         ;
