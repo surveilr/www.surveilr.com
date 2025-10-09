@@ -118,9 +118,24 @@ class App {
         const scriptDir = dirname(path.fromFileUrl(import.meta.url));
         // Place output package.sql inside the base rssd directory (same store)
         const outputFile = path.join(this.ingestDir, '..', 'package.sql');
-        console.log(`Spawning background process to generate SQL (cwd=${scriptDir}), output=${outputFile}`);
 
-        // Open output file for writing (truncate/create)
+        console.log(`Preparing to generate SQL (cwd=${scriptDir}), output=${outputFile}`);
+
+        // If an existing package.sql is present, remove it before spawning the generator
+        try {
+          if (await exists(outputFile)) {
+            console.log(`Output file exists: ${outputFile} — removing before generation.`);
+            await Deno.remove(outputFile);
+            console.log(`Removed existing output file: ${outputFile}`);
+          } else {
+            console.log(`No existing output file: ${outputFile}. Proceeding.`);
+          }
+        } catch (e) {
+          console.error(`Could not check/remove existing ${outputFile}:`, e);
+          // Continue — we don't want to abort generation because of a removal error
+        }
+
+        // Open output file for writing (create/truncate)
         const outFile = await Deno.open(outputFile, { create: true, write: true, truncate: true });
 
         // Use Deno.Command to spawn the deno process and pipe stdout to the file.
