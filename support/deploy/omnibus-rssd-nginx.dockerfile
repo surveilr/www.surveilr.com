@@ -166,6 +166,8 @@ RUN echo '#!/bin/bash' > /configure_nginx.sh && \
     echo 'echo "    location /lib/service/qualityfolio/package.sql {" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "        alias /rssd/lib/service/qualityfolio/package.sql;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "        add_header Content-Type text/plain;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        add_header Content-Disposition \"attachment; filename=package.sql\";" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        default_type application/octet-stream;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'tail -n +2 /rssd/index.tsv | while IFS=$'"'\\t'"' read -r expose_endpoint relative_path rssd_name port package_sql; do' >> /configure_nginx.sh && \
     echo '  if [ "$expose_endpoint" = "1" ]; then' >> /configure_nginx.sh && \
