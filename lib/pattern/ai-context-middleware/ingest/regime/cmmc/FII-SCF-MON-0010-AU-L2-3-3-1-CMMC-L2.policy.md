@@ -16,7 +16,7 @@ domain: "Continuous Monitoring"
 category: ["CMMC", "Level 2", "Compliance"]
 ---
 
-```markdown
+
 # CMMC Compliance Policy Document for Control: AU.L2-3.3.1 (FII: FII-SCF-MON-0010)
 
 ## Introduction
@@ -77,4 +77,3 @@ All workforce members must acknowledge their understanding and compliance with t
 
 ## References
 None
-```
