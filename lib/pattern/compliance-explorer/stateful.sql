@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS "compliance_regime";
 CREATE TABLE "compliance_regime" (
 "compliance_regime_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+"parent_id" TEXT NOT NULL,
 "title" TEXT NOT NULL,
 "geography" TEXT,
 "source" TEXT,
@@ -23,6 +24,7 @@ CREATE TABLE "compliance_regime" (
 );
 -- Insert records into the table
 INSERT INTO "compliance_regime" (
+"parent_id",    
 "title",
 "geography",
 "source",
@@ -36,6 +38,7 @@ INSERT INTO "compliance_regime" (
 )
 VALUES
 (
+'',
 'HIPAA',
 'US',
 'Federal',
@@ -50,6 +53,7 @@ VALUES
 'sensitive patient health information'
 ),
 (
+'',
 'NIST',
 'Universal',
 'SCF',
@@ -62,6 +66,7 @@ VALUES
 NULL
 ),
 (
+'10',
 'SOC2 Type I',
 'US',
 'SCF',
@@ -73,6 +78,7 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'10',
 'SOC2 Type II',
 'US',
 'SCF',
@@ -84,6 +90,7 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'',
 'HITRUST CSF',
 'US',
 'SCF',
@@ -95,6 +102,7 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'15',
 'CMMC Model 2.0 LEVEL 1',
 'US',
 'SCF',
@@ -106,6 +114,7 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'15',
 'CMMC Model 2.0 LEVEL 2',
 'US',
 'SCF',
@@ -117,6 +126,7 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'15',
 'CMMC Model 2.0 LEVEL 3',
 'US',
 'SCF',
@@ -128,10 +138,95 @@ NULL
 '800-53 rev4',
 NULL
 ),(
+'14',
 'ISO 27001:2022',
 'US',
 'SCF',
 'Information security management systems standard',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'AICPA',
+'US',
+'Federal',
+'AICPA is the national professional organization for Certified Public Accountants (CPAs) in the United States.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST e1 Assessment',
+'US',
+'Federal',
+'HITRUST e1 Essentials Assessment Adds Efficiency and Flexibility to the HITRUST Portfolio.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST i1 Assessment',
+'US',
+'Federal',
+'HITRUST i1 Leading Security Practices Assessment Delivers Broad and Reliable Assurances Against Current and Emerging Cyber Threats.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST r2 Assessment',
+'US',
+'Federal',
+'HITRUST r2 Expanded Practices Assessment is the Industry-Recognized Gold Standard for Providing the Highest Level of Information Protection and Compliance Assurance.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'ISO',
+'US',
+'Federal',
+'ISO/IEC refers to a joint collaboration between the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'Cybersecurity Maturity Model Certification (CMMC)',
+'US',
+'Federal',
+'The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'14',
+'ISO 42001',
+'US',
+'SCF',
+'ISO/IEC 42001 is the first international management system standard for AI, designed to promote responsible AI development and use by setting requirements for establishing, implementing, maintaining, and continually improving an Artificial Intelligence Management System (AIMS).',
 '',
 'active',
 '2024',
