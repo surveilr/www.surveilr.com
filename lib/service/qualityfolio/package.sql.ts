@@ -2757,7 +2757,7 @@ WHERE rn.id = $id;
     ORDER BY tc.test_case_id
     LIMIT $limit OFFSET $offset;
 
-    ${pagination.renderSimpleMarkdown("id")};
+    ${pagination.renderSimpleMarkdown("test_cycle", "status")};
     `;
   }
 
