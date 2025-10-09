@@ -163,8 +163,8 @@ RUN echo '#!/bin/bash' > /configure_nginx.sh && \
     echo 'echo "        index index.html;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
     # Add an alias to serve the package.sql file under /lib/service/qualityfolio/package.sql
-    echo 'echo "    location /lib/service/qualityfolio/ {" >> "$nginx_conf"' >> /configure_nginx.sh && \
-    echo 'echo "        alias /rssd/lib/service/qualityfolio/;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "    location /lib/service/qualityfolio/package.sql {" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        alias /rssd/lib/service/qualityfolio/package.sql;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "        add_header Content-Type text/plain;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'tail -n +2 /rssd/index.tsv | while IFS=$'"'\\t'"' read -r expose_endpoint relative_path rssd_name port package_sql; do' >> /configure_nginx.sh && \
