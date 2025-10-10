@@ -1539,4 +1539,22 @@ GROUP BY
 ORDER BY
     c.suite_id,
     related_requirement;
+ 
+-- Requirement view: extract fields from frontmatter for requirement pages
+DROP VIEW IF EXISTS requirement;
+CREATE VIEW requirement AS
+SELECT
+    uniform_resource_id,
+    json_extract(frontmatter, '$.requirementId') AS requirement_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.description') AS description,
+    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_at') AS created_at,
+    json_extract(frontmatter, '$.last_updated_at') AS last_updated_at,
+    json_extract(frontmatter, '$.status') AS status,
+    json_extract(frontmatter, '$.version') AS version,
+    COALESCE(json_extract(frontmatter, '$.type'), json_extract(frontmatter, '$.Type')) AS type,
+    content
+FROM uniform_resource
+WHERE uri LIKE '%requirement.md%';
   
