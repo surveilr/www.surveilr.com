@@ -224,7 +224,8 @@ CREATE VIEW all_control AS
     cntl."SCF Control Question" AS question,
     'CMMC Model 2.0 Level 1' AS control_type,
     12 AS control_type_id,
-    6 AS control_compliance_id
+    6 AS control_compliance_id,
+    15 AS control_parent_id
 FROM uniform_resource_scf_2024_2 AS cntl
 WHERE cntl."US CMMC 2.0 Level 1" != ''
  
@@ -242,7 +243,8 @@ SELECT
     cntl."SCF Control Question" AS question,
     'CMMC Model 2.0 Level 2' AS control_type,
     13 AS control_type_id,
-    7 AS control_compliance_id
+    7 AS control_compliance_id,
+    15 AS control_parent_id
 FROM uniform_resource_scf_2024_2 AS cntl
 WHERE cntl."US CMMC 2.0 Level 2" != ''
  
@@ -260,7 +262,8 @@ SELECT
     cntl."SCF Control Question" AS question,
     'CMMC Model 2.0 Level 3' AS control_type,
     14 AS control_type_id,
-    8 AS control_compliance_id
+    8 AS control_compliance_id,
+    15 AS control_parent_id
 FROM uniform_resource_scf_2024_2 AS cntl
 WHERE cntl."US CMMC 2.0 Level 3" != ''
  
@@ -276,7 +279,8 @@ SELECT
             cntl.Safeguard AS question,
             'HIPAA' AS control_type,
             0 AS control_type_id,
-            1 AS control_compliance_id        
+            1 AS control_compliance_id,      
+            1 AS control_parent_id 
           FROM uniform_resource_hipaa_security_rule_safeguards cntl
           
 UNION ALL
@@ -290,7 +294,8 @@ SELECT
             cntl.Description AS question,
             'HITRUST' AS control_type,
             0 AS control_type_id,
-            5 AS control_compliance_id  
+            5 AS control_compliance_id,
+            5 AS control_parent_id 
           FROM uniform_resource_hitrust_e1_assessment cntl
           
 UNION ALL
@@ -306,7 +311,8 @@ SELECT
              cntl."SCF Control Question" AS question,
              'ISO 27001:2022' AS control_type,
             0 AS control_type_id,
-             9 AS control_compliance_id          
+            9 AS control_compliance_id,
+            14 AS control_parent_id 
         FROM uniform_resource_iso_27001_v3 as cntl
 UNION ALL
 SELECT
@@ -319,7 +325,8 @@ SELECT
         cntl."Questions Descriptions" AS question,
         'SOC2 Type I' AS control_type,
         2 AS control_type_id,
-        3 AS control_compliance_id
+        3 AS control_compliance_id,
+        10 AS control_parent_id
     FROM uniform_resource_aicpa_soc2_controls cntl
     UNION ALL
     SELECT
@@ -332,7 +339,8 @@ SELECT
         cntl."Questions Descriptions",
         'SOC2 Type II' AS control_type,
         3 AS control_type_id,
-        4 AS control_compliance_id  
+        4 AS control_compliance_id,
+        10 AS control_parent_id
     FROM uniform_resource_aicpa_soc2_type2_controls cntl;
 
 
