@@ -86,6 +86,7 @@ SELECT
     json_extract(frontmatter, '$.priority') AS priority,
     json_extract(frontmatter, '$.bugId') AS bug_list,
     json_extract(frontmatter, '$.test_cycles') AS test_cycles,
+    json_extract(frontmatter, '$.related_requirements') AS related_requirements,
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
@@ -100,6 +101,7 @@ SELECT
     strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
     tc.test_type,
     tc.test_cycles,
+    tc.related_requirements,
     tc.created_at,
     tc.tags,
     tc.priority,
