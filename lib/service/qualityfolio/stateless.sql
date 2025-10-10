@@ -1490,25 +1490,53 @@ ORDER BY ur.created_at DESC;
 DROP VIEW IF EXISTS test_cycle;
 CREATE VIEW test_cycle AS
 SELECT
-  json_extract(value, '$') AS test_cycle,
+  j.value AS test_cycle,
   c.suite_id,
-  ts.name,
+  ts.name AS suite_name,
   COUNT(*) AS test_case_count,
   COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
   COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
 FROM
   test_cases AS c
-  JOIN json_each(c.test_cycles)
-    -- expand test_cycles
+  -- ✅ Properly expand JSON array into rows
+  , json_each(c.test_cycles) AS j
   JOIN test_suites AS ts ON ts.id = c.suite_id
   LEFT JOIN test_case_run_results AS r
     ON r.test_case_id = c.test_case_id
 WHERE
   c.test_cycles IS NOT NULL
 GROUP BY
-  json_extract(value, '$'),
+  j.value,
   c.suite_id,
   ts.name
 ORDER BY
   c.suite_id,
   test_cycle;
+  
+-- Related requirements view: expands test_cases.related_requirements JSON arrays
+DROP VIEW IF EXISTS test_case_related_requirements;
+CREATE VIEW test_case_related_requirements AS
+SELECT
+    j.value AS related_requirement,
+    c.suite_id,
+    ts.name AS suite_name,
+    COUNT(*) AS test_case_count,
+    COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
+    COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
+FROM
+    test_cases AS c
+    -- ✅ Correct usage of json_each() with alias
+    , json_each(c.related_requirements) AS j
+    JOIN test_suites AS ts ON ts.id = c.suite_id
+    LEFT JOIN test_case_run_results AS r
+        ON r.test_case_id = c.test_case_id
+WHERE
+    c.related_requirements IS NOT NULL
+GROUP BY
+    j.value,
+    c.suite_id,
+    ts.name
+ORDER BY
+    c.suite_id,
+    related_requirement;
+  

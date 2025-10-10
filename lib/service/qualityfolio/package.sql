@@ -93,6 +93,7 @@ SELECT
     json_extract(frontmatter, '$.priority') AS priority,
     json_extract(frontmatter, '$.bugId') AS bug_list,
     json_extract(frontmatter, '$.test_cycles') AS test_cycles,
+    json_extract(frontmatter, '$.related_requirements') AS related_requirements,
     json_extract(content_fm_body_attrs, '$.frontMatter') AS front_matter,
     json_extract(content_fm_body_attrs, '$.body') AS body
 FROM uniform_resource
@@ -107,6 +108,7 @@ SELECT
     strftime('%d-%m-%Y', tc.created_at) AS formatted_test_case_created_at, -- Renamed alias
     tc.test_type,
     tc.test_cycles,
+    tc.related_requirements,
     tc.created_at,
     tc.tags,
     tc.priority,
@@ -1639,28 +1641,56 @@ ORDER BY ur.created_at DESC;
 DROP VIEW IF EXISTS test_cycle;
 CREATE VIEW test_cycle AS
 SELECT
-  json_extract(value, '$') AS test_cycle,
+  j.value AS test_cycle,
   c.suite_id,
-  ts.name,
+  ts.name AS suite_name,
   COUNT(*) AS test_case_count,
   COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
   COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
 FROM
   test_cases AS c
-  JOIN json_each(c.test_cycles)
-    -- expand test_cycles
+  -- ✅ Properly expand JSON array into rows
+  , json_each(c.test_cycles) AS j
   JOIN test_suites AS ts ON ts.id = c.suite_id
   LEFT JOIN test_case_run_results AS r
     ON r.test_case_id = c.test_case_id
 WHERE
   c.test_cycles IS NOT NULL
 GROUP BY
-  json_extract(value, '$'),
+  j.value,
   c.suite_id,
   ts.name
 ORDER BY
   c.suite_id,
   test_cycle;
+  
+-- Related requirements view: expands test_cases.related_requirements JSON arrays
+DROP VIEW IF EXISTS test_case_related_requirements;
+CREATE VIEW test_case_related_requirements AS
+SELECT
+    j.value AS related_requirement,
+    c.suite_id,
+    ts.name AS suite_name,
+    COUNT(*) AS test_case_count,
+    COUNT(CASE WHEN r.status = 'passed' THEN 1 END) AS passed_count,
+    COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed_count
+FROM
+    test_cases AS c
+    -- ✅ Correct usage of json_each() with alias
+    , json_each(c.related_requirements) AS j
+    JOIN test_suites AS ts ON ts.id = c.suite_id
+    LEFT JOIN test_case_run_results AS r
+        ON r.test_case_id = c.test_case_id
+WHERE
+    c.related_requirements IS NOT NULL
+GROUP BY
+    j.value,
+    c.suite_id,
+    ts.name
+ORDER BY
+    c.suite_id,
+    related_requirement;
+  
 -- delete all /qualityfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -1670,7 +1700,8 @@ VALUES
     ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test-cases.sql', 'qualityfolio/test-cases.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL),
     ('prime', 'qualityfolio/index.sql', 2, 'qualityfolio/tap-test-results.sql', 'qualityfolio/tap-test-results.sql', 'TAP Test Results', NULL, NULL, 'Test Anything Protocol (TAP) results from automated test runs', NULL),
     ('prime', 'qualityfolio/index.sql', 1, 'qualityfolio/test-management.sql', 'qualityfolio/test-management.sql', 'Projects', NULL, NULL, NULL, NULL),
-    ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test_cycle_case.sql', 'qualityfolio/test_cycle_case.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL)
+    ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test_cycle_case.sql', 'qualityfolio/test_cycle_case.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL),
+    ('prime', 'qualityfolio/index.sql', 4, 'qualityfolio/test_case_related_requirements.sql', 'qualityfolio/test_case_related_requirements.sql', 'Test Cases', NULL, NULL, 'Complete list of all test cases across all projects and suites', NULL)
 ON CONFLICT (namespace, parent_path, path)
 DO UPDATE SET title = EXCLUDED.title, abbreviated_caption = EXCLUDED.abbreviated_caption, description = EXCLUDED.description, url = EXCLUDED.url, sibling_order = EXCLUDED.sibling_order;
 -- code provenance: `ConsoleSqlPages.infoSchemaDDL` (file:///home/runner/work/www.surveilr.com/www.surveilr.com/lib/std/web-ui-content/console.ts)
@@ -2772,7 +2803,7 @@ SELECT ''table'' as component,
   SELECT 
     test_cycle as "test cycle",
     suite_id as "suite",
-    name as "suite name",
+    suite_name as "suite name",
     -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
     ''['' || COALESCE(test_case_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || '')'' AS "test case",
      ''['' || COALESCE(passed_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || ''&status=passed'' || '')'' AS "passed",
@@ -2780,6 +2811,32 @@ SELECT ''table'' as component,
      -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
      (CASE WHEN COALESCE(passed_count,0) > 0 THEN ''has-pass '' ELSE '''' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN ''has-fail '' ELSE '''' END || ''rowClass-'' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
   FROM test_cycle;
+    
+    -- Related requirements (dashboard block)
+    SELECT ''title'' AS component,
+    ''Related Requirements'' as contents;
+
+    SELECT ''text'' as component,
+    ''Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement.'' as contents;
+
+    SELECT ''html'' as component,
+      ''<style>tr.has-pass td:nth-child(5){color:#28a745;font-weight:600} tr.has-fail td:nth-child(6){color:#dc3545;font-weight:600}</style>'' as html;
+
+    SELECT ''table'' as component,
+           ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
+           ''requirement'' as markdown,
+           ''test case'' as markdown,
+           ''passed'' as markdown,
+           ''failed'' as markdown;
+    SELECT
+      related_requirement as "requirement",
+      suite_id as "suite",
+      suite_name as "suite name",
+      ''['' || COALESCE(test_case_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_case_related_requirements.sql?requirement='' || REPLACE(REPLACE(related_requirement, '' '', ''%20''), ''&'', ''%26'') || '')'' AS "test case",
+      ''['' || COALESCE(passed_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_case_related_requirements.sql?requirement='' || REPLACE(REPLACE(related_requirement, '' '', ''%20''), ''&'', ''%26'') || ''&status=passed'' || '')'' AS "passed",
+      ''['' || COALESCE(failed_count, 0) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_case_related_requirements.sql?requirement='' || REPLACE(REPLACE(related_requirement, '' '', ''%20''), ''&'', ''%26'') || ''&status=failed'' || '')'' AS "failed",
+      (CASE WHEN COALESCE(passed_count,0) > 0 THEN ''has-pass '' ELSE '''' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN ''has-fail '' ELSE '''' END || ''rowClass-'' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
+    FROM test_case_related_requirements;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
@@ -3834,6 +3891,36 @@ WHERE  ($test_cycle IS NULL
             SELECT 1
             FROM json_each(test_cycles)
             WHERE value = $test_cycle
+          ))AND (
+  $status IS NULL
+  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(test_status, '''')) = ''passed''
+  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(test_status, '''')) = ''failed''
+);
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/download-related_requirements-test-case.sql',
+      '              -- not including shell
+              -- not including breadcrumbs from sqlpage_aide_navigation
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              select ''csv'' as component, ''test_suites_''||$requirement||''.csv'' as filename;
+ SELECT
+  test_case_id as id,
+  test_case_title AS "title",
+  group_name AS "group",
+  test_status,
+  created_by as "Created By",
+  formatted_test_case_created_at as "Created On",
+  priority as "Priority"
+FROM test_cases t
+WHERE  ($requirement IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(test_cycles)
+            WHERE value = $requirement
           ))AND (
   $status IS NULL
   OR LOWER($status) = ''passed'' AND LOWER(COALESCE(test_status, '''')) = ''passed''
@@ -5272,6 +5359,204 @@ WHERE (
     SELECT 1
     FROM json_each(tc.test_cycles)
     WHERE value = $test_cycle
+  )
+)
+AND (
+  $status IS NULL
+  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(tc.test_status, '''')) = ''passed''
+  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(tc.test_status, '''')) = ''failed''
+)
+ORDER BY tc.test_case_id
+LIMIT $limit OFFSET $offset;
+
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&test_cycle='' || replace($test_cycle, '' '', ''%20''), '''') || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&test_cycle='' || replace($test_cycle, '' '', ''%20''), '''') || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/test_case_related_requirements.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test_case_related_requirements.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test_case_related_requirements.sql/index.sql'') as contents;
+    ;
+
+-- Page description based on context
+SELECT ''text'' AS component,
+''This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.'' AS contents;
+
+-- Status overview based on context
+  SELECT
+  ''alert'' AS component,
+  ''info'' AS color,
+  ''Test Case Overview'' AS title,
+  ''Total test cases: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE $requirement IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(related_requirements)
+        WHERE value = $requirement
+      )
+  ) ||
+  '' | Passed: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE test_status = ''passed''
+      AND ($requirement IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(related_requirements)
+            WHERE value = $requirement
+          ))
+  ) ||
+  '' | Failed: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE test_status = ''failed''
+      AND ($requirement IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(related_requirements)
+        WHERE value = $requirement
+      ))
+  ) ||
+  '' | Pending: '' || (
+    SELECT COUNT(*)
+    FROM test_cases
+    WHERE (test_status IS NULL OR test_status = ''TODO'')
+      AND ($requirement IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(related_requirements)
+        WHERE value = $requirement
+      ))
+  ) AS description;
+
+
+
+SELECT ''html'' as component,
+  ''<style>
+     tr td.test_status {
+          color: blue !important;
+      }
+      tr.rowClass-passed td.test_status {
+          color: green !important;
+      }
+       tr.rowClass-failed td.test_status {
+          color: red !important;
+      }
+      tr.rowClass-TODO td.test_status {
+          color: orange !important;
+      }
+      .btn-list {
+      display: flex;
+      justify-content: flex-end;
+  }
+  </style>'' as html;
+
+SELECT ''button'' as component;
+
+-- Show "View All Test Cases" button when filtering by group
+SELECT ''View All Test Cases'' as title,
+       ''test-cases.sql'' as link,
+       ''list'' as icon
+WHERE $requirement IS NOT NULL
+UNION ALL
+-- Show "Export Test Cycle Test Cases" button when filtering by group
+SELECT ''Export Test Cycle Test Cases'' as title,
+  -- Include status query param only when $status is provided
+  ''download-related_requirements-test-case.sql?requirement='' || REPLACE(REPLACE($requirement, '' '', ''%20''), ''&'', ''%26'') ||
+    CASE WHEN $status IS NOT NULL THEN ''&status='' || REPLACE(REPLACE($status, '' '', ''%20''), ''&'', ''%26'') ELSE '''' END as link,
+  ''download'' as icon
+WHERE $requirement IS NOT NULL
+UNION ALL
+-- Show "Export All Test Cases" button when showing all test cases
+SELECT ''Export All Test Cases'' as title,
+       ''download-full_list.sql'' as link,
+       ''download'' as icon
+WHERE $requirement IS NULL;
+
+SET total_rows = (SELECT COUNT(*) FROM test_cases WHERE (
+                  $requirement IS NULL
+                  OR EXISTS (
+                    SELECT 1
+                    FROM json_each(related_requirements)
+                    WHERE value = $requirement
+                  )
+                )
+                AND (
+                  $status IS NULL
+                  OR LOWER($status) = ''passed'' AND LOWER(COALESCE(test_status, '''')) = ''passed''
+                  OR LOWER($status) = ''failed'' AND LOWER(COALESCE(test_status, '''')) = ''failed''
+                ));
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
+SELECT ''table'' as component,
+       TRUE AS sort,
+       TRUE AS search,
+       ''Test Case ID'' as markdown,
+       ''Title'' as markdown,
+       ''Group'' as markdown,
+       ''Suite'' as markdown,
+       ''Status'' as markdown;
+
+SELECT
+  ''['' || tc.test_case_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test-detail.sql?tab=actual-result&id=''|| tc.test_case_id || '')'' as "Test Case ID",
+  tc.test_case_title AS "Title",
+  ''['' || tc.group_name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/group-detail.sql?id=''|| tc.group_id || '')'' AS "Group",
+  ''['' || ts.name || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/suite-data.sql?id=''|| ts.id || '')'' AS "Suite",
+  CASE
+    WHEN tc.test_status IS NOT NULL THEN tc.test_status
+    ELSE ''TODO''
+  END AS "Status",
+  ''rowClass-'' || COALESCE(tc.test_status, ''TODO'') as _sqlpage_css_class,
+  tc.test_type AS "Type",
+  tc.priority AS "Priority",
+  tc.created_by AS "Created By",
+  tc.formatted_test_case_created_at AS "Created On"
+FROM test_cases tc
+LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+WHERE (
+  $requirement IS NULL
+  OR EXISTS (
+    SELECT 1
+    FROM json_each(tc.related_requirements)
+    WHERE value = $requirement
   )
 )
 AND (
