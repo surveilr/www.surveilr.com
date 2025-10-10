@@ -486,7 +486,7 @@ SELECT 'table' as component,
   SELECT 
     test_cycle as "test cycle",
     suite_id as "suite",
-    name as "suite name",
+    suite_name as "suite name",
     -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
     '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
       } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || ')' AS "test case",
@@ -497,6 +497,35 @@ SELECT 'table' as component,
      -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
      (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
   FROM test_cycle;
+    
+    -- Related requirements (dashboard block)
+    SELECT 'title' AS component,
+    'Related Requirements' as contents;
+
+    SELECT 'text' as component,
+    'Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement.' as contents;
+
+    SELECT 'html' as component,
+      '<style>tr.has-pass td:nth-child(5){color:#28a745;font-weight:600} tr.has-fail td:nth-child(6){color:#dc3545;font-weight:600}</style>' as html;
+
+    SELECT 'table' as component,
+           'Total Tests,Passed,Failed,Pass Rate' as align_right,
+           'requirement' as markdown,
+           'test case' as markdown,
+           'passed' as markdown,
+           'failed' as markdown;
+    SELECT
+      related_requirement as "requirement",
+      suite_id as "suite",
+      suite_name as "suite name",
+      '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
+      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "test case",
+      '[' || COALESCE(passed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
+      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
+      '[' || COALESCE(failed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
+      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
+      (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
+    FROM test_case_related_requirements;
     `;
   }
 
@@ -795,6 +824,7 @@ SELECT 'table' as component,
     SELECT * FROM test_suites;
     `;
   }
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
@@ -847,6 +877,7 @@ LEFT JOIN
 
     `;
   }
+
   @spn.shell({
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
@@ -910,6 +941,7 @@ SELECT
     test_cases;
     `;
   }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no", pageTitleFromNavStmts: "no" })
   "qualityfolio/suite-data.sql"() {
     return this.SQL`
@@ -1239,6 +1271,7 @@ SELECT
 
     `;
   }
+
   @qltyfolioNav({
     caption: "HTML Test Results",
     description:
@@ -1480,6 +1513,36 @@ SELECT
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
+  "qualityfolio/download-related_requirements-test-case.sql"() {
+    return this.SQL`
+    select 'csv' as component, 'test_suites_'||$requirement||'.csv' as filename;
+     SELECT
+      test_case_id as id,
+      test_case_title AS "title",
+      group_name AS "group",
+      test_status,
+      created_by as "Created By",
+      formatted_test_case_created_at as "Created On",
+      priority as "Priority"
+    FROM test_cases t
+    WHERE  ($requirement IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(test_cycles)
+                WHERE value = $requirement
+              ))AND (
+      $status IS NULL
+      OR LOWER($status) = 'passed' AND LOWER(COALESCE(test_status, '')) = 'passed'
+      OR LOWER($status) = 'failed' AND LOWER(COALESCE(test_status, '')) = 'failed'
+    );
+
+    `;
+  }
+
+  @spn.shell({
+    breadcrumbsFromNavStmts: "no",
+    shellStmts: "do-not-include",
+  })
   "qualityfolio/download-full_list.sql"() {
     return this.SQL`
     select 'csv' as component, 'test_cases.csv' as filename;
@@ -1645,6 +1708,7 @@ FROM test_suites rn WHERE id = $id;
 
     `;
   }
+
   @qltyfolioNav({
     caption: "TAP Test Results",
     description:
@@ -1726,6 +1790,7 @@ FROM test_suites rn WHERE id = $id;
 
       `;
   }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/test-detail.sql"() {
     return this.SQL`
@@ -1986,6 +2051,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
 
     `;
   }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/bug-detail.sql"() {
     return this.SQL`
@@ -2041,6 +2107,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
 
     `;
   }
+
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/group-detail.sql"() {
     return this.SQL`
@@ -2747,6 +2814,181 @@ WHERE rn.id = $id;
         SELECT 1
         FROM json_each(tc.test_cycles)
         WHERE value = $test_cycle
+      )
+    )
+    AND (
+      $status IS NULL
+      OR LOWER($status) = 'passed' AND LOWER(COALESCE(tc.test_status, '')) = 'passed'
+      OR LOWER($status) = 'failed' AND LOWER(COALESCE(tc.test_status, '')) = 'failed'
+    )
+    ORDER BY tc.test_case_id
+    LIMIT $limit OFFSET $offset;
+
+    ${pagination.renderSimpleMarkdown("test_cycle", "status")};
+    `;
+  }
+
+  @qltyfolioNav({
+    caption: "Test Cases",
+    description:
+      "Complete list of all test cases across all projects and suites",
+    siblingOrder: 4,
+  })
+  "qualityfolio/test_case_related_requirements.sql"() {
+    const viewName = `test_cases`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: `WHERE (
+                  $requirement IS NULL
+                  OR EXISTS (
+                    SELECT 1
+                    FROM json_each(related_requirements)
+                    WHERE value = $requirement
+                  )
+                )
+                AND (
+                  $status IS NULL
+                  OR LOWER($status) = 'passed' AND LOWER(COALESCE(test_status, '')) = 'passed'
+                  OR LOWER($status) = 'failed' AND LOWER(COALESCE(test_status, '')) = 'failed'
+                )`,
+    });
+
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    -- Page description based on context
+    SELECT 'text' AS component,
+    'This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.' AS contents;
+
+    -- Status overview based on context
+      SELECT
+      'alert' AS component,
+      'info' AS color,
+      'Test Case Overview' AS title,
+      'Total test cases: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE $requirement IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(related_requirements)
+            WHERE value = $requirement
+          )
+      ) ||
+      ' | Passed: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE test_status = 'passed'
+          AND ($requirement IS NULL
+              OR EXISTS (
+                SELECT 1
+                FROM json_each(related_requirements)
+                WHERE value = $requirement
+              ))
+      ) ||
+      ' | Failed: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE test_status = 'failed'
+          AND ($requirement IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(related_requirements)
+            WHERE value = $requirement
+          ))
+      ) ||
+      ' | Pending: ' || (
+        SELECT COUNT(*)
+        FROM test_cases
+        WHERE (test_status IS NULL OR test_status = 'TODO')
+          AND ($requirement IS NULL
+          OR EXISTS (
+            SELECT 1
+            FROM json_each(related_requirements)
+            WHERE value = $requirement
+          ))
+      ) AS description;
+
+
+
+    SELECT 'html' as component,
+      '<style>
+         tr td.test_status {
+              color: blue !important;
+          }
+          tr.rowClass-passed td.test_status {
+              color: green !important;
+          }
+           tr.rowClass-failed td.test_status {
+              color: red !important;
+          }
+          tr.rowClass-TODO td.test_status {
+              color: orange !important;
+          }
+          .btn-list {
+          display: flex;
+          justify-content: flex-end;
+      }
+      </style>' as html;
+
+    SELECT 'button' as component;
+
+    -- Show "View All Test Cases" button when filtering by group
+    SELECT 'View All Test Cases' as title,
+           'test-cases.sql' as link,
+           'list' as icon
+    WHERE $requirement IS NOT NULL
+    UNION ALL
+    -- Show "Export Test Cycle Test Cases" button when filtering by group
+    SELECT 'Export Test Cycle Test Cases' as title,
+      -- Include status query param only when $status is provided
+      'download-related_requirements-test-case.sql?requirement=' || REPLACE(REPLACE($requirement, ' ', '%20'), '&', '%26') ||
+        CASE WHEN $status IS NOT NULL THEN '&status=' || REPLACE(REPLACE($status, ' ', '%20'), '&', '%26') ELSE '' END as link,
+      'download' as icon
+    WHERE $requirement IS NOT NULL
+    UNION ALL
+    -- Show "Export All Test Cases" button when showing all test cases
+    SELECT 'Export All Test Cases' as title,
+           'download-full_list.sql' as link,
+           'download' as icon
+    WHERE $requirement IS NULL;
+
+    ${pagination.init()}
+
+    SELECT 'table' as component,
+           TRUE AS sort,
+           TRUE AS search,
+           'Test Case ID' as markdown,
+           'Title' as markdown,
+           'Group' as markdown,
+           'Suite' as markdown,
+           'Status' as markdown;
+
+    SELECT
+      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+      }|| tc.test_case_id || ')' as "Test Case ID",
+      tc.test_case_title AS "Title",
+      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+      }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+      }|| ts.id || ')' AS "Suite",
+      CASE
+        WHEN tc.test_status IS NOT NULL THEN tc.test_status
+        ELSE 'TODO'
+      END AS "Status",
+      'rowClass-' || COALESCE(tc.test_status, 'TODO') as _sqlpage_css_class,
+      tc.test_type AS "Type",
+      tc.priority AS "Priority",
+      tc.created_by AS "Created By",
+      tc.formatted_test_case_created_at AS "Created On"
+    FROM ${viewName} tc
+    LEFT JOIN test_suites ts ON ts.id = tc.suite_id
+    WHERE (
+      $requirement IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM json_each(tc.related_requirements)
+        WHERE value = $requirement
       )
     )
     AND (
