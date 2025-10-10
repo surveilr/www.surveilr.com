@@ -3014,39 +3014,35 @@ WHERE rn.id = $id;
     SELECT (SELECT COALESCE(title, requirement_id) FROM requirement WHERE requirement_id = $requirement) AS title, '#' AS link;
 
     --- Card Header with Requirement Title
-    SELECT 'card' AS component,
-      (SELECT COALESCE(title, requirement_id) FROM requirement WHERE requirement_id = $requirement) AS title,
-      1 AS columns;
+    -- SELECT 'card' AS component,
+    --   1 AS columns;
 
 
     -- Render requirement header and metadata as a styled HTML block (no table)
-    WITH req AS (
-      SELECT * FROM requirement WHERE requirement_id = $requirement LIMIT 1
-    )
-    SELECT 'html' AS component,
+  SELECT 'html' AS component,
       COALESCE(
         '<section class="requirement-hero" style="background:linear-gradient(90deg,#ffffff,#f7f9fc);padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid #eceff3;">' ||
         '<div style="display:flex;gap:20px;align-items:flex-start">' ||
         '<div style="flex:1">' ||
-        '<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">' || COALESCE(req.title, req.requirement_id) || '</h1>' ||
-        '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(req.description, 'No description') || '</p>' ||
+        '<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">' || COALESCE(title, requirement_id) || '</h1>' ||
         '<div style="color:#6b7280;font-size:13px">' ||
-        COALESCE(req.created_by, '') ||
-        CASE WHEN req.created_by IS NOT NULL AND req.created_at IS NOT NULL THEN ' • ' ELSE '' END ||
-        CASE WHEN req.created_at IS NOT NULL THEN strftime('%d-%m-%Y', req.created_at) ELSE '' END ||
-        CASE WHEN req.version IS NOT NULL THEN ' • v' || req.version ELSE '' END ||
-        CASE WHEN req.type IS NOT NULL THEN ' • ' || req.type ELSE '' END ||
-        '</div>' ||
+        COALESCE(created_by, '') ||
+        CASE WHEN created_by IS NOT NULL AND created_at IS NOT NULL THEN ' • ' ELSE '' END ||
+        CASE WHEN created_at IS NOT NULL THEN strftime('%d-%m-%Y', created_at) ELSE '' END ||
+        CASE WHEN version IS NOT NULL THEN ' • v' || version ELSE '' END ||
+        CASE WHEN type IS NOT NULL THEN ' • ' || type ELSE '' END ||
+        '</div></br>' ||
+        '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(description, 'No description') || '</p>' ||
         '</div>' ||
         '<div style="min-width:160px;text-align:right">' ||
-        '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(req.requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+        '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
         '</div>' ||
         '</div>' ||
         '</section>',
         '<div class="requirement-detail"><p>No requirement found</p></div>'
       ) AS html
-    FROM req;
-
+    FROM requirement WHERE requirement_id = $requirement;
+    
     -- Return content with YAML frontmatter removed (strip leading '--- ... ---' block)
     SELECT 'text' AS component,
       TRIM(
