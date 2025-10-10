@@ -515,7 +515,8 @@ SELECT 'table' as component,
            'passed' as markdown,
            'failed' as markdown;
     SELECT
-      related_requirement as "requirement",
+      '[' || related_requirement || '](' || ${this.absoluteURL("/qualityfolio/related_requirement_detail.sql?requirement=")
+      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "requirement",
       suite_id as "suite",
       suite_name as "suite name",
       '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
@@ -528,6 +529,8 @@ SELECT 'table' as component,
     FROM test_case_related_requirements;
     `;
   }
+
+
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/tap-details.sql"() {
@@ -1513,7 +1516,7 @@ SELECT
     breadcrumbsFromNavStmts: "no",
     shellStmts: "do-not-include",
   })
-  "qualityfolio/download-related_requirements-test-case.sql"() {
+  "qualityfolio/download-related-requirements-test-case.sql"() {
     return this.SQL`
     select 'csv' as component, 'test_suites_'||$requirement||'.csv' as filename;
      SELECT
@@ -1637,28 +1640,25 @@ SELECT
     'Test Plan List' AS title,
       ${this.absoluteURL("/qualityfolio/suite-group?tab=test_suites")} AS link,
         $tab = 'test_suites' AS active;
-
-
-    --Tab 2: Test case list
-    SELECT
-    'Test Case List' AS title,
-      ${this.absoluteURL("/qualityfolio/suite-group?tab=test_cases")} AS link,
-        $tab = 'test_cases' AS active;
-
-    --Tab 3: Meta Tags Missing URLs
-    SELECT
-    'Test Run List' AS title,
-      $tab = 'test_run' AS active;
-
-    SELECT 
-      case when $tab = 'test_suites' THEN 'card'
-      END AS component,
-       1                          as columns;
-
-   
-    SELECT
-    ' **Name**  :  ' || rn.name AS description_md,
-      '\n **Description**  :  ' || rn."description" AS description_md,
+      SELECT 'html' AS component,
+        (SELECT COALESCE('<section class="requirement-hero" style="background:linear-gradient(90deg,#ffffff,#f7f9fc);padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid #eceff3;">' ||
+          '<div style="display:flex;gap:20px;align-items:flex-start">' ||
+          '<div style="flex:1">' ||
+          '<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">' || COALESCE(req.title, req.requirement_id) || '</h1>' ||
+          '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(req.description, 'No description') || '</p>' ||
+          '<div style="color:#6b7280;font-size:13px">' ||
+          COALESCE(req.created_by, '') ||
+          CASE WHEN req.created_by IS NOT NULL AND req.created_at IS NOT NULL THEN ' • ' ELSE '' END ||
+          CASE WHEN req.created_at IS NOT NULL THEN strftime('%d-%m-%Y', req.created_at) ELSE '' END ||
+          CASE WHEN req.version IS NOT NULL THEN ' • v' || req.version ELSE '' END ||
+          CASE WHEN req.type IS NOT NULL THEN ' • ' || req.type ELSE '' END ||
+          '</div>' ||
+          '</div>' ||
+          '<div style="min-width:160px;text-align:right">' ||
+          '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(req.requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+          '</div>' ||
+          '</div>' ||
+          '</section>', '<div class="requirement-detail"><p>No requirement found</p></div>') AS html
         '\n **Created By**  :  ' || rn.created_by_user AS description_md,
           '\n **Created At**  :  ' || strftime('%d-%m-%Y', rn.created_at) AS description_md,
             '\n **Priority**  :  ' || rn.linked_requirements AS description_md,
@@ -2942,7 +2942,7 @@ WHERE rn.id = $id;
     -- Show "Export Test Cycle Test Cases" button when filtering by group
     SELECT 'Export Test Cycle Test Cases' as title,
       -- Include status query param only when $status is provided
-      'download-related_requirements-test-case.sql?requirement=' || REPLACE(REPLACE($requirement, ' ', '%20'), '&', '%26') ||
+      'download-related-requirements-test-case.sql?requirement=' || REPLACE(REPLACE($requirement, ' ', '%20'), '&', '%26') ||
         CASE WHEN $status IS NOT NULL THEN '&status=' || REPLACE(REPLACE($status, ' ', '%20'), '&', '%26') ELSE '' END as link,
       'download' as icon
     WHERE $requirement IS NOT NULL
@@ -3000,6 +3000,72 @@ WHERE rn.id = $id;
     LIMIT $limit OFFSET $offset;
 
     ${pagination.renderSimpleMarkdown("test_cycle", "status")};
+    `;
+  }
+
+  "qualityfolio/related_requirement_detail.sql"() {
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'QualityFolio' AS title, ${this.absoluteURL("/qualityfolio/index.sql")} AS link;
+    SELECT (SELECT COALESCE(title, requirement_id) FROM requirement WHERE requirement_id = $requirement) AS title, '#' AS link;
+
+    --- Card Header with Requirement Title
+    -- SELECT 'card' AS component,
+    --   1 AS columns;
+
+
+    -- Render requirement header and metadata as a styled HTML block (no table)
+  SELECT 'html' AS component,
+      COALESCE(
+        '<section class="requirement-hero" style="background:linear-gradient(90deg,#ffffff,#f7f9fc);padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid #eceff3;">' ||
+        '<div style="display:flex;gap:20px;align-items:flex-start">' ||
+        '<div style="flex:1">' ||
+        '<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">' || COALESCE(title, requirement_id) || '</h1>' ||
+        '<div style="color:#6b7280;font-size:13px">' ||
+        COALESCE(created_by, '') ||
+        CASE WHEN created_by IS NOT NULL AND created_at IS NOT NULL THEN ' • ' ELSE '' END ||
+        CASE WHEN created_at IS NOT NULL THEN strftime('%d-%m-%Y', created_at) ELSE '' END ||
+        CASE WHEN version IS NOT NULL THEN ' • v' || version ELSE '' END ||
+        CASE WHEN type IS NOT NULL THEN ' • ' || type ELSE '' END ||
+        '</div></br>' ||
+        '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(description, 'No description') || '</p>' ||
+        '</div>' ||
+        '<div style="min-width:160px;text-align:right">' ||
+        '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+        '</div>' ||
+        '</div>' ||
+        '</section>',
+        '<div class="requirement-detail"><p>No requirement found</p></div>'
+      ) AS html
+    FROM requirement WHERE requirement_id = $requirement;
+    
+    -- Return content with YAML frontmatter removed (strip leading '--- ... ---' block)
+    SELECT 'text' AS component,
+      TRIM(
+        CASE
+          WHEN instr(content, '---') = 0 THEN content
+          ELSE
+            -- find the position after the second '---'
+            CASE
+              WHEN instr(substr(content, instr(content, '---') + 3), '---') = 0 THEN
+                -- only one '---' found; return remainder after first occurrence
+                ltrim(substr(content, instr(content, '---') + 3))
+              ELSE
+                ltrim(
+                  substr(
+                    content,
+                    instr(substr(content, instr(content, '---') + 3), '---') + instr(content, '---') + 5
+                  )
+                )
+            END
+        END
+      ) AS contents_md
+    FROM requirement
+    WHERE requirement_id = $requirement;
     `;
   }
 
