@@ -1641,6 +1641,7 @@ ORDER BY ur.created_at DESC;
 DROP VIEW IF EXISTS test_cycle;
 CREATE VIEW test_cycle AS
 SELECT
+  c.test_case_id,
   j.value AS test_cycle,
   c.suite_id,
   ts.name AS suite_name,
@@ -1664,6 +1665,7 @@ ORDER BY
   c.suite_id,
   test_cycle;
   
+
 -- Related requirements view: expands test_cases.related_requirements JSON arrays
 DROP VIEW IF EXISTS test_case_related_requirements;
 CREATE VIEW test_case_related_requirements AS
@@ -1708,7 +1710,26 @@ SELECT
     content
 FROM uniform_resource
 WHERE uri LIKE '%requirement.md%';
-  
+
+
+-- test_cycle_inner view: extract test cycle metadata from uniform_resource frontmatter
+DROP VIEW IF EXISTS test_cycle_inner;
+CREATE VIEW test_cycle_inner AS
+SELECT
+    uniform_resource_id,
+    json_extract(frontmatter, '$.test_cycleId') AS test_cycle_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.description') AS description,
+    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_at') AS created_at,
+    json_extract(frontmatter, '$.last_updated_at') AS last_updated_at,
+    json_extract(frontmatter, '$.status') AS status,
+    json_extract(frontmatter, '$.version') AS version,
+    json_extract(frontmatter, '$.tags') AS tags,
+    content
+FROM uniform_resource
+WHERE 
+    uri LIKE '%.cycle.md%';
 -- delete all /qualityfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2815,11 +2836,12 @@ SELECT ''html'' as component,
 
 SELECT ''table'' as component,
        ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
+       ''test cycle'' as markdown,
        ''test case'' as markdown,
        ''passed'' as markdown,
        ''failed'' as markdown;
   SELECT 
-    test_cycle as "test cycle",
+    ''['' || test_cycle || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_detail.sql?test_cycle='' || REPLACE(REPLACE(test_cycle, '' '', ''%20''), ''&'', ''%26'') || '')'' AS "test cycle",
     suite_id as "suite",
     suite_name as "suite name",
     -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
@@ -5682,6 +5704,92 @@ SELECT ''html'' AS component,
     ) AS contents_md
   FROM requirement
   WHERE requirement_id = $requirement;
+            ',
+      CURRENT_TIMESTAMP)
+  ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
+INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
+      'qualityfolio/test_cycle_detail.sql',
+      '              SELECT ''dynamic'' AS component, sqlpage.run_sql(''shell/shell.sql'') AS properties;
+              SELECT ''breadcrumb'' as component;
+WITH RECURSIVE breadcrumbs AS (
+    SELECT
+        COALESCE(abbreviated_caption, caption) AS title,
+        COALESCE(url, path) AS link,
+        parent_path, 0 AS level,
+        namespace
+    FROM sqlpage_aide_navigation
+    WHERE namespace = ''prime'' AND path=''qualityfolio/test_cycle_detail.sql''
+    UNION ALL
+    SELECT
+        COALESCE(nav.abbreviated_caption, nav.caption) AS title,
+        COALESCE(nav.url, nav.path) AS link,
+        nav.parent_path, b.level + 1, nav.namespace
+    FROM sqlpage_aide_navigation nav
+    INNER JOIN breadcrumbs b ON nav.namespace = b.namespace AND nav.path = b.parent_path
+)
+SELECT title ,      
+sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/''||link as link        
+FROM breadcrumbs ORDER BY level DESC;
+              -- not including page title from sqlpage_aide_navigation
+              
+
+                SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+    FROM sqlpage_aide_navigation
+   WHERE namespace = ''prime'' AND path = ''qualityfolio/test_cycle_detail.sql/index.sql'') as contents;
+    ;
+
+  --- Breadcrumbs
+  SELECT ''breadcrumb'' AS component;
+  SELECT ''Home'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/'' AS link;
+  SELECT ''QualityFolio'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' AS link;
+SELECT (SELECT COALESCE(title, test_cycle_id) FROM test_cycle_inner WHERE title = $test_cycle) AS title, ''#'' AS link;
+
+  -- Hero header from test_cycle_inner view
+  SELECT ''html'' AS component,
+    COALESCE(
+      ''<section class="requirement-hero" style="background:linear-gradient(90deg,#ffffff,#f7f9fc);padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid #eceff3;">'' ||
+      ''<div style="display:flex;gap:20px;align-items:flex-start">'' ||
+      ''<div style="flex:1">'' ||
+      ''<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">'' || COALESCE(title, title) || ''</h1>'' ||
+      ''<div style="color:#6b7280;font-size:13px">'' ||
+      COALESCE(created_by, '''') ||
+      CASE WHEN created_by IS NOT NULL AND created_at IS NOT NULL THEN '' • '' ELSE '''' END ||
+      CASE WHEN created_at IS NOT NULL THEN strftime(''%d-%m-%Y'', created_at) ELSE '''' END ||
+      CASE WHEN version IS NOT NULL THEN '' • v'' || version ELSE '''' END ||
+      CASE WHEN tags IS NOT NULL THEN '' • '' || tags ELSE '''' END ||
+      ''</div></br>'' ||
+      ''<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">'' || COALESCE(description, ''No description'') || ''</p>'' ||
+      ''</div>'' ||
+      ''<div style="min-width:160px;text-align:right">'' ||
+      ''<a href="'' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/test_cycle_case.sql?test_cycle='' || REPLACE(REPLACE(title, '' '', ''%20''), ''&'', ''%26'') || ''" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>'' ||
+      ''</div>'' ||
+      ''</div>'' ||
+      ''</section>'',
+      ''<div class="test-cycle-detail"><p>No test cycle found</p></div>''
+    ) AS html
+FROM test_cycle_inner WHERE title = $test_cycle;
+
+  -- Return content with YAML frontmatter removed (strip leading ''--- ... ---'' block)
+  SELECT ''text'' AS component,
+    TRIM(
+      CASE
+        WHEN instr(content, ''---'') = 0 THEN content
+        ELSE
+          CASE
+            WHEN instr(substr(content, instr(content, ''---'') + 3), ''---'') = 0 THEN
+              ltrim(substr(content, instr(content, ''---'') + 3))
+            ELSE
+              ltrim(
+                substr(
+                  content,
+                  instr(substr(content, instr(content, ''---'') + 3), ''---'') + instr(content, ''---'') + 5
+                )
+              )
+          END
+      END
+    ) AS contents_md
+FROM test_cycle_inner
+WHERE title = $test_cycle;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
