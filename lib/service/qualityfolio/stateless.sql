@@ -1490,6 +1490,7 @@ ORDER BY ur.created_at DESC;
 DROP VIEW IF EXISTS test_cycle;
 CREATE VIEW test_cycle AS
 SELECT
+  c.test_case_id,
   j.value AS test_cycle,
   c.suite_id,
   ts.name AS suite_name,
@@ -1513,6 +1514,7 @@ ORDER BY
   c.suite_id,
   test_cycle;
   
+
 -- Related requirements view: expands test_cases.related_requirements JSON arrays
 DROP VIEW IF EXISTS test_case_related_requirements;
 CREATE VIEW test_case_related_requirements AS
@@ -1557,4 +1559,23 @@ SELECT
     content
 FROM uniform_resource
 WHERE uri LIKE '%requirement.md%';
-  
+
+
+-- test_cycle_inner view: extract test cycle metadata from uniform_resource frontmatter
+DROP VIEW IF EXISTS test_cycle_inner;
+CREATE VIEW test_cycle_inner AS
+SELECT
+    uniform_resource_id,
+    json_extract(frontmatter, '$.test_cycleId') AS test_cycle_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.description') AS description,
+    json_extract(frontmatter, '$.created_by') AS created_by,
+    json_extract(frontmatter, '$.created_at') AS created_at,
+    json_extract(frontmatter, '$.last_updated_at') AS last_updated_at,
+    json_extract(frontmatter, '$.status') AS status,
+    json_extract(frontmatter, '$.version') AS version,
+    json_extract(frontmatter, '$.tags') AS tags,
+    content
+FROM uniform_resource
+WHERE 
+    uri LIKE '%.cycle.md%';

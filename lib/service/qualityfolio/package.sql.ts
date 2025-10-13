@@ -43,8 +43,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
   navigationDML() {
     return this.SQL`
       -- delete all /qualityfolio-related entries and recreate them in case routes are changed
-      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${this.constructHomePath("qualityfolio")
-      };
+      DELETE FROM sqlpage_aide_navigation WHERE parent_path like ${
+      this.constructHomePath("qualityfolio")
+    };
       ${this.upsertNavSQL(...Array.from(this.navigation.values()))}
     `;
   }
@@ -88,8 +89,9 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'Success Rate' as markdown;
       SELECT
-      '['||suite_id||']('||${this.absoluteURL("/qualityfolio/suite-data.sql")
-      }||'?id='||suite_id||')' as id,
+      '['||suite_id||']('||${
+      this.absoluteURL("/qualityfolio/suite-data.sql")
+    }||'?id='||suite_id||')' as id,
       
       suite_name,
       created_by_user as "Created By",
@@ -176,11 +178,13 @@ export class QualityfolioSqlPages extends spn.TypicalSqlPageNotebook {
         'id' as markdown,
         'test case count' as markdown;
       SELECT 
-      '['||id||']('||${this.absoluteURL("/qualityfolio/plan-overview.sql")
-      }||'?id='||id||')' as id,      
+      '['||id||']('||${
+      this.absoluteURL("/qualityfolio/plan-overview.sql")
+    }||'?id='||id||')' as id,      
       name,
-      '['||test_case_count||']('||${this.absoluteURL("/qualityfolio/test-cases-list.sql")
-      }||'?id='||id||')' as "test case count",   
+      '['||test_case_count||']('||${
+      this.absoluteURL("/qualityfolio/test-cases-list.sql")
+    }||'?id='||id||')' as "test case count",   
       created_by as "Created By",
       created_at as "Created On"
       FROM test_plan_list  order by id asc;
@@ -411,8 +415,9 @@ SELECT 'table' as component,
        'File Name' as markdown;
 
 SELECT
-    '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")
-      }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+    '['||name||']('||${
+      this.absoluteURL("/qualityfolio/tap-details.sql")
+    }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
     COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
     COALESCE(passed_tests, 0) as "Passed",
     COALESCE(failed_tests, 0) as "Failed",
@@ -449,8 +454,9 @@ WITH html_stats AS (
     FROM html_test_execution_results
 )
 SELECT
-    '[HTML Test Executions]('||${this.absoluteURL("/qualityfolio/html-test-results.sql")
-      }||')' as "Test Type",
+    '[HTML Test Executions]('||${
+      this.absoluteURL("/qualityfolio/html-test-results.sql")
+    }||')' as "Test Type",
     total_tests as "Total Tests",
     passed_tests as "Passed",
     failed_tests as "Failed",
@@ -480,20 +486,26 @@ SELECT 'html' as component,
 
 SELECT 'table' as component,
        'Total Tests,Passed,Failed,Pass Rate' as align_right,
+       'test cycle' as markdown,
        'test case' as markdown,
        'passed' as markdown,
        'failed' as markdown;
   SELECT 
-    test_cycle as "test cycle",
+    '[' || test_cycle || '](' || ${
+      this.absoluteURL("/qualityfolio/test_cycle_detail.sql?test_cycle=")
+    } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || ')' AS "test cycle",
     suite_id as "suite",
     suite_name as "suite name",
     -- Make the test case count and passed/failed counts clickable links to the cycle view filtered by status
-    '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
-      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || ')' AS "test case",
-     '[' || COALESCE(passed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
-      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
-     '[' || COALESCE(failed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
-      } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
+    '[' || COALESCE(test_case_count, 0) || '](' || ${
+      this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+    } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || ')' AS "test case",
+     '[' || COALESCE(passed_count, 0) || '](' || ${
+      this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+    } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
+     '[' || COALESCE(failed_count, 0) || '](' || ${
+      this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+    } || REPLACE(REPLACE(test_cycle, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
      -- add a CSS class to the TR (SQLPage uses _sqlpage_css_class) so we can color specific TDs
      (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
   FROM test_cycle;
@@ -515,22 +527,32 @@ SELECT 'table' as component,
            'passed' as markdown,
            'failed' as markdown;
     SELECT
-      '[' || related_requirement || '](' || ${this.absoluteURL("/qualityfolio/related_requirement_detail.sql?requirement=")
-      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "requirement",
+      '[' || related_requirement || '](' || ${
+      this.absoluteURL(
+        "/qualityfolio/related_requirement_detail.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "requirement",
       suite_id as "suite",
       suite_name as "suite name",
-      '[' || COALESCE(test_case_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
-      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "test case",
-      '[' || COALESCE(passed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
-      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
-      '[' || COALESCE(failed_count, 0) || '](' || ${this.absoluteURL("/qualityfolio/test_case_related_requirements.sql?requirement=")
-      } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
+      '[' || COALESCE(test_case_count, 0) || '](' || ${
+      this.absoluteURL(
+        "/qualityfolio/test_case_related_requirements.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || ')' AS "test case",
+      '[' || COALESCE(passed_count, 0) || '](' || ${
+      this.absoluteURL(
+        "/qualityfolio/test_case_related_requirements.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=passed' || ')' AS "passed",
+      '[' || COALESCE(failed_count, 0) || '](' || ${
+      this.absoluteURL(
+        "/qualityfolio/test_case_related_requirements.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(related_requirement, ' ', '%20'), '&', '%26') || '&status=failed' || ')' AS "failed",
       (CASE WHEN COALESCE(passed_count,0) > 0 THEN 'has-pass ' ELSE '' END || CASE WHEN COALESCE(failed_count,0) > 0 THEN 'has-fail ' ELSE '' END || 'rowClass-' || CAST(COALESCE(passed_count,0) * 100 / CASE WHEN COALESCE(test_case_count,0)=0 THEN 1 ELSE test_case_count END AS INTEGER)) AS _sqlpage_css_class
     FROM test_case_related_requirements;
     `;
   }
-
-
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "qualityfolio/tap-details.sql"() {
@@ -1093,8 +1115,9 @@ SELECT
             </div>
 
             <div class="action-buttons">
-              <a href="' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
-      } || tcrs.group_id || '" class="view-details-btn">View Full Details</a>
+              <a href="' || ${
+      this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+    } || tcrs.group_id || '" class="view-details-btn">View Full Details</a>
             </div>
           </div>
         </div>
@@ -1301,8 +1324,9 @@ SELECT
            'Test Report' as markdown;
 
     SELECT
-        '['||execution_title||']('||${this.absoluteURL("/qualityfolio/html-details.sql")
-      }||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
+        '['||execution_title||']('||${
+      this.absoluteURL("/qualityfolio/html-details.sql")
+    }||'?run_id='||REPLACE(REPLACE(run_id, ' ', '%20'), '&', '%26')||')' as "Test Report",
         run_id as "Run ID",
         CASE
             WHEN execution_status LIKE '%pass%' THEN '✅ Passed'
@@ -1435,13 +1459,16 @@ SELECT
            'Status' as markdown;
 
     SELECT
-      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| tc.test_case_id || ')' as "Test Case ID",
+      '[' || tc.test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| tc.test_case_id || ')' as "Test Case ID",
       tc.test_case_title AS "Title",
-      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
-      }|| tc.group_id || ')' AS "Group",
-      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
-      }|| ts.id || ')' AS "Suite",
+      '[' || tc.group_name || '](' || ${
+      this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+    }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${
+      this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+    }|| ts.id || ')' AS "Suite",
       CASE
         WHEN tc.test_status IS NOT NULL THEN tc.test_status
         ELSE 'TODO'
@@ -1610,8 +1637,9 @@ SELECT
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || bug_id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
-      }|| bug_id || ')' as id,
+    '[' || bug_id || '](' || ${
+      this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
+    }|| bug_id || ')' as id,
       title,
       reporter as 'Reporter',
       strftime('%d-%m-%Y', created) as "Created At",
@@ -1655,7 +1683,11 @@ SELECT
           '</div>' ||
           '</div>' ||
           '<div style="min-width:160px;text-align:right">' ||
-          '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(req.requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+          '<a href="' || ${
+      this.absoluteURL(
+        "/qualityfolio/test_case_related_requirements.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(req.requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
           '</div>' ||
           '</div>' ||
           '</section>', '<div class="requirement-detail"><p>No requirement found</p></div>') AS html
@@ -1685,8 +1717,9 @@ FROM test_suites rn WHERE id = $id;
 
     --Tab - specific content for "test_suites"
     SELECT
-      '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
+      '[' || test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
           created_by as "Created By",
@@ -1736,8 +1769,9 @@ FROM test_suites rn WHERE id = $id;
            'File Name' as markdown;
 
     SELECT
-        '['||name||']('||${this.absoluteURL("/qualityfolio/tap-details.sql")
-      }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
+        '['||name||']('||${
+      this.absoluteURL("/qualityfolio/tap-details.sql")
+    }||'?file='||REPLACE(REPLACE(name, ' ', '%20'), '&', '%26')||')' as "File Name",
         COALESCE(total_planned_tests, total_test_lines, 0) as "Total Tests",
         COALESCE(passed_tests, 0) as "Passed",
         COALESCE(failed_tests, 0) as "Failed",
@@ -1940,8 +1974,9 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 1: Actual Result
     SELECT
     'Actual Result' AS title,
-      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| $id || '#actual-result-content'  AS link,
+      ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| $id || '#actual-result-content'  AS link,
       $tab = 'actual-result' AS active
         FROM test_case_run_results where test_case_id = $id group by group_id;
 
@@ -1949,16 +1984,18 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     --Tab 2: Test Run
     SELECT
     'Test Run' AS title,
-      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=test-run&id=")
-      }|| $id || '#test-run-content'  AS link,
+      ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=test-run&id=")
+    }|| $id || '#test-run-content'  AS link,
       $tab = 'test-run' AS active
          FROM test_case_run_results where test_case_id = $id group by group_id;
 
 --Tab 3: Bug Report
     SELECT
     'Bug Report' AS title,
-      ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=bug-report&id=")
-      }|| $id || '#bug-report-content'  AS link,
+      ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=bug-report&id=")
+    }|| $id || '#bug-report-content'  AS link,
       $tab = 'bug-report' AS active
          FROM bug_list  where test_case_id = $id;
 
@@ -2437,8 +2474,9 @@ WHERE rn.id = $id;
             </div>
 
             <div class="action-buttons">
-              <a href="' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      } || tc.test_case_id || '" class="view-details-btn">View Full Details</a>
+              <a href="' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    } || tc.test_case_id || '" class="view-details-btn">View Full Details</a>
             </div>
           </div>
         </div>
@@ -2546,8 +2584,9 @@ WHERE rn.id = $id;
               'id' as markdown,
               'count' as markdown;
     SELECT
-    '[' || t.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| t.test_case_id || ')' as id,
+    '[' || t.test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| t.test_case_id || ')' as id,
       t.title,
        case when t.test_status is not null then t.test_status
         else 'TODO' END AS "test_status",
@@ -2635,8 +2674,9 @@ WHERE rn.id = $id;
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| test_case_id || ')' as id,
+    '[' || test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| test_case_id || ')' as id,
       test_case_title AS "title",
         group_name AS "group",
         case when test_status is not null then test_status
@@ -2790,13 +2830,16 @@ WHERE rn.id = $id;
            'Status' as markdown;
 
     SELECT
-      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| tc.test_case_id || ')' as "Test Case ID",
+      '[' || tc.test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| tc.test_case_id || ')' as "Test Case ID",
       tc.test_case_title AS "Title",
-      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
-      }|| tc.group_id || ')' AS "Group",
-      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
-      }|| ts.id || ')' AS "Suite",
+      '[' || tc.group_name || '](' || ${
+      this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+    }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${
+      this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+    }|| ts.id || ')' AS "Suite",
       CASE
         WHEN tc.test_status IS NOT NULL THEN tc.test_status
         ELSE 'TODO'
@@ -2965,13 +3008,16 @@ WHERE rn.id = $id;
            'Status' as markdown;
 
     SELECT
-      '[' || tc.test_case_id || '](' || ${this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
-      }|| tc.test_case_id || ')' as "Test Case ID",
+      '[' || tc.test_case_id || '](' || ${
+      this.absoluteURL("/qualityfolio/test-detail.sql?tab=actual-result&id=")
+    }|| tc.test_case_id || ')' as "Test Case ID",
       tc.test_case_title AS "Title",
-      '[' || tc.group_name || '](' || ${this.absoluteURL("/qualityfolio/group-detail.sql?id=")
-      }|| tc.group_id || ')' AS "Group",
-      '[' || ts.name || '](' || ${this.absoluteURL("/qualityfolio/suite-data.sql?id=")
-      }|| ts.id || ')' AS "Suite",
+      '[' || tc.group_name || '](' || ${
+      this.absoluteURL("/qualityfolio/group-detail.sql?id=")
+    }|| tc.group_id || ')' AS "Group",
+      '[' || ts.name || '](' || ${
+      this.absoluteURL("/qualityfolio/suite-data.sql?id=")
+    }|| ts.id || ')' AS "Suite",
       CASE
         WHEN tc.test_status IS NOT NULL THEN tc.test_status
         ELSE 'TODO'
@@ -3010,7 +3056,9 @@ WHERE rn.id = $id;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'QualityFolio' AS title, ${this.absoluteURL("/qualityfolio/index.sql")} AS link;
+    SELECT 'QualityFolio' AS title, ${
+      this.absoluteURL("/qualityfolio/index.sql")
+    } AS link;
     SELECT (SELECT COALESCE(title, requirement_id) FROM requirement WHERE requirement_id = $requirement) AS title, '#' AS link;
 
     --- Card Header with Requirement Title
@@ -3035,7 +3083,11 @@ WHERE rn.id = $id;
         '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(description, 'No description') || '</p>' ||
         '</div>' ||
         '<div style="min-width:160px;text-align:right">' ||
-        '<a href="' || ${this.absoluteURL('/qualityfolio/test_case_related_requirements.sql?requirement=')} || REPLACE(REPLACE(requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+        '<a href="' || ${
+      this.absoluteURL(
+        "/qualityfolio/test_case_related_requirements.sql?requirement=",
+      )
+    } || REPLACE(REPLACE(requirement_id, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
         '</div>' ||
         '</div>' ||
         '</section>',
@@ -3066,6 +3118,69 @@ WHERE rn.id = $id;
       ) AS contents_md
     FROM requirement
     WHERE requirement_id = $requirement;
+    `;
+  }
+
+  "qualityfolio/test_cycle_detail.sql"() {
+    return this.SQL`
+    ${this.activePageTitle()}
+
+    --- Breadcrumbs
+    SELECT 'breadcrumb' AS component;
+    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+    SELECT 'QualityFolio' AS title, ${
+      this.absoluteURL("/qualityfolio/index.sql")
+    } AS link;
+  SELECT (SELECT COALESCE(title, test_cycle_id) FROM test_cycle_inner WHERE title = $test_cycle) AS title, '#' AS link;
+
+    -- Hero header from test_cycle_inner view
+    SELECT 'html' AS component,
+      COALESCE(
+        '<section class="requirement-hero" style="background:linear-gradient(90deg,#ffffff,#f7f9fc);padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid #eceff3;">' ||
+        '<div style="display:flex;gap:20px;align-items:flex-start">' ||
+        '<div style="flex:1">' ||
+        '<h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#1f2937">' || COALESCE(title, title) || '</h1>' ||
+        '<div style="color:#6b7280;font-size:13px">' ||
+        COALESCE(created_by, '') ||
+        CASE WHEN created_by IS NOT NULL AND created_at IS NOT NULL THEN ' • ' ELSE '' END ||
+        CASE WHEN created_at IS NOT NULL THEN strftime('%d-%m-%Y', created_at) ELSE '' END ||
+        CASE WHEN version IS NOT NULL THEN ' • v' || version ELSE '' END ||
+        CASE WHEN tags IS NOT NULL THEN ' • ' || tags ELSE '' END ||
+        '</div></br>' ||
+        '<p style="margin:0 0 12px 0;color:#374151;line-height:1.5">' || COALESCE(description, 'No description') || '</p>' ||
+        '</div>' ||
+        '<div style="min-width:160px;text-align:right">' ||
+        '<a href="' || ${
+      this.absoluteURL("/qualityfolio/test_cycle_case.sql?test_cycle=")
+    } || REPLACE(REPLACE(title, ' ', '%20'), '&', '%26') || '" style="display:inline-block;background:#eef2ff;color:#3730a3;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">View related test cases</a>' ||
+        '</div>' ||
+        '</div>' ||
+        '</section>',
+        '<div class="test-cycle-detail"><p>No test cycle found</p></div>'
+      ) AS html
+  FROM test_cycle_inner WHERE title = $test_cycle;
+
+    -- Return content with YAML frontmatter removed (strip leading '--- ... ---' block)
+    SELECT 'text' AS component,
+      TRIM(
+        CASE
+          WHEN instr(content, '---') = 0 THEN content
+          ELSE
+            CASE
+              WHEN instr(substr(content, instr(content, '---') + 3), '---') = 0 THEN
+                ltrim(substr(content, instr(content, '---') + 3))
+              ELSE
+                ltrim(
+                  substr(
+                    content,
+                    instr(substr(content, instr(content, '---') + 3), '---') + instr(content, '---') + 5
+                  )
+                )
+            END
+        END
+      ) AS contents_md
+  FROM test_cycle_inner
+  WHERE title = $test_cycle;
     `;
   }
 
