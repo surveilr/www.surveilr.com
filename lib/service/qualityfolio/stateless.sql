@@ -1579,3 +1579,77 @@ SELECT
 FROM uniform_resource
 WHERE 
     uri LIKE '%.cycle.md%';
+
+-- View Name: page_guide
+-- Purpose : Provides metadata (title and description) for SQL pages.
+-- This view defines the title and content description for the sql page,
+-- helping to display contextual guidance or documentation within the SQL Pages UI.
+DROP VIEW IF EXISTS page_guide;
+CREATE VIEW page_guide AS
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   1 AS page_order,
+   "---FROM QUERY---" AS page_title,
+   "The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   2 AS page_order,
+   "Test Suite List" AS page_title,
+   "This table lists all test suites with details such as the suite name, creator, total test cases, success rate, and creation date." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   3 AS page_order,
+   "TAP Test Results" AS page_title,
+   "Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   4 AS page_order,
+   "HTML Test Execution Results" AS page_title,
+   "Summary statistics for HTML test execution results from automated test runs. View detailed results in the HTML Test Results section." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   5 AS page_order,
+   "Test cycles" AS page_title,
+   "Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   6 AS page_order,
+   "Related Requirements" AS page_title,
+   "Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement." AS page_content
+UNION
+SELECT 
+   "qualityfolio/html-test-results.sql" AS page_identifier,
+   1 AS page_order,
+   "HTML Test Results" AS page_title,
+   "HTML test execution results from automated test runs. Displays test execution data extracted from HTML reports including run IDs, execution status, timing information, and duration. Click on any test report name to view detailed execution information and raw HTML content." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_cycle_detail.sql" AS page_identifier,
+   1 AS page_order,
+   "Test cycles" AS page_title,
+   "Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases." AS page_content
+UNION
+SELECT 
+   "qualityfolio/related_requirement_detail.sql" AS page_identifier,
+   1 AS page_order,
+   "Related Requirements" AS page_title,
+   "Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_case_related_requirements.sql" AS page_identifier,
+   1 AS page_order,
+   "Related Requirements Test Case" AS page_title,
+   "This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_cycle_case.sql" AS page_identifier,
+   1 AS page_order,
+   "Test Cycle Test Case" AS page_title,
+   "This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently." AS page_content
+
+;
