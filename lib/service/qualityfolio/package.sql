@@ -1730,6 +1730,80 @@ SELECT
 FROM uniform_resource
 WHERE 
     uri LIKE '%.cycle.md%';
+
+-- View Name: page_guide
+-- Purpose : Provides metadata (title and description) for SQL pages.
+-- This view defines the title and content description for the sql page,
+-- helping to display contextual guidance or documentation within the SQL Pages UI.
+DROP VIEW IF EXISTS page_guide;
+CREATE VIEW page_guide AS
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   1 AS page_order,
+   "---FROM QUERY---" AS page_title,
+   "The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   2 AS page_order,
+   "Test Suite List" AS page_title,
+   "This table lists all test suites with details such as the suite name, creator, total test cases, success rate, and creation date." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   3 AS page_order,
+   "TAP Test Results" AS page_title,
+   "Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   4 AS page_order,
+   "HTML Test Execution Results" AS page_title,
+   "Summary statistics for HTML test execution results from automated test runs. View detailed results in the HTML Test Results section." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   5 AS page_order,
+   "Test cycles" AS page_title,
+   "Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases." AS page_content
+UNION
+SELECT 
+   "qualityfolio/index.sql" AS page_identifier,
+   6 AS page_order,
+   "Related Requirements" AS page_title,
+   "Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement." AS page_content
+UNION
+SELECT 
+   "qualityfolio/html-test-results.sql" AS page_identifier,
+   1 AS page_order,
+   "HTML Test Results" AS page_title,
+   "HTML test execution results from automated test runs. Displays test execution data extracted from HTML reports including run IDs, execution status, timing information, and duration. Click on any test report name to view detailed execution information and raw HTML content." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_cycle_detail.sql" AS page_identifier,
+   1 AS page_order,
+   "Test cycles" AS page_title,
+   "Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases." AS page_content
+UNION
+SELECT 
+   "qualityfolio/related_requirement_detail.sql" AS page_identifier,
+   1 AS page_order,
+   "Related Requirements" AS page_title,
+   "Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_case_related_requirements.sql" AS page_identifier,
+   1 AS page_order,
+   "Related Requirements Test Case" AS page_title,
+   "This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently." AS page_content
+UNION
+SELECT 
+   "qualityfolio/test_cycle_case.sql" AS page_identifier,
+   1 AS page_order,
+   "Test Cycle Test Case" AS page_title,
+   "This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently." AS page_content
+
+;
 -- delete all /qualityfolio-related entries and recreate them in case routes are changed
 DELETE FROM sqlpage_aide_navigation WHERE parent_path like 'qualityfolio'||'/index.sql';
 INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -2553,7 +2627,7 @@ FROM breadcrumbs ORDER BY level DESC;
               
     
     SELECT ''text'' as component,
-    ''The dashboard provides a centralized view of your testing efforts, displaying key metrics such as test progress, results, and team productivity. It offers visual insights with charts and reports, enabling efficient tracking of test runs, milestones, and issue trends, ensuring streamlined collaboration and enhanced test management throughout the project lifecycle.'' as contents;
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 1) as contents;
     select 
     ''card'' as component,
     4      as columns;
@@ -2731,9 +2805,13 @@ select
 select 
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/chart2.sql?_sqlpage_embed'' as embed;
     
- SELECT ''title''AS component, 
-     ''Test Suite List'' as contents; 
-        SELECT ''text'' as component;
+    SELECT ''title''AS component, 
+     (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 2) as contents; 
+   SELECT ''text'' as component,
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 2) as contents;
+    select 
+    ''card'' as component,
+    4      as columns;
 
         
 select ''dynamic'' as component, sqlpage.run_sql(''qualityfolio/test-suites-common.sql'') as properties;
@@ -2756,12 +2834,10 @@ select ''dynamic'' as component, sqlpage.run_sql(''qualityfolio/test-suites-comm
 --     FROM test_suite_success_and_failed_rate;
 
 -- TAP Test Results Section
-SELECT ''title'' AS component,
-''TAP Test Results'' as contents;
-
-SELECT ''text'' as component,
-''Test Anything Protocol (TAP) results from automated test runs. Click on any TAP file name to view detailed test case information and individual test results.'' as contents;
-
+SELECT ''title''AS component, 
+     (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 3) as contents; 
+   SELECT ''text'' as component,
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 3) as contents;
 SELECT ''table'' as component,
        ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
        TRUE as sort,
@@ -2788,11 +2864,11 @@ FROM tap_test_results
 ORDER BY tap_file_created_at DESC;
 
 -- HTML Test Execution Results Section
-SELECT ''title'' AS component,
-''HTML Test Execution Results'' as contents;
+SELECT ''title''AS component,
+     (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 4) as contents;
 
 SELECT ''text'' as component,
-''Summary statistics for HTML test execution results from automated test runs. View detailed results in the HTML Test Results section.'' as contents;
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 4) as contents;
 
 SELECT ''table'' as component,
        ''Total Tests,Passed,Failed,Pass Rate'' as align_right,
@@ -2824,11 +2900,11 @@ FROM html_stats;
 
 
 -- Test cycles
-SELECT ''title'' AS component,
-''Test cycles'' as contents;
+SELECT ''title''AS component,
+     (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 5) as contents;
 
 SELECT ''text'' as component,
-''Test cycles represent the different versions or iterations of a test case. Each cycle corresponds to a specific testing phase, allowing you to track which versions of the test case were executed and ensure coverage across multiple releases.'' as contents;
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 5) as contents;
 
 -- Add small CSS to color passed/failed cells via row classes (safer than inline HTML in cells)
 SELECT ''html'' as component,
@@ -2853,12 +2929,11 @@ SELECT ''table'' as component,
   FROM test_cycle;
     
     -- Related requirements (dashboard block)
-    SELECT ''title'' AS component,
-    ''Related Requirements'' as contents;
+    SELECT ''title''AS component,
+     (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 6) as contents;
 
     SELECT ''text'' as component,
-    ''Related requirements link test cases to external requirement identifiers. Use this view to see which test cases map to specific requirements and track pass/fail counts for each requirement.'' as contents;
-
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/index.sql'' AND page_order = 6) as contents;
     SELECT ''html'' as component,
       ''<style>tr.has-pass td:nth-child(5){color:#28a745;font-weight:600} tr.has-fail td:nth-child(6){color:#dc3545;font-weight:600}</style>'' as html;
 
@@ -3679,51 +3754,54 @@ FROM breadcrumbs ORDER BY level DESC;
               -- not including page title from sqlpage_aide_navigation
               
 
-              SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
+               SELECT ''title'' AS component, (SELECT COALESCE(title, caption)
     FROM sqlpage_aide_navigation
    WHERE namespace = ''prime'' AND path = ''qualityfolio/html-test-results.sql/index.sql'') as contents;
     ;
 
-SELECT ''text'' as component,
-''HTML test execution results from automated test runs. Displays test execution data extracted from HTML reports including run IDs, execution status, timing information, and duration. Click on any test report name to view detailed execution information and raw HTML content.'' as contents;
+SELECT ''title''AS component,
+  (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/html-test-results.sql'' AND page_order = 1) as contents;
 
--- Pagination Controls (Top)
-SET total_rows = (SELECT COUNT(*) FROM html_test_execution_results );
+SELECT ''text'' as component,
+ (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/html-test-results.sql'' AND page_order = 1) as contents;
+
+ -- Pagination Controls (Top)
+ SET total_rows = (SELECT COUNT(*) FROM html_test_execution_results );
 SET limit = COALESCE($limit, 50);
 SET offset = COALESCE($offset, 0);
 SET total_pages = ($total_rows + $limit - 1) / $limit;
 SET current_page = ($offset / $limit) + 1;
 
-SELECT ''table'' as component,
-       TRUE as sort,
-       TRUE as search,
-       ''Test Report'' as markdown;
+ SELECT ''table'' as component,
+        TRUE as sort,
+        TRUE as search,
+        ''Test Report'' as markdown;
 
-SELECT
-    ''[''||execution_title||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/html-details.sql''||''?run_id=''||REPLACE(REPLACE(run_id, '' '', ''%20''), ''&'', ''%26'')||'')'' as "Test Report",
-    run_id as "Run ID",
-    CASE
-        WHEN execution_status LIKE ''%pass%'' THEN ''✅ Passed''
-        WHEN execution_status LIKE ''%fail%'' THEN ''❌ Failed''
-        WHEN execution_status LIKE ''%error%'' THEN ''🔴 Error''
-        WHEN execution_status LIKE ''%skip%'' THEN ''⏭️ Skipped''
-        ELSE ''❓ '' || COALESCE(execution_status, ''Unknown'')
-    END as "Status",
-    COALESCE(start_time, ''N/A'') as "Start Time",
-    COALESCE(total_duration, ''N/A'') as "Duration",
-    strftime(''%d-%m-%Y %H:%M'', created_at) as "Created",
-    CASE
-        WHEN execution_status LIKE ''%pass%'' THEN ''rowClass-100''
-        WHEN execution_status LIKE ''%fail%'' THEN ''rowClass-0''
-        WHEN execution_status LIKE ''%error%'' THEN ''rowClass-0''
-        ELSE ''rowClass-50''
-    END as _sqlpage_css_class
-FROM html_test_execution_results
-ORDER BY test_report_name ASC
-LIMIT $limit OFFSET $offset;
+ SELECT
+     ''[''||execution_title||''](''||sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/html-details.sql''||''?run_id=''||REPLACE(REPLACE(run_id, '' '', ''%20''), ''&'', ''%26'')||'')'' as "Test Report",
+     run_id as "Run ID",
+     CASE
+         WHEN execution_status LIKE ''%pass%'' THEN ''✅ Passed''
+         WHEN execution_status LIKE ''%fail%'' THEN ''❌ Failed''
+         WHEN execution_status LIKE ''%error%'' THEN ''🔴 Error''
+         WHEN execution_status LIKE ''%skip%'' THEN ''⏭️ Skipped''
+         ELSE ''❓ '' || COALESCE(execution_status, ''Unknown'')
+     END as "Status",
+     COALESCE(start_time, ''N/A'') as "Start Time",
+     COALESCE(total_duration, ''N/A'') as "Duration",
+     strftime(''%d-%m-%Y %H:%M'', created_at) as "Created",
+     CASE
+         WHEN execution_status LIKE ''%pass%'' THEN ''rowClass-100''
+         WHEN execution_status LIKE ''%fail%'' THEN ''rowClass-0''
+         WHEN execution_status LIKE ''%error%'' THEN ''rowClass-0''
+         ELSE ''rowClass-50''
+     END as _sqlpage_css_class
+ FROM html_test_execution_results
+ ORDER BY test_report_name ASC
+ LIMIT $limit OFFSET $offset;
 
--- Pagination Controls (Bottom)
-SELECT ''text'' AS component,
+ -- Pagination Controls (Bottom)
+ SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || '')'' ELSE '''' END)
     || '' ''
     || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
@@ -5250,9 +5328,11 @@ FROM breadcrumbs ORDER BY level DESC;
     ;
 
 -- Page description based on context
-SELECT ''text'' AS component,
-''This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.'' AS contents;
+SELECT ''title''AS component,
+  (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/test_cycle_case.sql'' AND page_order = 1) as contents;
 
+SELECT ''text'' as component,
+  (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/test_cycle_case.sql'' AND page_order = 1) as contents;
 -- Status overview based on context
   SELECT
   ''alert'' AS component,
@@ -5448,9 +5528,11 @@ FROM breadcrumbs ORDER BY level DESC;
     ;
 
 -- Page description based on context
-SELECT ''text'' AS component,
-''This page displays a complete list of test cases organized by test cycles. Use the search and filter options to find specific test cases by cycle, name, status, suite, or priority, allowing you to track progress and results for each test cycle efficiently.'' AS contents;
+SELECT ''title''AS component,
+ (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/test_case_related_requirements.sql'' AND page_order = 1) as contents;
 
+SELECT ''text'' as component,
+(SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/test_case_related_requirements.sql'' AND page_order = 1) as contents;
 -- Status overview based on context
   SELECT
   ''alert'' AS component,
@@ -5655,6 +5737,11 @@ FROM breadcrumbs ORDER BY level DESC;
   -- SELECT ''card'' AS component,
   --   1 AS columns;
 
+    SELECT ''title''AS component,
+   (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/related_requirement_detail.sql'' AND page_order = 1) as contents;
+
+    SELECT ''text'' as component,
+      (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/related_requirement_detail.sql'' AND page_order = 1) as contents;
 
   -- Render requirement header and metadata as a styled HTML block (no table)
 SELECT ''html'' AS component,
@@ -5744,6 +5831,11 @@ FROM breadcrumbs ORDER BY level DESC;
   SELECT ''QualityFolio'' AS title, sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' AS link;
 SELECT (SELECT COALESCE(title, test_cycle_id) FROM test_cycle_inner WHERE title = $test_cycle) AS title, ''#'' AS link;
 
+  SELECT ''title''AS component,
+   (SELECT page_title FROM page_guide WHERE page_identifier = ''qualityfolio/test_cycle_detail.sql'' AND page_order = 1) as contents;
+
+  SELECT ''text'' as component,
+    (SELECT page_content FROM page_guide WHERE page_identifier = ''qualityfolio/test_cycle_detail.sql'' AND page_order = 1) as contents;
   -- Hero header from test_cycle_inner view
   SELECT ''html'' AS component,
     COALESCE(
