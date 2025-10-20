@@ -659,15 +659,15 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
-    "https://app.devl.drh.diabetestechnology.org/js/d3-aide.js",
+    "/static/d3-aide.js",
     "/js/chart-component.js"
   ],
   "javascript_module": [
-    "https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js",
-    "https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js",
-    "https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js",
-    "https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js",
-    "https://app.devl.drh.diabetestechnology.org/js/wc/formula-component.js"
+    "/static/stacked-bar-chart.js",
+    "/static/gri-chart.js",
+    "/static/dgp-chart.js",
+    "/static/agp-chart.js",
+    "/static/formula-component.js"
   ],
   "footer": "Resource Surveillance Web UI"
 };',
@@ -688,7 +688,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js'' AS javascript,
        ''https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js'' AS javascript,
-       ''https://app.devl.drh.diabetestechnology.org/js/d3-aide.js'' AS javascript,
+       ''/static/d3-aide.js'' AS javascript,
        ''/js/chart-component.js'' AS javascript,
        json_object(
             ''link'', sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''''||''ur'',
@@ -815,11 +815,11 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
                 )
             )
         ) as menu_item,
-       ''https://app.devl.drh.diabetestechnology.org/js/wc/d3/stacked-bar-chart.js'' AS javascript_module,
-       ''https://app.devl.drh.diabetestechnology.org/js/wc/d3/gri-chart.js'' AS javascript_module,
-       ''https://app.devl.drh.diabetestechnology.org/js/wc/d3/dgp-chart.js'' AS javascript_module,
-       ''https://app.devl.drh.diabetestechnology.org/js/wc/d3/agp-chart.js'' AS javascript_module,
-       ''https://app.devl.drh.diabetestechnology.org/js/wc/formula-component.js'' AS javascript_module,
+       ''/static/stacked-bar-chart.js'' AS javascript_module,
+       ''/static/gri-chart.js'' AS javascript_module,
+       ''/static/dgp-chart.js'' AS javascript_module,
+       ''/static/agp-chart.js'' AS javascript_module,
+       ''/static/formula-component.js'' AS javascript_module,
        ''Resource Surveillance Web UI (v'' || sqlpage.version() || '') '' || ''📄 ['' || substr(sqlpage.path(), 2) || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/console/sqlpage-files/sqlpage-file.sql?path='' || substr(sqlpage.path(), 2) || '')'' as footer;',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
