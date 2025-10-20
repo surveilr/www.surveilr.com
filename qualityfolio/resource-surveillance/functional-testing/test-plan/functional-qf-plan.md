@@ -1,26 +1,91 @@
 ---
 id: PLN-001
 name: "Functional Test Plan"
-description: "The functional test plan focuses on validating hyperlink and breadcrumb navigation, ensuring accurate redirection, proper hierarchy display, seamless user experience, content validation, and the effective operation of search and sorting functionalities."
+description: "The test plan establishes a standardized, repeatable, and automated CLI-based regression testing workflow for Surveilr releases (starting with version 3.x), ensuring that all critical functionalities, including CSV transformations, are validated across environments before deployment."
 created_by: "arun-ramanan@netspective.in"
 created_at: "2024-12-31"
 tags: ["Functional testing"]
 ---
 
-Ensure the hyperlink and breadcrumb navigation, content accuracy, and the functionality of search and sorting for seamless user experience.
+# CLI Test Plan for Surveilr
 
-## Scope of Work
+## 1. Objective
 
-The testing will cover the following key activities:
+To establish a standardized, repeatable, and automated CLI-based regression testing workflow for Surveilr releases (starting v3.x), ensuring all critical functionalities, including CSV transformations, are validated across environments before deployment.
 
-### Functional Testing
+## 2. Scope
 
-- Verify the accuracy of each API endpoint against defined test cases.
-- Verify the accuracy of each hyperlink navigation from dashboard.
-- Ensure the proper navigation of breadcrumbs and footer links.
-- Ensure the datas in the table is correct.
-- Verify the breadcrumb and footer link navigation is proper.
-- Verify the content data in each navigated page.
-- Verify the input data can be provided in seach field.
-- Validate the output for search data.
-- Verify the sorting and filtering functionalities in table data and search results.
+**Application Under Test:** Surveilr CLI
+
+**Test Types Covered:**
+
+* Functional CLI Regression
+* CSV and File Transformation Validation
+* Parameter/Flag Handling Validation
+* Output Verification
+* Environment Compatibility (Dev, QA, Staging)
+* Negative and Error Handling Scenarios
+
+## 3. Test Execution Workflow
+
+### 3.1 Environment Setup Checklist
+
+| Step                            |
+| ------------------------------- |
+| Clone/pull latest Surveilr code |
+| Install dependencies            |
+| Verify environment variables    |
+| Prepare input datasets          |
+
+### 3.2 Command Execution Pattern
+
+**Example Standard Command Structure:**
+
+```bash
+surveilr ingest files [OPTIONS]
+```
+
+All test cases should follow a documented command template with:
+
+* Defined input files
+* Expected output location
+* Log capture
+* Exit code validation
+
+## 4. Regression Test Case Categories
+
+| Test Category                | Example Command                   | Expected Output                               |
+| ---------------------------- | --------------------------------- | --------------------------------------------- |
+| Basic run validation         | `surveilr ingest files [OPTIONS]` | Exit code `0`, log status `OK`                |
+| CSV and file transformations | Run with sample datasets          | Exact column mappings & value validation      |
+| CLI flags validation         | `--help`, `--version`, `--mode=`  | Correct flag output and syntax help           |
+| Error handling               | Invalid input file path           | Graceful error message and non-zero exit code |
+| Multi-environment execution  | Run same command on QA/Staging    | Output consistency via checksum match         |
+
+## 5. Automation Framework
+
+* All CLI commands to be wrapped into batch / shell / PowerShell scripts
+* Optional CI/CD integration to auto-trigger regression on code freeze or release tag (Jenkins / GitLab CI)
+* Logs automatically pushed to a central regression results folder
+* Output comparison automated via checksum or row-count validation scripts
+
+## 6. Qualityfolio Integration Step
+
+After each regression run, upload the following to Qualityfolio:
+
+* Commands executed
+* Logs and output CSVs
+* Screenshots or checksum results
+
+Then:
+
+1. Mark PASS/FAIL status per module
+2. Assign review to ODC QA resource
+3. ODC QA must acknowledge and close findings prior to release approval
+
+## 7. Roles & Ownership
+
+| Role                | Responsibility                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Mukhtar        | Executes CLI scripts and uploads initial results                                                                 |
+| ODC QA Resource | 1. Validates outputs, updates Qualityfolio, flags gaps <br> 2. Provides final sign-off before release deployment |
