@@ -6087,6 +6087,27 @@ The `surveilr_udi_dal_fs` virtual table function provides seamless access to fil
                 
 
                     SELECT ''foldable'' as component;
+                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
+
+## 🚀 New Features
+
+### 1. **Integrated Documentation in Web UI**
+
+This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
+
+### 2. **`uniform_resource` Graph Infrastructure**
+
+The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
+
+- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
+- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
+- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
+
+This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
+'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
                     SELECT ''v2.1.0'' as title, ''# `surveilr ` v2.1.0 Release Notes
 
 ## 🚀 What''''s New
@@ -6146,24 +6167,46 @@ ons?api-version=2023-05-15"'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
-                    SELECT ''v1.1.0'' as title, ''# `surveilr` v1.1.0 Release Notes 🎉
+                    SELECT ''v1.0.0'' as title, ''# `surveilr` v1.0.0 Release Notes 🎉
+
+We’re thrilled to announce the release of `surveilr` v1.0, a significant milestone in our journey to deliver powerful tools for continuous security, quality and compliance evidence workflows. This release introduces a streamlined migration system and a seamless, user-friendly experience for accessing the `surveilr` Web UI.
+
+---
 
 ## 🚀 New Features
 
-### 1. **Integrated Documentation in Web UI**
+### 1. **Database Migration System**
 
-This release introduces a comprehensive update to the RSSD Web UI, allowing users to access and view all `surveilr`-related SQLite functions, release notes, and internal documentation directly within the interface. This feature enhances user experience by providing integrated, easily navigable documentation without the need to leave the web environment, ensuring that all necessary information is readily available for efficient reference and usage.
+This release introduces a comprehensive database migration feature that allows smooth and controlled updates to the RSSD structure. Our migration system includes:
 
-### 2. **`uniform_resource` Graph Infrastructure**
+- **Structured Notebooks and Cells**: A structured system organizes SQL migration scripts into modular code notebooks, making migration scripts easy to track, audit, and execute as needed.
+- **Idempotent vs. Non-Idempotent Handling**: Ensures each migration runs in an optimal and secure manner by tracking cell execution history, allowing for re-execution where safe.
+- **Automated State Tracking**: All state changes are logged for complete auditing, showing timestamps, transition details, and the results of each migration step.
+- **Transactional Execution**: All migrations run within a single transaction block for seamless rollbacks and data consistency.
+- **Dynamic Migration Scripts**: Cells marked for migration are dynamically added to the migration script, reducing manual effort and risk of errors.
 
-The foundational framework for tracking `uniform_resource` content using graph representations has been laid out in this release. This infrastructure allows users to visualize `uniform_resource` data as connected graphs in addition to the traditional relational database structure. To facilitate this, three dedicated views—`imap_graph`, `plm_graph`, and `filesystem_graph`—have been created. These views provide a structured way to observe and interact with data from different ingestion sources:
+This system ensures safe, controlled migration of database changes, enhancing reliability and traceability for every update.
 
-- **`imap_graph`**: Represents the graphical relationships for content ingested through IMAP processes, allowing for a visual mapping of email and folder structures.
-- **`plm_graph`**: Visualizes content from PLM (Product Lifecycle Management) ingestion, showcasing project and issue-based connections.
-- **`filesystem_graph`**: Illustrates file ingestion paths and hierarchies, enabling users to track and manage file-based data more intuitively.
+### 2. **Enhanced Default Command and Web UI Launch**
 
-This release marks an important step towards enhancing data tracking capabilities, providing a dual approach of relational and graphical views for better data insights and management.
-'' as description_md;
+The surveilr executable now starts the Web UI as the default command when no specific CLI commands are passed. This feature aims to enhance accessibility and ease of use for new users and teams. Here’s what happens by default:
+
+- **Automatic Web UI Startup**: By default, running surveilr without additional commands launches the surveilr Web UI.
+- **Auto-Browser Launch**: Opens the default browser on the workstation, pointing to the Web UI’s URL and port, providing a user-friendly experience right from the first run.'' as description_md;
+                
+
+                    SELECT ''foldable'' as component;
+                    SELECT ''v2.0.0'' as title, ''# `surveilr ` v2.0.0 Release Notes
+
+## 🚀 What''''s New
+
+### **1. Enhanced Markdown Transformation Workflow**
+- Improved mdq Integration: Fixed mdq selector syntax and added comprehensive selector support
+- Content Preservation: Markdown transforms no longer null out original content by default 
+- Better URI Tracking: Transform results now preserve source file paths (e.g., document.pdf/md-select:headers)
+
+### **2. Dependencies Update**
+- Upgraded to SQLPage 0.36.1.'' as description_md;
                 
 
                     SELECT ''foldable'' as component;
@@ -6208,49 +6251,6 @@ lib/std/drizzle/
 - ✅ Complete test suite passing
 
 ---'' as description_md;
-                
-
-                    SELECT ''foldable'' as component;
-                    SELECT ''v1.0.0'' as title, ''# `surveilr` v1.0.0 Release Notes 🎉
-
-We’re thrilled to announce the release of `surveilr` v1.0, a significant milestone in our journey to deliver powerful tools for continuous security, quality and compliance evidence workflows. This release introduces a streamlined migration system and a seamless, user-friendly experience for accessing the `surveilr` Web UI.
-
----
-
-## 🚀 New Features
-
-### 1. **Database Migration System**
-
-This release introduces a comprehensive database migration feature that allows smooth and controlled updates to the RSSD structure. Our migration system includes:
-
-- **Structured Notebooks and Cells**: A structured system organizes SQL migration scripts into modular code notebooks, making migration scripts easy to track, audit, and execute as needed.
-- **Idempotent vs. Non-Idempotent Handling**: Ensures each migration runs in an optimal and secure manner by tracking cell execution history, allowing for re-execution where safe.
-- **Automated State Tracking**: All state changes are logged for complete auditing, showing timestamps, transition details, and the results of each migration step.
-- **Transactional Execution**: All migrations run within a single transaction block for seamless rollbacks and data consistency.
-- **Dynamic Migration Scripts**: Cells marked for migration are dynamically added to the migration script, reducing manual effort and risk of errors.
-
-This system ensures safe, controlled migration of database changes, enhancing reliability and traceability for every update.
-
-### 2. **Enhanced Default Command and Web UI Launch**
-
-The surveilr executable now starts the Web UI as the default command when no specific CLI commands are passed. This feature aims to enhance accessibility and ease of use for new users and teams. Here’s what happens by default:
-
-- **Automatic Web UI Startup**: By default, running surveilr without additional commands launches the surveilr Web UI.
-- **Auto-Browser Launch**: Opens the default browser on the workstation, pointing to the Web UI’s URL and port, providing a user-friendly experience right from the first run.'' as description_md;
-                
-
-                    SELECT ''foldable'' as component;
-                    SELECT ''v2.0.0'' as title, ''# `surveilr ` v2.0.0 Release Notes
-
-## 🚀 What''''s New
-
-### **1. Enhanced Markdown Transformation Workflow**
-- Improved mdq Integration: Fixed mdq selector syntax and added comprehensive selector support
-- Content Preservation: Markdown transforms no longer null out original content by default 
-- Better URI Tracking: Transform results now preserve source file paths (e.g., document.pdf/md-select:headers)
-
-### **2. Dependencies Update**
-- Upgraded to SQLPage 0.36.1.'' as description_md;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
