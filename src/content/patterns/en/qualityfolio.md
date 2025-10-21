@@ -60,4 +60,7 @@ blueprints:
 liveDemo:
   btnTitle: "Live Demo"
   btnURL: "https://eg.surveilr.com/lib/service/qualityfolio/"
+getStarted:
+  btnTitle: "Get Started"
+  btnURL: "/pattern/qualityfolio/get-started/"
 ---

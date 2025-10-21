@@ -56,8 +56,12 @@ const patternsCollection = defineCollection({
       blueprints: z.object({
         first: image().optional(),
         second: image().optional(),
-      }),
+      }).optional(),
       liveDemo: z.object({
+        btnTitle: z.string().optional(),
+        btnURL: z.string().optional(),
+      }).optional(),
+      getStarted: z.object({
         btnTitle: z.string().optional(),
         btnURL: z.string().optional(),
       })

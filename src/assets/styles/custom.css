@@ -1,0 +1,48 @@
+:root {
+    --transition-cubic: cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  article h2,
+  article h3,
+  article h4,
+  article h5,
+  article h6 {
+    font-weight: bold;
+    margin-top: 2.5rem;
+    scroll-margin-top: 3rem;
+  }
+article h1{
+  font-size: 36px !important;
+  font-weight: 600;
+  line-height: 46px;
+}
+  article h2 {
+    font-size: 24px !important;
+    line-height: 32px !important;
+    font-weight: 600 !important;
+  }
+
+ article h3 {
+    font-size: 20px !important;
+    line-height: 28px !important;
+    font-weight: 500 !important;
+  }
+
+  article h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  p {
+    margin-top: 1.5rem;
+  }
+  a {
+    color: #b73d00;
+  }
+  a:hover {
+    color: #ae8a5e;
+  }
