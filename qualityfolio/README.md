@@ -176,7 +176,7 @@ Project and suite with test case subgroups and subcase structure (arbitrary dept
 
 ### Ingest Markdown Content
 ```bash
-surveilr ingest files -r resource-surveillance
+surveilr ingest files -r surveilrTool
 ```
 Post-ingestion, `surveilr` is no longer required, the `Qualityfolio` directory can be
 ignored, only `sqlite3` is required because all content is in the
