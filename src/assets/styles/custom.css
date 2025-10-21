@@ -1,44 +1,46 @@
-:root {
-    --transition-cubic: cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
+  article h1,
   article h2,
   article h3,
   article h4,
   article h5,
   article h6 {
     font-weight: bold;
-    margin-top: 2.5rem;
-    scroll-margin-top: 3rem;
+    margin-top: 2rem;
+    scroll-margin-top: 2.5rem;
   }
-article h1{
-  font-size: 36px !important;
-  font-weight: 600;
-  line-height: 46px;
-}
-  article h2 {
-    font-size: 24px !important;
-    line-height: 32px !important;
-    font-weight: 600 !important;
+   h1 {
+    font-size: 1.8rem;
+    line-height: 2.2rem;
+
   }
 
- article h3 {
-    font-size: 20px !important;
-    line-height: 28px !important;
-    font-weight: 500 !important;
+  h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
   }
 
-  article h4 {
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  h4 {
     font-size: 1.125rem;
     line-height: 1.75rem;
   }
 
   p {
     margin-top: 1.5rem;
+  }
+  ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 1rem 0;
+  }
+  li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+    unicode-bidi: isolate;
   }
   a {
     color: #b73d00;
