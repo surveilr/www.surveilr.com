@@ -1,10 +1,10 @@
 ---
 id: "PLN-0001"
 name: "Surveilr CLI Functional Test Plan"
-description: "This test plan defines objectives, scope, and testing activities for functional validation of the Surveilr CLI, including command execution, file ingestion, output validation, and error handling."
+description: "This test plan defines objectives, scope, and testing activities for functional validation of the Surveilr CLI, including command execution, file ingestion, IMAP email processing, output validation, and error handling."
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-22"
-tags: ["CLI testing", "Functional testing", "File validation"]
+tags: ["CLI testing", "Functional testing", "File validation", "IMAP"]
 version: "1.0"
 status: "Draft"
 ---
@@ -12,11 +12,12 @@ status: "Draft"
 ## 1. Introduction
 
 This test plan defines the overall strategy and approach for validating the **Surveilr Command-Line Interface (CLI)**.  
-The focus is on **functional correctness, file ingestion, output consistency, and error handling** to ensure predictable CLI behavior across multiple environments.  
+The focus is on **functional correctness, file ingestion, IMAP email processing, output consistency, and error handling** to ensure predictable CLI behavior across multiple environments.  
 
 **Objectives include:**  
 - Ensuring all CLI commands execute as expected.  
 - Verifying accurate ingestion and transformation of supported file types.  
+- Validating IMAP email retrieval, metadata extraction, and attachment classification.  
 - Confirming correct handling of command parameters, flags, and options.  
 - Validating proper exit codes, logs, and error messages.  
 - Ensuring reliable feedback for negative or invalid scenarios.  
@@ -42,9 +43,21 @@ The testing will cover:
     - **Real-World Data:** Emails, project management exports, CRM exports, ERP exports, Healthcare EHR files  
   - Validate output consistency, row counts, metadata extraction, and logs.  
 
+- **IMAP Email Processing:**  
+  - Validate connection to IMAP servers with valid and invalid credentials.  
+  - Fetch emails from Inbox, Sent, and custom folders.  
+  - Extract email bodies, headers, and attachments, and classify them correctly:  
+    - **Email Body:** Stored as `.txt` (Text Files)  
+    - **Email Metadata:** Stored as CSV/JSON (Structured Data Files)  
+    - **Attachments:** Classified according to type (PDF → Office Documents, CSV/Excel → Structured Data, Images → Misc/Image Files)  
+  - Handle corrupted emails, unsupported attachments, and server/network errors gracefully.  
+  - Store emails in a dedicated IMAP folder and manage folder size limits.  
+  - Test bulk email fetch and concurrent IMAP connections for performance and reliability.  
+
 - **Error Handling & Negative Scenarios:**  
   - Test invalid paths, unsupported formats, incorrect flags, and missing arguments.  
   - Verify graceful failure, proper error messages, and actionable feedback.  
+  - Include IMAP-specific negative scenarios such as invalid credentials, corrupted emails, and unsupported attachment types.  
 
 **Out of Scope:**  
 - Performance/load testing  
@@ -56,7 +69,7 @@ The testing will cover:
 ## 3. Test Objectives
 
 - Validate functional correctness of all CLI commands and modules.  
-- Confirm integrity of file ingestion and data transformation processes.  
+- Confirm integrity of file ingestion, IMAP email retrieval, and data transformation processes.  
 - Verify robust error handling and appropriate exit codes.  
 - Ensure analytics/logging captures correct execution details.  
 - Validate fallback mechanisms and failure recovery.  
@@ -76,7 +89,14 @@ The testing will cover:
 - Validate correct parsing, processing, and output consistency.  
 - Check handling of configuration files and structured data.  
 
-### 4.3 Error Handling & Negative Scenarios
-- Execute commands with invalid paths, flags, and missing arguments.  
+### 4.3 IMAP Email Processing
+- Connect to IMAP servers using valid and invalid credentials.  
+- Fetch emails from various folders and validate proper storage in Surveilr.  
+- Extract email body, headers, and attachments; verify classification and folder placement.  
+- Handle corrupted emails, unsupported attachment types, and network/server failures gracefully.  
+- Validate bulk email fetch and concurrent connections for performance.  
+
+### 4.4 Error Handling & Negative Scenarios
+- Execute commands with invalid paths, flags, missing arguments, and unsupported file types.  
 - Confirm proper error reporting and graceful termination.  
-- Validate CLI provides actionable feedback to guide users.  
+- Include IMAP-specific negative scenarios to ensure robust handling of failures.
