@@ -1,55 +1,61 @@
 ---
 id: "PRJ-0001"
-name: "Surveilr CLI(Command-Line Interface) Functional Testing"
-description: "A standardized, automated CLI functional testing framework focusing on validating critical functionalities including CLI commands, multi-environment execution, file ingestion, and error handling before deployment."
+name: "Surveilr CLI (Command-Line Interface) Functional Testing"
+description: "A standardized and automated CLI functional testing framework designed to validate critical functionalities such as command execution, file ingestion, and error handling prior to deployment."
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-20"
 last_updated_at: "2025-10-20"
 status: "Active"
 tags: ["CLI testing", "File validation"]
+phase: "1.0"
 ---
 
-### Project Overview
+### 1. Project Overview
 
-This project defines a repeatable CLI functional testing process for the Surveilr platform. It ensures that all critical CLI functionalities are validated across environments (Dev, QA, Staging) before release. The testing workflow covers command execution, output validation, error handling, and integration with Qualityfolio for traceable results.
+This project defines a repeatable and automated functional testing process for the **Surveilr CLI**.  
+The primary goals are to ensure reliable **command execution**, accurate **file ingestion and transformation**, and robust **error handling**.  
+This project adds value by reducing deployment risks, ensuring consistent behavior across environments, and providing traceable validation of all core CLI functionalities.
 
-### Scope
+---
 
-The testing effort focuses on functional validation of the Surveilr CLI, ensuring consistent behavior across supported environments and input datasets.
+### 2. Scope
 
-Key testing areas include:
+The scope of this project includes **functional validation of the Surveilr Command-Line Interface** with emphasis on:  
+- Correct execution of CLI commands and subcommands  
+- Accurate ingestion and parsing of supported file types  
+- Validation of output consistency and logs  
+- Verification of error handling and user feedback for negative scenarios  
 
-- **Functional CLI Testing**
-  - Validate core CLI commands, including `ingest files` and other critical workflows.
-  - Ensure proper handling of CLI parameters, flags, and options.
-  - Validate command exit codes and log outputs for success or failure.
+The project excludes performance, security, and UI testing, which are handled by separate initiatives.
 
-- **File Ingestion & Transformation Validation**
-  - Test ingestion of supported file types and confirm proper parsing.  
-    Supported file types include:
-    - **Structured Data Files**: JSON (.json), YAML / YML (.yaml, .yml), XML (.xml), CSV (.csv)
-    - **Text Files**: Plain text (.txt), Markdown (.md), Rich Text (.rtf)
-    - **Office Documents**: Microsoft Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), PDF (.pdf)
-    - **Diagram / Design Files**: PlantUML (.puml), SVG (.svg), Visio (.vsd, .vsdx)
-    - **Code / Script Files**: Source code (.py, .js, .ts, .java, .cpp, .c), Shell scripts (.sh, .bat), Configuration / manifest files (.ini, .cfg)
-    - **Misc / Other Files**: Log files (.log), Compressed archives (.zip, .tar, .gz), Image files (.png, .jpg, .jpeg)  
-  - Validate output consistency using row counts, metadata extraction, or logs.
-  - Ensure configuration files and structured data are handled correctly.
+---
 
-- **Error Handling & Negative Scenarios**
-  - Test invalid file paths, unsupported formats, incorrect flags, and missing arguments.
-  - Verify graceful failure and appropriate exit codes.
+### 3. Key Testing Areas
 
-- **Multi-Environment Execution**
-  - Run the same CLI commands across Dev, QA, and Staging.
-  - Confirm output and processing consistency across environments.
+#### 3.1 Functional CLI Testing
+- Validate all core CLI commands and subcommands.  
+- Ensure proper handling of command parameters, flags, and options.  
+- Validate exit codes, standard output, and log messages for success and failure scenarios.  
 
-- **Automation & CI/CD Integration**
-  - Wrap CLI commands in batch/shell/PowerShell scripts.
-  - Optionally trigger automated functional testing runs on code freeze or release tags.
-  - Automatically capture logs, output files, and validation results.
+#### 3.2 File Ingestion & Transformation Validation
+- Test ingestion of supported file types to ensure accurate parsing and processing.  
+- **Supported file types include:**
+  - **Structured Data Files:** JSON (.json), YAML/YML (.yaml, .yml), XML (.xml), CSV (.csv)  
+  - **Text Files:** Plain text (.txt), Markdown (.md), Rich Text (.rtf)  
+  - **Office Documents:** Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), PDF (.pdf)  
+  - **Diagram / Design Files:** PlantUML (.puml), SVG (.svg), Visio (.vsd, .vsdx)  
+  - **Code / Script Files:** Source code (.py, .js, .ts, .java, .cpp, .c), Shell scripts (.sh, .bat), Config files (.ini, .cfg)  
+  - **Miscellaneous Files:** Logs (.log), Compressed archives (.zip, .tar, .gz), Images (.png, .jpg, .jpeg)  
+  - **Real-World Data Files:**
+    - Emails (.eml, .msg)  
+    - Project management exports (Jira, GitHub, Trello, Asana)  
+    - CRM exports (Salesforce, HubSpot)  
+    - ERP exports (SAP, Oracle)  
+    - Healthcare EHR exports and related structured data files  
+- Validate output consistency using metrics like row counts, metadata extraction, and logs.  
+- Ensure correct handling of configuration files and structured data across ingestion processes.  
 
-- **Output Validation & Qualityfolio Integration**
-  - Compare outputs, validate logs, and record exit codes.
-  - Upload results to Qualityfolio for PASS/FAIL marking.
-  - Assign review to ODC QA resources and close gaps before release approval.
+#### 3.3 Error Handling & Negative Scenarios
+- Test invalid file paths, unsupported formats, incorrect flags, and missing arguments.  
+- Verify graceful failure, proper error messages, and correct exit codes.  
+- Ensure the CLI provides actionable feedback without unexpected termination.  

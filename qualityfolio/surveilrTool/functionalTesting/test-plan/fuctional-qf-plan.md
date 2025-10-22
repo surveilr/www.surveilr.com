@@ -1,59 +1,82 @@
 ---
-id: PLN-0001
-name: "Surveilr CLI(Command-Line Interface) Functional Test Plan"
-description: "Functional Testing of Surveilr CLI commands, file ingestion, multi-environment execution, error handling, and Qualityfolio integration for traceable results."
+id: "PLN-0001"
+name: "Surveilr CLI Functional Test Plan"
+description: "This test plan defines objectives, scope, and testing activities for functional validation of the Surveilr CLI, including command execution, file ingestion, output validation, and error handling."
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-21"
-tags: ["functional testing", "CLI interface", "file ingestion", "multi-environment", "error handling"]
+created_at: "2025-10-22"
+tags: ["CLI testing", "Functional testing", "File validation"]
+version: "1.0"
+status: "Draft"
 ---
 
-The testing ensures the Surveilr CLI executes commands accurately, processes files reliably, maintains consistent behavior across Dev, QA, and Staging environments, captures outputs and logs correctly, and integrates with Qualityfolio for automated review and tracking.
+## 1. Introduction
 
-## Scope of Work
+This test plan defines the overall strategy and approach for validating the **Surveilr Command-Line Interface (CLI)**.  
+The focus is on **functional correctness, file ingestion, output consistency, and error handling** to ensure predictable CLI behavior across multiple environments.  
 
-The testing will cover the following key activities:
+**Objectives include:**  
+- Ensuring all CLI commands execute as expected.  
+- Verifying accurate ingestion and transformation of supported file types.  
+- Confirming correct handling of command parameters, flags, and options.  
+- Validating proper exit codes, logs, and error messages.  
+- Ensuring reliable feedback for negative or invalid scenarios.  
 
-### Functional CLI Testing
+---
 
-Command Execution
+## 2. Scope of Work
 
-- Validate execution of core CLI commands, including `ingest files` and environment-specific workflows.
-- Ensure proper handling of parameters, flags, and options for each command.
-- Verify command exit codes reflect success or failure correctly.
-- Test log outputs for accuracy and completeness.
+The testing will cover:  
 
-File Ingestion & Transformation
+- **Functional Testing:**  
+  - Validate all core CLI commands, parameters, and flags.  
+  - Verify exit codes, logs, and output messages for success and failure.  
 
-- Validate ingestion and parsing of supported file types (JSON, YAML, XML, CSV, PDF, DOCX, etc.).
-- Confirm output consistency through row counts, metadata extraction, and structured logs.
-- Test handling of configuration and structured data files.
+- **File Ingestion & Transformation Validation:**  
+  - Test ingestion of supported file types:  
+    - **Structured Data:** JSON, YAML/YML, XML, CSV  
+    - **Text Files:** TXT, MD, RTF  
+    - **Office Documents:** DOC/DOCX, XLS/XLSX, PPT/PPTX, PDF  
+    - **Diagram/Design Files:** PlantUML, SVG, Visio  
+    - **Code/Script Files:** Python, JavaScript, TypeScript, Java, C/C++, Shell, Configs  
+    - **Miscellaneous:** Logs, archives (ZIP/TAR/GZ), images  
+    - **Real-World Data:** Emails, project management exports, CRM exports, ERP exports, Healthcare EHR files  
+  - Validate output consistency, row counts, metadata extraction, and logs.  
 
-Error Handling & Negative Scenarios
+- **Error Handling & Negative Scenarios:**  
+  - Test invalid paths, unsupported formats, incorrect flags, and missing arguments.  
+  - Verify graceful failure, proper error messages, and actionable feedback.  
 
-- Test invalid file paths, unsupported formats, missing arguments, and incorrect flags.
-- Confirm graceful failure, appropriate exit codes, and meaningful error messages.
-- Validate recovery mechanisms where applicable.
+**Out of Scope:**  
+- Performance/load testing  
+- Security or penetration testing  
+- UI/UX testing (CLI has no graphical interface)  
 
-Multi-Environment Execution
+---
 
-- Run CLI commands across Dev, QA, and Staging to verify consistent outputs.
-- Ensure environment-specific configurations are correctly applied.
-- Confirm processing integrity and data consistency across environments.
+## 3. Test Objectives
 
-Automation & CI/CD Integration
+- Validate functional correctness of all CLI commands and modules.  
+- Confirm integrity of file ingestion and data transformation processes.  
+- Verify robust error handling and appropriate exit codes.  
+- Ensure analytics/logging captures correct execution details.  
+- Validate fallback mechanisms and failure recovery.  
 
-- Validate CLI scripts can be automated using batch/shell/PowerShell scripts.
-- Test triggering of functional tests via CI/CD pipelines or release tags.
-- Ensure automatic capturing of outputs, logs, and validation results.
+---
 
-Qualityfolio Integration & Reporting
+## 4. Test Approach
 
-- Confirm automated upload of results to Qualityfolio for PASS/FAIL marking.
-- Verify assignment of review tasks to QA resources.
-- Validate traceability of test results and resolution of gaps before release.
+### 4.1 Functional Testing
+- Execute CLI commands using various parameters and flags.  
+- Validate standard output, logs, and exit codes.  
+- Confirm integration with dependent services (if any).  
+- Verify exception handling and error messages for invalid inputs.  
 
-Performance & Resilience
+### 4.2 File Ingestion & Transformation
+- Feed supported and real-world file types to the CLI.  
+- Validate correct parsing, processing, and output consistency.  
+- Check handling of configuration files and structured data.  
 
-- Test CLI behavior under simulated concurrent executions or high-load scenarios.
-- Confirm stability and correctness of outputs during multi-user operations.
-- Validate that error handling does not interrupt subsequent processing steps.
+### 4.3 Error Handling & Negative Scenarios
+- Execute commands with invalid paths, flags, and missing arguments.  
+- Confirm proper error reporting and graceful termination.  
+- Validate CLI provides actionable feedback to guide users.  
