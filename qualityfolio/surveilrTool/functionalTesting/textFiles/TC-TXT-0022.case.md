@@ -8,7 +8,7 @@ test_type: "Automation"
 tags: ["Plain Text"]
 priority: "High"
 test_cycles: ["1.0"]
-scenario_type: "performance"
+scenario_type: "happy path"
 ---
 ### Description
 - Validate Surveilr handles multiple large `.txt` files without performance issues.

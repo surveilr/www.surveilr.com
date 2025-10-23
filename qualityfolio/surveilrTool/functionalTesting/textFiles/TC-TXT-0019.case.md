@@ -8,7 +8,7 @@ test_type: "Automation"
 tags: ["Plain Text"]
 priority: "High"
 test_cycles: ["1.0"]
-scenario_type: "negative path"
+scenario_type: "unhappy path"
 ---
 ### Description
 - Validate that unsupported files renamed with `.txt` are rejected.

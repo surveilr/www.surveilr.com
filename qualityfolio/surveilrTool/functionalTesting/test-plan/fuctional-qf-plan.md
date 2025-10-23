@@ -34,13 +34,9 @@ The testing will cover:
 
 - **File Ingestion & Transformation Validation:**  
   - Test ingestion of supported file types:  
-    - **Structured Data:** JSON, YAML/YML, XML, CSV  
+    - **Structured Data:** JSON, YAML/YML, XML, CSV ,ZIP 
     - **Text Files:** TXT, MD, RTF  
     - **Office Documents:** DOC/DOCX, XLS/XLSX, PPT/PPTX, PDF  
-    - **Diagram/Design Files:** PlantUML, SVG, Visio  
-    - **Code/Script Files:** Python, JavaScript, TypeScript, Java, C/C++, Shell, Configs  
-    - **Miscellaneous:** Logs, archives (ZIP/TAR/GZ), images  
-    - **Real-World Data:** Emails, project management exports, CRM exports, ERP exports, Healthcare EHR files  
   - Validate output consistency, row counts, metadata extraction, and logs.  
 
 - **IMAP Email Processing:**  

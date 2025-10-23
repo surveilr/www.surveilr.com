@@ -8,7 +8,7 @@ test_type: "Automation"
 tags: ["Command-Line Interface"]
 priority: "Medium"
 test_cycles: ["1.0"]
-scenario_type: "negative path"
+scenario_type: "unhappy path"
 ---
 
 ### Description

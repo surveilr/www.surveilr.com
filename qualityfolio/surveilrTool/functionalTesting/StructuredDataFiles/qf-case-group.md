@@ -3,18 +3,18 @@ id: "GRP-0002"
 suiteId: "SUT-0001"
 planId: ["PLN-0001"]
 name: "Data File Handling Test Cases"
-description: "Test cases validating the ingestion, parsing, and analysis of structured data files in Surveilr. This includes CSV, JSON, YAML/YML, and XML files. Ensures correct data processing, error handling, and accessibility for analytics and reporting."
+description: "Test cases validating the ingestion, parsing, and analysis of structured data files and ZIP/TAR.GZ archive files in Surveilr. Includes CSV, JSON, YAML/YML, XML, and ZIP/TAR.GZ files. Ensures correct data processing, recursive extraction, file type recognition, error handling, and accessibility for analytics and reporting."
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-20"
-tags: ["data ingestion", "file parsing", "CSV", "JSON", "YAML", "XML", "analytics"]
-version: "1.0"
+created_at: "2025-10-22"
+tags: ["data ingestion", "file parsing", "CSV", "JSON", "YAML", "XML", "ZIP", "TAR.GZ", "archive handling", "analytics"]
+version: "1.1"
 status: "Draft"
 ---
 
 ## Overview
 
-The **Data File Handling** group ensures that Surveilr can correctly handle common structured data formats used for configuration, logs, or tabular data.  
-These test cases validate that files can be ingested, parsed, and analyzed without data loss or errors, while maintaining proper logging and analytics integration.
+The **Data File and Archive Handling** group ensures that Surveilr can correctly handle structured data files and archive files used for configuration, logs, tabular data, or bulk uploads.  
+These test cases validate that files and archives can be ingested, parsed, extracted, and analyzed without data loss or errors, while maintaining proper logging, analytics integration, and system stability.
 
 ---
 
@@ -44,8 +44,14 @@ These test cases validate that files can be ingested, parsed, and analyzed witho
 - Confirm errors are raised for malformed XML or missing closing tags.  
 - Test integration with Surveilr analytics for structured data extraction.  
 
+### 🔹 ZIP / Archive (.zip, .tar.gz) – Compressed and Bulk File Handling
+- Ensure **local uploads** of ZIP and TAR.GZ archives are processed correctly.  
+- Validate **recursive extraction** of nested archives.  
+- Confirm proper **file type recognition** for extracted files (CSV, JSON, YAML, XML, unknown).  
+- Test handling of **corrupted archives**, **empty archives**, and **archives with invalid or nested filenames**.  
+- Validate **large archive stress testing** with hundreds or thousands of files.  
+
 ### 🔹 General File Handling
-- Accept only supported file extensions (.csv, .json, .yaml, .yml, .xml).  
+- Accept only supported file extensions (.csv, .json, .yaml, .yml, .xml, .zip, .tar.gz).  
 - Ensure proper error messages for unsupported file types.  
-- Validate performance when processing large files.  
-- Confirm accurate storage, retrieval, and accessibility for reporting or further analysis.  
+- Confirm accurate storage, retrieval, and accessibility for reporting or further analysis.

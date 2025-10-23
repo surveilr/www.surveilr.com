@@ -41,12 +41,9 @@ The project excludes performance, security, and UI testing, which are handled by
 #### 3.2 File Ingestion & Transformation Validation
 - Test ingestion of supported file types to ensure accurate parsing and processing.  
 - **Supported file types include:**
-  - **Structured Data Files:** JSON (.json), YAML/YML (.yaml, .yml), XML (.xml), CSV (.csv)  
+  - **Structured Data Files:** JSON (.json), YAML/YML (.yaml, .yml), XML (.xml), CSV (.csv) ,ZIP (.zip, .tar.gz) 
   - **Text Files:** Plain text (.txt), Markdown (.md), Rich Text (.rtf)  
   - **Office Documents:** Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), PDF (.pdf)  
-  - **Diagram / Design Files:** PlantUML (.puml), SVG (.svg), Visio (.vsd, .vsdx)  
-  - **Code / Script Files:** Source code (.py, .js, .ts, .java, .cpp, .c), Shell scripts (.sh, .bat), Config files (.ini, .cfg)  
-  - **Miscellaneous Files:** Logs (.log), Compressed archives (.zip, .tar, .gz), Images (.png, .jpg, .jpeg)  
 
 - Validate output consistency using metrics like row counts, metadata extraction, and logs.  
 - Ensure correct handling of configuration files and structured data across ingestion processes.  

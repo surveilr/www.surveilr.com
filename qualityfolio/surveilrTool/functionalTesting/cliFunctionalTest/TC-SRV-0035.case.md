@@ -8,7 +8,7 @@ test_type: "Automation"
 tags: ["Exit Code"]  
 priority: "High"  
 test_cycles: ["1.0"]  
-scenario_type: "validation path"  
+scenario_type: "happy path"  
 ---
 
 ### Description

@@ -8,7 +8,7 @@ test_type: "Automation"
 tags: ["RTF"]
 priority: "High"
 test_cycles: ["1.0"]
-scenario_type: "negative path"
+scenario_type: "unhappy path"
 ---
 ### Description
 - Validate Surveilr’s handling of corrupted or partially formatted RTF files.
