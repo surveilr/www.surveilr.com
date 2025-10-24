@@ -1,98 +1,109 @@
 ---
 id: "PLN-0001"
-name: "Surveilr CLI Functional Test Plan"
-description: "This test plan defines objectives, scope, and testing activities for functional validation of the Surveilr CLI, including command execution, file ingestion, IMAP email processing, output validation, and error handling."
+name: "Surveilr Functional and Ingestion Test Plan"
+description: "This test plan defines the overall strategy and approach for validating Surveilr’s CLI functionality and multi-format data ingestion capabilities across file systems, email (IMAP), and third-party integrations."
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-22"
-tags: ["CLI testing", "Functional testing", "File validation", "IMAP"]
+created_at: "2025-10-24"
+tags: ["functional testing", "data ingestion", "CLI validation", "integration", "Surveilr"]
 version: "1.0"
 status: "Draft"
 ---
 
 ## 1. Introduction
 
-This test plan defines the overall strategy and approach for validating the **Surveilr Command-Line Interface (CLI)**.  
-The focus is on **functional correctness, file ingestion, IMAP email processing, output consistency, and error handling** to ensure predictable CLI behavior across multiple environments.  
+This test plan outlines the testing strategy for validating the **Surveilr** platform’s **Command-Line Interface (CLI)** and **data ingestion subsystems**.  
+The testing focuses on verifying reliability, correctness, and robustness of command executions, data ingestion pipelines, structured/unstructured file processing, and external platform synchronizations.
 
 **Objectives include:**  
-- Ensuring all CLI commands execute as expected.  
-- Verifying accurate ingestion and transformation of supported file types.  
-- Validating IMAP email retrieval, metadata extraction, and attachment classification.  
-- Confirming correct handling of command parameters, flags, and options.  
-- Validating proper exit codes, logs, and error messages.  
-- Ensuring reliable feedback for negative or invalid scenarios.  
+- Ensuring CLI commands execute correctly and return accurate exit codes.  
+- Validating ingestion and parsing of diverse file formats (CSV, JSON, XML, DOCX, PDF, TXT, etc.).  
+- Verifying IMAP email ingestion and attachment processing workflows.  
+- Confirming synchronization accuracy with third-party task platforms like GitHub, GitLab, Jira, and Azure.  
+- Assessing data consistency, error-handling, and logging reliability across modules.  
 
 ---
 
 ## 2. Scope of Work
 
-The testing will cover:  
+The scope covers the end-to-end **functional validation** and **data ingestion testing** of Surveilr’s CLI and processing pipelines.
 
+### In-Scope Activities
 - **Functional Testing:**  
-  - Validate all core CLI commands, parameters, and flags.  
-  - Verify exit codes, logs, and output messages for success and failure.  
+  Validate CLI command operations, parameter handling, and output responses.  
+  Ensure ingestion, parsing, and transformation logic function as designed.  
 
-- **File Ingestion & Transformation Validation:**  
-  - Test ingestion of supported file types:  
-    - **Structured Data:** JSON, YAML/YML, XML, CSV ,ZIP 
-    - **Text Files:** TXT, MD, RTF  
-    - **Office Documents:** DOC/DOCX, XLS/XLSX, PPT/PPTX, PDF  
-  - Validate output consistency, row counts, metadata extraction, and logs.  
+- **Data Ingestion Validation:**  
+  Confirm correct ingestion of structured (CSV, JSON, XML, YAML) and unstructured (DOCX, PDF, TXT) files.  
+  Test archive extraction (ZIP, TAR.GZ) and Capturable Executable (CE) file processing.  
 
-- **IMAP Email Processing:**  
-  - Validate connection to IMAP servers with valid and invalid credentials.  
-  - Fetch emails from Inbox, Sent, and custom folders.  
-  - Extract email bodies, headers, and attachments, and classify them correctly:  
-    - **Email Body:** Stored as `.txt` (Text Files)  
-    - **Email Metadata:** Stored as CSV/JSON (Structured Data Files)  
-    - **Attachments:** Classified according to type (PDF → Office Documents, CSV/Excel → Structured Data, Images → Misc/Image Files)  
-  - Handle corrupted emails, unsupported attachments, and server/network errors gracefully.  
-  - Store emails in a dedicated IMAP folder and manage folder size limits.  
-  - Test bulk email fetch and concurrent IMAP connections for performance and reliability.  
+- **IMAP Email Workflow Testing:**  
+  Validate secure email retrieval, metadata parsing, and attachment ingestion.  
 
-- **Error Handling & Negative Scenarios:**  
-  - Test invalid paths, unsupported formats, incorrect flags, and missing arguments.  
-  - Verify graceful failure, proper error messages, and actionable feedback.  
-  - Include IMAP-specific negative scenarios such as invalid credentials, corrupted emails, and unsupported attachment types.  
+- **Third-Party Synchronization:**  
+  Test task synchronization and mapping from GitHub, GitLab, Jira, Xray, Azure, AWS, and GCP.  
+  Verify data consistency and synchronization status reporting.  
 
-**Out of Scope:**  
-- Performance/load testing  
-- Security or penetration testing  
-- UI/UX testing (CLI has no graphical interface)  
+- **Logging and Error Handling:**  
+  Ensure consistent and traceable logging for both success and failure scenarios.  
+  Validate meaningful error messages and system stability under failure conditions.  
+
+### Out of Scope
+- Performance, stress, and scalability testing.  
+- Security penetration or vulnerability assessment.  
+- SLA validation for external third-party services.  
 
 ---
 
 ## 3. Test Objectives
 
-- Validate functional correctness of all CLI commands and modules.  
-- Confirm integrity of file ingestion, IMAP email retrieval, and data transformation processes.  
-- Verify robust error handling and appropriate exit codes.  
-- Ensure analytics/logging captures correct execution details.  
-- Validate fallback mechanisms and failure recovery.  
+- Verify correctness and reliability of CLI commands and ingestion processes.  
+- Confirm data integrity during ingestion, transformation, and synchronization.  
+- Validate system responses to malformed, missing, or corrupted data inputs.  
+- Ensure synchronization workflows maintain accuracy across integrations.  
+- Validate all test outcomes are logged, traceable, and reproducible.  
 
 ---
 
 ## 4. Test Approach
 
 ### 4.1 Functional Testing
-- Execute CLI commands using various parameters and flags.  
-- Validate standard output, logs, and exit codes.  
-- Confirm integration with dependent services (if any).  
-- Verify exception handling and error messages for invalid inputs.  
+- Validate CLI command syntax, parameters, and expected output messages.  
+- Execute functional flows covering ingestion, parsing, and logging validation.  
+- Use automation with **Playwright** and **TypeScript** for consistent regression testing.  
+- Ensure proper exception handling for invalid inputs or command misuse.  
 
-### 4.2 File Ingestion & Transformation
-- Feed supported and real-world file types to the CLI.  
-- Validate correct parsing, processing, and output consistency.  
-- Check handling of configuration files and structured data.  
+### 4.2 Data Ingestion Testing
+- Upload and validate diverse file formats: CSV, JSON, XML, DOCX, PDF, TXT, ZIP/TAR.GZ.  
+- Confirm accurate extraction, parsing, and metadata capture for each format.  
+- Test bulk ingestion scenarios and verify consistent indexing results.  
 
 ### 4.3 IMAP Email Processing
-- Connect to IMAP servers using valid and invalid credentials.  
-- Fetch emails from various folders and validate proper storage in Surveilr.  
-- Extract email body, headers, and attachments; verify classification and folder placement.  
-- Handle corrupted emails, unsupported attachment types, and network/server failures gracefully.  
-- Validate bulk email fetch and concurrent connections for performance.  
+- Validate successful IMAP connection, email fetching, and ingestion.  
+- Ensure attachments are properly captured and parsed.  
+- Verify duplicate handling, mailbox polling intervals, and failure recovery.  
 
-### 4.4 Error Handling & Negative Scenarios
-- Execute commands with invalid paths, flags, missing arguments, and unsupported file types.  
-- Confirm proper error reporting and graceful termination.  
-- Include IMAP-specific negative scenarios to ensure robust handling of failures.
+### 4.4 Third-Party Integration Testing
+- Connect Surveilr with GitHub, GitLab, Jira, Azure, AWS, and GCP test accounts.  
+- Trigger synchronization jobs and verify data mapping accuracy.  
+- Confirm consistent task ingestion across multiple refresh cycles.  
+
+### 4.5 Logging and Error Handling
+- Review CLI and ingestion logs for completeness and accuracy.  
+- Validate that error messages are descriptive and aligned with Surveilr standards.  
+- Ensure logs capture command context, timestamps, and failure traces.  
+
+---
+
+## 5. Test Environment
+
+- **Application Under Test (AUT):** Surveilr (CLI and Ingestion Engine)  
+- **Test Tools:** Playwright (TypeScript), Postman (for integration checks), Surveilr CLI  
+- **Data Sources:** Sample files (CSV, JSON, XML, DOCX, PDF, ZIP), IMAP test account  
+- **Environment:** Staging environment configured with external integration access  
+- **Test Accounts:** Dedicated user credentials for GitHub, GitLab, Jira, Azure, and GCP  
+
+---
+
+
+
+

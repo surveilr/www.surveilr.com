@@ -1,66 +1,92 @@
 ---
 id: "PRJ-0001"
-name: "Surveilr CLI (Command-Line Interface) Functional Testing"
-description: "A standardized and automated CLI functional testing framework designed to validate critical functionalities such as command execution, file ingestion, IMAP email processing, and error handling prior to deployment."
+name: "Surveilr Data Ingestion and CLI Functional Validation"
+description: "This project ensures that Surveilr’s Command-Line Interface (CLI) and data ingestion workflows operate reliably across diverse file types, platforms, and data sources. It validates command accuracy, ingestion consistency, structured/unstructured file parsing, and integration reliability with external systems such as GitLab, GitHub, Jira, Azure, AWS, and GCP."
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-20"
-last_updated_at: "2025-10-22"
+created_at: "2025-10-17"
+last_updated_at: "2025-10-24"
 status: "Active"
-tags: ["CLI testing", "File validation", "IMAP"]
+tags: ["functional testing", "data ingestion", "integration", "file processing", "CLI validation"]
 phase: "1.0"
+status: "Draft"
 ---
 
 ### 1. Project Overview
 
-This project defines a repeatable and automated functional testing process for the **Surveilr CLI**.  
-The primary goals are to ensure reliable **command execution**, accurate **file ingestion and transformation**, robust **IMAP email processing**, and consistent **error handling**.  
-This project adds value by reducing deployment risks, ensuring consistent behavior across environments, and providing traceable validation of all core CLI functionalities.
+The **Surveilr Data Ingestion and CLI Functional Validation** project focuses on verifying the reliability and consistency of Surveilr’s command-line and ingestion capabilities.  
+It ensures that Surveilr’s CLI handles command execution, parameters, flags, exit codes, and logging as expected, while validating ingestion, parsing, and synchronization of multiple file types and third-party platforms.
+
+This project provides comprehensive assurance that:
+- The CLI behaves predictably across success and failure conditions.  
+- Ingestion and parsing workflows handle diverse formats (CSV, JSON, XML, ZIP/TAR.GZ, DOCX, XLSX, PDF, TXT, MD, RTF) accurately.  
+- Email (IMAP) ingestion is stable, secure, and properly processed.  
+- Synchronization with third-party task management platforms maintains data integrity and consistency.  
+
+**Business Value:**  
+Ensures operational stability, supports data-driven insights, enhances automation reliability, and reduces ingestion errors across Surveilr’s ecosystem.
 
 ---
 
 ### 2. Scope
 
-The scope of this project includes **functional validation of the Surveilr Command-Line Interface** with emphasis on:  
-- Correct execution of CLI commands and subcommands  
-- Accurate ingestion and parsing of supported file types  
-- Retrieval and processing of emails via IMAP  
-- Validation of output consistency and logs  
-- Verification of error handling and user feedback for negative scenarios  
+The project encompasses functional and integration testing of Surveilr’s ingestion, CLI, and synchronization subsystems. It covers command validation, multi-format data ingestion, structured and unstructured data analysis, and external system integrations.
 
-The project excludes performance, security, and UI testing, which are handled by separate initiatives.
+#### Key Focus Areas
+
+- **Functional CLI Testing**  
+  - Validate command execution, flag handling, and output accuracy.  
+  - Verify exit codes, logging behavior, and error reporting.  
+
+- **Email Ingestion (IMAP)**  
+  - Validate secure retrieval, parsing, and processing of IMAP emails.  
+  - Ensure correct handling of attachments and message metadata.  
+
+- **Capturable Executable (CE) File Ingestion**  
+  - Confirm proper upload, recognition, and processing of CE files.  
+  - Validate logging, storage, and analysis consistency.  
+
+- **Structured and Archived File Ingestion**  
+  - Validate ingestion and parsing of CSV, JSON, YAML/YML, XML formats.  
+  - Ensure extraction and analysis from ZIP and TAR.GZ archives.  
+
+- **Office Document Management**  
+  - Test ingestion, parsing, and data extraction from DOC/DOCX, XLS/XLSX, PPT/PPTX, and PDF files.  
+
+- **Text-based File Handling**  
+  - Validate ingestion of TXT, MD, and RTF files.  
+  - Confirm correct parsing and content indexing.  
+
+- **Third-Party Task Synchronization**  
+  - Verify ingestion and sync from GitLab, GitHub, Xray, Jira, Azure, AWS, OpenProject, and GCP.  
+  - Validate mapping consistency, performance, and error handling.  
 
 ---
 
-### 3. Key Testing Areas
+### 3. Quality Goals
 
-#### 3.1 Functional CLI Testing
-- Validate all core CLI commands and subcommands.  
-- Ensure proper handling of command parameters, flags, and options.  
-- Validate exit codes, standard output, and log messages for success and failure scenarios.  
+- **Reliability:** Maintain consistent ingestion and execution outcomes across multiple file types and command variations.  
+- **Performance:** Optimize ingestion speed, email processing, and synchronization latency.  
+- **Security:** Ensure secure handling of sensitive data and credentials during ingestion and CLI operations.  
+- **Scalability:** Validate handling of concurrent ingestion requests and bulk data processing.  
+- **Interoperability:** Guarantee seamless connectivity with external task management and cloud systems.  
 
-#### 3.2 File Ingestion & Transformation Validation
-- Test ingestion of supported file types to ensure accurate parsing and processing.  
-- **Supported file types include:**
-  - **Structured Data Files:** JSON (.json), YAML/YML (.yaml, .yml), XML (.xml), CSV (.csv) ,ZIP (.zip, .tar.gz) 
-  - **Text Files:** Plain text (.txt), Markdown (.md), Rich Text (.rtf)  
-  - **Office Documents:** Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), PDF (.pdf)  
+---
 
-- Validate output consistency using metrics like row counts, metadata extraction, and logs.  
-- Ensure correct handling of configuration files and structured data across ingestion processes.  
+### 4. Deliverables
 
-#### 3.3 IMAP Email Processing
-- Validate connection to IMAP servers with valid and invalid credentials.  
-- Fetch emails from specified folders, including Inbox, Sent, and custom folders.  
-- Extract email bodies, headers, and attachments, and classify them correctly:  
-  - **Email Body:** Stored as `.txt` (Text Files)  
-  - **Email Metadata:** Stored as CSV or JSON (Structured Data Files)  
-  - **Attachments:** Classified according to type (PDF → Office Documents, CSV/Excel → Structured Data, Images → Misc/Image Files)  
-- Handle corrupted emails, unsupported attachment types, and network/server errors gracefully.  
-- Ensure emails are stored in a dedicated IMAP folder and folder size limits are managed.  
-- Test bulk email fetch and multiple concurrent IMAP account connections for performance and reliability.
+- Functional CLI test suite  
+- Email ingestion workflow validation report  
+- Structured/unstructured data ingestion test results  
+- Integration and synchronization verification logs  
+- Performance and reliability assessment summary  
 
-#### 3.4 Error Handling & Negative Scenarios
-- Test invalid file paths, unsupported formats, incorrect flags, and missing arguments.  
-- Verify graceful failure, proper error messages, and correct exit codes.  
-- Ensure IMAP email processing failures (e.g., invalid credentials, corrupted emails, unsupported attachments) are logged and do not affect other operations.  
-- Confirm that the CLI provides actionable feedback without unexpected termination.
+---
+
+### 5. Dependencies
+
+- Surveilr ingestion engine and CLI module  
+- Access credentials for integrated third-party systems  
+- Test data files (CSV, JSON, XML, ZIP, DOCX, PDF, TXT, etc.)  
+- Configured IMAP email environment for testing  
+
+---
