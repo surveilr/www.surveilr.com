@@ -4,7 +4,7 @@ groupId: "GRP-0005"
 title: "Delete Uploaded Word Document"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-22"
-test_type: "Manual"
+test_type: "Automation"
 tags: ["Word"]
 priority: "High"
 test_cycles: ["1.0"]

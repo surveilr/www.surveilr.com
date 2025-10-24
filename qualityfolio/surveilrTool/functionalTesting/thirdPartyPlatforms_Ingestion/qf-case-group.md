@@ -2,7 +2,7 @@
 id: "GRP-0006"
 suiteId: "SUT-0001"
 planId: ["PLN-0001"]
-name: "Surveiler Third-Party Task Ingestion Test Case"
+name: "Third-Party Task Ingestion Test Case"
 description: "Group of test cases designed to validate Surveiler’s ability to ingest and synchronize tasks from multiple third-party platforms such as GitLab, GitHub, Xray, Jira, Azure, AWS, OpenProject, and GCP(Google Cloud Platform), ensuring consistent data mapping, performance, and reliability."
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
