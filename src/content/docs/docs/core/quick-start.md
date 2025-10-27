@@ -15,33 +15,53 @@ description: instructions on the installation of `surveilr`
 
 Start using `surveilr` Resource Surveillance by following the quick guide below:
 
-- **macOS and Linux:**
+### 📦 Package Managers (Recommended)
 
-  - Install `surveilr` in desired path by running any of the following commands:
+- **Ubuntu/Debian:**
 
-    ```bash
-    # install in current path
-    $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+  ```bash
+  # Ubuntu (Jammy)
+  $ wget https://github.com/surveilr/packages/releases/latest/download/surveilr_jammy.deb
+  $ sudo dpkg -i surveilr_jammy.deb
 
-    # Install globally
-    $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="$HOME/bin" bash
+  # Debian (Bookworm)
+  $ wget https://github.com/surveilr/packages/releases/latest/download/surveilr_bookworm.deb
+  $ sudo dpkg -i surveilr_bookworm.deb
+  ```
 
-    # install in preferred path
-    $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="/path/to/directory" bash
-    ```
+- **macOS (Homebrew):**
 
-  - [Verify installation](/docs/core/installation#verify-installation)
+  ```bash
+  $ brew tap surveilr/tap && brew install surveilr
+  ```
 
 - **Windows:**
 
-  - Install `surveilr` by executing the following command in **windows
-    powershell** terminal
+  ```powershell
+  # Recommended: Use installation script
+  $ irm https://raw.githubusercontent.com/surveilr/packages/refs/heads/main/scripts/install.ps1 | iex
+  ```
 
-    ```bash
-    $ irm https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/refs/heads/main/surveilr/install.ps1 | iex
-    ```
+### 📜 Alternative Installation Methods
 
-  - [Verify installation](/docs/core/installation#verify-installation)
+- **macOS and Linux Scripts:**
+
+  ```bash
+  # install in current path
+  $ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | bash
+
+  # Install globally
+  $ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | SURVEILR_HOME="$HOME/bin" bash
+
+  # install in preferred path
+  $ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | SURVEILR_HOME="/path/to/directory" bash
+  ```
+
+- **Direct Download:**
+
+  Visit [GitHub Releases](https://github.com/surveilr/packages/releases) to download pre-built binaries for your operating system.
+
+- [Verify installation](/docs/core/installation#verify-installation)
 
 ### Still Got Questions ?
 
