@@ -49,6 +49,9 @@ SELECT DISTINCT
   json_extract(ur.frontmatter, '$.approvedBy') AS approvedBy,
   json_extract(ur.frontmatter, '$.category') AS category,
   json_extract(ur.frontmatter, '$.control-id') AS control_id,
+  json_extract(ur.frontmatter, '$.regimeType') AS regimeType,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
  
   TRIM(
     CASE
@@ -164,8 +167,8 @@ FROM uniform_resource_aicpa_soc2_type2_controls;
 
 --###view for complaince explorer prompts #####-------
 
-DROP VIEW IF EXISTS ai_ctxe_complaince_prompt;
-CREATE VIEW ai_ctxe_complaince_prompt AS
+DROP VIEW IF EXISTS ai_ctxe_compliance_prompt;
+CREATE VIEW ai_ctxe_compliance_prompt AS
 SELECT DISTINCT
   ur.uniform_resource_id,
   json_extract(ur.frontmatter, '$.title') AS title,
@@ -178,6 +181,8 @@ SELECT DISTINCT
   json_extract(ur.frontmatter, '$.category') AS category,
   json_extract(ur.frontmatter, '$.control-id') AS control_id,
   json_extract(ur.frontmatter, '$.regimeType') AS regime,
+  json_extract(ur.frontmatter, '$.category[1]') AS category_type,
+  json_extract(ur.frontmatter,'$.fiiId') AS fii_id,
 
   TRIM(
     CASE
@@ -198,3 +203,278 @@ JOIN
 WHERE
   fs.file_basename LIKE '%.prompt.md'
   AND json_extract(ur.frontmatter, '$.regimeType') IS NOT NULL;;
+
+
+
+--###view for all controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS all_control;
+
+CREATE VIEW all_control AS
+    SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 1" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 1" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 1' AS control_type,
+    12 AS control_type_id,
+    6 AS control_compliance_id,
+    15 AS control_parent_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 1" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 2" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 2" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 2' AS control_type,
+    13 AS control_type_id,
+    7 AS control_compliance_id,
+    15 AS control_parent_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 2" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 3" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 3" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 3' AS control_type,
+    14 AS control_type_id,
+    8 AS control_compliance_id,
+    15 AS control_parent_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 3" != ''
+ 
+UNION ALL
+ 
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."HIPAA Security Rule Reference" AS control_identifier,
+            cntl."HIPAA Security Rule Reference" AS control_code,
+            cntl."FII Id" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            '' AS expected_evidence,
+            cntl.Safeguard AS question,
+            'HIPAA' AS control_type,
+            0 AS control_type_id,
+            1 AS control_compliance_id,      
+            1 AS control_parent_id 
+          FROM uniform_resource_hipaa_security_rule_safeguards cntl
+          
+UNION ALL
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."Control Identifier" AS control_identifier,
+            cntl."Control Identifier" AS control_code,
+            cntl."Fii ID" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            cntl."Name" AS expected_evidence,
+            cntl.Description AS question,
+            'HITRUST' AS control_type,
+            0 AS control_type_id,
+            5 AS control_compliance_id,
+            5 AS control_parent_id 
+          FROM uniform_resource_hitrust_e1_assessment cntl
+          
+UNION ALL
+SELECT
+            (SELECT COUNT(*)
+            FROM uniform_resource_iso_27001_v3 AS sub
+            WHERE sub.ROWID <= cntl.ROWID) AS display_order,
+            'ISO-27001-' || (ROWID) as control_identifier,
+             cntl."SCF #" AS control_code,
+             cntl."SCF #" AS fii,
+             cntl."SCF Domain" AS common_criteria,
+             Evidence as expected_evidence,
+             cntl."SCF Control Question" AS question,
+             'ISO 27001:2022' AS control_type,
+            0 AS control_type_id,
+            9 AS control_compliance_id,
+            14 AS control_parent_id 
+        FROM uniform_resource_iso_27001_v3 as cntl
+UNION ALL
+SELECT
+        CAST(cntl."#" AS INTEGER) AS display_order,
+        cntl."Control Identifier" AS control_identifier,
+        cntl."Control Identifier" AS control_code,
+        cntl."Fii ID" AS fii,
+        cntl."Common Criteria" AS common_criteria,
+        cntl."Name" AS expected_evidence,
+        cntl."Questions Descriptions" AS question,
+        'SOC2 Type I' AS control_type,
+        2 AS control_type_id,
+        3 AS control_compliance_id,
+        10 AS control_parent_id
+    FROM uniform_resource_aicpa_soc2_controls cntl
+    UNION ALL
+    SELECT
+        CAST(cntl."#" AS INTEGER),
+        cntl."Control Identifier",
+        cntl."Control Identifier",
+        cntl."Fii ID",
+        cntl."Common Criteria",
+        cntl."Name",
+        cntl."Questions Descriptions",
+        'SOC2 Type II' AS control_type,
+        3 AS control_type_id,
+        4 AS control_compliance_id,
+        10 AS control_parent_id
+    FROM uniform_resource_aicpa_soc2_type2_controls cntl;
+
+
+--###view for cmmc controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS cmmc_control;
+
+CREATE VIEW cmmc_control AS
+    SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 1" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 1" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 1' AS control_type,
+    12 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 1" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 2" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 2" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 2' AS control_type,
+    13 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 2" != ''
+ 
+UNION ALL
+SELECT
+    (SELECT COUNT(*)
+     FROM uniform_resource_scf_2024_2 AS sub
+     WHERE sub.ROWID <= cntl.ROWID
+       AND "US CMMC 2.0 Level 3" != '') AS display_order,
+    'CMMCLEVEL-' || ROWID AS control_identifier,
+    cntl."US CMMC 2.0 Level 3" AS control_code,
+    cntl."SCF #" AS fii,
+    cntl."SCF Domain" AS common_criteria,
+    '' AS expected_evidence,
+    cntl."SCF Control Question" AS question,
+    'CMMC Model 2.0 Level 3' AS control_type,
+    14 AS control_type_id
+FROM uniform_resource_scf_2024_2 AS cntl
+WHERE cntl."US CMMC 2.0 Level 3" != '';
+
+
+--###view for hipaa controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS hipaa_control;
+
+CREATE VIEW hipaa_control AS
+   SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."HIPAA Security Rule Reference" AS control_identifier,
+            cntl."HIPAA Security Rule Reference" AS control_code,
+            cntl."FII Id" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            '' AS expected_evidence,
+            cntl.Safeguard AS question            
+          FROM uniform_resource_hipaa_security_rule_safeguards cntl;
+
+
+--###view for hitrust controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS hitrust_control;
+
+CREATE VIEW hitrust_control as
+SELECT
+            CAST(cntl."#" AS INTEGER) AS display_order,
+            cntl."Control Identifier" AS control_identifier,
+            cntl."Control Identifier" AS control_code,
+            cntl."Fii ID" AS fii,
+            cntl."Common Criteria" AS common_criteria,
+            cntl."Name" AS expected_evidence,
+            cntl.Description AS question
+          FROM uniform_resource_hitrust_e1_assessment cntl;
+
+
+--###view for iso27001 controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS iso27001_control;
+
+CREATE VIEW iso27001_control AS    
+SELECT
+            (SELECT COUNT(*)
+            FROM uniform_resource_iso_27001_v3 AS sub
+            WHERE sub.ROWID <= cntl.ROWID) AS display_order,
+            'ISO-27001-' || (ROWID) as control_identifier,
+             cntl."SCF #" AS control_code,
+             cntl."SCF #" AS fii,
+             cntl."SCF Domain" AS common_criteria,
+             Evidence as expected_evidence,
+             cntl."SCF Control Question" AS question            
+        FROM uniform_resource_iso_27001_v3 as cntl;
+
+
+--###view for soc2 controls details complaince explorer #####-------
+
+DROP VIEW IF EXISTS soc2_control;
+
+CREATE VIEW soc2_control AS
+    SELECT
+        CAST(cntl."#" AS INTEGER) AS display_order,
+        cntl."Control Identifier" AS control_identifier,
+        cntl."Control Identifier" AS control_code,
+        cntl."Fii ID" AS fii,
+        cntl."Common Criteria" AS common_criteria,
+        cntl."Name" AS expected_evidence,
+        cntl."Questions Descriptions" AS question,
+        'SOC2 Type I' AS control_type,
+        2 AS control_type_id
+    FROM uniform_resource_aicpa_soc2_controls cntl
+    UNION ALL
+    SELECT
+        CAST(cntl."#" AS INTEGER),
+        cntl."Control Identifier",
+        cntl."Control Identifier",
+        cntl."Fii ID",
+        cntl."Common Criteria",
+        cntl."Name",
+        cntl."Questions Descriptions",
+        'SOC2 Type II' AS control_type,
+        3 AS control_type_id
+    FROM uniform_resource_aicpa_soc2_type2_controls cntl;       

@@ -421,7 +421,7 @@ export class TypicalSqlPageNotebook
           SELECT 'text' AS component,
               (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length
             ? " || " + filteredParams.map((qp) =>
-              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+              `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
           } || ')' ELSE '' END)
@@ -429,7 +429,7 @@ export class TypicalSqlPageNotebook
               || '(Page ' || $current_page || ' of ' || $total_pages || ") "
               || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length
             ? " || " + filteredParams.map((qp) =>
-              `'&${n(qp)}=' || replace($${qp}, ' ', '%20')`
+              `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
           } || ')' ELSE '' END)
@@ -690,5 +690,67 @@ export class TypicalSqlPageNotebook
         ),
     );
     return [...arbitrarySqlStmts, ...sqlPageFileUpserts];
+  }
+
+  //
+  /**
+   * Generates SQL and other resource files from a collection of `TypicalSqlPageNotebook` instances.
+   * 
+   * This method performs the following steps:
+   * 1. Creates a common notebook that emits SQL for initializing the `sqlpage_files` table.
+   * 2. Collects all callable methods from the provided notebooks, including the common notebook.
+   * 3. For each callable matching SQL-related suffixes (`SQL`, `DQL`, `DML`, `DDL`), generates the SQL text
+   *    and writes it to the `${srcDir}/sql.d/head` directory, creating the directory if necessary.
+   * 4. For each callable matching resource file extensions (`.sql`, `.json`, `.js`, `.handlebars`), generates
+   *    the file content and writes it to the appropriate path, creating directories as needed.
+   * 
+   * @param srcDir - The root directory where generated files will be written.
+   * @param sources - One or more `TypicalSqlPageNotebook` instances to process.
+   * @returns A promise that resolves when all files have been generated and written.
+   */
+  static override async spry(srcDir: string, ...sources: TypicalSqlPageNotebook[]) {
+    // commonNB emits SQL before all other SQL from any notebooks passed in
+    const commonNB = new (class extends TypicalSqlPageNotebook {
+      commonDDL() {
+        return this.SQL`
+          -- ${this.tsProvenanceComment(import.meta.url)}
+          -- idempotently create location where SQLPage looks for its content
+          CREATE TABLE IF NOT EXISTS "sqlpage_files" (
+            "path" VARCHAR PRIMARY KEY NOT NULL,
+            "contents" TEXT NOT NULL,
+            "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+          );`;
+      }
+    })();
+ 
+    // select all "callable" methods from across all notebooks
+    const cc = c.callablesCollection<TypicalSqlPageNotebook, Any>(
+      commonNB,
+      ...sources,
+    );
+    for await (const cell of cc.filter({
+        include: [/SQL$/, /DQL$/, /DML$/, /DDL$/],
+      })) {
+        const sql =await cell.source.instance.methodText(cell as Any)
+       await Deno.mkdir(`${srcDir}/sql.d/head`, { recursive: true });
+       await Deno.writeTextFile(`${srcDir}/sql.d/head/${cell.callable}.sql`, sql);
+    }
+
+ 
+    await Promise.all(
+      cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/, /\.handlebars$/] })
+        .map(
+          async (method) => {
+            const notebook = method.source.instance;
+            const spfr: SqlPagesFileRecord = {
+              method: method as Any,
+              path: String(method.callable),
+              content: await notebook.methodText(method as Any),
+            };
+            await Deno.mkdir(path.dirname(spfr.path), { recursive: true });
+            await Deno.writeTextFile(spfr.path, spfr.content);
+          }
+        )
+    );
   }
 }

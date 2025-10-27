@@ -1,0 +1,18 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { Content as GetStartedContent } from "@/content/get_started.md";
+import { SITE } from "@data/constants";
+import "@/assets/styles/custom.css";
+
+const pageTitle: string = `Get Started | ${SITE.title}`;
+---
+
+<MainLayout title={pageTitle}>
+  <section
+    class="mx-auto max-w-screen-xl pb-10"
+  >
+    <article class="prose dark:prose-invert lg:prose-xl mx-auto">
+      <GetStartedContent />
+    </article>
+  </section>
+</MainLayout>

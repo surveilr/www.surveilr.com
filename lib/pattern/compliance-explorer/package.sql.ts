@@ -17,7 +17,7 @@ function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
     ...route,
     parentPath: "ce/regime/index.sql",
   });
-}
+ }
 
 /**
  * These pages depend on ../../prime/ux.sql.ts being loaded into RSSD (for nav).
@@ -383,18 +383,196 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       1 AS columns;
  
  
-    SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
+   -----accordion start
+   SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || $id || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = 'soc2-type1' AND control_id = $id::TEXT
+    
     UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = 'soc2-type2' AND control_id = $id::TEXT
+)
+
+     
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Author Prompt' AND (
+    ($type = 'soc2-type1' AND regime = 'SOC2-TypeI') OR
+    ($type = 'soc2-type2' AND regime = 'SOC2-TypeII')
+  );
+      
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = 'soc2-type1' AND control_id = $id::TEXT
+    
     UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = 'soc2-type2' AND control_id = $id::TEXT
+)
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
-  `;
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Audit Prompt' AND (
+    ($type = 'soc2-type1' AND regime = 'SOC2-TypeI') OR
+    ($type = 'soc2-type2' AND regime = 'SOC2-TypeII')
+  );
+      
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM (SELECT control_id, fii_id
+    FROM compliance_regime_control_soc2
+    WHERE $type = 'soc2-type1' AND control_id = $id::TEXT
+    
+    UNION ALL
+    
+    SELECT control_id, fii_id
+    FROM aicpa_soc2_type2_controls
+    WHERE $type = 'soc2-type2' AND control_id = $id::TEXT
+)
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id AND (
+    ($type = 'soc2-type1' AND regimeType = 'SOC2-TypeI') OR
+    ($type = 'soc2-type2' AND regimeType = 'SOC2-TypeII')
+  );
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+   
+   
+   
+   
+   
+   
+   --------------accordion end 
+   `;
   }
 
   @ceNav({
@@ -492,20 +670,161 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     SELECT
       'card' AS component,
       1 AS columns;
- 
- 
-    SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
 
+      SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || control_id || '</b> &mdash; <b>FII ID: ' || fii_id || '</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+     
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Author Prompt' and regime = 'HiTRUST'
+      ;
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' and regime = 'HiTRUST'
+      ;
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_control_hitrust_e1
+WHERE control_id = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
+    SELECT
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $code and regimeType = 'HiTRUST';
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+
+
+
+ 
+ 
+    
 
     --- Fallback if no exact match
     SELECT 'text' AS component,
@@ -591,18 +910,157 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       'card' AS component,
       1 AS columns;
  
- 
+      ---accordion start
+      SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || $code || '</b> &mdash;.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+     
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Author Prompt' and regime = 'ISO'
+      ;
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' and regime = 'ISO'
+      ;
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_iso_27001_control
+WHERE control_code = $code::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $code and regimeType = 'ISO';
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+    
+     
 
     --- Fallback if no exact match
     SELECT 'text' AS component,
@@ -726,7 +1184,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Author Prompt'
       ;
 
@@ -750,7 +1208,7 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
     SELECT 'card' as component, 1 as columns;
     SELECT
       '\n' || p.body_text AS description_md
-      FROM ai_ctxe_complaince_prompt p
+      FROM ai_ctxe_compliance_prompt p
       WHERE p.control_id = $id AND p.documentType = 'Audit Prompt'
       ;
  SELECT 'html' AS component,
@@ -962,18 +1420,155 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
       'card' AS component,
       1 AS columns;
  
- 
+ SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || $id || '</b> &mdash;.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+     
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Author Prompt' and regime = 'THSA'
+      ;
+
+    
+    SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      --accordion for audit prompt
+
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_compliance_prompt p
+      WHERE p.control_id = $id AND p.documentType = 'Audit Prompt' and regime = 'THSA'
+      ;
+ SELECT 'html' AS component,
+      '</div></details>' AS html;
+
+      
+SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html
+FROM compliance_regime_thsa
+WHERE scf_code = $id::TEXT;
+
+    SELECT 'card' as component, 1 as columns;
     SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+      '\n' || p.body_text AS description_md
+      FROM ai_ctxe_policy p
+      WHERE p.control_id = $id and regimeType = 'THSA';
+   SELECT 'html' AS component,
+      '</div></details>' AS html;
+      SELECT 'html' as component,
+    '<style>
+        tr.actualClass-passed td.State {
+            color: green !important; /* Default to red */
+        }
+         tr.actualClass-failed td.State {
+            color: red !important; /* Default to red */
+        }
+          tr.actualClass-passed td.Statealign-middle {
+            color: green !important; /* Default to red */
+        }
+          tr.actualClass-failed td.Statealign-middle {
+            color: red !important; /* Default to red */
+        }
+        
+        .btn-list {
+        display: flex;
+        justify-content: flex-end;
+        }
+       h2.accordion-header button {
+        font-weight: 700;
+      }
+
+      /* Test Detail Outer Accordion Styles */
+      .test-detail-outer-accordion {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .test-detail-outer-summary {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        outline: none;
+        user-select: none;
+        list-style: none;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .test-detail-outer-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .test-detail-outer-summary::after {
+        content: "+";
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: #666;
+      }
+
+      .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+        content: "−";
+      }
+
+      .test-detail-outer-summary:hover {
+        background-color: #ebebeb;
+      }
+
+      .test-detail-outer-content {
+        padding: 20px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+
+    ' as html;
+
+
+          -- end
+    
   `;
   }
 
@@ -1067,15 +1662,17 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
           END,
           '\n', ' '),
           '\r', ' ')
-      || '](' || ${this.absoluteURL("/ce/regime/cmmc_detail.sql?code=")}
-      || replace(replace(
-          CASE 
-            WHEN @level = 1 THEN cmmc_level_1
-            WHEN @level = 2 THEN cmmc_level_2
-            ELSE cmmc_level_3
-          END,
-          '\n', ' '), ' ', '%20')
-      || '&level=' || @level || ')' AS "Control Code",
+|| '](' || ${this.absoluteURL("/ce/regime/cmmc_detail.sql?code=")} 
+|| replace(replace( 
+    CASE  
+      WHEN @level = 1 THEN cmmc_level_1 
+      WHEN @level = 2 THEN cmmc_level_2 
+      ELSE cmmc_level_3 
+    END, 
+    '\n', ' '), ' ', '%20') 
+|| '&fiiid=' || replace(control_code, ' ', '%20')
+|| '&level=' || @level
+|| ')' AS "Control Code",
 
       scf_domain       AS "Domain",
       scf_control      AS "Title",
@@ -1099,71 +1696,217 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
   "ce/regime/cmmc_detail.sql"() {
     return this.SQL`
-    ${this.activePageTitle()}
-    --- Breadcrumbs
-    SELECT 'breadcrumb' AS component;
-    SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
-    SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
-    SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
-    SELECT COALESCE($code, '') AS title, '#' AS link;;
+  ${this.activePageTitle()}
+  --- Breadcrumbs
+  SELECT 'breadcrumb' AS component;
+  SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
+  SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
+  SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
+  SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
+  SELECT COALESCE($code, '') AS title, '#' AS link;
 
-    --- Primary details card
-    SELECT 'card' AS component, 'CMMC Control Details' AS title, 1 AS columns;
-    SELECT
-        COALESCE($code, '(unknown)') AS title,
-        '**Control Question:** ' || COALESCE(control_question, '') || '  \n\n' ||
-        '**Control Description:** ' || COALESCE(control_description, '') || '  \n\n' ||
-        '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
-        '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
-        '**FII IDs:** ' || COALESCE(control_code, '') AS description_md
-    FROM scf_view
-    WHERE
-          ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
-      OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
-      OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
-    LIMIT 1;
+  
 
-    -- TODO Placeholder Card
-    SELECT
-      'card' AS component,
-      1 AS columns;
- 
- 
-    SELECT
-      'TODO: Policy Generator Prompt' AS title,
-      'Create tailored policies directly from compliance and security controls. The **Policy Generator Prompt** lets you transform abstract requirements into actionable, written policies. Simply provide the relevant control or framework element, and the prompt will guide you in producing a policy that aligns with best practices, regulatory standards, and organizational needs. This makes policy creation faster, consistent, and accessible—even for teams without dedicated compliance writers.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Policy Audit Prompt' AS title,
-      'Ensure your policies stay effective and compliant with the **Policy Audit Prompt**. These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.' AS description_md
-    UNION ALL
-    SELECT
-      'TODO: Generated Policies' AS title,
-      'The **Generated Policies** section showcases real examples of policies created using the Policy Generator Prompt. These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.' AS description_md;
+  --- Primary details card
+  SELECT 'card' AS component, 'CMMC Control Details' AS title, 1 AS columns;
+  SELECT
+      COALESCE($code, '(unknown)') AS title,
+      '**Control Question:** ' || COALESCE(control_question, '') || '  \n\n' ||
+      '**Control Description:** ' || COALESCE(control_description, '') || '  \n\n' ||
+      '**SCF Domain:** ' || COALESCE(scf_domain, '') || '  \n\n' ||
+      '**SCF Control:** ' || COALESCE(scf_control, '') || '  \n\n' ||
+      '**FII IDs:** ' || COALESCE($fiiid, '') AS description_md
+      
+  FROM scf_view
+  WHERE
+       ( ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+    OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+    OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code))
+    AND control_code = $fiiid
+  LIMIT 1;
 
+  -- TODO Placeholder Card
+  SELECT
+    'card' AS component,
+    1 AS columns;
 
-    --- Fallback if no exact match
-    SELECT 'text' AS component,
-          'No exact control found for code: ' || COALESCE($code,'(empty)') || '. Showing a fallback example for Level ' || COALESCE($level::TEXT,'1') || '.' AS contents
-    WHERE NOT EXISTS (
-        SELECT 1 FROM scf_view
-        WHERE
-              ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
-          OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
-          OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+  -- Policy Generator Prompt Accordion
+  SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Generator Prompt 
+  <br>
+  Create tailored policies directly for <b>Control Code: ' || $code || '</b> &mdash; <b>Level: ' || $level || '</b>.
+  The "Policy Generator Prompt" lets you transform abstract requirements into actionable, 
+  written policies. Simply provide the relevant control or framework element, and the prompt
+  will guide you in producing a policy that aligns with best practices, regulatory standards, 
+  and organizational needs. This makes policy creation faster, consistent, and accessible—even 
+  for teams without dedicated compliance writers.
+    </summary>
+    <div class="test-detail-outer-content">' AS html;
+
+  SELECT 'card' as component, 1 as columns;
+  SELECT
+    '\n' || p.body_text AS description_md
+    FROM ai_ctxe_compliance_prompt p
+   
+    WHERE p.control_id = $code AND  p.documentType = 'Author Prompt' AND p.fii_id=$fiiid
+    AND (
+    ($level = 1 AND regime = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regime = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regime = 'CMMC' AND category_type='Level 3')
+    );
+   
+
+  SELECT 'html' AS component,
+    '</div></details>' AS html;
+
+  -- Policy Audit Prompt Accordion
+  SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Policy Audit Prompt 
+      <br>
+      Ensure your policies stay effective and compliant with the "Policy Audit Prompt". These prompts are designed to help users critically evaluate existing policies against standards, frameworks, and internal expectations. By running an audit prompt, you can identify gaps, inconsistencies, or outdated language, and quickly adjust policies to remain audit-ready and regulator-approved. This gives your team a reliable tool for continuous policy improvement and compliance assurance.
+    </summary>
+    <div class="test-detail-outer-content">' AS html;
+
+  SELECT 'card' as component, 1 as columns;
+  SELECT
+    '\n' || p.body_text AS description_md
+    FROM ai_ctxe_compliance_prompt p
+    WHERE p.control_id = $code AND p.documentType = 'Audit Prompt' AND p.fii_id=$fiiid AND
+   ( 
+    ($level = 1 AND regime = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regime = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regime = 'CMMC' AND category_type='Level 3')
     );
 
-    --- Example fallback card (optional)
-    SELECT 'card' AS component, 'Fallback control' AS title, 1 AS columns
-    WHERE NOT EXISTS (
-        SELECT 1 FROM scf_view
-        WHERE
-              ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
-          OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
-          OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+  SELECT 'html' AS component,
+    '</div></details>' AS html;
+
+  -- Generated Policies Accordion
+  SELECT 'html' AS component,
+  '<details class="test-detail-outer-accordion" open>
+    <summary class="test-detail-outer-summary">
+      Generated Policies
+      <br>
+      The Generated Policies section showcases real examples of policies created using the "Policy Generator Prompt". These samples illustrate how high-level controls are translated into concrete, practical policy documents. Each generated policy highlights structure, clarity, and compliance alignment—making it easier for users to adapt and deploy them within their own organizations. Think of this as a living library of ready-to-use policy templates derived directly from controls.
+    </summary>
+    <div class="test-detail-outer-content">' AS html;
+
+  SELECT 'card' as component, 1 as columns;
+  SELECT
+    '\n' || p.body_text AS description_md
+    FROM ai_ctxe_policy p
+    WHERE p.control_id = $code AND p.fii_id=$fiiid
+    
+    AND 
+    (($level = 1 AND regimeType = 'CMMC' AND category_type='Level 1') OR
+    ($level = 2 AND regimeType = 'CMMC' AND category_type='Level 2') OR
+    ($level = 3 AND regimeType = 'CMMC' AND category_type='Level 3')
     );
-      `;
+
+  SELECT 'html' AS component,
+    '</div></details>' AS html;
+
+  -- CSS Styles
+  SELECT 'html' as component,
+  '<style>
+      tr.actualClass-passed td.State {
+          color: green !important;
+      }
+       tr.actualClass-failed td.State {
+          color: red !important;
+      }
+        tr.actualClass-passed td.Statealign-middle {
+          color: green !important;
+      }
+        tr.actualClass-failed td.Statealign-middle {
+          color: red !important;
+      }
+      
+      .btn-list {
+      display: flex;
+      justify-content: flex-end;
+      }
+     h2.accordion-header button {
+      font-weight: 700;
+    }
+
+    /* Test Detail Outer Accordion Styles */
+    .test-detail-outer-accordion {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .test-detail-outer-summary {
+      background-color: #f5f5f5;
+      padding: 15px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #333;
+      border: none;
+      outline: none;
+      user-select: none;
+      list-style: none;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .test-detail-outer-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .test-detail-outer-summary::after {
+      content: "+";
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .test-detail-outer-accordion[open] .test-detail-outer-summary::after {
+      content: "−";
+    }
+
+    .test-detail-outer-summary:hover {
+      background-color: #ebebeb;
+    }
+
+    .test-detail-outer-content {
+      padding: 20px;
+      background-color: white;
+      border-top: 1px solid #ddd;
+    }
+  </style>' as html;
+
+  --- Fallback if no exact match
+  SELECT 'text' AS component,
+        'No exact control found for code: ' || COALESCE($code,'(empty)') || '. Showing a fallback example for Level ' || COALESCE($level::TEXT,'1') || '.' AS contents
+  WHERE NOT EXISTS (
+      SELECT 1 FROM scf_view
+      WHERE
+            ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+        OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+        OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+  );
+
+  --- Example fallback card (optional)
+  SELECT 'card' AS component, 'Fallback control' AS title, 1 AS columns
+  WHERE NOT EXISTS (
+      SELECT 1 FROM scf_view
+      WHERE
+            ($level = 1 AND replace(replace(cmmc_level_1,'\n',' '),'\\r','') = $code)
+        OR ($level = 2 AND replace(replace(cmmc_level_2,'\n',' '),'\\r','') = $code)
+        OR ($level = 3 AND replace(replace(cmmc_level_3,'\n',' '),'\\r','') = $code)
+  );
+    `;
   }
 
   @spn.shell({ breadcrumbsFromNavStmts: "no" })
@@ -1217,7 +1960,42 @@ export async function controlSQL() {
   );
 }
 
+/**
+ * Initializes and runs the Compliance Explorer SQL page notebook using the provided source directory.
+ *
+ * This function creates a customized instance of `TypicalSqlPageNotebook` with overridden methods to
+ * fetch stateless and stateful SQL control files. It then composes the notebook with various SQL page
+ * modules, including shell, uniform resource, console, orchestration, and compliance explorer pages.
+ *
+ * @param srcDir - The source directory containing SQL files and resources.
+ * @returns A promise that resolves when the notebook has been initialized and executed.
+ */
+export async function spry(srcDir: string) {
+  return await spn.TypicalSqlPageNotebook.spry(srcDir,
+    new class extends spn.TypicalSqlPageNotebook {
+      async statelessControlSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateless.sql"),
+        );
+      }
+
+      async orchestrateStatefulControlSQL() {
+        // read the file from either local or remote (depending on location of this file)
+        return await spn.TypicalSqlPageNotebook.fetchText(
+          import.meta.resolve("./stateful.sql"),
+        );
+      }
+    }(),
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
+    new ur.UniformResourceSqlPages(),
+    new c.ConsoleSqlPages(),
+    new orch.OrchestrationSqlPages(),
+    new ComplianceExplorerSqlPages(),
+  );
+}
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
   console.log((await controlSQL()).join("\n"));
+  await spry("src");
 }

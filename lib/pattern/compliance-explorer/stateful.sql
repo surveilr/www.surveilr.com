@@ -1,58 +1,236 @@
 -- Drop the table if it exists, then create the new table with auto-increment primary key
 DROP TABLE IF EXISTS "compliance_regime";
 CREATE TABLE "compliance_regime" (
-    "compliance_regime_id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "geography" TEXT,
-    "source" TEXT,
-    "description" TEXT,
-    "version" TEXT,
-    "last_reviewed_date" TIMESTAMPTZ,
-    "authoritative_source" TEXT,
-    "custom_user_text" TEXT,
-    "elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
-    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT DEFAULT 'UNKNOWN',
-    "updated_at" TIMESTAMPTZ,
-    "updated_by" TEXT,
-    "deleted_at" TIMESTAMPTZ,
-    "deleted_by" TEXT,
-    "activity_log" TEXT
+"compliance_regime_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+"parent_id" TEXT NOT NULL,
+"title" TEXT NOT NULL,
+"geography" TEXT,
+"source" TEXT,
+"description" TEXT,
+"logo" TEXT,
+"status" TEXT,
+"version" TEXT,
+"last_reviewed_date" TIMESTAMPTZ,
+"authoritative_source" TEXT,
+"custom_user_text" TEXT,
+"elaboration" TEXT CHECK(json_valid(elaboration) OR elaboration IS NULL),
+"created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+"created_by" TEXT DEFAULT 'UNKNOWN',
+"updated_at" TIMESTAMPTZ,
+"updated_by" TEXT,
+"deleted_at" TIMESTAMPTZ,
+"deleted_by" TEXT,
+"activity_log" TEXT
 );
-
 -- Insert records into the table
 INSERT INTO "compliance_regime" (
-    "title",
-    "geography",
-    "source",
-    "description",
-    "version",
-    "last_reviewed_date",
-    "authoritative_source",
-    "custom_user_text"
+"parent_id",    
+"title",
+"geography",
+"source",
+"description",
+"logo",
+"status",
+"version",
+"last_reviewed_date",
+"authoritative_source",
+"custom_user_text"
 )
 VALUES
-    (
-        'US HIPAA',
-        'US',
-        'Federal',
-        'The Health Insurance Portability and Accountability Act (HIPAA) Security Rule sets national standards to protect individuals electronic personal health information (ePHI) that is created, received, used, or maintained by a covered entity. The Security Rule mandates appropriate administrative, physical, and technical safeguards to ensure the confidentiality, integrity, and security of ePHI.' ||
-        'security, and integrity of protected health information (PHI), ensuring compliance for healthcare providers, ' ||
-        'insurers, and related entities handling electronic and physical health data',
-        'N/A',
-        '2022-10-20 00:00:00+00',
-        'Health Insurance Portability and Accountability Act (HIPAA)',
-        'Below, you will find a complete list of all controls applicable to the US HIPAA framework. These controls are designed ' ||
-        'to ensure compliance with the Health Insurance Portability and Accountability Act (HIPAA) standards, safeguarding ' ||
-        'sensitive patient health information'
-    ),
-    (
-        'NIST',
-        'Universal',
-        'SCF',
-        'The NIST SP 800-53 standard aims to protect operations, assets, individuals, organizations, and the United States from a wide range of cyber threats, including hostile attacks, human error, and natural disasters. The controls are designed to be flexible and customizable to support organizations in their implementation efforts.',
-        '2024',
-        '2024-04-01 00:00:00+00',
-        '800-53 rev4',
-        NULL
-    );
+(
+'',
+'HIPAA',
+'US',
+'Federal',
+'Health Insurance Portability and Accountability Act',
+'',
+'active',
+'N/A',
+'2022-10-20 00:00:00+00',
+'Health Insurance Portability and Accountability Act (HIPAA)',
+'Below, you will find a complete list of all controls applicable to the US HIPAA framework. These controls are designed ' ||
+'to ensure compliance with the Health Insurance Portability and Accountability Act (HIPAA) standards, safeguarding ' ||
+'sensitive patient health information'
+),
+(
+'',
+'NIST',
+'Universal',
+'SCF',
+'Comprehensive cybersecurity guidance framework',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),
+(
+'10',
+'SOC2 Type I',
+'US',
+'SCF',
+'Report on Controls as a Service Organization. Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'10',
+'SOC2 Type II',
+'US',
+'SCF',
+'SOC 2 Type II reports provide lists of Internal controls that are audited by an Independent third-party to show how well those controls are implemented and operating.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'HITRUST CSF',
+'US',
+'SCF',
+'Achieve HITRUST CSF certification, the most trusted and comprehensive security framework in healthcare.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 1',
+'US',
+'SCF',
+'Achieve Cybersecurity Maturity Model Certification (CMMC) to bid on Department of Defense contracts',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 2',
+'US',
+'SCF',
+'110 requirements aligned with NIST SP 800-171; Triennial third-party assessment & annual affirmation; Triennial self-assessment & annual affirmation for select programs. A subset of programs with Level 2 requirements do not involve information critical to national security, and associated contractors will be permitted to meet the requirement through self-assessments. Contractors will be required to conduct self-assessment on an annual basis, accompanied by an annual affirmation from a senior company official that the company is meeting requirements. The Department intends to require companies to register self-assessments and affirmations in the Supplier Performance Risk System (SPRS).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'15',
+'CMMC Model 2.0 LEVEL 3',
+'US',
+'SCF',
+'110+ requirements based on NIST SP 800-171 & 800-172; Triennial government-led assessment & annual affirmation. The Department intends for Level 3 cybersecurity requirements to be assessed by government officials. Assessment requirements are currently under development. Level 3 information will likewise be posted as it becomes available.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'14',
+'ISO 27001:2022',
+'US',
+'SCF',
+'Information security management systems standard',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'AICPA',
+'US',
+'Federal',
+'AICPA is the national professional organization for Certified Public Accountants (CPAs) in the United States.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST e1 Assessment',
+'US',
+'Federal',
+'HITRUST e1 Essentials Assessment Adds Efficiency and Flexibility to the HITRUST Portfolio.',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST i1 Assessment',
+'US',
+'Federal',
+'HITRUST i1 Leading Security Practices Assessment Delivers Broad and Reliable Assurances Against Current and Emerging Cyber Threats.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'5',
+'HiTRUST r2 Assessment',
+'US',
+'Federal',
+'HITRUST r2 Expanded Practices Assessment is the Industry-Recognized Gold Standard for Providing the Highest Level of Information Protection and Compliance Assurance.',
+'',
+'inactive',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'ISO',
+'US',
+'Federal',
+'ISO/IEC refers to a joint collaboration between the International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'',
+'Cybersecurity Maturity Model Certification (CMMC)',
+'US',
+'Federal',
+'The Cybersecurity Maturity Model Certification (CMMC) program aligns with the information security requirements of the U.S. Department of Defense (DoD) for Defense Industrial Base (DIB) partners',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+),(
+'14',
+'ISO 42001',
+'US',
+'SCF',
+'ISO/IEC 42001 is the first international management system standard for AI, designed to promote responsible AI development and use by setting requirements for establishing, implementing, maintaining, and continually improving an Artificial Intelligence Management System (AIMS).',
+'',
+'active',
+'2024',
+'2024-04-01 00:00:00+00',
+'800-53 rev4',
+NULL
+);

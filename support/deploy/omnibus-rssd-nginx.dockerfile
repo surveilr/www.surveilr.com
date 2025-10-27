@@ -95,6 +95,18 @@ RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com -type f -name 'pa
     done"
 
 
+
+# Find the `package.sql` file under /lib/service/qualityfolio and copy it to /rssd/lib/service/qualityfolio/
+RUN /bin/bash -c "RSSD_SRC_PATH=(\$(find /app/www.surveilr.com/lib/service/qualityfolio -type f -name 'package.sql')) && \
+    for path in \"\${RSSD_SRC_PATH[@]}\"; do \
+      # Ensure the target directory exists in /rssd
+      mkdir -p /rssd/lib/service/qualityfolio && \
+      # Copy the package.sql file directly to /rssd/lib/service/qualityfolio/
+      cp \$path /rssd/lib/service/qualityfolio/; \
+    done"
+
+
+
 # Stage 2: Final Runtime Image
 FROM debian:latest AS final
 
@@ -149,6 +161,13 @@ RUN echo '#!/bin/bash' > /configure_nginx.sh && \
     echo 'echo "    root /rssd;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "    location = / {" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "        index index.html;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    # Add an alias to serve the package.sql file under /lib/service/qualityfolio/package.sql
+    echo 'echo "    location /lib/service/qualityfolio/package.sql {" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        alias /rssd/lib/service/qualityfolio/package.sql;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        add_header Content-Type text/plain;" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        add_header Content-Disposition \"attachment; filename=package.sql\";" >> "$nginx_conf"' >> /configure_nginx.sh && \
+    echo 'echo "        default_type application/octet-stream;" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'echo "    }" >> "$nginx_conf"' >> /configure_nginx.sh && \
     echo 'tail -n +2 /rssd/index.tsv | while IFS=$'"'\\t'"' read -r expose_endpoint relative_path rssd_name port package_sql; do' >> /configure_nginx.sh && \
     echo '  if [ "$expose_endpoint" = "1" ]; then' >> /configure_nginx.sh && \

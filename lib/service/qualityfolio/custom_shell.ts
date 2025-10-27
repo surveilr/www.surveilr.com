@@ -32,19 +32,21 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       menu_item: [
         { link: "index.sql", title: "Home" },
       ],
-      javascript: this.hideHeaderTitle ? [
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
-        // Inline script to set browser tab title
-        `data:text/javascript,document.addEventListener('DOMContentLoaded',function(){document.title='${this.title}';});`
-      ] : [
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
-        "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
-      ],
+      javascript: this.hideHeaderTitle
+        ? [
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+          // Inline script to set browser tab title
+          `data:text/javascript,document.addEventListener('DOMContentLoaded',function(){document.title='${this.title}';});`,
+        ]
+        : [
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/sql.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/handlebars.min.js",
+          "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/json.min.js",
+        ],
       footer: `Resource Surveillance Web UI`,
     };
 
@@ -89,8 +91,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
           value.trim().toLowerCase().startsWith("case when"))
         ? value
         : value
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(value)[1]
+        : "NULL";
     const selectNavMenuItems = (rootPath: string, caption: string) =>
       `json_object(
               'link', ${this.absoluteURL("")}||'${rootPath}',
@@ -130,7 +132,8 @@ export class ShellSqlPages extends spn.TypicalSqlPageNotebook {
       footer: () =>
         // Dynamic SQL query to fetch the version directly in the footer
         `'Surveilr '|| (SELECT json_extract(session_agent, '$.version') AS version FROM ur_ingest_session LIMIT 1) || ' Resource Surveillance Web UI (v' || sqlpage.version() || ') ' || ` +
-        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
+        `'📄 [' || substr(sqlpage.path(), 2) || '](' || ${
+          this.absoluteURL("/console/sqlpage-files/sqlpage-file.sql?path=")
         } || substr(sqlpage.path(), LENGTH(sqlpage.environment_variable('SQLPAGE_SITE_PREFIX')) + 2 ) || ')' as footer`,
     };
     const shell = this.defaultShell();

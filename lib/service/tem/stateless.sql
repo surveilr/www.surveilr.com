@@ -2,14 +2,14 @@
 -- Each record is derived from the `organization` table.
 -- - `organization_id` keeps the unique identifier of the organization.
 -- - `party_id` is exposed as `tenant_id`.
--- - `name` is exposed as `tanent_name` (tenant’s display name).
+-- - `name` is exposed as `tenant_name` (tenant’s display name).
 DROP VIEW IF EXISTS tem_tenant;
 CREATE VIEW tem_tenant AS
 SELECT
   org.organization_id,
   org.party_id AS tenant_id,
   dpr.device_id,
-  org.name AS tanent_name
+  org.name AS tenant_name
 FROM organization org INNER JOIN device_party_relationship dpr ON dpr.party_id=org.party_id;
 
 -- View: tem_ur_ingest_session
@@ -33,10 +33,295 @@ SELECT
     strftime('%m-%d-%Y %H:%M:%S', ingest_started_at) AS ingest_started_at,
     strftime('%m-%d-%Y %H:%M:%S', ingest_finished_at) AS ingest_finished_at,
     json_extract(session_agent, '$.agent') AS agent,
-    json_extract(session_agent, '$.version') AS version,
-    10 AS tools_count
+    json_extract(session_agent, '$.version') AS version
 FROM ur_ingest_session
 WHERE deleted_at IS NULL;
+
+-- ===============================================================
+-- View: tem_session_finding_link
+--
+-- Purpose:
+--   Consolidates all session-based scan/tool results in TEM
+--   for display on the Findings page.
+--   Includes tool name, redirect URL, session ID, session name,
+--   and count of findings per tool.
+-- ===============================================================
+
+DROP VIEW IF EXISTS tem_session_finding_link;
+CREATE VIEW tem_session_finding_link AS
+SELECT
+    'What web data' AS tool_name,
+    '/tem/session/what_web.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_what_web_result WHERE ur_ingest_session_id = s.ur_ingest_session_id) AS count
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'DNSX Scan Results',
+    '/tem/session/dnsx.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_dnsx_result WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Nuclei Scan Findings',
+    '/tem/session/nuclei.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_nuclei_result WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Naabu Port Scan Results',
+    '/tem/session/naabu.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_naabu_result WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Subfinder Results',
+    '/tem/session/subfinder.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_subfinder WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'HTTPX Toolkit Results',
+    '/tem/session/httpx-toolkit.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_httpx_result WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Nmap Scan Results',
+    '/tem/session/nmap.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_nmap WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Katana Scan Results',
+    '/tem/session/katana.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_katana WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'TLS Certificate Results',
+    '/tem/session/tlsx_certificate.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_tlsx_certificate WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'Dirsearch Web Path Enumeration Results',
+    '/tem/session/dirsearch.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_dirsearch WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'TestSSL Report',
+    '/tem/session/tssl_certificate.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_testssl_general WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'SSL/TLS Certificate Metadata',
+    '/tem/session/openssl.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_openssl WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s
+
+UNION ALL
+SELECT
+    'WAF Detection Results',
+    '/tem/session/wafw00f.sql?session_id=' || ur_ingest_session_id AS redirect_url,
+    ur_ingest_session_id,
+    session_name,
+    (SELECT COUNT(*) FROM tem_wafw00f WHERE ur_ingest_session_id = s.ur_ingest_session_id)
+FROM tem_session s;
+
+
+-- ===============================================================
+-- View: tem_tenant_finding_link
+--
+-- Purpose:
+--   Consolidates all tenant-based scan/tool results in TEM
+--   for display on the Findings page.
+--   Includes tool name, redirect URL, tenant ID, tenant name,
+--   and count of findings per tool.
+--
+-- Notes:
+--   - The 'redirect_url' column is used to generate clickable links
+--     in the UI.
+--   - Additional tools can be added by appending new SELECT blocks
+--     with UNION ALL.
+-- ===============================================================
+
+DROP VIEW IF EXISTS tem_tenant_finding_link;
+CREATE VIEW tem_tenant_finding_link AS
+SELECT
+    'What web data' AS tool_name,
+    '/tem/tenant/what_web.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_what_web_result WHERE tenant_id = t.tenant_id) AS count
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'DNSX Scan Results',
+    '/tem/tenant/dnsx.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_dnsx_result WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Nuclei Scan Findings',
+    '/tem/tenant/nuclei.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_nuclei_result WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Naabu Port Scan Results',
+    '/tem/tenant/naabu.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_naabu_result WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Subfinder Results',
+    '/tem/tenant/subfinder.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_subfinder WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'HTTPX Toolkit Results',
+    '/tem/tenant/httpx-toolkit.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_httpx_result WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Nmap Scan Results',
+    '/tem/tenant/nmap.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_nmap WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Katana Scan Results',
+    '/tem/tenant/katana.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_katana WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'TLS Certificate Results',
+    '/tem/tenant/tlsx_certificate.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_tlsx_certificate WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'Dirsearch Web Path Enumeration Results',
+    '/tem/tenant/dirsearch.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_dirsearch WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'TestSSL Report',
+    '/tem/tenant/tssl_certificate.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_testssl_general WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'SSL/TLS Certificate Metadata',
+    '/tem/tenant/openssl.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_openssl WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t
+
+UNION ALL
+SELECT
+    'WAF Detection Results',
+    '/tem/tenant/wafw00f.sql?tenant_id=' || tenant_id AS redirect_url,
+    tenant_id,
+    tenant_name,
+    (SELECT COUNT(*) FROM tem_wafw00f WHERE tenant_id = t.tenant_id)
+FROM tem_tenant t;
+
+
+-- View: tem_task_summary
+-- Purpose: Extracts all task-related records from the uniform_resource table.
+-- Includes the full Markdown content along with frontmatter fields: task ID, title, and status.
+-- Filters only records where the URI contains "/task/".
+-- Designed to provide a single source for listing tasks and rendering task details in the TEM module.
+
+DROP VIEW IF EXISTS tem_task_summary;
+CREATE VIEW tem_task_summary AS
+SELECT
+    uniform_resource_id,
+    uri,
+    content,  -- full Markdown content
+    json_extract(frontmatter, '$.id') AS task_id,
+    json_extract(frontmatter, '$.title') AS title,
+    json_extract(frontmatter, '$.status') AS status,
+    json_extract(frontmatter, '$.created_date') AS created_date,
+    json_extract(frontmatter, '$.updated_date') AS updated_date,
+    json_extract(frontmatter, '$.priority') AS priority
+FROM uniform_resource
+WHERE uri LIKE '%task%';
+
 
 -- This query extracts unique asset names from the `uniform_resource` table for URIs under `/var/`.
 -- It breaks down each URI into its path segments and applies the following rules:
@@ -127,6 +412,7 @@ FROM cleaned c,
 json_each(c.c)
 WHERE json_valid(c.c) = 1;
 
+
 -- Description:
 -- This view extracts key web metadata from JSON objects stored in 
 -- `tem_what_web_result`.
@@ -135,7 +421,7 @@ CREATE VIEW tem_what_web_result AS
 SELECT
     uw.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(uw.object, '$.target') AS target_url,
     json_extract(uw.object, '$.http_status') AS http_status,
@@ -156,13 +442,13 @@ INNER JOIN tem_session ts ON ur.device_id = ts.device_id;
 -- This view extracts DNS resolution details from the `uniform_resource` table for records
 -- collected via DNSx scans. It filters JSONL data (`nature = 'jsonl'`) where the URI path
 -- includes '/dnsx/'. Extracted fields include hostnames, TTL values, resolvers, IP addresses,
--- status codes, timestamps, along with tenant information (tenant_id, tanent_name).
+-- status codes, timestamps, along with tenant information (tenant_id, tenant_name).
 DROP VIEW IF EXISTS tem_dnsx_result;
 CREATE VIEW tem_dnsx_result AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(ur.content, '$.host') AS host,
     json_extract(ur.content, '$.ttl') AS ttl,
@@ -180,13 +466,13 @@ AND ur.uri LIKE '%/dnsx/%';
 -- Purpose: Extracts essential fields from Nuclei scan JSONL data stored in the uniform_resource table.
 -- Includes host, URL, template details, description, severity, IP, matched path, and timestamp.
 -- Filters only JSONL records under URIs containing "/nuclei/".
--- Enriched with tenant information (tenant_id, tanent_name) via join with tem_tenant.
+-- Enriched with tenant information (tenant_id, tenant_name) via join with tem_tenant.
 DROP VIEW IF EXISTS tem_nuclei_result;
 CREATE VIEW tem_nuclei_result AS
 SELECT
   ur.uniform_resource_id,
   t.tenant_id,
-  t.tanent_name,
+  t.tenant_name,
   ts.ur_ingest_session_id,
   json_extract(ur.content, '$.host') AS host,
   json_extract(ur.content, '$.url') AS url,
@@ -208,13 +494,13 @@ WHERE ur.nature = 'jsonl'
 --   This view extracts and normalizes Naabu scan results stored as JSONL
 --   in the 'uniform_resource' table. It helps visualize open ports and
 --   related network information discovered during port scanning.
---   Enriched with tenant information (tenant_id, tanent_name) via join with tem_tenant.
+--   Enriched with tenant information (tenant_id, tenant_name) via join with tem_tenant.
 DROP VIEW IF EXISTS tem_naabu_result;
 CREATE VIEW tem_naabu_result AS
 SELECT
   ur.uniform_resource_id,
   t.tenant_id,
-  t.tanent_name,
+  t.tenant_name,
   ts.ur_ingest_session_id,
   json_extract(ur.content, '$.host') AS host,
   json_extract(ur.content, '$.ip') AS ip,
@@ -233,13 +519,13 @@ WHERE ur.nature = 'jsonl'
 -- into structured columns. Extracts domain (input), discovered host (raw_records), 
 -- and source, along with metadata such as ingest timestamp and tool name. 
 -- Filters rows where uri indicates ingestion from subfinder.
--- Enriched with tenant information (tenant_id, tanent_name) via join with tem_tenant.
+-- Enriched with tenant information (tenant_id, tenant_name) via join with tem_tenant.
 DROP VIEW IF EXISTS tem_subfinder;
 CREATE VIEW tem_subfinder AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')   AS domain,
     json_extract(ur.content, '$.host')    AS raw_records,
@@ -258,13 +544,13 @@ WHERE ur.uri LIKE '%subfinder%';
 --   into structured columns. Provides details on domains, IPs, URLs,
 --   HTTP metadata, response status, and timing. Filters only rows
 --   where the uri indicates ingestion from httpx-toolkit.
---   Enriched with tenant information (tenant_id, tanent_name) via join with tem_tenant.
+--   Enriched with tenant information (tenant_id, tenant_name) via join with tem_tenant.
 DROP VIEW IF EXISTS tem_httpx_result;
 CREATE VIEW tem_httpx_result AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(ur.content, '$.input')          AS domain,
     json_extract(ur.content, '$.url')            AS url,
@@ -299,14 +585,14 @@ WHERE ur.uri LIKE '%httpx-toolkit%';
 -- NOTE: The JSON structure allows capturing multiple <port> entries.
 --       For this view, only the first element of arrays is selected
 --       (json_extract with [0]). For full expansion, consider json_each.
--- Enriched with tenant information (tenant_id, tanent_name)
+-- Enriched with tenant information (tenant_id, tenant_name)
 -- via join with tem_tenant.
 DROP VIEW IF EXISTS tem_nmap;
 CREATE VIEW tem_nmap AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(urt.content, '$.nmaprun.host[0].address.@addr') AS host_ip,
     json_extract(urt.content, '$.nmaprun.host[0].ports.port[0].@protocol') AS protocol,
@@ -352,7 +638,7 @@ CREATE VIEW tem_katana AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(ur.content, '$.timestamp') AS timestamp,
     json_extract(ur.content, '$.request.method') AS method,
@@ -393,7 +679,7 @@ CREATE VIEW tem_tlsx_certificate AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     ur.uri,
     json_extract(ur.content, '$.timestamp')                 AS observed_at,
@@ -456,7 +742,7 @@ SELECT
     ur.uniform_resource_id,
     ur.device_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     ur.uri,
     json_extract(ur.content,   '$.info.time')      AS observed_at,
@@ -491,7 +777,7 @@ CREATE VIEW tem_testssl_general AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(ur.content, '$.Invocation') AS invocation,
     json_extract(ur.content, '$.version') AS version,
@@ -526,7 +812,7 @@ CREATE VIEW tem_testssl_pretest AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(p.value, '$.id')           AS id,
@@ -556,7 +842,7 @@ CREATE VIEW tem_testssl_protocols AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(p.value, '$.id')           AS id,
@@ -588,7 +874,7 @@ CREATE VIEW tem_testssl_ciphers AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(c.value, '$.id')           AS id,
@@ -620,7 +906,7 @@ CREATE VIEW tem_testssl_server_references AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(sp.value, '$.id')           AS id,
@@ -657,7 +943,7 @@ CREATE VIEW tem_testssl_fs AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(fs.value, '$.id')           AS id,
@@ -688,7 +974,7 @@ CREATE VIEW tem_testssl_server_default AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(sd.value, '$.targetHost')   AS host,
     json_extract(sd.value, '$.id')           AS id,
@@ -718,7 +1004,7 @@ CREATE VIEW tem_testssl_header_response AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(fs.value, '$.id')          AS header_response_id,
@@ -749,7 +1035,7 @@ CREATE VIEW tem_testssl_vulnerabilitie AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(fs.value, '$.id')          AS vulnerability_id,
@@ -779,7 +1065,7 @@ CREATE VIEW tem_testssl_browser_simulation AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(fs.value, '$.id')          AS simulation_id,
@@ -809,7 +1095,7 @@ CREATE VIEW tem_testssl_rating AS
 SELECT
     ur.uniform_resource_id,
     t.tenant_id,
-    t.tanent_name,
+    t.tenant_name,
     ts.ur_ingest_session_id,
     json_extract(s.value, '$.targetHost')   AS host,
     json_extract(fs.value, '$.id')          AS rating_id,
@@ -824,3 +1110,465 @@ JOIN json_each(s.value, '$.rating') fs
 WHERE ur.uri LIKE '%testssl%'
   AND ur.nature = 'json'
   AND json_extract(s.value, '$.targetHost') NOT NULL;
+
+  -- ===============================================================
+-- View: tem_openssl_original_txt
+--
+-- Purpose:
+--   This view extracts individual SSL/TLS certificate blocks and
+--   their associated metadata from the raw content stored in the
+--   `uniform_resource` table. Certificates are split into multiple
+--   rows for easier parsing and analysis.
+--
+-- Method:
+--   * Uses a recursive CTE (`cert_blocks`) to search the content for
+--     "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
+--     markers.
+--   * Each recursion step:
+--       - `metadata`   : Text before the certificate block
+--       - `certificate`: The full PEM-encoded certificate including
+--                        BEGIN/END markers
+--       - `remaining_text`: Remaining content after the current
+--                           certificate (used for recursion)
+--   * The process continues until no more certificate blocks are
+--     found.
+--
+-- Output Columns:
+--   - uniform_resource_id : Identifier linking back to the source entry
+--   - tenant_id           : Tenant identifier
+--   - tenant_name         : Tenant name
+--   - ur_ingest_session_id: Session identifier
+--   - cert_index          : Sequential index of the certificate
+--   - metadata            : Preceding OpenSSL diagnostic text
+--   - certificate         : Extracted PEM certificate block
+--
+-- Notes:
+--   * Certificates are returned in the order they appear.
+--   * Rows without a certificate (NULL) are excluded.
+--   * This view normalizes OpenSSL output into a relational form for
+--     downstream parsing (e.g., extracting CN, issuer, validity period).
+--
+-- ===============================================================
+DROP VIEW IF EXISTS tem_openssl_original_txt;
+CREATE VIEW tem_openssl_original_txt AS
+WITH RECURSIVE cert_blocks AS (
+    -- Anchor: start from the beginning of content with tenant info
+    SELECT
+        ur.uniform_resource_id,
+        t.tenant_id,
+        t.tenant_name,
+        ts.ur_ingest_session_id,
+        ur.content AS remaining_text,
+        NULL AS metadata,
+        NULL AS certificate,
+        1 AS cert_index
+    FROM uniform_resource ur
+    INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+    INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+    WHERE ur.uri LIKE '%openssl%'  -- filter by uri
+    
+    UNION ALL
+
+    -- Recursive step: extract the next certificate block
+    SELECT
+        uniform_resource_id,
+        tenant_id,
+        tenant_name,
+        ur_ingest_session_id,
+        substr(remaining_text, instr(remaining_text, '-----END CERTIFICATE-----') + length('-----END CERTIFICATE-----')) AS remaining_text,
+        trim(substr(remaining_text, 1, instr(remaining_text, '-----BEGIN CERTIFICATE-----') - 1)) AS metadata,
+        substr(
+            remaining_text,
+            instr(remaining_text, '-----BEGIN CERTIFICATE-----'),
+            instr(remaining_text, '-----END CERTIFICATE-----') - instr(remaining_text, '-----BEGIN CERTIFICATE-----') + length('-----END CERTIFICATE-----')
+        ) AS certificate,
+        cert_index + 1
+    FROM cert_blocks
+    WHERE remaining_text LIKE '%-----BEGIN CERTIFICATE-----%'
+)
+SELECT
+    uniform_resource_id,
+    tenant_id,
+    tenant_name,
+    ur_ingest_session_id,
+    cert_index,
+    metadata,
+    certificate
+FROM cert_blocks
+WHERE certificate IS NOT NULL
+ORDER BY uniform_resource_id, cert_index;
+
+
+-- ===============================================================
+-- View: tem_openssl
+-- Purpose:
+--   This view parses raw SSL certificate metadata stored in the
+--   `tem_openssl_original_txt` view and extracts key fields into
+--   structured columns. The goal is to make certificate details
+--   easier to query, filter, and join with other data.
+--
+-- Source:
+--   Table: tem_openssl_original_txt
+--   Column: metadata (raw certificate text as produced by OpenSSL)
+--
+-- Extracted Fields:
+--   - common_name          : Subject CN from "s:" line
+--   - subject_organization : Subject O from "s:" line
+--   - issuer_country       : Issuer C from "i:" line
+--   - issuer_common_name   : Issuer CN from "i:" line
+--   - issuer_organization  : Issuer O from "i:" line
+--   - issued_date          : Certificate "NotBefore" validity date
+--   - expires_date         : Certificate "NotAfter" validity date
+--
+-- Notes:
+--   * The view trims values and falls back to an empty string ("")
+--     if a field is not present in the metadata.
+--   * Only rows where a Common Name (CN) exists in the subject
+--     line are included (filter applied in final WHERE clause).
+--   * Parsing is implemented using SQLite string functions
+--     (instr, substr, length) to avoid dependency on regexp.
+--
+-- Usage Example:
+--   SELECT common_name, issuer_common_name, issued_date, expires_date
+--   FROM tem_openssl
+--   WHERE expires_date < date('now');
+--
+-- ===============================================================
+DROP VIEW IF EXISTS tem_openssl;
+CREATE VIEW tem_openssl AS
+WITH parsed AS (
+  SELECT
+    uniform_resource_id,
+    tenant_id,
+    tenant_name,
+    ur_ingest_session_id,
+    cert_index,
+    metadata,
+
+    -- full subject line starting at the first "s:" up to the newline
+    CASE
+      WHEN instr(metadata, 's:') = 0 THEN ''
+      ELSE trim(
+        substr(
+          metadata,
+          instr(metadata, 's:'),
+          CASE
+            WHEN instr(substr(metadata, instr(metadata, 's:')), char(10)) > 0
+              THEN instr(substr(metadata, instr(metadata, 's:')), char(10)) - 1
+            ELSE length(metadata) - instr(metadata, 's:') + 1
+          END
+        )
+      )
+    END AS subject_line,
+
+    -- full issuer line starting at the first "i:" up to the newline
+    CASE
+      WHEN instr(metadata, 'i:') = 0 THEN ''
+      ELSE trim(
+        substr(
+          metadata,
+          instr(metadata, 'i:'),
+          CASE
+            WHEN instr(substr(metadata, instr(metadata, 'i:')), char(10)) > 0
+              THEN instr(substr(metadata, instr(metadata, 'i:')), char(10)) - 1
+            ELSE length(metadata) - instr(metadata, 'i:') + 1
+          END
+        )
+      )
+    END AS issuer_line
+
+  FROM tem_openssl_original_txt
+)
+
+SELECT
+  uniform_resource_id,
+  tenant_id,
+  tenant_name,
+  ur_ingest_session_id,
+  cert_index,
+
+  /* common_name (from subject_line -> CN=...) */
+  CASE
+    WHEN instr(subject_line, 'CN=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        subject_line,
+        instr(subject_line, 'CN=') + 3,
+        CASE
+          WHEN instr(substr(subject_line, instr(subject_line, 'CN=') + 3), ',') > 0
+            THEN instr(substr(subject_line, instr(subject_line, 'CN=') + 3), ',') - 1
+          ELSE length(subject_line) - (instr(subject_line, 'CN=') + 3) + 1
+        END
+      )
+    )
+  END AS common_name,
+
+  /* subject_organization (from subject_line -> O=...) */
+  CASE
+    WHEN instr(subject_line, 'O=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        subject_line,
+        instr(subject_line, 'O=') + 2,
+        CASE
+          WHEN instr(substr(subject_line, instr(subject_line, 'O=') + 2), ',') > 0
+            THEN instr(substr(subject_line, instr(subject_line, 'O=') + 2), ',') - 1
+          ELSE length(subject_line) - (instr(subject_line, 'O=') + 2) + 1
+        END
+      )
+    )
+  END AS subject_organization,
+
+  /* issuer_country (from issuer_line -> C=...) */
+  CASE
+    WHEN instr(issuer_line, 'C=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'C=') + 2,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'C=') + 2), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'C=') + 2), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'C=') + 2) + 1
+        END
+      )
+    )
+  END AS issuer_country,
+
+  /* issuer_common_name (from issuer_line -> CN=...) */
+  CASE
+    WHEN instr(issuer_line, 'CN=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'CN=') + 3,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'CN=') + 3), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'CN=') + 3), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'CN=') + 3) + 1
+        END
+      )
+    )
+  END AS issuer_common_name,
+
+  /* issuer_organization (from issuer_line -> O=...) */
+  CASE
+    WHEN instr(issuer_line, 'O=') = 0 THEN ''
+    ELSE trim(
+      substr(
+        issuer_line,
+        instr(issuer_line, 'O=') + 2,
+        CASE
+          WHEN instr(substr(issuer_line, instr(issuer_line, 'O=') + 2), ',') > 0
+            THEN instr(substr(issuer_line, instr(issuer_line, 'O=') + 2), ',') - 1
+          ELSE length(issuer_line) - (instr(issuer_line, 'O=') + 2) + 1
+        END
+      )
+    )
+  END AS issuer_organization,
+
+  /* issued_date (NotBefore:) */
+  CASE
+    WHEN instr(metadata, 'NotBefore:') = 0 THEN ''
+    ELSE trim(
+      substr(
+        metadata,
+        instr(metadata, 'NotBefore:') + length('NotBefore:'),
+        CASE
+          WHEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), ';') > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), ';') - 1
+          WHEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), char(10)) > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotBefore:') + length('NotBefore:')), char(10)) - 1
+          ELSE length(metadata) - (instr(metadata, 'NotBefore:') + length('NotBefore:')) + 1
+        END
+      )
+    )
+  END AS issued_date,
+
+  /* expires_date (NotAfter:) */
+  CASE
+    WHEN instr(metadata, 'NotAfter:') = 0 THEN ''
+    ELSE trim(
+      substr(
+        metadata,
+        instr(metadata, 'NotAfter:') + length('NotAfter:'),
+        CASE
+          WHEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), char(10)) > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), char(10)) - 1
+          WHEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), ';') > 0
+            THEN instr(substr(metadata, instr(metadata, 'NotAfter:') + length('NotAfter:')), ';') - 1
+          ELSE length(metadata) - (instr(metadata, 'NotAfter:') + length('NotAfter:')) + 1
+        END
+      )
+    )
+  END AS expires_date
+
+FROM parsed
+WHERE instr(subject_line, 'CN=') > 0;
+
+
+-- ===============================================================
+-- View: tem_wafw00f_original_txt
+-- Purpose:
+--   Parses wafw00f output stored in uniform_resource.content (rows where
+--   uri LIKE '%wafw00f%'). Splits the raw text into lines, identifies
+--   blocks that start with '[*] Checking ...' and aggregates only the
+--   marker lines that start with one of: [*], [+], [-], [~].
+--   Non-marker lines (e.g. ASCII art/banner or other noise) are excluded.
+-- ===============================================================
+DROP VIEW IF EXISTS tem_wafw00f_original_txt;
+CREATE VIEW tem_wafw00f_original_txt AS
+WITH RECURSIVE
+-- Recursively split content into trimmed lines with a sequential line number
+split_lines(uniform_resource_id, uri, line, rest, ln) AS (
+    SELECT
+        uniform_resource_id,
+        uri,
+        trim(
+          CASE
+            WHEN instr(content, char(10)) > 0 THEN substr(content, 1, instr(content, char(10)) - 1)
+            ELSE content
+          END
+        ) AS line,
+        CASE
+          WHEN instr(content, char(10)) > 0 THEN substr(content, instr(content, char(10)) + 1)
+          ELSE ''
+        END AS rest,
+        1 AS ln
+    FROM uniform_resource
+    WHERE uri LIKE '%wafw00f%'
+
+    UNION ALL
+
+    SELECT
+        uniform_resource_id,
+        uri,
+        trim(
+          CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, 1, instr(rest, char(10)) - 1)
+            ELSE rest
+          END
+        ) AS line,
+        CASE
+          WHEN instr(rest, char(10)) > 0 THEN substr(rest, instr(rest, char(10)) + 1)
+          ELSE ''
+        END AS rest,
+        ln + 1
+    FROM split_lines
+    WHERE rest <> ''
+),
+-- Find the start line number for each block (lines that begin with "[*] Checking ")
+block_start AS (
+    SELECT uniform_resource_id, uri, ln AS start_ln
+    FROM split_lines
+    WHERE line LIKE '[*] Checking %'
+),
+-- Assign each marker line to the most recent block_start before it.
+-- Also filter to include only marker lines that start with one of the allowed prefixes.
+block_lines AS (
+    SELECT s.uniform_resource_id,
+           s.uri,
+           b.start_ln AS block_ln,
+           s.line
+    FROM split_lines s
+    JOIN block_start b
+      ON s.uniform_resource_id = b.uniform_resource_id
+     AND s.ln >= b.start_ln
+     AND NOT EXISTS (
+           SELECT 1 FROM block_start b2
+           WHERE b2.uniform_resource_id = s.uniform_resource_id
+             AND b2.start_ln > b.start_ln
+             AND b2.start_ln <= s.ln
+         )
+    WHERE
+      -- keep only marker lines:
+      s.line LIKE '[*]%' OR
+      s.line LIKE '[+]%' OR
+      s.line LIKE '[-]%' OR
+      s.line LIKE '[~]%'
+)
+-- Aggregate lines into one block per row; order by the block start line
+SELECT
+    uniform_resource_id,
+    uri,
+    group_concat(line, char(10)) AS block_content
+FROM block_lines
+GROUP BY uniform_resource_id, uri, block_ln
+ORDER BY uniform_resource_id, block_ln;
+
+-- ===============================================================
+-- View: tem_waf_hosts
+-- 
+-- Purpose:
+--   Extracts the host/domain from each WAFW00F block in the
+--   tem_wafw00f_original_txt table. Each row corresponds to
+--   a single WAFW00F scan block. Only the host is extracted
+--   from lines starting with "[*] Checking ...", along with
+--   the full block_content for reference.
+-- 
+-- Columns:
+--   uniform_resource_id : ID of the original uniform_resource row
+--   host                : Extracted host/domain from the scan
+--   block_content       : Full text block of the WAFW00F scan
+-- ===============================================================
+DROP VIEW IF EXISTS tem_wafw00f;
+CREATE VIEW tem_wafw00f AS
+WITH RECURSIVE split_lines AS (
+    SELECT
+        wafWoof.uniform_resource_id,
+        t.tenant_id,
+        t.tenant_name,
+        ts.ur_ingest_session_id,
+        CASE
+            WHEN instr(block_content, char(10)) > 0 THEN substr(block_content, 1, instr(block_content, char(10)) - 1)
+            ELSE block_content
+        END AS line,
+        CASE
+            WHEN instr(block_content, char(10)) > 0 THEN substr(block_content, instr(block_content, char(10)) + 1)
+            ELSE ''
+        END AS rest,
+        block_content
+    FROM tem_wafw00f_original_txt wafWoof
+    INNER JOIN uniform_resource ur ON wafWoof.uniform_resource_id = ur.uniform_resource_id
+    INNER JOIN tem_tenant t ON t.device_id = ur.device_id
+    INNER JOIN tem_session ts ON ur.device_id = ts.device_id
+
+    UNION ALL
+
+    SELECT
+        uniform_resource_id,
+        tenant_id,
+        tenant_name,
+        ur_ingest_session_id,
+        CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, 1, instr(rest, char(10)) - 1)
+            ELSE rest
+        END AS line,
+        CASE
+            WHEN instr(rest, char(10)) > 0 THEN substr(rest, instr(rest, char(10)) + 1)
+            ELSE ''
+        END AS rest,
+        block_content
+    FROM split_lines
+    WHERE rest <> ''
+)
+SELECT DISTINCT
+    uniform_resource_id,
+    tenant_id,
+    tenant_name,
+    ur_ingest_session_id,
+    -- Extract host from "https://..."
+    substr(
+        line,
+        instr(line, 'https://') + 8,
+        CASE
+            WHEN instr(substr(line, instr(line, 'https://') + 8), '/') > 0
+            THEN instr(substr(line, instr(line, 'https://') + 8), '/') - 1
+            ELSE length(substr(line, instr(line, 'https://') + 8))
+        END
+    ) AS host,
+    block_content
+FROM split_lines
+WHERE line LIKE '[*] Checking %'
+ORDER BY host;
+

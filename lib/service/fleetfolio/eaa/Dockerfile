@@ -18,19 +18,23 @@ RUN set -eux; \
 # ------------------------------------------------------------------------------
 # 1) Base packages, Kali/Debian tools, and common deps
 # ------------------------------------------------------------------------------
-    RUN set -eux; \
+# ------------------------------------------------------------------------------
+# 1) Base packages, Kali/Debian tools, and common deps
+# ------------------------------------------------------------------------------
+RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
       sudo ca-certificates curl wget git zsh bash coreutils \
       build-essential gcc jq python3 python3-pip python3-setuptools python3-wheel \
-      whatweb nmap openssl \
-      subfinder dnsx httpx-toolkit naabu nuclei dirsearch \
-      wafw00f testssl.sh paramspider \
+      whatweb nmap openssl seclists ffuf sslyze zip \
+      subfinder dnsx httpx-toolkit naabu nuclei dirsearch nikto amass wpscan dnsenum \
+      wafw00f testssl.sh paramspider libpcap-dev  \
       golang-go \
     && apt-get clean && rm -rf /var/lib/apt/lists/*; \
     \
     git clone https://github.com/s0md3v/Corsy.git /opt/eaa/Corsy; \
     pip3 install -r /opt/eaa/Corsy/requirements.txt --break-system-packages; \
+    pip3 install requests urllib3 --break-system-packages; \
     \
     git clone https://github.com/r0oth3x49/ghauri.git /opt/eaa/ghauri; \
     cd /opt/eaa/ghauri && python3 setup.py install
@@ -80,7 +84,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install runme rustscan
+RUN set -eux; brew install runme rustscan backlog-md dalfox
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -88,10 +92,10 @@ RUN set -eux; brew install runme rustscan
 USER root
 ENV GOBIN=/usr/local/bin
 RUN set -eux; \
-    go install github.com/projectdiscovery/katana/cmd/katana@latest; \
-    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest; \
-    go install -v github.com/PentestPad/subzy@latest
-    
+    go install github.com/projectdiscovery/katana/cmd/katana@latest && \
+    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest && \
+    go install -v github.com/PentestPad/subzy@latest && \
+    go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest
 
 # Make Homebrew available to root shells too (nice for interactive sessions)
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
@@ -108,6 +112,8 @@ RUN set -eux; \
 # 7) Copy .env file from build context into /opt/eaa
 # ------------------------------------------------------------------------------
 COPY .env /opt/eaa/.env
+COPY .interpretation-template /opt/eaa/.interpretation-template
+COPY directory-list.txt /opt/eaa/directory-list.txt
 
 # ------------------------------------------------------------------------------
 # 8) Add the runbook and prep nuclei templates
@@ -115,7 +121,7 @@ COPY .env /opt/eaa/.env
 WORKDIR /opt/eaa/
 
 # Ensure the sessions directory exists in the container
-RUN mkdir -p /opt/eaa/sessions/opsfolio
+RUN mkdir -p /opt/eaa/sessions/
 
 COPY fleetfolio-eaa-pentest-lite.runme.md /opt/eaa/
 RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent || true
