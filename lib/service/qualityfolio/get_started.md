@@ -8,18 +8,25 @@ Through its web-based dashboards, Qualityfolio provides complete visibility into
 
 ## 2. Requirements of Qualityfolio
 
-### 2.1 Surveilr Installation
+### 2.1 Surveilr Installation - Method 1
 
-Install Surveilr in any of the 3 methods in MacOS/Linux:
+#### Install Surveilr in the MacOS:
 
-#### 2.1.1 Install in current path
 ```bash
-curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
+brew tap surveilr/tap && brew install surveilr
 ```
 
-#### 2.1.2 Install globally
+#### Install Surveilr in any of the 3 methods in Linux:
+
+
+#### 2.1.1 Install globally
 ```bash
 curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="$HOME/bin" bash
+```
+
+#### 2.1.2 Install in current path
+```bash
+curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | bash
 ```
 
 #### 2.1.3 Install in preferred path
@@ -29,6 +36,16 @@ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/s
 
 Refer to the official [Surveilr installation guide](https://www.surveilr.com/docs/core/quick-start/) for more details.
 
+### 2.2 Surveilr Installation - Method 2
+
+#### 2.2.1 Open terminal in Visual Studio Code and execute the following commands one by one for surveilr installation
+
+```bash
+1. wget https://github.com/opsfolio/releases.opsfolio.com/releases/download/0.31.1/resource-surveillance_0.31.1_x86_64-unknown-linux-musl.tar.gz
+tar -xvf resource-surveillance_0.31.1_x86_64-unknown-linux-musl.tar.gz
+
+2. surveilr upgrade –yes
+```
 ## 3. Installation Steps for Qualityfolio
 
 Apart from the Surveilr installation, Qualityfolio requires no other installation. Once Surveilr is installed, all Qualityfolio execution tasks can be carried out using the following commands from the integrated terminal.
@@ -44,6 +61,15 @@ surveilr shell https://www.surveilr.com/lib/service/qualityfolio/package.sql
 ```
 
 ### 3.3 Launch web UI on localhost:3010
+
+#### 3.3.1 For MAC environment:
+
+```bash
+SQLPAGE_SITE_PREFIX="/qualityfolio" surveilr web-ui -d "resource-surveillance.sqlite.db" --port 3000 --host $(ipconfig getifaddr en0)
+``` 
+
+#### 3.3.2 For Linux environment:
+
 ```bash
 SQLPAGE_SITE_PREFIX="/qualityfolio" surveilr web-ui -d "resource-surveillance.sqlite.db" --port 3010 --host localhost
 ```
@@ -492,4 +518,3 @@ SQLite (default) and PostgreSQL.
 **Q5: Does it integrate with JIRA?**
 
 Yes. Bugs and cases can be linked directly to JIRA issues for traceability.
-
