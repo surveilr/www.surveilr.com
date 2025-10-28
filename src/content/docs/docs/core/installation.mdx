@@ -5,42 +5,73 @@ description: detailed installation instructions and usage
 
 Get the latest Resource Surveillance & Integration Engine (`surveilr`) for Critical Systems by following these steps to complete the installation:
 
-- Visit our GitHub Releases page:
+## 📦 Package Managers (Recommended)
 
-  - Navigate to our [GitHub Releases](https://github.com/opsfolio/releases.opsfolio.com/releases) page to download the latest version of `surveilr` that’s compatible with your operating system.
+### Ubuntu/Debian (.deb packages)
 
-- Download the appropriate version:
+```bash
+# Ubuntu (Jammy)
+$ wget https://github.com/surveilr/packages/releases/latest/download/surveilr_jammy.deb
+$ sudo dpkg -i surveilr_jammy.deb
 
-  - Select and download the version that matches your operating system (Windows, macOS, or Linux).
+# Debian (Bookworm)
+$ wget https://github.com/surveilr/packages/releases/latest/download/surveilr_bookworm.deb
+$ sudo dpkg -i surveilr_bookworm.deb
+```
 
-- Extract the executable file from the downloaded archive:
+### macOS (Homebrew)
 
-  - **Windows:**
+```bash
+$ brew tap surveilr/tap && brew install surveilr
+```
 
-    - Extract the downloaded zip file
-    - Copy the executable ( ends with `.exe` ) file from the extracted zip folder and move to your desired path or directory
-    - Open your terminal and change directory (cd) to where the extracted file was moved
+### Windows
 
-  - **macOS and Linux:**
-    - Follow the instructions in [quick start](/docs/core/quick-start)
+```powershell
+# Recommended: Use installation script
+$ irm https://raw.githubusercontent.com/surveilr/packages/refs/heads/main/scripts/install.ps1 | iex
 
-- [Verify installation](/docs/core/installation#verify-installation).
+# Alternative: Manual installation
+# 1. Download from: https://github.com/surveilr/packages/releases/latest
+# 2. Extract the downloaded zip file
+# 3. Copy the executable (ends with .exe) to your desired directory
+# 4. Add to PATH or run from the directory
+```
 
-### Alternative Installation for Linux Using Eget
+## 🔗 Direct Download
 
-- Before you can get anything, you have to get [Eget](https://github.com/zyedidia/eget):
+Visit our [GitHub Releases](https://github.com/surveilr/packages/releases) page to download pre-built binaries for your operating system:
 
-  ```bash
-  $ curl https://zyedidia.github.io/eget.sh | sh
-  ```
+- **Windows**: `surveilr-windows.zip`
+- **macOS**: `surveilr-macos.zip`
+- **Linux**: `surveilr-linux.tar.gz`
 
-- Now install `surveilr` using `eget`:
+## 📜 Installation Scripts
 
-  ```bash
-  $ eget opsfolio/releases.opsfolio.com --asset tar.gz
-  ```
+### macOS and Linux
 
-- Run verification steps [here](/docs/core/installation#verify-installation).
+```bash
+# Install in current directory
+$ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | bash
+
+# Install globally
+$ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | SURVEILR_HOME="$HOME/bin" bash
+
+# Install in preferred path
+$ curl -sL https://raw.githubusercontent.com/surveilr/packages/main/scripts/install.sh | SURVEILR_HOME="/path/to/directory" bash
+```
+
+## 🛠️ Alternative Installation Using Eget
+
+```bash
+# Install eget first
+$ curl https://zyedidia.github.io/eget.sh | sh
+
+# Install surveilr
+$ eget surveilr/packages --asset tar.gz
+```
+
+After installation, run verification steps [below](#verify-installation).
 
 ### Verify installation
 
