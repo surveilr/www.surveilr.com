@@ -1764,106 +1764,113 @@ export class FleetFolioSqlPages extends spn.TypicalSqlPageNotebook {
   })
   "sqlpage/templates/shell-custom.handlebars"() {
     return this.SQL`<!DOCTYPE html>
-      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}}class="{{class}}" {{/if}}>
-      <head>
-          <meta charset="utf-8" />
+      <html lang="{{language}}" style="" {{#if class}} class="{{class}}" {{/if}}>
+        <head>
+        <meta charset="utf-8" />
 
-          <!-- Base CSS -->
-          <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
-      
-          <style>
-          .py-4 {
-                padding-top: 1rem !important;
-                padding-bottom: 1rem !important;
-          }
-          header .py-4 {
-              padding-top: 1rem !important;
-              padding-bottom: 1rem !important;
-          }
-          header .w-6 {
-              height: 1.5rem !important;
-          }
-          header .h-6 {
-              height: 1.5rem !important;
-          }
-          header .space-x-8 {
-              display: flex;
-              gap: 0rem !important;
-          }
-          footer .pt-6 {
-              padding-top: 1.5rem !important;
-          }
-          footer .pt-8 {
-              padding-top: 2rem !important;
-          }
-          footer .px-4 {
-              padding-left: 1rem !important;
-              padding-right: 1rem !important;
-          }
-          footer .mt-4 {
-              padding-top: 1rem !important;
-          }
-          </style>
-          
-          {{#each (to_array css)}}
+          <!--Base CSS-->
+            <link rel="stylesheet" href="{{static_path 'sqlpage.css'}}">
+              {{#each (to_array css)}}
               {{#if this}}
-                  <link rel="stylesheet" href="{{this}}">
-              {{/if}}
-          {{/each}}
+<link rel="stylesheet" href="{{this}}">
+  {{/if}}
+{{/each}}
+<style>
+* {scrollbar-color: inherit !important;}
+html{font-size: inherit !important;}
+body {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+ol, ul {
+    padding-left: 0rem ! important;
+    margin-bottom: 0px ! important;
+}
+.scrollbar h3 {
+    margin-bottom: 0px!important;
+    color: #a1a1a1 !important;
+    margin-left: 0px!important;
+}
+.scrollbar ul li a {
+  text-decoration : none !important;
+}
+.scrollbar ul li a:hover {
+  text-decoration : none !important;
+}
+.w-4 {width: 1rem !important;}
+.h-4 {height: 1rem !important;}
+main nav ol.breadcrumb{
+  display:none !important;
+}
+header .px-4 {
+    padding-right: 0.4rem !important;
+    padding-left: 0.4rem !important;
+}
+ol li a{
+  text-decoration: none !important;
+  color: #737373 !important;
+}
+ol li a:hover{
+  color:#000 !important;
+}
+.bg-primary {
+  background-color:#000 !important;
+}
+.h-5 {
+    height: 1rem !important;
+}
+.w-5 {
+    width: 1rem !important;
+}
+.relative.flex.cursor-default a{
+  color: #000 !important;
+  text-decoration: none !important;
+}
+</style>
+<!--Font Setup-->
+  {{#if font}}
+{{#if (starts_with font "/")}}
 
-          <!-- Font Setup -->
-          {{#if font}}
-              {{#if (starts_with font "/")}}
-                  <style>
-                      @font-face {
-                          font-family: 'LocalFont';
-                          src: url('{{font}}') format('woff2');
-                          font-weight: normal;
-                          font-style: normal;
-                      }
+{{else}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
+      <style>
                       :root {
-                          --tblr-font-sans-serif: 'LocalFont', Arial, sans-serif;
-                      }
-                  </style>
-              {{else}}
-                  <link rel="preconnect" href="https://fonts.googleapis.com">
-                  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{font}}&display=fallback">
-                  <style>
-                      :root {
-                          --tblr-font-sans-serif: '{{font}}', Arial, sans-serif;
-                      }
-                  </style>
-              {{/if}}
-          {{/if}}
+  --tblr-font-sans-serif: '{{font}}', Arial, sans-serif;
+}
+</style>
+{{/if}}
+{{/if}}
 
-          <!-- JavaScript -->
-          <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
-          {{#each (to_array javascript)}}
-              {{#if this}}
-                  <script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
-              {{/if}}
-          {{/each}}
-          {{#each (to_array javascript_module)}}
-              {{#if this}}
-                  <script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
-              {{/if}}
-          {{/each}}
-      </head>
+<!--JavaScript-->
+  <script src="{{static_path 'sqlpage.js'}}" defer nonce="{{@csp_nonce}}"></script>
+{{#each (to_array javascript)}}
+{{#if this}}
+<script src="{{this}}" defer nonce="{{@../csp_nonce}}"></script>
+{{/if}}
+{{/each}}
+{{#each (to_array javascript_module)}}
+{{#if this}}
+<script src="{{this}}" type="module" defer nonce="{{@../csp_nonce}}"></script>
+{{/if}}
+{{/each}}
+</head>
 
-      <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}}data-bs-theme="{{theme}}" {{/if}}>
-          <div class="page">
-              <!-- Header -->
-              <!-- Page Wrapper -->
-              <div class="page-wrapper">
-                  <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
-                      {{~#each_row~}}{{~/each_row~}}
-                  </main>
-              </div>
-          </div>
-      </body>
-      </html>
-`;
+  <body class="layout-{{#if sidebar}}fluid{{else}}{{default layout 'boxed'}}{{/if}}" {{#if theme}} data-bs-theme="{{theme}}" {{/if}}>
+    <div class="page">
+      <!--Header-->
+
+
+        <!--Page Wrapper-->
+          <div class="page-wrapper">
+            <main class="page-body w-full flex-grow-1 px-0" id="sqlpage_main_wrapper">
+              {{~#each_row~}}{{~/each_row~}}
+</main>
+  </div>
+  </div>
+  </body>
+  </html>
+    `;
   }
 }
 
