@@ -2445,7 +2445,7 @@ SELECT ''title'' AS component, ''Tasks Overview'' AS contents;
 
 --- Small description above the table
 SELECT ''text'' AS component,
-''This table lists all tasks detected in the system, including their status and title. Click on a Task ID to view detailed content.'' AS contents;
+(SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/index.sql'' AND page_order = 1) AS contents;
 
 --- Tasks Table
 SELECT ''table'' AS component, TRUE AS sort, TRUE AS search, ''Title'' AS markdown;
@@ -2567,7 +2567,7 @@ SELECT
 
 SELECT
     ''text''              as component,
-    "Attack Surface Mapping is the process of identifying, collecting, and analyzing all potential points of entry an attacker could exploit within an organization''s digital infrastructure. It involves using tools such as WhatWeb, Nmap, TLS/TLSX, Nuclei, DNSx, Dirsearch, Naabu, Subfinder, Katana, and HTTPX-Toolkit to enumerate exposed services, technologies, subdomains, directories, ports, TLS configurations, and vulnerabilities. This helps organizations gain a comprehensive view of their external and internal exposure, prioritize remediation efforts, and strengthen their security posture." as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/attack_surface_mapping_tenant.sql'' AND page_order = 1) as contents;
 
 SELECT
     ''card'' as component,
@@ -2617,7 +2617,7 @@ SELECT
 
 SELECT
     ''text''              as component,
-    "This page presents the attack surface data collected during a specific session. It consolidates results from scanning and reconnaissance tools, showing discovered hosts, services, protocols, and exposed endpoints. This allows users to analyze session-specific findings, track changes over time, and prioritize security actions based on session-based activities." as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/attack_surface_mapping_session.sql'' AND page_order = 1) as contents;
 
 SELECT ''table'' AS component,
 TRUE AS sort,
@@ -2668,7 +2668,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT
    ''text''              as component,
-   ''Collection of reconnaissance and security assessment tools used for subdomain discovery, port scanning, DNS probing, web technology fingerprinting, TLS analysis, and vulnerability detection.'' as contents;
+   (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/attack_surface_mapping_inner.sql'' AND page_order = 1) as contents;
  
 
 SELECT
@@ -2717,7 +2717,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
  SELECT
    ''text''              as component,
-   ''Collection of reconnaissance and security assessment tools used for subdomain discovery, port scanning, DNS probing, web technology fingerprinting, TLS analysis, and vulnerability detection.'' as contents;
+   (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/tenant_asset.sql'' AND page_order = 1) as contents;
  
 
  SELECT ''table'' AS component,
@@ -2764,7 +2764,7 @@ SELECT
 
 SELECT
   ''text''              as component,
-  ''Detailed insights from each security tool, including scan results, fingerprints, DNS records, TLS details, subdomain enumeration, and vulnerability assessments, mapped per asset for better threat exposure analysis.'' as contents;
+  (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/session/finding.sql'' AND page_order = 1) as contents;
 
 
 SELECT ''table'' AS component,
@@ -2868,7 +2868,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   SELECT
     ''text''              as component,
-    ''This page displays the results of automated web technology fingerprinting using WhatWeb. It includes details about detected servers, technologies, HTTP responses, geolocation, and key headers for each scanned endpoint.'' as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/tenant/what_web.sql'' AND page_order = 1) as contents;
   
 
   SELECT ''table'' AS component,
@@ -2947,7 +2947,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   SELECT
     ''text''              as component,
-    ''This page displays the results of automated web technology fingerprinting using WhatWeb. It includes details about detected servers, technologies, HTTP responses, geolocation, and key headers for each scanned endpoint.'' as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/session/what_web.sql'' AND page_order = 1) as contents;
   
 
   SELECT ''table'' AS component,
@@ -3029,7 +3029,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   SELECT
     ''text''              as component,
-    ''This page lists the discovered DNS records using dnsx. It provides information about resolved subdomains, their IP addresses, DNS servers queried, response status, and timestamps for when the enumeration was performed.'' as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/tenant/dnsx.sql'' AND page_order = 1) as contents;
   
 
   SELECT ''table'' AS component,
@@ -3094,7 +3094,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   SELECT
     ''text''              as component,
-    ''This page lists the discovered DNS records using dnsx. It provides information about resolved subdomains, their IP addresses, DNS servers queried, response status, and timestamps for when the enumeration was performed.'' as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/session/dnsx.sql'' AND page_order = 1) as contents;
   
 
   SELECT ''table'' AS component,
@@ -3162,7 +3162,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 
   SELECT
     ''text''              as component,
-    ''Comprehensive overview of detected vulnerabilities and exposures from Nuclei scans. Displays host, URL, template details, severity levels, matched paths, and timestamps for quick analysis and remediation planning.'' as contents;
+    (SELECT page_content FROM tem_page_description WHERE page_identifier = ''tem/tenant/nuclei.sql'' AND page_order = 1) as contents;
   
 
   SELECT ''table'' AS component,
@@ -5530,13 +5530,13 @@ SELECT ''text'' AS component,
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
       'sqlpage/templates/shell-custom.handlebars',
-      '          
-          
-          
-          
+      '              
+              
+              
+              
 
-          <!DOCTYPE html>
-      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}} class="{{class}}" {{/if}}>
+              <!DOCTYPE html>
+      <html lang="{{language}}" style="" {{#if class}} class="{{class}}" {{/if}}>
         <head>
         <meta charset="utf-8" />
 
@@ -5547,21 +5547,61 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 <link rel="stylesheet" href="{{this}}">
   {{/if}}
 {{/each}}
-
+<style>
+* {scrollbar-color: inherit !important;}
+html{font-size: inherit !important;}
+body {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+ol, ul {
+    padding-left: 0rem ! important;
+    margin-bottom: 0px ! important;
+}
+.scrollbar h3 {
+    margin-bottom: 0px!important;
+    color: #a1a1a1 !important;
+    margin-left: 0px!important;
+}
+.scrollbar ul li a {
+  text-decoration : none !important;
+}
+.scrollbar ul li a:hover {
+  text-decoration : none !important;
+}
+.w-4 {width: 1rem !important;}
+.h-4 {height: 1rem !important;}
+main nav ol.breadcrumb{
+  display:none !important;
+}
+header .px-4 {
+    padding-right: 0.4rem !important;
+    padding-left: 0.4rem !important;
+}
+ol li a{
+  text-decoration: none !important;
+  color: #737373 !important;
+}
+ol li a:hover{
+  color:#000 !important;
+}
+.bg-primary {
+  background-color:#000 !important;
+}
+.h-5 {
+    height: 1rem !important;
+}
+.w-5 {
+    width: 1rem !important;
+}
+.relative.flex.cursor-default a{
+  color: #000 !important;
+  text-decoration: none !important;
+}
+</style>
 <!--Font Setup-->
   {{#if font}}
 {{#if (starts_with font "/")}}
-<style>
-  @font-face {
-  font-family: ''LocalFont'';
-  src: url(''{{font}}'') format(''woff2'');
-  font-weight: normal;
-  font-style: normal;
-}
-                      :root {
-  --tblr-font-sans-serif: ''LocalFont'', Arial, sans-serif;
-}
-</style>
+
 {{else}}
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5602,7 +5642,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
   </div>
   </body>
   </html>;
-        ',
+            ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
 INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (

@@ -5893,7 +5893,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
               
 
               <!DOCTYPE html>
-      <html lang="{{language}}" style="font-size: {{default font_size 18}}px" {{#if class}} class="{{class}}" {{/if}}>
+      <html lang="{{language}}" style="" {{#if class}} class="{{class}}" {{/if}}>
         <head>
         <meta charset="utf-8" />
 
@@ -5904,21 +5904,61 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 <link rel="stylesheet" href="{{this}}">
   {{/if}}
 {{/each}}
-
+<style>
+* {scrollbar-color: inherit !important;}
+html{font-size: inherit !important;}
+body {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+ol, ul {
+    padding-left: 0rem ! important;
+    margin-bottom: 0px ! important;
+}
+.scrollbar h3 {
+    margin-bottom: 0px!important;
+    color: #a1a1a1 !important;
+    margin-left: 0px!important;
+}
+.scrollbar ul li a {
+  text-decoration : none !important;
+}
+.scrollbar ul li a:hover {
+  text-decoration : none !important;
+}
+.w-4 {width: 1rem !important;}
+.h-4 {height: 1rem !important;}
+main nav ol.breadcrumb{
+  display:none !important;
+}
+header .px-4 {
+    padding-right: 0.4rem !important;
+    padding-left: 0.4rem !important;
+}
+ol li a{
+  text-decoration: none !important;
+  color: #737373 !important;
+}
+ol li a:hover{
+  color:#000 !important;
+}
+.bg-primary {
+  background-color:#000 !important;
+}
+.h-5 {
+    height: 1rem !important;
+}
+.w-5 {
+    width: 1rem !important;
+}
+.relative.flex.cursor-default a{
+  color: #000 !important;
+  text-decoration: none !important;
+}
+</style>
 <!--Font Setup-->
   {{#if font}}
 {{#if (starts_with font "/")}}
-<style>
-  @font-face {
-  font-family: ''LocalFont'';
-  src: url(''{{font}}'') format(''woff2'');
-  font-weight: normal;
-  font-style: normal;
-}
-                      :root {
-  --tblr-font-sans-serif: ''LocalFont'', Arial, sans-serif;
-}
-</style>
+
 {{else}}
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
