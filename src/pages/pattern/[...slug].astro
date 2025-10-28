@@ -138,6 +138,12 @@ const webPageSchema = {
                     url={pattern.data.liveDemo?.btnURL}
                   />
                 )}
+                {pattern.data.getStarted?.btnURL && (
+                  <PrimaryCTA
+                    title={pattern.data.getStarted?.btnTitle}
+                    url={pattern.data.getStarted?.btnURL}
+                  />
+                )}
               </p>
             </div>
 
