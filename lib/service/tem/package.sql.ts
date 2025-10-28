@@ -2901,7 +2901,7 @@ export class TemSqlPages extends spn.TypicalSqlPageNotebook {
   {{/if}}
 {{/each}}
 <style>
-* {scrollbar-color: inherit !important;}
+* {scrollbar-color: #9f9f9f #fdfdfd !important;}
 html{font-size: inherit !important;}
 body {
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
