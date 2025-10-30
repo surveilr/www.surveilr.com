@@ -320,7 +320,7 @@ LEFT JOIN
      'orange' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=open")} as link
     FROM 
     bug_report t  where status='open';
 
@@ -334,7 +334,7 @@ LEFT JOIN
      'purple' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-     ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
+     ${this.absoluteURL("/qualityfolio/bug-list.sql?status=closed")} as link
     FROM 
     bug_report t where status='closed';
 
@@ -1578,7 +1578,11 @@ SELECT
     breadcrumbsFromNavStmts: "no",
   })
   "qualityfolio/bug-list.sql"() {
-    const viewName = `jira_issues`;
+    const viewName = `bug_report`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE ($status IS NULL OR status = $status)",
+    });
 
     return this.SQL`
     SELECT 'html' as component,
@@ -1612,6 +1616,8 @@ SELECT
       ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
     select 'bug list' as title;  
     
+    ${pagination.init()}
+    
      SELECT 'table' as component,
       TRUE AS sort,
         TRUE AS search,
@@ -1622,19 +1628,16 @@ SELECT
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || bug_id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
-      }|| bug_id || ')' as id,
+    '[' || id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
+      }|| id || ')' as id,
       title,
-      reporter as 'Reporter',
-      strftime('%d-%m-%Y', created) as "Created At",
-      assignee,
+      strftime('%d-%m-%Y', created_at) as "Created At",
+      assigned,
       status as "State",
       'rowClass-'||status as _sqlpage_css_class
-    FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
-    --  FROM ${viewName} t
-    --  LIMIT $limit
-    --   OFFSET $offset;
+     FROM ${viewName} t WHERE ($status IS NULL OR status = $status) LIMIT $limit OFFSET $offset;
 
+    ${pagination.renderSimpleMarkdown("status")};
     `;
   }
 
