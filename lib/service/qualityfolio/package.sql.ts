@@ -1614,7 +1614,7 @@ SELECT
     select
     'Test Management System' as title,
       ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
-    select 'bug list' as title;  
+    select 'Bug List' as title;  
     
     ${pagination.init()}
     
