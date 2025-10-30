@@ -4103,7 +4103,7 @@ select
 select
 ''Test Management System'' as title,
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link; 
-select ''bug list'' as title;  
+select ''Bug List'' as title;  
 
 SET total_rows = (SELECT COUNT(*) FROM bug_report WHERE ($status IS NULL OR status = $status));
 SET limit = COALESCE($limit, 50);
