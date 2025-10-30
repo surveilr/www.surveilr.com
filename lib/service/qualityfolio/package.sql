@@ -2754,7 +2754,7 @@ LEFT JOIN
     ''background-color: #FFFFFF'' as style,
     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=open'' as link
     FROM 
-    bug_report t  where status=''open'';
+    bug_report t  where lower(status)=''open'';
 
 
     select
@@ -2768,7 +2768,7 @@ LEFT JOIN
     ''background-color: #FFFFFF'' as style,
      sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=closed'' as link
     FROM 
-    bug_report t where status=''closed'';
+    bug_report t where lower(status)=''closed'';
 
 
     select
@@ -2780,9 +2780,9 @@ LEFT JOIN
      ''cyan'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=Rejected'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=rejected'' as link
     FROM 
-    bug_report t where status=''Rejected'';
+    bug_report t where lower(status)=''rejected'';
 
 
 SELECT ''html'' as component,
@@ -4127,7 +4127,7 @@ SELECT
   assigned,
   status as "State",
   ''rowClass-''||status as _sqlpage_css_class
- FROM bug_report t WHERE ($status IS NULL OR status = $status) LIMIT $limit OFFSET $offset;
+ FROM bug_report t WHERE ($status IS NULL OR lower(status) = $status) LIMIT $limit OFFSET $offset;
 
 SELECT ''text'' AS component,
     (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
@@ -4663,7 +4663,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     select ''bug list'' as title,
       sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql'' as link;  
       
-    SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;       
          
 
          
@@ -4693,13 +4693,16 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
 '' || description AS description_md 
       FROM  jira_issues  WHERE bug_id = $id;
      
-    /*SELECT ''datagrid''AS component;
-     SELECT
+     select 
+    ''datagrid''      as component,
+    title         as title,
+    ''bulb''          as icon,
     ''
- **id**  :  '' || id AS description_md
-    
+ 
+
+ **id**  :  '' || b.id AS description_md,
     ''
- **Title**  :  '' || title AS description_md,
+ **Title**  :  '' || b.title AS description_md,
     ''
  **Created By**  :  '' || b.created_by AS description_md,
     ''
@@ -4715,7 +4718,7 @@ INSERT INTO sqlpage_files (path, contents, last_modified) VALUES (
     ''
 '' || b.body AS description_md
     FROM  bug_report b 
-    WHERE b.id = $id;*/;
+    WHERE b.id = $id;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;

@@ -322,7 +322,7 @@ LEFT JOIN
     'background-color: #FFFFFF' as style,
     ${this.absoluteURL("/qualityfolio/bug-list.sql?status=open")} as link
     FROM 
-    bug_report t  where status='open';
+    bug_report t  where lower(status)='open';
 
 
     select
@@ -336,7 +336,7 @@ LEFT JOIN
     'background-color: #FFFFFF' as style,
      ${this.absoluteURL("/qualityfolio/bug-list.sql?status=closed")} as link
     FROM 
-    bug_report t where status='closed';
+    bug_report t where lower(status)='closed';
 
 
     select
@@ -348,9 +348,9 @@ LEFT JOIN
      'cyan' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Rejected")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=rejected")} as link
     FROM 
-    bug_report t where status='Rejected';
+    bug_report t where lower(status)='rejected';
 
 
 SELECT 'html' as component,
@@ -1635,7 +1635,7 @@ SELECT
       assigned,
       status as "State",
       'rowClass-'||status as _sqlpage_css_class
-     FROM ${viewName} t WHERE ($status IS NULL OR status = $status) LIMIT $limit OFFSET $offset;
+     FROM ${viewName} t WHERE ($status IS NULL OR lower(status) = $status) LIMIT $limit OFFSET $offset;
 
     ${pagination.renderSimpleMarkdown("status")};
     `;
@@ -2086,7 +2086,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     select 'bug list' as title,
       ${this.absoluteURL("/qualityfolio/bug-list.sql")} as link;  
       
-    SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;       
          
 
          
@@ -2107,11 +2107,12 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     '\n' || description AS description_md 
       FROM  jira_issues  WHERE bug_id = $id;
      
-    /*SELECT 'datagrid'AS component;
-     SELECT
-    '\n **id**  :  ' || id AS description_md
-    
-    '\n **Title**  :  ' || title AS description_md,
+     select 
+    'datagrid'      as component,
+    title         as title,
+    'bulb'          as icon,
+    '\n \n\n **id**  :  ' || b.id AS description_md,
+    '\n **Title**  :  ' || b.title AS description_md,
     '\n **Created By**  :  ' || b.created_by AS description_md,
     '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
     '\n **Type**  :  ' || b.type AS description_md,
@@ -2120,7 +2121,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     '\n **Status**  :  ' || b.status AS description_md,
     '\n' || b.body AS description_md
     FROM  bug_report b 
-    WHERE b.id = $id;*/
+    WHERE b.id = $id;
 
 
     `;
