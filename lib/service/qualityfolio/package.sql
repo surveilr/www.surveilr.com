@@ -2752,7 +2752,7 @@ LEFT JOIN
      ''orange'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=open'' as link
+    sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=open'' as link
     FROM 
     bug_report t  where status=''open'';
 
@@ -2766,7 +2766,7 @@ LEFT JOIN
      ''purple'' as color,
     ''details-off''       as icon,
     ''background-color: #FFFFFF'' as style,
-     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qltyfolio/bug-list.sql?status=closed'' as link
+     sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-list.sql?status=closed'' as link
     FROM 
     bug_report t where status=''closed'';
 
@@ -4105,6 +4105,12 @@ select
   sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/index.sql'' as link; 
 select ''bug list'' as title;  
 
+SET total_rows = (SELECT COUNT(*) FROM bug_report WHERE ($status IS NULL OR status = $status));
+SET limit = COALESCE($limit, 50);
+SET offset = COALESCE($offset, 0);
+SET total_pages = ($total_rows + $limit - 1) / $limit;
+SET current_page = ($offset / $limit) + 1;
+
  SELECT ''table'' as component,
   TRUE AS sort,
     TRUE AS search,
@@ -4115,17 +4121,22 @@ select ''bug list'' as title;
           "status_new" as markdown,
           ''count'' as markdown;
 SELECT
-''['' || bug_id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-detail.sql?id=''|| bug_id || '')'' as id,
+''['' || id || '']('' || sqlpage.environment_variable(''SQLPAGE_SITE_PREFIX'') || ''/qualityfolio/bug-detail.sql?id=''|| id || '')'' as id,
   title,
-  reporter as ''Reporter'',
-  strftime(''%d-%m-%Y'', created) as "Created At",
-  assignee,
+  strftime(''%d-%m-%Y'', created_at) as "Created At",
+  assigned,
   status as "State",
   ''rowClass-''||status as _sqlpage_css_class
-FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
---  FROM jira_issues t
---  LIMIT $limit
---   OFFSET $offset;
+ FROM bug_report t WHERE ($status IS NULL OR status = $status) LIMIT $limit OFFSET $offset;
+
+SELECT ''text'' AS component,
+    (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN ''[Previous](?limit='' || $limit || ''&offset='' || ($offset - $limit) || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    || '' ''
+    || ''(Page '' || $current_page || '' of '' || $total_pages || ") "
+    || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN ''[Next](?limit='' || $limit || ''&offset='' || ($offset + $limit) || COALESCE(''&status='' || replace($status, '' '', ''%20''), '''') || '')'' ELSE '''' END)
+    AS contents_md
+;
+        ;
             ',
       CURRENT_TIMESTAMP)
   ON CONFLICT(path) DO UPDATE SET contents = EXCLUDED.contents, last_modified = CURRENT_TIMESTAMP;
