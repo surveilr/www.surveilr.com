@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1
-FROM kalilinux/kali-last-release
+# syntax=docker/dockerfile:1.4
+FROM kalilinux/kali-last-release:latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -84,7 +84,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install runme rustscan backlog-md dalfox
+RUN set -eux; brew install rustscan dalfox deno
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -112,7 +112,6 @@ RUN set -eux; \
 # 7) Copy .env file from build context into /opt/eaa
 # ------------------------------------------------------------------------------
 COPY .env /opt/eaa/.env
-COPY .interpretation-template /opt/eaa/.interpretation-template
 COPY directory-list.txt /opt/eaa/directory-list.txt
 
 # ------------------------------------------------------------------------------
@@ -123,7 +122,7 @@ WORKDIR /opt/eaa/
 # Ensure the sessions directory exists in the container
 RUN mkdir -p /opt/eaa/sessions/
 
-COPY fleetfolio-eaa-pentest-lite.runme.md /opt/eaa/
+COPY fleetfolio-eaa-pentest-lite.spry.md /opt/eaa/
 RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent || true
 
 # ------------------------------------------------------------------------------
@@ -132,7 +131,11 @@ RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent |
 RUN ls -al /opt/eaa/
 
 # ------------------------------------------------------------------------------
-# 10) Default Command to run on container start (explicitly use bash)
+# 10) Install Spry after Deno is installed
+RUN  curl -fsSL https://sprymd.org/init.sh | sh -s
+
+# ------------------------------------------------------------------------------
+# 11) Default Command to run on container start (explicitly use bash)
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
-CMD [ "bash", "-c", "source /opt/eaa/.env && runme run --filename='fleetfolio-eaa-pentest-lite.runme.md' --all -y" ]
+CMD [ "bash", "-c", "source /opt/eaa/.env && ./spry.ts runbook --md fleetfolio-eaa-pentest-lite.spry.md --verbose" ]
