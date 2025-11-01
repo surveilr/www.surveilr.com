@@ -320,9 +320,9 @@ LEFT JOIN
      'orange' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qltyfolio/bug-list.sql?status=open")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=open")} as link
     FROM 
-    bug_report t  where status='open';
+    bug_report t  where lower(status)='open';
 
 
     select
@@ -334,9 +334,9 @@ LEFT JOIN
      'purple' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-     ${this.absoluteURL("/qltyfolio/bug-list.sql?status=closed")} as link
+     ${this.absoluteURL("/qualityfolio/bug-list.sql?status=closed")} as link
     FROM 
-    bug_report t where status='closed';
+    bug_report t where lower(status)='closed';
 
 
     select
@@ -348,9 +348,9 @@ LEFT JOIN
      'cyan' as color,
     'details-off'       as icon,
     'background-color: #FFFFFF' as style,
-    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=Rejected")} as link
+    ${this.absoluteURL("/qualityfolio/bug-list.sql?status=rejected")} as link
     FROM 
-    bug_report t where status='Rejected';
+    bug_report t where lower(status)='rejected';
 
 
 SELECT 'html' as component,
@@ -1578,7 +1578,11 @@ SELECT
     breadcrumbsFromNavStmts: "no",
   })
   "qualityfolio/bug-list.sql"() {
-    const viewName = `jira_issues`;
+    const viewName = `bug_report`;
+    const pagination = this.pagination({
+      tableOrViewName: viewName,
+      whereSQL: "WHERE ($status IS NULL OR status = $status)",
+    });
 
     return this.SQL`
     SELECT 'html' as component,
@@ -1610,7 +1614,9 @@ SELECT
     select
     'Test Management System' as title,
       ${this.absoluteURL("/qualityfolio/index.sql")} as link; 
-    select 'bug list' as title;  
+    select 'Bug List' as title;  
+    
+    ${pagination.init()}
     
      SELECT 'table' as component,
       TRUE AS sort,
@@ -1622,19 +1628,16 @@ SELECT
               "status_new" as markdown,
               'count' as markdown;
     SELECT
-    '[' || bug_id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
-      }|| bug_id || ')' as id,
+    '[' || id || '](' || ${this.absoluteURL("/qualityfolio/bug-detail.sql?id=")
+      }|| id || ')' as id,
       title,
-      reporter as 'Reporter',
-      strftime('%d-%m-%Y', created) as "Created At",
-      assignee,
+      strftime('%d-%m-%Y', created_at) as "Created At",
+      assigned,
       status as "State",
       'rowClass-'||status as _sqlpage_css_class
-    FROM jira_issues t WHERE ($status IS NOT NULL AND status = $status) OR $status IS NULL;
-    --  FROM ${viewName} t
-    --  LIMIT $limit
-    --   OFFSET $offset;
+     FROM ${viewName} t WHERE ($status IS NULL OR lower(status) = $status) LIMIT $limit OFFSET $offset;
 
+    ${pagination.renderSimpleMarkdown("status")};
     `;
   }
 
@@ -2083,7 +2086,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     select 'bug list' as title,
       ${this.absoluteURL("/qualityfolio/bug-list.sql")} as link;  
       
-    SELECT title FROM jira_issues where bug_id = $id order by created desc ;      
+    SELECT title FROM bug_report where id = $id order by created_at desc ;       
          
 
          
@@ -2104,11 +2107,12 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     '\n' || description AS description_md 
       FROM  jira_issues  WHERE bug_id = $id;
      
-    /*SELECT 'datagrid'AS component;
-     SELECT
-    '\n **id**  :  ' || id AS description_md
-    
-    '\n **Title**  :  ' || title AS description_md,
+     select 
+    'datagrid'      as component,
+    title         as title,
+    'bulb'          as icon,
+    '\n \n\n **id**  :  ' || b.id AS description_md,
+    '\n **Title**  :  ' || b.title AS description_md,
     '\n **Created By**  :  ' || b.created_by AS description_md,
     '\n **Run Date**  :  ' || strftime('%d-%m-%Y', b.created_at) AS description_md,
     '\n **Type**  :  ' || b.type AS description_md,
@@ -2117,7 +2121,7 @@ FROM  test_cases bd WHERE bd.test_case_id = $id  group by bd.test_case_id;
     '\n **Status**  :  ' || b.status AS description_md,
     '\n' || b.body AS description_md
     FROM  bug_report b 
-    WHERE b.id = $id;*/
+    WHERE b.id = $id;
 
 
     `;
@@ -3182,7 +3186,7 @@ WHERE rn.id = $id;
   {{/if}}
 {{/each}}
 <style>
-* {scrollbar-color: inherit !important;}
+* {scrollbar-color: #9f9f9f #fdfdfd !important;}
 html{font-size: inherit !important;}
 body {
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
