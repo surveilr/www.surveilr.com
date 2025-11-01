@@ -135,7 +135,7 @@ CREATE TABLE "surveilr_snmp_collection" (
 
 ## Relations
 
-![er](../../../../../assets/images/content/docs/standard-library/rssd-schema/surveilr_snmp.svg)
+*Entity relationship diagram will be added once the schema is finalized.*
 
 ---
 
