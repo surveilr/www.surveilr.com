@@ -95,7 +95,8 @@ RUN set -eux; \
     go install github.com/projectdiscovery/katana/cmd/katana@latest && \
     go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest && \
     go install -v github.com/PentestPad/subzy@latest && \
-    go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest
+    go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest && \
+    go install -v github.com/intigriti/misconfig-mapper/cmd/misconfig-mapper@latest
 
 # Make Homebrew available to root shells too (nice for interactive sessions)
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshrc
