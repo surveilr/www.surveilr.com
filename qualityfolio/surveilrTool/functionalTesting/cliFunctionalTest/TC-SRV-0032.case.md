@@ -1,27 +1,23 @@
 ---
 FII: "TC-SRV-0032"  
 groupId: "GRP-0001"  
-title: "Validate Exit Code on Missing Configuration File"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "Medium"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Validate running SQL command using surveilr shell"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["shell"]
+priority: "High"
+test_cycles: ["1.0"]
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Validate that Surveilr CLI exits with a non-zero code when the configuration file is missing.
+- Validate that `surveilr shell` can execute a basic SQL command successfully.
 
 ### Test Steps
-
-1. Rename or delete CLI configuration file.  
-2. Execute `surveilr run`.  
-3. Observe error message and exit code.  
+1. Open terminal.  
+2. Run `surveilr shell "SELECT 1;"`.  
+3. Observe the console result.
 
 ### Expected Result
-
-- Exit code = 7  
-- Output displays `Configuration file not found`.
+- CLI returns a valid result table with the query output.

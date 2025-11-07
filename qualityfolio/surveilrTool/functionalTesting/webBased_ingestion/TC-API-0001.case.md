@@ -15,8 +15,9 @@ scenario_type: "happy path"
 
 ### Test Steps
 1. Provide a valid API endpoint returning JSON/XML.  
+ curl https://jsonplaceholder.typicode.com/posts -o posts.json
 2. Trigger ingestion in Surveilr.  
-3. Monitor logs for successful data capture.
+
 
 ### Expected Result
 - API data ingested successfully.  

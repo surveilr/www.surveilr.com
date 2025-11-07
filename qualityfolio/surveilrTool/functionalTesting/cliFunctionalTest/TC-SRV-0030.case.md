@@ -1,27 +1,23 @@
 ---
 FII: "TC-SRV-0030"
 groupId: "GRP-0001"  
-title: "Validate Exit Code on Network Failure"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "High"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Validate surveilr doctor behavior under corrupted environment"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["doctor"]
+priority: "Medium"
+test_cycles: ["1.0"]
+scenario_type: "unhappy path"
 ---
 
 ### Description
-
-- Validate that Surveilr CLI returns the correct exit code when a network connection failure occurs.
+- Validate CLI behavior when key environment variables are missing or corrupted.
 
 ### Test Steps
-
-1. Disconnect the system from the network.  
-2. Execute `surveilr sync --remote`.  
-3. Observe CLI output and exit code.  
+1. Temporarily remove or unset key environment variables.  
+2. Run `surveilr doctor`.  
+3. Observe output logs.
 
 ### Expected Result
-
-- Exit code = 5  
-- Output displays `Network unavailable` or `Connection failed`.
+- CLI displays relevant warnings or error messages gracefully without crashing.

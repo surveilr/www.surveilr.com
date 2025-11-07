@@ -14,10 +14,11 @@ scenario_type: "unhappy path"
 - Verify ingestion when the website contains broken or dead links.
 
 ### Test Steps
-1. Provide website with pages containing broken links.  
-2. Trigger crawling and ingestion.  
-3. Monitor logs for warnings.
-
+1. Provide website with pages containing broken links. 
+ curl -o ./broken_links_page.html https://www.eddymens.com/blog/page-with-broken-pages-for-testing-53049e870421
+2. Ingest the downloaded page using Surveilr
+surveilr ingest ./broken_links_page.html
+ 
 ### Expected Result
 - Pages ingested successfully.  
 - Broken links logged but do not block ingestion.

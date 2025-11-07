@@ -1,26 +1,23 @@
 ---
 FII: "TC-SRV-0026"
 groupId: "GRP-0001"  
-title: "Validate Exit Code for Missing Required Arguments"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "High"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Validate orchestration execution with surveilr orchestrate run"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["orchestrate"]
+priority: "High"
+test_cycles: ["1.0"]
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Validate that Surveilr CLI returns a non-zero exit code when required arguments are missing.
+- Validate successful execution of an orchestration job using the CLI.
 
 ### Test Steps
-
-1. Run `surveilr scan` without parameters.  
-2. Observe the exit code and CLI message.  
+1. Open terminal.  
+2. Run the command `surveilr orchestrate run`.  
+3. Monitor the CLI output logs.  
 
 ### Expected Result
-
-- Exit code = 2  
-- Output displays usage help or argument error message.
+- CLI runs orchestration successfully, showing issue/warning logs and completion message.

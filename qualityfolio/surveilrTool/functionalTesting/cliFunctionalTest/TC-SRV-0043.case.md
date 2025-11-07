@@ -1,31 +1,22 @@
 ---
 FII: "TC-SRV-0043"
 groupId: "GRP-0001"
-title: "Validate Surveilr Admin Info Command"
+title: "Verify surveilr help shows global help"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-27"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["admin", "info", "system-status"]
-priority: "Low"
+tags: ["help"]
+priority: "Medium"
 test_cycles: ["1.0"]
-scenario_type: "happy path" 
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Verify that `surveilr admin info` provides current Surveilr system details and configurations.
-
-### Precondition
-
-- Surveilr CLI is properly configured and operational.
+- Validate that the `surveilr help` command displays global CLI help.
 
 ### Test Steps
-
-1. Execute `surveilr admin info`.
-2. Verify that system information and DB stats are displayed.
+1. Run `surveilr help`.  
+2. Observe the output.  
 
 ### Expected Result
-
-- Output includes DB path, record count, and version.
-- Exit code = 0.
-
+- CLI prints the same general help output as `surveilr --help`.

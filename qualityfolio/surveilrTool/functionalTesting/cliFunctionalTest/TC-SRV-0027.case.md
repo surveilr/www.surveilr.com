@@ -1,26 +1,23 @@
 ---
 FII: "TC-SRV-0027"
 groupId: "GRP-0001"  
-title: "Validate Exit Code on Invalid File Input"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "High"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Validate error handling for invalid orchestration SQL"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["orchestrate"]
+priority: "Medium"
+test_cycles: ["1.0"]
+scenario_type: "unhappy path"
 ---
 
 ### Description
-
-- Validate that Surveilr CLI returns a non-zero exit code when an invalid file or corrupt format is provided.
+- Verify that CLI properly handles invalid SQL during orchestration execution.
 
 ### Test Steps
-
-1. Execute `surveilr import --file invalid.json`.  
-2. Observe CLI error message and capture exit code.  
+1. Prepare a malformed SQL file `bad.sql`.  
+2. Run the command `surveilr orchestrate run bad.sql`.  
+3. Review the output message.  
 
 ### Expected Result
-
-- Exit code = 3  
-- Output contains `Invalid file format` or `File not found`.
+- CLI displays `Error: invalid SQL syntax` and stops execution gracefully.

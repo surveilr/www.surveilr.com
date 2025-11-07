@@ -1,27 +1,26 @@
 ---
 FII: "TC-SRV-0006"
 groupId: "GRP-0001"
-title: "Check - CLI Unknown Command Handling"
+title: "Validate - missing AI key configuration"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-21"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["Command-Line Interface"]
-priority: "Medium"
+tags: ["ask-ai", "cli", "error-handling"]
+priority: "High"
 test_cycles: ["1.0"]
 scenario_type: "unhappy path"
 ---
 
 ### Description
 
-- Validate that the CLI handles unknown commands gracefully by displaying a descriptive error message.
+- Validate that the CLI properly handles cases when the AI key or configuration is missing or invalid during query execution.
 
 ### Test Steps
 
-1. Open a terminal or command prompt.  
-2. Run an invalid command, e.g., `surveilr unknowncommand`.  
-3. Review the console output for the error message.  
-4. Close the terminal.
+1. Unset or remove the AI configuration key.  
+2. Run the command `surveilr ask-ai "select * from x"`.  
+3. Observe the error message displayed on the console.
 
 ### Expected Result
 
-- The CLI displays a descriptive error (e.g., `Unknown command`) and usage instructions.  
+- The CLI displays an appropriate error message such as “missing or invalid AI configuration” and halts further processing.

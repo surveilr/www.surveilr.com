@@ -1,27 +1,23 @@
 ---
 FII: "TC-SRV-0034"  
 groupId: "GRP-0001"  
-title: "Validate Exit Code for Internal Exception Handling"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "High"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Verify surveilr osquery-ms --help displays monitoring help"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["osquery-ms"]
+priority: "Medium"
+test_cycles: ["1.0"]
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Validate that Surveilr CLI returns a controlled non-zero exit code for internal exceptions.
+- Validate help information for the `osquery-ms` command.
 
 ### Test Steps
-
-1. Set invalid environment variables.  
-2. Run any Surveilr CLI command.  
-3. Capture the exit code and output.  
+1. Open terminal.  
+2. Run `surveilr osquery-ms --help`.  
+3. Observe the output.
 
 ### Expected Result
-
-- Exit code = 8  
-- Output includes `Unhandled exception` or stack trace message.
+- CLI displays available monitoring utilities and options.

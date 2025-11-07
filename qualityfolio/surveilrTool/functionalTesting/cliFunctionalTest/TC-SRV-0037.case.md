@@ -1,31 +1,23 @@
 ---
 FII: "TC-SRV-0037"
 groupId: "GRP-0001"
-title: "Validate Error Handling for Invalid Path in Surveilr Run"
+title: "Verify surveilr osqueryctl --help displays help information"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-27"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["run", "error-handling", "invalid-path"]
+tags: ["osqueryctl"]
 priority: "Medium"
 test_cycles: ["1.0"]
-scenario_type: "unhappy path"
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Verify that `surveilr run` throws an appropriate error when provided with an invalid or non-existent file path.
-
-### Precondition
-
-- No file exists at `/invalid/path/script.ts`.
+- Validate that `surveilr osqueryctl --help` lists available config and runtime options.
 
 ### Test Steps
-
-1. Execute `surveilr run /invalid/path/script.ts`.
-2. Observe CLI output and exit status.
+1. Open terminal.  
+2. Run `surveilr osqueryctl --help`.  
+3. Observe the CLI output.
 
 ### Expected Result
-
-- CLI displays `Error: File not found`.
-- Exit code = 6.
-- No output file is created.
+- CLI displays configuration and run options for osqueryctl.

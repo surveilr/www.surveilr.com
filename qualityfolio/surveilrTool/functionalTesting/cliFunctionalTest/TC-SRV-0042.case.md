@@ -1,32 +1,23 @@
 ---
 FII: "TC-SRV-0042"
 groupId: "GRP-0001"
-title: "Validate Surveilr Admin Repair Command"
+title: "Validate SNMP authentication error handling in surveilr snmp"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-27"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["admin", "repair", "database"]
-priority: "High"
+tags: ["snmp"]
+priority: "Medium"
 test_cycles: ["1.0"]
-scenario_type: "happy path" 
+scenario_type: "unhappy path"
 ---
 
 ### Description
-
-- Validate that `surveilr admin repair` successfully repairs corrupted database files.
-
-### Precondition
-
-- Corrupted RSSD file available at `/data/rssd/corrupt.db`.
+- Verify proper error handling when invalid SNMP credentials are used.
 
 ### Test Steps
-
-1. Execute `surveilr admin repair /data/rssd/corrupt.db`.
-2. Observe console output for repair summary.
+1. Run `surveilr snmp discover` with invalid SNMP key.  
+2. Observe the output.  
 
 ### Expected Result
-
-- Database repaired successfully.
-- Output displays “Repair completed.”
-- Exit code = 0.
+- CLI displays `authentication failed` or similar error message.
 

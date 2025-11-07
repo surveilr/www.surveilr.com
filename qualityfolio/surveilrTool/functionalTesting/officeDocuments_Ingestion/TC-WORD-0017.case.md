@@ -1,7 +1,7 @@
 ---
 FII: "TC-WORD-0017"
 groupId: "GRP-0005"
-title: "Preview Uploaded Word Document"
+title: "Ingest Multiple Valid Word Files"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-22"
 test_type: "Automation"
@@ -12,15 +12,18 @@ scenario_type: "happy path"
 ---
 
 ### Description
-- Validate the Word document content is accurately rendered when previewed in Surveilr.
+- Validate that Surveilr correctly ingests multiple valid Word files in a single command execution.
+
+### Preconditions
+- Ensure multiple Word files (.docx) exist in the same folder.  
+- Surveilr CLI is installed and configured.
 
 ### Test Steps
-1. Ensure a Word file is uploaded to Surveilr.  
-2. Open the uploaded document.  
-3. Click **Preview** to load it in the viewer.  
-4. Check document formatting, layout, and text rendering.  
+1. Run the ingestion command.  
+2. Observe the ingestion progress in the console or logs.  
+3. Verify completion status for each file.  
 
 ### Expected Result
-- The Word document opens in the Surveilr viewer without delay.  
-- Text formatting, tables, and images display correctly.  
-- No truncation or rendering issues occur.
+- All files are successfully processed.  
+- Surveilr displays “✅ Ingest completed successfully” for each file.  
+- No ingestion errors or skipped files are reported.  

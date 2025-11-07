@@ -1,26 +1,23 @@
 ---
 FII: "TC-SRV-0033"  
 groupId: "GRP-0001"  
-title: "Validate Exit Code Propagation in Shell Scripts"  
-created_by: "arun-ramanan@netspective.in"  
-created_at: "2025-10-20"  
-test_type: "Automation"  
-tags: ["Exit Code"]  
-priority: "Medium"  
-test_cycles: ["1.0"]  
-scenario_type: "unhappy path"  
+title: "Validate surveilr shell error when sqlite3 is missing"
+created_by: "arun-ramanan@netspective.in"
+created_at: "2025-10-31"
+test_type: "Automation"
+tags: ["shell"]
+priority: "Medium"
+test_cycles: ["1.0"]
+scenario_type: "unhappy path"
 ---
 
 ### Description
-
-- Validate that shell scripts correctly capture and propagate CLI exit codes during automation.
+- Verify that CLI shows an appropriate error if `sqlite3` dependency is missing.
 
 ### Test Steps
-
-1. Create a shell script that calls a failing Surveilr command.  
-2. Execute the script and capture the exit code.  
+1. Remove or rename the `sqlite3` binary.  
+2. Run `surveilr shell "SELECT 1;"`.  
+3. Observe the error output.
 
 ### Expected Result
-
-- Script receives the same exit code returned by CLI.  
-- Failure logged appropriately.
+- CLI displays `Error: sqlite3 not found` and exits gracefully.

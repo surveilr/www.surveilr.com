@@ -1,32 +1,26 @@
 ---
 FII: "TC-SRV-0019"
 groupId: "GRP-0001"
-title: "Validate log format consistency"
+title: "Validate - occupied port scenario for web-ui startup"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-21"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["Log Outputs"]
+tags: ["web-ui", "cli", "error-handling"]
 priority: "Medium"
 test_cycles: ["1.0"]
-scenario_type: "happy path"
+scenario_type: "unhappy path"
 ---
 
 ### Description
 
-- Ensure all CLI logs maintain a consistent format for automated monitoring.
-
-### Preconditions
-
-- CLI installed.  
-- Multiple commands ready for execution.
+- Validate CLI behavior when the webserver is started on a port that is already in use.
 
 ### Test Steps
 
-1. Run several CLI commands sequentially.  
-2. Observe generated logs.  
-3. Compare log entries for consistent format (timestamp, level, message).  
-4. Close terminal.
+1. Start the `surveilr web-ui` server on the default port.  
+2. Without stopping the first instance, start another `surveilr web-ui` process.  
+3. Observe the console output of the second attempt.
 
 ### Expected Result
 
-- All logs follow the predefined format consistently.
+- The CLI displays an error message such as “port already in use” and aborts the startup process gracefully.

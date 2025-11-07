@@ -1,33 +1,23 @@
 ---
 FII: "TC-SRV-0041"
 groupId: "GRP-0001"
-title: "Validate Surveilr Admin Merge Functionality"
+title: "Validate surveilr snmp device discovery"
 created_by: "arun-ramanan@netspective.in"
-created_at: "2025-10-27"
+created_at: "2025-10-31"
 test_type: "Automation"
-tags: ["admin", "merge", "rssd"]
+tags: ["snmp"]
 priority: "High"
 test_cycles: ["1.0"]
-scenario_type: "happy path" 
+scenario_type: "happy path"
 ---
 
 ### Description
-
-- Ensure that `surveilr admin merge` correctly merges multiple RSSD files into a single consolidated database.
-
-### Precondition
-
-- Two valid RSSD files available: `/data/rssd/file1.db` and `/data/rssd/file2.db`.
+- Validate that the SNMP device discovery command lists available network devices.
 
 ### Test Steps
-
-1. Execute `surveilr admin merge /data/rssd/*.db`.
-2. Verify that merged DB is generated at `/data/rssd/merged.db`.
+1. Run `surveilr snmp discover`.  
+2. Observe console output.  
 
 ### Expected Result
-
-- Merged file created successfully.
-- Output confirms number of merged records.
-- Exit code = 0.
-
+- CLI lists discovered SNMP devices with host and OID information.
 
