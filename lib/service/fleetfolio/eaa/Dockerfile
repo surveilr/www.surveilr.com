@@ -35,9 +35,11 @@ RUN set -eux; \
     git clone https://github.com/s0md3v/Corsy.git /opt/eaa/Corsy; \
     pip3 install -r /opt/eaa/Corsy/requirements.txt --break-system-packages; \
     pip3 install requests urllib3 --break-system-packages; \
-    \
     git clone https://github.com/r0oth3x49/ghauri.git /opt/eaa/ghauri; \
-    cd /opt/eaa/ghauri && python3 setup.py install
+    cd /opt/eaa/ghauri && python3 setup.py install && \
+    pip3 install dnspython==1.16.0 --break-system-packages --ignore-installed; \
+    # then install fierce but don't let it try deps again
+    pip3 install fierce --break-system-packages --no-deps
 
 # ------------------------------------------------------------------------------
 # 2) Create non-root user (for Homebrew) with passwordless sudo
@@ -105,9 +107,14 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshr
 # 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
 RUN set -eux; \
-    wget https://github.com/surveilr/packages/releases/download/3.6.0/surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
-    tar -xvf surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
-    mv surveilr /usr/local/bin
+        wget https://github.com/surveilr/packages/releases/download/3.6.0/surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
+        tar -xvf surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
+        mv surveilr /usr/local/bin
+
+# Install Rockyou.txt
+RUN set -eux; \
+    git clone https://github.com/RykerWilder/rockyou.txt.git rockyou && \
+    cd rockyou && unzip rockyou.txt.zip && mkdir /usr/share/wordlists && mv rockyou.txt /usr/share/wordlists
 
 # ------------------------------------------------------------------------------
 # 7) Copy .env file from build context into /opt/eaa
@@ -139,4 +146,4 @@ RUN  curl -fsSL https://sprymd.org/init.sh | sh -s
 # 11) Default Command to run on container start (explicitly use bash)
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
-CMD [ "bash", "-c", "source /opt/eaa/.env && ./spry.ts runbook --md fleetfolio-eaa-pentest-lite.spry.md --verbose" ]
+CMD [ "bash", "-c", "source /opt/eaa/.env && ./spry.ts runbook --md fleetfolio-eaa-pentest-lite.spry.md --verbose rich" ]
