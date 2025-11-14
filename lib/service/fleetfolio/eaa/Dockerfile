@@ -39,7 +39,10 @@ RUN set -eux; \
     cd /opt/eaa/ghauri && python3 setup.py install && \
     pip3 install dnspython==1.16.0 --break-system-packages --ignore-installed; \
     # then install fierce but don't let it try deps again
-    pip3 install fierce --break-system-packages --no-deps
+    pip3 install fierce --break-system-packages --no-deps && \
+    wget https://github.com/cerberauth/vulnapi/releases/download/v0.8.9/vulnapi_0.8.9_linux_amd64.deb && \
+    dpkg -i vulnapi_0.8.9_linux_amd64.deb && \
+    git clone https://github.com/commixproject/commix.git 
 
 # ------------------------------------------------------------------------------
 # 2) Create non-root user (for Homebrew) with passwordless sudo
