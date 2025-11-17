@@ -23,7 +23,7 @@
     "@preline/collapse": "^3.2.3",
     "@preline/dropdown": "^3.2.3",
     "@preline/overlay": "^3.2.3",
-    "@preline/tabs": "^3.1.0",
+    "@preline/tabs": "^3.2.3",
     "@vercel/nft": "^0.30.1",
     "astro": "^5.13.7",
     "astro-breadcrumbs": "^3.3.1",
