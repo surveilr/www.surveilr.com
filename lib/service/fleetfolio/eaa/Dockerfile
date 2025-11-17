@@ -43,6 +43,7 @@ RUN set -eux; \
     wget https://github.com/cerberauth/vulnapi/releases/download/v0.8.9/vulnapi_0.8.9_linux_amd64.deb && \
     dpkg -i vulnapi_0.8.9_linux_amd64.deb && \
     git clone https://github.com/commixproject/commix.git 
+    
 
 # ------------------------------------------------------------------------------
 # 2) Create non-root user (for Homebrew) with passwordless sudo
@@ -118,6 +119,10 @@ RUN set -eux; \
 RUN set -eux; \
     git clone https://github.com/RykerWilder/rockyou.txt.git rockyou && \
     cd rockyou && unzip rockyou.txt.zip && mkdir /usr/share/wordlists && mv rockyou.txt /usr/share/wordlists
+
+# Install Rockyou.txt
+RUN set -eux; \
+git clone https://github.com/nemesida-waf/waf_bypass.git /opt/eaa/waf_bypass && cd /opt/eaa/waf_bypass && pip3 install -r requirements.txt --break-system-packages
 
 # ------------------------------------------------------------------------------
 # 7) Copy .env file from build context into /opt/eaa
