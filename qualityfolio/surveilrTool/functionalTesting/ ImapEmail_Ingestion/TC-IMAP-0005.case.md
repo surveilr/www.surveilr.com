@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0005"
 groupId: "GRP-0004"
-title: "Empty IMAP Mailbox"
+title: "Batch limit respected"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,14 +12,24 @@ scenario_type: "unhappy path"
 ---
 
 ### Description
-- Verify behavior when the IMAP mailbox has no pending tasks.
+
+- Validate ingestion respects the batch limit.
+
+### Preconditions
+
+- Inbox contains more than 10 emails.
 
 ### Test Steps
-1. Connect to a valid IMAP mailbox with no emails.  
-2. Initiate ingestion.  
-3. Observe Surveilr response.
+
+1. Configure IMAP ingestion.
+2. Run with -b 10:
+surveilr ingest imap \
+  -a "imap.gmail.com" \
+  -u "<email>" \
+  -p "<app-password>" \
+  -b 10
+3. Verify ingestion count.
 
 ### Expected Result
-- No tasks ingested.  
-- Informational message logged.  
-- System remains stable.
+
+- Exactly 10 emails are ingested.

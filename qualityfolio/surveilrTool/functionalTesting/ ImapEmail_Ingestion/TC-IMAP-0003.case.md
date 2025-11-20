@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0003"
 groupId: "GRP-0004"
-title: "Validate Task Metadata During IMAP Ingestion"
+title: "Ingest with status=all"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,13 +12,26 @@ scenario_type: "happy path"
 ---
 
 ### Description
-- Validate that metadata (subject, timestamp, sender) is correctly mapped during IMAP ingestion.
+
+- Validate ingestion of both read and unread emails.
+
+### Preconditions
+
+- Gmail IMAP enabled.
+- Mix of read and unread mails present in inbox.
 
 ### Test Steps
-1. Connect to IMAP server with valid credentials.  
-2. Fetch and ingest tasks.  
-3. Verify ingested task metadata in Surveilr.
+
+1. Provide valid Gmail IMAP configuration.
+2. Run ingestion with the flag --status all:
+surveilr ingest imap \
+  -a "imap.gmail.com" \
+  -u "<email>" \
+  -p "<app-password>" \
+  --status all \
+  --progress
+3. Observe ingestion output.
 
 ### Expected Result
-- All metadata fields match the original IMAP source.  
-- No missing or altered data.
+
+- Both read and unread messages are ingested.

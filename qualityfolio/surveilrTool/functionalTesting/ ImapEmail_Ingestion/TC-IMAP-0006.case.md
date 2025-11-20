@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0006"
 groupId: "GRP-0004"
-title: "Partially Corrupted Task Emails"
+title: "Ingestion of latest email"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,15 +12,23 @@ scenario_type: "unhappy path"
 ---
 
 ### Description
-- Verify ingestion when some tasks are corrupted or malformed.
+
+- Validate ingestion includes the latest email.
+
+### Preconditions
+
+- A fresh email is sent just before running ingestion.
 
 ### Test Steps
-1. Connect to IMAP server with valid credentials.  
-2. Ensure mailbox has both valid and corrupted task emails.  
-3. Initiate ingestion.  
-4. Observe ingestion results.
+
+1. Confirm latest email is received.
+2. Run ingestion:
+surveilr ingest imap \
+  -a "imap.gmail.com" \
+  -u "<email>" \
+  -p "<app-password>"
+3. Check processed email list.
 
 ### Expected Result
-- Valid tasks ingested.  
-- Corrupted tasks skipped.  
-- Proper error logs generated.
+
+- The latest email is included in the ingestion results.

@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0007"
 groupId: "GRP-0004"
-title: "IMAP Mailbox Sync Timeout"
+title: "HTML-only email ingestion"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,14 +12,19 @@ scenario_type: "unhappy path"
 ---
 
 ### Description
-- Verify system behavior when mailbox sync exceeds expected time limits.
+
+- Validate HTML-only email parsing.
+
+### Preconditions
+
+- An HTML-only test email exists.
 
 ### Test Steps
-1. Connect to IMAP server with a large mailbox (>10,000 emails).  
-2. Start ingestion process.  
-3. Monitor timeout handling.
+
+1. Ensure HTML email is received.
+2. Run the IMAP ingest command.
+3. Review parsed contents.
 
 ### Expected Result
-- Timeout occurs after configured limit.  
-- Partial ingestion prevented.  
-- Warning logged for delayed response.
+
+- HTML content is parsed and stored correctly.

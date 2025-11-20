@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0004"
 groupId: "GRP-0004"
-title: "Invalid IMAP Credentials"
+title: "Attachment extraction enabled"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,14 +12,25 @@ scenario_type: "unhappy path"
 ---
 
 ### Description
-- Verify system behavior when IMAP credentials are invalid.
+
+- Validate attachment extraction during IMAP ingestion.
+
+### Preconditions
+
+- Test email containing multiple attachments exists.
 
 ### Test Steps
-1. Configure incorrect IMAP username or password.  
-2. Attempt to connect.  
-3. Observe the system response.
+
+1. Provide Gmail IMAP credentials.
+2. Run ingestion with attachment extraction:
+ surveilr ingest imap \
+  -a "imap.gmail.com" \
+  -u "<email>" \
+  -p "<app-password>" \
+  --extract-attachments uniform-resource \
+  --status all
+3. Track logs for extraction steps.
 
 ### Expected Result
-- Connection fails.  
-- Error message displayed and logged.  
-- No tasks are ingested.
+
+- All attachments from eligible emails are extracted correctly.

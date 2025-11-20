@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0008"
 groupId: "GRP-0004"
-title: "IMAP Server Unreachable"
+title: "Plain-text only email ingestion"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,15 +12,19 @@ scenario_type: "miserable path"
 ---
 
 ### Description
-- Verify system behavior when IMAP server is unreachable or down.
+
+- Validate ingestion of text-only emails.
+
+### Preconditions
+
+- A plain-text email is present in the inbox.
 
 ### Test Steps
-1. Configure valid credentials.  
-2. Disconnect IMAP server or simulate network failure.  
-3. Attempt connection.  
-4. Observe result.
+
+1. Confirm plain-text email exists.
+2. Run ingestion.
+3. Inspect stored content.
 
 ### Expected Result
-- Connection attempt fails.  
-- Timeout or “Server Unreachable” message logged.  
-- No tasks ingested.
+
+- Plain-text content is ingested without any loss.

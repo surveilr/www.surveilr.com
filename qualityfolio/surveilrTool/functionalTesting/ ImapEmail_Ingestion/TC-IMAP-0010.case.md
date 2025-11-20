@@ -1,25 +1,25 @@
 ---
 FII: "TC-IMAP-0010"
 groupId: "GRP-0004"
-title: "Duplicate Task Prevention on Re-Ingestion"
+title: "Large attachment ingestion"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
-tags: ["IMAP"]
-priority: "Medium"
+tags: ["IMAP", "attachments", "large-file"]
+priority: "High"
 test_cycles: ["1.0"]
-scenario_type: "miserable path"
+scenario_type: "happy path"
 ---
-
 ### Description
-- Verify that duplicate tasks from previous ingestion are not re-created.
+- Validate ingestion of emails containing large attachments.
+
+### Preconditions
+- Email with large attachment is available.
 
 ### Test Steps
-1. Ingest tasks once from IMAP mailbox.  
-2. Without clearing them, run ingestion again.  
-3. Observe duplication handling.
+1. Ensure large-attachment email exists.
+2. Run ingestion with attachment extraction enabled.
+3. Verify storage output.
 
 ### Expected Result
-- Duplicate tasks not created.  
-- Warning logged for duplicates.  
-- System maintains original records.
+- Large attachment is extracted and stored successfully.

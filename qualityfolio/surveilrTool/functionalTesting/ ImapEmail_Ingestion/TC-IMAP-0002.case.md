@@ -1,7 +1,7 @@
 ---
 FII: "TC-IMAP-0002"
 groupId: "GRP-0004"
-title: "Ingest Multiple Tasks in a Single Fetch"
+title: "Ingest specific folder"
 created_by: "arun-ramanan@netspective.in"
 created_at: "2025-10-23"
 test_type: "Automation"
@@ -12,15 +12,30 @@ scenario_type: "happy path"
 ---
 
 ### Description
-- Verify ingestion handles multiple tasks in a single IMAP fetch operation.
+
+Validate ingestion from a specific Gmail IMAP folder.
+
+### Preconditions
+
+- Gmail IMAP enabled.
+- App Password generated.
+- Target IMAP folder exists.
+- Test emails exist inside the selected folder.
 
 ### Test Steps
-1. Ensure IMAP mailbox contains 10 or more tasks.  
-2. Connect to IMAP server with valid credentials.  
-3. Initiate ingestion.  
-4. Observe task count in Surveilr.
+
+1. Provide valid Gmail IMAP configuration.
+2. Run the ingestion command with folder flag:
+  surveilr ingest imap \
+  -a "imap.gmail.com" \
+  -u "<email>" \
+  -p "<app-password>" \
+  -f "<target-folder>" \
+  --status all \
+  --progress
+3. Monitor ingestion logs.
 
 ### Expected Result
-- All tasks ingested successfully.  
-- No duplicate tasks.  
-- Task count matches source mailbox.
+
+- Only emails from the specified folder are ingested.
+
