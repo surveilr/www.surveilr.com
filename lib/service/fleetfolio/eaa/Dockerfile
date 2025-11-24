@@ -111,8 +111,8 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshr
 # 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
 RUN set -eux; \
-        sudo apt install wget &&  wget https://github.com/surveilr/packages/releases/download/3.7.0/surveilr_3.7.0_x86_64-unknown-linux-gnu.tar.gz && \
-        tar -xvf surveilr_3.7.0_x86_64-unknown-linux-gnu.tar.gz && \
+        wget https://github.com/surveilr/packages/releases/download/3.6.0/surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
+        tar -xvf surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
         mv surveilr /usr/local/bin
 
 # Install Rockyou.txt
