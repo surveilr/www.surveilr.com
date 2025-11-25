@@ -1960,37 +1960,26 @@ export async function controlSQL() {
   );
 }
 
+
 /**
- * Initializes and runs the Compliance Explorer SQL page notebook using the provided source directory.
+ * Generate the SQL notebook pages for the "Compliance Explorer" pattern.
  *
- * This function creates a customized instance of `TypicalSqlPageNotebook` with overridden methods to
- * fetch stateless and stateful SQL control files. It then composes the notebook with various SQL page
- * modules, including shell, uniform resource, console, orchestration, and compliance explorer pages.
+ * This asynchronous helper delegates to spn.TypicalSqlPageNotebook.spry, constructing
+ * the shell and pattern-specific page providers:
+ * - a ShellSqlPages instance initialized with SQE_TITLE, SQE_LOGO, and SQE_FAV_ICON
+ * - a ComplianceExplorerSqlPages instance for pattern-specific pages
  *
- * @param srcDir - The source directory containing SQL files and resources.
- * @returns A promise that resolves when the notebook has been initialized and executed.
+ * @param srcDir - The root source directory used when generating the SQL pages; typically
+ *                 the workspace or repository path containing pattern assets.
+ * @returns A promise that resolves with the value returned by
+ *          spn.TypicalSqlPageNotebook.spry. The resolved value depends on the underlying
+ *          TypicalSqlPageNotebook implementation.
+ * @throws Will reject if the underlying TypicalSqlPageNotebook.spry call fails (e.g.,
+ *         file system errors, invalid input, or generation failures).
  */
 export async function spry(srcDir: string) {
-  return await spn.TypicalSqlPageNotebook.spry(srcDir,
-    new class extends spn.TypicalSqlPageNotebook {
-      async statelessControlSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateless.sql"),
-        );
-      }
-
-      async orchestrateStatefulControlSQL() {
-        // read the file from either local or remote (depending on location of this file)
-        return await spn.TypicalSqlPageNotebook.fetchText(
-          import.meta.resolve("./stateful.sql"),
-        );
-      }
-    }(),
+  return await spn.TypicalSqlPageNotebook.spry(srcDir,    
     new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
-    new ur.UniformResourceSqlPages(),
-    new c.ConsoleSqlPages(),
-    new orch.OrchestrationSqlPages(),
     new ComplianceExplorerSqlPages(),
   );
 }
