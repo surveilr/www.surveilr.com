@@ -916,6 +916,49 @@ export function applySpryExpressions(sql: string): string {
   return wrapAllEnvVars(transformSqlLinks(transformSqlPageLinks(sql)));
 }
 
+/**
+ * Replaces a "text" SQL block with route-style comment metadata and preserves the rest of the SQL.
+ *
+ * This function searches the provided SQL string for a SELECT 'text' AS component ...; block (case-insensitive)
+ * and, if found, extracts:
+ *  - a title from a "'... ' AS title" fragment inside that text block (used as the route caption), and
+ *  - a description from the next SELECT '... ' AS contents block that appears after the text block (supports single
+ *    or double quotes and multiline content).
+ *
+ * It then:
+ *  1. Builds comment metadata lines:
+ *     -- @route.caption "<caption>"
+ *     -- @route.description "<description>"   (only included if a description was found)
+ *  2. Removes only the matched 'text' block (everything up to its terminating semicolon), leaving the following
+ *     contents block and other SQL intact.
+ *  3. Optionally inserts a minimal replacement SELECT 'text' AS component, $page_title AS title; line when a caption
+ *     (title) was extracted.
+ *  4. Applies applySpryExpressions(...) on the resulting SQL before returning it.
+ *
+ * Important details and behavior:
+ *  - If no 'text' block is found, the function returns the original SQL passed through applySpryExpressions, prefixed
+ *    with a default empty caption comment: "-- @route.caption \"\"\n".
+ *  - Caption extraction uses an internal regex /['"]([^'"]+)['"]\s+AS\s+title\b/i; if that fails, caption is treated
+ *    as empty.
+ *  - Description extraction looks for the next SELECT <quoted string> AS contents and captures the quoted contents.
+ *    It supports either single or double quotes and spans multiple lines.
+ *  - Regex matching is case-insensitive.
+ *  - Whitespace around the removed block is trimmed and normalized so the returned SQL contains a single blank line where
+ *    the block was removed and ends with a trailing newline.
+ *  - Only the first occurrence of a 'text' block is processed; additional occurrences are not handled.
+ *  - applySpryExpressions(...) is invoked on the final SQL before returning; any transformations performed by that
+ *    function will be included in the returned string.
+ *
+ * @param sql - The input SQL string to analyze and transform.
+ * @returns A new SQL string with route comment metadata added, the matched text block removed (and optionally a
+ *          replacement SELECT for page title inserted), and with applySpryExpressions applied.
+ *
+ * @example
+ * // Given SQL containing a text block and a contents block, returns SQL with route comments and preserved contents.
+ *
+ * @remarks
+ * Use this function when converting notebook-style "text" blocks into route metadata for downstream processing.
+ */
 export function replaceTextBlockWithRoutes(sql: string): string {
   // 1️ Match the 'SELECT "text" AS component' block
   const textBlockRegex = /SELECT\s+['"]text['"]\s+AS\s+component[^;]*;/i;
