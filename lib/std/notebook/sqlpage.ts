@@ -1,5 +1,6 @@
 import { callable as c, path, SQLa, ws } from "../deps.ts";
 import { SurveilrSqlNotebook } from "./rssd.ts";
+import { MarkdownDoc } from "https://raw.githubusercontent.com/programmablemd/spry/refs/heads/main/lib/markdown/fluent-doc.ts";
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -736,21 +737,318 @@ export class TypicalSqlPageNotebook
        await Deno.writeTextFile(`${srcDir}/sql.d/head/${cell.callable}.sql`, sql);
     }
 
- 
+    const absPathToSpryfileLocal = `${srcDir}/Spryfile.md`;
+    
+    const sfMD = new MarkdownDoc();
+      const frontMatter = {
+        "sqlpage-conf": {
+          allow_exec: true,
+          port: "${env.PORT}",
+          database_url: "${env.SPRY_DB}",
+          web_root: `./dev-src.auto/`,
+        },
+      };
+      sfMD.frontMatterOnceWithQuotes(frontMatter);
+
+      sfMD.title(2, "Environment variables and .envrc");
+      sfMD.p(
+        "Recommended practice is to keep these values in a local, directory-scoped environment file. If you use direnv (recommended), create a file named `.envrc` in this directory.",
+      );
+      sfMD.p("POSIX-style example (bash/zsh):");
+      sfMD.codeTag(
+        `envrc prepare-env -C ./.envrc --gitignore --descr "Generate .envrc file and add it to local .gitignore if it's not already there"`,
+      )`export DB_NAME="resource-surveillance.sqlite.db"\nexport SPRY_DB="sqlite://$DB_NAME?mode=rwc"\nexport PORT=9227`;
+      sfMD.p(
+        "Then run `direnv allow` in this project directory to load the `.envrc` into your shell environment. direnv will evaluate `.envrc` only after you explicitly allow it.",
+      );
+      sfMD.title(2, "SQLPage Dev / Watch mode");
+      sfMD.p(
+        "While you're developing, Spry's `dev-src.auto` generator should be used:",
+      );
+      sfMD.codeTag(
+        `bash prepare-sqlpage-dev --descr "Generate the dev-src.auto directory to work in sqlite dev mode"`,
+      )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json`;
+      sfMD.codeTag(
+        `bash clean --descr "Clean up the project directory's generated artifacts"`,
+      )`rm -rf dev-src.auto`;
+      sfMD.p(
+        "In development mode, here’s the `--watch` convenience you can use so that\nwhenever you update `Spryfile.md`, it regenerates the SQLPage `dev-src.auto`,\nwhich is then picked up automatically by the SQLPage server:",
+      );
+      sfMD.codeTag(
+        `bash`,
+      )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json --watch --with-sqlpage`;
+      sfMD.ul(
+        "--watch` turns on watching all `--md` files passed in (defaults to `Spryfile.md`)",
+      );
+      sfMD.ul("--with-sqlpage` starts and stops SQLPage after each build");
+      sfMD.p(
+        "Restarting SQLPage after each re-generation of dev-src.auto is **not**\nnecessary, so you can also use `--watch` without `--with-sqlpage` in one\nterminal window while keeping the SQLPage server running in another terminal\nwindow.",
+      );
+      sfMD.p("If you're running SQLPage in another terminal window, use:");
+      sfMD.codeTag(
+        `bash`,
+      )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json --watch`;
+      sfMD.title(2, "SQLPage single database deployment mode");
+      sfMD.p(
+        "After development is complete, the `dev-src.auto` can be removed and single-database deployment can be used:",
+      );
+      sfMD.codeTag(
+        `bash deploy --descr "Generate sqlpage_files table upsert SQL and push them to sqlite"`,
+      )`rm -rf dev-src.auto\n./spry.ts spc --package --dialect sqlite --conf sqlpage/sqlpage.json | sqlite3 $DB_NAME`;
+      sfMD.title(2, "Start the SQLPage server");
+      sfMD.codeTag(
+        `bash`,
+      )`sqlpage `;
+
     await Promise.all(
       cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/, /\.handlebars$/] })
         .map(
           async (method) => {
             const notebook = method.source.instance;
+            // const navigation = method.source.instance.navigation;
+
             const spfr: SqlPagesFileRecord = {
               method: method as Any,
               path: String(method.callable),
               content: await notebook.methodText(method as Any),
             };
+
             await Deno.mkdir(path.dirname(spfr.path), { recursive: true });
             await Deno.writeTextFile(spfr.path, spfr.content);
+            // await Deno.writeTextFile(`${srcDir}/method.json`, JSON.stringify(navigation));
+
+            if (spfr.path === "shell/shell.json") return;
+            sfMD.title(2, `${spfr.path} page`);
+            if (spfr.path === "shell/shell.sql") {
+               const content = `
+               ${wrapAllEnvVars(transformSqlPageLinks(spfr.content))}
+
+              SET resource_json = sqlpage.read_file_as_text('spry.d/auto/resource/\${path}.auto.json');
+              SET page_title  = json_extract($resource_json, '\$.route.caption');
+              SET page_path = json_extract($resource_json, '\$.route.path');
+               `;
+              sfMD.codeTag(`sql PARTIAL global-layout.sql --inject **/*`,)`${content}`;
+            } else {  
+              const content = replaceTextBlockWithRoutes(spfr.content);             
+
+              sfMD.codeTag(`sql ${spfr.path}`,)`${content}`;
+            }              
           }
         )
     );
+
+    await Deno.writeTextFile(absPathToSpryfileLocal, sfMD.write());
   }
+}
+
+/**
+ * Transforms SQL concatenations like:
+ * '[' || control_id || '](' || sqlpage.environment_variable('SQLPAGE_SITE_PREFIX') || '/ce/regime/soc2_detail.sql?type=' || control_id || '&id=' || control_id || '&id_no=' || control_id || ')'
+ *
+ * Into:
+ * ${md.link("control_id", [`'/ce/regime/soc2_detail.sql?type='`, "control_id", `'&id='`, "control_id", `'&id_no='`, "control_id"])}
+ */
+export function transformSqlLinks(sql: string): string {
+  // Pattern to match the entire link structure starting with '[' || var || '](' and ending with ')'
+  const linkPattern =
+    /['"]\[\s*['"]\s*\|\|\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\|\|\s*['"]]\(\s*['"]\s*\|\|\s*sqlpage\.environment_variable\([^)]*\)\s*\|\|([\s\S]*?)\|\|\s*['"]\)['"]/gi;
+
+  return sql.replace(linkPattern, (_match, varName, urlParts) => {
+    // Extract all path segments and variable references from the URL parts
+    const pathPattern = /['"]([^'"]+)['"]\s*\|\|\s*([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    const parts: string[] = [];
+
+    let pathMatch;
+    while ((pathMatch = pathPattern.exec(urlParts)) !== null) {
+      const pathSegment = pathMatch[1].trim();
+      const varRef = pathMatch[2];
+      parts.push(`\`'${pathSegment}'\``);
+      parts.push(`"${varRef}"`);
+    }
+
+    return `\${md.link("${varName}", [${parts.join(", ")}])}`;
+  });
+}
+
+export function transformSqlPageLinks(sql: string): string {
+  const regex =
+    /sqlpage\.environment_variable\('SQLPAGE_SITE_PREFIX'\)\s*\|\|\s*'([^']+)'/g;
+
+  return sql.replace(regex, (_match, path) => {
+    return `\${ctx.absUrlQuoted("${path}")}`;
+  });
+}
+
+/**
+ * Wrap every sqlpage.environment_variable('...') with:
+ *   COALESCE(sqlpage.environment_variable('...'), '')
+ *
+ * BUT skip if already inside a COALESCE().
+ */
+export function wrapAllEnvVars(sql: string): string {
+  return sql.replace(
+    /sqlpage\.environment_variable\(\s*'([^']+)'\s*\)/g,
+    (match, varName, offset, full) => {
+      // Check if already inside a COALESCE(...)
+      const before = full.slice(0, offset);
+
+      // Look for the nearest "COALESCE(" before this match
+      const lastCoalesce = before.lastIndexOf("COALESCE(");
+
+      if (lastCoalesce !== -1) {
+        // Confirm the COALESCE actually wraps this env_variable
+        const braceStart = full.indexOf("(", lastCoalesce);
+        const braceEnd = full.indexOf(")", braceStart);
+
+        if (braceStart !== -1 && braceEnd !== -1 && offset < braceEnd) {
+          // Already wrapped → return original match unchanged
+          return match;
+        }
+      }
+
+      // Otherwise wrap it
+      return `COALESCE(${match}, '')`;
+    }
+  );
+}
+
+export function applySpryExpressions(sql: string): string {
+  return wrapAllEnvVars(transformSqlLinks(transformSqlPageLinks(sql)));
+}
+
+/**
+ * Replaces a "text" SQL block with route-style comment metadata and preserves the rest of the SQL.
+ *
+ * This function searches the provided SQL string for a SELECT 'text' AS component ...; block (case-insensitive)
+ * and, if found, extracts:
+ *  - a title from a "'... ' AS title" fragment inside that text block (used as the route caption), and
+ *  - a description from the next SELECT '... ' AS contents block that appears after the text block (supports single
+ *    or double quotes and multiline content).
+ *
+ * It then:
+ *  1. Builds comment metadata lines:
+ *     -- @route.caption "<caption>"
+ *     -- @route.description "<description>"   (only included if a description was found)
+ *  2. Removes only the matched 'text' block (everything up to its terminating semicolon), leaving the following
+ *     contents block and other SQL intact.
+ *  3. Optionally inserts a minimal replacement SELECT 'text' AS component, $page_title AS title; line when a caption
+ *     (title) was extracted.
+ *  4. Applies applySpryExpressions(...) on the resulting SQL before returning it.
+ *
+ * Important details and behavior:
+ *  - If no 'text' block is found, the function returns the original SQL passed through applySpryExpressions, prefixed
+ *    with a default empty caption comment: "-- @route.caption \"\"\n".
+ *  - Caption extraction uses an internal regex /['"]([^'"]+)['"]\s+AS\s+title\b/i; if that fails, caption is treated
+ *    as empty.
+ *  - Description extraction looks for the next SELECT <quoted string> AS contents and captures the quoted contents.
+ *    It supports either single or double quotes and spans multiple lines.
+ *  - Regex matching is case-insensitive.
+ *  - Whitespace around the removed block is trimmed and normalized so the returned SQL contains a single blank line where
+ *    the block was removed and ends with a trailing newline.
+ *  - Only the first occurrence of a 'text' block is processed; additional occurrences are not handled.
+ *  - applySpryExpressions(...) is invoked on the final SQL before returning; any transformations performed by that
+ *    function will be included in the returned string.
+ *
+ * @param sql - The input SQL string to analyze and transform.
+ * @returns A new SQL string with route comment metadata added, the matched text block removed (and optionally a
+ *          replacement SELECT for page title inserted), and with applySpryExpressions applied.
+ *
+ * @example
+ * // Given SQL containing a text block and a contents block, returns SQL with route comments and preserved contents.
+ *
+ * @remarks
+ * Use this function when converting notebook-style "text" blocks into route metadata for downstream processing.
+ */
+export function replaceTextBlockWithRoutes(sql: string): string {
+  // 1️ Match the 'SELECT "text" AS component' block
+  const textBlockRegex = /SELECT\s+['"]text['"]\s+AS\s+component[^;]*;/i;
+  const matchTextBlock = sql.match(textBlockRegex);
+  if (!matchTextBlock) return `-- @route.caption ""\n${applySpryExpressions(sql)}`; 
+
+  const startIndex = matchTextBlock.index! + matchTextBlock[0].length;
+  const afterTextBlock = sql.slice(startIndex);
+
+  // 2️ Match the next SELECT ... AS contents (supports single or double quotes, multiline)
+  const contentsRegex = /SELECT\s+(['"])([\s\S]*?)\1\s+AS\s+contents\b/i;
+  const matchContents = afterTextBlock.match(contentsRegex);
+
+  // 3️ Extract title from the 'text' block
+  const titleMatch = matchTextBlock[0].match(/['"]([^'"]+)['"]\s+AS\s+title\b/i);
+  const caption = titleMatch ? titleMatch[1].trim() : "";
+
+  // 4️ Extract description (handles both quote styles)
+  const description = matchContents ? matchContents[2].trim() : "";
+
+  // 5️ Build the @route comment block
+  const routeComments =
+    (caption ? `-- @route.caption "${caption}"\n` : `-- @route.caption ""\n`) +
+    (description ? `-- @route.description "${description}"\n` : ``);
+
+  // 6️ Define range to remove only the text block (not the contents)
+  const startRemove = matchTextBlock.index!;
+  const endRemove = startIndex;
+
+  // 7️ Rebuild SQL body
+  const remainingSQL =
+    sql.slice(0, startRemove).trimEnd() + "\n\n" + sql.slice(endRemove).trimStart();
+
+  // 8️ Combine comments + replacement text block + rest of SQL
+  const updatedSQL =
+    `${routeComments}\n${caption ? `SELECT 'text' AS component, $page_title AS title;\n\n`:``}` +
+    remainingSQL.trimEnd() +
+    "\n";
+
+  const replacedMDLinkSql = applySpryExpressions(updatedSQL);  
+  
+  return replacedMDLinkSql;
+}
+
+/**
+ * Converts SQL pagination boilerplate into:
+ *   ${paginate("table")}
+ * or:
+ *   ${paginate("table", "WHERE ...")}
+ *
+ * @param sql Input SQL string
+ * @returns Paginate helper string
+ */
+export function convertPaginationSql(sql: string): string {
+  // Strong multiline pagination block matcher:
+  // - Captures table name
+  // - Captures EVERYTHING until SET current_page...
+  const regex =
+    /SET\s+total_rows\s*=\s*\(SELECT\s+COUNT\(\*\)\s+FROM\s+([\w.]+)([\s\S]*?)\);\s*SET\s+limit[\s\S]*?SET\s+current_page\s*=\s*\(\$offset\s*\/\s*\$limit\)\s*\+\s*1\s*;/i;
+
+  const match = sql.match(regex);
+  if (!match) return sql;
+
+  const table = match[1];
+
+  // Extract possible WHERE block after table name
+  const whereBlockSection = match[2].trim();
+
+  let finalPaginate = "";
+
+  if (/WHERE/i.test(whereBlockSection)) {
+    // Clean WHERE block, preserve formatting
+    const whereOnly = whereBlockSection
+      .replace(/^\s+/, "")
+      .replace(/\s+$/, "");
+    finalPaginate = `\${paginate("${table}", "${whereOnly}")}`;
+  } else {
+    finalPaginate = `\${paginate("${table}")}`;
+  }
+
+  // Replace full detected pagination block with paginate()
+  const paginateSql = sql.replace(regex, finalPaginate);
+
+  return replaceLimitOffset(paginateSql);
+}
+
+export function replaceLimitOffset(sql: string): string {
+  // Replace LIMIT $limit OFFSET $offset; (any spacing) with ${pagination.limit};
+  return sql.replace(
+    /LIMIT\s*\$limit\s*OFFSET\s*\$offset\s*;/i,
+    "${pagination.limit};"
+  );
 }
