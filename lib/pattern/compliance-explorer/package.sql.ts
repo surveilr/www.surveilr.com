@@ -1972,7 +1972,7 @@ export async function controlSQL() {
  */
 export async function spry(srcDir: string) {
   return await spn.TypicalSqlPageNotebook.spry(srcDir,
-    new class extends spn.TypicalSqlPageNotebook {
+    /* new class extends spn.TypicalSqlPageNotebook {
       async statelessControlSQL() {
         // read the file from either local or remote (depending on location of this file)
         return await spn.TypicalSqlPageNotebook.fetchText(
@@ -1986,11 +1986,11 @@ export async function spry(srcDir: string) {
           import.meta.resolve("./stateful.sql"),
         );
       }
-    }(),
+    }(), */
     new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
-    new ur.UniformResourceSqlPages(),
-    new c.ConsoleSqlPages(),
-    new orch.OrchestrationSqlPages(),
+    // new ur.UniformResourceSqlPages(),
+    // new c.ConsoleSqlPages(),
+    // new orch.OrchestrationSqlPages(),
     new ComplianceExplorerSqlPages(),
   );
 }
