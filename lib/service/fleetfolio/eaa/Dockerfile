@@ -89,7 +89,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install rustscan dalfox deno trivy
+RUN set -eux; brew install rustscan dalfox deno trivy programmablemd/packages/spry
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -110,8 +110,8 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshr
 # 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
 RUN set -eux; \
-        wget https://github.com/surveilr/packages/releases/download/3.16.0/surveilr_3.16.0_x86_64-unknown-linux-gnu.tar.gz && \
-        tar xvf surveilr_3.16.0_x86_64-unknown-linux-gnu.tar.gz  && \
+        wget https://github.com/surveilr/packages/releases/download/3.10.0/surveilr_3.10.0_x86_64-unknown-linux-gnu.tar.gz && \
+        tar -xvf surveilr_3.10.0_x86_64-unknown-linux-gnu.tar.gz && \
         mv surveilr /usr/local/bin
 
 # Install Rockyou.txt
@@ -146,11 +146,7 @@ RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent |
 RUN ls -al /opt/eaa/
 
 # ------------------------------------------------------------------------------
-# 10) Install Spry after Deno is installed
-RUN  curl -fsSL https://sprymd.org/init.sh | sh -s
-
-# ------------------------------------------------------------------------------
-# 11) Default Command to run on container start (explicitly use bash)
+# 10) Default Command to run on container start (explicitly use bash)
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
-CMD [ "bash", "-c", "source /opt/eaa/.env && ./spry.ts runbook --md fleetfolio-eaa-pentest-lite.spry.md --verbose rich" ]
+CMD [ "bash", "-c", "source /opt/eaa/.env && spry rb run fleetfolio-eaa-pentest-lite.spry.md --graph daily --verbose rich" ]
