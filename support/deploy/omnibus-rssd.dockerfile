@@ -48,6 +48,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/local/bin
 RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
 
+
+# -----------------------------
+# Install spry (Debian 12 build)
+# -----------------------------
+RUN wget https://github.com/programmablemd/packages/releases/download/v0.106.0/spry_0.106.0-debian12u1_amd64.deb && \
+    dpkg -i spry_0.106.0-debian12u1_amd64.deb && \
+    rm spry_0.106.0-debian12u1_amd64.deb
+
 # Clone the www.surveilr.com repository
 WORKDIR /app
 RUN git clone https://github.com/surveilr/www.surveilr.com.git
