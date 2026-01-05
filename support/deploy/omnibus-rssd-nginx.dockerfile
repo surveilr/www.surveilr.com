@@ -28,6 +28,14 @@ RUN curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/ma
 #RUN tar -xvf resource-surveillance_1.5.10_x86_64-unknown-linux-gnu.tar.gz
 
 
+# -----------------------------
+# Install spry (Debian 12 build)
+# -----------------------------
+RUN wget https://github.com/programmablemd/packages/releases/download/v0.106.0/spry_0.106.0-debian12u1_amd64.deb && \
+    dpkg -i spry_0.106.0-debian12u1_amd64.deb && \
+    rm spry_0.106.0-debian12u1_amd64.deb
+
+
 # Install SQLite package registry
 RUN curl -sS https://webi.sh/sqlpkg | bash
 ENV SURVEILR_SQLPKG=/root/.sqlpkg
