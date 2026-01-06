@@ -17,7 +17,7 @@ function ceNav(route: Omit<spn.RouteConfig, "path" | "parentPath">) {
     ...route,
     parentPath: "ce/regime/index.sql",
   });
- }
+}
 
 /**
  * These pages depend on ../../prime/ux.sql.ts being loaded into RSSD (for nav).
@@ -129,9 +129,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Health Insurance Portability and Accountability Act (HIPAA)**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL(
+      '[**Detail View**](' || ${
+      this.absoluteURL(
         "/ce/regime/controls.sql?regimeType=US%20HIPAA",
-      )}|| ')' AS description_md
+      )
+    }|| ')' AS description_md
     FROM compliance_regime
     WHERE title = 'US HIPAA';
 
@@ -142,9 +144,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
       '**Standard 800-53 rev4**' || '  \n' ||
       '**Version:** ' || version || '  \n' ||
       '**Published/Last Reviewed Date/Year:** ' || last_reviewed_date || '  \n' ||
-      '[**Detail View**](' || ${this.absoluteURL(
+      '[**Detail View**](' || ${
+      this.absoluteURL(
         "/ce/regime/controls.sql?regimeType=NIST",
-      )} || ')' AS description_md
+      )
+    } || ')' AS description_md
     FROM compliance_regime
     WHERE title = 'NIST';`;
   }
@@ -235,9 +239,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
  
     SELECT
       '[' || control_id || '](' ||
-        ${this.absoluteURL(
-          "/ce/regime/soc2_detail.sql?type=soc2-type1&id=",
-        )} || control_id || ')' AS "Control Code",
+        ${
+      this.absoluteURL(
+        "/ce/regime/soc2_detail.sql?type=soc2-type1&id=",
+      )
+    } || control_id || ')' AS "Control Code",
         control_name AS "Control Name",
         common_criteria AS "Common Criteria",
         criteria_type AS "Criteria Type",
@@ -295,9 +301,11 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
  
     SELECT
       '[' || control_id || '](' ||
-        ${this.absoluteURL(
-          "/ce/regime/soc2_detail.sql?type=soc2-type2&id=",
-        )} || control_id || ')' AS "Control Code",
+        ${
+      this.absoluteURL(
+        "/ce/regime/soc2_detail.sql?type=soc2-type2&id=",
+      )
+    } || control_id || ')' AS "Control Code",
       fii_id AS "FII ID",
       common_criteria AS "Common Criteria",
       criteria_type AS "Criteria Type",
@@ -317,8 +325,12 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
     -- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
-    SELECT 'AICPA' AS title, ${this.absoluteURL("/ce/regime/aicpa.sql")} AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
+    SELECT 'AICPA' AS title, ${
+      this.absoluteURL("/ce/regime/aicpa.sql")
+    } AS link;
  
     -- SOC 2 Type breadcrumb
     SELECT
@@ -328,8 +340,12 @@ export class ComplianceExplorerSqlPages extends spn.TypicalSqlPageNotebook {
         ELSE 'SOC 2'
       END AS title,
       CASE
-        WHEN $type = 'soc2-type1' THEN ${this.absoluteURL("/ce/regime/soc2_type1.sql")}
-        WHEN $type = 'soc2-type2' THEN ${this.absoluteURL("/ce/regime/soc2_type2.sql")}
+        WHEN $type = 'soc2-type1' THEN ${
+      this.absoluteURL("/ce/regime/soc2_type1.sql")
+    }
+        WHEN $type = 'soc2-type2' THEN ${
+      this.absoluteURL("/ce/regime/soc2_type2.sql")
+    }
         ELSE ${this.absoluteURL("/ce/regime/aicpa.sql")}
       END AS link;
  
@@ -593,9 +609,11 @@ FROM (SELECT control_id, fii_id
       TRUE AS sort,
       TRUE AS search,
       "Control Code" AS markdown;
-      SELECT '[' || control_code || ']('|| ${this.absoluteURL(
+      SELECT '[' || control_code || ']('|| ${
+      this.absoluteURL(
         "/ce/regime/control/control_detail.sql?id=",
-      )} || control_code || '&regimeType='|| replace($regimeType,
+      )
+    } || control_code || '&regimeType='|| replace($regimeType,
     " ", "%20")||')' AS "Control Code",
       scf_control AS "Title",
       scf_domain AS "Domain",
@@ -615,7 +633,9 @@ FROM (SELECT control_id, fii_id
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
     SELECT 'HiTRUST e1 Assessment' AS title, '#' AS link;
 
     --- Description text
@@ -630,7 +650,9 @@ FROM (SELECT control_id, fii_id
 
     --- Table data
     SELECT
-      '[' || control_id || '](' || ${this.absoluteURL("/ce/regime/hitrust_detail.sql?code=")} || replace(control_id, ' ', '%20') || ')' AS "Control Code",
+      '[' || control_id || '](' || ${
+      this.absoluteURL("/ce/regime/hitrust_detail.sql?code=")
+    } || replace(control_id, ' ', '%20') || ')' AS "Control Code",
       fii_id AS "Fii ID",
       common_criteria AS "Common Criteria",
       control_name AS "Control Name",
@@ -650,8 +672,12 @@ FROM (SELECT control_id, fii_id
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
-    SELECT 'HiTRUST e1 Assessment' AS title, ${this.absoluteURL("/ce/regime/hitrust.sql")} AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
+    SELECT 'HiTRUST e1 Assessment' AS title, ${
+      this.absoluteURL("/ce/regime/hitrust.sql")
+    } AS link;
     SELECT COALESCE($code, '') AS title, '#' AS link;
 
     --- Primary details card
@@ -847,7 +873,9 @@ WHERE control_id = $code::TEXT;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home'     AS title, ${this.absoluteURL("/")}              AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")}  AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    }  AS link;
     SELECT 'ISO 27001 v3' AS title, '#'                               AS link;
 
     --- Description text
@@ -867,7 +895,9 @@ WHERE control_id = $code::TEXT;
 
     --- Table data
     SELECT
-      '[' || control_code || '](' || ${this.absoluteURL("/ce/regime/iso-27001_detail.sql?code=")} || replace(control_code, ' ', '%20') || ')' AS "Control Code",
+      '[' || control_code || '](' || ${
+      this.absoluteURL("/ce/regime/iso-27001_detail.sql?code=")
+    } || replace(control_code, ' ', '%20') || ')' AS "Control Code",
       scf_domain        AS "SCF Domain",
       scf_control       AS "SCF Control",
       control_description AS "Control Description",
@@ -888,8 +918,12 @@ WHERE control_id = $code::TEXT;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
-    SELECT 'ISO 27001 v3' AS title, ${this.absoluteURL("/ce/regime/iso-27001.sql")} AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
+    SELECT 'ISO 27001 v3' AS title, ${
+      this.absoluteURL("/ce/regime/iso-27001.sql")
+    } AS link;
     SELECT COALESCE($code, '') AS title, '#' AS link;
 
     --- Primary details card
@@ -1102,9 +1136,11 @@ WHERE control_code = $code::TEXT;
  
     SELECT
       '[' || hipaa_security_rule_reference || '](' ||
-        ${this.absoluteURL(
-          "/ce/regime/hipaa_security_rule_detail.sql?id=",
-        )} || hipaa_security_rule_reference || ')' AS "Control Code",
+        ${
+      this.absoluteURL(
+        "/ce/regime/hipaa_security_rule_detail.sql?id=",
+      )
+    } || hipaa_security_rule_reference || ')' AS "Control Code",
       common_criteria AS "Common Criteria",
       safeguard AS "Control Question",
       handled_by_nq AS "Handled by nQ",
@@ -1362,9 +1398,11 @@ WHERE hipaa_security_rule_reference = $id::TEXT;
   
       SELECT
         '[' || scf_code || '](' ||
-          ${this.absoluteURL(
-            "/ce/regime/thsa_detail.sql?id=",
-          )} || scf_code || ')' AS "Control Code",
+          ${
+      this.absoluteURL(
+        "/ce/regime/thsa_detail.sql?id=",
+      )
+    } || scf_code || ')' AS "Control Code",
         scf_domain AS "Domain",
         scf_control AS "Control",
         scf_control_question AS "Control Question"
@@ -1637,7 +1675,9 @@ WHERE scf_code = $id::TEXT;
     --- Breadcrumbs
     SELECT 'breadcrumb' AS component;
     SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-    SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
+    SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
     SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
     SELECT 'CMMC Level ' || COALESCE(@level::TEXT,'') AS title, '#' AS link;
 
@@ -1700,9 +1740,13 @@ WHERE scf_code = $id::TEXT;
   --- Breadcrumbs
   SELECT 'breadcrumb' AS component;
   SELECT 'Home' AS title, ${this.absoluteURL("/")} AS link;
-  SELECT 'Controls' AS title, ${this.absoluteURL("/ce/regime/index.sql")} AS link;
+  SELECT 'Controls' AS title, ${
+      this.absoluteURL("/ce/regime/index.sql")
+    } AS link;
   SELECT 'CMMC' AS title, ${this.absoluteURL("/ce/regime/cmmc.sql")} AS link;
-  SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${this.absoluteURL("/ce/regime/cmmc_level.sql?level=")} || COALESCE($level::TEXT,'1') AS link;
+  SELECT 'CMMC Level ' || COALESCE($level::TEXT, '') AS title, ${
+      this.absoluteURL("/ce/regime/cmmc_level.sql?level=")
+    } || COALESCE($level::TEXT,'1') AS link;
   SELECT COALESCE($code, '') AS title, '#' AS link;
 
   
@@ -1928,9 +1972,6 @@ WHERE scf_code = $id::TEXT;
 
     `;
   }
-
-  
-
 }
 
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
@@ -1960,7 +2001,6 @@ export async function controlSQL() {
   );
 }
 
-
 /**
  * Generate the SQL notebook pages for the "Compliance Explorer" pattern.
  *
@@ -1978,7 +2018,8 @@ export async function controlSQL() {
  *         file system errors, invalid input, or generation failures).
  */
 export async function spry(srcDir: string) {
-  return await spn.TypicalSqlPageNotebook.spry(srcDir,    
+  return await spn.TypicalSqlPageNotebook.spry(
+    srcDir,
     new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
     new ComplianceExplorerSqlPages(),
   );
@@ -1986,5 +2027,5 @@ export async function spry(srcDir: string) {
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
   console.log((await controlSQL()).join("\n"));
-  await spry("src");
+  // await spry("src");
 }
