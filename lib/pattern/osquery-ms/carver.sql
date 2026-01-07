@@ -1,22 +1,12 @@
-Error executing pattern/osquery-ms/carver.sql: Command failed: lib/pattern/osquery-ms/carver.sql.ts
-[0m[32mDownload[0m https://surveilr.com/lib/pattern/osquery-ms/deps.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/pattern/osquery-ms/deps.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/deps.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/lifecycle.sql.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/notebook/mod.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/notebook/rssd.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/notebook/code.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/models/mod.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/package.sql.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/notebook/sqlpage.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/notebook/tap.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/models/lifecycle.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/mod.ts
-[0m[32mDownload[0m https://raw.githubusercontent.com/programmablemd/spry/refs/heads/main/lib/markdown/fluent-doc.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/console.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/shell.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/uniform-resource.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/orchestration.ts
-[0m[32mDownload[0m https://www.surveilr.com/lib/std/web-ui-content/docs.ts
-[0m[1m[31merror[0m: Module not found "https://raw.githubusercontent.com/programmablemd/spry/refs/heads/main/lib/markdown/fluent-doc.ts".
-    at [0m[36mhttps://www.surveilr.com/lib/std/notebook/sqlpage.ts[0m:[0m[33m3[0m:[0m[33m29[0m
+CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
+    "key" TEXT PRIMARY KEY NOT NULL,
+    "value" TEXT NOT NULL
+);
+INSERT INTO "code_notebook_kernel" ("code_notebook_kernel_id", "kernel_name", "description", "mime_type", "file_extn", "elaboration", "governance", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('SQL', 'SQLite SQL Statements', NULL, 'application/sql', '.sql', NULL, NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  code_notebook_kernel_id = COALESCE(EXCLUDED.code_notebook_kernel_id, code_notebook_kernel_id), kernel_name = COALESCE(EXCLUDED.kernel_name, kernel_name), description = COALESCE(EXCLUDED.description, description), mime_type = COALESCE(EXCLUDED.mime_type, mime_type), file_extn = COALESCE(EXCLUDED.file_extn, file_extn), governance = COALESCE(EXCLUDED.governance, governance), elaboration = COALESCE(EXCLUDED.elaboration, elaboration), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
+INSERT INTO "code_notebook_cell" ("code_notebook_cell_id", "notebook_kernel_id", "notebook_name", "cell_name", "cell_governance", "interpretable_code", "interpretable_code_hash", "description", "arguments", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('01KEC6308R554C6G7JDSZR818T', 'SQL', 'osQuery MS File Carve', '/etc/passwd', '{"osquery-ms-interval":86400,"targets":["linux"],"postProcessCarved":"capturable-executable","persistCarvedAsUR":true}', '
+#!/bin/bash
+
+# Read from STDIN and echo it so that it gets stored in the database;
+# This is useful for testing the capturable executable context.
+cat
+    ', '809c50cbe81ec41452e35792419a566c1754c0df', 'Get etc file system', NULL, (CURRENT_TIMESTAMP), (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user'), NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  description = COALESCE(EXCLUDED.description, description), cell_governance = COALESCE(EXCLUDED.cell_governance, cell_governance), interpretable_code = COALESCE(EXCLUDED.interpretable_code, interpretable_code), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user');
