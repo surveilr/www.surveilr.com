@@ -1,5 +1,6 @@
 import { callable as c, path, SQLa, ws } from "../deps.ts";
 import { SurveilrSqlNotebook } from "./rssd.ts";
+import { MarkdownDoc } from "jsr:@spry/universal";
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -32,14 +33,14 @@ export interface SqlPagesFileRecord {
 export type PathShellConfig = {
   readonly path: string;
   readonly shellStmts:
-  | "do-not-include"
-  | ((spfr: SqlPagesFileRecord) => string | string[]);
+    | "do-not-include"
+    | ((spfr: SqlPagesFileRecord) => string | string[]);
   readonly breadcrumbsFromNavStmts:
-  | "no"
-  | ((spfr: SqlPagesFileRecord) => string | string[]);
+    | "no"
+    | ((spfr: SqlPagesFileRecord) => string | string[]);
   readonly pageTitleFromNavStmts:
-  | "no"
-  | ((spfr: SqlPagesFileRecord) => string | string[]);
+    | "no"
+    | ((spfr: SqlPagesFileRecord) => string | string[]);
 };
 
 /**
@@ -389,15 +390,17 @@ export class TypicalSqlPageNotebook
       init: () => {
         const countSQL = config.countSQL
           ? config.countSQL
-          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
-            }`;
+          : this.SQL`SELECT COUNT(*) FROM ${config.tableOrViewName} ${
+            config.whereSQL && config.whereSQL.length > 0 ? config.whereSQL : ``
+          }`;
 
         return this.SQL`
           SET ${n("total_rows")} = (${countSQL.SQL(this.emitCtx)});
           SET ${n("limit")} = COALESCE(${$("limit")}, 50);
           SET ${n("offset")} = COALESCE(${$("offset")}, 0);
-          SET ${n("total_pages")} = (${$("total_rows")} + ${$("limit")
-          } - 1) / ${$("limit")};
+          SET ${n("total_pages")} = (${$("total_rows")} + ${
+          $("limit")
+        } - 1) / ${$("limit")};
           SET ${n("current_page")} = (${$("offset")} / ${$("limit")}) + 1;`;
       },
 
@@ -419,20 +422,22 @@ export class TypicalSqlPageNotebook
         );
         return this.SQL`
           SELECT 'text' AS component,
-              (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${filteredParams.length
+              (SELECT CASE WHEN CAST($current_page AS INTEGER) > 1 THEN '[Previous](?limit=' || $limit || '&offset=' || ($offset - $limit)${
+          filteredParams.length
             ? " || " + filteredParams.map((qp) =>
               `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
-          } || ')' ELSE '' END)
+        } || ')' ELSE '' END)
               || ' '
               || '(Page ' || $current_page || ' of ' || $total_pages || ") "
-              || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${filteredParams.length
+              || (SELECT CASE WHEN CAST($current_page AS INTEGER) < CAST($total_pages AS INTEGER) THEN '[Next](?limit=' || $limit || '&offset=' || ($offset + $limit)${
+          filteredParams.length
             ? " || " + filteredParams.map((qp) =>
               `COALESCE('&${n(qp)}=' || replace($${qp}, ' ', '%20'), '')`
             ).join(" || ")
             : ""
-          } || ')' ELSE '' END)
+        } || ')' ELSE '' END)
               AS contents_md
           ${whereTabvalue ? ` WHERE ${whereTabvalue}` : ""};
         `;
@@ -445,8 +450,8 @@ export class TypicalSqlPageNotebook
       typeof text === "number"
         ? text
         : text
-          ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(text)[1]
-          : "NULL";
+        ? this.emitCtx.sqlTextEmitOptions.quotedLiteral(text)[1]
+        : "NULL";
     // deno-fmt-ignore
     return this.SQL`
       INSERT INTO sqlpage_aide_navigation (namespace, parent_path, sibling_order, path, url, caption, abbreviated_caption, title, description,elaboration)
@@ -595,8 +600,9 @@ export class TypicalSqlPageNotebook
     return this.SQL`
           SELECT 'title' AS component, (SELECT COALESCE(title, caption)
               FROM sqlpage_aide_navigation
-             WHERE namespace = 'prime' AND path = ${literal(activePPC?.absPath ?? "/")
-      }) as contents;
+             WHERE namespace = 'prime' AND path = ${
+      literal(activePPC?.absPath ?? "/")
+    }) as contents;
     `;
   }
 
@@ -611,10 +617,11 @@ export class TypicalSqlPageNotebook
     const methodName = activePPC?.methodName.replaceAll("'", "''") ?? "??";
     return this.SQL`
         SELECT 'text' AS component,
-       '[View ${methodName}](' || ${this.absoluteURL(
-      `/console/sqlpage-files/sqlpage-file.sql?path=${methodName}`,
-    )
-      } || ')' AS contents_md;       
+       '[View ${methodName}](' || ${
+      this.absoluteURL(
+        `/console/sqlpage-files/sqlpage-file.sql?path=${methodName}`,
+      )
+    } || ')' AS contents_md;       
   `;
   }
 
@@ -691,6 +698,163 @@ export class TypicalSqlPageNotebook
     );
     return [...arbitrarySqlStmts, ...sqlPageFileUpserts];
   }
+
+  //
+  /**
+   * Generates SQL and other resource files from a collection of `TypicalSqlPageNotebook` instances.
+   *
+   * This method performs the following steps:
+   * 1. Creates a common notebook that emits SQL for initializing the `sqlpage_files` table.
+   * 2. Collects all callable methods from the provided notebooks, including the common notebook.
+   * 3. For each callable matching SQL-related suffixes (`SQL`, `DQL`, `DML`, `DDL`), generates the SQL text
+   *    and writes it to the `${srcDir}/sql.d/head` directory, creating the directory if necessary.
+   * 4. For each callable matching resource file extensions (`.sql`, `.json`, `.js`, `.handlebars`), generates
+   *    the file content and writes it to the appropriate path, creating directories as needed.
+   *
+   * @param srcDir - The root directory where generated files will be written.
+   * @param sources - One or more `TypicalSqlPageNotebook` instances to process.
+   * @returns A promise that resolves when all files have been generated and written.
+   */
+  static override async spry(
+    srcDir: string,
+    ...sources: TypicalSqlPageNotebook[]
+  ) {
+    // commonNB emits SQL before all other SQL from any notebooks passed in
+    const commonNB = new (class extends TypicalSqlPageNotebook {
+      commonDDL() {
+        return this.SQL`
+          -- ${this.tsProvenanceComment(import.meta.url)}
+          -- idempotently create location where SQLPage looks for its content
+          CREATE TABLE IF NOT EXISTS "sqlpage_files" (
+            "path" VARCHAR PRIMARY KEY NOT NULL,
+            "contents" TEXT NOT NULL,
+            "last_modified" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+          );`;
+      }
+    })();
+
+    // select all "callable" methods from across all notebooks
+    const cc = c.callablesCollection<TypicalSqlPageNotebook, Any>(
+      commonNB,
+      ...sources,
+    );
+    for await (
+      const cell of cc.filter({
+        include: [/SQL$/, /DQL$/, /DML$/, /DDL$/],
+      })
+    ) {
+      const sql = await cell.source.instance.methodText(cell as Any);
+      await Deno.mkdir(`${srcDir}/sql.d/head`, { recursive: true });
+      await Deno.writeTextFile(
+        `${srcDir}/sql.d/head/${cell.callable}.sql`,
+        sql,
+      );
+    }
+
+    const absPathToSpryfileLocal = `${srcDir}/Spryfile.md`;
+
+    const sfMD = new MarkdownDoc();
+    const frontMatter = {
+      "sqlpage-conf": {
+        allow_exec: true,
+        port: "${env.PORT}",
+        database_url: "${env.SPRY_DB}",
+        web_root: `./dev-src.auto/`,
+      },
+    };
+    sfMD.frontMatterOnceWithQuotes(frontMatter);
+
+    sfMD.title(2, "Environment variables and .envrc");
+    sfMD.p(
+      "Recommended practice is to keep these values in a local, directory-scoped environment file. If you use direnv (recommended), create a file named `.envrc` in this directory.",
+    );
+    sfMD.p("POSIX-style example (bash/zsh):");
+    sfMD.codeTag(
+      `envrc prepare-env -C ./.envrc --gitignore --descr "Generate .envrc file and add it to local .gitignore if it's not already there"`,
+    )`export DB_NAME="resource-surveillance.sqlite.db"\nexport SPRY_DB="sqlite://$DB_NAME?mode=rwc"\nexport PORT=9227`;
+    sfMD.p(
+      "Then run `direnv allow` in this project directory to load the `.envrc` into your shell environment. direnv will evaluate `.envrc` only after you explicitly allow it.",
+    );
+    sfMD.title(2, "SQLPage Dev / Watch mode");
+    sfMD.p(
+      "While you're developing, Spry's `dev-src.auto` generator should be used:",
+    );
+    sfMD.codeTag(
+      `bash prepare-sqlpage-dev --descr "Generate the dev-src.auto directory to work in sqlite dev mode"`,
+    )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json`;
+    sfMD.codeTag(
+      `bash clean --descr "Clean up the project directory's generated artifacts"`,
+    )`rm -rf dev-src.auto`;
+    sfMD.p(
+      "In development mode, here’s the `--watch` convenience you can use so that\nwhenever you update `Spryfile.md`, it regenerates the SQLPage `dev-src.auto`,\nwhich is then picked up automatically by the SQLPage server:",
+    );
+    sfMD.codeTag(
+      `bash`,
+    )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json --watch --with-sqlpage`;
+    sfMD.ul(
+      "--watch` turns on watching all `--md` files passed in (defaults to `Spryfile.md`)",
+    );
+    sfMD.ul("--with-sqlpage` starts and stops SQLPage after each build");
+    sfMD.p(
+      "Restarting SQLPage after each re-generation of dev-src.auto is **not**\nnecessary, so you can also use `--watch` without `--with-sqlpage` in one\nterminal window while keeping the SQLPage server running in another terminal\nwindow.",
+    );
+    sfMD.p("If you're running SQLPage in another terminal window, use:");
+    sfMD.codeTag(
+      `bash`,
+    )`./spry.ts spc --fs dev-src.auto --destroy-first --conf sqlpage/sqlpage.json --watch`;
+    sfMD.title(2, "SQLPage single database deployment mode");
+    sfMD.p(
+      "After development is complete, the `dev-src.auto` can be removed and single-database deployment can be used:",
+    );
+    sfMD.codeTag(
+      `bash deploy --descr "Generate sqlpage_files table upsert SQL and push them to sqlite"`,
+    )`rm -rf dev-src.auto\n./spry.ts spc --package --dialect sqlite --conf sqlpage/sqlpage.json | sqlite3 $DB_NAME`;
+    sfMD.title(2, "Start the SQLPage server");
+    sfMD.codeTag(
+      `bash`,
+    )`sqlpage `;
+
+    await Promise.all(
+      cc.filter({ include: [/\.sql$/, /\.json$/, /\.js$/, /\.handlebars$/] })
+        .map(
+          async (method) => {
+            const notebook = method.source.instance;
+            // const navigation = method.source.instance.navigation;
+
+            const spfr: SqlPagesFileRecord = {
+              method: method as Any,
+              path: String(method.callable),
+              content: await notebook.methodText(method as Any),
+            };
+
+            await Deno.mkdir(path.dirname(spfr.path), { recursive: true });
+            await Deno.writeTextFile(spfr.path, spfr.content);
+            // await Deno.writeTextFile(`${srcDir}/method.json`, JSON.stringify(navigation));
+
+            if (spfr.path === "shell/shell.json") return;
+            sfMD.title(2, `${spfr.path} page`);
+            if (spfr.path === "shell/shell.sql") {
+              const content = `
+               ${wrapAllEnvVars(transformSqlPageLinks(spfr.content))}
+
+              SET resource_json = sqlpage.read_file_as_text('spry.d/auto/resource/\${path}.auto.json');
+              SET page_title  = json_extract($resource_json, '\$.route.caption');
+              SET page_path = json_extract($resource_json, '\$.route.path');
+               `;
+              sfMD.codeTag(
+                `sql PARTIAL global-layout.sql --inject **/*`,
+              )`${content}`;
+            } else {
+              const content = replaceTextBlockWithRoutes(spfr.content);
+
+              sfMD.codeTag(`sql ${spfr.path}`)`${content}`;
+            }
+          },
+        ),
+    );
+
+    await Deno.writeTextFile(absPathToSpryfileLocal, sfMD.write());
+  }
 }
 
 /**
@@ -760,7 +924,7 @@ export function wrapAllEnvVars(sql: string): string {
 
       // Otherwise wrap it
       return `COALESCE(${match}, '')`;
-    }
+    },
   );
 }
 
@@ -815,7 +979,9 @@ export function replaceTextBlockWithRoutes(sql: string): string {
   // 1️ Match the 'SELECT "text" AS component' block
   const textBlockRegex = /SELECT\s+['"]text['"]\s+AS\s+component[^;]*;/i;
   const matchTextBlock = sql.match(textBlockRegex);
-  if (!matchTextBlock) return `-- @route.caption ""\n${applySpryExpressions(sql)}`; 
+  if (!matchTextBlock) {
+    return `-- @route.caption ""\n${applySpryExpressions(sql)}`;
+  }
 
   const startIndex = matchTextBlock.index! + matchTextBlock[0].length;
   const afterTextBlock = sql.slice(startIndex);
@@ -825,7 +991,9 @@ export function replaceTextBlockWithRoutes(sql: string): string {
   const matchContents = afterTextBlock.match(contentsRegex);
 
   // 3️ Extract title from the 'text' block
-  const titleMatch = matchTextBlock[0].match(/['"]([^'"]+)['"]\s+AS\s+title\b/i);
+  const titleMatch = matchTextBlock[0].match(
+    /['"]([^'"]+)['"]\s+AS\s+title\b/i,
+  );
   const caption = titleMatch ? titleMatch[1].trim() : "";
 
   // 4️ Extract description (handles both quote styles)
@@ -841,17 +1009,19 @@ export function replaceTextBlockWithRoutes(sql: string): string {
   const endRemove = startIndex;
 
   // 7️ Rebuild SQL body
-  const remainingSQL =
-    sql.slice(0, startRemove).trimEnd() + "\n\n" + sql.slice(endRemove).trimStart();
+  const remainingSQL = sql.slice(0, startRemove).trimEnd() + "\n\n" +
+    sql.slice(endRemove).trimStart();
 
   // 8️ Combine comments + replacement text block + rest of SQL
   const updatedSQL =
-    `${routeComments}\n${caption ? `SELECT 'text' AS component, $page_title AS title;\n\n`:``}` +
+    `${routeComments}\n${
+      caption ? `SELECT 'text' AS component, $page_title AS title;\n\n` : ``
+    }` +
     remainingSQL.trimEnd() +
     "\n";
 
-  const replacedMDLinkSql = applySpryExpressions(updatedSQL);  
-  
+  const replacedMDLinkSql = applySpryExpressions(updatedSQL);
+
   return replacedMDLinkSql;
 }
 
