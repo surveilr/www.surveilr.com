@@ -26,7 +26,7 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
       sudo ca-certificates curl wget git zsh bash coreutils \
       build-essential gcc jq python3 python3-pip python3-setuptools python3-wheel \
-      whatweb nmap openssl seclists ffuf sslyze zip \
+      whatweb nmap openssl seclists ffuf sslyze zip commix \
       subfinder dnsx httpx-toolkit naabu nuclei dirsearch nikto amass wpscan dnsenum \
       wafw00f testssl.sh paramspider libpcap-dev  \
       golang-go \
@@ -41,8 +41,7 @@ RUN set -eux; \
     # then install fierce but don't let it try deps again
     pip3 install fierce --break-system-packages --no-deps && \
     wget https://github.com/cerberauth/vulnapi/releases/download/v0.8.9/vulnapi_0.8.9_linux_amd64.deb && \
-    dpkg -i vulnapi_0.8.9_linux_amd64.deb && \
-    git clone https://github.com/commixproject/commix.git 
+    dpkg -i vulnapi_0.8.9_linux_amd64.deb
     
 
 # ------------------------------------------------------------------------------
@@ -90,7 +89,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install rustscan dalfox deno trivy
+RUN set -eux; brew install rustscan dalfox deno trivy programmablemd/packages/spry
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -111,8 +110,8 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshr
 # 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
 RUN set -eux; \
-        wget https://github.com/surveilr/packages/releases/download/3.6.0/surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
-        tar -xvf surveilr_3.6.0_x86_64-unknown-linux-gnu.tar.gz && \
+        wget https://github.com/surveilr/packages/releases/download/3.19.0/surveilr_3.19.0_x86_64-unknown-linux-gnu.tar.gz && \
+        tar -xvf surveilr_3.19.0_x86_64-unknown-linux-gnu.tar.gz && \
         mv surveilr /usr/local/bin
 
 # Install Rockyou.txt
@@ -147,11 +146,7 @@ RUN set -eux; nuclei -update -silent || true; nuclei -update-templates -silent |
 RUN ls -al /opt/eaa/
 
 # ------------------------------------------------------------------------------
-# 10) Install Spry after Deno is installed
-RUN  curl -fsSL https://sprymd.org/init.sh | sh -s
-
-# ------------------------------------------------------------------------------
-# 11) Default Command to run on container start (explicitly use bash)
+# 10) Default Command to run on container start (explicitly use bash)
 # ------------------------------------------------------------------------------
 WORKDIR /opt/eaa/
-CMD [ "bash", "-c", "source /opt/eaa/.env && ./spry.ts runbook --md fleetfolio-eaa-pentest-lite.spry.md --verbose rich" ]
+CMD [ "bash", "-c", "source /opt/eaa/.env && spry rb run fleetfolio-eaa-pentest-lite.spry.md --graph daily --verbose rich" ]
