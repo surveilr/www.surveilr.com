@@ -2001,7 +2001,31 @@ export async function controlSQL() {
   );
 }
 
+/**
+ * Generate the SQL notebook pages for the "Compliance Explorer" pattern.
+ *
+ * This asynchronous helper delegates to spn.TypicalSqlPageNotebook.spry, constructing
+ * the shell and pattern-specific page providers:
+ * - a ShellSqlPages instance initialized with SQE_TITLE, SQE_LOGO, and SQE_FAV_ICON
+ * - a ComplianceExplorerSqlPages instance for pattern-specific pages
+ *
+ * @param srcDir - The root source directory used when generating the SQL pages; typically
+ *                 the workspace or repository path containing pattern assets.
+ * @returns A promise that resolves with the value returned by
+ *          spn.TypicalSqlPageNotebook.spry. The resolved value depends on the underlying
+ *          TypicalSqlPageNotebook implementation.
+ * @throws Will reject if the underlying TypicalSqlPageNotebook.spry call fails (e.g.,
+ *         file system errors, invalid input, or generation failures).
+ */
+export async function spry(srcDir: string) {
+  return await spn.TypicalSqlPageNotebook.spry(
+    srcDir,
+    new sh.ShellSqlPages(SQE_TITLE, SQE_LOGO, SQE_FAV_ICON),
+    new ComplianceExplorerSqlPages(),
+  );
+}
 // this will be used by any callers who want to serve it as a CLI with SDTOUT
 if (import.meta.main) {
   console.log((await controlSQL()).join("\n"));
+  await spry("src");
 }
