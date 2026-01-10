@@ -85,70 +85,188 @@ Deno.test("surveilr_udi_dal_fs", async (t) => {
   });
 });
 
-// Deno.test("surveilr_udi_dal_dropbox", async (t) => {
-//   await t.step("check for the existence of DROPBOX_ACCESS_TOKEN", () => {
-//     assert(
-//       Deno.env.has("DROPBOX_ACCESS_TOKEN"),
-//       "❌ Error: Failed to verify existence of Dropbox access token.",
-//     );
-//   });
+//DROPBOX TEST
+Deno.test("surveilr_udi_dal_dropbox", async (t) => {
+  if (await Deno.stat(rssdPath).catch(() => null)) {
+    await Deno.remove(rssdPath).catch(() => false);
+  }
 
-//   if (await Deno.stat(rssdPath).catch(() => null)) {
-//     await Deno.remove(rssdPath).catch(() => false);
-//   }
+  const accessToken = "token";
+  const dropboxPath = "/my/folder";
 
-//   const sql = `
-//           INSERT INTO uniform_resource (
-//               uniform_resource_id,
-//               device_id,
-//               ingest_session_id,
-//               ingest_fs_path_id,
-//               uri,
-//               content_digest,
-//               content,
-//               size_bytes,
-//               last_modified_at,
-//               nature,
-//               created_by,
-//               created_at
-//           )
-//           SELECT
-//               ulid(),
-//               surveilr_device_id(),
-//               surveilr_ingest_session_id(),
-//               NULL, -- you can create an ingest_fs_path_id entry
-//               path AS uri,
-//               hex(md5(content)),
-//               content,
-//               size AS size_bytes,
-//               last_modified AS last_modified_at,
-//               content_type AS nature,
-//               'system',
-//               CURRENT_TIMESTAMP
-//           FROM surveilr_udi_dal_dropbox();
-//       `;
+  const sql = `
+                INSERT INTO uniform_resource (
+            uniform_resource_id,
+            device_id,
+            ingest_session_id,
+            ingest_fs_path_id,
+            uri,
+            content_digest,
+            content,
+            size_bytes,
+            last_modified_at,
+            nature,
+            created_by,
+            created_at
+        )
+         SELECT
+            ulid(),
+            surveilr_device_id(),
+            surveilr_ingest_session_id(),
+            NULL, -- you can create an ingest_fs_path_id entry
+            path AS uri,
+            hex(md5(content)),
+            content,
+            size AS size_bytes,
+            last_modified AS last_modified_at,
+            content_type AS nature,
+            'system',
+            CURRENT_TIMESTAMP
+          FROM surveilr_udi_dal_dropbox('${accessToken}', '${dropboxPath}');
+    `;
 
-//   await t.step("execute sql with function", async () => {
-//     const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
-//       .stdout("piped");
-//     assertEquals(
-//       result.code,
-//       0,
-//       "❌ Error: Failed to execute surveilr surveilr_udi_dal_dropbox function.",
-//     );
-//   });
+  await t.step("execute sql with function", async () => {
+    const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
+      .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr_udi_dal_dropbox function.",
+    );
+  });
 
-//   await t.step("verify uniform resource", async () => {
-//     const db = new DB(rssdPath);
-//     const result = db.query<[number]>(
-//       `SELECT COUNT(*) AS count FROM uniform_resource`,
-//     );
-//     assertEquals(result.length, 1);
+  await t.step("verify uniform resource", async () => {
+    const db = new DB(rssdPath);
+    const result = db.query<[number]>(
+      `SELECT COUNT(*) AS count FROM uniform_resource`,
+    );
+    assertEquals(result.length, 1);
+    assert(result[0][0] >= 0);
+    db.close();
+  });
+});
 
-//     const uniformResources = result[0][0];
-//     const testFixtureEntries = await countFilesInDirectory(testFixturesDir);
-//     assertEquals(uniformResources, testFixtureEntries);
+//S3 TEST
+Deno.test("surveilr_udi_dal_s3", async (t) => {
+  if (await Deno.stat(rssdPath).catch(() => null)) {
+    await Deno.remove(rssdPath).catch(() => false);
+  }
 
-//     db.close();
-//   });
-// });
+  const bucket = "bucket";
+  const endpoint = "endpoint";
+  const region = "region";
+  const accessKeyId = "access_key";
+  const secretAccessKey = "secret_key";
+
+  const sql = `
+            INSERT INTO uniform_resource (
+            uniform_resource_id,
+            device_id,
+            ingest_session_id,
+            ingest_fs_path_id,
+            uri,
+            content_digest,
+            content,
+            size_bytes,
+            last_modified_at,
+            nature,
+            created_by,
+            created_at
+        )
+         SELECT
+            ulid(),
+            surveilr_device_id(),
+            surveilr_ingest_session_id(),
+            NULL, -- you can create an ingest_fs_path_id entry
+            path AS uri,
+            hex(md5(content)),
+            content,
+            size AS size_bytes,
+            last_modified AS last_modified_at,
+            content_type AS nature,
+            'system',
+            CURRENT_TIMESTAMP
+          FROM surveilr_udi_dal_s3('${bucket}', '${endpoint}', '${region}', '${accessKeyId}', '${secretAccessKey}');
+    `;
+
+  await t.step("execute sql with function", async () => {
+    const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
+      .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr_udi_dal_s3 function.",
+    );
+  });
+
+  await t.step("verify uniform resource", async () => {
+    const db = new DB(rssdPath);
+    const result = db.query<[number]>(
+      `SELECT COUNT(*) AS count FROM uniform_resource`,
+    );
+    assertEquals(result.length, 1);
+    assert(result[0][0] >= 0);
+    db.close();
+  });
+});
+
+Deno.test("surveilr_udi_dal_gdrive", async (t) => {
+  if (await Deno.stat(rssdPath).catch(() => null)) {
+    await Deno.remove(rssdPath).catch(() => false);
+  }
+
+  const accessToken = "token";
+  const gdrivePath = "/";
+
+  const sql = `
+            INSERT INTO uniform_resource (
+            uniform_resource_id,
+            device_id,
+            ingest_session_id,
+            ingest_fs_path_id,
+            uri,
+            content_digest,
+            content,
+            size_bytes,
+            last_modified_at,
+            nature,
+            created_by,
+            created_at
+        )
+         SELECT
+            ulid(),
+            surveilr_device_id(),
+            surveilr_ingest_session_id(),
+            NULL, -- you can create an ingest_fs_path_id entry
+            path AS uri,
+            hex(md5(content)),
+            content,
+            size AS size_bytes,
+            last_modified AS last_modified_at,
+            content_type AS nature,
+            'system',
+            CURRENT_TIMESTAMP
+          FROM surveilr_udi_dal_gdrive('${accessToken}', '${gdrivePath}');
+    `;
+
+  await t.step("execute sql with function", async () => {
+    const result = await $`echo ${sql} | surveilr shell -d ${rssdPath}`
+      .stdout("piped");
+    assertEquals(
+      result.code,
+      0,
+      "❌ Error: Failed to execute surveilr_udi_dal_gdrive function.",
+    );
+  });
+
+  await t.step("verify uniform resource", async () => {
+    const db = new DB(rssdPath);
+    const result = db.query<[number]>(
+      `SELECT COUNT(*) AS count FROM uniform_resource`,
+    );
+    assertEquals(result.length, 1);
+    assert(result[0][0] >= 0);
+    db.close();
+  });
+
+});
