@@ -1,7 +1,7 @@
 // An array of links for navigation bar
 const navBarLinks = [
   { name: "Home", url: "/" },
-  { name: "Docs", url: "/docs" },
+  { name: "Docs", url: "https://docs.opsfolio.com/surveilr/core/what-is-surveilr" },
   { name: "Patterns", url: "/pattern" },
   { name: "Services", url: "/services" },
   { name: "Blog", url: "/blog" },
