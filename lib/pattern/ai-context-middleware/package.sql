@@ -54,6 +54,7 @@ Error executing pattern/ai-context-middleware/package.sql: Command failed: lib/p
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/polygenix/info-model.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/polygenix/rust/mod.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/render/polygenix/diagram/mod.ts
+[0m[32mDownload[0m https://jsr.io/@spry/universal/meta.json
 [0m[32mDownload[0m https://deno.land/x/plug@1.0.1/download.ts
 [0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/basename.ts
 [0m[32mDownload[0m https://deno.land/std@0.224.0/path/windows/constants.ts
@@ -102,7 +103,6 @@ Error executing pattern/ai-context-middleware/package.sql: Command failed: lib/p
 [0m[32mDownload[0m https://deno.land/std@0.224.0/yaml/schema/extended.ts
 [0m[32mDownload[0m https://deno.land/std@0.224.0/yaml/schema/failsafe.ts
 [0m[32mDownload[0m https://deno.land/std@0.224.0/yaml/schema/json.ts
-[0m[32mDownload[0m https://jsr.io/@spry/universal/meta.json
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/deps.ts
 [0m[32mDownload[0m https://raw.githubusercontent.com/netspective-labs/sql-aide/v0.14.8/lib/universal/safety.ts
 [0m[32mDownload[0m https://deno.land/x/cliffy@v0.25.7/command/mod.ts

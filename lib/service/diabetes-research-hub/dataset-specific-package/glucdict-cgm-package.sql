@@ -1,5 +1,4 @@
 Error executing service/diabetes-research-hub/dataset-specific-package/glucdict-cgm-package.sql: Command failed: lib/service/diabetes-research-hub/dataset-specific-package/glucdict-cgm-package.sql.ts
-[0m[1m[31merror[0m: Failed reading lockfile at '/home/runner/work/www.surveilr.com/www.surveilr.com/deno.lock'
-
-Caused by:
-    Unsupported lockfile version '5'. Try upgrading Deno or recreating the lockfile
+[0m[32mDownload[0m https://jsr.io/@spry/universal/spawn/shell.ts
+[0m[1m[31merror[0m: Module not found "https://jsr.io/@spry/universal/spawn/shell.ts".
+    at [0m[36mhttps://jsr.io/@spry/universal/1.7.4/doctor.ts[0m:[0m[33m38[0m:[0m[33m36[0m
