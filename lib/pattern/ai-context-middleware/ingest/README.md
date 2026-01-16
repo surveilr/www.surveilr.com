@@ -1,12 +1,12 @@
-# AI Context Engineering Guide for Content Creators
+# AI Workforce™ Guide for Content Creators
 
-*A simple guide to creating, organizing, and managing AI prompts that power Opsfolio's customer support, sales, and marketing systems*
 
-## What is AI Context Engineering?
 
-Think of AI Context Engineering as creating a smart library system for all the instructions you give to AI assistants. Instead of typing the same instructions over and over again, you create reusable "prompt modules" that can be mixed and matched to build powerful AI systems for your business.
+## What is AI Workforce™?
 
-Just like how you might have templates for emails, contracts, or presentations, AI Context Engineering helps you create templates for AI conversations that are:
+Think of AI Workforce™ as creating a smart library system for all the instructions you give to AI assistants. Instead of typing the same instructions over and over again, you create reusable "prompt modules" that can be mixed and matched to build powerful AI systems for your business.
+
+Just like how you might have templates for emails, contracts, or presentations, AI Workforce™ helps you create templates for AI conversations that are:
 
 - **Consistent** - Everyone gets the same quality of response
 - **Reusable** - Write once, use everywhere
@@ -15,7 +15,7 @@ Just like how you might have templates for emails, contracts, or presentations, 
 
 ## Why This Matters for Opsfolio
 
-### Before AI Context Engineering
+### Before AI Workforce™
 
 - Each team member writes their own AI prompts
 - Inconsistent responses to customers
@@ -23,7 +23,7 @@ Just like how you might have templates for emails, contracts, or presentations, 
 - Hard to update instructions across all systems
 - New team members have to start from scratch
 
-### After AI Context Engineering
+### After AI Workforce™
 
 - Professional, consistent AI responses
 - Reusable prompt library saves time
@@ -522,7 +522,7 @@ As Opsfolio serves different types of customers, you can create:
 
 ## Summary
 
-AI Context Engineering transforms how Opsfolio teams create and manage AI instructions. Instead of scattered, inconsistent prompts, you get a professional library of reusable, trackable, and improvable AI components that reflect Opsfolio's enterprise-grade standards.
+AI Workforce™ transforms how Opsfolio teams create and manage AI instructions. Instead of scattered, inconsistent prompts, you get a professional library of reusable, trackable, and improvable AI components that reflect Opsfolio's enterprise-grade standards.
 
 The system handles all the technical complexity of organizing, combining, and deploying your prompts while you focus on creating great content that helps Opsfolio customers succeed with their compliance and operations challenges.
 
