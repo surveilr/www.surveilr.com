@@ -1,6 +1,6 @@
 import { callable as c, path, SQLa, ws } from "../deps.ts";
 import { SurveilrSqlNotebook } from "./rssd.ts";
-import { MarkdownDoc } from "jsr:@spry/universal";
+import { MarkdownDoc } from "jsr:@spry/universal@1.0.3";
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -1071,6 +1071,6 @@ export function replaceLimitOffset(sql: string): string {
   // Replace LIMIT $limit OFFSET $offset; (any spacing) with ${pagination.limit};
   return sql.replace(
     /LIMIT\s*\$limit\s*OFFSET\s*\$offset\s*;/i,
-    "${pagination.limit};"
+    "${pagination.limit};",
   );
 }
