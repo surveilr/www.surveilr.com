@@ -68,7 +68,7 @@ jobs:
       # -----------------------------
       - name: Run Surveilr pipeline
         run: |
-          chmod +x support/scripts/rssd-creation.sh
+          chmod +x support/scripts/db-generation.sh
           support/scripts/db-generation.sh
 
           
