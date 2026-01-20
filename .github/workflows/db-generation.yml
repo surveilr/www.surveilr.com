@@ -1,0 +1,97 @@
+name: Surveilr DB generation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  surveilr-yard:
+    runs-on: ubuntu-latest
+
+    env:
+      EG_SURVEILR_COM_IMAP_FOLDER: INBOX
+      EG_SURVEILR_COM_IMAP_USER_NAME: ${{ secrets.EG_SURVEILR_COM_IMAP_USER_NAME }}
+      EG_SURVEILR_COM_IMAP_PASS: ${{ secrets.EG_SURVEILR_COM_IMAP_PASS }}
+      EG_SURVEILR_COM_IMAP_HOST: ${{ secrets.EG_SURVEILR_COM_IMAP_HOST }}
+
+      APP_DIR: ${{ github.workspace }}/app
+      RSSD_DIR: ${{ github.workspace }}/rssd
+      LOG_DIR: ${{ github.workspace }}/rssd/logs
+
+    steps:
+      # -----------------------------
+      # Checkout repo
+      # -----------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------
+      # Install system dependencies
+      # -----------------------------
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git curl unzip
+
+
+      # -----------------------------
+      # Install deno
+      # -----------------------------
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      # -----------------------------
+      # Install Surveilr
+      # -----------------------------
+      - name: Install surveilr
+        run: |
+          curl -L -o surveilr.tar.gz \
+            https://github.com/surveilr/packages/releases/download/3.24.0/surveilr_3.24.0_x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf surveilr.tar.gz
+          sudo mv surveilr /usr/local/bin/surveilr
+          sudo chmod +x /usr/local/bin/surveilr
+
+
+      # -----------------------------
+      # Prepare directories
+      # -----------------------------
+      - name: Prepare directories
+        run: |
+          rm -rf "$APP_DIR" "$RSSD_DIR"
+          mkdir -p "$APP_DIR" "$RSSD_DIR/logs"
+
+      # -----------------------------
+      # Run Surveilr pipeline script
+      # -----------------------------
+      - name: Run Surveilr pipeline
+        run: |
+          chmod +x support/scripts/rssd-creation.sh
+          support/scripts/db-generation.sh
+
+          
+      # -----------------------------
+      # Archive RSSD folder
+      # -----------------------------
+      - name: Archive RSSD artifacts
+        run: |
+          cd ${{ github.workspace }}
+          tar -czvf surveilr-rssd.tar.gz rssd
+
+      # -----------------------------
+      # Copy artifacts to production
+      # -----------------------------
+      - name: Copy build artifacts to the production server
+        run: |
+          scp -P22 -o StrictHostKeyChecking=no surveilr-rssd.tar.gz "${{ secrets.PRODUCTION_DEPLOYMENT_USER }}@${{ secrets.PRODUCTION_DEPLOYMENT_SERVER_IP }}:"
+
+      # -----------------------------
+      # Deploy on production server
+      # -----------------------------
+      - name: Deploy to production server
+        run: |
+          ssh -p22 -o StrictHostKeyChecking=no -t ${{ secrets.PRODUCTION_DEPLOYMENT_USER }}@${{ secrets.PRODUCTION_DEPLOYMENT_SERVER_IP }} "bash -i eg-surveilr-truth-yard.sh"
+
+
