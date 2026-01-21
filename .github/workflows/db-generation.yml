@@ -27,40 +27,13 @@ jobs:
         uses: actions/checkout@v4
 
       # -----------------------------
-      # Install system dependencies
-      # -----------------------------
-      - name: Install system dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git curl unzip
-
-
-      # -----------------------------
       # Install deno
       # -----------------------------
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v2.x
-
-      # -----------------------------
-      # Install Surveilr
-      # -----------------------------
-      - name: Install surveilr
-        run: |
-          curl -L -o surveilr.tar.gz \
-            https://github.com/surveilr/packages/releases/download/3.24.0/surveilr_3.24.0_x86_64-unknown-linux-gnu.tar.gz
-          tar -xzf surveilr.tar.gz
-          sudo mv surveilr /usr/local/bin/surveilr
-          sudo chmod +x /usr/local/bin/surveilr
-          
-      - name: Install SQLite sqlpkg (Required by Deno)
-        run: |
-          curl -sS https://webi.sh/sqlpkg | bash
-          # sudo mv .sqlpkg/sqlpkg /usr/local/bin/sqlpkg
-          # sudo chmod +x /usr/local/bin/sqlpkg
-
-
+         
       # -----------------------------
       # Prepare directories
       # -----------------------------
