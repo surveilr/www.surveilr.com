@@ -7,7 +7,7 @@ on:
 
 jobs:
   surveilr-yard:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       EG_SURVEILR_COM_IMAP_FOLDER: INBOX
@@ -53,6 +53,12 @@ jobs:
           tar -xzf surveilr.tar.gz
           sudo mv surveilr /usr/local/bin/surveilr
           sudo chmod +x /usr/local/bin/surveilr
+          
+      - name: Install SQLite sqlpkg (Required by Deno)
+        run: |
+          curl -sS https://webi.sh/sqlpkg | bash
+          # sudo mv .sqlpkg/sqlpkg /usr/local/bin/sqlpkg
+          # sudo chmod +x /usr/local/bin/sqlpkg
 
 
       # -----------------------------
