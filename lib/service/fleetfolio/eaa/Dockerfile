@@ -89,7 +89,7 @@ RUN set -eux; brew install gcc
 # ------------------------------------------------------------------------------
 # 4) Install Runme via Homebrew
 # ------------------------------------------------------------------------------
-RUN set -eux; brew install rustscan dalfox deno trivy programmablemd/packages/spry
+RUN set -eux; brew install rustscan dalfox deno trivy programmablemd/packages/spry safedep/tap/vet
 
 # ------------------------------------------------------------------------------
 # 5) Go-based tools (latest) to /usr/local/bin
@@ -110,10 +110,9 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.zshr
 # 6) Install Surveiler tool
 # ------------------------------------------------------------------------------
 RUN set -eux; \
-        wget https://github.com/surveilr/packages/releases/download/3.27.0/surveilr_3.27.0_x86_64-unknown-linux-gnu.tar.gz && \
-        tar -xvf surveilr_3.27.0_x86_64-unknown-linux-gnu.tar.gz && \
+        wget https://github.com/surveilr/packages/releases/download/3.29.0/surveilr_3.29.0_x86_64-unknown-linux-gnu.tar.gz && \
+        tar -xvf surveilr_3.29.0_x86_64-unknown-linux-gnu.tar.gz && \
         mv surveilr /usr/local/bin
-
 # Install Rockyou.txt
 RUN set -eux; \
     git clone https://github.com/RykerWilder/rockyou.txt.git rockyou && \
