@@ -24,7 +24,6 @@ import {
   urIngestSessionImapAcctFolder,
   urIngestSessionImapAccount,
   uniformResourceGraph,
-  urIngestSessionPlmAcctProjectIssue,
   urIngestSessionTask,
   party,
   partyType,
@@ -230,25 +229,6 @@ export const codeNotebookMigrationSql = sqliteView("code_notebook_migration_sql"
 // ============================================================================
 // Graph Views (using query builder where possible)
 // ============================================================================
-
-export const plmGraph = sqliteView("plm_graph").as((qb) => {
-  return qb
-    .select({
-      graphName: uniformResourceEdge.graphName,
-      nature: uniformResourceEdge.nature,
-      uniformResourceId: uniformResource.uniformResourceId,
-      uri: uniformResource.uri,
-      urIngestSessionPlmAcctProjectIssueId: urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId,
-      issueId: urIngestSessionPlmAcctProjectIssue.issueId,
-      projectId: urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectId,
-      title: urIngestSessionPlmAcctProjectIssue.title,
-      body: urIngestSessionPlmAcctProjectIssue.body,
-    })
-    .from(uniformResourceEdge)
-    .innerJoin(uniformResource, eq(uniformResourceEdge.uniformResourceId, uniformResource.uniformResourceId))
-    .innerJoin(urIngestSessionPlmAcctProjectIssue, eq(uniformResourceEdge.nodeId, urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId))
-    .where(eq(uniformResourceEdge.graphName, 'plm'));
-});
 
 export const imapGraph = sqliteView("imap_graph").as((qb) => {
   return qb
@@ -754,3 +734,275 @@ export const orchestrationLogsBySession = sqliteView("orchestration_logs_by_sess
     .innerJoin(orchestrationSessionLog, eq(orchestrationSessionExec.orchestrationSessionExecId, orchestrationSessionLog.parentExecId))
     .groupBy(orchestrationSession.orchestrationSessionId, orchestrationNature.nature, orchestrationSessionLog.category);
 });
+
+// ============================================================================
+// Email Timezone Conversion View
+// ============================================================================
+
+export const emailMessagesWithTimezone = sqliteView("email_messages_with_timezone", {}).as(sql`
+SELECT
+    m.*,
+    -- Smart timezone conversion based on original timezone
+    CASE
+        -- If already IST (+0530), just extract the time
+        WHEN date LIKE '%+0530%' THEN substr(date, 18, 8)
+        -- If UTC (+0000), convert to IST
+        WHEN date LIKE '%+0000%' THEN time(substr(date, 18, 8), '+5 hours', '+30 minutes')
+        -- If EST (-0500), convert to IST
+        WHEN date LIKE '%-0500%' THEN time(substr(date, 18, 8), '+10 hours', '+30 minutes')
+        -- If PST (-0800), convert to IST
+        WHEN date LIKE '%-0800%' THEN time(substr(date, 18, 8), '+13 hours', '+30 minutes')
+        -- Default: assume UTC and convert
+        ELSE time(substr(date, 18, 8), '+5 hours', '+30 minutes')
+    END as ist_time,
+
+    -- Always show UTC time (convert from any timezone to UTC first)
+    CASE
+        WHEN date LIKE '%+0530%' THEN time(substr(date, 18, 8), '-5 hours', '-30 minutes')
+        WHEN date LIKE '%+0000%' THEN substr(date, 18, 8)
+        WHEN date LIKE '%-0500%' THEN time(substr(date, 18, 8), '+5 hours')
+        WHEN date LIKE '%-0800%' THEN time(substr(date, 18, 8), '+8 hours')
+        ELSE substr(date, 18, 8)
+    END as utc_time,
+
+    -- Detect original timezone more accurately
+    CASE
+        WHEN date LIKE '%+0530%' THEN 'IST'
+        WHEN date LIKE '%+0000%' THEN 'UTC'
+        WHEN date LIKE '%-0500%' THEN 'EST'
+        WHEN date LIKE '%-0800%' THEN 'PST'
+        ELSE 'Unknown'
+    END as detected_timezone
+FROM ur_ingest_session_imap_acct_folder_message m`);
+
+// ============================================================================
+// SNMP Device Graph Views for Network Device Discovery and Correlation
+// ============================================================================
+
+export const deviceGraphOverview = sqliteView("device_graph_overview", {}).as(sql`
+SELECT
+    'snmp_device' as device_type,
+    sd.device_key as device_id,
+    sd.snmp_host as primary_identifier,
+    sd.device_type as device_category,
+    sd.device_description as description,
+    sd.status,
+    sd.created_at,
+    sd.updated_at,
+    json_object(
+        'snmp_port', sd.snmp_port,
+        'snmp_community', sd.snmp_community,
+        'snmp_version', sd.snmp_version,
+        'snmp_timeout', sd.snmp_timeout,
+        'snmp_retries', sd.snmp_retries
+    ) as device_metadata
+FROM surveilr_snmp_device sd
+WHERE sd.status = 'active'
+
+UNION ALL
+
+SELECT
+    'osquery_node' as device_type,
+    osq.node_key as device_id,
+    osq.host_identifier as primary_identifier,
+    'endpoint' as device_category,
+    osq.os_version as description,
+    osq.status,
+    osq.created_at,
+    osq.updated_at,
+    json_object(
+        'last_seen', osq.last_seen,
+        'platform', osq.platform,
+        'osquery_version', osq.osquery_version,
+        'device_id', osq.device_id
+    ) as device_metadata
+FROM surveilr_osquery_ms_node osq
+WHERE osq.status = 'active'`);
+
+export const deviceGraphCorrelations = sqliteView("device_graph_correlations", {}).as(sql`
+SELECT DISTINCT
+    ure1.node_id as snmp_device_key,
+    ure1.uniform_resource_id as osquery_node_key,
+    CASE
+        WHEN ure1.nature LIKE '%ip_address_match%' THEN 'IP Address Match'
+        WHEN ure1.nature LIKE '%hostname_match%' THEN 'Hostname Match'
+        WHEN ure1.nature LIKE '%mac_address_match%' THEN 'MAC Address Match'
+        WHEN ure1.nature LIKE '%network_topology%' THEN 'Network Topology'
+        WHEN ure1.nature LIKE '%manual%' THEN 'Manual'
+        ELSE 'Unknown'
+    END as correlation_type,
+    CASE
+        WHEN ure1.nature LIKE '%ip_address_match%' THEN 0.95
+        WHEN ure1.nature LIKE '%hostname_match%' THEN 0.85
+        WHEN ure1.nature LIKE '%mac_address_match%' THEN 0.90
+        WHEN ure1.nature LIKE '%network_topology%' THEN 0.70
+        WHEN ure1.nature LIKE '%manual%' THEN 1.0
+        ELSE 0.5
+    END as confidence_score,
+    json_extract(ure1.elaboration, '$.snmp_host') as snmp_host,
+    json_extract(ure1.elaboration, '$.correlation_method') as correlation_method,
+    ure1.elaboration as evidence
+FROM uniform_resource_edge ure1
+WHERE ure1.graph_name = 'device_graph'
+AND ure1.nature LIKE 'snmp_to_osquery_%'
+ORDER BY ure1.node_id, ure1.uniform_resource_id`);
+
+export const snmpDeviceInventory = sqliteView("snmp_device_inventory", {}).as(sql`
+SELECT
+    sd.device_key,
+    sd.snmp_host,
+    sd.snmp_port,
+    sd.device_type,
+    sd.device_description,
+    sd.status,
+    sd.created_at,
+    COUNT(sc.surveilr_snmp_collection_id) as total_collections,
+    MAX(sc.collected_at) as last_collection_time,
+    COUNT(DISTINCT sc.oid) as unique_oids_collected,
+    AVG(
+        CASE
+            WHEN sc.collected_at > datetime('now', '-1 hour') THEN 1
+            ELSE 0
+        END
+    ) as recent_activity_score
+FROM surveilr_snmp_device sd
+LEFT JOIN surveilr_snmp_collection sc ON sd.device_key = sc.device_key
+GROUP BY sd.device_key, sd.snmp_host, sd.snmp_port, sd.device_type,
+         sd.device_description, sd.status, sd.created_at
+ORDER BY sd.status, sd.snmp_host`);
+
+export const snmpCollectionSummary = sqliteView("snmp_collection_summary", {}).as(sql`
+SELECT
+    sc.device_key,
+    sd.snmp_host,
+    sc.oid_type,
+    COUNT(*) as collection_count,
+    COUNT(DISTINCT sc.oid) as unique_oids,
+    MIN(sc.collected_at) as first_collection,
+    MAX(sc.collected_at) as latest_collection,
+    COUNT(DISTINCT DATE(sc.collected_at)) as collection_days
+FROM surveilr_snmp_collection sc
+JOIN surveilr_snmp_device sd ON sc.device_key = sd.device_key
+GROUP BY sc.device_key, sd.snmp_host, sc.oid_type
+ORDER BY sd.snmp_host, sc.oid_type`);
+
+export const networkDeviceTopology = sqliteView("network_device_topology", {}).as(sql`
+SELECT
+    sd.device_key,
+    sd.snmp_host,
+    sd.device_type,
+    -- Extract network information from SNMP collections
+    COALESCE(
+        (SELECT sc.oid_value
+         FROM surveilr_snmp_collection sc
+         WHERE sc.device_key = sd.device_key
+         AND sc.oid LIKE '%.1.3.6.1.2.1.1.1.%'
+         LIMIT 1),
+        'Unknown'
+    ) as system_description,
+    COALESCE(
+        (SELECT sc.oid_value
+         FROM surveilr_snmp_collection sc
+         WHERE sc.device_key = sd.device_key
+         AND sc.oid LIKE '%.1.3.6.1.2.1.1.5.%'
+         LIMIT 1),
+        'Unknown'
+    ) as system_name,
+    -- Count correlated devices
+    (SELECT COUNT(*)
+     FROM device_graph_correlations dgc
+     WHERE dgc.snmp_device_key = sd.device_key
+    ) as correlated_devices_count,
+    sd.status,
+    sd.created_at
+FROM surveilr_snmp_device sd
+WHERE sd.status = 'active'
+ORDER BY sd.snmp_host`);
+
+export const deviceGraphAnalytics = sqliteView("device_graph_analytics", {}).as(sql`
+SELECT
+    'summary' as metric_type,
+    'total_snmp_devices' as metric_name,
+    COUNT(*) as metric_value,
+    NULL as additional_info
+FROM surveilr_snmp_device
+WHERE status = 'active'
+
+UNION ALL
+
+SELECT
+    'summary' as metric_type,
+    'total_osquery_nodes' as metric_name,
+    COUNT(*) as metric_value,
+    NULL as additional_info
+FROM surveilr_osquery_ms_node
+WHERE status = 'active'
+
+UNION ALL
+
+SELECT
+    'summary' as metric_type,
+    'total_correlations' as metric_name,
+    COUNT(*) as metric_value,
+    NULL as additional_info
+FROM device_graph_correlations
+
+UNION ALL
+
+SELECT
+    'summary' as metric_type,
+    'correlation_types' as metric_name,
+    COUNT(DISTINCT correlation_type) as metric_value,
+    GROUP_CONCAT(DISTINCT correlation_type) as additional_info
+FROM device_graph_correlations
+
+UNION ALL
+
+SELECT
+    'correlation_by_type' as metric_type,
+    correlation_type as metric_name,
+    COUNT(*) as metric_value,
+    printf('avg_confidence: %.2f', AVG(confidence_score)) as additional_info
+FROM device_graph_correlations
+GROUP BY correlation_type
+
+UNION ALL
+
+SELECT
+    'collection_stats' as metric_type,
+    'total_snmp_collections' as metric_name,
+    COUNT(*) as metric_value,
+    printf('unique_devices: %d', COUNT(DISTINCT device_key)) as additional_info
+FROM surveilr_snmp_collection
+
+UNION ALL
+
+SELECT
+    'collection_stats' as metric_type,
+    'collection_activity_last_24h' as metric_name,
+    COUNT(*) as metric_value,
+    printf('devices_active: %d', COUNT(DISTINCT device_key)) as additional_info
+FROM surveilr_snmp_collection
+WHERE collected_at > datetime('now', '-24 hours')`);
+
+export const snmpOidPerformance = sqliteView("snmp_oid_performance", {}).as(sql`
+SELECT
+    sc.oid,
+    sc.oid_type,
+    COUNT(*) as total_collections,
+    COUNT(DISTINCT sc.device_key) as devices_collecting,
+    COUNT(DISTINCT DATE(sc.collected_at)) as collection_days,
+    MIN(sc.collected_at) as first_seen,
+    MAX(sc.collected_at) as last_seen,
+    -- Calculate collection frequency (avoid nested aggregates)
+    CAST(
+        COUNT(*) * 1.0 /
+        NULLIF(MAX(julianday(sc.collected_at)) - MIN(julianday(sc.collected_at)), 0)
+    AS REAL) as avg_collections_per_day,
+    -- Sample values for diversity analysis
+    COUNT(DISTINCT sc.oid_value) as unique_values_count,
+    GROUP_CONCAT(DISTINCT sc.oid_value) as sample_values
+FROM surveilr_snmp_collection sc
+GROUP BY sc.oid, sc.oid_type
+HAVING COUNT(*) > 0
+ORDER BY total_collections DESC, devices_collecting DESC`);

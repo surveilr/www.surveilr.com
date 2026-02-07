@@ -35,7 +35,7 @@ export class DrizzleRssdInitNotebook extends DrizzleCodeNotebook {
     // Build SQL parts like working version - include actual cell content execution
     const parts = [
       "-- Drizzle ORM-based bootstrap DDL",
-      "-- Session state and schema creation", 
+      "-- Session state and schema creation",
       this.sessionStateSetup(),
       "",
       "-- Code notebook kernels MUST be inserted BEFORE any cells reference them",
@@ -43,7 +43,7 @@ export class DrizzleRssdInitNotebook extends DrizzleCodeNotebook {
       "",
       "-- Execute migration cell content directly (like working version)",
       this.v001_once_initialDDL(),
-      this.surveilr_table_size(), 
+      this.surveilr_table_size(),
       this.v001_seedDML(),
       this.osqueryPolicyInserts(),
       "",
@@ -66,13 +66,11 @@ export class DrizzleRssdInitNotebook extends DrizzleCodeNotebook {
 
   // Generate session state setup
   sessionStateSetup(): string {
-    return inlinedSQL(SQLTemplate`-- Session state ephemeral table for temporary session data
-CREATE TEMP TABLE IF NOT EXISTS "session_state_ephemeral" (
+    return inlinedSQL(SQLTemplate`CREATE TABLE IF NOT EXISTS "session_state_ephemeral" (
     "key" TEXT PRIMARY KEY NOT NULL,
     "value" TEXT NOT NULL
 );
-
--- Insert current session state
+-- code provenance: \`RssdInitSqlNotebook.bootstrapDDL\` (file:///Users/mac/Downloads/www.surveilr.com/lib/std/lifecycle.sql.ts)
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES ('current_user', 'SYSTEM') ON CONFLICT DO UPDATE SET value = excluded.value;
 INSERT INTO "session_state_ephemeral" ("key", "value") VALUES ('current_user_name', 'UNKNOWN') ON CONFLICT DO UPDATE SET value = excluded.value;`);
   }
@@ -167,22 +165,24 @@ GROUP BY name;`);
     // Path matching rules - replicate working version logic exactly
     const urIngestPathMatchRules = () => {
       return [
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('ignore .git and node_modules paths', 'default', '/(\.git|node_modules)/', 'IGNORE_RESOURCE', NULL, NULL, 'Ignore any entry with \`/.git/\` or \`/node_modules/\` in the path.', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('ignore .git and node_modules paths', 'default', '/(.git|node_modules)/', 'IGNORE_RESOURCE', NULL, NULL, 'Ignore any entry with \`/.git/\` or \`/node_modules/\` in the path.', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('images-metadata', 'default', '\.(?P<nature>jpg|jpeg|png|gif|bmp|tiff|svg|webp)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', NULL, 'Images with metadata extraction', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('typical ingestion extensions', 'default', '(?i)\\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|yaml|xml|tap|csv|tsv|ssv|psv|tm7|rb|ps1|php|java|ods|doc|pptx|ppt|xlsx|xls)$', 'CONTENT_ACQUIRABLE', '?P<nature>', NULL, 'Ingest the content for text and structured data extensions (md, mdx, html, json, jsonc, puml, txt, toml, yml, xml, tap, csv, tsv, ssv, psv, tm7). Assume the nature is the same as the extension.', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('jsonl-content-replace', 'default', '\.(?P<nature>jsonl)$', 'CONTENT_ACQUIRABLE | CONTENT_REPLACE_JSON_LINES', '?P<nature>', NULL, 'JSONL files with content replacement', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('surveilr-[NATURE] style capturable executable', 'default', 'surveilr\\[(?P<nature>[^\\]]*)\\]', 'CAPTURABLE_EXECUTABLE', '?P<nature>', NULL, 'Any entry with \`surveilr-[XYZ]\` in the path will be treated as a capturable executable extracting \`XYZ\` as the nature', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('media-metadata', 'default', '\.(?P<nature>mp4|mp3)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', NULL, 'Media files with metadata extraction', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('surveilr-SQL capturable executable', 'default', 'surveilr-SQL', 'CAPTURABLE_EXECUTABLE | CAPTURABLE_SQL', NULL, NULL, 'Any entry with surveilr-SQL in the path will be treated as a capturable SQL executable and allow execution of the SQL', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('pdf-docx-transform-metadata', 'default', '\.(?P<nature>pdf|docx)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_TRANSFORM_MARKITDOWN | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', NULL, 'PDF and DOCX documents with full transformation and metadata extraction', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('pdf-docx-transform-metadata', 'default', '(?i)\\.(?P<nature>pdf|docx)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_TRANSFORM_MARKITDOWN | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', '1', 'PDF and DOCX documents with full transformation and metadata extraction', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('surveilr-SQL capturable executable', 'default', 'surveilr-SQL', 'CAPTURABLE_EXECUTABLE | CAPTURABLE_SQL', NULL, NULL, 'Any entry with surveilr-SQL in the path will be treated as a capturable SQL executable and allow execution of the SQL', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('images-metadata', 'default', '(?i)\\.(?P<nature>jpg|jpeg|png|gif|bmp|tiff|svg|webp)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', '2', 'Images with metadata extraction', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('surveilr-[NATURE] style capturable executable', 'default', 'surveilr\[(?P<nature>[^\]]*)\]', 'CAPTURABLE_EXECUTABLE', '?P<nature>', NULL, 'Any entry with surveilr-[XYZ] in the path will be treated as a capturable executable extracting XYZ as the nature', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('media-metadata', 'default', '(?i)\\.(?P<nature>mp4|mp3)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', '3', 'Media files with metadata extraction', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
 
-        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('typical ingestion extensions', 'default', '\.(?P<nature>md|mdx|html|json|jsonc|puml|txt|toml|yml|xml|tap|csv|tsv|ssv|psv|tm7)$', 'CONTENT_ACQUIRABLE', '?P<nature>', NULL, 'Ingest the content for text and structured data extensions. Assume the nature is the same as the extension.', NULL, CURRENT_TIMESTAMP, 'SYSTEM', NULL, NULL, NULL, NULL, NULL) ON CONFLICT(ur_ingest_resource_path_match_rule_id) DO NOTHING`,
-        
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('jsonl-content-replace', 'default', '(?i)(\\.jsonl$|\\.surveilr\\[(?P<service>singer|meltano|airbyte|jsonl)\\]\\.)', 'CONTENT_ACQUIRABLE | CONTENT_REPLACE_JSON_LINES', NULL, '4', 'JSONL files and service-specific emitters for line-by-line JSON ingestion', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
+
+        `INSERT INTO "ur_ingest_resource_path_match_rule" ("ur_ingest_resource_path_match_rule_id", "namespace", "regex", "flags", "nature", "priority", "description", "elaboration", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "activity_log") VALUES ('archive-files-basic', 'default', '(?i)\\.(?P<nature>zip)$', 'CONTENT_ACQUIRABLE | CONTENT_ACQUIRABLE_METADATA', '?P<nature>', NULL, 'Archive files with metadata extraction', NULL, (CURRENT_TIMESTAMP), NULL, NULL, NULL, NULL, NULL, NULL) ON CONFLICT DO UPDATE SET  ur_ingest_resource_path_match_rule_id = COALESCE(EXCLUDED.ur_ingest_resource_path_match_rule_id, ur_ingest_resource_path_match_rule_id), namespace = COALESCE(EXCLUDED.namespace, namespace), regex = COALESCE(EXCLUDED.regex, regex), flags = COALESCE(EXCLUDED.flags, flags), description = COALESCE(EXCLUDED.description, description), "updated_at" = CURRENT_TIMESTAMP, "updated_by" = (SELECT "value" FROM "session_state_ephemeral" WHERE "key" = 'current_user')`,
+
       ];
     };
 
@@ -278,8 +278,8 @@ GROUP BY name;`);
       return [
         `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('filesystem', '{}') ON CONFLICT(name) DO NOTHING`,
         `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('imap', '{}') ON CONFLICT(name) DO NOTHING`,
-        `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('plm', '{}') ON CONFLICT(name) DO NOTHING`,
-        `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('osquery-ms', '{}') ON CONFLICT(name) DO NOTHING`
+        `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('osquery-ms', '{}') ON CONFLICT(name) DO NOTHING`,
+        `INSERT INTO "uniform_resource_graph" ("name", "elaboration") VALUES ('snmp', '{}') ON CONFLICT(name) DO NOTHING`
       ];
     };
 
@@ -687,8 +687,7 @@ GROUP BY name`);
 -- This ensures consistency between TypeScript definitions and SQL implementation
 
 -- All graph views have been moved to ../universal/views.ts:
--- - plm_graph
--- - imap_graph 
+-- - imap_graph
 -- - filesystem_graph;`);
   }
 
