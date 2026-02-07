@@ -620,11 +620,6 @@ export const urIngestSessionRelations = relations(
     urIngestSessionImapAcctFolderMessages: many(
       urIngestSessionImapAcctFolderMessage,
     ),
-    urIngestSessionPlmAccounts: many(urIngestSessionPlmAccount),
-    urIngestSessionPlmAcctProjects: many(urIngestSessionPlmAcctProject),
-    urIngestSessionPlmAcctProjectIssues: many(
-      urIngestSessionPlmAcctProjectIssue,
-    ),
     urIngestSessionUdiPgpSqls: many(urIngestSessionUdiPgpSql),
   }),
 );
@@ -675,9 +670,6 @@ export const uniformResource = table("uniform_resource", {
   ).references(() =>
     urIngestSessionImapAcctFolderMessage.urIngestSessionImapAcctFolderMessageId
   ),
-  ingestIssueAcctProjectId: text("ingest_issue_acct_project_id").references(
-    () => urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId
-  ),
   uri: text().notNull(),
   contentDigest: text("content_digest").notNull(),
   content: blob(),
@@ -699,12 +691,6 @@ export const uniformResource = table("uniform_resource", {
 export const uniformResourceRelations = relations(
   uniformResource,
   ({ one, many }) => ({
-    urIngestSessionPlmAcctProject: one(urIngestSessionPlmAcctProject, {
-      fields: [uniformResource.ingestIssueAcctProjectId],
-      references: [
-        urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId,
-      ],
-    }),
     urIngestSessionImapAcctFolderMessage: one(
       urIngestSessionImapAcctFolderMessage,
       {
@@ -730,9 +716,6 @@ export const uniformResourceRelations = relations(
     uniformResourceTransforms: many(uniformResourceTransform),
     urIngestSessionFsPathEntries: many(urIngestSessionFsPathEntry),
     urIngestSessionTasks: many(urIngestSessionTask),
-    urIngestSessionPlmAcctProjectIssues: many(
-      urIngestSessionPlmAcctProjectIssue,
-    ),
     urIngestSessionAttachments: many(urIngestSessionAttachment),
     urIngestSessionUdiPgpSqls: many(urIngestSessionUdiPgpSql),
     uniformResourceEdges: many(uniformResourceEdge),
@@ -747,7 +730,7 @@ export const uniformResourceTransform = table("uniform_resource_transform", {
   ),
   uri: text().notNull(),
   contentDigest: text("content_digest").notNull(),
-  content: blob(),
+  content: text(),
   nature: text(),
   sizeBytes: integer("size_bytes"),
   elaboration: text(),
@@ -768,15 +751,6 @@ export const uniformResourceTransformRelations = relations(
     }),
   }),
 );
-
-export const uniformResourceAuthor = table("uniform_resource_author", {
-  authorId: text("author_id"),
-  name: text(),
-  email: text(),
-  investigatorId: text("investigator_id"),
-  studyId: text("study_id"),
-  tenantId: text("tenant_id"),
-});
 
 export const urIngestSessionFsPathEntry = table(
   "ur_ingest_session_fs_path_entry",
@@ -1000,514 +974,6 @@ export const urIngestSessionImapAcctFolderMessageRelations = relations(
       fields: [urIngestSessionImapAcctFolderMessage.ingestSessionId],
       references: [urIngestSession.urIngestSessionId],
     }),
-  }),
-);
-
-export const urIngestSessionPlmAccount = table(
-  "ur_ingest_session_plm_account",
-  {
-    urIngestSessionPlmAccountId: text("ur_ingest_session_plm_account_id")
-      .primaryKey().notNull(),
-    ingestSessionId: text("ingest_session_id").notNull().references(() =>
-      urIngestSession.urIngestSessionId
-    ),
-    provider: text().notNull(),
-    orgName: text("org_name").notNull(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index("idx_ur_ingest_session_plm_account__provider__org_name").on(
-      table.provider,
-      table.orgName,
-    ),
-    unique().on(table.provider, table.orgName),
-  ],
-);
-
-export const urIngestSessionPlmAccountRelations = relations(
-  urIngestSessionPlmAccount,
-  ({ one, many }) => ({
-    urIngestSession: one(urIngestSession, {
-      fields: [urIngestSessionPlmAccount.ingestSessionId],
-      references: [urIngestSession.urIngestSessionId],
-    }),
-    urIngestSessionPlmAcctProjects: many(urIngestSessionPlmAcctProject),
-  }),
-);
-
-export const urIngestSessionPlmAcctProject = table(
-  "ur_ingest_session_plm_acct_project",
-  {
-    urIngestSessionPlmAcctProjectId: text(
-      "ur_ingest_session_plm_acct_project_id",
-    ).primaryKey().notNull(),
-    ingestSessionId: text("ingest_session_id").notNull().references(() =>
-      urIngestSession.urIngestSessionId
-    ),
-    ingestAccountId: text("ingest_account_id").notNull().references(() =>
-      urIngestSessionPlmAccount.urIngestSessionPlmAccountId
-    ),
-    parentProjectId: text("parent_project_id"),
-    name: text().notNull(),
-    description: text(),
-    id: text(),
-    key: text(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index("idx_ur_ingest_session_plm_acct_project__name__description").on(
-      table.name,
-      table.description,
-    ),
-    unique().on(table.name, table.description),
-  ],
-);
-
-export const urIngestSessionPlmAcctProjectRelations = relations(
-  urIngestSessionPlmAcctProject,
-  ({ one, many }) => ({
-    uniformResources: many(uniformResource),
-    urIngestSessionPlmAccount: one(urIngestSessionPlmAccount, {
-      fields: [urIngestSessionPlmAcctProject.ingestAccountId],
-      references: [urIngestSessionPlmAccount.urIngestSessionPlmAccountId],
-    }),
-    urIngestSession: one(urIngestSession, {
-      fields: [urIngestSessionPlmAcctProject.ingestSessionId],
-      references: [urIngestSession.urIngestSessionId],
-    }),
-    urIngestSessionPlmAcctProjectIssues: many(
-      urIngestSessionPlmAcctProjectIssue,
-    ),
-    urIngestSessionPlmAcctLabels: many(urIngestSessionPlmAcctLabel),
-    urIngestSessionPlmMilestones: many(urIngestSessionPlmMilestone),
-    urIngestSessionPlmAcctRelationships: many(
-      urIngestSessionPlmAcctRelationship,
-    ),
-  }),
-);
-
-export const urIngestSessionPlmAcctProjectIssue = table(
-  "ur_ingest_session_plm_acct_project_issue",
-  {
-    urIngestSessionPlmAcctProjectIssueId: text(
-      "ur_ingest_session_plm_acct_project_issue_id",
-    ).primaryKey().notNull(),
-    ingestSessionId: text("ingest_session_id").notNull().references(() =>
-      urIngestSession.urIngestSessionId
-    ),
-    urIngestSessionPlmAcctProjectId: text(
-      "ur_ingest_session_plm_acct_project_id",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId
-    ),
-    uniformResourceId: text("uniform_resource_id").references(() =>
-      uniformResource.uniformResourceId
-    ),
-    issueId: text("issue_id").notNull(),
-    issueNumber: integer("issue_number"),
-    parentIssueId: text("parent_issue_id"),
-    title: text().notNull(),
-    body: text(),
-    bodyText: text("body_text"),
-    bodyHtml: text("body_html"),
-    state: text().notNull(),
-    assignedTo: text("assigned_to"),
-    user: text().notNull().references(() =>
-      urIngestSessionPlmUser.urIngestSessionPlmUserId
-    ),
-    url: text().notNull(),
-    closedAt: text("closed_at"),
-    issueTypeId: text("issue_type_id").references(() =>
-      urIngestSessionPlmIssueType.urIngestSessionPlmIssueTypeId
-    ),
-    timeEstimate: integer("time_estimate"),
-    aggregateTimeEstimate: integer("aggregate_time_estimate"),
-    timeOriginalEstimate: integer("time_original_estimate"),
-    timeSpent: integer("time_spent"),
-    aggregateTimeSpent: integer("aggregate_time_spent"),
-    aggregateTimeOriginalEstimate: integer("aggregate_time_original_estimate"),
-    workratio: integer(),
-    currentProgress: integer("current_progress"),
-    totalProgress: integer("total_progress"),
-    resolutionName: text("resolution_name"),
-    resolutionDate: text("resolution_date"),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_acct_project_issue__title__issue_id__state__assigned_to",
-    ).on(table.title, table.issueId, table.state, table.assignedTo),
-    unique().on(table.title, table.issueId, table.state, table.assignedTo),
-  ],
-);
-
-export const urIngestSessionPlmAcctProjectIssueRelations = relations(
-  urIngestSessionPlmAcctProjectIssue,
-  ({ one, many }) => ({
-    urIngestSessionPlmIssueType: one(urIngestSessionPlmIssueType, {
-      fields: [urIngestSessionPlmAcctProjectIssue.issueTypeId],
-      references: [urIngestSessionPlmIssueType.urIngestSessionPlmIssueTypeId],
-    }),
-    urIngestSessionPlmUser: one(urIngestSessionPlmUser, {
-      fields: [urIngestSessionPlmAcctProjectIssue.user],
-      references: [urIngestSessionPlmUser.urIngestSessionPlmUserId],
-    }),
-    uniformResource: one(uniformResource, {
-      fields: [urIngestSessionPlmAcctProjectIssue.uniformResourceId],
-      references: [uniformResource.uniformResourceId],
-    }),
-    urIngestSessionPlmAcctProject: one(urIngestSessionPlmAcctProject, {
-      fields: [
-        urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectId,
-      ],
-      references: [
-        urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId,
-      ],
-    }),
-    urIngestSession: one(urIngestSession, {
-      fields: [urIngestSessionPlmAcctProjectIssue.ingestSessionId],
-      references: [urIngestSession.urIngestSessionId],
-    }),
-    urIngestSessionPlmAcctLabels: many(urIngestSessionPlmAcctLabel),
-    urIngestSessionPlmAcctRelationships: many(
-      urIngestSessionPlmAcctRelationship,
-    ),
-    urIngestSessionPlmComments: many(urIngestSessionPlmComment),
-    urIngestSessionPlmIssueReactions: many(urIngestSessionPlmIssueReaction),
-  }),
-);
-
-export const urIngestSessionPlmAcctLabel = table(
-  "ur_ingest_session_plm_acct_label",
-  {
-    urIngestSessionPlmAcctLabelId: text("ur_ingest_session_plm_acct_label_id")
-      .primaryKey().notNull(),
-    urIngestSessionPlmAcctProjectId: text(
-      "ur_ingest_session_plm_acct_project_id",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId
-    ),
-    urIngestSessionPlmAcctProjectIssueId: text(
-      "ur_ingest_session_plm_acct_project_issue_id",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId
-    ),
-    label: text().notNull(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_acct_label__ur_ingest_session_plm_acct_project_issue_id",
-    ).on(table.urIngestSessionPlmAcctProjectIssueId),
-  ],
-);
-
-export const urIngestSessionPlmAcctLabelRelations = relations(
-  urIngestSessionPlmAcctLabel,
-  ({ one }) => ({
-    urIngestSessionPlmAcctProjectIssue: one(
-      urIngestSessionPlmAcctProjectIssue,
-      {
-        fields: [
-          urIngestSessionPlmAcctLabel.urIngestSessionPlmAcctProjectIssueId,
-        ],
-        references: [
-          urIngestSessionPlmAcctProjectIssue
-            .urIngestSessionPlmAcctProjectIssueId,
-        ],
-      },
-    ),
-    urIngestSessionPlmAcctProject: one(urIngestSessionPlmAcctProject, {
-      fields: [urIngestSessionPlmAcctLabel.urIngestSessionPlmAcctProjectId],
-      references: [
-        urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId,
-      ],
-    }),
-  }),
-);
-
-export const urIngestSessionPlmMilestone = table(
-  "ur_ingest_session_plm_milestone",
-  {
-    urIngestSessionPlmMilestoneId: text("ur_ingest_session_plm_milestone_id")
-      .primaryKey().notNull(),
-    urIngestSessionPlmAcctProjectId: text(
-      "ur_ingest_session_plm_acct_project_id",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId
-    ),
-    title: text().notNull(),
-    milestoneId: text("milestone_id").notNull(),
-    url: text().notNull(),
-    htmlUrl: text("html_url").notNull(),
-    openIssues: integer("open_issues"),
-    closedIssues: integer("closed_issues"),
-    dueOn: numeric("due_on"),
-    closedAt: text("closed_at"),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_milestone__ur_ingest_session_plm_acct_project_id",
-    ).on(table.urIngestSessionPlmAcctProjectId),
-  ],
-);
-
-export const urIngestSessionPlmMilestoneRelations = relations(
-  urIngestSessionPlmMilestone,
-  ({ one }) => ({
-    urIngestSessionPlmAcctProject: one(urIngestSessionPlmAcctProject, {
-      fields: [urIngestSessionPlmMilestone.urIngestSessionPlmAcctProjectId],
-      references: [
-        urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId,
-      ],
-    }),
-  }),
-);
-
-export const urIngestSessionPlmAcctRelationship = table(
-  "ur_ingest_session_plm_acct_relationship",
-  {
-    urIngestSessionPlmAcctRelationshipId: text(
-      "ur_ingest_session_plm_acct_relationship_id",
-    ).primaryKey().notNull(),
-    urIngestSessionPlmAcctProjectIdPrime: text(
-      "ur_ingest_session_plm_acct_project_id_prime",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId
-    ),
-    urIngestSessionPlmAcctProjectIdRelated: text(
-      "ur_ingest_session_plm_acct_project_id_related",
-    ).notNull(),
-    urIngestSessionPlmAcctProjectIssueIdPrime: text(
-      "ur_ingest_session_plm_acct_project_issue_id_prime",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId
-    ),
-    urIngestSessionPlmAcctProjectIssueIdRelated: text(
-      "ur_ingest_session_plm_acct_project_issue_id_related",
-    ).notNull(),
-    relationship: text(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_acct_relationship__ur_ingest_session_plm_acct_project_id_prime",
-    ).on(table.urIngestSessionPlmAcctProjectIdPrime),
-  ],
-);
-
-export const urIngestSessionPlmAcctRelationshipRelations = relations(
-  urIngestSessionPlmAcctRelationship,
-  ({ one }) => ({
-    urIngestSessionPlmAcctProjectIssue: one(
-      urIngestSessionPlmAcctProjectIssue,
-      {
-        fields: [
-          urIngestSessionPlmAcctRelationship
-            .urIngestSessionPlmAcctProjectIssueIdPrime,
-        ],
-        references: [
-          urIngestSessionPlmAcctProjectIssue
-            .urIngestSessionPlmAcctProjectIssueId,
-        ],
-      },
-    ),
-    urIngestSessionPlmAcctProject: one(urIngestSessionPlmAcctProject, {
-      fields: [
-        urIngestSessionPlmAcctRelationship.urIngestSessionPlmAcctProjectIdPrime,
-      ],
-      references: [
-        urIngestSessionPlmAcctProject.urIngestSessionPlmAcctProjectId,
-      ],
-    }),
-  }),
-);
-
-export const urIngestSessionPlmUser = table("ur_ingest_session_plm_user", {
-  urIngestSessionPlmUserId: text("ur_ingest_session_plm_user_id").primaryKey()
-    .notNull(),
-  userId: text("user_id").notNull(),
-  login: text().notNull(),
-  email: text(),
-  name: text(),
-  url: text().notNull(),
-  elaboration: text(),
-  ...housekeeping,
-}, (table) => [
-  index("idx_ur_ingest_session_plm_user__user_id__login").on(
-    table.userId,
-    table.login,
-  ),
-  unique().on(table.userId, table.login),
-]);
-
-export const urIngestSessionPlmUserRelations = relations(
-  urIngestSessionPlmUser,
-  ({ many }) => ({
-    urIngestSessionPlmAcctProjectIssues: many(
-      urIngestSessionPlmAcctProjectIssue,
-    ),
-    urIngestSessionPlmComments: many(urIngestSessionPlmComment),
-  }),
-);
-
-export const urIngestSessionPlmComment = table(
-  "ur_ingest_session_plm_comment",
-  {
-    urIngestSessionPlmCommentId: text("ur_ingest_session_plm_comment_id")
-      .primaryKey().notNull(),
-    urIngestSessionPlmAcctProjectIssueId: text(
-      "ur_ingest_session_plm_acct_project_issue_id",
-    ).notNull().references(() =>
-      urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId
-    ),
-    commentId: text("comment_id").notNull(),
-    nodeId: text("node_id").notNull(),
-    url: text().notNull(),
-    body: text(),
-    bodyText: text("body_text"),
-    bodyHtml: text("body_html"),
-    user: text().notNull().references(() =>
-      urIngestSessionPlmUser.urIngestSessionPlmUserId
-    ),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_comment__ur_ingest_session_plm_acct_project_issue_id",
-    ).on(table.urIngestSessionPlmAcctProjectIssueId),
-    unique().on(table.commentId, table.url, table.body),
-  ],
-);
-
-export const urIngestSessionPlmCommentRelations = relations(
-  urIngestSessionPlmComment,
-  ({ one }) => ({
-    urIngestSessionPlmUser: one(urIngestSessionPlmUser, {
-      fields: [urIngestSessionPlmComment.user],
-      references: [urIngestSessionPlmUser.urIngestSessionPlmUserId],
-    }),
-    urIngestSessionPlmAcctProjectIssue: one(
-      urIngestSessionPlmAcctProjectIssue,
-      {
-        fields: [
-          urIngestSessionPlmComment.urIngestSessionPlmAcctProjectIssueId,
-        ],
-        references: [
-          urIngestSessionPlmAcctProjectIssue
-            .urIngestSessionPlmAcctProjectIssueId,
-        ],
-      },
-    ),
-  }),
-);
-
-export const urIngestSessionPlmReaction = table(
-  "ur_ingest_session_plm_reaction",
-  {
-    urIngestSessionPlmReactionId: text("ur_ingest_session_plm_reaction_id")
-      .primaryKey().notNull(),
-    reactionId: text("reaction_id").notNull(),
-    reactionType: text("reaction_type").notNull(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_reaction__ur_ingest_session_plm_reaction_id",
-    ).on(table.urIngestSessionPlmReactionId),
-    unique().on(table.reactionType),
-  ],
-);
-
-export const urIngestSessionPlmReactionRelations = relations(
-  urIngestSessionPlmReaction,
-  ({ many }) => ({
-    urIngestSessionPlmIssueReactions: many(urIngestSessionPlmIssueReaction),
-  }),
-);
-
-export const urIngestSessionPlmIssueReaction = table(
-  "ur_ingest_session_plm_issue_reaction",
-  {
-    urIngestSessionPlmIssueReactionId: text(
-      "ur_ingest_session_plm_issue_reaction_id",
-    ).primaryKey().notNull(),
-    urIngestPlmReactionId: text("ur_ingest_plm_reaction_id").notNull()
-      .references(() =>
-        urIngestSessionPlmReaction.urIngestSessionPlmReactionId
-      ),
-    urIngestPlmIssueId: text("ur_ingest_plm_issue_id").notNull().references(
-      () =>
-        urIngestSessionPlmAcctProjectIssue.urIngestSessionPlmAcctProjectIssueId
-    ),
-    count: integer().default(1).notNull(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index(
-      "idx_ur_ingest_session_plm_issue_reaction__ur_ingest_session_plm_issue_reaction_id",
-    ).on(table.urIngestSessionPlmIssueReactionId),
-    unique().on(table.urIngestPlmIssueId, table.urIngestPlmReactionId),
-  ],
-);
-
-export const urIngestSessionPlmIssueReactionRelations = relations(
-  urIngestSessionPlmIssueReaction,
-  ({ one }) => ({
-    urIngestSessionPlmAcctProjectIssue: one(
-      urIngestSessionPlmAcctProjectIssue,
-      {
-        fields: [urIngestSessionPlmIssueReaction.urIngestPlmIssueId],
-        references: [
-          urIngestSessionPlmAcctProjectIssue
-            .urIngestSessionPlmAcctProjectIssueId,
-        ],
-      },
-    ),
-    urIngestSessionPlmReaction: one(urIngestSessionPlmReaction, {
-      fields: [urIngestSessionPlmIssueReaction.urIngestPlmReactionId],
-      references: [urIngestSessionPlmReaction.urIngestSessionPlmReactionId],
-    }),
-  }),
-);
-
-export const urIngestSessionPlmIssueType = table(
-  "ur_ingest_session_plm_issue_type",
-  {
-    urIngestSessionPlmIssueTypeId: text("ur_ingest_session_plm_issue_type_id")
-      .primaryKey().notNull(),
-    avatarId: text("avatar_id"),
-    description: text().notNull(),
-    iconUrl: text("icon_url").notNull(),
-    id: text().notNull(),
-    name: text().notNull(),
-    subtask: integer().notNull(),
-    url: text().notNull(),
-    elaboration: text(),
-    ...housekeeping,
-  },
-  (table) => [
-    index("idx_ur_ingest_session_plm_issue_type__id").on(table.id),
-    unique().on(table.id, table.name),
-  ],
-);
-
-export const urIngestSessionPlmIssueTypeRelations = relations(
-  urIngestSessionPlmIssueType,
-  ({ many }) => ({
-    urIngestSessionPlmAcctProjectIssues: many(
-      urIngestSessionPlmAcctProjectIssue,
-    ),
   }),
 );
 
@@ -2062,6 +1528,75 @@ export const surveilrOsqueryMsCarvedExtractedFileRelations = relations(
     surveilrOsqueryMsCarve: one(surveilrOsqueryMsCarve, {
       fields: [surveilrOsqueryMsCarvedExtractedFile.carveGuid],
       references: [surveilrOsqueryMsCarve.carveGuid],
+    }),
+  }),
+);
+
+export const surveilrSnmpDevice = table("surveilr_snmp_device", {
+  surveilrSnmpDeviceId: text("surveilr_snmp_device_id").primaryKey().notNull(),
+  deviceKey: text("device_key").notNull(),
+  snmpHost: text("snmp_host").notNull(),
+  snmpPort: integer("snmp_port").default(161).notNull(),
+  snmpCommunity: text("snmp_community").notNull(),
+  snmpVersion: text("snmp_version").default("2c").notNull(),
+  snmpTimeout: integer("snmp_timeout").default(5).notNull(),
+  snmpRetries: integer("snmp_retries").default(3).notNull(),
+  deviceType: text("device_type"),
+  deviceDescription: text("device_description"),
+  lastSeen: numeric("last_seen").notNull(),
+  status: text().default("active").notNull(),
+  deviceId: text("device_id").notNull().references(() => device.deviceId),
+  behaviorId: text("behavior_id").references(() => behavior.behaviorId),
+  elaboration: text(),
+  ...housekeeping,
+}, (table) => [
+  index("idx_surveilr_snmp_device__device_key").on(table.deviceKey),
+  unique().on(table.snmpHost, table.snmpPort),
+  unique().on(table.deviceKey),
+  checkJSON(table.elaboration),
+]);
+
+export const surveilrSnmpDeviceRelations = relations(
+  surveilrSnmpDevice,
+  ({ one, many }) => ({
+    device: one(device, {
+      fields: [surveilrSnmpDevice.deviceId],
+      references: [device.deviceId],
+    }),
+    behavior: one(behavior, {
+      fields: [surveilrSnmpDevice.behaviorId],
+      references: [behavior.behaviorId],
+    }),
+    surveilrSnmpCollections: many(surveilrSnmpCollection),
+  }),
+);
+
+export const surveilrSnmpCollection = table("surveilr_snmp_collection", {
+  surveilrSnmpCollectionId: text("surveilr_snmp_collection_id").primaryKey().notNull(),
+  deviceKey: text("device_key").notNull().references(() =>
+    surveilrSnmpDevice.deviceKey
+  ),
+  oid: text().notNull(),
+  oidValue: text("oid_value").notNull(),
+  oidType: text("oid_type").notNull(),
+  collectedAt: timestamptz("collected_at").notNull(),
+  elaboration: text(),
+  ...housekeeping,
+}, (table) => [
+  index("idx_surveilr_snmp_collection__device_key__oid").on(
+    table.deviceKey,
+    table.oid,
+  ),
+  index("idx_surveilr_snmp_collection__collected_at").on(table.collectedAt),
+  checkJSON(table.elaboration),
+]);
+
+export const surveilrSnmpCollectionRelations = relations(
+  surveilrSnmpCollection,
+  ({ one }) => ({
+    surveilrSnmpDevice: one(surveilrSnmpDevice, {
+      fields: [surveilrSnmpCollection.deviceKey],
+      references: [surveilrSnmpDevice.deviceKey],
     }),
   }),
 );
